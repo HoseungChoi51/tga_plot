@@ -1040,8 +1040,121 @@ def _draw_series(ax, X, Y, s, color, label):
                    ms=3, label=label)[0]
 
 
-def _annotate(ax_for, name, a, data, color_for, results, sheet, combine_color=None,
+LABEL_BOX = dict(boxstyle="round,pad=0.25", fc="white", ec="none", alpha=0.85)
+
+
+def _place_labels(fig, labels, box_peaks=False):
+    """Draw the residue and peak labels collected by _annotate so that none overlap.
+
+    A single residue label keeps its usual spot, 40 pt above (or below) its point. Several
+    (one per sheet when combined) form a column beside their points, on the side with room,
+    one line apart and in the same order as the points, each with a line to its own marker;
+    the lines then never cross each other or a label. "No data" notes join the end of that
+    column. A peak label sits just above its peak (below for "min"), and, lowest peak first,
+    moves away only as far as it must to clear the labels already drawn, with a line back to
+    its peak if it moved. Labels go on the top axes so that no curve is drawn over them."""
+    from matplotlib.font_manager import FontProperties
+    r = fig.canvas.get_renderer()
+    top = fig.axes[-1]
+    pt = fig.dpi / 72                              # points -> display pixels
+    gap = 2 * pt
+    boxes = []                                     # drawn labels as [x0, y0, x1, y1] in pixels
+
+    def extent(lab, weight="normal", pad=0.25):
+        fp = FontProperties(size=lab["size"], weight=weight)
+        lines = [r.get_text_width_height_descent(t or " ", fp, ismath=False) for t in lab["text"].split("\n")]
+        pad = pad * fp.get_size_in_points() * pt   # the white box around the text
+        w = max(s[0] for s in lines)
+        h = lines[0][1] * (1 + 1.2 * (len(lines) - 1))
+        return w + 2 * pad, h + 2 * pad, pad
+
+    def value_label(lab, xy, xt, yt, ha, up, arrow=None):
+        """Residue label (or no-data note) with its text at pixel (xt, yt), anchored to xy."""
+        ax = lab["ax"]
+        px, py = ax.transData.transform(xy)
+        w, h, pad = extent(lab)
+        kw = {} if arrow is None else {"arrowprops": dict(arrowstyle="-", color=lab["color"], lw=0.8, **arrow)}
+        top.annotate(lab["text"], xy=xy, xycoords=ax.transData, annotation_clip=True,
+                     xytext=((xt - px) / pt, (yt - py) / pt), textcoords="offset points",
+                     ha=ha, va="bottom" if up else "top", fontsize=lab["size"], color=lab["color"],
+                     zorder=6, bbox=LABEL_BOX, **kw)
+        x0 = {"right": xt + pad - w, "left": xt - pad}.get(ha, xt - w / 2)
+        y0 = yt - pad if up else yt + pad - h
+        boxes.append([x0, y0, x0 + w, y0 + h])
+        return h
+
+    groups = {}
+    for lab in labels:
+        if lab["kind"] == "value":
+            groups.setdefault((id(lab["ax"]), lab["name"]), []).append(lab)
+    for grp in groups.values():
+        ax = grp[0]["ax"]
+        data = [l for l in grp if l["xy"] is not None]
+        notes = [l for l in grp if l["xy"] is None]
+        if not data:                               # nothing to point at: notes on the right edge
+            for lab in notes:
+                ax.text(0.98, 0.5 - 0.09 * lab["stack"], lab["text"], transform=ax.transAxes, ha="right",
+                        va="center", fontsize=lab["size"], color=lab["color"], zorder=6,
+                        bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="none", alpha=0.85))
+                w, h, pad = extent(lab, pad=0.3)
+                xr, yc = ax.transAxes.transform((0.98, 0.5 - 0.09 * lab["stack"]))
+                boxes.append([xr + pad - w, yc - h / 2, xr + pad, yc + h / 2])
+            continue
+        lo, hi = ax.get_ylim()
+        xl, xh = ax.get_xlim()
+        up = max((l["xy"][1] - lo) / (hi - lo) for l in data) < 0.7
+        pts = {id(l): ax.transData.transform(l["xy"]) for l in data}
+        if len(data) == 1 and not notes:
+            px, py = pts[id(data[0])]
+            fx = (data[0]["xy"][0] - xl) / (xh - xl)
+            ha = "right" if fx > 0.8 else ("left" if fx < 0.2 else "center")
+            value_label(data[0], data[0]["xy"], px + {"right": 12, "left": -12}.get(ha, 0) * pt,
+                        py + (40 if up else -40) * pt, ha, up, arrow={})
+            continue
+        width = max(extent(l)[0] for l in grp)
+        right = max(p[0] for p in pts.values()) + 6 * pt      # left edge of a column right of the points
+        left = min(p[0] for p in pts.values()) - 6 * pt       # right edge of a column left of them
+        x0, x1 = ax.bbox.x0, ax.bbox.x1
+        if right + width <= x1 or (left - width < x0 and x1 - right >= left - x0):
+            ha, edge = "left", right
+        else:
+            ha, edge = "right", left
+        near = sorted(data, key=lambda l: pts[id(l)][1], reverse=not up)   # nearest the points first
+        y = pts[id(near[-1])][1] + (40 if up else -40) * pt
+        for lab in near + notes:
+            arrow = {"relpos": (0 if ha == "left" else 1, 0 if up else 1)} if lab["xy"] else None
+            h = value_label(lab, lab["xy"] or near[-1]["xy"], edge, y, ha, up, arrow)
+            y += (h + gap) if up else -(h + gap)
+
+    peaks = [l for l in labels if l["kind"] == "peak"]
+    for lab in sorted(peaks, key=lambda l: l["ax"].transData.transform(l["xy"])[1] * (-1 if l["down"] else 1)):
+        down = lab["down"]
+        px, py = lab["ax"].transData.transform(lab["xy"])
+        w, h, pad = extent(lab, "bold")
+        y0 = py - 11 * pt + pad - h if down else py + 9 * pt - pad
+        b = [px - w / 2, y0, px + w / 2, y0 + h]
+        for _ in range(len(boxes) + 1):
+            hit = [o for o in boxes
+                   if b[0] < o[2] + gap and o[0] < b[2] + gap and b[1] < o[3] + gap and o[1] < b[3] + gap]
+            if not hit:
+                break
+            shift = (min(o[1] for o in hit) - gap - b[3]) if down else (max(o[3] for o in hit) + gap - b[1])
+            b[1] += shift
+            b[3] += shift
+        moved = (b[1] - y0) / pt
+        kw = {"bbox": LABEL_BOX} if box_peaks else {}
+        if abs(moved) > 3:
+            kw["arrowprops"] = dict(arrowstyle="-", color=lab["color"], lw=0.6, shrinkB=4)
+        top.annotate(lab["text"], xy=lab["xy"], xycoords=lab["ax"].transData, annotation_clip=True,
+                     xytext=(0, (-11 if down else 9) + moved), textcoords="offset points", ha="center",
+                     va="top" if down else "bottom", fontsize=lab["size"], color=lab["color"],
+                     fontweight="bold", **kw)
+        boxes.append(b)
+
+
+def _annotate(ax_for, name, a, data, color_for, results, labels, sheet, combine_color=None,
               text_color="black", stack=0):
+    """Draw one annotation. Residue and peak labels go to `labels` for _place_labels."""
     t = a["type"]
     on = a.get("on", "y1")
     if t in ("value_at_x", "peak", "hline") and on not in ax_for:
@@ -1057,22 +1170,14 @@ def _annotate(ax_for, name, a, data, color_for, results, sheet, combine_color=No
             results.append({"name": name, "sheet": sheet, "x": a["x"], "value": None,
                             "note": f"x={a['x']:g} is outside the data ({np.nanmin(X):.0f}..{np.nanmax(X):.0f})"})
             if a.get("_requested"):     # preset labels with no data are just left out
-                ax.text(0.98, 0.5 - 0.09 * stack, f"{name}: no data at x = {a['x']:g}\n(data ends at {np.nanmax(X):.0f})",
-                        transform=ax.transAxes, ha="right", va="center", fontsize="small", color="gray",
-                        bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="none", alpha=0.85), zorder=6)
+                labels.append({"kind": "value", "name": name, "ax": ax, "xy": None, "stack": stack,
+                               "text": f"{name}: no data at x = {a['x']:g}\n(data ends at {np.nanmax(X):.0f})",
+                               "color": combine_color or "gray", "size": "small"})
             return
         label = _fmt(a.get("text", "{y:.1f}"), xu, yv, "y")
         ax.plot([xu], [yv], "o", ms=6, mfc="white", mec=col, mew=1.6, zorder=5)
-        lo, hi = ax.get_ylim()
-        up = (yv - lo) / (hi - lo) < 0.7
-        xl, xh = ax.get_xlim()
-        fx = (xu - xl) / (xh - xl)
-        ha = "right" if fx > 0.8 else ("left" if fx < 0.2 else "center")
-        dy = 40 + 16 * stack
-        ax.annotate(label, xy=(xu, yv), xytext=({"right": 12, "left": -12}.get(ha, 0), dy if up else -dy),
-                    textcoords="offset points", ha=ha, va="bottom" if up else "top", fontsize=fs, color=col, zorder=6,
-                    bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="none", alpha=0.85),
-                    arrowprops=dict(arrowstyle="-", color=col, lw=0.8))
+        labels.append({"kind": "value", "name": name, "ax": ax, "xy": (xu, yv), "text": label,
+                       "color": col, "size": fs})
         results.append({"name": name, "sheet": sheet, "x_requested": a["x"], "x_used": round(xu, 3),
                         "value": round(yv, 4), "text": label})
     elif t == "peak":
@@ -1082,10 +1187,8 @@ def _annotate(ax_for, name, a, data, color_for, results, sheet, combine_color=No
         for xp, yp in peaks:
             label = _fmt(a.get("text", "{x:.0f}"), xp, yp, "x")
             ax.plot([xp], [yp], "^" if kind == "max" else "v", ms=6, color=col, zorder=5)
-            ax.annotate(label, xy=(xp, yp), xytext=(0, 9 if kind == "max" else -11),
-                        textcoords="offset points", ha="center",
-                        va="bottom" if kind == "max" else "top",
-                        fontsize=fs, color=col, fontweight="bold")
+            labels.append({"kind": "peak", "ax": ax, "xy": (xp, yp), "text": label, "color": col,
+                           "size": fs, "down": kind != "max"})
         results.append({"name": name, "sheet": sheet, "peaks": [
             {"x": round(xp, 3), "y": round(yp, 5), "text": _fmt(a.get("text", "{x:.0f}"), xp, yp, "x")}
             for xp, yp in peaks]})
@@ -1267,12 +1370,13 @@ def plot(user_spec):
         if spec["grid"]:
             ax1.grid(True, alpha=0.3)
 
-        ann_results = []
+        ann_results, labels = [], []
         for k, j in enumerate(group):
             for name, a in spec["annotate"].items():
-                _annotate(axes, name, a, j["data"], j["colors"], ann_results, j["sheet"],
+                _annotate(axes, name, a, j["data"], j["colors"], ann_results, labels, j["sheet"],
                           combine_color=j["colors"]["y1"] if spec["combine"] else None,
                           text_color=tc, stack=k)
+        _place_labels(fig, labels, box_peaks=spec["combine"])
         lg = spec["legend"]
         if lg["show"]:
             if spec["combine"] and ax2 is not None:
