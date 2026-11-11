@@ -1,0 +1,8 @@
+__pycache__/
+.venv/
+# plots written next to the data and by the test runners
+*_plots/
+tests/out/
+tests/pi_run/
+tests/eval_results.jsonl
+spec.json

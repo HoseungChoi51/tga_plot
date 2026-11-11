@@ -1,0 +1,105 @@
+[
+ {"id": "01_minimal", "file": "TGA.xlsx", "request": "TGA.xlsx 그래프 그려줘",
+  "reference": {"file": "TGA.xlsx"},
+  "expect": {"sheets_resolved": ["1006R1-V normal", "1006R1-V acid", "1006R1-V 750C"],
+             "annot[value_at_x].x": 800, "annot[peak].count": 1}},
+
+ {"id": "02_full_form", "file": "TGA.xlsx",
+  "request": "원하는 작업: 1006R1-V normal sheet에 있는 실험일별 인장강도를 정리해 그래프로 그려서 png로 저장해줘. B행에 있는 것들을 X축, C행에 있는 것들을 Y1축, D행에 있는 것들을 Y2 축으로 해서 그래프를 그리면 돼. weight는 20단위로 해주고, Temperature은 200단위로 표시해주고, Deriv.Weight는 0.2단위로 표시해줘. 그리고 Deriv.Weight 의 max값을 표시해주고, temperatur 800 근처일때의 Y값을 Residue {}% 으로 표시해줘.\n추가·수정 요청: temperature은 0에서부터 200씩 늘어나야해. 그리고 800과 가장가까운 값을 찾아서 그때의 weight값을 residue 몇 %인지 표시하라고.\n결과 형식: png",
+  "reference": {"file": "TGA.xlsx", "sheets": "1006R1-V normal", "x": {"col": "B", "min": 0, "step": 200},
+                "y1": {"col": "C", "step": 20}, "y2": {"col": "D", "step": 0.2},
+                "annotate": {"residue": {"x": 800, "method": "nearest", "text": "Residue {}%"}, "peak": {"count": 1}},
+                "output": {"format": "png"}},
+  "expect": {"sheets_resolved": ["1006R1-V normal"], "col[x]": "B", "col[y1]": "C", "col[y2]": "D",
+             "x.min": 0, "x.step": 200, "y1.step": 20, "y2.step": 0.2,
+             "annot[value_at_x].x": 800, "annot[value_at_x].method": "nearest",
+             "annot[value_at_x].rendered": "Residue 8.0%", "annot[peak].count": 1, "output.format": ["png"]}},
+
+ {"id": "03_sheet_range_peaks", "file": "TGA.xlsx", "request": "1006R1-V acid 시트만 그려줘. x축 범위 100~800, 피크 표시 2개",
+  "reference": {"file": "TGA.xlsx", "sheets": "1006R1-V acid", "x": {"min": 100, "max": 800}, "annotate": {"peak": {"count": 2}}},
+  "expect": {"sheets_resolved": ["1006R1-V acid"], "x.min": 100, "x.max": 800, "annot[peak].count": 2}},
+
+ {"id": "04_title", "file": "TGA.xlsx", "request": "1006R1-V normal 시트, 그림 제목을 'CNT 산화 거동'으로 바꾸고 그림 제목 글자 크기 18, 그림 제목 글자 색깔 남색",
+  "reference": {"file": "TGA.xlsx", "sheets": "1006R1-V normal", "title": {"text": "CNT 산화 거동", "size": 18, "color": "navy"}},
+  "expect": {"title.text": "CNT 산화 거동", "title.size": 18, "title.color": "navy"}},
+
+ {"id": "05_lines", "file": "TGA.xlsx", "request": "y1 선 색깔 검정, 선 굵기 2.5로 하고 y2 선은 점선으로 해줘",
+  "reference": {"file": "TGA.xlsx", "y1": {"color": "black", "width": 2.5}, "y2": {"linestyle": "dotted"}},
+  "expect": {"y1.color": "black", "y1.width": 2.5, "y2.linestyle": "dotted"}},
+
+ {"id": "06_legend_off_grid", "file": "TGA.xlsx", "request": "범례 없애고 격자 켜줘",
+  "reference": {"file": "TGA.xlsx", "legend": "none", "grid": true},
+  "expect": {"legend.show": false, "grid": true}},
+
+ {"id": "07_legend_place", "file": "TGA.xlsx", "request": "범례 오른쪽 위로 옮기고 범례 글자 크기 9",
+  "reference": {"file": "TGA.xlsx", "legend": {"where": "upper right", "size": 9}},
+  "expect": {"legend.where": "upper right", "legend.size": 9}},
+
+ {"id": "08_axis_labels", "file": "TGA.xlsx", "request": "x축 라벨을 '온도 (°C)', y1축 라벨을 '무게 (%)', y2축 라벨을 '미분 무게 (%/°C)'로 바꿔줘",
+  "reference": {"file": "TGA.xlsx", "x": {"label": "온도 (°C)"}, "y1": {"label": "무게 (%)"}, "y2": {"label": "미분 무게 (%/°C)"}},
+  "expect": {"x.label": "온도 (°C)", "y1.label": "무게 (%)", "y2.label": "미분 무게 (%/°C)"}},
+
+ {"id": "09_ticks", "file": "TGA.xlsx", "request": "틱 방향 바깥쪽으로, 틱 라벨 크기 9",
+  "reference": {"file": "TGA.xlsx", "tick_direction": "out", "x": {"tick_size": 9}, "y1": {"tick_size": 9}, "y2": {"tick_size": 9}},
+  "expect": {"tick_direction": "out", "x.tick_size": 9, "y1.tick_size": 9, "y2.tick_size": 9}},
+
+ {"id": "10_residue_temp_decimals", "file": "TGA.xlsx", "request": "잔류량 표시를 700 °C로 바꾸고 소수점 둘째 자리까지 보여줘",
+  "reference": {"file": "TGA.xlsx", "annotate": {"residue": {"x": 700, "text": "Residue {y:.2f}%"}}},
+  "expect": {"annot[value_at_x].x": 700, "annot[value_at_x].rendered_contains": "8.01", "annot[value_at_x].rendered_not_contains": "8.012"}},
+
+ {"id": "11_remove_peak", "file": "TGA.xlsx", "request": "피크 표시 지워줘",
+  "reference": {"file": "TGA.xlsx", "annotate": {"peak": false}},
+  "expect": {"absent": "annot[peak]", "annot[value_at_x].x": 800}},
+
+ {"id": "12_vline", "file": "TGA.xlsx", "request": "450 °C에 세로 보조선 넣고 '산화 시작'이라고 써줘",
+  "reference": {"file": "TGA.xlsx", "annotate": {"vline1": {"type": "vline", "x": 450, "text": "산화 시작"}}},
+  "expect": {"annot[vline].x": 450, "annot[vline].rendered_contains": "산화 시작", "annot[peak].count": 1}},
+
+ {"id": "13_column_by_name", "file": "extra_columns.xlsx", "request": "y1축은 Weight (mg) 열로 그려줘. y1축 라벨은 'Weight (mg)'",
+  "reference": {"file": "extra_columns.xlsx", "y1": {"col": "D", "label": "Weight (mg)"}},
+  "expect": {"col[y1]": "D", "col[x]": "B", "col[y2]": "G", "y1.label": "Weight (mg)"}},
+
+ {"id": "14_formats", "file": "korean_excel.csv", "request": "korean_excel.csv 그래프 그리고 pdf랑 png 둘 다로 저장해줘",
+  "reference": {"file": "korean_excel.csv", "output": {"format": ["pdf", "png"]}},
+  "expect": {"output.format": ["pdf", "png"]}},
+
+ {"id": "15_combine", "file": "TGA.xlsx", "request": "TGA.xlsx 시트 전부 한 그림에 겹쳐 그려줘",
+  "reference": {"file": "TGA.xlsx", "combine": true},
+  "expect": {"combine": true, "sheets_resolved": ["1006R1-V normal", "1006R1-V acid", "1006R1-V 750C"]}},
+
+ {"id": "16_no_y2", "file": "TGA.xlsx", "request": "1006R1-V normal 시트, y2축 없이 무게만 그려줘",
+  "reference": {"file": "TGA.xlsx", "sheets": "1006R1-V normal", "y2": false},
+  "expect": {"y2.show": false, "sheets_resolved": ["1006R1-V normal"]}},
+
+ {"id": "17_size_dpi", "file": "TGA.xlsx", "request": "그림 크기 가로 8 세로 5, 해상도 600으로",
+  "reference": {"file": "TGA.xlsx", "size": [8, 5], "dpi": 600},
+  "expect": {"size": [8, 5], "dpi": 600}},
+
+ {"id": "18_step_range", "file": "TGA.xlsx", "request": "x축 틱 간격 100, y2축 범위 -0.05~1.2",
+  "reference": {"file": "TGA.xlsx", "x": {"step": 100}, "y2": {"min": -0.05, "max": 1.2}},
+  "expect": {"x.step": 100, "y2.min": -0.05, "y2.max": 1.2}},
+
+ {"id": "19_global_text", "file": "TGA.xlsx", "request": "전체 글자 색깔 회색, 글자 크기 13",
+  "reference": {"file": "TGA.xlsx", "text_color": "gray", "font_size": 13},
+  "expect": {"text_color": "gray", "font_size": 13}},
+
+ {"id": "20_extra_code", "file": "TGA.xlsx", "request": "300~450 °C 구간을 연한 회색으로 칠해줘",
+  "reference": {"file": "TGA.xlsx", "code": "ax1.axvspan(300, 450, color='gray', alpha=0.15)"},
+  "expect": {"code_contains": "axvspan"}},
+
+ {"id": "21_letters_haeng", "file": "blank_rows_on_top.xlsx", "request": "C행을 X축, D행을 Y1축, E행을 Y2축으로 그래프 그려줘",
+  "reference": {"file": "blank_rows_on_top.xlsx", "x": {"col": "C"}, "y1": {"col": "D"}, "y2": {"col": "E"}},
+  "expect": {"col[x]": "C", "col[y1]": "D", "col[y2]": "E"}},
+
+ {"id": "22_y2_colors", "file": "TGA.xlsx", "request": "y2 선 색깔 초록으로, y2축 라벨 글자 색깔도 초록",
+  "reference": {"file": "TGA.xlsx", "y2": {"color": "green", "label_color": "green"}},
+  "expect": {"y2.color": "green", "y2.label_color": "green"}},
+
+ {"id": "23_text_file_template", "file": "instrument_export.txt", "request": "잔류량 글자를 'Residue: {}%'로 바꿔줘",
+  "reference": {"file": "instrument_export.txt", "annotate": {"residue": {"text": "Residue: {}%"}}},
+  "expect": {"annot[value_at_x].rendered": "Residue: 8.0%"}},
+
+ {"id": "24_heat_flow_y2", "file": "extra_columns.xlsx", "request": "Heat Flow를 y2축으로 그려주고 y2축 라벨은 'Heat flow (W/g)', 피크 표시는 빼줘",
+  "reference": {"file": "extra_columns.xlsx", "y2": {"col": "F", "label": "Heat flow (W/g)"}, "annotate": {"peak": false}},
+  "expect": {"col[y2]": "F", "y2.label": "Heat flow (W/g)", "absent": "annot[peak]"}}
+]
