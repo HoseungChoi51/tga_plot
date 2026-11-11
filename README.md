@@ -13,9 +13,7 @@ exactly one spec key in `AGENT.md`. Users who use those names get predictable re
 | `AGENT.md` | system prompt for the local LLM: workflow, rules, part name → key table, examples |
 | `guide/guide_ko.png` | the guide image for users (15 numbered parts + other terms) |
 | `run_agent.py` | a minimal agent: one request → one model call → plot (retries on errors) |
-| `tests/eval_llm.py` | scores a model on 24 Korean test requests and times each call |
-| `tests/requests.json` | the 24 test requests, reference answers and checks |
-| `tests/AGENT_TEST_PROMPTS.md` | the same 24 requests, ready to paste into an agent that runs commands itself (e.g. pi) |
+| `tests/AGENT_TEST_PROMPTS.md` | 24 Korean test requests, ready to paste into an agent that runs commands itself (e.g. pi) |
 | `tests/inputs/` | 12 test files in different formats (made by `tests/make_test_inputs.py`) |
 | `tests/run_tests.py` | checks the reader on all test files (no LLM) |
 | `examples/` | the plot made from the long example request in the original question |
@@ -47,17 +45,6 @@ runs `plot`, and reports.
 
 It runs `inspect` itself, makes one model call for the spec, plots, and prints a Korean summary.
 If plotkit rejects the spec, the error and hint go back to the model (at most 2 retries).
-
-## Measure the model
-
-    python tests/eval_llm.py --base-url http://localhost:11434/v1 --model <model name>
-    python tests/eval_llm.py ... --no-think        # compare with thinking switched off
-    python tests/eval_llm.py ... --only 02 10      # just some requests
-    python tests/eval_llm.py --dry-run             # reference answers; checks the harness itself
-
-For each request it prints pass/fail, which checks failed, model seconds, plot seconds and
-token counts. The raw replies are saved in `tests/eval_results.jsonl`. When a request fails,
-look at the reply, then fix the wording in `AGENT.md` (usually a missing row or example) and run again.
 
 ## What makes it reliable
 
