@@ -114,7 +114,9 @@ SCHEMA_DOC = {
     "y1|y2.flip": '"none" | "flip" (multiply by -1) | "peaks_up" | "peaks_down"',
     "y1|y2.legend": "name in the legend (default: the axis label)",
     "y2": "false to draw no second axis",
-    "annotate.<name>": 'dict of labels; set one to false to remove a preset label (e.g. "peak": false)',
+    "annotate.<name>": 'dict of labels; set one to false to remove a preset label (e.g. "peak": false), '
+                       'true to ask for a preset label as it is (e.g. "residue": true). A value_at_x label with '
+                       'no data at its x shows "no data" only when the spec names it; otherwise it is left out',
     "annotate.<name>.type": '"value_at_x" | "peak" | "vline" | "hline" | "text" (guessed from the name: residue*/value* -> value_at_x, peak*/max* -> peak)',
     "annotate.<name>.on": '"y1" or "y2"',
     "annotate.<name>.x": "value_at_x / vline: the x position, e.g. 800",
@@ -337,8 +339,11 @@ def _normalize_annotations(a):
         if d is False or d is None:
             out[name] = None
             continue
+        if d is True:                   # "residue": true = asked for, with the preset settings
+            out[name] = {}
+            continue
         if not isinstance(d, dict):
-            raise PlotkitError(f'annotate.{name} must be an object or false, got {d!r}')
+            raise PlotkitError(f'annotate.{name} must be an object, true or false, got {d!r}')
         dd = {}
         for k, v in d.items():
             k2 = ANNOT_ALIASES.get(k.lower(), k.lower())
@@ -420,16 +425,18 @@ def normalize_spec(user):
         for name, d in ann.items():
             if d is None:
                 base.pop(name, None)
-            elif name in base:
-                base[name] = {**base[name], **d}
-            else:
-                base[name] = d
+            else:                       # named in the user's spec: say "no data" instead of hiding it
+                base[name] = {**base.get(name, {}), **d, "_requested": True}
         spec["annotate"] = base
     for name, d in spec["annotate"].items():
         d.setdefault("type", _guess_annot_type(name))
         if d["type"] is None:
             raise PlotkitError(f'annotate.{name} needs a "type"',
                                f"types: {', '.join(sorted(ANNOT_TYPES))}")
+        need = {"value_at_x": "x", "vline": "x", "hline": "y"}.get(d["type"])
+        if need and d.get(need) is None:
+            raise PlotkitError(f'annotate.{name} needs "{need}"',
+                               f'e.g. "annotate": {{"{name}": {{"{need}": 800}}}}')
     for k in ("read", "output"):
         if k in u:
             if not isinstance(u[k], dict):
@@ -1049,9 +1056,10 @@ def _annotate(ax_for, name, a, data, color_for, results, sheet, combine_color=No
         if xu is None:
             results.append({"name": name, "sheet": sheet, "x": a["x"], "value": None,
                             "note": f"x={a['x']:g} is outside the data ({np.nanmin(X):.0f}..{np.nanmax(X):.0f})"})
-            ax.text(0.98, 0.5 - 0.09 * stack, f"{name}: no data at x = {a['x']:g}\n(data ends at {np.nanmax(X):.0f})",
-                    transform=ax.transAxes, ha="right", va="center", fontsize="small", color="gray",
-                    bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="none", alpha=0.85), zorder=6)
+            if a.get("_requested"):     # preset labels with no data are just left out
+                ax.text(0.98, 0.5 - 0.09 * stack, f"{name}: no data at x = {a['x']:g}\n(data ends at {np.nanmax(X):.0f})",
+                        transform=ax.transAxes, ha="right", va="center", fontsize="small", color="gray",
+                        bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="none", alpha=0.85), zorder=6)
             return
         label = _fmt(a.get("text", "{y:.1f}"), xu, yv, "y")
         ax.plot([xu], [yv], "o", ms=6, mfc="white", mec=col, mew=1.6, zorder=5)

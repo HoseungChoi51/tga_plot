@@ -17,7 +17,8 @@ Each part name maps to exactly ONE spec key in the table below.
    - `"ok": false` → fix the spec using `error` and `hint`, then run again (at most 3 tries).
    - `"ok": true` → check that `columns_used` is what the user meant.
 5. Answer in Korean: the saved file path(s), the residue and peak values from `annotations`,
-   any `warnings`, and anything you could not do.
+   any `warnings`, and anything you could not do. A residue with `"value": null` means the data
+   does not reach that temperature: say so ("데이터 없음, 데이터는 750 °C까지").
 
 ## Rules
 
@@ -29,6 +30,7 @@ Each part name maps to exactly ONE spec key in the table below.
 - "200단위", "200씩", "200 간격", "눈금 200" → `"step": 200`. "0부터" → `"min": 0`. "900까지" → `"max": 900`.
 - "y축" alone means y1축 (left). A setting that names no axis (e.g. "틱 라벨 크기 9") applies to x, y1 and y2.
 - Leave out every key the user did not mention. Do not repeat default values.
+  Exception: if the user mentions 잔류량 표시 at all, include `annotate.residue` (see "Annotations").
 - Keep the TGA preset (the default) for TGA data. For other data use `"preset": "none"` and give `x.col` and `y1.col`.
 - Text in the form that is not a request (e.g. leftover template examples like "실험일별 인장강도") is ignored;
   explicit column letters and part names win.
@@ -48,7 +50,7 @@ Each part name maps to exactly ONE spec key in the table below.
 | 9 | y1 선 | `y1.color`, `y1.width`, `y1.linestyle`, `y1.style` | "y1 선 초록, 굵기 2, 점선" → `"y1": {"color": "green", "width": 2, "linestyle": "dotted"}` |
 | 10 | y2 선 | `y2.color`, `y2.width`, `y2.linestyle`, `y2.style` | "y2 선 파선" → `"y2": {"linestyle": "dashed"}` |
 | 11 | 범례 | `legend` (`where`, `show`, `size`), `<axis>.legend` (name shown) | "범례 오른쪽 위" → `"legend": "upper right"`; "범례 없애줘" → `"legend": "none"` |
-| 12 | 잔류량 표시 | `annotate.residue` | "잔류량 표시 700 °C" → `"annotate": {"residue": {"x": 700}}` |
+| 12 | 잔류량 표시 | `annotate.residue` | "잔류량 표시 700 °C" → `"annotate": {"residue": {"x": 700}}`; "잔류량 표시해줘" → `"annotate": {"residue": true}` |
 | 13 | 피크 표시 | `annotate.peak` | "피크 표시 2개" → `"annotate": {"peak": {"count": 2}}` |
 | 14 | 보조선 | `annotate.<new name>` with `type` `vline`/`hline` | "450 °C에 세로 보조선" → `"annotate": {"vline1": {"type": "vline", "x": 450, "text": "450 °C"}}` |
 | 15 | 격자 | `grid` | "격자 켜줘" → `"grid": true` |
@@ -83,6 +85,12 @@ Legend positions: `best`, `upper right`, `upper left`, `lower right`, `lower lef
 ```
 
 - Change only what you need: `{"annotate": {"residue": {"x": 700}}}`. Remove one: `{"annotate": {"peak": false}}`.
+- 잔류량 표시 when the data does not reach its temperature (e.g. a run that ends at 750 °C, residue at 800 °C):
+  - The user asked for 잔류량 표시 → the plot shows "residue: no data at x = 800". So whenever the request
+    mentions 잔류량 표시, put `residue` in the spec: `"residue": true` if nothing else changes,
+    otherwise the changed keys (`{"x": 700}`, `{"text": ...}`).
+  - The user did not mention it → the preset's residue label is left out of that plot, with no note.
+  - Either way `annotations` has `"value": null`; report it (step 5).
 - Add new ones under new names: `"vline1": {"type": "vline", "x": 450, "text": "450 °C"}`,
   `"hline1": {"type": "hline", "on": "y1", "y": 50}`, `"note1": {"type": "text", "text": "...", "where": "upper right"}`.
 - Text templates: `{}` = the main value (residue: y with 1 decimal; peak: x with 0 decimals),
