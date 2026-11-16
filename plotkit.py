@@ -101,7 +101,7 @@ SCHEMA_DOC = {
     "read.decimal": 'text files only: "." or ","; normally automatic',
     "read.encoding": 'text files only, e.g. "utf-8", "cp949", "utf-16"; normally automatic',
     "x|y1|y2.col": 'column letter like "B" (as in Excel; for text files A = 1st field) or part of the column name like "Temperature"',
-    "x|y1|y2.label": "axis label text",
+    "x|y1|y2.label": "axis label text (default: the preset's label, or the column's name when its unit differs, e.g. Weight (mg))",
     "x|y1|y2.min / max": "axis range; leave out for automatic",
     "x|y1|y2.step": "distance between tick marks, e.g. 200 or 0.2",
     "x|y1|y2.log": "true for a log axis",
@@ -126,13 +126,15 @@ SCHEMA_DOC = {
     "annotate.<name>.kind": 'peak: "max" (default) or "min"',
     "annotate.<name>.x_min / x_max": "peak: only search in this x range",
     "annotate.<name>.min_rel": "peak: extra peaks must be at least this fraction of the main one (default 0.1)",
-    "annotate.<name>.text": 'label template: {x} {y} or {} (e.g. "Residue {}%", "{x:.0f} °C", "Residue {y:.2f}%")',
+    "annotate.<name>.text": 'label template: {x} {y} or {} (e.g. "Residue {}%", "{x:.0f} °C", "Residue {y:.2f}%"); '
+                            "the preset residue label uses the column's unit when it isn't %, e.g. \"Residue 0.82 mg\"",
     "annotate.<name>.where": 'text: "upper left" | "upper right" | "lower left" | "lower right"',
     "annotate.<name>.color": "label color (default: the line color)",
     "annotate.<name>.size": "label font size",
     "title": 'plot title text, or {"text": ..., "size": ..., "color": ...}; "{sheet}" (default) and "{file}" are replaced; "" for none',
     "legend": 'legend position "center left" (default), "best", "upper right", "lower left", ..., "none"; or {"where": ..., "show": true/false, "size": ...}',
-    "text_color": "color of all text that has no color of its own (default black)",
+    "text_color": "color of all text that has no color of its own (default black); when given, also the y-axis "
+                  "labels, tick labels and residue/peak labels, which otherwise follow the line colors",
     "tick_direction": '"in" (default), "out" or "inout"',
     "code": "extra Python run after drawing, before saving. Names: fig, ax1 (left y), ax2 (right y or None), x, y1, y2 (arrays), sheet, plt, np. Use only for things no key covers.",
     "grid": "true / false",
@@ -412,13 +414,18 @@ def normalize_spec(user):
     if preset == "tga":
         p = copy.deepcopy(TGA_PRESET)
         for ax in ("x", "y1", "y2"):
-            spec[ax].update(p[ax])
+            spec[ax].update(p[ax], _preset_label=True)
         spec["annotate"] = p["annotate"]
+        for d in spec["annotate"].values():
+            d["_preset_text"] = True
     spec["preset"] = preset
 
     for ax in ("x", "y1", "y2"):
         if ax in u:
-            spec[ax].update(_normalize_axis(ax, u[ax]))
+            n = _normalize_axis(ax, u[ax])
+            spec[ax].update(n)
+            if "label" in n:
+                spec[ax].pop("_preset_label", None)
     if "annotate" in u:
         ann, replace = _normalize_annotations(u["annotate"])
         base = {} if replace else spec["annotate"]
@@ -427,6 +434,8 @@ def normalize_spec(user):
                 base.pop(name, None)
             else:                       # named in the user's spec: say "no data" instead of hiding it
                 base[name] = {**base.get(name, {}), **d, "_requested": True}
+                if "text" in d:
+                    base[name].pop("_preset_text", None)
         spec["annotate"] = base
     for name, d in spec["annotate"].items():
         d.setdefault("type", _guess_annot_type(name))
@@ -489,6 +498,7 @@ def normalize_spec(user):
     if spec["title"].get("color"):
         spec["title"]["color"] = _color(spec["title"]["color"], "title.color")
     spec["text_color"] = _color(spec["text_color"] or "black", "text_color")
+    spec["_text_color_set"] = bool(u.get("text_color"))   # then it also beats the line colours
     td = {"안쪽": "in", "바깥쪽": "out", "밖": "out", "안": "in", "양쪽": "inout"}.get(
         str(spec["tick_direction"]), str(spec["tick_direction"]).lower())
     if td not in ("in", "out", "inout"):
@@ -1043,22 +1053,25 @@ def _draw_series(ax, X, Y, s, color, label):
 LABEL_BOX = dict(boxstyle="round,pad=0.25", fc="white", ec="none", alpha=0.85)
 
 
-def _place_labels(fig, labels, box_peaks=False):
+def _place_labels(fig, labels, box_peaks=False, obstacles=()):
     """Draw the residue and peak labels collected by _annotate so that none overlap.
 
-    A single residue label keeps its usual spot, 40 pt above (or below) its point. Several
-    (one per sheet when combined) form a column beside their points, on the side with room,
-    one line apart and in the same order as the points, each with a line to its own marker;
-    the lines then never cross each other or a label. "No data" notes join the end of that
-    column. A peak label sits just above its peak (below for "min"), and, lowest peak first,
-    moves away only as far as it must to clear the labels already drawn, with a line back to
-    its peak if it moved. Labels go on the top axes so that no curve is drawn over them."""
+    A single residue label keeps its usual spot, 40 pt above (or below) its point, nudged
+    inside the plot if it would stick out. Several (one per sheet when combined) form a column
+    beside their points, on the side with room, one line apart and in the same order as the
+    points, each with a line to its own marker; the lines then never cross each other or a
+    label. "No data" notes join the end of that column. A peak label sits just above its peak
+    (below for "min"), and, lowest peak first, moves away only as far as it must to clear the
+    labels already drawn and the `obstacles` (e.g. the legend): straight up if that stays in the
+    plot, else sideways, with a line back to its peak if it moved. Labels go on the top axes so
+    that no curve is drawn over them."""
     from matplotlib.font_manager import FontProperties
     r = fig.canvas.get_renderer()
     top = fig.axes[-1]
+    area = top.bbox                                # the plot area, display pixels
     pt = fig.dpi / 72                              # points -> display pixels
     gap = 2 * pt
-    boxes = []                                     # drawn labels as [x0, y0, x1, y1] in pixels
+    boxes = [list(o) for o in obstacles]           # drawn labels as [x0, y0, x1, y1] in pixels
 
     def extent(lab, weight="normal", pad=0.25):
         fp = FontProperties(size=lab["size"], weight=weight)
@@ -1068,20 +1081,56 @@ def _place_labels(fig, labels, box_peaks=False):
         h = lines[0][1] * (1 + 1.2 * (len(lines) - 1))
         return w + 2 * pad, h + 2 * pad, pad
 
+    def hits(b):
+        return [o for o in boxes if b[0] < o[2] + gap and o[0] < b[2] + gap and b[1] < o[3] + gap and o[1] < b[3] + gap]
+
+    def clear(b, down):
+        """(dx, dy) in pixels that moves box b off everything drawn so far: straight away from the
+        data (up, or down for down=True) if that stays in the plot, else the smaller sideways move
+        that does; failing both, the straight move."""
+        v = list(b)
+        for _ in range(len(boxes) + 1):
+            hit = hits(v)
+            if not hit:
+                break
+            s = (min(o[1] for o in hit) - gap - v[3]) if down else (max(o[3] for o in hit) + gap - v[1])
+            v[1] += s
+            v[3] += s
+        dy = v[1] - b[1]
+        if not dy or (v[1] >= area.y0 if down else v[3] <= area.y1):
+            return 0, dy
+        best = None
+        for side in (-1, 1):
+            h = list(b)
+            for _ in range(len(boxes) + 1):
+                hit = hits(h)
+                if not hit:
+                    break
+                s = (min(o[0] for o in hit) - gap - h[2]) if side < 0 else (max(o[2] for o in hit) + gap - h[0])
+                h[0] += s
+                h[2] += s
+            if not hits(h) and h[0] >= area.x0 and h[2] <= area.x1 and (best is None or abs(h[0] - b[0]) < abs(best)):
+                best = h[0] - b[0]
+        return (best, 0) if best is not None else (0, dy)
+
+    def value_box(lab, xt, yt, ha, up):
+        w, h, pad = extent(lab)
+        x0 = {"right": xt + pad - w, "left": xt - pad}.get(ha, xt - w / 2)
+        y0 = yt - pad if up else yt + pad - h
+        return [x0, y0, x0 + w, y0 + h]
+
     def value_label(lab, xy, xt, yt, ha, up, arrow=None):
         """Residue label (or no-data note) with its text at pixel (xt, yt), anchored to xy."""
         ax = lab["ax"]
         px, py = ax.transData.transform(xy)
-        w, h, pad = extent(lab)
         kw = {} if arrow is None else {"arrowprops": dict(arrowstyle="-", color=lab["color"], lw=0.8, **arrow)}
         top.annotate(lab["text"], xy=xy, xycoords=ax.transData, annotation_clip=True,
                      xytext=((xt - px) / pt, (yt - py) / pt), textcoords="offset points",
-                     ha=ha, va="bottom" if up else "top", fontsize=lab["size"], color=lab["color"],
-                     zorder=6, bbox=LABEL_BOX, **kw)
-        x0 = {"right": xt + pad - w, "left": xt - pad}.get(ha, xt - w / 2)
-        y0 = yt - pad if up else yt + pad - h
-        boxes.append([x0, y0, x0 + w, y0 + h])
-        return h
+                     ha=ha, va="bottom" if up else "top", fontsize=lab["size"],
+                     color=lab.get("text_color", lab["color"]), zorder=6, bbox=LABEL_BOX, **kw)
+        b = value_box(lab, xt, yt, ha, up)
+        boxes.append(b)
+        return b[3] - b[1]
 
     groups = {}
     for lab in labels:
@@ -1105,11 +1154,16 @@ def _place_labels(fig, labels, box_peaks=False):
         up = max((l["xy"][1] - lo) / (hi - lo) for l in data) < 0.7
         pts = {id(l): ax.transData.transform(l["xy"]) for l in data}
         if len(data) == 1 and not notes:
-            px, py = pts[id(data[0])]
-            fx = (data[0]["xy"][0] - xl) / (xh - xl)
+            lab = data[0]
+            px, py = pts[id(lab)]
+            fx = (lab["xy"][0] - xl) / (xh - xl)
             ha = "right" if fx > 0.8 else ("left" if fx < 0.2 else "center")
-            value_label(data[0], data[0]["xy"], px + {"right": 12, "left": -12}.get(ha, 0) * pt,
-                        py + (40 if up else -40) * pt, ha, up, arrow={})
+            xt = px + {"right": 12, "left": -12}.get(ha, 0) * pt
+            yt = py + (40 if up else -40) * pt
+            b = value_box(lab, xt, yt, ha, up)
+            xt += max(0, area.x0 + gap - b[0]) - max(0, b[2] - (area.x1 - gap))   # keep it inside the plot
+            dx, dy = clear(value_box(lab, xt, yt, ha, up), not up)
+            value_label(lab, lab["xy"], xt + dx, yt + dy, ha, up, arrow={})
             continue
         width = max(extent(l)[0] for l in grp)
         right = max(p[0] for p in pts.values()) + 6 * pt      # left edge of a column right of the points
@@ -1133,28 +1187,28 @@ def _place_labels(fig, labels, box_peaks=False):
         w, h, pad = extent(lab, "bold")
         y0 = py - 11 * pt + pad - h if down else py + 9 * pt - pad
         b = [px - w / 2, y0, px + w / 2, y0 + h]
-        for _ in range(len(boxes) + 1):
-            hit = [o for o in boxes
-                   if b[0] < o[2] + gap and o[0] < b[2] + gap and b[1] < o[3] + gap and o[1] < b[3] + gap]
-            if not hit:
-                break
-            shift = (min(o[1] for o in hit) - gap - b[3]) if down else (max(o[3] for o in hit) + gap - b[1])
-            b[1] += shift
-            b[3] += shift
-        moved = (b[1] - y0) / pt
+        dx, dy = clear(b, down)
         kw = {"bbox": LABEL_BOX} if box_peaks else {}
-        if abs(moved) > 3:
+        if math.hypot(dx, dy) / pt > 3:
             kw["arrowprops"] = dict(arrowstyle="-", color=lab["color"], lw=0.6, shrinkB=4)
         top.annotate(lab["text"], xy=lab["xy"], xycoords=lab["ax"].transData, annotation_clip=True,
-                     xytext=(0, (-11 if down else 9) + moved), textcoords="offset points", ha="center",
-                     va="top" if down else "bottom", fontsize=lab["size"], color=lab["color"],
-                     fontweight="bold", **kw)
-        boxes.append(b)
+                     xytext=(dx / pt, (-11 if down else 9) + dy / pt), textcoords="offset points", ha="center",
+                     va="top" if down else "bottom", fontsize=lab["size"],
+                     color=lab.get("text_color", lab["color"]), fontweight="bold", **kw)
+        boxes.append([b[0] + dx, b[1] + dy, b[2] + dx, b[3] + dy])
+
+
+def _within(ax, x, y):
+    xl, xh = sorted(ax.get_xlim())
+    yl, yh = sorted(ax.get_ylim())
+    return xl <= x <= xh and yl <= y <= yh
 
 
 def _annotate(ax_for, name, a, data, color_for, results, labels, sheet, combine_color=None,
-              text_color="black", stack=0):
-    """Draw one annotation. Residue and peak labels go to `labels` for _place_labels."""
+              text_color="black", stack=0, cols=None, text_all=False):
+    """Draw one annotation. Residue and peak labels go to `labels` for _place_labels.
+
+    text_all: the user set text_color, so label text uses it instead of the line colour."""
     t = a["type"]
     on = a.get("on", "y1")
     if t in ("value_at_x", "peak", "hline") and on not in ax_for:
@@ -1162,6 +1216,7 @@ def _annotate(ax_for, name, a, data, color_for, results, labels, sheet, combine_
         return
     ax = ax_for.get(on, ax_for["y1"])
     col = a.get("color") or combine_color or color_for.get(on, text_color)
+    tcol = text_color if text_all and not a.get("color") else col
     fs = a.get("size") or "small"
     if t == "value_at_x":
         X, Y = data["x"], data[on]
@@ -1172,12 +1227,17 @@ def _annotate(ax_for, name, a, data, color_for, results, labels, sheet, combine_
             if a.get("_requested"):     # preset labels with no data are just left out
                 labels.append({"kind": "value", "name": name, "ax": ax, "xy": None, "stack": stack,
                                "text": f"{name}: no data at x = {a['x']:g}\n(data ends at {np.nanmax(X):.0f})",
-                               "color": combine_color or "gray", "size": "small"})
+                               "color": text_color if text_all else (combine_color or "gray"), "size": "small"})
             return
-        label = _fmt(a.get("text", "{y:.1f}"), xu, yv, "y")
-        ax.plot([xu], [yv], "o", ms=6, mfc="white", mec=col, mew=1.6, zorder=5)
+        text = a.get("text", "{y:.1f}")
+        unit = _unit(cols[on]["name"]) if cols and on in cols else None
+        if a.get("_preset_text") and unit and not _same_unit(unit, "%"):   # e.g. a y1 column in mg
+            text = text.replace("{y:.1f}%", "{y:.3g} " + unit)
+        label = _fmt(text, xu, yv, "y")
+        ax.plot([xu], [yv], "o", ms=6, mfc="white", mec=col, mew=1.6, zorder=5,
+                clip_on=not _within(ax, xu, yv))          # whole, even on the edge of the plot
         labels.append({"kind": "value", "name": name, "ax": ax, "xy": (xu, yv), "text": label,
-                       "color": col, "size": fs})
+                       "color": col, "text_color": tcol, "size": fs})
         results.append({"name": name, "sheet": sheet, "x_requested": a["x"], "x_used": round(xu, 3),
                         "value": round(yv, 4), "text": label})
     elif t == "peak":
@@ -1186,9 +1246,10 @@ def _annotate(ax_for, name, a, data, color_for, results, labels, sheet, combine_
                               a.get("x_min"), a.get("x_max"), a.get("min_rel", 0.1))
         for xp, yp in peaks:
             label = _fmt(a.get("text", "{x:.0f}"), xp, yp, "x")
-            ax.plot([xp], [yp], "^" if kind == "max" else "v", ms=6, color=col, zorder=5)
+            ax.plot([xp], [yp], "^" if kind == "max" else "v", ms=6, color=col, zorder=5,
+                    clip_on=not _within(ax, xp, yp))
             labels.append({"kind": "peak", "ax": ax, "xy": (xp, yp), "text": label, "color": col,
-                           "size": fs, "down": kind != "max"})
+                           "text_color": tcol, "size": fs, "down": kind != "max"})
         results.append({"name": name, "sheet": sheet, "peaks": [
             {"x": round(xp, 3), "y": round(yp, 5), "text": _fmt(a.get("text", "{x:.0f}"), xp, yp, "x")}
             for xp, yp in peaks]})
@@ -1198,7 +1259,7 @@ def _annotate(ax_for, name, a, data, color_for, results, labels, sheet, combine_
         if a.get("text"):
             ax.annotate(_fmt(a["text"], a["x"], None, "x"), xy=(a["x"], 1), xycoords=("data", "axes fraction"),
                         xytext=(3, -3), textcoords="offset points", ha="left", va="top",
-                        fontsize=fs, color=a.get("color") or "gray")
+                        fontsize=fs, color=a.get("color") or (text_color if text_all else "gray"))
         results.append({"name": name, "sheet": sheet, "x": a["x"]})
     elif t == "hline":
         ax.axhline(a["y"], color=a.get("color") or "gray", lw=0.9,
@@ -1206,7 +1267,7 @@ def _annotate(ax_for, name, a, data, color_for, results, labels, sheet, combine_
         if a.get("text"):
             ax.annotate(_fmt(a["text"], None, a["y"], "y"), xy=(0, a["y"]), xycoords=("axes fraction", "data"),
                         xytext=(3, 3), textcoords="offset points", ha="left", va="bottom",
-                        fontsize=fs, color=a.get("color") or "gray")
+                        fontsize=fs, color=a.get("color") or (text_color if text_all else "gray"))
         results.append({"name": name, "sheet": sheet, "y": a["y"]})
     elif t == "text":
         where = a.get("where", "upper right")
@@ -1240,10 +1301,26 @@ def _resolve_columns(spec, table, where):
     return used, how
 
 
+def _unit(name):
+    """The unit in brackets at the end of a name: "Weight (mg)" -> "mg", "D.W(%/C)" -> "%/C"."""
+    m = re.search(r"[(\[]\s*([^()\[\]]+?)\s*[)\]]\s*$", name or "")
+    return m.group(1) if m else None
+
+
+def _same_unit(a, b):
+    def norm(u):
+        return re.sub(r"[\s°]", "", u.lower().replace("℃", "c"))
+    return norm(a) == norm(b)
+
+
 def _labels(spec, role, col):
     lab = spec[role].get("label")
     if lab is None:
         lab = col["name"] or f"column {col['letter']}"
+    elif spec[role].get("_preset_label"):         # the preset's label, but the column says another unit
+        mine, theirs = _unit(lab), _unit(col["name"])
+        if mine and theirs and not _same_unit(mine, theirs):
+            lab = col["name"]
     return lab
 
 
@@ -1334,18 +1411,20 @@ def plot(user_spec):
                     handles.append(h)
             j["colors"] = {"y1": c1, "y2": c2}
 
-        # axis labels, ranges, ticks.  y-axis text follows the line color unless set.
+        # axis labels, ranges, ticks.  y-axis text follows the line color unless set
+        # (its own label_color/tick_color, or an explicit text_color for all text).
         def axis_text(role, ax, which):
             a = spec[role]
             line_c = None if (spec["combine"] or role == "x") else a.get("color")
-            lc = a.get("label_color") or line_c or tc
-            kc = a.get("tick_color") or line_c or tc
+            text_c = tc if spec["_text_color_set"] else (line_c or tc)
+            lc = a.get("label_color") or text_c
+            kc = a.get("tick_color") or text_c
             setlab = ax.set_xlabel if which == "x" else ax.set_ylabel
             kw = {"color": lc}
             if a.get("label_size"):
                 kw["fontsize"] = a["label_size"]
             setlab(_labels(spec, role, first["cols"][role]), **kw)
-            tk = {"labelcolor": kc, "color": kc}
+            tk = {"labelcolor": kc, "color": a.get("tick_color") or line_c or tc}
             if a.get("tick_size"):
                 tk["labelsize"] = a["tick_size"]
             ax.tick_params(axis="x" if which == "x" else "y", **tk)
@@ -1375,9 +1454,9 @@ def plot(user_spec):
             for name, a in spec["annotate"].items():
                 _annotate(axes, name, a, j["data"], j["colors"], ann_results, labels, j["sheet"],
                           combine_color=j["colors"]["y1"] if spec["combine"] else None,
-                          text_color=tc, stack=k)
-        _place_labels(fig, labels, box_peaks=spec["combine"])
+                          text_color=tc, stack=k, cols=j["cols"], text_all=spec["_text_color_set"])
         lg = spec["legend"]
+        leg = None
         if lg["show"]:
             if spec["combine"] and ax2 is not None:
                 from matplotlib.lines import Line2D
@@ -1392,6 +1471,12 @@ def plot(user_spec):
             if spec["title"].get("size"):
                 kw["fontsize"] = spec["title"]["size"]
             ax1.set_title(title, **kw)
+        fig.tight_layout()                         # final geometry first, so the labels can see the legend
+        obstacles = []
+        if leg is not None:
+            e = leg.get_window_extent(fig.canvas.get_renderer())
+            obstacles.append([e.x0, e.y0, e.x1, e.y1])
+        _place_labels(fig, labels, box_peaks=spec["combine"], obstacles=obstacles)
 
         if spec["code"]:
             last = group[-1]
