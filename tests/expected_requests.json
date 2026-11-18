@@ -1,0 +1,62 @@
+{
+ "_about": "What must hold for each request in AGENT_TEST_PROMPTS.md to pass. Checks run on the normalized spec (aliases already resolved) and on plotkit's result. Keys the model adds beyond these are not checked. See tests/score.py for the check types.",
+ "01": {"file": "tests/inputs/TGA.xlsx", "checks": [
+   {"sheets": ["1006R1-V normal", "1006R1-V acid", "1006R1-V 750C"]},
+   {"spec": "preset", "eq": "tga"},
+   {"annotation": "residue", "present": true}, {"annotation": "peak", "present": true}]},
+ "02": {"file": "tests/inputs/TGA.xlsx", "checks": [
+   {"sheets": ["1006R1-V normal"]}, {"columns": {"x": "B", "y1": "C", "y2": "D"}},
+   {"spec": "x.min", "eq": 0}, {"spec": "x.step", "eq": 200}, {"spec": "y1.step", "eq": 20}, {"spec": "y2.step", "eq": 0.2},
+   {"annotation": "residue", "x_used": 800, "text_regex": "^Residue \\d+\\.\\d%$"},
+   {"spec": "annotate.residue.method", "eq": "nearest"},
+   {"annotation": "peak", "count": 1}, {"formats": ["png"]}]},
+ "03": {"file": "tests/inputs/TGA.xlsx", "checks": [
+   {"sheets": ["1006R1-V acid"]}, {"spec": "x.min", "eq": 100}, {"spec": "x.max", "eq": 800},
+   {"spec": "annotate.peak.count", "eq": 2}]},
+ "04": {"file": "tests/inputs/TGA.xlsx", "checks": [
+   {"sheets": ["1006R1-V normal"]}, {"spec": "title.text", "eq": "CNT 산화 거동"},
+   {"spec": "title.size", "eq": 18}, {"spec": "title.color", "color": "navy"}]},
+ "05": {"file": "tests/inputs/TGA.xlsx", "checks": [
+   {"spec": "y1.color", "color": "black"}, {"spec": "y1.width", "eq": 2.5}, {"spec": "y2.linestyle", "eq": "dotted"}]},
+ "06": {"file": "tests/inputs/TGA.xlsx", "checks": [
+   {"spec": "legend.show", "eq": false}, {"spec": "grid", "eq": true}]},
+ "07": {"file": "tests/inputs/TGA.xlsx", "checks": [
+   {"spec": "legend.where", "eq": "upper right"}, {"spec": "legend.size", "eq": 9}, {"spec": "legend.show", "eq": true}]},
+ "08": {"file": "tests/inputs/TGA.xlsx", "checks": [
+   {"spec": "x.label", "eq": "온도 (°C)"}, {"spec": "y1.label", "eq": "무게 (%)"}, {"spec": "y2.label", "eq": "미분 무게 (%/°C)"}]},
+ "09": {"file": "tests/inputs/TGA.xlsx", "checks": [
+   {"spec": "tick_direction", "eq": "out"},
+   {"spec": "x.tick_size", "eq": 9}, {"spec": "y1.tick_size", "eq": 9}, {"spec": "y2.tick_size", "eq": 9}]},
+ "10": {"file": "tests/inputs/TGA.xlsx", "checks": [
+   {"spec": "annotate.residue.x", "eq": 700},
+   {"annotation": "residue", "x_used": 700, "text_regex": "\\d\\.\\d{2}(?!\\d)"}]},
+ "11": {"file": "tests/inputs/TGA.xlsx", "checks": [
+   {"annotation": "peak", "present": false}, {"annotation": "residue", "present": true}]},
+ "12": {"file": "tests/inputs/TGA.xlsx", "checks": [
+   {"annotation_type": "vline", "x": 450, "text_contains": "산화 시작"}]},
+ "13": {"file": "tests/inputs/extra_columns.xlsx", "checks": [
+   {"columns": {"y1": "D"}}, {"spec": "y1.label", "eq": "Weight (mg)"}]},
+ "14": {"file": "tests/inputs/korean_excel.csv", "checks": [
+   {"formats": ["pdf", "png"]}]},
+ "15": {"file": "tests/inputs/TGA.xlsx", "checks": [
+   {"combined": true}, {"sheets": ["1006R1-V normal", "1006R1-V acid", "1006R1-V 750C"]}]},
+ "16": {"file": "tests/inputs/TGA.xlsx", "checks": [
+   {"sheets": ["1006R1-V normal"]}, {"spec": "y2.show", "eq": false}]},
+ "17": {"file": "tests/inputs/TGA.xlsx", "checks": [
+   {"spec": "size", "eq": [8, 5]}, {"spec": "dpi", "eq": 600}, {"png_px": [4800, 3000]}]},
+ "18": {"file": "tests/inputs/TGA.xlsx", "checks": [
+   {"spec": "x.step", "eq": 100}, {"spec": "y2.min", "eq": -0.05}, {"spec": "y2.max", "eq": 1.2}]},
+ "19": {"file": "tests/inputs/TGA.xlsx", "checks": [
+   {"spec": "text_color", "color": "gray"}, {"spec": "font_size", "eq": 13}]},
+ "20": {"file": "tests/inputs/TGA.xlsx", "checks": [
+   {"shade": [300, 450]}]},
+ "21": {"file": "tests/inputs/blank_rows_on_top.xlsx", "checks": [
+   {"columns": {"x": "C", "y1": "D", "y2": "E"}}]},
+ "22": {"file": "tests/inputs/TGA.xlsx", "checks": [
+   {"spec": "y2.color", "color": "green"}, {"spec": "y2.label_color", "color": "green"}]},
+ "23": {"file": "tests/inputs/instrument_export.txt", "checks": [
+   {"spec": "annotate.residue.text", "eq": "Residue: {}%"},
+   {"annotation": "residue", "text_regex": "^Residue: \\d+\\.\\d%$"}]},
+ "24": {"file": "tests/inputs/extra_columns.xlsx", "checks": [
+   {"columns": {"y2": "F"}}, {"spec": "y2.label", "eq": "Heat flow (W/g)"}, {"annotation": "peak", "present": false}]}
+}

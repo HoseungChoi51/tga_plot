@@ -1,0 +1,15 @@
+{
+  "name": "echartkit",
+  "private": true,
+  "version": "0.1.0",
+  "description": "ECharts engine for plotkit: resolved plot JSON in, SVG/PNG/PDF out",
+  "type": "module",
+  "license": "MIT",
+  "bin": { "echartkit": "render.mjs" },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "echarts": "6.1.0",
+    "sharp": "^0.35.0",
+    "playwright-core": "^1.63.0"
+  }
+}

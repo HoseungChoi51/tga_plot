@@ -6,3 +6,10 @@ tests/out/
 tests/pi_run/
 tests/eval_results.jsonl
 spec.json
+# engine experiment: keep the CSVs and specs, not the images
+node_modules/
+results/out/
+results/reference/
+results/batch_out/
+results/render/
+results/contact_sheet*
