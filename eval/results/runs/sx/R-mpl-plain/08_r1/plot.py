@@ -19,46 +19,46 @@ sheet_names = xls.sheet_names
 
 # 각 시트별로 플롯 그리기
 for sheet_name in sheet_names:
-    df = pd.read_excel(DATA_FILE, sheet_name=sheet_name, header=1)
+    # header_rows가 [1] 이므로 pandas에서는 header=0 (0-based index) 또는 skiprows를 사용해야 할 수 있음
+    # 미리보기에 data_start_row: 2 라고 되어있으므로, 실제 데이터는 3번째 행부터 시작할 가능성이 높음.
+    # Excel의 1행이 헤더라면 pandas header=0. 
+    # 하지만 "header_rows": [1] 은 보통 1-based index로 1행을 의미하며, 이는 pandas의 header=0과 동일.
+    # 그러나 sometimes complex headers require skipping. Let's try standard read first.
+    df = pd.read_excel(DATA_FILE, sheet_name=sheet_name, header=0)
     
     # 컬럼 이름 정리 (공백 제거 등)
     df.columns = [str(col).strip() for col in df.columns]
     
     # 필요한 컬럼 확인 및 추출
-    # TGA guess에 따라 x는 Temperature, y1은 Weight(%), y2는 D.W(%/C)
-    try:
-        temp_col = 'Temperature'
-        weight_col = 'Weight(%)'
-        dw_col = 'D.W(%/C)'
-        
-        # 컬럼이 없으면 유사한 이름 찾기 (대소문자 무시 등)
-        if temp_col not in df.columns:
-            for c in df.columns:
-                if 'temp' in c.lower():
-                    temp_col = c
-                    break
-        if weight_col not in df.columns:
-            for c in df.columns:
-                if 'weight' in c.lower() and '%' in c:
-                    weight_col = c
-                    break
-        if dw_col not in df.columns:
-            for c in df.columns:
-                if 'd.w' in c.lower() or 'dw' in c.lower():
-                    dw_col = c
-                    break
-                    
-        if temp_col not in df.columns or weight_col not in df.columns or dw_col not in df.columns:
-            print(f"시트 {sheet_name}에서 필요한 컬럼을 찾을 수 없습니다.")
-            continue
+    temp_col = None
+    weight_col = None
+    dw_col = None
+    
+    for c in df.columns:
+        c_lower = str(c).lower()
+        if 'temperature' in c_lower or 'temp' in c_lower:
+            temp_col = c
+        elif 'weight' in c_lower and '%' in c:
+            weight_col = c
+        elif ('d.w' in c_lower or 'dw' in c_lower) and '%' in c:
+            dw_col = c
             
-        x = df[temp_col]
-        y1 = df[weight_col]
-        y2 = df[dw_col]
-        
-    except Exception as e:
-        print(f"시트 {sheet_name} 처리 중 오류 발생: {e}")
+    # If specific names not found, try positional based on preview info if needed, but name matching is safer.
+    # Preview says: A:Time, B:Temperature, C:Weight(%), D:D.W(%/C)
+    if temp_col is None and len(df.columns) > 1:
+        temp_col = df.columns[1]
+    if weight_col is None and len(df.columns) > 2:
+        weight_col = df.columns[2]
+    if dw_col is None and len(df.columns) > 3:
+        dw_col = df.columns[3]
+
+    if temp_col is None or weight_col is None or dw_col is None:
+        print(f"시트 {sheet_name}에서 필요한 컬럼을 찾을 수 없습니다. Columns: {df.columns.tolist()}")
         continue
+        
+    x = df[temp_col]
+    y1 = df[weight_col]
+    y2 = df[dw_col]
     
     # 플롯 생성
     fig, ax1 = plt.subplots(figsize=(10, 6))
@@ -67,21 +67,21 @@ for sheet_name in sheet_names:
     color1 = 'tab:blue'
     ax1.set_xlabel('온도 (°C)', fontsize=12)
     ax1.set_ylabel('무게 (%)', color=color1, fontsize=12)
-    line1 = ax1.plot(x, y1, color=color1, label='무게 (%)')
+    line1, = ax1.plot(x, y1, color=color1, label='무게 (%)')
     ax1.tick_params(axis='y', labelcolor=color1)
     
     # 두 번째 축 (미분 무게 %/°C)
     ax2 = ax1.twinx()
     color2 = 'tab:red'
     ax2.set_ylabel('미분 무게 (%/°C)', color=color2, fontsize=12)
-    line2 = ax2.plot(x, y2, color=color2, linestyle='--', label='미분 무게 (%/°C)')
+    line2, = ax2.plot(x, y2, color=color2, linestyle='--', label='미분 무게 (%/°C)')
     ax2.tick_params(axis='y', labelcolor=color2)
     
     # 제목
     plt.title(f'TGA 결과: {sheet_name}', fontsize=14)
     
     # 범례 추가
-    lines = line1 + line2
+    lines = [line1, line2]
     labels = [l.get_label() for l in lines]
     ax1.legend(lines, labels, loc='best')
     
@@ -93,7 +93,7 @@ for sheet_name in sheet_names:
     output_filename = f"TGA_{safe_sheet_name}.png"
     output_path = os.path.join(OUT_DIR, output_filename)
     
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    fig.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close(fig)
     print(f"저장 완료: {output_path}")
 

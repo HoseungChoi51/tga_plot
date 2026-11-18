@@ -1,0 +1,69 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+# 데이터 파일 경로와 출력 디렉토리 설정
+DATA_FILE = "/home/chs/CNT/Plot/tests/inputs/TGA.xlsx"
+OUT_DIR = "/home/chs/CNT/Plot/eval/results/runs/sx/R-mpl-plain/09_r1/out"
+
+# 한글 폰트 설정
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+# 시트 이름과 라벨 매핑
+sheets_info = [
+    ("1006R1-V normal", "Normal"),
+    ("1006R1-V acid", "Acid"),
+    ("1006R1-V 750C", "750C")
+]
+
+fig, ax1 = plt.subplots(figsize=(8, 6))
+
+colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
+
+for i, (sheet_name, label) in enumerate(sheets_info):
+    # 각 시트 읽기
+    df = pd.read_excel(DATA_FILE, sheet_name=sheet_name)
+    
+    # TGA 곡선 (Weight %) - 왼쪽 y축
+    temp = df['Temperature']
+    weight = df['Weight(%)']
+    
+    color = colors[i % len(colors)]
+    line1, = ax1.plot(temp, weight, label=f"{label} TG", color=color, linewidth=1.5)
+    
+    # DTG 곡선 (D.W %/C) - 오른쪽 y축
+    dtg = df['D.W(%/C)']
+    ax2 = ax1.twinx()
+    line2, = ax2.plot(temp, dtg, linestyle='--', color=color, alpha=0.6, linewidth=1.2)
+
+# 축 레이블 설정
+ax1.set_xlabel('온도 (°C)', fontsize=12)
+ax1.set_ylabel('무게 (%)', fontsize=12, color='black')
+ax2.set_ylabel('미분 무게 (%/°C)', fontsize=12, color='gray')
+
+# 틱 방향 바깥쪽으로 설정 및 틱 라벨 크기 9로 설정
+ax1.tick_params(axis='both', direction='out', labelsize=9)
+ax2.tick_params(axis='both', direction='out', labelsize=9)
+
+# 범례 추가 (두 축의 모든 선 포함)
+lines_labels = ax1.get_legend_handles_labels()
+lines2_labels = ax2.get_legend_handles_labels()
+all_lines = lines_labels[0] + lines2_labels[0]
+all_labels = lines_labels[1] + lines2_labels[1]
+
+ax1.legend(all_lines, all_labels, loc='upper right', fontsize=9)
+
+# 제목
+plt.title('TGA/DTG 분석 결과', fontsize=14)
+
+# 레이아웃 조정
+plt.tight_layout()
+
+# 출력 디렉토리가 없으면 생성
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# 저장
+output_path = os.path.join(OUT_DIR, "tga_plot.png")
+plt.savefig(output_path, dpi=300, bbox_inches='tight')
+plt.close()

@@ -1,0 +1,190 @@
+```python
+import pandas as pd
+import json
+import numpy as np
+
+def main():
+    file_path = "/home/chs/CNT/Plot/tests/inputs/TGA.xlsx"
+    
+    # Read all sheets
+    xls = pd.ExcelFile(file_path)
+    sheet_names = xls.sheet_names
+    
+    figures = []
+    
+    for sheet_name in sheet_names:
+        df = pd.read_excel(xls, sheet_name=sheet_name)
+        
+        # Identify columns based on preview
+        x_col = "Temperature"
+        y1_col = "Weight(%)"
+        y2_col = "D.W(%/C)"
+        
+        # Prepare data
+        # Filter out NaN values if any
+        df_clean = df.dropna(subset=[x_col, y1_col, y2_col])
+        
+        # Create scatter-like line series data for ECharts (needs [x, y] pairs or separate arrays depending on axis type)
+        # Using 'value' axes requires data to be [[x, y], ...]
+        
+        data_weight = [[float(row[x_col]), float(row[y1_col])] for _, row in df_clean.iterrows()]
+        data_dtg = [[float(row[x_col]), float(row[y2_col])] for _, row in df_clean.iterrows()]
+        
+        # Determine Y-axis ranges dynamically to ensure good visibility
+        w_min = min([d[1] for d in data_weight]) if data_weight else 0
+        w_max = max([d[1] for d in data_weight]) if data_weight else 100
+        
+        dtg_min = min([d[1] for d in data_dtg]) if data_dtg else -1
+        dtg_max = max([d[1] for d in data_dtg]) if data_dtg else 0.1
+        
+        # Add some padding to axes
+        w_range = w_max - w_min
+        w_axis_min = w_min - w_range * 0.05
+        w_axis_max = w_max + w_range * 0.05
+        
+        dtg_range = dtg_max - dtg_min
+        dtg_axis_min = dtg_min - dtg_range * 0.05
+        dtg_axis_max = dtg_max + dtg_range * 0.05
+        
+        option = {
+            "title": {
+                "text": f"TGA / DTG: {sheet_name}",
+                "left": "center",
+                "textStyle": {
+                    "fontSize": 14,
+                    "fontFamily": "Noto Sans CJK KR"
+                }
+            },
+            "tooltip": {
+                "trigger": "axis",
+                "axisPointer": {
+                    "type": "cross"
+                },
+                "formatter": None # Default formatter works fine with value axes
+            },
+            "legend": {
+                "data": ["Weight (%)", "DTG (%/°C)"],
+                "top": "bottom",
+                "textStyle": {
+                    "fontFamily": "Noto Sans CJK KR",
+                    "fontSize": 10
+                }
+            },
+            "grid": {
+                "left": "10%",
+                "right": "10%",
+                "bottom": "15%",
+                "containLabel": True
+            },
+            "xAxis": {
+                "type": "value",
+                "name": "Temperature (°C)",
+                "nameLocation": "middle",
+                "nameGap": 30,
+                "min": 30,
+                "max": 900, # Adjusted to cover most data, though 750C sample stops earlier
+                "axisTick": {
+                    "show": True,
+                    "length": 6,
+                    "lineStyle": {"color": "#333"},
+                    "inside": False # Ticks pointing outward
+                },
+                "axisLabel": {
+                    "show": True,
+                    "fontSize": 9,
+                    "fontFamily": "Noto Sans CJK KR"
+                },
+                "splitLine": {
+                    "show": True,
+                    "lineStyle": {"type": "dashed"}
+                }
+            },
+            "yAxis": [
+                {
+                    "type": "value",
+                    "name": "Weight (%)",
+                    "position": "left",
+                    "min": round(w_axis_min, 1),
+                    "max": round(w_axis_max, 1),
+                    "axisTick": {
+                        "show": True,
+                        "length": 6,
+                        "lineStyle": {"color": "#333"},
+                        "inside": False # Ticks pointing outward
+                    },
+                    "axisLabel": {
+                        "show": True,
+                        "fontSize": 9,
+                        "fontFamily": "Noto Sans CJK KR"
+                    },
+                    "splitLine": {
+                        "show": True,
+                        "lineStyle": {"type": "dashed"}
+                    }
+                },
+                {
+                    "type": "value",
+                    "name": "DTG (%/°C)",
+                    "position": "right",
+                    "min": round(dtg_axis_min, 2),
+                    "max": round(dtg_axis_max, 2),
+                    "axisTick": {
+                        "show": True,
+                        "length": 6,
+                        "lineStyle": {"color": "#333"},
+                        "inside": False # Ticks pointing outward
+                    },
+                    "axisLabel": {
+                        "show": True,
+                        "fontSize": 9,
+                        "fontFamily": "Noto Sans CJK KR"
+                    },
+                    "splitLine": {
+                        "show": False
+                    }
+                }
+            ],
+            "series": [
+                {
+                    "name": "Weight (%)",
+                    "type": "line",
+                    "yAxisIndex": 0,
+                    "data": data_weight,
+                    "showSymbol": False,
+                    "lineStyle": {
+                        "width": 1.5,
+                        "color": "#5470c6"
+                    },
+                    "smooth": False
+                },
+                {
+                    "name": "DTG (%/°C)",
+                    "type": "line",
+                    "yAxisIndex": 1,
+                    "data": data_dtg,
+                    "showSymbol": False,
+                    "lineStyle": {
+                        "width": 1.5,
+                        "color": "#ee6666"
+                    },
+                    "smooth": False
+                }
+            ]
+        }
+        
+        figure_entry = {
+            "name": f"tga_{sheet_name.replace(' ', '_').replace('-', '_')}",
+            "option": option,
+            "width": 800,
+            "height": 500,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+        figures.append(figure_entry)
+
+    result = {"figures": figures}
+    print(json.dumps(result))
+
+if __name__ == "__main__":
+    main()
+```

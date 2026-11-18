@@ -1,0 +1,3 @@
+```json
+{"file": "TGA.xlsx", "annotate": {"residue": {"x": 700, "text": "Residue {y:.2f}%"}}}
+```

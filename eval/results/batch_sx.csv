@@ -84,3 +84,37 @@ Traceback (most recent call last):
 2026-11-18 15:58:53,sx,R-ec-plain,A,A,07,0.7,1,1,0,0,1,,2,1,0,1,83.26,0.85,1283,1374,,141,0,0,0,0,0,[ask] legend: legend at outside; legend size 6.75,,results/runs/sx/R-ec-plain/07_r1
 2026-11-18 15:58:54,sx,P-mpl,A,A,08,0.7,1,1,1,1,1,,4,0,1,1,4.05,0.63,4946,57,keys,,,,,,,,,results/runs/sx/P-mpl/08_r1
 2026-11-18 15:58:56,sx,P-ec,A,A,08,0.7,1,1,1,1,1,,4,0,1,1,3.73,0.87,5379,83,keys,,,,,,,,,results/runs/sx/P-ec/08_r1
+2026-11-18 16:00:16,sx,R-mpl-brief,A,A,08,0.7,1,1,1,1,1,,4,0,1,1,79.45,1.24,1697,1483,,81,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/08_r1
+2026-11-18 16:01:04,sx,R-ec-plain,A,A,08,0.7,1,1,1,1,1,,4,0,1,1,47.8,0.89,1311,1233,,118,0,0,0,0,0,,,results/runs/sx/R-ec-plain/08_r1
+2026-11-18 16:01:35,sx,R-mpl-plain,A,A,08,0.7,1,1,1,1,1,,4,0,0,3,160.89,2.27,6542,2893,,59,0,0,0,0,0,,The script ran but saved no figure into OUT_DIR (use fig.savefig / plt.savefig). || The script ran but saved no figure into OUT_DIR (use fig.savefig / plt.savefig).,results/runs/sx/R-mpl-plain/08_r1
+2026-11-18 16:02:28,sx,R-ec-brief,A,A,07,0.7,1,1,0,0,1,,2,1,0,3,260.39,1.63,13500,7581,,243,0,0,0,0,0,[ask] legend: legend at outside; legend size 6.75; legend at outside,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/CNT/Plot/eval/results/runs/sx/R-ec-brief/07_r1/make_option.py"", line 188, in <module>
+    ""containLabel"": true
+                    ^^^^
+NameError: name 'true' is not defined. Did you mean: 'True'? || The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/CNT/Plot/eval/results/runs/sx/R-ec-brief/07_r1/make_option.py"", line 302, in <module>
+    print(json.dumps(output, ensure_ascii=False))
+          ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""/home/chs/.local/share/uv/",results/runs/sx/R-ec-brief/07_r1
+2026-11-18 16:02:29,sx,P-mpl,A,A,09,0.7,1,1,1,1,1,,4,0,1,1,54.2,0.57,4919,52,keys,,,,,,,,,results/runs/sx/P-mpl/09_r1
+2026-11-18 16:02:31,sx,P-ec,A,A,09,0.7,1,1,1,1,1,,4,0,1,1,2.83,0.88,5352,52,keys,,,,,,,,,results/runs/sx/P-ec/09_r1
+2026-11-18 16:02:34,sx,R-ec-brief,A,A,08,0.7,1,1,1,1,1,,4,0,1,1,90.07,1.02,1794,2476,,246,0,0,0,0,0,,,results/runs/sx/R-ec-brief/08_r1
+2026-11-18 16:02:52,sx,R-mpl-plain,A,A,09,0.7,1,1,1,1,1,,4,0,1,1,23.08,0.83,1187,712,,39,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/09_r1
+2026-11-18 16:03:06,sx,R-mpl-brief,A,A,09,0.7,1,1,1,1,1,,4,0,1,1,34.54,1.16,1670,1113,,63,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/09_r1
+2026-11-18 16:03:33,sx,R-ec-plain,A,A,09,0.7,1,1,0,0,1,,4,3,0,1,59.32,1.02,1284,1590,,164,0,0,0,0,0,"[ask] axis: fig 0: x.tick_size is 6.75, want 9; fig 1: x.tick_size is 6.75, want 9; fig 2: x.tick_size is 6.75, want 9 | [ask] axis: fig 0: y1.tick_size is 6.75, want 9; fig 1: y1.tick_size is 6.75, want 9; fig 2: y1.tick_size is 6.75, want 9 | [ask] axis: fig 0: y2.tick_size is 6.75, want 9; fig 1: y2.tick_size is 6.75, want 9; fig 2: y2.tick_size is 6.75, want 9",,results/runs/sx/R-ec-plain/09_r1
+2026-11-18 16:03:34,sx,P-mpl,A,A,10,0.7,1,1,1,1,1,,2,0,1,1,28.2,0.53,4927,42,keys,,,,,,,,,results/runs/sx/P-mpl/10_r1
+2026-11-18 16:03:36,sx,P-ec,A,A,10,0.7,1,1,1,1,1,,2,0,1,1,2.38,0.76,5360,42,keys,,,,,,,,,results/runs/sx/P-ec/10_r1
+2026-11-18 16:04:03,sx,R-ec-brief,A,A,09,0.7,1,1,0,0,1,,4,3,0,1,70.69,0.93,1767,2060,,217,0,0,0,0,0,"[ask] axis: fig 0: x.tick_size is 6.75, want 9; fig 1: x.tick_size is 6.75, want 9; fig 2: x.tick_size is 6.75, want 9 | [ask] axis: fig 0: y1.tick_size is 6.75, want 9; fig 1: y1.tick_size is 6.75, want 9; fig 2: y1.tick_size is 6.75, want 9 | [ask] axis: fig 0: y2.tick_size is 6.75, want 9; fig 1: y2.tick_size is 6.75, want 9; fig 2: y2.tick_size is 6.75, want 9",,results/runs/sx/R-ec-brief/09_r1
+2026-11-18 16:04:45,sx,R-mpl-brief,A,A,10,0.7,1,1,1,1,1,,2,0,1,1,69.57,1.16,1678,1466,,86,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/10_r1
+2026-11-18 16:04:57,sx,R-ec-plain,A,A,10,0.7,1,1,0,0,1,,2,1,0,1,54.31,0.85,1292,994,,111,0,0,0,0,0,[ask] text_value: no label showing 8.1647±0.006; texts: [],,results/runs/sx/R-ec-plain/10_r1
+2026-11-18 16:05:26,sx,R-mpl-plain,A,A,10,0.7,1,1,0,0,0,,2,2,0,2,111.54,1.22,4001,2944,,100,0,0,0,0,0,[data] series: no y1 line with y None (x None); lines: [] | [ask] text_value: no label showing 8.1647±0.006; texts: [],"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/CNT/Plot/eval/_runner.py"", line 16, in <module>
+    runpy.run_path(script, run_name=""__main__"")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""<frozen runpy>"", line 287, in run_path
+  File ""<frozen runpy>"", lin",results/runs/sx/R-mpl-plain/10_r1
+2026-11-18 16:05:26,sx,P-mpl,A,A,11,0.7,1,1,1,1,1,1,5,0,1,1,28.84,0.52,4911,21,keys,,,,,,,,,results/runs/sx/P-mpl/11_r1
+2026-11-18 16:05:28,sx,P-ec,A,A,11,0.7,1,1,1,1,1,1,5,0,1,1,1.91,0.79,5344,21,keys,,,,,,,,,results/runs/sx/P-ec/11_r1

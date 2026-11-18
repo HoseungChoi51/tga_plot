@@ -84,9 +84,9 @@ Scoring is the same for every arm:
   - `chat_template_kwargs.enable_thinking=false` switches thinking off; `/no_think` is ignored.
   - Odin was also queue-limited (spec calls waited more than 12 min under load), so the study moved to Strix Halo.
 
-## Running now (on the old laptop)
+## State of the main run (stopped on the laptop; continue on the new machine)
 
-The main run is on the user's home Strix Halo (`strixhalo` on the tailnet):
+The main run uses the user's home Strix Halo (`strixhalo` on the tailnet):
 - Endpoint: `http://strixhalo:8084/v1`, model `qwen3.8-flash-next`, a UD-Q4_K_XL GGUF with MTP.
 - The server has `--sessions 2`, so it serves 2 requests at a time.
 
@@ -99,28 +99,21 @@ EVAL_API_KEY_FILE=~/.config/strixhalo_key python eval/run_batch.py --name sx \
   --base-url http://strixhalo:8084/v1 --model qwen3.8-flash-next --no-think --temperature 0.7 --repeat 3 --workers 3
 ```
 
-At handoff time 43/864 runs were done. Pass so far:
+**On the laptop it was stopped at 119/864 runs**, all from repeat 1. Strix Halo was released: it showed no client connections and was idle.
 
-| arm | passed |
-|---|---|
-| P-mpl | 8/8 |
-| P-ec | 8/8 |
-| R-mpl-brief | 5/7 |
-| R-mpl-plain | 4/7 |
-| R-ec-brief | 3/6 |
-| R-ec-plain | 1/7 |
+The commit holds the finished part:
+- `eval/results/batch_sx.csv`
+- every finished run's record, replies and scripts under `eval/results/runs/sx/`
+- their images, force-added so the blind review can use them; later run images are git-ignored again
 
-These numbers are early, and some were scored before the px/pt fix below. The CSV is appended row by row and the run resumes from it: rows already in the CSV are skipped.
+Runs that were cut off mid-way were deleted. They are not in the CSV, so they will run again.
 
-**Moving it.** Use one of these:
-- **Continue here:** leave the laptop running, and later copy `eval/results/batch_sx.csv` and `eval/results/runs/sx/` over.
-- **Move now:**
-  1. On the laptop, stop it: `pkill -f "eval/run_batch.py --name sx"`. Careful: run that from a shell whose own command line doesn't contain that text, or it kills itself.
-  2. Copy the results over the tailnet: `rsync -a chs:/home/chs/CNT/Plot/eval/results/ eval/results/`. Git holds the CSVs and run records but not the images.
-  3. Rerun the same command above on the new machine. It skips finished rows.
-  - Don't run both machines against Strix Halo at once; it only has 2 slots.
+**To continue on the new machine:**
+1. `git pull`.
+2. Rerun the command above. Rows already in the CSV are skipped.
+3. Don't run two machines against Strix Halo at once; it only has 2 slots.
 
-**Rescore after the run.** The checker was changed after the run started: ECharts font sizes are now accepted in px or pt, since an ECharts `fontSize: 18` is px. Run `python eval/rescore.py --name sx`. It re-checks every row from its `record.json` without calling the model.
+**Rescore after the run.** The checker was changed while the run was going: ECharts font sizes are now accepted in px or pt, since an ECharts `fontSize: 18` is px. Run `python eval/rescore.py --name sx`. It re-checks every row from its `record.json` without calling the model.
 
 ## Set up a new machine
 

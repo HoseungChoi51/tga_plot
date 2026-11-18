@@ -7,7 +7,7 @@ DATA_FILE = "/home/chs/CNT/Plot/tests/inputs/TGA.xlsx"
 def find_nearest_value(temp_arr, weight_arr, target_temp):
     """Find the weight value at the temperature nearest to target_temp."""
     idx = np.argmin(np.abs(temp_arr - target_temp))
-    return temp_arr[idx], weight_arr[idx]
+    return float(temp_arr[idx]), float(weight_arr[idx])
 
 def find_dtg_peak(temp_arr, dtg_arr, min_temp=150.0):
     """Find the highest DTG peak (most negative original value, so max of -dtg) above min_temp."""
@@ -24,8 +24,8 @@ def find_dtg_peak(temp_arr, dtg_arr, min_temp=150.0):
     neg_dtg = -dtg_masked
     idx_max = np.argmax(neg_dtg)
     
-    peak_temp = t_masked[idx_max]
-    peak_val_neg = neg_dtg[idx_max] # This is the height on the y2 axis (which is -dtg)
+    peak_temp = float(t_masked[idx_max])
+    peak_val_neg = float(neg_dtg[idx_max]) # This is the height on the y2 axis (which is -dtg)
     
     return peak_temp, peak_val_neg
 
@@ -95,22 +95,22 @@ for sheet_name in sheets:
     
     # Determine Axis Ranges dynamically to look nice
     # X Axis
-    x_min = min(temps.min(), 30)
-    x_max = max(temps.max(), 900)
+    x_min = float(min(temps.min(), 30))
+    x_max = float(max(temps.max(), 900))
     
     # Y1 (Weight)
-    y1_min = 0
-    y1_max = 100
+    y1_min = 0.0
+    y1_max = 100.0
     
     # Y2 (DTG * -1)
     # Find range of -dtg
     neg_dtgs = -dtgs
-    y2_min = min(neg_dtgs.min(), 0)
-    y2_max = max(neg_dtgs.max(), 0)
+    y2_min = float(min(neg_dtgs.min(), 0))
+    y2_max = float(max(neg_dtgs.max(), 0))
     
     # Add some padding to Y2
     y2_range = y2_max - y2_min
-    if y2_range == 0: y2_range = 1
+    if y2_range == 0: y2_range = 1.0
     y2_min -= y2_range * 0.1
     y2_max += y2_range * 0.1
     
@@ -185,7 +185,7 @@ for sheet_name in sheets:
             "right": "8%",
             "bottom": "10%",
             "top": "15%",
-            "containLabel": true
+            "containLabel": True
         },
         "xAxis": {
             "name": "Temperature (°C)",
@@ -195,7 +195,7 @@ for sheet_name in sheets:
             "min": x_min,
             "max": x_max,
             "splitLine": {
-                "show": false
+                "show": False
             },
             "axisLine": {
                 "lineStyle": {
@@ -203,7 +203,7 @@ for sheet_name in sheets:
                 }
             },
             "axisTick": {
-                "alignWithLabel": true
+                "alignWithLabel": True
             },
             "axisLabel": {
                 "fontFamily": "Noto Sans CJK KR",
@@ -223,7 +223,7 @@ for sheet_name in sheets:
                     }
                 },
                 "axisTick": {
-                    "show": true
+                    "show": True
                 },
                 "axisLabel": {
                     "fontFamily": "Noto Sans CJK KR",
@@ -231,7 +231,7 @@ for sheet_name in sheets:
                     "color": "#1f4e9c"
                 },
                 "splitLine": {
-                    "show": false
+                    "show": False
                 }
             },
             {
@@ -246,7 +246,7 @@ for sheet_name in sheets:
                     }
                 },
                 "axisTick": {
-                    "show": true
+                    "show": True
                 },
                 "axisLabel": {
                     "fontFamily": "Noto Sans CJK KR",
@@ -254,7 +254,7 @@ for sheet_name in sheets:
                     "color": "#c0392b"
                 },
                 "splitLine": {
-                    "show": false
+                    "show": False
                 }
             }
         ],
@@ -264,7 +264,7 @@ for sheet_name in sheets:
                 "type": "line",
                 "yAxisIndex": 0,
                 "data": series_weight_data,
-                "smooth": false,
+                "smooth": False,
                 "symbol": "none",
                 "lineStyle": {
                     "color": "#1f4e9c",
@@ -279,7 +279,7 @@ for sheet_name in sheets:
                 "type": "line",
                 "yAxisIndex": 1,
                 "data": series_dtg_data,
-                "smooth": false,
+                "smooth": False,
                 "symbol": "none",
                 "lineStyle": {
                     "color": "#c0392b",

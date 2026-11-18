@@ -1,0 +1,144 @@
+import pandas as pd
+import json
+import numpy as np
+
+def main():
+    file_path = "/home/chs/CNT/Plot/tests/inputs/TGA.xlsx"
+    
+    # Read all sheets
+    xls = pd.ExcelFile(file_path)
+    sheet_names = xls.sheet_names
+    
+    figures = []
+    
+    for i, sheet_name in enumerate(sheet_names):
+        df = pd.read_excel(xls, sheet_name=sheet_name, header=0)
+        
+        # Identify columns based on preview info or standard TGA structure
+        # Preview says: B is Temperature, C is Weight(%), D is D.W(%/C)
+        # We'll try to find them by name first, fallback to position if needed.
+        cols = df.columns.tolist()
+        
+        temp_col = None
+        weight_col = None
+        dtg_col = None
+        
+        for col in cols:
+            col_str = str(col).lower()
+            if 'temperature' in col_str or 'temp' in col_str:
+                temp_col = col
+            elif 'weight(%)' in col_str or 'wt%' in col_str or 'weight %' in col_str:
+                weight_col = col
+            elif 'd.w' in col_str or 'dtg' in col_str or 'derivative' in col_str:
+                dtg_col = col
+                
+        # Fallback to positional indices from preview if names don't match well
+        if temp_col is None and len(df.columns) > 1:
+            temp_col = df.columns[1] # Column B
+        if weight_col is None and len(df.columns) > 2:
+            weight_col = df.columns[2] # Column C
+        if dtg_col is None and len(df.columns) > 3:
+            dtg_col = df.columns[3] # Column D
+            
+        if temp_col is None or weight_col is None:
+            continue
+            
+        # Extract data
+        x_data = df[temp_col].dropna().tolist()
+        y1_data = df[weight_col].dropna().tolist()
+        
+        # Prepare series data
+        # For line charts, we can use [[x, y], ...] format
+        series_weight = [[float(t), float(w)] for t, w in zip(df[temp_col], df[weight_col]) if not (pd.isna(t) or pd.isna(w))]
+        
+        series_list = [
+            {
+                "name": f"{sheet_name} - 무게",
+                "type": "line",
+                "yAxisIndex": 0,
+                "data": series_weight,
+                "smooth": False,
+                "showSymbol": False,
+                "lineStyle": {"width": 2}
+            }
+        ]
+        
+        # Add DTG if available
+        if dtg_col is not None:
+            series_dtg = [[float(t), float(d)] for t, d in zip(df[temp_col], df[dtg_col]) if not (pd.isna(t) or pd.isna(d))]
+            series_list.append({
+                "name": f"{sheet_name} - 미분 무게",
+                "type": "line",
+                "yAxisIndex": 1,
+                "data": series_dtg,
+                "smooth": False,
+                "showSymbol": False,
+                "lineStyle": {"width": 2, "type": "dashed"}
+            })
+
+        option = {
+            "title": {
+                "text": f"TGA 데이터: {sheet_name}",
+                "left": "center",
+                "top": 10
+            },
+            "tooltip": {
+                "trigger": "axis",
+                "axisPointer": {
+                    "type": "cross"
+                }
+            },
+            "legend": {
+                "data": [s["name"] for s in series_list],
+                "top": 40
+            },
+            "grid": {
+                "left": "8%",
+                "right": "8%",
+                "bottom": "10%",
+                "containLabel": True
+            },
+            "xAxis": {
+                "type": "value",
+                "name": "온도 (°C)",
+                "nameLocation": "middle",
+                "nameGap": 30,
+                "min": min(x_data) if x_data else 0,
+                "max": max(x_data) if x_data else 1000
+            },
+            "yAxis": [
+                {
+                    "type": "value",
+                    "name": "무게 (%)",
+                    "position": "left",
+                    "min": 0,
+                    "max": 105
+                },
+                {
+                    "type": "value",
+                    "name": "미분 무게 (%/°C)",
+                    "position": "right",
+                    "offset": 0,
+                    "splitLine": {
+                        "show": False
+                    }
+                }
+            ],
+            "series": series_list
+        }
+        
+        figure = {
+            "name": f"tga_{i+1}_{sheet_name.replace(' ', '_').replace('-', '_')}",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+        figures.append(figure)
+
+    output = {"figures": figures}
+    print(json.dumps(output, ensure_ascii=False))
+
+if __name__ == "__main__":
+    main()
