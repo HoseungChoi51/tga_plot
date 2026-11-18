@@ -16,12 +16,19 @@ exactly one spec key in `AGENT.md`. Users who use those names get predictable re
 | `tests/AGENT_TEST_PROMPTS.md` | 24 Korean test requests, ready to paste into an agent that runs commands itself (e.g. pi) |
 | `tests/inputs/` | 12 test files in different formats (made by `tests/make_test_inputs.py`) |
 | `tests/run_tests.py` | checks the reader on all test files (no LLM) |
+| `plotkit_echarts.py`, `echartkit/` | the optional ECharts engine (`PLOTKIT_ENGINE=echarts`); needs Node.js |
+| `AGENT_ECHARTS.md` | `AGENT.md` for the ECharts engine (`"echarts"` settings instead of `"code"`) |
+| `EXPERIMENT.md` | how to compare the two engines with the same model and the 24 test requests |
+| `tests/score.py`, `tests/expected_requests.json` | scores an agent's spec for one test request |
 | `examples/` | the plot made from the long example request in the original question |
 | `old/` | the first version (`tga_plot_v1.py`) and its sample data |
 
 ## Install (once)
 
     pip install numpy matplotlib scipy openpyxl xlrd
+
+Optional ECharts engine (Node.js 20+): `npm install --prefix echartkit`, then add
+`--engine echarts` or set `PLOTKIT_ENGINE=echarts`. See `EXPERIMENT.md`.
 
 ## Use it by hand
 
