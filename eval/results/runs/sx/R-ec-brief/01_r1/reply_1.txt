@@ -1,0 +1,285 @@
+```python
+import pandas as pd
+import json
+import numpy as np
+
+DATA_FILE = "/home/chs/CNT/Plot/tests/inputs/TGA.xlsx"
+
+def get_nearest_point(df, x_col, y_col, target_x):
+    """Find the row in df where x_col is closest to target_x."""
+    if df.empty:
+        return None, None
+    idx = (df[x_col] - target_x).abs().idxmin()
+    return df.loc[idx, x_col], df.loc[idx, y_col]
+
+def process_sheet(sheet_name, df):
+    # Identify columns based on standard TGA structure from preview
+    # Assuming B=Temperature, C=Weight(%), D=D.W(%/C)
+    # We need to map column names to indices or use position if names are ambiguous.
+    # Based on preview: A=Time, B=Temperature, C=Weight(%), D=D.W(%/C)
+    
+    cols = df.columns.tolist()
+    # Robustly find columns by name patterns if possible, otherwise fallback to positions
+    temp_col = None
+    weight_col = None
+    dtg_col = None
+    
+    for c in cols:
+        cl = str(c).lower()
+        if 'temp' in cl:
+            temp_col = c
+        elif 'weight' in cl and '%' in cl:
+            weight_col = c
+        elif 'd.w' in cl or 'dtg' in cl or ('derivative' in cl and 'weight' in cl):
+            dtg_col = c
+            
+    # Fallback to positional if names don't match well
+    if temp_col is None and len(cols) >= 2: temp_col = cols[1]
+    if weight_col is None and len(cols) >= 3: weight_col = cols[2]
+    if dtg_col is None and len(cols) >= 4: dtg_col = cols[3]
+
+    if not all([temp_col, weight_col, dtg_col]):
+        return None
+
+    # Clean data: drop NaNs
+    df_clean = df[[temp_col, weight_col, dtg_col]].dropna()
+    
+    if df_clean.empty:
+        return None
+
+    temps = df_clean[temp_col].tolist()
+    weights = df_clean[weight_col].tolist()
+    dtgs_raw = df_clean[dtg_col].tolist()
+    
+    # Invert DTG so peaks point up
+    dtgs_inv = [-x for x in dtgs_raw]
+    
+    # Calculate Residue at ~800°C
+    residue_temp, residue_weight = get_nearest_point(df_clean, temp_col, weight_col, 800.0)
+    
+    # Find Peak Temp > 150°C
+    # Filter for temp > 150
+    mask_peak = [t > 150 for t in temps]
+    peak_temps = [t for t, m in zip(temps, mask_peak) if m]
+    peak_dtgs = [d for d, m in zip(dtgs_inv, mask_peak) if m]
+    
+    peak_temp_val = None
+    peak_weight_val = None
+    
+    if peak_temps and peak_dtgs:
+        max_dtg_idx_in_filtered = np.argmax(peak_dtgs)
+        peak_temp_val = peak_temps[max_dtg_idx_in_filtered]
+        # Find corresponding weight in original clean df
+        # We need the weight at this specific temperature
+        # Since we filtered, we need to map back. 
+        # Simpler: find index in df_clean where temp is closest to peak_temp_val
+        _, peak_weight_val = get_nearest_point(df_clean, temp_col, weight_col, peak_temp_val)
+
+    # Prepare Series Data
+    # ECharts expects [x, y] pairs for line series usually, or separate arrays if xAxis is value type
+    # Using xAxis type 'value' allows [x,y] pairs
+    
+    series_data_weight = [[t, w] for t, w in zip(temps, weights)]
+    series_data_dtg = [[t, d] for t, d in zip(temps, dtgs_inv)]
+    
+    # Markers for annotations
+    mark_points = []
+    if residue_temp is not None:
+        mark_points.append({
+            "coord": [residue_temp, residue_weight],
+            "symbolSize": 8,
+            "label": {
+                "show": True,
+                "formatter": f"Residue {residue_weight:.1f}%",
+                "position": "top",
+                "fontSize": 12,
+                "color": "#1f4e9c"
+            },
+            "itemStyle": {"color": "#1f4e9c"}
+        })
+        
+    if peak_temp_val is not None and peak_weight_val is not None:
+        # Note: The label should be near the DTG curve (right axis), but marker coord needs to align visually?
+        # Usually, we put the marker on the DTG line itself.
+        # However, the prompt says "marker on the curve". For peak, it's the DTG curve.
+        # But ECharts markPoint coord uses the axes of the series it belongs to.
+        # If we attach it to the DTG series, coord is [Temp, DTG_inv].
+        # Let's create a separate scatter series or add to DTG series.
+        # Adding to DTG series is cleaner.
+        pass 
+
+    # Construct Option
+    option = {
+        "title": {
+            "text": sheet_name,
+            "left": "center",
+            "textStyle": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 16
+            }
+        },
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {
+                "type": "cross"
+            }
+        },
+        "legend": {
+            "data": ["Weight (%)", "DTG (%/°C)"],
+            "orient": "vertical",
+            "left": "left",
+            "top": "middle",
+            "textStyle": {
+                "fontFamily": "Noto Sans CJK KR"
+            }
+        },
+        "grid": {
+            "left": "10%",
+            "right": "10%",
+            "bottom": "15%",
+            "containLabel": True
+        },
+        "xAxis": {
+            "name": "Temperature (°C)",
+            "type": "value",
+            "nameLocation": "middle",
+            "nameGap": 30,
+            "axisLine": {"onZero": False},
+            "splitLine": {"show": True, "lineStyle": {"type": "dashed"}}
+        },
+        "yAxis": [
+            {
+                "name": "Weight (%)",
+                "type": "value",
+                "position": "left",
+                "nameLocation": "middle",
+                "nameGap": 40,
+                "splitLine": {"show": True, "lineStyle": {"type": "dashed"}},
+                "axisLine": {"show": True, "lineStyle": {"color": "#1f4e9c"}}
+            },
+            {
+                "name": "DTG (%/°C)",
+                "type": "value",
+                "position": "right",
+                "nameLocation": "middle",
+                "nameGap": 40,
+                "splitLine": {"show": False},
+                "axisLine": {"show": True, "lineStyle": {"color": "#c0392b"}}
+            }
+        ],
+        "series": [
+            {
+                "name": "Weight (%)",
+                "type": "line",
+                "yAxisIndex": 0,
+                "data": series_data_weight,
+                "smooth": True,
+                "showSymbol": False,
+                "lineStyle": {
+                    "color": "#1f4e9c",
+                    "width": 2
+                },
+                "markPoint": {
+                    "data": [
+                        {
+                            "coord": [residue_temp, residue_weight] if residue_temp else [0,0],
+                            "symbolSize": 8,
+                            "label": {
+                                "show": bool(residue_temp),
+                                "formatter": f"Residue {residue_weight:.1f}%" if residue_weight else "",
+                                "position": "top",
+                                "fontSize": 12,
+                                "color": "#1f4e9c"
+                            },
+                            "itemStyle": {"color": "#1f4e9c"}
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "DTG (%/°C)",
+                "type": "line",
+                "yAxisIndex": 1,
+                "data": series_data_dtg,
+                "smooth": True,
+                "showSymbol": False,
+                "lineStyle": {
+                    "color": "#c0392b",
+                    "width": 2
+                },
+                "markPoint": {
+                    "data": [
+                        {
+                            "coord": [peak_temp_val, dtgs_inv[temps.index(peak_temp_val)] if peak_temp_val in temps else 0] if peak_temp_val else [0,0],
+                            "symbolSize": 8,
+                            "label": {
+                                "show": bool(peak_temp_val),
+                                "formatter": f"{int(peak_temp_val)} °C" if peak_temp_val else "",
+                                "position": "top",
+                                "fontSize": 12,
+                                "color": "#c0392b"
+                            },
+                            "itemStyle": {"color": "#c0392b"}
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+    
+    # Fix the peak markpoint coordinate logic more robustly
+    # We need the actual Y value of the inverted DTG at the peak temperature
+    if peak_temp_val is not None:
+        # Find the exact index in the original list to get the precise Y
+        # Since temps might have duplicates or floating point issues, nearest is safer
+        min_diff = float('inf')
+        best_y = 0
+        for i, t in enumerate(temps):
+            diff = abs(t - peak_temp_val)
+            if diff < min_diff:
+                min_diff = diff
+                best_y = dtgs_inv[i]
+        
+        # Update the markpoint in the second series
+        option["series"][1]["markPoint"]["data"] = [{
+            "coord": [peak_temp_val, best_y],
+            "symbolSize": 8,
+            "label": {
+                "show": True,
+                "formatter": f"{int(peak_temp_val)} °C",
+                "position": "top",
+                "fontSize": 12,
+                "color": "#c0392b"
+            },
+            "itemStyle": {"color": "#c0392b"}
+        }]
+
+    return option
+
+def main():
+    figures = []
+    
+    # Read Excel file
+    xls = pd.ExcelFile(DATA_FILE)
+    sheet_names = xls.sheet_names
+    
+    for i, sheet_name in enumerate(sheet_names):
+        df = pd.read_excel(xls, sheet_name=sheet_name)
+        opt = process_sheet(sheet_name, df)
+        if opt:
+            fig_entry = {
+                "name": f"plot_{i+1}",
+                "option": opt,
+                "width": 614,
+                "height": 442,
+                "dpi": 300,
+                "formats": ["png"]
+            }
+            figures.append(fig_entry)
+            
+    result = {"figures": figures}
+    print(json.dumps(result))
+
+if __name__ == "__main__":
+    main()
+```

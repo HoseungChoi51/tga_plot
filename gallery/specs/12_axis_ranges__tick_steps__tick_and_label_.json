@@ -1,0 +1,23 @@
+{
+  "file": "data/polymers.xlsx",
+  "sheets": "PVC",
+  "tick_direction": "out",
+  "x": {
+    "min": 100,
+    "max": 700,
+    "step": 100
+  },
+  "y1": {
+    "min": 0,
+    "max": 105,
+    "step": 25,
+    "label_color": "black",
+    "tick_color": "black"
+  },
+  "y2": {
+    "min": 0,
+    "max": 1.4,
+    "step": 0.35,
+    "label_size": 13
+  }
+}

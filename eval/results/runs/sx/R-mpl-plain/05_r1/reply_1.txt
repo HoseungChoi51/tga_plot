@@ -1,0 +1,57 @@
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/CNT/Plot/tests/inputs/TGA.xlsx"
+OUT_DIR = "/home/chs/CNT/Plot/eval/results/runs/sx/R-mpl-plain/05_r1/out"
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# Read all sheets
+xls = pd.ExcelFile(DATA_FILE)
+sheet_names = xls.sheet_names
+
+fig, axes = plt.subplots(len(sheet_names), 1, figsize=(8, 4 * len(sheet_names)), sharex=False)
+if len(sheet_names) == 1:
+    axes = [axes]
+
+colors_y2 = ['#d62728', '#2ca02c', '#9467bd']  # red, green, purple for y2 lines
+
+for idx, sheet_name in enumerate(sheet_names):
+    df = pd.read_excel(DATA_FILE, sheet_name=sheet_name, header=1)
+    
+    temp = df['Temperature']
+    weight = df['Weight(%)']
+    dtg = df['D.W(%/C)']
+    
+    ax = axes[idx]
+    ax2 = ax.twinx()
+    
+    # y1: Weight(%) - black solid line with linewidth 2.5
+    line1 = ax.plot(temp, weight, color='black', linewidth=2.5, label='Weight (%)')
+    ax.set_ylabel('Weight (%)', fontsize=12)
+    ax.set_xlabel('Temperature (°C)', fontsize=12)
+    
+    # y2: D.W(%/C) - dashed line
+    line2 = ax2.plot(temp, dtg, linestyle='--', color=colors_y2[idx % len(colors_y2)], linewidth=1.5, label='DTG (%/°C)')
+    ax2.set_ylabel('DTG (%/°C)', fontsize=12)
+    
+    ax.set_title(f'TGA - {sheet_name}', fontsize=13)
+    
+    # Combine legends
+    lines = line1 + line2
+    labels = [l.get_label() for l in lines]
+    ax.legend(lines, labels, loc='best', fontsize=10)
+    
+    ax.grid(True, linestyle=':', alpha=0.5)
+
+plt.tight_layout()
+out_path = os.path.join(OUT_DIR, "TGA_plot.png")
+plt.savefig(out_path, dpi=300, bbox_inches='tight')
+plt.close()
+```

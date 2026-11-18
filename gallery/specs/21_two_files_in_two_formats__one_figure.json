@@ -1,0 +1,8 @@
+{
+  "file": [
+    "data/cnt_lot_A.csv",
+    "data/cnt_lot_B.txt"
+  ],
+  "combine": true,
+  "title": "Lot A vs Lot B"
+}

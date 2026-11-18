@@ -22,6 +22,10 @@ exactly one spec key in `AGENT.md`. Users who use those names get predictable re
 | `tests/score.py`, `tests/expected_requests.json` | scores an agent's spec for one test request |
 | `examples/` | the plot made from the long example request in the original question |
 | `old/` | the first version (`tga_plot_v1.py`) and its sample data |
+| `eval/` | the protocol evaluation: six arms (spec vs raw code, both engines), figure-facts checker, parity, coverage, safety |
+| `gallery/` | 26 example specs on made-up data, drawn by both engines (`python gallery/make_gallery.py`) |
+| `report/` | builds the evaluation report page from `eval/results/` |
+| `HANDOFF.md` | state of the evaluation and how to continue it on another machine |
 
 ## Install (once)
 

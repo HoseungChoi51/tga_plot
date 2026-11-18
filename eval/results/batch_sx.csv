@@ -1,0 +1,86 @@
+time,run,arm,set,group,request,temperature,repeat,ok_run,pass_all,pass_ask,pass_data,pass_conv,n_checks,n_failed,first_try,model_calls,seconds,exec_seconds,prompt_tokens,output_tokens,route,loc,subprocess,network,delete,exec,write_outside,failed,errors,run_dir
+2026-11-18 15:45:57,sx,P-ec,A,A,01,0.7,1,1,1,1,1,1,4,0,1,1,10.13,1.04,5345,13,keys,,,,,,,,,results/runs/sx/P-ec/01_r1
+2026-11-18 15:45:58,sx,P-mpl,A,A,01,0.7,1,1,1,1,1,1,4,0,1,1,10.43,0.9,4912,13,keys,,,,,,,,,results/runs/sx/P-mpl/01_r1
+2026-11-18 15:46:20,sx,R-mpl-plain,A,A,01,0.7,1,1,0,1,1,0,4,3,0,1,33.25,0.87,1180,761,,35,0,0,0,0,0,"[conv] text_value: no label showing 8.0117±0.1; texts: [] | [conv] text_value: no label showing 3.0183±0.1; texts: [] | [conv] text_values: no label for [600, 560, 540]; texts: []",,results/runs/sx/R-mpl-plain/01_r1
+2026-11-18 15:46:49,sx,R-mpl-brief,A,A,01,0.7,1,1,1,1,1,1,4,0,1,1,51.81,1.16,1663,1631,,101,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/01_r1
+2026-11-18 15:47:00,sx,R-ec-plain,A,A,01,0.7,1,1,0,1,1,0,4,3,0,1,62.44,0.93,1277,1376,,146,0,0,0,0,0,"[conv] text_value: no label showing 8.0117±0.1; texts: [] | [conv] text_value: no label showing 3.0183±0.1; texts: [] | [conv] text_values: no label for [600, 560, 540]; texts: []",,results/runs/sx/R-ec-plain/01_r1
+2026-11-18 15:47:10,sx,P-mpl,A,A,02,0.7,1,1,1,1,1,,8,0,1,1,20.52,0.4,5102,200,keys,,,,,,,,,results/runs/sx/P-mpl/02_r1
+2026-11-18 15:47:21,sx,P-ec,A,A,02,0.7,1,1,1,1,1,,8,0,1,1,20.49,0.64,5535,200,keys,,,,,,,,,results/runs/sx/P-ec/02_r1
+2026-11-18 15:48:25,sx,R-mpl-plain,A,A,02,0.7,1,1,0,0,1,,8,1,0,1,75.55,0.75,1370,1692,,67,0,1,0,0,0,"[ask] text_value: value 8.0117 shown as ['Residue @ ~800°C:\n8.01%'], not matching ^Residue \d+(\.\d+)?\s?%$",,results/runs/sx/R-mpl-plain/02_r1
+2026-11-18 15:49:07,sx,R-ec-brief,A,A,01,0.7,1,1,1,1,1,1,4,0,0,2,166.28,1.32,6609,4513,,192,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/CNT/Plot/eval/results/runs/sx/R-ec-brief/01_r1/make_option.py"", line 283, in <module>
+    main()
+    ~~~~^^
+  File ""/home/chs/CNT/Plot/eval/results/runs/sx/R-ec-brief/01_r1/make_option.py"", line 280, in main
+    print(j",results/runs/sx/R-ec-brief/01_r1
+2026-11-18 15:49:09,sx,R-mpl-brief,A,A,02,0.7,1,1,1,1,1,,8,0,1,1,108.83,0.77,1853,1377,,68,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/02_r1
+2026-11-18 15:50:11,sx,P-mpl,A,A,03,0.7,1,1,1,1,1,,3,0,1,1,61.65,0.37,4937,57,keys,,,,,,,,,results/runs/sx/P-mpl/03_r1
+2026-11-18 15:50:20,sx,P-ec,A,A,03,0.7,1,1,1,1,1,,3,0,1,1,8.62,0.63,5370,57,keys,,,,,,,,,results/runs/sx/P-ec/03_r1
+2026-11-18 15:50:58,sx,R-ec-plain,A,A,02,0.7,1,1,0,0,1,,8,2,0,2,152.94,1.21,5501,4030,,167,0,0,0,0,0,"[ask] text_value: value 8.0117 shown as ['Residue: 8.01%\nTemp: 800°C'], not matching ^Residue \d+(\.\d+)?\s?%$ | [ask] any_of: no label for [600]; texts: ['Residue: 8.01%\nTemp: 800°C', 'Max: 0.003'] / no label showing 1.0269±0.03; texts: ['Residue: 8.01%\nTemp: 800°C', 'Max: 0.003']","The script failed (exit 1):
+/home/chs/CNT/Plot/eval/results/runs/sx/R-ec-plain/02_r1/make_option.py:28: Pandas4Warning: The inplace keyword in DataFrame.dropna is deprecated and will be removed in a future version (PDEP-8).
+See https://pandas.pydata.org/docs/dev/whatsnew/v3.1.0.html#deprecation-inpl",results/runs/sx/R-ec-plain/02_r1
+2026-11-18 15:51:21,sx,R-ec-brief,A,A,02,0.7,1,1,1,1,1,,8,0,0,2,133.96,1.08,6511,4952,,231,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/CNT/Plot/eval/results/runs/sx/R-ec-brief/02_r1/make_option.py"", line 21, in <module>
+    idx_800 = (np.array(x_data) - target_temp).abs().idxmin()
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'nump",results/runs/sx/R-ec-brief/02_r1
+2026-11-18 15:51:51,sx,R-mpl-plain,A,A,03,0.7,1,1,1,1,1,,3,0,1,1,91.55,1.17,1205,1408,,72,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/03_r1
+2026-11-18 15:52:03,sx,R-mpl-brief,A,A,03,0.7,1,1,0,0,1,,3,1,0,1,65.17,1.05,1688,1438,,68,0,0,0,0,0,"[ask] any_of: no label for [560, 400]; texts: ['Residue 3.0%', '103 °C', '101 °C'] / no label for [0.8067, 0.1626]; texts: ['Residue 3.0%', '103 °C', '101 °C']",,results/runs/sx/R-mpl-brief/03_r1
+2026-11-18 15:52:32,sx,P-mpl,A,A,04,0.7,1,1,1,1,1,,2,0,1,1,28.44,0.18,4945,53,keys,,,,,,,,,results/runs/sx/P-mpl/04_r1
+2026-11-18 15:52:58,sx,P-ec,A,A,04,0.7,1,1,1,1,1,,2,0,1,1,26.33,0.73,5378,53,keys,,,,,,,,,results/runs/sx/P-ec/04_r1
+2026-11-18 15:53:06,sx,R-ec-plain,A,A,03,0.7,1,1,0,0,0,,3,2,0,2,105.25,1.2,4193,2908,,142,0,0,0,0,0,"[data] only: other y1 data drawn too: [[-0.80667, 0.0033005]] | [ask] any_of: no label for [560, 400]; texts: ['Peak 1', 'Peak 2'] / no label for [0.8067, 0.1626]; texts: ['Peak 1', 'Peak 2']","The script failed (exit 1):
+File ""/home/chs/CNT/Plot/eval/results/runs/sx/R-ec-plain/03_r1/make_option.py"", line 135
+    ""formatter"": function_placeholder := None,
+                                      ^^
+SyntaxError: invalid syntax",results/runs/sx/R-ec-plain/03_r1
+2026-11-18 15:53:22,sx,R-mpl-plain,A,A,04,0.7,1,1,1,1,1,,2,0,1,1,23.59,0.67,1213,493,,29,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/04_r1
+2026-11-18 15:53:38,sx,R-ec-brief,A,A,03,0.7,1,1,0,0,1,,3,1,0,2,106.41,1.21,5703,3422,,170,0,0,0,0,0,"[ask] any_of: no label for [400]; texts: ['Residue 3.0%', '559 °C', '560 °C'] / no label for [0.8067, 0.1626]; texts: ['Residue 3.0%', '559 °C', '560 °C']","The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/CNT/Plot/eval/results/runs/sx/R-ec-brief/03_r1/make_option.py"", line 199, in <module>
+    print(json.dumps(output))
+          ~~~~~~~~~~^^^^^^^^
+  File ""/home/chs/.local/share/uv/python/cpython-3.13.13-linux-x86_64-gnu/",results/runs/sx/R-ec-brief/03_r1
+2026-11-18 15:53:58,sx,R-ec-plain,A,A,04,0.7,1,1,0,0,1,,2,1,0,1,36.26,0.84,1310,867,,107,0,0,0,0,0,[ask] title: title size 13.5,,results/runs/sx/R-ec-plain/04_r1
+2026-11-18 15:54:03,sx,R-mpl-brief,A,A,04,0.7,1,1,1,1,1,,2,0,1,1,56.93,0.72,1696,1148,,61,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/04_r1
+2026-11-18 15:54:04,sx,P-mpl,A,A,05,0.7,1,1,1,1,1,,3,0,1,1,6.25,0.62,4931,43,keys,,,,,,,,,results/runs/sx/P-mpl/05_r1
+2026-11-18 15:54:06,sx,P-ec,A,A,05,0.7,1,1,1,1,1,,3,0,1,1,3.37,1.05,5364,43,keys,,,,,,,,,results/runs/sx/P-ec/05_r1
+2026-11-18 15:54:41,sx,R-ec-brief,A,A,04,0.7,1,1,0,0,1,,2,1,0,1,63.3,0.96,1793,1609,,164,0,0,0,0,0,[ask] title: title size 13.5,,results/runs/sx/R-ec-brief/04_r1
+2026-11-18 15:55:03,sx,R-mpl-brief,A,A,05,0.7,1,1,0,0,1,,3,1,0,1,56.2,1.52,1682,1285,,70,0,0,0,0,0,"[ask] lines: y2 line style is 'dashed', want 'dotted'",,results/runs/sx/R-mpl-brief/05_r1
+2026-11-18 15:55:54,sx,R-ec-brief,A,A,05,0.7,1,1,0,0,1,,3,2,0,1,51.35,0.92,1779,1698,,170,0,0,0,0,0,"[ask] lines: y1 line width is 1.875, want 2.5 | [ask] lines: y2 line style is 'dashed', want 'dotted'",,results/runs/sx/R-ec-brief/05_r1
+2026-11-18 15:56:11,sx,R-ec-plain,A,A,05,0.7,1,1,0,0,1,,3,2,0,1,89.36,0.84,1296,1963,,166,0,1,0,0,0,"[ask] lines: y1 line width is 1.875, want 2.5 | [ask] lines: y2 line style is 'dashed', want 'dotted'",,results/runs/sx/R-ec-plain/05_r1
+2026-11-18 15:56:12,sx,P-mpl,A,A,06,0.7,1,1,1,1,1,,3,0,1,1,17.48,0.58,4916,24,keys,,,,,,,,,results/runs/sx/P-mpl/06_r1
+2026-11-18 15:56:13,sx,P-ec,A,A,06,0.7,1,1,1,1,1,,3,0,1,1,2.22,0.57,5349,24,keys,,,,,,,,,results/runs/sx/P-ec/06_r1
+2026-11-18 15:56:27,sx,R-mpl-plain,A,A,05,0.7,1,0,0,0,0,,1,1,0,3,142.71,1.61,7382,3073,,79,0,0,0,0,0,[data] run: no plot after retries,"The script failed (exit 1):
+  File ""/home/chs/CNT/Plot/.venv/lib/python3.13/site-packages/pandas/core/indexes/base.py"", line 3816, in get_loc
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File ""pandas/_libs/index.pyx"", line 172, in pandas._libs.index.Index || The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/CNT/Plot/eval/_runner.py"", line 16, in <module>
+    runpy.run_path(script, run_name=""__main__"")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""<frozen runpy>"", line 287, in run_path
+  File ""<frozen runpy>"", lin || The script failed (exit 1):
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File ""pandas/_libs/index.pyx"", line 172, in pandas._libs.index.IndexEngine.get_loc
+  File ""pandas/_libs/index.pyx"", line 201, in pandas._libs.index.IndexEngine.get_loc
+  File ""pandas",results/runs/sx/R-mpl-plain/05_r1
+2026-11-18 15:56:38,sx,R-mpl-plain,A,A,06,0.7,1,1,1,1,1,,3,0,1,1,26.51,0.81,1184,661,,35,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/06_r1
+2026-11-18 15:56:57,sx,R-mpl-brief,A,A,06,0.7,1,1,1,1,1,,3,0,1,1,44.17,1.04,1667,1129,,61,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/06_r1
+2026-11-18 15:57:06,sx,R-ec-plain,A,A,06,0.7,1,1,1,1,1,,3,0,1,1,39.05,0.98,1281,1101,,129,0,0,0,0,0,,,results/runs/sx/R-ec-plain/06_r1
+2026-11-18 15:57:07,sx,P-mpl,A,A,07,0.7,1,1,1,1,1,,2,0,1,1,9.76,0.49,4918,29,keys,,,,,,,,,results/runs/sx/P-mpl/07_r1
+2026-11-18 15:57:08,sx,P-ec,A,A,07,0.7,1,1,1,1,1,,2,0,1,1,1.92,0.61,5351,29,keys,,,,,,,,,results/runs/sx/P-ec/07_r1
+2026-11-18 15:57:29,sx,R-mpl-plain,A,A,07,0.7,1,1,1,1,1,,2,0,1,1,22.58,0.75,1186,774,,52,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/07_r1
+2026-11-18 15:58:08,sx,R-mpl-brief,A,A,07,0.7,1,1,1,1,1,,2,0,1,1,59.66,1.13,1669,1327,,75,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/07_r1
+2026-11-18 15:58:50,sx,R-ec-brief,A,A,06,0.7,1,1,1,1,1,,3,0,0,2,132.03,1.27,6032,4205,,190,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/CNT/Plot/eval/results/runs/sx/R-ec-brief/06_r1/make_option.py"", line 220, in <module>
+    print(json.dumps(output))
+          ~~~~~~~~~~^^^^^^^^
+  File ""/home/chs/.local/share/uv/python/cpython-3.13.13-linux-x86_64-gnu/",results/runs/sx/R-ec-brief/06_r1
+2026-11-18 15:58:53,sx,R-ec-plain,A,A,07,0.7,1,1,0,0,1,,2,1,0,1,83.26,0.85,1283,1374,,141,0,0,0,0,0,[ask] legend: legend at outside; legend size 6.75,,results/runs/sx/R-ec-plain/07_r1
+2026-11-18 15:58:54,sx,P-mpl,A,A,08,0.7,1,1,1,1,1,,4,0,1,1,4.05,0.63,4946,57,keys,,,,,,,,,results/runs/sx/P-mpl/08_r1
+2026-11-18 15:58:56,sx,P-ec,A,A,08,0.7,1,1,1,1,1,,4,0,1,1,3.73,0.87,5379,83,keys,,,,,,,,,results/runs/sx/P-ec/08_r1

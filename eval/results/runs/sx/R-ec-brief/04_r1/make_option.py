@@ -1,0 +1,193 @@
+import pandas as pd
+import json
+
+DATA_FILE = "/home/chs/CNT/Plot/tests/inputs/TGA.xlsx"
+
+def get_data():
+    # Read only the specified sheet
+    df = pd.read_excel(DATA_FILE, sheet_name="1006R1-V normal")
+    
+    # Identify columns based on preview
+    x_col = "Temperature"
+    y1_col = "Weight(%)"
+    y2_col = "D.W(%/C)"
+    
+    temp = df[x_col].tolist()
+    weight = df[y1_col].tolist()
+    dtg = [-v for v in df[y2_col]]  # Multiply by -1 so peaks point up
+    
+    # Calculate Residue at nearest 800 C
+    # Find index closest to 800
+    idx_800 = min(range(len(temp)), key=lambda i: abs(temp[i] - 800))
+    residue_val = weight[idx_800]
+    residue_temp = temp[idx_800]
+    
+    # Calculate Peak DTG above 150 C
+    # Filter indices where temp > 150
+    peak_indices = [i for i, t in enumerate(temp) if t > 150]
+    if peak_indices:
+        # Find max of dtg (which is now positive for mass loss)
+        max_dtg_idx = max(peak_indices, key=lambda i: dtg[i])
+        peak_temp = temp[max_dtg_idx]
+        peak_dtg_val = dtg[max_dtg_idx]
+    else:
+        peak_temp = None
+        peak_dtg_val = None
+        
+    # Prepare data arrays for ECharts
+    # Weight series
+    weight_data = [[t, w] for t, w in zip(temp, weight)]
+    # DTG series
+    dtg_data = [[t, d] for t, d in zip(temp, dtg)]
+    
+    # Markers for annotations
+    markers = []
+    if len(weight_data) > 0:
+        # Residue marker
+        markers.append({
+            "coord": [residue_temp, residue_val],
+            "value": f"Residue {residue_val:.1f}%",
+            "symbolSize": 10,
+            "itemStyle": {"color": "#1f4e9c"},
+            "label": {
+                "show": True,
+                "position": "top",
+                "formatter": f"Residue {residue_val:.1f}%",
+                "fontSize": 12,
+                "color": "#1f4e9c"
+            }
+        })
+        
+    if peak_temp is not None and len(dtg_data) > 0:
+        # Peak marker on DTG curve (right axis)
+        # Note: ECharts markPoint uses the value from the series it belongs to.
+        # We will attach this to the DTG series.
+        pass # Handled in series definition below
+
+    option = {
+        "title": {
+            "text": "CNT 산화 거동",
+            "left": "center",
+            "textStyle": {
+                "fontSize": 18,
+                "color": "navy" # 남색
+            }
+        },
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {
+                "type": "cross"
+            }
+        },
+        "legend": {
+            "data": ["Weight (%)", "DTG"],
+            "orient": "vertical",
+            "left": "left",
+            "top": "middle"
+        },
+        "grid": {
+            "left": "10%",
+            "right": "10%",
+            "bottom": "15%",
+            "containLabel": True
+        },
+        "xAxis": {
+            "type": "value",
+            "name": "Temperature (°C)",
+            "nameLocation": "middle",
+            "nameGap": 30,
+            "min": 30,
+            "max": 900
+        },
+        "yAxis": [
+            {
+                "type": "value",
+                "name": "Weight (%)",
+                "position": "left",
+                "min": 0,
+                "max": 100
+            },
+            {
+                "type": "value",
+                "name": "DTG (%/°C)",
+                "position": "right",
+                # Auto scale usually works well, but we can set min/max if needed
+                # Since we flipped sign, values are positive for mass loss
+            }
+        ],
+        "series": [
+            {
+                "name": "Weight (%)",
+                "type": "line",
+                "yAxisIndex": 0,
+                "data": weight_data,
+                "smooth": False,
+                "lineStyle": {
+                    "color": "#1f4e9c",
+                    "width": 2
+                },
+                "markPoint": {
+                    "data": [
+                        {
+                            "coord": [residue_temp, residue_val],
+                            "value": f"Residue {residue_val:.1f}%",
+                            "symbolSize": 10,
+                            "itemStyle": {"color": "#1f4e9c"},
+                            "label": {
+                                "show": True,
+                                "position": "top",
+                                "formatter": f"Residue {residue_val:.1f}%",
+                                "fontSize": 12,
+                                "color": "#1f4e9c"
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "DTG",
+                "type": "line",
+                "yAxisIndex": 1,
+                "data": dtg_data,
+                "smooth": False,
+                "lineStyle": {
+                    "color": "#c0392b",
+                    "width": 2
+                },
+                "markPoint": {
+                    "data": [
+                        {
+                            "coord": [peak_temp, peak_dtg_val],
+                            "value": f"{int(peak_temp)} °C",
+                            "symbolSize": 10,
+                            "itemStyle": {"color": "#c0392b"},
+                            "label": {
+                                "show": True,
+                                "position": "top",
+                                "formatter": f"{int(peak_temp)} °C",
+                                "fontSize": 12,
+                                "color": "#c0392b"
+                            }
+                        }
+                    ] if peak_temp is not None else []
+                }
+            }
+        ]
+    }
+    
+    return {
+        "figures": [
+            {
+                "name": "plot1",
+                "option": option,
+                "width": 614,
+                "height": 442,
+                "dpi": 300,
+                "formats": ["png"]
+            }
+        ]
+    }
+
+if __name__ == "__main__":
+    result = get_data()
+    print(json.dumps(result, ensure_ascii=False))

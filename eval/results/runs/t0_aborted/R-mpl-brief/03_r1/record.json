@@ -1,0 +1,1 @@
+{"arm": "R-mpl-brief", "ok_run": false, "calls": [], "errors": ["model call failed: TimeoutError('The read operation timed out')"], "final": null, "seconds": 600.28, "exec_seconds": 0.0, "figures": []}

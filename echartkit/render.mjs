@@ -12,6 +12,10 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import * as echarts from "echarts";
 import { buildOption, layout, mergePatch, placeLabels, lineTexts, legendOption, bestPlace } from "./translate.mjs";
+import { chartFacts } from "./dump.mjs";
+
+// PLOTKIT_DUMP_OPTION=<file>: also write what was drawn (final option, axis extents, texts) for tests
+const DUMP = process.env.PLOTKIT_DUMP_OPTION ? [] : null;
 
 function readStdin() {
   return new Promise((resolve, reject) => {
@@ -55,6 +59,7 @@ export function renderSvg(fig) {
       ...((fig.echarts && fig.echarts.graphic) || []),
     ];
     if (graphics.length) chart.setOption({ graphic: { elements: graphics } });
+    if (DUMP) DUMP.push({ ...chartFacts(chart), W: L.W, H: L.H, size_in: fig.size_in, dpi: fig.dpi, outputs: fig.outputs });
     let svg = chart.renderToSVGString();
     // a real size in the file, so other programs (Word, PowerPoint, Inkscape) open it at the asked inches
     svg = svg.replace(/^<svg /, `<svg data-plotkit-dpi="${fig.dpi}" `);
@@ -65,6 +70,7 @@ export function renderSvg(fig) {
 }
 
 let browser = null;
+export async function closeBrowser() { if (browser) { await browser.close(); browser = null; } }
 async function chromium() {
   if (browser) return browser;
   const { chromium: pw } = await import("playwright-core");
@@ -81,7 +87,7 @@ async function chromium() {
     { hint: "set PLOTKIT_CHROMIUM to the browser's full path, or run: npx --prefix echartkit playwright install chromium" });
 }
 
-async function writeOutputs(fig, svg, W, H) {
+export async function writeOutputs(fig, svg, W, H) {
   const saved = [];
   for (const o of fig.outputs) {
     mkdirSync(dirname(o.path), { recursive: true });
@@ -117,6 +123,7 @@ async function main() {
     const { svg, warnings, W, H } = renderSvg(fig);
     out.push({ saved: await writeOutputs(fig, svg, W, H), warnings });
   }
+  if (DUMP) writeFileSync(process.env.PLOTKIT_DUMP_OPTION, JSON.stringify({ figures: DUMP }));
   return { ok: true, figures: out };
 }
 

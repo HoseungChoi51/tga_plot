@@ -1,0 +1,16 @@
+{
+  "file": "data/cnt_batches.xlsx",
+  "sheets": "Annealed",
+  "annotate": {
+    "residue": {
+      "x": 750,
+      "method": "interp",
+      "text": "{y:.3f}% at {x:.0f} °C"
+    },
+    "peak": {
+      "text": "Tmax = {x:.1f} °C",
+      "size": 12,
+      "color": "black"
+    }
+  }
+}

@@ -1,0 +1,179 @@
+```python
+import pandas as pd
+import json
+
+def main():
+    file_path = "/home/chs/CNT/Plot/tests/inputs/TGA.xlsx"
+    
+    # Read all sheets
+    xls = pd.ExcelFile(file_path)
+    sheet_names = xls.sheet_names
+    
+    figures = []
+    
+    # Prepare data for each sheet
+    series_list = []
+    legend_data = []
+    
+    colors = ['#5470c6', '#91cc75', '#fac858']
+    
+    for i, name in enumerate(sheet_names):
+        df = pd.read_excel(file_path, sheet_name=name)
+        
+        # Extract columns based on the preview info
+        # x: Temperature (col B), y1: Weight(%) (col C), y2: D.W(%/C) (col D)
+        # Note: Column names might vary slightly or need stripping. 
+        # Based on preview: "Temperature", "Weight(%)", "D.W(%/C)"
+        
+        temp_col = 'Temperature'
+        weight_col = 'Weight(%)'
+        dw_col = 'D.W(%/C)'
+        
+        # Check if columns exist, otherwise try to find them by index or fuzzy match if needed
+        # For robustness, let's assume the standard names from preview are correct after strip
+        
+        cols = [c.strip() for c in df.columns]
+        df.columns = cols
+        
+        if temp_col not in df.columns or weight_col not in df.columns or dw_col not in df.columns:
+            # Fallback: assume column order A=Time, B=Temp, C=Weight, D=DW
+            # But we have headers, so let's stick to names. If they fail, maybe indices?
+            # The preview says col B is Temperature, C is Weight, D is DW.
+            pass 
+
+        x_data = df[temp_col].tolist()
+        y1_data = df[weight_col].tolist()
+        y2_data = df[dw_col].tolist()
+        
+        color = colors[i % len(colors)]
+        
+        # Series 1: TG (Weight %)
+        series_list.append({
+            "name": f"{name} TG",
+            "type": "line",
+            "xAxisIndex": 0,
+            "yAxisIndex": 0,
+            "data": [[x, y] for x, y in zip(x_data, y1_data)],
+            "smooth": False,
+            "showSymbol": False,
+            "lineStyle": {
+                "color": color,
+                "width": 1.5
+            },
+            "itemStyle": {
+                "color": color
+            }
+        })
+        
+        # Series 2: DTG (D.W %/C)
+        # We use a different line style or just rely on Y-axis separation
+        # Usually DTG is plotted on secondary Y axis
+        series_list.append({
+            "name": f"{name} DTG",
+            "type": "line",
+            "xAxisIndex": 0,
+            "yAxisIndex": 1,
+            "data": [[x, y] for x, y in zip(x_data, y2_data)],
+            "smooth": False,
+            "showSymbol": False,
+            "lineStyle": {
+                "color": color,
+                "width": 1.5,
+                "type": "dashed" # Differentiate DTG
+            },
+            "itemStyle": {
+                "color": color
+            }
+        })
+        
+        legend_data.append(f"{name} TG")
+        legend_data.append(f"{name} DTG")
+
+    option = {
+        "title": {
+            "text": "TGA Analysis Results",
+            "left": "center",
+            "top": "3%",
+            "textStyle": {
+                "fontSize": 14
+            }
+        },
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {
+                "type": "cross"
+            }
+        },
+        "legend": {
+            "data": legend_data,
+            "orient": "vertical",
+            "right": "2%",
+            "top": "10%",
+            "textStyle": {
+                "fontSize": 9
+            },
+            "icon": "roundRect"
+        },
+        "grid": {
+            "left": "10%",
+            "right": "15%", # Space for legend
+            "bottom": "15%",
+            "containLabel": True
+        },
+        "xAxis": {
+            "type": "value",
+            "name": "Temperature (°C)",
+            "nameLocation": "middle",
+            "nameGap": 30,
+            "min": 30,
+            "max": 900,
+            "splitLine": {
+                "show": True,
+                "lineStyle": {
+                    "type": "dashed"
+                }
+            }
+        },
+        "yAxis": [
+            {
+                "type": "value",
+                "name": "Weight (%)",
+                "position": "left",
+                "min": 0,
+                "max": 100,
+                "splitLine": {
+                    "show": True,
+                    "lineStyle": {
+                        "type": "dashed"
+                    }
+                }
+            },
+            {
+                "type": "value",
+                "name": "DTG (%/°C)",
+                "position": "right",
+                "splitLine": {
+                    "show": False
+                }
+            }
+        ],
+        "series": series_list
+    }
+
+    figure_entry = {
+        "name": "plot1",
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"]
+    }
+    
+    figures.append(figure_entry)
+    
+    output = {"figures": figures}
+    print(json.dumps(output))
+
+if __name__ == "__main__":
+    main()
+```

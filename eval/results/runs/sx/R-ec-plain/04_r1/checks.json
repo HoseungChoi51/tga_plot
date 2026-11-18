@@ -1,0 +1,1 @@
+[{"check": "only", "cat": "data", "ok": true, "why": "", "spec": {"only": {"axis": "y1", "ranges": [[7.9739, 100.01]]}, "cat": "data"}}, {"check": "title", "cat": "ask", "ok": false, "why": "title size 13.5", "spec": {"title": {"text": "CNT 산화 거동", "size": 18, "color": "navy"}}}]
