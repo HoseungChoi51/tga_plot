@@ -1,0 +1,9 @@
+We need answer user's request in test mode: reply with JSON spec only inside ```json block, nothing else. Need use inspect file name exactly. User Korean: "450 °C에 세로 보조선 넣고 '산화 시작'이라고 써줘". Need create spec for plotkit. Need include file TGA.xlsx. Request only adds vertical guide line at 450 with text '산화 시작'. According guide: 보조선 `annotate.<new name>` with type vline/hline. Example: {"vline1": {"type": "vline", "x": 450, "text": "450 °C"}}. Here text should be '산화 시작'. Should we include residue? User didn't mention 잔류량 표시, so leave default? But default TGA preset includes residue at 800 and highest DTG peak. However if user only asks add vline, spec only contains what asked. Need not include annotate residue/peak. But adding annotate dict with only vline1? Does that override defaults? Need understand plotkit semantics: annotate is dict of named labels; TGA preset has residue and peak. "Change only what you need: {"annotate": {"residue": {"x": 700}}}. Remove one: {"annotate": {"peak": false}}." Add new ones under new names. So if we supply annotate: {"vline1": ...}, likely merge with defaults? It says add new ones under new names. So okay. Need ensure text on vline. Maybe vertical line on x axis. Spec:
+{
+ "file": "TGA.xlsx",
+ "annotate": {
+   "vline1": {"type": "vline", "x": 450, "text": "산화 시작"}
+ }
+}
+Need consider if need y? vline uses x. Good.
+Need final only json block. Ensure no extra text.

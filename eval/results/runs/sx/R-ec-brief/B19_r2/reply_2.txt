@@ -1,0 +1,227 @@
+```python
+import pandas as pd
+import numpy as np
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+
+# Read the PVC sheet
+df = pd.read_excel(DATA_FILE, sheet_name="PVC")
+
+# Identify columns based on preview info
+temp_col = "Temperature (°C)"
+weight_col = "Weight (%)"
+dtg_col = "Deriv. Weight (%/°C)"
+
+# Filter data for 200-400 C range to calculate mass loss
+mask_200_400 = (df[temp_col] >= 200) & (df[temp_col] <= 400)
+df_range = df[mask_200_400].copy()
+
+if not df_range.empty:
+    # Find weight at 200°C and 400°C using nearest point interpolation logic or direct lookup
+    # Since TGA data is discrete, we find the points closest to 200 and 400
+    
+    # Get index of point closest to 200
+    idx_200 = (df_range[temp_col] - 200).abs().idxmin()
+    w_200 = float(df.loc[idx_200, weight_col])
+    
+    # Get index of point closest to 400
+    idx_400 = (df_range[temp_col] - 400).abs().idxmin()
+    w_400 = float(df.loc[idx_400, weight_col])
+    
+    mass_loss = w_200 - w_400
+else:
+    mass_loss = 0.0
+    w_200 = 100.0
+    w_400 = 100.0
+
+# Prepare full data for plotting
+temps = [float(t) for t in df[temp_col]]
+weights = [float(w) for w in df[weight_col]]
+dtgs = [-float(d) for d in df[dtg_col]] # Multiply by -1 so peaks point up
+
+# Calculate Residue (nearest to 800 C)
+idx_res = (df[temp_col] - 800).abs().idxmin()
+residue_val = float(df.loc[idx_res, weight_col])
+residue_temp = float(df.loc[idx_res, temp_col])
+
+# Calculate Peak (highest DTG peak above 150 C)
+# dtgs are already negated, so highest value is the deepest original dip
+mask_peak = df[temp_col] > 150
+df_peak_candidates = df[mask_peak]
+if not df_peak_candidates.empty:
+    # Find max of negated DTG in this range
+    # We want the highest peak in the plot (which corresponds to most negative original DTG).
+    # So we look for max of the negated series.
+    idx_peak = df_peak_candidates[dtg_col].idxmin() # Most negative original = Highest plotted peak
+    peak_temp = float(df.loc[idx_peak, temp_col])
+    peak_weight = float(df.loc[idx_peak, weight_col])
+else:
+    peak_temp = 0.0
+    peak_weight = 0.0
+
+# Build ECharts Option
+option = {
+    "title": {
+        "text": "PVC",
+        "left": "center",
+        "top": 10,
+        "textStyle": {
+            "fontSize": 16,
+            "fontWeight": "bold"
+        }
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {
+            "type": "cross"
+        }
+    },
+    "legend": {
+        "data": ["Weight (%)", "-DTG (%/°C)"],
+        "top": 35,
+        "left": "center"
+    },
+    "grid": {
+        "left": "10%",
+        "right": "10%",
+        "bottom": "15%",
+        "containLabel": True
+    },
+    "xAxis": [
+        {
+            "name": "Temperature (°C)",
+            "nameLocation": "middle",
+            "nameGap": 30,
+            "type": "value",
+            "min": 30,
+            "max": 900,
+            "splitLine": {"show": False},
+            "axisTick": {"alignWithLabel": True}
+        }
+    ],
+    "yAxis": [
+        {
+            "name": "Weight (%)",
+            "nameLocation": "middle",
+            "nameGap": 45,
+            "type": "value",
+            "position": "left",
+            "min": 0,
+            "max": 110,
+            "splitLine": {"show": True, "lineStyle": {"type": "dashed"}},
+            "axisTick": {"show": True}
+        },
+        {
+            "name": "-DTG (%/°C)",
+            "nameLocation": "middle",
+            "nameGap": 45,
+            "type": "value",
+            "position": "right",
+            "splitLine": {"show": False},
+            "axisTick": {"show": True}
+        }
+    ],
+    "series": [
+        {
+            "name": "Weight (%)",
+            "type": "line",
+            "data": [[t, w] for t, w in zip(temps, weights)],
+            "itemStyle": {"color": "#1f4e9c"},
+            "lineStyle": {"width": 2},
+            "symbol": "none",
+            "markPoint": {
+                "data": [
+                    {
+                        "coord": [residue_temp, residue_val],
+                        "value": f"Residue {residue_val:.1f}%",
+                        "itemStyle": {"color": "#1f4e9c"},
+                        "label": {
+                            "show": True,
+                            "formatter": "{b}",
+                            "position": "right",
+                            "offset": [10, 0],
+                            "fontSize": 12,
+                            "fontWeight": "bold"
+                        },
+                        "symbolSize": 8
+                    },
+                    {
+                        "coord": [peak_temp, peak_weight],
+                        "value": f"{int(peak_temp)} °C",
+                        "itemStyle": {"color": "#c0392b"},
+                        "label": {
+                            "show": True,
+                            "formatter": "{b}",
+                            "position": "top",
+                            "offset": [0, -10],
+                            "fontSize": 12,
+                            "fontWeight": "bold"
+                        },
+                        "symbolSize": 8
+                    }
+                ]
+            },
+            "markArea": {
+                "silent": True,
+                "itemStyle": {
+                    "color": "rgba(255, 165, 0, 0.1)" # Light orange highlight for 200-400 region
+                },
+                "data": [
+                    [
+                        {"xAxis": 200},
+                        {"xAxis": 400}
+                    ]
+                ]
+            },
+            "markLine": {
+                "silent": True,
+                "symbol": "none",
+                "lineStyle": {
+                    "type": "dashed",
+                    "color": "orange",
+                    "width": 1
+                },
+                "label": {
+                    "show": True,
+                    "position": "start",
+                    "formatter": f"ΔW = {mass_loss:.2f}%\n(200-400°C)",
+                    "fontSize": 11,
+                    "color": "darkorange",
+                    "fontWeight": "bold"
+                },
+                "data": [
+                    [
+                        {"coord": [200, w_200]},
+                        {"coord": [400, w_400]}
+                    ]
+                ]
+            }
+        },
+        {
+            "name": "-DTG (%/°C)",
+            "type": "line",
+            "yAxisIndex": 1,
+            "data": [[t, d] for t, d in zip(temps, dtgs)],
+            "itemStyle": {"color": "#c0392b"},
+            "lineStyle": {"width": 2},
+            "symbol": "none"
+        }
+    ]
+}
+
+output = {
+    "figures": [
+        {
+            "name": "plot1",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+    ]
+}
+
+print(json.dumps(output))
+```

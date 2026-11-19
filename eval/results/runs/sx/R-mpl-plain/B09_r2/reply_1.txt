@@ -1,0 +1,52 @@
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+# 데이터 파일 경로와 출력 디렉토리 설정
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/B09_r2/out"
+
+# 한국어 폰트 설정
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+# PE 시트 데이터 읽기
+df_pe = pd.read_excel(DATA_FILE, sheet_name='PE')
+
+# 그래프 생성
+fig, ax1 = plt.subplots(figsize=(10, 6))
+
+# x축 범위 및 틱 간격 설정
+ax1.set_xlim(100, 700)
+ax1.set_xticks(range(100, 701, 100))
+
+# y1 (Weight %) - 굵게(3), 빨간색으로 설정
+color_weight = 'red'
+ax1.plot(df_pe['Temperature (°C)'], df_pe['Weight (%)'], color=color_weight, linewidth=3, label='Weight (%)')
+ax1.set_xlabel('Temperature (°C)', fontsize=12)
+ax1.set_ylabel('Weight (%)', color=color_weight, fontsize=12)
+ax1.tick_params(axis='y', labelcolor=color_weight)
+
+# y2 (Deriv. Weight %/°C) - 두 번째 축으로 추가
+ax2 = ax1.twinx()
+color_deriv = 'blue'
+ax2.plot(df_pe['Temperature (°C)'], df_pe['Deriv. Weight (%/°C)'], color=color_deriv, linewidth=1.5, linestyle='--', label='Deriv. Weight (%/°C)')
+ax2.set_ylabel('Deriv. Weight (%/°C)', color=color_deriv, fontsize=12)
+ax2.tick_params(axis='y', labelcolor=color_deriv)
+
+# 제목 및 범례
+fig.suptitle('TGA Data for PE', fontsize=14, fontweight='bold')
+lines1, labels1 = ax1.get_legend_handles_labels()
+lines2, labels2 = ax2.get_legend_handles_labels()
+ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper right')
+
+# 레이아웃 조정
+fig.tight_layout()
+
+# 출력 파일 저장
+os.makedirs(OUT_DIR, exist_ok=True)
+output_path = os.path.join(OUT_DIR, "PE_TGA.png")
+plt.savefig(output_path, dpi=300)
+plt.close()
+```

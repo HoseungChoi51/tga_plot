@@ -1,0 +1,373 @@
+```python
+import pandas as pd
+import numpy as np
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+def main():
+    xls = pd.ExcelFile(DATA_FILE)
+    sheets = xls.sheet_names
+    
+    series_data_y1 = [] # Weight %
+    series_data_y2 = [] # DTG (inverted)
+    
+    colors_y1 = ['#1f4e9c', '#2ecc71', '#8e44ad'] # Blue, Green, Purple for distinction
+    colors_y2 = ['#c0392b', '#e67e22', '#d35400'] # Red, Orange variants
+    
+    all_temps = []
+    all_weights = []
+    all_dtgs = []
+    
+    for i, sheet_name in enumerate(sheets):
+        df = pd.read_excel(xls, sheet_name=sheet_name)
+        
+        # Identify columns based on preview: B=Temperature, C=Weight(%), D=D.W(%/C)
+        # Assuming standard order from preview or searching by name if needed. 
+        # Preview says col B is Temperature, C is Weight(%), D is D.W(%/C)
+        # In pandas read_excel with header row 1 (index 0), column names are usually the first row.
+        # Let's find columns dynamically to be safe, but rely on typical TGA structure.
+        
+        temp_col = None
+        weight_col = None
+        dtg_col = None
+        
+        for col in df.columns:
+            col_lower = str(col).lower()
+            if 'temp' in col_lower:
+                temp_col = col
+            elif 'weight' in col_lower and '%' in col_lower:
+                weight_col = col
+            elif 'd.w' in col_lower or 'dtg' in col_lower or ('derivative' in col_lower):
+                dtg_col = col
+                
+        # Fallback to positional if names aren't clear (based on preview: A=Time, B=Temp, C=Weight, D=DTG)
+        if temp_col is None and len(df.columns) >= 2: temp_col = df.columns[1]
+        if weight_col is None and len(df.columns) >= 3: weight_col = df.columns[2]
+        if dtg_col is None and len(df.columns) >= 4: dtg_col = df.columns[3]
+        
+        if temp_col is None or weight_col is None or dtg_col is None:
+            continue
+            
+        temps = df[temp_col].dropna().values
+        weights = df[weight_col].dropna().values
+        dtgs = df[dtg_col].dropna().values
+        
+        # Align lengths just in case dropna removed different amounts (unlikely here but safe)
+        min_len = min(len(temps), len(weights), len(dtgs))
+        temps = temps[:min_len]
+        weights = weights[:min_len]
+        dtgs = dtgs[:min_len]
+        
+        if len(temps) == 0:
+            continue
+            
+        all_temps.append(temps)
+        all_weights.append(weights)
+        all_dtgs.append(dtgs)
+        
+        # Prepare data for ECharts: [[x, y], ...]
+        data_w = [[float(t), float(w)] for t, w in zip(temps, weights)]
+        # DTG inverted so peaks point up
+        data_d = [[float(t), float(-d)] for t, d in zip(temps, dtgs)]
+        
+        c1 = colors_y1[i % len(colors_y1)]
+        c2 = colors_y2[i % len(colors_y2)]
+        
+        series_data_y1.append({
+            "name": f"{sheet_name} Weight",
+            "type": "line",
+            "yAxisIndex": 0,
+            "data": data_w,
+            "itemStyle": {"color": c1},
+            "lineStyle": {"width": 2},
+            "showSymbol": False,
+            "smooth": True
+        })
+        
+        series_data_y2.append({
+            "name": f"{sheet_name} DTG",
+            "type": "line",
+            "yAxisIndex": 1,
+            "data": data_d,
+            "itemStyle": {"color": c2},
+            "lineStyle": {"width": 1.5, "type": "dashed"},
+            "showSymbol": False,
+            "smooth": True
+        })
+
+    if not series_data_y1:
+        print(json.dumps({"figures": []}))
+        return
+
+    # Calculate Residue at ~800C and Peak Temp > 150C for annotations
+    # We need to find these for each series to add markPoints/markLines if desired, 
+    # but the prompt asks for a single plot with overlays. 
+    # Standard TGA plot instructions say: "two labels are always drawn... residue... peak".
+    # Since we have multiple sheets in one plot, drawing 3 residues and 3 peaks might be cluttered.
+    # However, the instruction says "one plot per sheet; when no sheet is named, every sheet of the file." 
+    # AND "A setting that names no axis ... applies to x, y1 and y2."
+    # The user request "겹쳐 그려줘" implies one figure.
+    # I will add markPoints for the residue and peak for EACH series to follow the "always drawn" rule strictly,
+    # using distinct positions/colors if possible, or just listing them.
+    
+    mark_points = []
+    
+    for idx, (temps, weights, dtgs) in enumerate(zip(all_temps, all_weights, all_dtgs)):
+        # Find residue near 800C
+        mask_800 = (temps >= 790) & (temps <= 810)
+        if np.any(mask_800):
+            idx_800 = np.argmin(np.abs(temps[mask_800] - 800))
+            real_idx = np.where(mask_800)[0][idx_800]
+            res_temp = temps[real_idx]
+            res_weight = weights[real_idx]
+            
+            # Add marker for weight curve (Y-axis 0)
+            mark_points.append({
+                "coord": [float(res_temp), float(res_weight)],
+                "value": f"Res {res_weight:.1f}%",
+                "symbolSize": 6,
+                "label": {
+                    "formatter": "{@[0]:.0f}°C\n{@[1]:.1f}%",
+                    "position": "top",
+                    "fontSize": 9,
+                    "color": "#333"
+                },
+                "itemStyle": {"color": colors_y1[idx % len(colors_y1)]}
+            })
+        
+        # Find peak DTG > 150C
+        mask_peak = temps > 150
+        if np.any(mask_peak):
+            dtgs_subset = dtgs[mask_peak]
+            temps_subset = temps[mask_peak]
+            max_dtg_val = np.min(dtgs_subset) # Most negative
+            peak_idx_local = np.argmin(dtgs_subset)
+            peak_temp = temps_subset[peak_idx_local]
+            peak_dtg_inv = -max_dtg_val
+            
+            # Add marker for DTG curve (Y-axis 1)
+            # Note: coord uses the actual Y value for the specific axis. 
+            # For yAxisIndex 1, the value is the inverted DTG.
+            mark_points.append({
+                "coord": [float(peak_temp), float(peak_dtg_inv)],
+                "value": f"{peak_temp:.0f}°C",
+                "symbolSize": 6,
+                "label": {
+                    "formatter": "{@[0]:.0f}°C",
+                    "position": "top",
+                    "fontSize": 9,
+                    "color": "#333"
+                },
+                "itemStyle": {"color": colors_y2[idx % len(colors_y2)]}
+            })
+
+    option = {
+        "backgroundColor": "#ffffff",
+        "title": {
+            "text": "TGA Overlay Analysis",
+            "left": "center",
+            "textStyle": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 16,
+                "fontWeight": "bold"
+            }
+        },
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {"type": "cross"}
+        },
+        "legend": {
+            "data": [s["name"] for s in series_data_y1 + series_data_y2],
+            "orient": "vertical",
+            "left": "left",
+            "top": "middle",
+            "textStyle": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 10
+            }
+        },
+        "grid": {
+            "left": "10%",
+            "right": "10%",
+            "bottom": "15%",
+            "top": "15%",
+            "containLabel": True
+        },
+        "xAxis": {
+            "type": "value",
+            "name": "Temperature (°C)",
+            "nameLocation": "middle",
+            "nameGap": 30,
+            "axisLabel": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 10
+            },
+            "splitLine": {"show": True, "lineStyle": {"type": "dashed", "color": "#eee"}}
+        },
+        "yAxis": [
+            {
+                "type": "value",
+                "name": "Weight (%)",
+                "nameLocation": "middle",
+                "nameGap": 40,
+                "axisLabel": {
+                    "fontFamily": "Noto Sans CJK KR",
+                    "fontSize": 10
+                },
+                "splitLine": {"show": True, "lineStyle": {"type": "dashed", "color": "#eee"}}
+            },
+            {
+                "type": "value",
+                "name": "DTG (%/°C)",
+                "nameLocation": "middle",
+                "nameGap": 40,
+                "axisLabel": {
+                    "fontFamily": "Noto Sans CJK KR",
+                    "fontSize": 10
+                },
+                "splitLine": {"show": False}
+            }
+        ],
+        "series": series_data_y1 + series_data_y2
+    }
+    
+    # Attach markPoints to the first series of each type to avoid duplication issues 
+    # or attach to all? Usually better to attach to the first one or create a separate scatter series.
+    # Attaching to the first Weight series and first DTG series is cleaner.
+    if series_data_y1:
+        # Filter points for Weight (Y-axis 0)
+        wp = [p for p in mark_points if p['coord'][1] < 110] # Heuristic: Weight is usually < 110%
+        # Better: filter by index logic or just put all in one series if they don't overlap too much.
+        # Actually, let's just put all markPoints into the first Weight series and first DTG series appropriately.
+        
+        # Simpler approach: Create two dedicated scatter series for markers if needed, 
+        # but ECharts markPoint works well on line series.
+        # Let's split mark_points based on which axis they belong to roughly or just assign to first available.
+        
+        # Re-evaluating: The markPoints list contains coords for both axes.
+        # It's safer to use `markPoint` on the series that matches the axis.
+        
+        weight_marks = []
+        dtg_marks = []
+        
+        # We lost track of which axis each mark belongs to in the flat list above easily without re-calculating.
+        # Let's rebuild markPoints attached directly to series during creation loop would have been easier.
+        # Fixing it now: Iterate through series_data_y1 and y2 again? No, too complex.
+        # Let's just clear and redo the markpoint assignment logic cleanly before printing.
+        
+        pass 
+
+    # REDO MARKPOINT LOGIC CLEANLY
+    final_series = []
+    
+    # Reset and build series with embedded markPoints
+    for i, sheet_name in enumerate(sheets):
+        # Re-read data for this sheet to get precise marks
+        df = pd.read_excel(xls, sheet_name=sheet_name)
+        temp_col = None; weight_col = None; dtg_col = None
+        for col in df.columns:
+            cl = str(col).lower()
+            if 'temp' in cl: temp_col = col
+            elif 'weight' in cl and '%' in cl: weight_col = col
+            elif 'd.w' in cl or 'dtg' in cl: dtg_col = col
+        if temp_col is None: temp_col = df.columns[1]
+        if weight_col is None: weight_col = df.columns[2]
+        if dtg_col is None: dtg_col = df.columns[3]
+        
+        temps = df[temp_col].dropna().values
+        weights = df[weight_col].dropna().values
+        dtgs = df[dtg_col].dropna().values
+        min_len = min(len(temps), len(weights), len(dtgs))
+        temps, weights, dtgs = temps[:min_len], weights[:min_len], dtgs[:min_len]
+        
+        data_w = [[float(t), float(w)] for t, w in zip(temps, weights)]
+        data_d = [[float(t), float(-d)] for t, d in zip(temps, dtgs)]
+        
+        c1 = colors_y1[i % len(colors_y1)]
+        c2 = colors_y2[i % len(colors_y2)]
+        
+        # Find Marks
+        mp_w = []
+        mp_d = []
+        
+        # Residue
+        mask_800 = (temps >= 790) & (temps <= 810)
+        if np.any(mask_800):
+            idx_800 = np.argmin(np.abs(temps[mask_800] - 800))
+            r_idx = np.where(mask_800)[0][idx_800]
+            rt, rw = temps[r_idx], weights[r_idx]
+            mp_w.append({
+                "coord": [float(rt), float(rw)],
+                "value": f"Res {rw:.1f}%",
+                "symbolSize": 6,
+                "label": {"formatter": "{@[0]:.0f}°C\n{@[1]:.1f}%", "position": "top", "fontSize": 9, "color": "#333"},
+                "itemStyle": {"color": c1}
+            })
+            
+        # Peak
+        mask_p = temps > 150
+        if np.any(mask_p):
+            ds = dtgs[mask_p]
+            ts = temps[mask_p]
+            min_d = np.min(ds)
+            p_idx_loc = np.argmin(ds)
+            pt = ts[p_idx_loc]
+            pd_inv = -min_d
+            mp_d.append({
+                "coord": [float(pt), float(pd_inv)],
+                "value": f"{pt:.0f}°C",
+                "symbolSize": 6,
+                "label": {"formatter": "{@[0]:.0f}°C", "position": "top", "fontSize": 9, "color": "#333"},
+                "itemStyle": {"color": c2}
+            })
+
+        s1 = {
+            "name": f"{sheet_name} Weight",
+            "type": "line",
+            "yAxisIndex": 0,
+            "data": data_w,
+            "itemStyle": {"color": c1},
+            "lineStyle": {"width": 2},
+            "showSymbol": False,
+            "smooth": True
+        }
+        if mp_w:
+            s1["markPoint"] = {"data": mp_w}
+            
+        s2 = {
+            "name": f"{sheet_name} DTG",
+            "type": "line",
+            "yAxisIndex": 1,
+            "data": data_d,
+            "itemStyle": {"color": c2},
+            "lineStyle": {"width": 1.5, "type": "dashed"},
+            "showSymbol": False,
+            "smooth": True
+        }
+        if mp_d:
+            s2["markPoint"] = {"data": mp_d}
+            
+        final_series.append(s1)
+        final_series.append(s2)
+
+    option["series"] = final_series
+    
+    output = {
+        "figures": [
+            {
+                "name": "tga_overlay",
+                "option": option,
+                "width": 800,
+                "height": 500,
+                "dpi": 300,
+                "formats": ["png"]
+            }
+        ]
+    }
+    
+    print(json.dumps(output))
+
+if __name__ == "__main__":
+    main()
+```

@@ -1,0 +1,96 @@
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/B22_r2/out"
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# Read the 'Raw' sheet
+df = pd.read_excel(DATA_FILE, sheet_name='Raw')
+
+# Extract columns
+temp = df['Temperature (°C)'].values
+weight = df['Weight (%)'].values
+dtg = df['Deriv. Weight (%/°C)'].values
+
+# Find the weight at 150 °C for normalization
+idx_150 = np.argmin(np.abs(temp - 150))
+weight_at_150 = weight[idx_150]
+
+# Normalize weight so that it is 100% at 150 °C
+weight_norm = (weight / weight_at_150) * 100.0
+
+# For DTG, we also need to adjust if we want consistency, but typically DTG is derived from original weight.
+# However, since the user asked to recalculate weight based on 150C=100%, 
+# strictly speaking DTG should be recalculated as d(W_norm)/dT.
+# Let's recalculate DTG based on normalized weight to be consistent with the new y1 axis scale.
+# Note: The original DTG was %/degC based on initial 100%. 
+# New DTG = d(weight_norm)/dT = d((weight/w150)*100)/dT = (100/w150) * d(weight)/dT = (100/w150) * dtg_original
+dtg_norm = dtg * (100.0 / weight_at_150)
+
+# Plotting
+fig, ax1 = plt.subplots(figsize=(8, 6), dpi=300)
+
+color_y1 = '#1f4e9c'
+ax1.set_xlabel('Temperature (°C)', fontsize=12)
+ax1.set_ylabel('Weight (%)', color=color_y1, fontsize=12)
+line1 = ax1.plot(temp, weight_norm, color=color_y1, label='Weight')
+ax1.tick_params(axis='y', labelcolor=color_y1)
+
+ax2 = ax1.twinx()
+color_y2 = '#c0392b'
+ax2.set_ylabel('DTG (%/°C)', color=color_y2, fontsize=12)
+# Multiply by -1 so peaks point up
+line2 = ax2.plot(temp, -dtg_norm, color=color_y2, label='DTG (-1)')
+ax2.tick_params(axis='y', labelcolor=color_y2)
+
+# Title
+sheet_name = 'Raw'
+plt.title(f'{sheet_name} (Normalized at 150°C)', fontsize=14)
+
+# Legend
+lines = line1 + line2
+labels = [l.get_label() for l in lines]
+ax1.legend(lines, labels, loc='center left')
+
+# Residue calculation: nearest to 800 °C
+idx_res = np.argmin(np.abs(temp - 800))
+res_val = weight_norm[idx_res]
+res_temp = temp[idx_res]
+
+# Peak calculation: highest DTG peak above 150 °C
+mask_peak = temp > 150
+if np.any(mask_peak):
+    # We look for the minimum of original dtg (most negative) which corresponds to max loss rate
+    # Or simply max of -dtg_norm
+    dtg_for_peak = -dtg_norm[mask_peak]
+    temp_for_peak = temp[mask_peak]
+    
+    idx_max_dtg = np.argmax(dtg_for_peak)
+    peak_temp = temp_for_peak[idx_max_dtg]
+    peak_val = dtg_for_peak[idx_max_dtg] # This is positive value of -dtg
+    
+    # Marker for peak on DTG curve (right axis)
+    # Need to find index in full array to plot marker correctly
+    idx_full_peak = np.where(temp == peak_temp)[0][0]
+    ax2.plot(peak_temp, -dtg_norm[idx_full_peak], 'o', color=color_y2, markersize=6)
+    ax2.annotate(f'{peak_temp:.0f} °C', xy=(peak_temp, -dtg_norm[idx_full_peak]), 
+                 xytext=(10, 10), textcoords='offset points', color=color_y2, fontsize=10)
+
+# Marker for residue on Weight curve (left axis)
+ax1.plot(res_temp, res_val, 'o', color=color_y1, markersize=6)
+ax1.annotate(f'Residue {res_val:.1f}%', xy=(res_temp, res_val), 
+             xytext=(-10, 10), textcoords='offset points', color=color_y1, fontsize=10)
+
+plt.tight_layout()
+out_path = os.path.join(OUT_DIR, f"{sheet_name}_normalized.png")
+plt.savefig(out_path, dpi=300)
+plt.close()
+```

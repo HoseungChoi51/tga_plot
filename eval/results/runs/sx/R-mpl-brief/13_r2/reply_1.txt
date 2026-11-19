@@ -1,0 +1,113 @@
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from pathlib import Path
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/extra_columns.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/13_r2/out"
+
+Path(OUT_DIR).mkdir(parents=True, exist_ok=True)
+
+# Read the Excel file
+xl = pd.ExcelFile(DATA_FILE)
+
+for sheet_name in xl.sheet_names:
+    df = pd.read_excel(DATA_FILE, sheet_name=sheet_name)
+    
+    # Identify columns based on standard TGA naming conventions or preview info
+    temp_col = None
+    weight_pct_col = None
+    dtg_col = None
+    weight_mg_col = None
+    
+    for col in df.columns:
+        col_str = str(col).lower()
+        if 'temperature' in col_str:
+            temp_col = col
+        elif 'weight (%)' in col_str or 'weight%' in col_str:
+            weight_pct_col = col
+        elif 'deriv' in col_str or 'dtg' in col_str:
+            dtg_col = col
+        elif 'weight (mg)' in col_str:
+            weight_mg_col = col
+            
+    if temp_col is None or dtg_col is None:
+        continue
+        
+    # Clean data: drop rows with NaN in key columns
+    df_clean = df.dropna(subset=[temp_col, dtg_col]).copy()
+    
+    # Determine y1 column: user requested Weight (mg)
+    y1_col = weight_mg_col if weight_mg_col else weight_pct_col
+    y1_label = "Weight (mg)" if weight_mg_col else "Weight (%)"
+    
+    x_data = df_clean[temp_col].values
+    y1_data = df_clean[y1_col].values
+    y2_data = df_clean[dtg_col].values * -1  # Invert DTG so peaks point up
+    
+    fig, ax1 = plt.subplots(figsize=(8, 6))
+    
+    # Plot y1 (Weight mg) on left axis
+    color_y1 = '#1f4e9c'
+    line1, = ax1.plot(x_data, y1_data, color=color_y1, label=y1_label)
+    ax1.set_xlabel('Temperature (°C)')
+    ax1.set_ylabel(y1_label, color=color_y1)
+    ax1.tick_params(axis='y', labelcolor=color_y1)
+    
+    # Create twin axis for y2 (DTG)
+    ax2 = ax1.twinx()
+    color_y2 = '#c0392b'
+    line2, = ax2.plot(x_data, y2_data, color=color_y2, label='DTG')
+    ax2.set_ylabel('DTG (%/°C)', color=color_y2)
+    ax2.tick_params(axis='y', labelcolor=color_y2)
+    
+    # Title from sheet name
+    ax1.set_title(sheet_name)
+    
+    # Find Residue at nearest 800°C
+    mask_800 = np.abs(x_data - 800) == np.min(np.abs(x_data - 800))
+    residue_val = y1_data[mask_800][0]
+    residue_temp = x_data[mask_800][0]
+    
+    # Add residue marker and label
+    ax1.scatter(residue_temp, residue_val, color=color_y1, zorder=5)
+    ax1.annotate(f'Residue {residue_val:.1f}%', 
+                 xy=(residue_temp, residue_val),
+                 xytext=(10, 10), textcoords='offset points',
+                 fontsize=9, color=color_y1)
+                 
+    # Find Peak temperature (highest DTG peak above 150°C)
+    mask_peak = x_data > 150
+    if np.any(mask_peak):
+        x_filtered = x_data[mask_peak]
+        y2_filtered = y2_data[mask_peak]
+        
+        # Find index of max value in filtered array
+        idx_max = np.argmax(y2_filtered)
+        peak_temp = x_filtered[idx_max]
+        peak_val = y2_filtered[idx_max]
+        
+        # Add peak marker and label
+        ax2.scatter(peak_temp, peak_val, color=color_y2, zorder=5)
+        ax2.annotate(f'{peak_temp:.0f} °C', 
+                     xy=(peak_temp, peak_val),
+                     xytext=(10, 10), textcoords='offset points',
+                     fontsize=9, color=color_y2)
+                     
+    # Legend
+    lines = [line1, line2]
+    labels = [l.get_label() for l in lines]
+    ax1.legend(lines, labels, loc='center left')
+    
+    # Save figure
+    safe_sheet_name = "".join([c for c in sheet_name if c.isalnum() or c in (' ', '-', '_')]).rstrip()
+    output_path = Path(OUT_DIR) / f"{safe_sheet_name}.png"
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300)
+    plt.close()
+```

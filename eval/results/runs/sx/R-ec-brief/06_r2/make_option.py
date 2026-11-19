@@ -1,0 +1,200 @@
+import pandas as pd
+import numpy as np
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+def get_tga_data(file_path):
+    xls = pd.ExcelFile(file_path)
+    figures = []
+    
+    for sheet_name in xls.sheet_names:
+        df = pd.read_excel(xls, sheet_name=sheet_name, header=0)
+        
+        # Identify columns based on the preview structure
+        # Col B: Temperature, Col C: Weight(%), Col D: D.W(%/C)
+        try:
+            temp_col = 'Temperature'
+            weight_col = 'Weight(%)'
+            dtg_col = 'D.W(%/C)'
+            
+            if temp_col not in df.columns or weight_col not in df.columns or dtg_col not in df.columns:
+                continue
+                
+            temps = df[temp_col].values
+            weights = df[weight_col].values
+            dtgs = df[dtg_col].values
+            
+            # Prepare data for ECharts
+            # We need [x, y] pairs
+            weight_data = [[float(t), float(w)] for t, w in zip(temps, weights)]
+            # DTG multiplied by -1 so peaks point up
+            dtg_data = [[float(t), float(-d)] for t, d in zip(temps, dtgs)]
+            
+            # Find Residue at 800°C
+            # Only if the temperature range covers 800
+            residue_label = ""
+            residue_marker = None
+            if max(temps) >= 750: 
+                idx_800 = np.argmin(np.abs(temps - 800))
+                res_temp = temps[idx_800]
+                res_weight = weights[idx_800]
+                residue_label = f"Residue {res_weight:.1f}%"
+                residue_marker = [float(res_temp), float(res_weight)]
+                
+            # Find Peak (highest DTG above 150°C)
+            peak_label = ""
+            peak_marker = None
+            mask = temps > 150
+            if np.any(mask):
+                filtered_dtgs = dtgs[mask]
+                filtered_temps = temps[mask]
+                min_idx_local = np.argmin(filtered_dtgs)
+                peak_temp = filtered_temps[min_idx_local]
+                peak_dtg_val = filtered_dtgs[min_idx_local]
+                peak_label = f"{peak_temp:.0f} °C"
+                peak_marker = [float(peak_temp), float(-peak_dtg_val)]
+
+            # Build Option
+            option = {
+                "title": {
+                    "text": sheet_name,
+                    "left": "center",
+                    "top": 10,
+                    "textStyle": {
+                        "fontFamily": "Noto Sans CJK KR",
+                        "fontSize": 14
+                    }
+                },
+                "tooltip": {
+                    "trigger": "axis",
+                    "axisPointer": {
+                        "type": "cross"
+                    }
+                },
+                "legend": {
+                    "show": False
+                },
+                "grid": {
+                    "left": "10%",
+                    "right": "10%",
+                    "bottom": "15%",
+                    "containLabel": True,
+                    "show": True,
+                    "borderColor": "#ccc"
+                },
+                "xAxis": {
+                    "type": "value",
+                    "name": "Temperature (°C)",
+                    "nameLocation": "middle",
+                    "nameGap": 30,
+                    "splitLine": {
+                        "show": True
+                    },
+                    "axisLabel": {
+                        "fontFamily": "Noto Sans CJK KR"
+                    }
+                },
+                "yAxis": [
+                    {
+                        "type": "value",
+                        "name": "Weight (%)",
+                        "position": "left",
+                        "splitLine": {
+                            "show": True
+                        },
+                        "axisLabel": {
+                            "fontFamily": "Noto Sans CJK KR"
+                        }
+                    },
+                    {
+                        "type": "value",
+                        "name": "-DTG (%/°C)",
+                        "position": "right",
+                        "splitLine": {
+                            "show": True
+                        },
+                        "axisLabel": {
+                            "fontFamily": "Noto Sans CJK KR"
+                        }
+                    }
+                ],
+                "series": [
+                    {
+                        "name": "Weight",
+                        "type": "line",
+                        "data": weight_data,
+                        "smooth": False,
+                        "symbol": "none",
+                        "lineStyle": {
+                            "color": "#1f4e9c",
+                            "width": 2
+                        },
+                        "markPoint": {
+                            "data": [],
+                            "label": {
+                                "show": True,
+                                "formatter": "{b}",
+                                "position": "top",
+                                "fontFamily": "Noto Sans CJK KR"
+                            }
+                        }
+                    },
+                    {
+                        "name": "DTG",
+                        "type": "line",
+                        "yAxisIndex": 1,
+                        "data": dtg_data,
+                        "smooth": False,
+                        "symbol": "none",
+                        "lineStyle": {
+                            "color": "#c0392b",
+                            "width": 2
+                        },
+                        "markPoint": {
+                            "data": [],
+                            "label": {
+                                "show": True,
+                                "formatter": "{b}",
+                                "position": "top",
+                                "fontFamily": "Noto Sans CJK KR"
+                            }
+                        }
+                    }
+                ]
+            }
+            
+            # Add markers if found
+            if residue_marker:
+                option["series"][0]["markPoint"]["data"].append({
+                    "coord": residue_marker,
+                    "name": residue_label,
+                    "symbolSize": 6,
+                    "itemStyle": {"color": "#1f4e9c"}
+                })
+                
+            if peak_marker:
+                option["series"][1]["markPoint"]["data"].append({
+                    "coord": peak_marker,
+                    "name": peak_label,
+                    "symbolSize": 6,
+                    "itemStyle": {"color": "#c0392b"}
+                })
+
+            figures.append({
+                "name": f"plot_{sheet_name.replace(' ', '_')}",
+                "option": option,
+                "width": 614,
+                "height": 442,
+                "dpi": 300,
+                "formats": ["png"]
+            })
+            
+        except Exception as e:
+            continue
+
+    result = {"figures": figures}
+    print(json.dumps(result, ensure_ascii=False))
+
+if __name__ == "__main__":
+    get_tga_data(DATA_FILE)

@@ -1,0 +1,3 @@
+```json
+{"file": "cnt_batches.xlsx", "sheets": "Raw", "code": "import numpy as np\ny1 = y1 / np.interp(150, x, y1) * 100.0\nax1.clear()\nax1.plot(x, y1, color='C0', label='Weight (%)')\nax2 and ax2.plot(x, y2, color='C1', label='Deriv. Weight (%/°C)')"}
+```

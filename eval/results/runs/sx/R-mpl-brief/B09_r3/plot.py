@@ -1,0 +1,103 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+
+# 데이터 파일 경로 및 출력 디렉토리 설정
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/B09_r3/out"
+
+# 한글 폰트 설정
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+# PE 시트만 읽기
+df = pd.read_excel(DATA_FILE, sheet_name='PE')
+
+# 열 이름 추출 (예상된 구조 기반)
+col_time = df.columns[0]
+col_temp = df.columns[1]
+col_weight = df.columns[2]
+col_dtg = df.columns[3]
+
+# 데이터 정렬 (온도 기준 오름차순이 아닐 수 있으므로 정렬하는 것이 안전함)
+df = df.sort_values(by=col_temp).reset_index(drop=True)
+
+x = df[col_temp].values
+y1 = df[col_weight].values
+y2 = df[col_dtg].values * -1  # DTG는 음수값을 양수로 변환하여 피크가 위로 가도록 함
+
+# 사용자 요청 사항 적용:
+# 1. x축 범위 100~700
+# 2. 틱간격 100
+# 3. y1 선 굵게(3), 빨간색
+
+fig, ax1 = plt.subplots(figsize=(8, 6))
+
+# Y1 축 (Weight %)
+line1, = ax1.plot(x, y1, color='red', linewidth=3, label='Weight (%)')
+ax1.set_xlabel('Temperature (°C)', fontsize=12)
+ax1.set_ylabel('Weight (%)', color='red', fontsize=12)
+ax1.tick_params(axis='y', labelcolor='red')
+
+# X축 설정
+ax1.set_xlim(100, 700)
+ax1.set_xticks(np.arange(100, 701, 100))
+
+# Y2 축 (DTG) 생성
+ax2 = ax1.twinx()
+line2, = ax2.plot(x, y2, color='#c0392b', linewidth=1.5, label='DTG (%/°C)') # 기본 색상 유지 또는 조정 가능
+ax2.set_ylabel('DTG (%/°C)', color='#c0392b', fontsize=12)
+ax2.tick_params(axis='y', labelcolor='#c0392b')
+
+# 제목 설정 (시트 이름)
+title = "PE"
+ax1.set_title(title, fontsize=14)
+
+# 잔류량(Residue) 표시: 800°C에 가장 가까운 측정점의 무게
+# 현재 데이터가 900까지 있지만, x축 범위를 700으로 제한했으므로 라벨 위치는 시각적으로 확인 필요
+# 하지만 정의상 "measured point nearest 800 °C"이므로 데이터 자체에서 계산
+idx_800 = np.argmin(np.abs(x - 800))
+residue_val = y1[idx_800]
+residue_temp = x[idx_800]
+
+# 피크(Peak) 표시: 150°C 이상의 가장 높은 DTG 피크
+mask_peak = x > 150
+if mask_peak.any():
+    y2_masked = y2[mask_peak]
+    x_masked = x[mask_peak]
+    idx_max_dtg = np.argmax(y2_masked)
+    peak_temp = x_masked[idx_max_dtg]
+    peak_val = y2_masked[idx_max_dtg]
+else:
+    peak_temp = None
+    peak_val = None
+
+# 마커 및 텍스트 추가
+# 잔류량 마커 (Y1 축 기준)
+marker_residue = ax1.scatter([residue_temp], [residue_val], color='black', s=50, zorder=5)
+label_residue = f'Residue {residue_val:.1f}%'
+# 텍스트 위치를 적절히 배치 (그래프 밖으로 나가지 않도록 주의)
+ax1.annotate(label_residue, xy=(residue_temp, residue_val), xytext=(residue_temp + 20, residue_val + 5),
+             arrowprops=dict(facecolor='black', shrink=0.05), fontsize=10, ha='left')
+
+# 피크 마커 (Y2 축 기준)
+if peak_temp is not None:
+    marker_peak = ax2.scatter([peak_temp], [peak_val], color='black', s=50, zorder=5)
+    label_peak = f'{peak_temp:.0f} °C'
+    ax2.annotate(label_peak, xy=(peak_temp, peak_val), xytext=(peak_temp + 20, peak_val + 0.2),
+                 arrowprops=dict(facecolor='black', shrink=0.05), fontsize=10, ha='left')
+
+# 범례(Legend)
+lines = [line1, line2]
+labels = [l.get_label() for l in lines]
+ax1.legend(lines, labels, loc='center left', bbox_to_anchor=(0.05, 0.5))
+
+# 격자(Grid)
+ax1.grid(True, linestyle='--', alpha=0.5)
+
+# 저장
+os.makedirs(OUT_DIR, exist_ok=True)
+output_path = os.path.join(OUT_DIR, "PE_tga.png")
+plt.savefig(output_path, dpi=300, bbox_inches='tight')
+plt.close()

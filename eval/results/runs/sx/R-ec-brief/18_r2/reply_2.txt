@@ -1,0 +1,251 @@
+```python
+import pandas as pd
+import numpy as np
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+def get_korean_font():
+    return "Noto Sans CJK KR"
+
+def find_nearest_point(x_vals, y_vals, target_x):
+    """Find the index of the point in x_vals closest to target_x."""
+    if not len(x_vals):
+        return None
+    idx = np.argmin(np.abs(np.array(x_vals) - target_x))
+    return int(idx)
+
+def process_sheet(df, sheet_name):
+    # Identify columns based on standard TGA structure from preview
+    # Assuming B=Temperature, C=Weight(%), D=D.W(%/C)
+    # Robustly find them by name if possible, else fallback
+    
+    temp_col = None
+    weight_col = None
+    dtg_col = None
+    
+    for col in df.columns:
+        c_lower = str(col).lower()
+        if 'temp' in c_lower or '온도' in c_lower:
+            temp_col = col
+        elif 'weight' in c_lower and '%' in str(col) or 'wt' in c_lower:
+            weight_col = col
+        elif 'd.w' in c_lower or 'dtg' in c_lower or 'derivative' in c_lower:
+            dtg_col = col
+            
+    # Fallback to positional if names are ambiguous (based on preview: A=Time, B=Temp, C=Weight, D=DTG)
+    if temp_col is None and len(df.columns) >= 2: temp_col = df.columns[1]
+    if weight_col is None and len(df.columns) >= 3: weight_col = df.columns[2]
+    if dtg_col is None and len(df.columns) >= 4: dtg_col = df.columns[3]
+
+    if temp_col is None or weight_col is None or dtg_col is None:
+        return None
+
+    temps = df[temp_col].dropna().values.astype(float)
+    weights = df[weight_col].dropna().values.astype(float)
+    dtgs = df[dtg_col].dropna().values.astype(float)
+    
+    # Align lengths just in case dropna removed different amounts (though unlikely in TGA)
+    min_len = min(len(temps), len(weights), len(dtgs))
+    temps = temps[:min_len]
+    weights = weights[:min_len]
+    dtgs = dtgs[:min_len]
+    
+    if len(temps) == 0:
+        return None
+
+    # Prepare data for ECharts series
+    # Series 1: Weight (%)
+    data_weight = [[float(t), float(w)] for t, w in zip(temps, weights)]
+    
+    # Series 2: DTG (%/C), multiplied by -1 so peaks point up
+    data_dtg = [[float(t), float(-d)] for t, d in zip(temps, dtgs)]
+    
+    # Calculate Residue at 800C
+    residue_idx = find_nearest_point(temps, weights, 800.0)
+    residue_val = None
+    residue_temp = None
+    if residue_idx is not None:
+        residue_val = float(weights[residue_idx])
+        residue_temp = float(temps[residue_idx])
+        
+    # Calculate Peak Temp (highest DTG peak above 150C)
+    # We look for max value in -DTG (which corresponds to most negative original DTG)
+    # Filter temps > 150
+    mask = temps > 150
+    if np.any(mask):
+        filtered_temps = temps[mask]
+        filtered_neg_dtg = -dtgs[mask] # Peaks point up
+        
+        # Find index of max neg_dtg
+        peak_local_idx = int(np.argmax(filtered_neg_dtg))
+        peak_temp = float(filtered_temps[peak_local_idx])
+        peak_val = float(filtered_neg_dtg[peak_local_idx])
+    else:
+        peak_temp = None
+        peak_val = None
+
+    # Build Option
+    option = {
+        "title": {
+            "text": sheet_name,
+            "left": "center",
+            "top": "top",
+            "textStyle": {
+                "fontFamily": get_korean_font(),
+                "fontSize": 16
+            }
+        },
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {"type": "cross"}
+        },
+        "legend": {
+            "data": ["Weight (%)", "DTG (-%/°C)"],
+            "orient": "vertical",
+            "left": "left",
+            "top": "middle",
+            "textStyle": {
+                "fontFamily": get_korean_font()
+            }
+        },
+        "grid": {
+            "left": "10%",
+            "right": "10%",
+            "bottom": "15%",
+            "containLabel": True
+        },
+        "xAxis": {
+            "type": "value",
+            "name": "Temperature (°C)",
+            "nameLocation": "middle",
+            "nameGap": 30,
+            "min": 0,
+            "max": 950, # Cover range slightly beyond data
+            "interval": 100, # User request: tick interval 100
+            "axisLabel": {
+                "fontFamily": get_korean_font()
+            },
+            "splitLine": {
+                "show": False
+            }
+        },
+        "yAxis": [
+            {
+                "type": "value",
+                "name": "Weight (%)",
+                "position": "left",
+                "axisLabel": {
+                    "fontFamily": get_korean_font()
+                },
+                "splitLine": {
+                    "show": True,
+                    "lineStyle": {"type": "dashed"}
+                }
+            },
+            {
+                "type": "value",
+                "name": "DTG (-%/°C)",
+                "position": "right",
+                "min": -0.05, # User request: y2 range -0.05 ~ 1.2
+                "max": 1.2,   # User request: y2 range -0.05 ~ 1.2
+                "axisLabel": {
+                    "fontFamily": get_korean_font()
+                },
+                "splitLine": {
+                    "show": False
+                }
+            }
+        ],
+        "series": [
+            {
+                "name": "Weight (%)",
+                "type": "line",
+                "data": data_weight,
+                "smooth": False,
+                "symbol": "none",
+                "lineStyle": {
+                    "color": "#1f4e9c",
+                    "width": 2
+                },
+                "yAxisIndex": 0,
+                "markPoint": {
+                    "data": []
+                }
+            },
+            {
+                "name": "DTG (-%/°C)",
+                "type": "line",
+                "data": data_dtg,
+                "smooth": False,
+                "symbol": "none",
+                "lineStyle": {
+                    "color": "#c0392b",
+                    "width": 2
+                },
+                "yAxisIndex": 1,
+                "markPoint": {
+                    "data": []
+                }
+            }
+        ]
+    }
+    
+    # Add Markers for Residue and Peak
+    if residue_val is not None:
+        # Add marker on Weight curve (Series 0)
+        option["series"][0]["markPoint"]["data"].append({
+            "coord": [residue_temp, residue_val],
+            "label": {
+                "formatter": f"Residue {residue_val:.1f}%",
+                "position": "top",
+                "fontFamily": get_korean_font(),
+                "fontSize": 10,
+                "color": "#1f4e9c"
+            },
+            "symbolSize": 8,
+            "itemStyle": {
+                "color": "#1f4e9c"
+            }
+        })
+        
+    if peak_temp is not None:
+        # Add marker on DTG curve (Series 1)
+        # Note: The data stored is -DTG, so peak_val is positive
+        option["series"][1]["markPoint"]["data"].append({
+            "coord": [peak_temp, peak_val],
+            "label": {
+                "formatter": f"{int(peak_temp)} °C",
+                "position": "top",
+                "fontFamily": get_korean_font(),
+                "fontSize": 10,
+                "color": "#c0392b"
+            },
+            "symbolSize": 8,
+            "itemStyle": {
+                "color": "#c0392b"
+            }
+        })
+
+    return option
+
+figures = []
+
+# Read all sheets using read_excel to avoid deprecation warning
+sheet_names = pd.ExcelFile(DATA_FILE).sheet_names
+for i, sheet_name in enumerate(sheet_names):
+    df = pd.read_excel(DATA_FILE, sheet_name=sheet_name, header=0)
+    opt = process_sheet(df, sheet_name)
+    if opt:
+        figures.append({
+            "name": f"plot_{i+1}",
+            "option": opt,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        })
+
+output = {"figures": figures}
+print(json.dumps(output))
+```

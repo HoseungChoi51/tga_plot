@@ -1,0 +1,1 @@
+[{"check": "series", "cat": "data", "ok": true, "why": "", "spec": {"series": {"axis": "y1", "y_ranges": [[7.9739, 100.01], [2.9705, 100.02], [29.983, 100.02]]}, "cat": "data"}}, {"check": "text_color", "cat": "ask", "ok": false, "why": "7/9 texts are gray", "spec": {"text_color": "gray"}}, {"check": "font_size", "cat": "ask", "ok": true, "why": "", "spec": {"font_size": 13}}]

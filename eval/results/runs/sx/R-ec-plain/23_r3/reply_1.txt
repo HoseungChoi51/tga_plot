@@ -1,0 +1,126 @@
+```python
+import pandas as pd
+import numpy as np
+import json
+
+# Load data
+file_path = "/home/chs/Work/tga_plot/tests/inputs/instrument_export.txt"
+
+# Read the file, skipping the first 10 rows (header_rows: none found, data_start_row: 11)
+df = pd.read_csv(file_path, sep='\t', header=None, skiprows=10)
+
+# Assign column names based on TGA guess
+# Col A: Index/Time?, Col B: Temperature, Col C: Mass (%), Col D: Derivative (DTG)
+# The user request implies a standard TGA plot. Usually X is Temp or Time, Y1 is Mass %, Y2 is DTG.
+# Based on ranges: B(30-900) is likely Temperature. C(2.97-100) is likely Residue/Mass %. D(-0.8 to 0.003) is DTG.
+# Let's assume B is X (Temperature), C is Y1 (Mass %), D is Y2 (DTG).
+
+x_data = df.iloc[:, 1].values  # Column B
+y_mass = df.iloc[:, 2].values  # Column C
+y_dtg = df.iloc[:, 3].values   # Column D
+
+# Format the series data for ECharts
+# Series 1: Mass % (TGA)
+series_tga = []
+for x, y in zip(x_data, y_mass):
+    if not (np.isnan(x) or np.isnan(y)):
+        series_tga.append([float(x), float(y)])
+
+# Series 2: DTG
+series_dtg = []
+for x, y in zip(x_data, y_dtg):
+    if not (np.isnan(x) or np.isnan(y)):
+        series_dtg.append([float(x), float(y)])
+
+# Construct the ECharts option
+option = {
+    "title": {
+        "text": "TGA Analysis",
+        "subtext": "Residual Mass and Derivative",
+        "left": "center"
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "formatter": "{a}: {c}<br/>{b}" # Simple formatter, can be customized further if needed
+    },
+    "legend": {
+        "data": ["Mass (%)", "DTG"],
+        "top": "10%"
+    },
+    "grid": {
+        "left": "10%",
+        "right": "15%",
+        "bottom": "15%",
+        "containLabel": True
+    },
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "splitLine": {"show": False}
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Mass (%)",
+            "min": 0,
+            "max": 100,
+            "position": "left"
+        },
+        {
+            "type": "value",
+            "name": "DTG",
+            "position": "right",
+            "splitLine": {"show": False}
+        }
+    ],
+    "series": [
+        {
+            "name": "Mass (%)",
+            "type": "line",
+            "smooth": True,
+            "symbol": "none",
+            "data": series_tga,
+            "itemStyle": {"color": "#5470c6"}
+        },
+        {
+            "name": "DTG",
+            "type": "line",
+            "yAxisIndex": 1,
+            "smooth": True,
+            "symbol": "none",
+            "data": series_dtg,
+            "itemStyle": {"color": "#ee6666"},
+            "markPoint": {
+                "data": [
+                    {
+                        "type": "max", 
+                        "name": "Max Residue",
+                        "label": {
+                            "formatter": "Residue: {c}%",
+                            "fontSize": 12
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
+
+# Wrap in the required JSON structure
+output = {
+    "figures": [
+        {
+            "name": "plot1",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+    ]
+}
+
+print(json.dumps(output))
+```

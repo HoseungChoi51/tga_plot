@@ -1,0 +1,3 @@
+```json
+{"file": "polymers.xlsx", "sheets": "PE", "x": {"col": "B", "code": "x = x + 273.15"}, "y1": {"col": "C"}, "y2": {"col": "D"}}
+```

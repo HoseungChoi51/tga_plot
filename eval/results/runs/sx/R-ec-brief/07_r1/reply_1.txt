@@ -1,304 +1,217 @@
 ```python
 import pandas as pd
-import numpy as np
 import json
+import numpy as np
 
-DATA_FILE = "/home/chs/CNT/Plot/tests/inputs/TGA.xlsx"
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
 
-def find_nearest_value(temp_arr, weight_arr, target_temp):
-    """Find the weight value at the temperature nearest to target_temp."""
-    idx = np.argmin(np.abs(temp_arr - target_temp))
-    return temp_arr[idx], weight_arr[idx]
+def find_nearest(arr, target):
+    """Find the index of the nearest value in arr to target."""
+    return (np.abs(np.array(arr) - target)).argmin()
 
-def find_dtg_peak(temp_arr, dtg_arr, min_temp=150.0):
-    """Find the highest DTG peak (most negative original value, so max of -dtg) above min_temp."""
-    mask = temp_arr > min_temp
-    if not np.any(mask):
-        return None, None
+def process_sheet(df, sheet_name):
+    # Identify columns based on typical TGA structure from preview
+    # Assuming standard order: Time, Temperature, Weight(%), D.W(%/C)
+    # We will try to identify by name if possible, else fallback to position
     
-    t_masked = temp_arr[mask]
-    dtg_masked = dtg_arr[mask]
-    
-    # We want the peak where mass loss is greatest -> most negative dtg -> max(-dtg)
-    # Since we plot -dtg, the peak in the plotted curve corresponds to max(-dtg).
-    # So we find index where -dtg is maximum.
-    neg_dtg = -dtg_masked
-    idx_max = np.argmax(neg_dtg)
-    
-    peak_temp = t_masked[idx_max]
-    peak_val_neg = neg_dtg[idx_max] # This is the height on the y2 axis (which is -dtg)
-    
-    return peak_temp, peak_val_neg
-
-# Read Excel file
-xl = pd.ExcelFile(DATA_FILE)
-sheets = xl.sheet_names
-
-figures = []
-
-for sheet_name in sheets:
-    df = pd.read_excel(xl, sheet_name=sheet_name)
-    
-    # Identify columns based on standard TGA structure and preview info
-    # Assuming B=Temperature, C=Weight(%), D=D.W(%/C)
-    # Let's verify column names loosely or use positions if names are ambiguous
     cols = df.columns.tolist()
     
     # Heuristic to find columns
-    temp_col = None
-    weight_col = None
-    dtg_col = None
+    x_col = None
+    y1_col = None
+    y2_col = None
     
     for c in cols:
         c_lower = str(c).lower()
-        if 'temp' in c_lower:
-            temp_col = c
-        elif 'weight' in c_lower or 'wt' in c_lower:
-            weight_col = c
-        elif 'd.w' in c_lower or 'derivative' in c_lower or 'dtg' in c_lower:
-            dtg_col = c
+        if 'temp' in c_lower or 'temperature' in c_lower:
+            x_col = c
+        elif 'weight' in c_lower and '%' in c_lower and 'd.w' not in c_lower and 'derivative' not in c_lower:
+            y1_col = c
+        elif 'd.w' in c_lower or 'derivative' in c_lower or ('dtg' in c_lower):
+            y2_col = c
             
-    # Fallback to indices if heuristics fail based on preview
-    if temp_col is None and len(cols) >= 2: temp_col = cols[1]
-    if weight_col is None and len(cols) >= 3: weight_col = cols[2]
-    if dtg_col is None and len(cols) >= 4: dtg_col = cols[3]
+    # Fallback if names are ambiguous or missing
+    if x_col is None and len(cols) > 1: x_col = cols[1] # Usually Temp is 2nd col
+    if y1_col is None and len(cols) > 2: y1_col = cols[2] # Usually Weight is 3rd
+    if y2_col is None and len(cols) > 3: y2_col = cols[3] # Usually DTG is 4th
     
-    if temp_col is None or weight_col is None or dtg_col is None:
-        continue
+    if not all([x_col, y1_col, y2_col]):
+        return None
         
-    # Extract data
-    temps = df[temp_col].values
-    weights = df[weight_col].values
-    dtgs = df[dtg_col].values
+    temp = df[x_col].values
+    weight = df[y1_col].values
+    dtg = df[y2_col].values
     
-    # Clean NaNs
-    valid_mask = ~(np.isnan(temps) | np.isnan(weights) | np.isnan(dtgs))
-    temps = temps[valid_mask]
-    weights = weights[valid_mask]
-    dtgs = dtgs[valid_mask]
+    # Prepare data for ECharts
+    # Line 1: Weight (%)
+    series_weight_data = [[float(t), float(w)] for t, w in zip(temp, weight)]
     
-    if len(temps) == 0:
-        continue
+    # Line 2: DTG (%/C) * -1 so peaks point up
+    series_dtg_data = [[float(t), float(-d)] for t, d in zip(temp, dtg)]
+    
+    # Calculate Residue at 800 C
+    # Find index closest to 800
+    idx_800 = find_nearest(temp, 800)
+    residue_val = weight[idx_800]
+    residue_temp = temp[idx_800]
+    
+    # Calculate Peak temperature above 150 C
+    # Filter DTG data where temp > 150
+    mask = temp > 150
+    filtered_dtg = dtg[mask]
+    filtered_temp = temp[mask]
+    
+    peak_temp = None
+    peak_val = None
+    
+    if len(filtered_dtg) > 0:
+        # Find max absolute value? The prompt says "highest DTG peak". 
+        # Since we plot -DTG, the highest peak visually corresponds to the most negative DTG.
+        # So we look for min(dtg) in the filtered set.
+        idx_min_dtg = np.argmin(filtered_dtg)
+        peak_temp = filtered_temp[idx_min_dtg]
+        peak_val = filtered_dtg[idx_min_dtg]
         
-    # Calculate Residue at ~800C
-    res_temp, res_weight = find_nearest_value(temps, weights, 800.0)
-    
-    # Calculate DTG Peak above 150C
-    peak_temp, peak_height_neg = find_dtg_peak(temps, dtgs, min_temp=150.0)
-    
-    # Prepare series data
-    # Series 1: Weight (%) - Left Y Axis
-    series_weight_data = [[float(t), float(w)] for t, w in zip(temps, weights)]
-    
-    # Series 2: DTG (%/C) multiplied by -1 - Right Y Axis
-    # Note: The prompt says "multiplied by -1 so its peaks point up"
-    series_dtg_data = [[float(t), float(-d)] for t, d in zip(temps, dtgs)]
-    
-    # Determine Axis Ranges dynamically to look nice
-    # X Axis
-    x_min = min(temps.min(), 30)
-    x_max = max(temps.max(), 900)
-    
-    # Y1 (Weight)
-    y1_min = 0
-    y1_max = 100
-    
-    # Y2 (DTG * -1)
-    # Find range of -dtg
-    neg_dtgs = -dtgs
-    y2_min = min(neg_dtgs.min(), 0)
-    y2_max = max(neg_dtgs.max(), 0)
-    
-    # Add some padding to Y2
-    y2_range = y2_max - y2_min
-    if y2_range == 0: y2_range = 1
-    y2_min -= y2_range * 0.1
-    y2_max += y2_range * 0.1
-    
-    # Build Markers for Annotations
-    markers = []
-    
-    # Residue Marker
-    # Only add if within chart bounds roughly
-    if res_temp <= x_max and res_weight <= y1_max:
-        markers.append({
-            "coord": [res_temp, res_weight],
-            "symbol": "circle",
-            "symbolSize": 8,
-            "itemStyle": {
-                "color": "#1f4e9c"
-            },
-            "label": {
-                "show": True,
-                "formatter": f"Residue {res_weight:.1f}%",
-                "position": "right",
-                "fontSize": 10,
-                "color": "#1f4e9c"
-            }
-        })
-        
-    # Peak Marker
-    if peak_temp is not None and peak_height_neg is not None:
-        if peak_temp <= x_max and peak_height_neg <= y2_max:
-             markers.append({
-                "coord": [peak_temp, peak_height_neg],
-                "symbol": "triangle",
-                "symbolSize": 8,
-                "itemStyle": {
-                    "color": "#c0392b"
-                },
-                "label": {
-                    "show": True,
-                    "formatter": f"{int(peak_temp)} °C",
-                    "position": "top",
-                    "fontSize": 10,
-                    "color": "#c0392b"
-                }
-            })
-
+    # Build Option
     option = {
         "title": {
             "text": sheet_name,
             "left": "center",
+            "top": 10,
             "textStyle": {
                 "fontFamily": "Noto Sans CJK KR",
-                "fontSize": 14
+                "fontSize": 16
             }
         },
         "tooltip": {
             "trigger": "axis",
             "axisPointer": {
                 "type": "cross"
-            },
-            "formatter": "{a0}: {c0}<br/>{a1}: {c1}"
+            }
         },
         "legend": {
-            "data": ["Weight (%)", "DTG (%/°C)"],
-            "top": 20,
-            "right": 20,
+            "data": ["Weight (%)", "DTG (%/C)"],
+            "top": 10,       # Move legend to top
+            "right": 10,     # Move legend to right
             "textStyle": {
-                "fontSize": 9,
+                "fontSize": 9,   # Font size 9
                 "fontFamily": "Noto Sans CJK KR"
             }
         },
         "grid": {
-            "left": "8%",
-            "right": "8%",
-            "bottom": "10%",
-            "top": "15%",
-            "containLabel": true
+            "left": "10%",
+            "right": "10%",
+            "bottom": "15%",
+            "containLabel": True
         },
         "xAxis": {
             "name": "Temperature (°C)",
+            "type": "value",
             "nameLocation": "middle",
             "nameGap": 30,
-            "type": "value",
-            "min": x_min,
-            "max": x_max,
-            "splitLine": {
-                "show": false
-            },
-            "axisLine": {
-                "lineStyle": {
-                    "color": "#666"
-                }
-            },
-            "axisTick": {
-                "alignWithLabel": true
-            },
-            "axisLabel": {
-                "fontFamily": "Noto Sans CJK KR",
-                "fontSize": 10
-            }
+            "splitLine": {"show": False},
+            "axisLine": {"lineStyle": {"color": "#333"}},
+            "axisTick": {"show": True}
         },
         "yAxis": [
             {
                 "name": "Weight (%)",
                 "type": "value",
-                "min": y1_min,
-                "max": y1_max,
                 "position": "left",
-                "axisLine": {
-                    "lineStyle": {
-                        "color": "#1f4e9c"
-                    }
-                },
-                "axisTick": {
-                    "show": true
-                },
-                "axisLabel": {
-                    "fontFamily": "Noto Sans CJK KR",
-                    "fontSize": 10,
-                    "color": "#1f4e9c"
-                },
-                "splitLine": {
-                    "show": false
-                }
+                "nameLocation": "middle",
+                "nameGap": 40,
+                "splitLine": {"show": True, "lineStyle": {"type": "dashed", "color": "#ccc"}},
+                "axisLine": {"lineStyle": {"color": "#333"}}
             },
             {
-                "name": "DTG (%/°C)",
+                "name": "DTG (%/C)",
                 "type": "value",
-                "min": y2_min,
-                "max": y2_max,
                 "position": "right",
-                "axisLine": {
-                    "lineStyle": {
-                        "color": "#c0392b"
-                    }
-                },
-                "axisTick": {
-                    "show": true
-                },
-                "axisLabel": {
-                    "fontFamily": "Noto Sans CJK KR",
-                    "fontSize": 10,
-                    "color": "#c0392b"
-                },
-                "splitLine": {
-                    "show": false
-                }
+                "nameLocation": "middle",
+                "nameGap": 40,
+                "splitLine": {"show": False},
+                "axisLine": {"lineStyle": {"color": "#333"}}
             }
         ],
         "series": [
             {
                 "name": "Weight (%)",
                 "type": "line",
-                "yAxisIndex": 0,
-                "data": series_weight_data,
-                "smooth": false,
+                "smooth": True,
                 "symbol": "none",
-                "lineStyle": {
-                    "color": "#1f4e9c",
-                    "width": 1.5
-                },
+                "lineStyle": {"width": 2, "color": "#1f4e9c"},
+                "itemStyle": {"color": "#1f4e9c"},
+                "data": series_weight_data,
                 "markPoint": {
-                    "data": markers
+                    "data": [
+                        {
+                            "coord": [residue_temp, residue_val],
+                            "symbolSize": 8,
+                            "itemStyle": {"color": "#1f4e9c"},
+                            "label": {
+                                "formatter": f"Residue {residue_val:.1f}%",
+                                "position": "top",
+                                "fontSize": 10,
+                                "fontFamily": "Noto Sans CJK KR"
+                            }
+                        }
+                    ]
                 }
             },
             {
-                "name": "DTG (%/°C)",
+                "name": "DTG (%/C)",
                 "type": "line",
-                "yAxisIndex": 1,
-                "data": series_dtg_data,
-                "smooth": false,
+                "smooth": True,
                 "symbol": "none",
-                "lineStyle": {
-                    "color": "#c0392b",
-                    "width": 1.5
+                "yAxisIndex": 1,
+                "lineStyle": {"width": 2, "color": "#c0392b"},
+                "itemStyle": {"color": "#c0392b"},
+                "data": series_dtg_data,
+                "markPoint": {
+                    "data": []
                 }
             }
         ]
     }
     
-    figures.append({
-        "name": f"plot_{sheet_name.replace(' ', '_')}",
+    # Add Peak Marker to DTG series if found
+    if peak_temp is not None:
+        # The plotted value is -peak_val because we multiplied by -1
+        plotted_peak_val = -peak_val
+        option["series"][1]["markPoint"]["data"].append({
+            "coord": [peak_temp, plotted_peak_val],
+            "symbolSize": 8,
+            "itemStyle": {"color": "#c0392b"},
+            "label": {
+                "formatter": f"{peak_temp:.0f} °C",
+                "position": "top",
+                "fontSize": 10,
+                "fontFamily": "Noto Sans CJK KR"
+            }
+        })
+
+    return {
+        "name": f"plot_{sheet_name.replace(' ', '_').replace('-', '_')}",
         "option": option,
         "width": 614,
         "height": 442,
         "dpi": 300,
         "formats": ["png"]
-    })
+    }
 
-output = {"figures": figures}
-print(json.dumps(output, ensure_ascii=False))
+def main():
+    xls = pd.ExcelFile(DATA_FILE)
+    figures = []
+    
+    for sheet_name in xls.sheet_names:
+        df = pd.read_excel(xls, sheet_name=sheet_name)
+        fig = process_sheet(df, sheet_name)
+        if fig:
+            figures.append(fig)
+            
+    output = {"figures": figures}
+    print(json.dumps(output))
+
+if __name__ == "__main__":
+    main()
 ```

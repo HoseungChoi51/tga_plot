@@ -1,0 +1,177 @@
+import os
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Configure fonts for Korean support
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/instrument_export.txt"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/23_r2/out"
+
+def load_data(file_path):
+    """
+    Load TGA data from a text file that may have irregular headers or separators.
+    Handles encoding issues (UTF-8, UTF-16, Latin-1) and variable column widths.
+    """
+    df = None
+    
+    # Try different encodings commonly used by instrument exports
+    encodings = ['utf-8', 'utf-16', 'latin-1', 'cp1252']
+    
+    for enc in encodings:
+        try:
+            # Attempt to read with flexible whitespace separator
+            # skiprows=10 based on metadata "data_start_row": 11 (1-based index of first data line)
+            # engine='python' is more robust for irregular formats than 'c'
+            df = pd.read_csv(
+                file_path, 
+                sep=r'\s+', 
+                header=None, 
+                skiprows=10, 
+                engine='python',
+                encoding=enc,
+                on_bad_lines='skip'
+            )
+            
+            # If we successfully loaded something, break the loop
+            if not df.empty:
+                break
+        except Exception:
+            continue
+            
+    if df is None or df.empty:
+        return pd.DataFrame()
+
+    # Ensure we have at least 4 columns (Time, Temp, Weight, DTG)
+    if len(df.columns) < 4:
+        # Pad with NaNs if necessary, though unlikely given the preview
+        while len(df.columns) < 4:
+            df[f'col_{len(df.columns)}'] = np.nan
+            
+    # Select first 4 columns
+    df = df.iloc[:, :4]
+    df.columns = ['time', 'temp', 'weight', 'dtg']
+    
+    # Convert to numeric, coercing errors to NaN
+    for col in df.columns:
+        df[col] = pd.to_numeric(df[col], errors='coerce')
+        
+    # Drop rows where key columns are NaN
+    required_cols = ['temp', 'weight', 'dtg']
+    existing_required = [c for c in required_cols if c in df.columns]
+    if existing_required:
+        df = df.dropna(subset=existing_required)
+        
+    return df
+
+def plot_tga_single(df, sheet_name="Sheet", out_dir=OUT_DIR):
+    """
+    Plots a standard TGA graph with specific residue label format.
+    """
+    if df.empty:
+        return
+
+    fig, ax1 = plt.subplots(figsize=(8, 6))
+    
+    # Identify columns based on the guess provided in prompt context
+    # x = temp, y1 = weight, y2 = dtg
+    x_col = 'temp'
+    y1_col = 'weight'
+    y2_col = 'dtg'
+    
+    # Check if columns exist
+    if x_col not in df.columns or y1_col not in df.columns or y2_col not in df.columns:
+        return
+
+    # Plot Weight (Left Y-axis)
+    color1 = '#1f4e9c'
+    ax1.plot(df[x_col], df[y1_col], color=color1, linewidth=1.5, label='Weight (%)')
+    ax1.set_xlabel('Temperature (°C)', fontsize=12)
+    ax1.set_ylabel('Weight (%)', color=color1, fontsize=12)
+    ax1.tick_params(axis='y', labelcolor=color1)
+    
+    # Create twin axis for DTG
+    ax2 = ax1.twinx()
+    color2 = '#c0392b'
+    # Multiply DTG by -1 so peaks point up
+    dtg_neg = df[y2_col] * -1
+    ax2.plot(df[x_col], dtg_neg, color=color2, linewidth=1.5, linestyle='--', label='DTG (-%/°C)')
+    ax2.set_ylabel('DTG (-%/°C)', color=color2, fontsize=12)
+    ax2.tick_params(axis='y', labelcolor=color2)
+    
+    # Title
+    title_text = sheet_name if sheet_name != "instrument_export" else "TGA Analysis"
+    ax1.set_title(title_text, fontsize=14, pad=10)
+    
+    # Legend
+    lines_1, labels_1 = ax1.get_legend_handles_labels()
+    lines_2, labels_2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='center left', bbox_to_anchor=(0.02, 0.5))
+    
+    # --- Residue Calculation and Labeling ---
+    # Find the point nearest to 800 °C
+    target_temp = 800.0
+    # Ensure temp column is numeric and valid
+    if not df[x_col].isnull().all():
+        idx_residue = (df[x_col] - target_temp).abs().idxmin()
+        residue_weight = df.loc[idx_residue, y1_col]
+        residue_temp = df.loc[idx_residue, x_col]
+        
+        # Format string as requested: 'Residue: {}%'
+        residue_label_str = f'Residue: {residue_weight:.1f}%'
+        
+        # Add marker and text for residue
+        ax1.scatter(residue_temp, residue_weight, color=color1, zorder=5)
+        # Offset text slightly for visibility
+        ax1.text(residue_temp + 10, residue_weight, residue_label_str, 
+                 color=color1, fontsize=10, verticalalignment='bottom', horizontalalignment='left')
+             
+    # --- Peak Calculation and Labeling ---
+    # Find highest DTG peak above 150 °C
+    # We use the original DTG values (negative) to find the most negative value (which becomes highest positive after *-1)
+    # Or simply find max of dtg_neg where temp > 150
+    
+    # Mask for temperatures > 150 and valid DTG
+    mask_peak = (df[x_col] > 150) & (~df[y2_col].isnull())
+    
+    if not df[mask_peak].empty:
+        # Calculate DTG negated for peak finding
+        dtg_neg_series = df.loc[mask_peak, y2_col] * -1
+        
+        # Only consider peaks where mass loss is occurring (DTG negative -> dtg_neg positive)
+        valid_peaks = dtg_neg_series[dtg_neg_series > 0]
+        
+        if not valid_peaks.empty:
+            idx_peak = valid_peaks.idxmax()
+            peak_temp = df.loc[idx_peak, x_col]
+            peak_val = dtg_neg_series.loc[idx_peak]
+            
+            # Add marker and text for peak
+            ax2.scatter(peak_temp, peak_val, color=color2, zorder=5)
+            ax2.text(peak_temp, peak_val + 0.05, f'{peak_temp:.0f} °C', 
+                     color=color2, fontsize=10, verticalalignment='bottom', horizontalalignment='center')
+    
+    # Grid
+    ax1.grid(True, linestyle=':', alpha=0.6)
+    
+    # Save figure
+    filename = f"{sheet_name}.png".replace(" ", "_")
+    filepath = os.path.join(out_dir, filename)
+    plt.tight_layout()
+    plt.savefig(filepath, dpi=300)
+    plt.close(fig)
+
+def main():
+    if not os.path.exists(OUT_DIR):
+        os.makedirs(OUT_DIR)
+        
+    df = load_data(DATA_FILE)
+    
+    # Since it's a single sheet/text file, we treat it as one dataset
+    # The sheet name from the preview is "instrument_export"
+    plot_tga_single(df, sheet_name="instrument_export", out_dir=OUT_DIR)
+
+if __name__ == "__main__":
+    main()

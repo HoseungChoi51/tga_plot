@@ -1,0 +1,152 @@
+```python
+import pandas as pd
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/korean_excel.csv"
+
+# Try reading with different encodings, prioritizing common Korean encodings
+try:
+    df = pd.read_csv(DATA_FILE, encoding='utf-8')
+except UnicodeDecodeError:
+    try:
+        df = pd.read_csv(DATA_FILE, encoding='cp949')
+    except UnicodeDecodeError:
+        try:
+            df = pd.read_csv(DATA_FILE, encoding='euc-kr')
+        except UnicodeDecodeError:
+            # Fallback to latin1 if all else fails, though it might garble text
+            df = pd.read_csv(DATA_FILE, encoding='latin1')
+
+# Extract data columns based on the preview
+time_col = "시간(분)"
+temp_col = "온도(°C)"
+weight_col = "무게(%)"
+dtg_col = "미분무게(%/°C)"
+
+x_data = df[temp_col].tolist()
+y1_data = df[weight_col].tolist()
+y2_data = df[dtg_col].tolist()
+
+option = {
+    "backgroundColor": "#ffffff",
+    "title": {
+        "text": "TGA 분석 결과",
+        "subtext": "온도에 따른 무게 변화 및 미분무게",
+        "left": "center",
+        "top": 10,
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR",
+            "fontSize": 18,
+            "fontWeight": "bold"
+        },
+        "subtextStyle": {
+            "fontFamily": "Noto Sans CJK KR",
+            "fontSize": 12
+        }
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {
+            "type": "cross"
+        }
+    },
+    "legend": {
+        "data": ["무게(%)", "미분무게(%/°C)"],
+        "top": 50,
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR"
+        }
+    },
+    "grid": {
+        "left": "3%",
+        "right": "4%",
+        "bottom": "3%",
+        "containLabel": True
+    },
+    "xAxis": {
+        "name": "온도 (°C)",
+        "type": "value",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "nameTextStyle": {
+            "fontFamily": "Noto Sans CJK KR",
+            "fontSize": 14
+        },
+        "axisLabel": {
+            "fontFamily": "Noto Sans CJK KR"
+        }
+    },
+    "yAxis": [
+        {
+            "name": "무게 (%)",
+            "type": "value",
+            "position": "left",
+            "nameTextStyle": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 14
+            },
+            "axisLabel": {
+                "fontFamily": "Noto Sans CJK KR"
+            }
+        },
+        {
+            "name": "미분무게 (%/°C)",
+            "type": "value",
+            "position": "right",
+            "nameTextStyle": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 14
+            },
+            "axisLabel": {
+                "fontFamily": "Noto Sans CJK KR"
+            }
+        }
+    ],
+    "series": [
+        {
+            "name": "무게(%)",
+            "type": "line",
+            "data": [[float(x), float(y)] for x, y in zip(x_data, y1_data)],
+            "smooth": True,
+            "symbol": "none",
+            "lineStyle": {
+                "width": 2,
+                "color": "#5470c6"
+            },
+            "itemStyle": {
+                "color": "#5470c6"
+            }
+        },
+        {
+            "name": "미분무게(%/°C)",
+            "type": "line",
+            "yAxisIndex": 1,
+            "data": [[float(x), float(y)] for x, y in zip(x_data, y2_data)],
+            "smooth": True,
+            "symbol": "none",
+            "lineStyle": {
+                "width": 2,
+                "color": "#ee6666"
+            },
+            "itemStyle": {
+                "color": "#ee6666"
+            }
+        }
+    ]
+}
+
+output = {
+    "figures": [
+        {
+            "name": "tga_plot",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png", "pdf"]
+        }
+    ]
+}
+
+print(json.dumps(output, ensure_ascii=False))
+```

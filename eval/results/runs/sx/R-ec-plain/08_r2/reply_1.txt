@@ -1,0 +1,142 @@
+```python
+import pandas as pd
+import json
+
+def main():
+    file_path = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+    
+    # Sheet names to process
+    sheets = ["1006R1-V normal", "1006R1-V acid", "1006R1-V 750C"]
+    
+    figures = []
+    
+    for sheet_name in sheets:
+        try:
+            df = pd.read_excel(file_path, sheet_name=sheet_name)
+            
+            # Extract data columns based on preview info
+            # Temperature is x-axis (col B), Weight(%) is y1 (col C), D.W(%/C) is y2 (col D)
+            # We need to map them correctly. The headers are likely 'Temperature', 'Weight(%)', 'D.W(%/C)'
+            
+            # Identify columns by name to be safe
+            temp_col = None
+            weight_col = None
+            dtg_col = None
+            
+            for col in df.columns:
+                if 'temperature' in str(col).lower():
+                    temp_col = col
+                elif 'weight' in str(col).lower() and '%' in str(col):
+                    # Check if it's the derivative one first or just weight
+                    if 'd.w' in str(col).lower() or 'dtg' in str(col).lower():
+                        dtg_col = col
+                    else:
+                        weight_col = col
+                elif 'd.w' in str(col).lower() or 'dtg' in str(col).lower():
+                     dtg_col = col
+            
+            # Fallback if column detection fails based on standard TGA format order from preview
+            if temp_col is None: temp_col = 'Temperature'
+            if weight_col is None: weight_col = 'Weight(%)'
+            if dtg_col is None: dtg_col = 'D.W(%/C)'
+            
+            # Clean data: drop rows with NaN in critical columns
+            df_clean = df.dropna(subset=[temp_col, weight_col, dtg_col])
+            
+            # Prepare series data
+            # Series 1: Weight (%) - Left Y Axis
+            weight_data = [[float(t), float(w)] for t, w in zip(df_clean[temp_col], df_clean[weight_col])]
+            
+            # Series 2: DTG (%/°C) - Right Y Axis
+            dtg_data = [[float(t), float(d)] for t, d in zip(df_clean[temp_col], df_clean[dtg_col])]
+            
+            # Define colors for distinction
+            color_weight = "#5470c6"
+            color_dtg = "#ee6666"
+            
+            option = {
+                "backgroundColor": "white",
+                "tooltip": {
+                    "trigger": "axis",
+                    "axisPointer": {"type": "cross"}
+                },
+                "legend": {
+                    "data": ["무게 (%)", "미분 무게 (%/°C)"],
+                    "top": "5%"
+                },
+                "grid": {
+                    "left": "3%",
+                    "right": "4%",
+                    "bottom": "3%",
+                    "containLabel": True
+                },
+                "xAxis": {
+                    "name": "온도 (°C)",
+                    "nameLocation": "middle",
+                    "nameGap": 30,
+                    "type": "value",
+                    "scale": True,
+                    "splitLine": {"show": False}
+                },
+                "yAxis": [
+                    {
+                        "name": "무게 (%)",
+                        "type": "value",
+                        "position": "left",
+                        "axisLine": {"lineStyle": {"color": color_weight}},
+                        "axisLabel": {"formatter": "{value} %"},
+                        "min": 0,
+                        "max": 105
+                    },
+                    {
+                        "name": "미분 무게 (%/°C)",
+                        "type": "value",
+                        "position": "right",
+                        "axisLine": {"lineStyle": {"color": color_dtg}},
+                        "axisLabel": {"formatter": "{value}"},
+                        "splitLine": {"show": False}
+                    }
+                ],
+                "series": [
+                    {
+                        "name": "무게 (%)",
+                        "type": "line",
+                        "data": weight_data,
+                        "yAxisIndex": 0,
+                        "smooth": False,
+                        "symbol": "none",
+                        "lineStyle": {"width": 2, "color": color_weight},
+                        "itemStyle": {"color": color_weight}
+                    },
+                    {
+                        "name": "미분 무게 (%/°C)",
+                        "type": "line",
+                        "data": dtg_data,
+                        "yAxisIndex": 1,
+                        "smooth": False,
+                        "symbol": "none",
+                        "lineStyle": {"width": 2, "color": color_dtg},
+                        "itemStyle": {"color": color_dtg}
+                    }
+                ]
+            }
+            
+            fig_entry = {
+                "name": f"tga_{sheet_name.replace(' ', '_').replace('-', '_')}",
+                "option": option,
+                "width": 800,
+                "height": 500,
+                "dpi": 150,
+                "formats": ["png"]
+            }
+            figures.append(fig_entry)
+            
+        except Exception as e:
+            print(f"Error processing sheet {sheet_name}: {e}")
+
+    output = {"figures": figures}
+    print(json.dumps(output))
+
+if __name__ == "__main__":
+    main()
+```

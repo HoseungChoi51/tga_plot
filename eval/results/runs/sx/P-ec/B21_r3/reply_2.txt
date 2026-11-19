@@ -1,0 +1,10 @@
+```json
+{
+  "file": "cnt_batches.xlsx",
+  "sheets": "Raw",
+  "x": {
+    "min": 900,
+    "max": 30
+  }
+}
+```

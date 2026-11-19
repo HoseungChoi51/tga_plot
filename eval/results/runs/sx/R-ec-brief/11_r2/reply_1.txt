@@ -1,0 +1,206 @@
+```python
+import pandas as pd
+import numpy as np
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+def get_nearest_point(temp_arr, weight_arr, target_temp):
+    idx = np.argmin(np.abs(temp_arr - target_temp))
+    return temp_arr[idx], weight_arr[idx]
+
+def find_peak(temp_arr, dtg_arr, min_temp=150):
+    mask = temp_arr > min_temp
+    if not np.any(mask):
+        return None, None
+    # DTG is negative during mass loss. We want the most negative value (highest magnitude of mass loss rate).
+    # The prompt says "multiplied by -1 so its peaks point up", implying we look for the minimum in original data or maximum in inverted data.
+    # Let's work with the inverted DTG for peak finding logic to match visual "up" peaks.
+    inv_dtg = -dtg_arr[mask]
+    temps_masked = temp_arr[mask]
+    
+    max_idx = np.argmax(inv_dtg)
+    peak_temp = temps_masked[max_idx]
+    peak_val_inv = inv_dtg[max_idx]
+    peak_val_orig = dtg_arr[mask][max_idx]
+    
+    return peak_temp, peak_val_orig
+
+def create_tga_option(df, sheet_name):
+    # Extract columns based on standard TGA structure inferred from preview
+    # x: Temperature, y1: Weight(%), y2: D.W(%/C)
+    try:
+        temp_col = 'Temperature'
+        weight_col = 'Weight(%)'
+        dtg_col = 'D.W(%/C)'
+        
+        # Fallback if column names differ slightly but structure is same
+        if temp_col not in df.columns:
+            temp_col = df.columns[1]
+        if weight_col not in df.columns:
+            weight_col = df.columns[2]
+        if dtg_col not in df.columns:
+            dtg_col = df.columns[3]
+            
+        temp = df[temp_col].values
+        weight = df[weight_col].values
+        dtg = df[dtg_col].values
+        
+        # Prepare data for ECharts series
+        # Series 1: Weight (%) - Left Y Axis
+        series_weight_data = [[float(t), float(w)] for t, w in zip(temp, weight)]
+        
+        # Series 2: DTG (%/C) * -1 - Right Y Axis
+        # Multiply by -1 so peaks point up as requested in standard plot description
+        series_dtg_data = [[float(t), float(-d)] for t, d in zip(temp, dtg)]
+        
+        # Calculate Residue at nearest 800 C
+        res_temp, res_weight = get_nearest_point(temp, weight, 800)
+        
+        # User Request: "피크 표시 지워줘" -> Remove Peak Label and Marker
+        
+        option = {
+            "title": {
+                "text": sheet_name,
+                "left": "center",
+                "top": "2%",
+                "textStyle": {
+                    "fontSize": 14,
+                    "fontWeight": "bold",
+                    "color": "#333"
+                }
+            },
+            "tooltip": {
+                "trigger": "axis",
+                "axisPointer": {
+                    "type": "cross"
+                }
+            },
+            "legend": {
+                "data": ["Weight (%)", "DTG (-%/°C)"],
+                "left": "left",
+                "top": "middle",
+                "orient": "vertical",
+                "itemGap": 10
+            },
+            "grid": {
+                "left": "10%",
+                "right": "10%",
+                "bottom": "15%",
+                "top": "15%",
+                "containLabel": true
+            },
+            "xAxis": {
+                "type": "value",
+                "name": "Temperature (°C)",
+                "nameLocation": "middle",
+                "nameGap": 30,
+                "min": 0,
+                "max": 900,
+                "splitLine": {"show": false}
+            },
+            "yAxis": [
+                {
+                    "type": "value",
+                    "name": "Weight (%)",
+                    "position": "left",
+                    "min": 0,
+                    "max": 110,
+                    "splitLine": {"lineStyle": {"type": "dashed"}}
+                },
+                {
+                    "type": "value",
+                    "name": "DTG (-%/°C)",
+                    "position": "right",
+                    "splitLine": {"show": false}
+                }
+            ],
+            "series": [
+                {
+                    "name": "Weight (%)",
+                    "type": "line",
+                    "yAxisIndex": 0,
+                    "data": series_weight_data,
+                    "smooth": false,
+                    "symbol": "none",
+                    "lineStyle": {
+                        "color": "#1f4e9c",
+                        "width": 2
+                    },
+                    "markPoint": {
+                        "data": [
+                            {
+                                "coord": [res_temp, res_weight],
+                                "value": f"Residue {res_weight:.1f}%",
+                                "symbol": "circle",
+                                "symbolSize": 6,
+                                "itemStyle": {"color": "#1f4e9c"},
+                                "label": {
+                                    "show": True,
+                                    "formatter": "{@[0]} °C\n{@[1]:.1f}%",
+                                    "position": "right",
+                                    "distance": 5,
+                                    "fontSize": 10,
+                                    "color": "#1f4e9c"
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "DTG (-%/°C)",
+                    "type": "line",
+                    "yAxisIndex": 1,
+                    "data": series_dtg_data,
+                    "smooth": false,
+                    "symbol": "none",
+                    "lineStyle": {
+                        "color": "#c0392b",
+                        "width": 2
+                    }
+                    # No markPoint for peak as per user request
+                }
+            ]
+        }
+        
+        return option
+
+    except Exception as e:
+        return {"error": str(e)}
+
+def main():
+    figures = []
+    
+    # Read Excel file
+    xls = pd.ExcelFile(DATA_FILE)
+    sheet_names = xls.sheet_names
+    
+    for sheet_name in sheet_names:
+        df = pd.read_excel(xls, sheet_name=sheet_name)
+        # Drop rows where essential columns are NaN
+        df = df.dropna(subset=[df.columns[1], df.columns[2], df.columns[3]])
+        
+        if len(df) == 0:
+            continue
+            
+        option = create_tga_option(df, sheet_name)
+        
+        if "error" in option:
+            continue
+            
+        fig_entry = {
+            "name": sheet_name.replace(" ", "_"),
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+        figures.append(fig_entry)
+        
+    output = {"figures": figures}
+    print(json.dumps(output, ensure_ascii=False))
+
+if __name__ == "__main__":
+    main()
+```

@@ -1,0 +1,79 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import find_peaks
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/B13_r1/out"
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# Read PVC sheet
+df_pvc = pd.read_excel(DATA_FILE, sheet_name='PVC')
+
+temp = df_pvc['Temperature (°C)'].values
+weight = df_pvc['Weight (%)'].values
+deriv_weight = df_pvc['Deriv. Weight (%/°C)'].values
+
+# Find peaks in derivative weight (negative peaks correspond to sharp drops in weight)
+# We look for negative minima by inverting the signal or using prominence on negative values
+# Since deriv_weight is mostly negative during decomposition, we find local minima
+# To use find_peaks which finds maxima, we can invert the deriv_weight
+inverted_deriv = -deriv_weight
+
+# Find peaks with some prominence to avoid noise
+peaks, properties = find_peaks(inverted_deriv, prominence=0.5)  # Adjust prominence if needed
+
+# Get temperatures at these peaks
+peak_temps = temp[peaks]
+
+# Sort peaks by temperature just in case
+sorted_indices = np.argsort(peak_temps)
+peak_temps_sorted = peak_temps[sorted_indices]
+peaks_sorted = peaks[sorted_indices]
+
+print(f"Detected drop temperatures: {peak_temps_sorted}")
+
+# Plot TGA and DTG for PVC
+fig, ax1 = plt.subplots(figsize=(10, 6))
+
+color_tga = 'tab:blue'
+ax1.set_xlabel('Temperature (°C)', fontsize=12)
+ax1.set_ylabel('Weight (%)', color=color_tga, fontsize=12)
+line1 = ax1.plot(temp, weight, color=color_tga, label='Weight (%)')
+ax1.tick_params(axis='y', labelcolor=color_tga)
+ax1.grid(True, linestyle='--', alpha=0.5)
+
+ax2 = ax1.twinx()
+color_dtg = 'tab:red'
+ax2.set_ylabel('Deriv. Weight (%/°C)', color=color_dtg, fontsize=12)
+line2 = ax2.plot(temp, deriv_weight, color=color_dtg, linestyle='--', label='Deriv. Weight (%/°C)')
+ax2.tick_params(axis='y', labelcolor=color_dtg)
+
+# Mark the detected drop temperatures on the plot
+for i, t_drop in enumerate(peak_temps_sorted):
+    # Vertical line
+    ax1.axvline(x=t_drop, color='gray', linestyle=':', linewidth=1.5)
+    # Annotation
+    ax1.annotate(f'{t_drop:.1f} °C', 
+                 xy=(t_drop, weight[np.argmin(np.abs(temp - t_drop))]), 
+                 xytext=(10, 10), textcoords='offset points',
+                 arrowprops=dict(arrowstyle='->', color='black'),
+                 fontsize=10, color='black')
+
+# Combine legends
+lines = line1 + line2
+labels = [l.get_label() for l in lines]
+ax1.legend(lines, labels, loc='upper right')
+
+plt.title('PVC TGA/DTG Analysis with Major Decomposition Temperatures', fontsize=14)
+fig.tight_layout()
+
+out_path = os.path.join(OUT_DIR, 'pvc_tga_drops.png')
+plt.savefig(out_path, dpi=300)
+plt.close()

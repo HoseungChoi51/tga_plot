@@ -1,0 +1,1 @@
+[{"check": "only", "cat": "data", "ok": false, "why": "other y1 data drawn too: [[-0.84916, 0.0021801]]", "spec": {"only": {"axis": "y1", "ranges": [[14.968, 100.01]]}, "cat": "data"}}, {"check": "axis", "cat": "ask", "ok": false, "why": "fig 0: x.inverted is False, want True", "spec": {"axis": {"which": "x", "inverted": true}}}]

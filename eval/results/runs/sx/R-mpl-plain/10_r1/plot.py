@@ -1,0 +1,78 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/10_r1/out"
+
+if not os.path.exists(OUT_DIR):
+    os.makedirs(OUT_DIR)
+
+xls = pd.ExcelFile(DATA_FILE)
+sheet_names = xls.sheet_names
+
+fig, ax = plt.subplots(figsize=(8, 6))
+
+colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
+labels = []
+
+for i, sheet in enumerate(sheet_names):
+    df = pd.read_excel(xls, sheet_name=sheet, header=1)
+    
+    # Identify columns based on preview info
+    # Col B: Temperature, Col C: Weight(%), Col D: D.W(%/C)
+    temp_col = df.columns[1]
+    weight_col = df.columns[2]
+    
+    x = df[temp_col]
+    y = df[weight_col]
+    
+    # Plot TGA curve (Weight %)
+    line, = ax.plot(x, y, label=f"{sheet} (TGA)", color=colors[i % len(colors)], linewidth=1.5)
+    labels.append(line.get_label())
+    
+    # Find residual weight at 700 °C
+    # We need to interpolate or find the closest point
+    # Since data is dense, finding the closest point below or equal to 700 is usually fine, 
+    # but interpolation is more accurate if 700 isn't exactly there.
+    
+    # Filter for temperature <= 700 to get the trend before 700, then interpolate
+    # Or simply use np.interp which handles linear interpolation well
+    
+    try:
+        # Ensure sorted by temperature just in case
+        sort_idx = x.argsort()
+        x_sorted = x.iloc[sort_idx].values
+        y_sorted = y.iloc[sort_idx].values
+        
+        # Interpolate weight at 700 °C
+        residual_700 = np.interp(700, x_sorted, y_sorted)
+        
+        # Mark the point on the plot
+        ax.plot(700, residual_700, 'o', color=colors[i % len(colors)], markersize=5)
+        
+        # Annotate with value rounded to 2 decimal places
+        # Position annotation slightly offset to avoid overlap
+        ax.annotate(f'{residual_700:.2f}%', 
+                    xy=(700, residual_700), 
+                    xytext=(10, -15), textcoords='offset points',
+                    fontsize=9, color=colors[i % len(colors)],
+                    bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="none", alpha=0.8))
+                    
+    except Exception as e:
+        print(f"Could not calculate residual for {sheet}: {e}")
+
+ax.set_xlabel('Temperature (°C)', fontsize=12)
+ax.set_ylabel('Weight (%)', fontsize=12)
+ax.set_title('TGA Curves with Residual Weight at 700 °C', fontsize=14)
+ax.grid(True, linestyle='--', alpha=0.6)
+ax.legend(loc='best')
+
+plt.tight_layout()
+output_path = os.path.join(OUT_DIR, "tga_residual_700.png")
+plt.savefig(output_path, dpi=300)
+plt.close()

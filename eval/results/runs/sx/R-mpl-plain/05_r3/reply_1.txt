@@ -1,0 +1,80 @@
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/05_r3/out"
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+xl_file = pd.ExcelFile(DATA_FILE)
+sheet_names = xl_file.sheet_names
+
+fig, ax1 = plt.subplots(figsize=(10, 6))
+
+colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f']
+
+for i, sheet_name in enumerate(sheet_names):
+    df = pd.read_excel(xl_file, sheet_name=sheet_name)
+    
+    # Identify columns based on the preview info provided in the prompt context
+    # Assuming standard TGA structure: Temperature (X), Weight (Y1), DTG (Y2)
+    x_col = None
+    y1_col = None
+    y2_col = None
+    
+    for col in df.columns:
+        col_str = str(col).lower()
+        if 'temperature' in col_str or 'temp' in col_str:
+            x_col = col
+        elif 'weight' in col_str and '%' in col_str:
+            y1_col = col
+        elif 'd.w' in col_str or 'dtg' in col_str or ('d' in col_str and 'w' in col_str):
+            y2_col = col
+            
+    # Fallback if names are slightly different but order is known from preview
+    if x_col is None: x_col = df.columns[1]
+    if y1_col is None: y1_col = df.columns[2]
+    if y2_col is None: y2_col = df.columns[3]
+
+    temp = df[x_col]
+    weight = df[y1_col]
+    dtg = df[y2_col]
+    
+    color = colors[i % len(colors)]
+    
+    # Plot Weight (%) on primary axis (ax1)
+    # Request: y1 line color black, linewidth 2.5
+    ax1.plot(temp, weight, label=f'{sheet_name} - Weight', color='black', linewidth=2.5)
+    
+    # Plot DTG on secondary axis (ax2)
+    ax2 = ax1.twinx()
+    # Request: y2 line dashed
+    ax2.plot(temp, dtg, label=f'{sheet_name} - DTG', linestyle='--', color=color, linewidth=1.5)
+
+# Labels and Titles
+ax1.set_xlabel('Temperature (°C)', fontsize=12)
+ax1.set_ylabel('Weight (%)', fontsize=12, color='black')
+ax2.set_ylabel('DTG (%/°C)', fontsize=12)
+
+ax1.tick_params(axis='y', labelcolor='black')
+ax2.tick_params(axis='y')
+
+# Combine legends
+lines_1, labels_1 = ax1.get_legend_handles_labels()
+lines_2, labels_2 = ax2.get_legend_handles_labels()
+ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='best', fontsize=9)
+
+plt.title('TGA and DTG Curves', fontsize=14)
+plt.grid(True, linestyle=':', alpha=0.6)
+
+out_path = os.path.join(OUT_DIR, "tga_plot.png")
+plt.tight_layout()
+plt.savefig(out_path, dpi=300)
+plt.close()
+```

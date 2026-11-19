@@ -1,0 +1,137 @@
+```python
+import pandas as pd
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/rheology.csv"
+
+df = pd.read_csv(DATA_FILE)
+
+# Extract columns
+x_col = "Angular frequency (rad/s)"
+y1_col = "Storage modulus G' (Pa)"
+y2_col = "Loss modulus G'' (Pa)"
+
+x_data = df[x_col].dropna().tolist()
+y1_data = df[y1_col].dropna().tolist()
+y2_data = df[y2_col].dropna().tolist()
+
+option = {
+    "title": {
+        "text": "Rheology",
+        "left": "center",
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR",
+            "fontSize": 14,
+            "fontWeight": "bold"
+        }
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {"type": "cross"}
+    },
+    "legend": {
+        "data": ["G'", "G''"],
+        "top": 30,
+        "left": "center",
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR",
+            "fontSize": 12
+        }
+    },
+    "grid": {
+        "left": "15%",
+        "right": "15%",
+        "bottom": "15%",
+        "containLabel": True
+    },
+    "xAxis": [
+        {
+            "name": "Angular frequency (rad/s)",
+            "nameLocation": "middle",
+            "nameGap": 35,
+            "type": "log",
+            "logBase": 10,
+            "nameTextStyle": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 12
+            },
+            "axisLabel": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 10
+            },
+            "splitLine": {"show": False}
+        }
+    ],
+    "yAxis": [
+        {
+            "name": "G' (Pa)",
+            "type": "log",
+            "logBase": 10,
+            "position": "left",
+            "nameTextStyle": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 12
+            },
+            "axisLabel": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 10
+            },
+            "splitLine": {"lineStyle": {"color": "#ccc", "type": "dashed"}}
+        },
+        {
+            "name": "G'' (Pa)",
+            "type": "log",
+            "logBase": 10,
+            "position": "right",
+            "nameTextStyle": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 12
+            },
+            "axisLabel": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 10
+            },
+            "splitLine": {"show": False}
+        }
+    ],
+    "series": [
+        {
+            "name": "G'",
+            "type": "line",
+            "yAxisIndex": 0,
+            "data": [[x, y] for x, y in zip(x_data, y1_data)],
+            "lineStyle": {"color": "#1f4e9c", "width": 2},
+            "itemStyle": {"color": "#1f4e9c"},
+            "symbol": "circle",
+            "symbolSize": 6,
+            "smooth": False
+        },
+        {
+            "name": "G''",
+            "type": "line",
+            "yAxisIndex": 1,
+            "data": [[x, y] for x, y in zip(x_data, y2_data)],
+            "lineStyle": {"color": "#c0392b", "width": 2},
+            "itemStyle": {"color": "#c0392b"},
+            "symbol": "triangle",
+            "symbolSize": 6,
+            "smooth": False
+        }
+    ]
+}
+
+result = {
+    "figures": [
+        {
+            "name": "rheology",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+    ]
+}
+
+print(json.dumps(result, ensure_ascii=False))
+```

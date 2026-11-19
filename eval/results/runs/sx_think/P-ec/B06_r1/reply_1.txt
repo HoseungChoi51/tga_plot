@@ -1,0 +1,15 @@
+```json
+{
+  "file": "isothermal.txt",
+  "preset": "none",
+  "x": {"col": "A"},
+  "y1": {"col": "C"},
+  "y2": {"col": "B"},
+  "annotate": {
+    "residue": {
+      "x": 140,
+      "text": "무게 {y:.1f}%"
+    }
+  }
+}
+```

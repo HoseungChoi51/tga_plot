@@ -1,0 +1,204 @@
+```python
+import os
+import numpy as np
+import pandas as pd
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+from scipy.signal import find_peaks
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx_think/R-mpl-brief/B23_r1/out"
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+plt.rcParams.update({
+    "font.family": "Noto Sans CJK KR",
+    "font.sans-serif": ["Noto Sans CJK KR"],
+    "axes.unicode_minus": False,
+})
+
+
+def find_column(df, include, exclude=None):
+    exclude = exclude or []
+    for col in df.columns:
+        s = str(col).lower()
+        if any(k in s for k in include) and not any(e in s for e in exclude):
+            return col
+    return None
+
+
+def color_for(sheet_name):
+    name = str(sheet_name).strip().lower()
+    if "raw" in name:
+        return "#000000"
+    if "acid" in name:
+        return "#0000FF"
+    if "anneal" in name:
+        return "#FF0000"
+    return "#000000"
+
+
+xls = pd.ExcelFile(DATA_FILE)
+sheet_names = list(xls.sheet_names)
+
+preferred = ["Raw", "Acid-washed", "Annealed"]
+ordered_sheets = [s for s in preferred if s in sheet_names]
+ordered_sheets += [s for s in sheet_names if s not in preferred]
+
+fig, ax1 = plt.subplots(figsize=(10, 6))
+ax2 = ax1.twinx()
+
+all_temp = []
+all_weight = []
+all_inv_dtg = []
+annotations = []
+
+for idx, sheet in enumerate(ordered_sheets):
+    df = pd.read_excel(DATA_FILE, sheet_name=sheet)
+
+    temp_col = find_column(df, ["temperature", "temp"])
+    weight_col = find_column(df, ["weight"], exclude=["deriv", "dtg"])
+    dtg_col = find_column(df, ["deriv", "dtg"])
+
+    if temp_col is None:
+        temp_col = df.columns[1] if len(df.columns) > 1 else df.columns[0]
+    if weight_col is None:
+        weight_col = df.columns[2] if len(df.columns) > 2 else df.columns[0]
+    if dtg_col is None:
+        dtg_col = df.columns[3] if len(df.columns) > 3 else df.columns[0]
+
+    data = df[[temp_col, weight_col, dtg_col]].copy()
+    data.columns = ["temp", "weight", "dtg"]
+
+    for c in data.columns:
+        data[c] = pd.to_numeric(data[c], errors="coerce")
+
+    data = data.dropna().sort_values("temp")
+
+    if data.empty:
+        continue
+
+    color = color_for(sheet)
+
+    temp = data["temp"].to_numpy()
+    weight = data["weight"].to_numpy()
+    dtg = data["dtg"].to_numpy()
+    inv_dtg = -dtg
+
+    all_temp.append(temp)
+    all_weight.append(weight)
+    all_inv_dtg.append(inv_dtg)
+
+    ax1.plot(temp, weight, color=color, linewidth=2.0, label=f"{sheet} Weight")
+    ax2.plot(temp, inv_dtg, color=color, linewidth=1.5, linestyle="--",
+             label=f"{sheet} DTG (× -1)")
+
+    # Residue label: weight at the measured point nearest 800 C
+    res_idx = int(np.argmin(np.abs(temp - 800.0)))
+    res_temp = float(temp[res_idx])
+    res_weight = float(weight[res_idx])
+
+    ax1.scatter([res_temp], [res_weight], color=color, s=35, zorder=5)
+    annotations.append((
+        ax1,
+        res_temp,
+        res_weight,
+        f"{sheet} residue {res_weight:.1f}%",
+        color,
+        idx
+    ))
+
+    # DTG peak label: highest inverted DTG peak above 150 C
+    mask = (temp > 150.0) & np.isfinite(inv_dtg)
+
+    if np.any(mask):
+        temp_m = temp[mask]
+        inv_m = inv_dtg[mask]
+
+        try:
+            peaks, _ = find_peaks(inv_m, prominence=0.05, distance=20)
+            if len(peaks) > 0:
+                best = int(peaks[np.argmax(inv_m[peaks])])
+            else:
+                best = int(np.argmax(inv_m))
+        except Exception:
+            best = int(np.argmax(inv_m))
+
+        peak_temp = float(temp_m[best])
+        peak_val = float(inv_m[best])
+    else:
+        peak_temp = float(temp[-1])
+        peak_val = 0.0
+
+    ax2.scatter([peak_temp], [peak_val], color=color, s=35, zorder=5)
+    annotations.append((
+        ax2,
+        peak_temp,
+        peak_val,
+        f"{sheet} {peak_temp:.0f} °C",
+        color,
+        idx
+    ))
+
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)")
+ax2.set_ylabel("DTG (%/°C) (× -1)")
+ax1.set_title("TGA Overlay")
+
+if all_temp:
+    x_min = min(float(np.nanmin(t)) for t in all_temp)
+    x_max = max(float(np.nanmax(t)) for t in all_temp)
+    ax1.set_xlim(x_min - 10, x_max + 10)
+
+if all_weight:
+    w_min = min(float(np.nanmin(w)) for w in all_weight)
+    w_max = max(float(np.nanmax(w)) for w in all_weight)
+    ax1.set_ylim(min(0.0, w_min - 2.0), max(100.0, w_max + 2.0))
+
+if all_inv_dtg:
+    d_min = min(float(np.nanmin(v)) for v in all_inv_dtg)
+    d_max = max(float(np.nanmax(v)) for v in all_inv_dtg)
+    ax2.set_ylim(min(d_min, 0.0) - 0.1, d_max * 1.15 + 0.1)
+
+handles1, labels1 = ax1.get_legend_handles_labels()
+handles2, labels2 = ax2.get_legend_handles_labels()
+
+ax1.legend(
+    handles=handles1 + handles2,
+    labels=labels1 + labels2,
+    loc="center left",
+    bbox_to_anchor=(0.02, 0.5),
+    fontsize=9,
+    framealpha=0.9
+)
+
+for ax, x, y, text, color, idx in annotations:
+    y_min, y_max = ax.get_ylim()
+
+    if y > y_min + 0.80 * (y_max - y_min):
+        va = "top"
+        dy = -10 - idx * 14
+    else:
+        va = "bottom"
+        dy = 10 + idx * 14
+
+    ax.annotate(
+        text,
+        xy=(x, y),
+        xytext=(8, dy),
+        textcoords="offset points",
+        color=color,
+        fontsize=9,
+        ha="left",
+        va=va
+    )
+
+fig.tight_layout()
+
+base = os.path.splitext(os.path.basename(DATA_FILE))[0]
+out_path = os.path.join(OUT_DIR, f"{base}_overlay.png")
+
+fig.savefig(out_path, dpi=300)
+plt.close(fig)
+```

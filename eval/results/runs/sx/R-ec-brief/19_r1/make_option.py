@@ -1,0 +1,239 @@
+import pandas as pd
+import numpy as np
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+def get_nearest_weight_at_temp(temp_data, weight_data, target_temp):
+    idx = np.argmin(np.abs(temp_data - target_temp))
+    return temp_data[idx], weight_data[idx]
+
+def find_peak_above_150(temp_data, dtg_data):
+    # DTG is negative while mass is lost. We want the highest peak of -DTG (which means most negative DTG)
+    # So we look for min(DTG) above 150C. 
+    # Or simply: peak of -DTG is max(-DTG).
+    
+    mask = temp_data > 150
+    if not np.any(mask):
+        return None, None
+    
+    t_filtered = temp_data[mask]
+    dtg_filtered = dtg_data[mask]
+    
+    # Find index of minimum DTG (most negative), which corresponds to maximum -DTG peak
+    idx_min_dtg = np.argmin(dtg_filtered)
+    
+    peak_temp = t_filtered[idx_min_dtg]
+    peak_val_neg_dtg = -dtg_filtered[idx_min_dtg] # Value for plotting on y2 axis (positive up)
+    
+    return peak_temp, peak_val_neg_dtg
+
+def process_sheet(df, sheet_name):
+    # Identify columns based on standard TGA structure or guesses
+    # Assuming B=Temp, C=Weight, D=DTG based on preview
+    cols = df.columns.tolist()
+    
+    # Try to map by name first, fallback to position if names are generic
+    x_col = None
+    y1_col = None
+    y2_col = None
+    
+    for c in cols:
+        cl = str(c).lower()
+        if 'temp' in cl:
+            x_col = c
+        elif 'weight' in cl and '%' in cl:
+            y1_col = c
+        elif 'd.w' in cl or 'dtg' in cl or 'derivative' in cl:
+            y2_col = c
+            
+    if not x_col: x_col = cols[1]
+    if not y1_col: y1_col = cols[2]
+    if not y2_col: y2_col = cols[3]
+    
+    temp = df[x_col].values
+    weight = df[y1_col].values
+    dtg = df[y2_col].values
+    
+    # Clean data: remove NaNs
+    mask = ~(np.isnan(temp) | np.isnan(weight) | np.isnan(dtg))
+    temp = temp[mask]
+    weight = weight[mask]
+    dtg = dtg[mask]
+    
+    # Prepare series data
+    # Series 1: Weight (%) -> Left Y Axis
+    # Series 2: -DTG -> Right Y Axis
+    
+    # Calculate Residue at 800C
+    res_t, res_w = get_nearest_weight_at_temp(temp, weight, 800)
+    
+    # Calculate Peak Temp (>150C)
+    pk_t, pk_val = find_peak_above_150(temp, dtg)
+    
+    # Construct ECharts Option
+    
+    # Common text style settings requested: color grey, size 13
+    textStyle = {
+        "color": "#808080",
+        "fontSize": 13
+    }
+    
+    option = {
+        "title": {
+            "text": sheet_name,
+            "left": "center",
+            "top": "top",
+            "textStyle": textStyle
+        },
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {
+                "type": "cross"
+            },
+            "textStyle": textStyle
+        },
+        "legend": {
+            "data": ["Weight (%)", "-DTG"],
+            "orient": "vertical",
+            "left": "left",
+            "top": "middle",
+            "textStyle": textStyle
+        },
+        "grid": {
+            "left": "10%",
+            "right": "10%",
+            "bottom": "15%",
+            "containLabel": True
+        },
+        "xAxis": [
+            {
+                "name": "Temperature (°C)",
+                "nameLocation": "middle",
+                "nameGap": 30,
+                "type": "value",
+                "axisLine": {"lineStyle": {"color": "#808080"}},
+                "axisTick": {"show": True, "lineStyle": {"color": "#808080"}},
+                "axisLabel": {"color": "#808080", "fontSize": 13},
+                "splitLine": {"show": False}
+            }
+        ],
+        "yAxis": [
+            {
+                "name": "Weight (%)",
+                "nameLocation": "middle",
+                "nameGap": 40,
+                "type": "value",
+                "position": "left",
+                "axisLine": {"lineStyle": {"color": "#808080"}},
+                "axisTick": {"show": True, "lineStyle": {"color": "#808080"}},
+                "axisLabel": {"color": "#808080", "fontSize": 13},
+                "splitLine": {"show": True, "lineStyle": {"color": "#e0e0e0"}}
+            },
+            {
+                "name": "-DTG (%/°C)",
+                "nameLocation": "middle",
+                "nameGap": 40,
+                "type": "value",
+                "position": "right",
+                "axisLine": {"lineStyle": {"color": "#808080"}},
+                "axisTick": {"show": True, "lineStyle": {"color": "#808080"}},
+                "axisLabel": {"color": "#808080", "fontSize": 13},
+                "splitLine": {"show": False}
+            }
+        ],
+        "series": []
+    }
+    
+    # Add Weight Line
+    weight_data_points = [[float(t), float(w)] for t, w in zip(temp, weight)]
+    option["series"].append({
+        "name": "Weight (%)",
+        "type": "line",
+        "smooth": True,
+        "symbol": "none",
+        "lineStyle": {"width": 2, "color": "#1f4e9c"},
+        "itemStyle": {"color": "#1f4e9c"},
+        "data": weight_data_points,
+        "markPoint": {
+            "data": [
+                {
+                    "coord": [float(res_t), float(res_w)],
+                    "value": f"Residue {res_w:.1f}%",
+                    "symbolSize": 10,
+                    "itemStyle": {"color": "#1f4e9c"},
+                    "label": {
+                        "show": True,
+                        "formatter": "{@[1]} %", # Custom formatter might be tricky, let's use value
+                        "position": "right",
+                        "color": "#808080",
+                        "fontSize": 13,
+                        "backgroundColor": "rgba(255,255,255,0.7)",
+                        "padding": [2, 4]
+                    }
+                }
+            ]
+        }
+    })
+    
+    # Fix markPoint label format for residue
+    # The previous formatter was wrong. Let's simplify.
+    option["series"][0]["markPoint"]["data"][0]["label"]["formatter"] = f"Residue {res_w:.1f}%"
+    
+    # Add DTG Line (negated)
+    neg_dtg_data_points = [[float(t), float(-d)] for t, d in zip(temp, dtg)]
+    option["series"].append({
+        "name": "-DTG",
+        "type": "line",
+        "yAxisIndex": 1,
+        "smooth": True,
+        "symbol": "none",
+        "lineStyle": {"width": 2, "color": "#c0392b"},
+        "itemStyle": {"color": "#c0392b"},
+        "data": neg_dtg_data_points,
+        "markPoint": {}
+    })
+    
+    # Add Peak Marker to DTG series
+    if pk_t is not None:
+        option["series"][1]["markPoint"]["data"] = [
+            {
+                "coord": [float(pk_t), float(pk_val)],
+                "value": f"{pk_t:.0f} °C",
+                "symbolSize": 10,
+                "itemStyle": {"color": "#c0392b"},
+                "label": {
+                    "show": True,
+                    "formatter": f"{pk_t:.0f} °C",
+                    "position": "top",
+                    "color": "#808080",
+                    "fontSize": 13,
+                    "backgroundColor": "rgba(255,255,255,0.7)",
+                    "padding": [2, 4]
+                }
+            }
+        ]
+        
+    return option
+
+figures = []
+
+try:
+    xls = pd.ExcelFile(DATA_FILE)
+    for sheet_name in xls.sheet_names:
+        df = pd.read_excel(xls, sheet_name=sheet_name)
+        opt = process_sheet(df, sheet_name)
+        figures.append({
+            "name": sheet_name.replace(" ", "_"),
+            "option": opt,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        })
+except Exception as e:
+    import traceback
+    print(json.dumps({"error": str(e), "traceback": traceback.format_exc()}))
+
+print(json.dumps({"figures": figures}))
+

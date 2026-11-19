@@ -1,0 +1,82 @@
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import find_peaks
+import os
+
+# 설정
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/xrd.csv"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/B04_r2/out"
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# 데이터 읽기
+df = pd.read_csv(DATA_FILE)
+
+# 열 이름 확인 및 매핑
+# 첫 번째 열은 2Theta, 두 번째 열은 Intensity로 가정
+col_x = df.columns[0]
+col_y = df.columns[1]
+
+x = df[col_x].values
+y = df[col_y].values
+
+# 피크 검출: 강한 피크 5개 찾기
+# distance와 prominence를 조정하여 명확한 피크만 추출
+peaks, properties = find_peaks(y, distance=10, prominence=50)
+
+# 강도(intensity) 기준으로 정렬하여 상위 5개 선택
+if len(peaks) > 0:
+    peak_intensities = y[peaks]
+    sorted_indices = np.argsort(peak_intensities)[::-1][:5]
+    top_5_peak_indices = peaks[sorted_indices]
+    top_5_peak_positions = x[top_5_peak_indices]
+    top_5_peak_intensities = y[top_5_peak_indices]
+else:
+    top_5_peak_positions = []
+    top_5_peak_intensities = []
+
+# 플롯 생성
+fig, ax1 = plt.subplots(figsize=(10, 6))
+
+# XRD 패턴 그리기 (파란색 선)
+ax1.plot(x, y, color='#1f4e9c', linewidth=1.2, label='XRD Pattern')
+
+# 축 라벨 설정
+ax1.set_xlabel('2θ (deg)', fontsize=12)
+ax1.set_ylabel('Intensity (counts)', fontsize=12)
+
+# 격자 표시
+ax1.grid(True, linestyle='--', alpha=0.5)
+
+# 강한 피크 5개 표시
+for i, (pos, inten) in enumerate(zip(top_5_peak_positions, top_5_peak_intensities)):
+    # 피크 위치에 빨간색 마커 표시
+    ax1.plot(pos, inten, 'o', color='#c0392b', markersize=8, zorder=5)
+    
+    # 텍스트 레이블 추가 (피크 값 표시)
+    # 겹침을 방지하기 위해 약간의 오프셋 적용 가능하지만, 여기서는 간단히 표시
+    ax1.annotate(f'{pos:.2f}°', 
+                 xy=(pos, inten), 
+                 xytext=(pos + 1, inten + 50), # 약간 오른쪽 위
+                 fontsize=9, 
+                 color='#c0392b',
+                 ha='left', va='bottom')
+
+# 제목 설정 (파일명 또는 시트명 사용)
+sheet_name = "xrd" # 미리보기에서 나온 시트명
+ax1.set_title(f'XRD Pattern ({sheet_name})', fontsize=14)
+
+# 범례
+ax1.legend(loc='best')
+
+# 레이아웃 조정
+plt.tight_layout()
+
+# 저장
+output_path = os.path.join(OUT_DIR, f"xrd_pattern.png")
+plt.savefig(output_path, dpi=300)
+plt.close()
+```

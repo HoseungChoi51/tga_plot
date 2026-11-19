@@ -1,0 +1,224 @@
+import pandas as pd
+import numpy as np
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx"
+SHEET_NAME = "Acid-washed"
+
+def main():
+    # Read the specific sheet
+    df = pd.read_excel(DATA_FILE, sheet_name=SHEET_NAME)
+    
+    # Extract columns based on preview info
+    temp_col = "Temperature (°C)"
+    weight_col = "Weight (%)"
+    dtg_col = "Deriv. Weight (%/°C)"
+    
+    # Ensure numeric types and handle potential NaNs if any
+    temps = df[temp_col].values
+    weights = df[weight_col].values
+    dtgs = df[dtg_col].values
+    
+    # Filter out rows with NaN in critical columns for plotting
+    valid_mask = ~np.isnan(temps) & ~np.isnan(weights) & ~np.isnan(dtgs)
+    temps = temps[valid_mask]
+    weights = weights[valid_mask]
+    dtgs = dtgs[valid_mask]
+    
+    # Calculate Residue at 800°C
+    idx_800 = np.argmin(np.abs(temps - 800))
+    residue_val = float(weights[idx_800])
+    residue_temp = float(temps[idx_800])
+    
+    # Find DTG peak above 150°C
+    # DTG is negative during mass loss, so we look for the most negative value (minimum) or highest magnitude
+    mask_peak = temps > 150
+    if np.any(mask_peak):
+        dtgs_filtered = dtgs[mask_peak]
+        temps_filtered = temps[mask_peak]
+        min_dtg_idx = np.argmin(dtgs_filtered) # Most negative value corresponds to max rate of loss
+        peak_temp = float(temps_filtered[min_dtg_idx])
+        peak_dtg_val = float(dtgs_filtered[min_dtg_idx])
+    else:
+        peak_temp = None
+        peak_dtg_val = None
+
+    # Prepare data for ECharts
+    # Series 1: Weight (%)
+    series_weight = []
+    for t, w in zip(temps, weights):
+        series_weight.append([float(t), float(w)])
+        
+    # Series 2: DTG (-1 * value to make peaks point up)
+    series_dtg = []
+    for t, d in zip(temps, dtgs):
+        series_dtg.append([float(t), float(-d)])
+        
+    # Determine axis ranges
+    x_min = float(np.min(temps))
+    x_max = float(np.max(temps))
+    
+    y1_min = float(np.min(weights))
+    y1_max = float(np.max(weights))
+    
+    # For DTG (inverted), find range
+    inv_dtgs = [-d for d in dtgs]
+    y2_min = float(np.min(inv_dtgs))
+    y2_max = float(np.max(inv_dtgs))
+    
+    # Add some padding to y-axes
+    y1_range = y1_max - y1_min
+    y2_range = y2_max - y2_min
+    if y1_range == 0: y1_range = 1
+    if y2_range == 0: y2_range = 1
+    
+    y1_min -= y1_range * 0.05
+    y1_max += y1_range * 0.05
+    y2_min -= y2_range * 0.05
+    y2_max += y2_range * 0.05
+
+    # Build Option
+    option = {
+        "title": {
+            "text": SHEET_NAME,
+            "left": "center",
+            "textStyle": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 16
+            }
+        },
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {"type": "cross"}
+        },
+        "legend": {
+            "data": ["Weight (%)", "-DTG"],
+            "top": "5%",
+            "right": "5%"
+        },
+        "grid": {
+            "left": "10%",
+            "right": "10%",
+            "bottom": "15%",
+            "containLabel": True
+        },
+        "xAxis": [
+            {
+                "name": "Temperature (°C)",
+                "nameLocation": "middle",
+                "nameGap": 30,
+                "type": "value",
+                "min": x_min,
+                "max": x_max,
+                "splitLine": {"show": False},
+                "minorTick": {
+                    "show": True,
+                    "length": 4,
+                    "lineStyle": {"color": "#ccc", "width": 1}
+                },
+                "minorSplitLine": {
+                    "show": False
+                },
+                "axisTick": {
+                    "show": True,
+                    "length": 6
+                }
+            }
+        ],
+        "yAxis": [
+            {
+                "name": "Weight (%)",
+                "nameLocation": "middle",
+                "nameGap": 40,
+                "type": "value",
+                "position": "left",
+                "min": round(y1_min, 2),
+                "max": round(y1_max, 2),
+                "splitLine": {"show": True, "lineStyle": {"type": "dashed"}}
+            },
+            {
+                "name": "-DTG (%/°C)",
+                "nameLocation": "middle",
+                "nameGap": 40,
+                "type": "value",
+                "position": "right",
+                "min": round(y2_min, 4),
+                "max": round(y2_max, 4),
+                "splitLine": {"show": False}
+            }
+        ],
+        "series": [
+            {
+                "name": "Weight (%)",
+                "type": "line",
+                "smooth": True,
+                "symbol": "none",
+                "lineStyle": {"color": "#1f4e9c", "width": 2},
+                "itemStyle": {"color": "#1f4e9c"},
+                "data": series_weight,
+                "markPoint": {
+                    "data": [
+                        {
+                            "coord": [residue_temp, residue_val],
+                            "value": f"Residue {residue_val:.1f}%",
+                            "symbolSize": 10,
+                            "itemStyle": {"color": "#1f4e9c"},
+                            "label": {
+                                "show": True,
+                                "formatter": "{b}",
+                                "position": "top",
+                                "color": "#1f4e9c",
+                                "fontWeight": "bold"
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "-DTG",
+                "type": "line",
+                "smooth": True,
+                "symbol": "none",
+                "yAxisIndex": 1,
+                "lineStyle": {"color": "#c0392b", "width": 2},
+                "itemStyle": {"color": "#c0392b"},
+                "data": series_dtg,
+                "markPoint": {
+                    "data": []
+                }
+            }
+        ]
+    }
+    
+    # Add Peak Label if found
+    if peak_temp is not None:
+        # We need to add a markPoint to the DTG series or create a separate scatter series for clarity
+        # Adding to DTG series markPoint
+        option["series"][1]["markPoint"]["data"].append({
+            "coord": [peak_temp, -peak_dtg_val],
+            "value": f"{peak_temp:.0f} °C",
+            "symbolSize": 10,
+            "itemStyle": {"color": "#c0392b"},
+            "label": {
+                "show": True,
+                "formatter": "{b}",
+                "position": "top",
+                "color": "#c0392b",
+                "fontWeight": "bold"
+            }
+        })
+
+    figure = {
+        "name": "tga_acid_washed",
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"]
+    }
+    
+    output = {"figures": [figure]}
+    print(json.dumps(output))
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,73 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/08_r3/out"
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# Read all sheets
+xls = pd.ExcelFile(DATA_FILE)
+sheet_names = xls.sheet_names
+
+fig, ax1 = plt.subplots(figsize=(10, 6))
+
+colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
+
+for i, sheet_name in enumerate(sheet_names):
+    df = pd.read_excel(xls, sheet_name=sheet_name)
+    
+    # Identify columns based on the preview structure
+    # Assuming column B is Temperature, C is Weight(%), D is D.W(%/C)
+    temp_col = None
+    weight_col = None
+    dweight_col = None
+    
+    for col in df.columns:
+        col_str = str(col).lower()
+        if 'temperature' in col_str or 'temp' in col_str:
+            temp_col = col
+        elif 'weight' in col_str and 'd.w' not in col_str and 'dw' not in col_str:
+            weight_col = col
+        elif 'd.w' in col_str or 'dw' in col_str or 'derivative' in col_str:
+            dweight_col = col
+            
+    # Fallback to positional if names don't match expected patterns
+    if temp_col is None: temp_col = df.columns[1]
+    if weight_col is None: weight_col = df.columns[2]
+    if dweight_col is None: dweight_col = df.columns[3]
+
+    x = df[temp_col]
+    y1 = df[weight_col]
+    y2 = df[dweight_col]
+    
+    color = colors[i % len(colors)]
+    
+    # Plot TGA (Weight %) on primary axis
+    line1 = ax1.plot(x, y1, label=f'{sheet_name} - 무게 (%)', color=color, linewidth=2)
+    ax1.set_xlabel('온도 (°C)', fontsize=12)
+    ax1.set_ylabel('무게 (%)', fontsize=12, color=color)
+    ax1.tick_params(axis='y', labelcolor=color)
+    
+    # Create secondary axis for DTG
+    ax2 = ax1.twinx()
+    line2 = ax2.plot(x, y2, linestyle='--', label=f'{sheet_name} - 미분 무게 (%/°C)', color=color, alpha=0.7)
+    ax2.set_ylabel('미분 무게 (%/°C)', fontsize=12, color=color)
+    ax2.tick_params(axis='y', labelcolor=color)
+
+# Combine legends from both axes correctly
+lines1, labels1 = ax1.get_legend_handles_labels()
+lines2, labels2 = ax2.get_legend_handles_labels()
+ax1.legend(lines1 + lines2, labels1 + labels2, loc='best', fontsize=9)
+
+plt.title('TGA/DTG Analysis Results', fontsize=14)
+plt.tight_layout()
+
+output_path = os.path.join(OUT_DIR, "tga_plot.png")
+plt.savefig(output_path, dpi=300, bbox_inches='tight')
+plt.close()

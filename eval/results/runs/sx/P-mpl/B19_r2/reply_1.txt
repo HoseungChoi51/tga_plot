@@ -1,0 +1,3 @@
+```json
+{"file": "polymers.xlsx", "sheets": "PVC", "code": "import numpy as np\nm = (x >= 200) & (x <= 400)\nif m.any():\n    w_start = y1[np.argmin(np.abs(x[m] - 200))]\n    w_end = y1[np.argmin(np.abs(x[m] - 400))]\n    loss = w_start - w_end\n    ax1.annotate(f'질량 감소: {loss:.2f}%', xy=(300, (w_start+w_end)/2), ha='center', fontsize=10)"}
+```

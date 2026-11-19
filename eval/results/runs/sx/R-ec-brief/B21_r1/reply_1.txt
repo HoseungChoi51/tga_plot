@@ -1,0 +1,243 @@
+```python
+import pandas as pd
+import numpy as np
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx"
+
+# Read the 'Raw' sheet
+df = pd.read_excel(DATA_FILE, sheet_name="Raw")
+
+# Extract columns based on header names from preview
+temp_col = "Temperature (°C)"
+weight_col = "Weight (%)"
+dtg_col = "Deriv. Weight (%/°C)"
+
+# Get data arrays
+temps = df[temp_col].values.astype(float)
+weights = df[weight_col].values.astype(float)
+dtgs = df[dtg_col].values.astype(float)
+
+# Invert x-axis direction: sort by temperature descending so high temp is left
+sort_idx = np.argsort(temps)[::-1]
+temps_sorted = temps[sort_idx]
+weights_sorted = weights[sort_idx]
+dtgs_sorted = dtgs[sort_idx] * -1  # Multiply DTG by -1 so peaks point up
+
+# Find residue at nearest to 800 °C
+idx_800 = np.argmin(np.abs(temps - 800))
+residue_weight = weights[idx_800]
+residue_temp = temps[idx_800]
+
+# Find peak of DTG above 150 °C (in original orientation for finding peak temp/value)
+mask_above_150 = temps > 150
+if np.any(mask_above_150):
+    dtgs_for_peak = dtgs[mask_above_150] * -1  # Use inverted DTG for peak detection
+    temps_for_peak = temps[mask_above_150]
+    peak_idx_local = np.argmax(dtgs_for_peak)
+    peak_temp = temps_for_peak[peak_idx_local]
+    peak_dtg_val = dtgs_for_peak[peak_idx_local]
+else:
+    peak_temp = None
+    peak_dtg_val = None
+
+# Build series data for ECharts
+# We need [x, y] pairs for each point
+series_weight_data = [[float(t), float(w)] for t, w in zip(temps_sorted, weights_sorted)]
+series_dtg_data = [[float(t), float(d)] for t, d in zip(temps_sorted, dtgs_sorted)]
+
+# Prepare mark points for residue and peak
+mark_points = []
+
+# Residue marker on weight curve (y1 axis)
+mark_points.append({
+    "coord": [float(residue_temp), float(residue_weight)],
+    "value": f"Residue {residue_weight:.1f}%",
+    "symbolSize": 8,
+    "itemStyle": {"color": "#1f4e9c"},
+    "label": {
+        "show": True,
+        "position": "top",
+        "formatter": f"Residue {residue_weight:.1f}%",
+        "fontSize": 12,
+        "color": "#1f4e9c"
+    }
+})
+
+# Peak marker on DTG curve (y2 axis)
+if peak_temp is not None:
+    mark_points.append({
+        "coord": [float(peak_temp), float(peak_dtg_val)],
+        "value": f"{peak_temp:.0f} °C",
+        "symbolSize": 8,
+        "itemStyle": {"color": "#c0392b"},
+        "label": {
+            "show": True,
+            "position": "top",
+            "formatter": f"{peak_temp:.0f} °C",
+            "fontSize": 12,
+            "color": "#c0392b"
+        }
+    })
+
+# Determine axis ranges
+x_min = min(temps_sorted)
+x_max = max(temps_sorted)
+# For inverted axis, we set min/max such that higher values are on left
+# ECharts xAxis with inverse:true handles this, but we still provide range
+y1_min = min(weights_sorted)
+y1_max = max(weights_sorted)
+y2_min = min(dtgs_sorted)
+y2_max = max(dtgs_sorted)
+
+# Build ECharts option
+option = {
+    "title": {
+        "text": "Raw",
+        "left": "center",
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR",
+            "fontSize": 16
+        }
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {
+            "type": "cross"
+        }
+    },
+    "legend": {
+        "data": ["Weight (%)", "DTG"],
+        "orient": "vertical",
+        "left": "left",
+        "top": "middle",
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR",
+            "fontSize": 12
+        }
+    },
+    "grid": {
+        "left": "10%",
+        "right": "10%",
+        "bottom": "15%",
+        "containLabel": True
+    },
+    "xAxis": {
+        "name": "Temperature (°C)",
+        "type": "value",
+        "inverse": True,
+        "min": x_min,
+        "max": x_max,
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "nameTextStyle": {
+            "fontFamily": "Noto Sans CJK KR",
+            "fontSize": 12
+        },
+        "axisLabel": {
+            "fontFamily": "Noto Sans CJK KR",
+            "fontSize": 11
+        },
+        "splitLine": {
+            "show": True,
+            "lineStyle": {
+                "color": "#eee"
+            }
+        }
+    },
+    "yAxis": [
+        {
+            "name": "Weight (%)",
+            "type": "value",
+            "position": "left",
+            "min": y1_min,
+            "max": y1_max,
+            "nameTextStyle": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 12
+            },
+            "axisLabel": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 11
+            },
+            "splitLine": {
+                "show": True,
+                "lineStyle": {
+                    "color": "#eee"
+                }
+            }
+        },
+        {
+            "name": "DTG (%/°C)",
+            "type": "value",
+            "position": "right",
+            "min": y2_min,
+            "max": y2_max,
+            "nameTextStyle": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 12
+            },
+            "axisLabel": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 11
+            },
+            "splitLine": {
+                "show": False
+            }
+        }
+    ],
+    "series": [
+        {
+            "name": "Weight (%)",
+            "type": "line",
+            "data": series_weight_data,
+            "yAxisIndex": 0,
+            "lineStyle": {
+                "color": "#1f4e9c",
+                "width": 2
+            },
+            "itemStyle": {
+                "color": "#1f4e9c"
+            },
+            "showSymbol": False,
+            "smooth": False,
+            "markPoint": {
+                "data": [mp for mp in mark_points if mp["itemStyle"]["color"] == "#1f4e9c"]
+            }
+        },
+        {
+            "name": "DTG",
+            "type": "line",
+            "data": series_dtg_data,
+            "yAxisIndex": 1,
+            "lineStyle": {
+                "color": "#c0392b",
+                "width": 2
+            },
+            "itemStyle": {
+                "color": "#c0392b"
+            },
+            "showSymbol": False,
+            "smooth": False,
+            "markPoint": {
+                "data": [mp for mp in mark_points if mp["itemStyle"]["color"] == "#c0392b"]
+            }
+        }
+    ]
+}
+
+result = {
+    "figures": [
+        {
+            "name": "plot1",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+    ]
+}
+
+print(json.dumps(result, ensure_ascii=False))
+```

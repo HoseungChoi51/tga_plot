@@ -1,0 +1,88 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+# 파일 경로 및 출력 디렉토리 설정
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/05_r2/out"
+
+# 한글 폰트 설정
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+# Excel 파일 읽기 (모든 시트)
+xls = pd.ExcelFile(DATA_FILE)
+sheet_names = xls.sheet_names
+
+# 그래프 생성
+fig, ax1 = plt.subplots(figsize=(10, 6))
+
+# 색상 팔레트 준비
+colors_y1 = ['black', 'red', 'blue']
+
+for i, sheet_name in enumerate(sheet_names):
+    df = pd.read_excel(xls, sheet_name=sheet_name)
+    
+    # 데이터 추출
+    temp = df['Temperature']
+    weight = df['Weight(%)']
+    dwt = df['D.W(%/C)']
+    
+    # 라벨 이름 정리
+    label = sheet_name.split('-')[-1] if '-' in sheet_name else sheet_name
+    
+    # y1 축: Weight (%) - 선 굵기 2.5, 첫 번째는 검정색으로 지정하여 요청사항 반영
+    # 나머지 샘플은 구분을 위해 다른 색상 사용
+    if i == 0:
+        color = 'black'
+    elif i == 1:
+        color = 'red'
+    else:
+        color = 'blue'
+        
+    l1, = ax1.plot(temp, weight, color=color, linewidth=2.5, linestyle='-', label=f'{label} TGA')
+    
+    # y2 축: DTG (D.W %/C) - 점선으로 표시
+    # twin axis를 사용하여 우측 축에 표시
+    ax2 = ax1.twinx()
+    l2, = ax2.plot(temp, dwt, color=color, linewidth=1.5, linestyle='--', label=f'{label} DTG')
+    
+    # 축 라벨 추가 (반복 방지)
+    if i == 0:
+        ax1.set_xlabel('온도 (°C)', fontsize=12)
+        ax1.set_ylabel('무게 (%)', fontsize=12, color='black')
+        ax2.set_ylabel('미분 무게 (%/°C)', fontsize=12, color='black')
+
+# 최종 레전드 구성을 위해 모든 핸들을 수집
+lines_labels = []
+for i, sheet_name in enumerate(sheet_names):
+    df = pd.read_excel(xls, sheet_name=sheet_name)
+    temp = df['Temperature']
+    weight = df['Weight(%)']
+    dwt = df['D.W(%/C)']
+    label = sheet_name.split('-')[-1] if '-' in sheet_name else sheet_name
+    
+    if i == 0: color = 'black'
+    elif i == 1: color = 'red'
+    else: color = 'blue'
+    
+    # 실제 플롯된 것과 동일한 스타일로 레전드용 핸들 생성
+    l1, = ax1.plot([], [], color=color, linewidth=2.5, linestyle='-', label=f'{label} TGA')
+    l2, = ax2.plot([], [], color=color, linewidth=1.5, linestyle='--', label=f'{label} DTG')
+    lines_labels.extend([l1, l2])
+
+ax1.legend(handles=lines_labels, loc='best', fontsize=9)
+
+# 제목
+plt.title('TGA/DTG 분석 결과', fontsize=14, fontweight='bold')
+
+# 레이아웃 자동 조정
+plt.tight_layout()
+
+# 출력 디렉토리가 없으면 생성
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# 파일 저장
+output_path = os.path.join(OUT_DIR, 'tga_plot.png')
+plt.savefig(output_path, dpi=300)
+plt.close()

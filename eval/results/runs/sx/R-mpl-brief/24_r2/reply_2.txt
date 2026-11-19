@@ -1,0 +1,107 @@
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/extra_columns.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/24_r2/out"
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+xls = pd.ExcelFile(DATA_FILE)
+
+for sheet_name in xls.sheet_names:
+    # Read with header=1 because the preview says header_rows is [1] (which usually means row index 1 in 0-based, or line 2 in 1-based).
+    # Pandas header parameter is 0-indexed. If data starts at row 2 (1-based), header is at row 1 (0-based)? 
+    # Preview says: "header_rows": [ 1 ], "data_start_row": 2. 
+    # In Excel, Row 1 is often empty or title. Row 2 is headers? Or Row 1 is headers?
+    # Let's look at "first" values. Index first is 1.0. Temperature first is 30.0.
+    # Usually TGA exports have headers in the first row of data block.
+    # The preview structure `header_rows: [1]` likely refers to the 1-based row number in Excel where headers are found.
+    # So if headers are in Excel Row 2, we use header=1 (0-indexed).
+    
+    df = pd.read_excel(xls, sheet_name=sheet_name, header=1)
+    
+    # Clean column names just in case
+    df.columns = [str(c).strip() for c in df.columns]
+    
+    # Identify columns based on the preview info for this specific file structure
+    temp_col = None
+    weight_pct_col = None
+    heat_flow_col = None
+    
+    for col in df.columns:
+        col_str = str(col)
+        if "Temperature" in col_str:
+            temp_col = col
+        elif "Weight (%)" in col_str:
+            weight_pct_col = col
+        elif "Heat Flow" in col_str:
+            heat_flow_col = col
+            
+    if temp_col is None or weight_pct_col is None or heat_flow_col is None:
+        print(f"Skipping sheet {sheet_name}: Missing required columns")
+        continue
+        
+    x = df[temp_col].astype(float)
+    y1 = df[weight_pct_col].astype(float)
+    y2 = df[heat_flow_col].astype(float)
+    
+    fig, ax1 = plt.subplots(figsize=(8, 6))
+    
+    # Plot Weight (%) on left axis
+    color1 = '#1f4e9c'
+    ax1.plot(x, y1, color=color1, label='Weight (%)')
+    ax1.set_xlabel('Temperature (°C)', fontsize=12)
+    ax1.set_ylabel('Weight (%)', color=color1, fontsize=12)
+    ax1.tick_params(axis='y', labelcolor=color1)
+    
+    # Create second axis sharing x-axis
+    ax2 = ax1.twinx()
+    color2 = '#d35400' 
+    
+    ax2.plot(x, y2, color=color2, label='Heat flow (W/g)')
+    ax2.set_ylabel('Heat flow (W/g)', color=color2, fontsize=12)
+    ax2.tick_params(axis='y', labelcolor=color2)
+    
+    # Title is sheet name
+    ax1.set_title(sheet_name, fontsize=14)
+    
+    # Residue calculation and plotting
+    target_temp = 800
+    # Find point nearest to 800 °C
+    idx_residue = (x - target_temp).abs().idxmin()
+    residue_val = y1[idx_residue]
+    residue_temp = x[idx_residue]
+    
+    # Plot marker for residue on y1 curve
+    ax1.scatter([residue_temp], [residue_val], color=color1, zorder=5)
+    ax1.annotate(f'Residue {residue_val:.1f}%', 
+                 xy=(residue_temp, residue_val), 
+                 xytext=(10, 10), textcoords='offset points',
+                 color=color1, fontsize=10,
+                 bbox=dict(boxstyle="round,pad=0.3", fc="white", ec=color1, alpha=0.7))
+    
+    # Peak display is removed per user request ("피크 표시는 빼줘")
+    
+    # Legend
+    lines_1, labels_1 = ax1.get_legend_handles_labels()
+    lines_2, labels_2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='center left')
+    
+    # Grid
+    ax1.grid(True, linestyle='--', alpha=0.5)
+    
+    # Save figure
+    safe_sheet_name = "".join([c if c.isalnum() or c in (' ', '-', '_') else '_' for c in sheet_name]).strip()
+    out_path = os.path.join(OUT_DIR, f"{safe_sheet_name}.png")
+    
+    plt.tight_layout()
+    plt.savefig(out_path, dpi=300)
+    plt.close(fig)
+```

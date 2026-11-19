@@ -1,0 +1,266 @@
+```python
+import pandas as pd
+import numpy as np
+import json
+
+def load_data(filepath):
+    if filepath.endswith('.csv'):
+        df = pd.read_csv(filepath)
+    elif filepath.endswith('.txt'):
+        # Assuming tab or whitespace separated, but standard txt often uses comma or tab. 
+        # Given the preview structure looks like CSV, let's try sep=None with engine='python' to auto-detect, 
+        # or assume comma if it looks like csv content. The preview says "columns" which implies a delimiter was found.
+        # Let's try read_csv with sep=None for .txt as well, or check first line.
+        try:
+            df = pd.read_csv(filepath, sep=None, engine='python')
+        except Exception:
+            df = pd.read_csv(filepath)
+    else:
+        raise ValueError("Unsupported file format")
+    
+    # Identify columns based on names in preview
+    temp_col = None
+    weight_col = None
+    dtg_col = None
+    
+    for col in df.columns:
+        c_lower = str(col).lower()
+        if 'temperature' in c_lower:
+            temp_col = col
+        elif 'weight (%)' in c_lower or ('weight' in c_lower and '%' in c_lower):
+            weight_col = col
+        elif 'deriv' in c_lower or 'dtg' in c_lower:
+            dtg_col = col
+            
+    return df[temp_col], df[weight_col], df[dtg_col]
+
+def process_tga(temp, weight, dtg):
+    # Sort by temperature just in case
+    order = np.argsort(temp)
+    temp = np.array(temp)[order]
+    weight = np.array(weight)[order]
+    dtg = np.array(dtg)[order]
+    
+    # Residue at 800 C
+    idx_800 = np.argmin(np.abs(temp - 800))
+    residue_val = weight[idx_800]
+    residue_temp = temp[idx_800]
+    
+    # Peak DTG above 150 C
+    mask_peak = temp > 150
+    if not np.any(mask_peak):
+        peak_temp = None
+        peak_dtg = None
+    else:
+        # DTG is negative during mass loss, so we look for the most negative value (minimum)
+        # Or absolute maximum? Standard TGA plots show DTG inverted (positive peaks).
+        # The prompt says: "multiplied by -1 so its peaks point up".
+        # So we find the minimum of original DTG (most negative) to get the highest peak after inversion.
+        dtg_masked = dtg[mask_peak]
+        temp_masked = temp[mask_peak]
+        
+        min_idx = np.argmin(dtg_masked)
+        peak_temp = temp_masked[min_idx]
+        peak_dtg_orig = dtg_masked[min_idx]
+        
+    return temp, weight, dtg, residue_temp, residue_val, peak_temp, peak_dtg_orig
+
+# Load Lot A
+t_A, w_A, d_A = load_data("/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_A.csv")
+temp_A, weight_A, dtg_A, res_T_A, res_V_A, pk_T_A, pk_D_A = process_tga(t_A, w_A, d_A)
+
+# Load Lot B
+t_B, w_B, d_B = load_data("/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_B.txt")
+temp_B, weight_B, dtg_B, res_T_B, res_V_B, pk_T_B, pk_D_B = process_tga(t_B, w_B, d_B)
+
+# Prepare data for ECharts
+# Series 1: Weight A
+series_weight_A = [[float(t), float(w)] for t, w in zip(temp_A, weight_A)]
+# Series 2: DTG A (inverted)
+series_dtg_A = [[float(t), float(-d)] for t, d in zip(temp_A, dtg_A)]
+
+# Series 3: Weight B
+series_weight_B = [[float(t), float(w)] for t, w in zip(temp_B, weight_B)]
+# Series 4: DTG B (inverted)
+series_dtg_B = [[float(t), float(-d)] for t, d in zip(temp_B, dtg_B)]
+
+# Labels logic
+labels = []
+
+# Helper to add label marker
+def make_label_marker(name, x_val, y_val, color, text_str):
+    return {
+        "name": name,
+        "type": "scatter",
+        "data": [[x_val, y_val]],
+        "symbolSize": 6,
+        "itemStyle": {"color": color},
+        "label": {
+            "show": True,
+            "position": "top",
+            "formatter": text_str,
+            "fontSize": 10,
+            "color": color
+        },
+        "tooltip": {"show": False}
+    }
+
+# Lot A Labels
+if res_V_A is not None:
+    labels.append(make_label_marker(f"Residue A", float(res_T_A), float(res_V_A), "#1f4e9c", f"{res_V_A:.1f}%"))
+if pk_T_A is not None:
+    # Plot peak on DTG axis (y2). Value is inverted DTG.
+    labels.append(make_label_marker(f"Peak A", float(pk_T_A), float(-pk_D_A), "#c0392b", f"{pk_T_A:.0f}°C"))
+
+# Lot B Labels
+if res_V_B is not None:
+    labels.append(make_label_marker(f"Residue B", float(res_T_B), float(res_V_B), "#2ecc71", f"{res_V_B:.1f}%"))
+if pk_T_B is not None:
+    labels.append(make_label_marker(f"Peak B", float(pk_T_B), float(-pk_D_B), "#e67e22", f"{pk_T_B:.0f}°C"))
+
+
+option = {
+    "title": {
+        "text": "TGA Comparison: Lot A vs Lot B",
+        "left": "center",
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR",
+            "fontSize": 14
+        }
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {
+            "type": "cross"
+        }
+    },
+    "legend": {
+        "data": [
+            {"name": "Lot A Weight", "icon": "line"},
+            {"name": "Lot A DTG", "icon": "line"},
+            {"name": "Lot B Weight", "icon": "line"},
+            {"name": "Lot B DTG", "icon": "line"}
+        ],
+        "top": 30,
+        "left": "center",
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR",
+            "fontSize": 12
+        }
+    },
+    "grid": {
+        "left": "10%",
+        "right": "10%",
+        "bottom": "15%",
+        "top": "20%",
+        "containLabel": True
+    },
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "min": 30,
+        "max": 900,
+        "splitLine": {
+            "show": True,
+            "lineStyle": {"type": "dashed", "color": "#eee"}
+        },
+        "axisLabel": {
+            "fontFamily": "Noto Sans CJK KR"
+        }
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Weight (%)",
+            "position": "left",
+            "min": 0,
+            "max": 100,
+            "axisLine": {
+                "lineStyle": {"color": "#1f4e9c"}
+            },
+            "axisLabel": {
+                "formatter": "{value} %",
+                "fontFamily": "Noto Sans CJK KR"
+            },
+            "splitLine": {
+                "show": True,
+                "lineStyle": {"type": "dashed", "color": "#eee"}
+            }
+        },
+        {
+            "type": "value",
+            "name": "DTG (%/°C)",
+            "position": "right",
+            "axisLine": {
+                "lineStyle": {"color": "#c0392b"}
+            },
+            "axisLabel": {
+                "formatter": "{value}",
+                "fontFamily": "Noto Sans CJK KR"
+            },
+            "splitLine": {
+                "show": False
+            }
+        }
+    ],
+    "series": [
+        {
+            "name": "Lot A Weight",
+            "type": "line",
+            "yAxisIndex": 0,
+            "data": series_weight_A,
+            "smooth": False,
+            "lineStyle": {"width": 2, "color": "#1f4e9c"},
+            "itemStyle": {"color": "#1f4e9c"},
+            "showSymbol": False
+        },
+        {
+            "name": "Lot A DTG",
+            "type": "line",
+            "yAxisIndex": 1,
+            "data": series_dtg_A,
+            "smooth": False,
+            "lineStyle": {"width": 2, "color": "#c0392b", "type": "dashed"},
+            "itemStyle": {"color": "#c0392b"},
+            "showSymbol": False
+        },
+        {
+            "name": "Lot B Weight",
+            "type": "line",
+            "yAxisIndex": 0,
+            "data": series_weight_B,
+            "smooth": False,
+            "lineStyle": {"width": 2, "color": "#2ecc71"},
+            "itemStyle": {"color": "#2ecc71"},
+            "showSymbol": False
+        },
+        {
+            "name": "Lot B DTG",
+            "type": "line",
+            "yAxisIndex": 1,
+            "data": series_dtg_B,
+            "smooth": False,
+            "lineStyle": {"width": 2, "color": "#e67e22", "type": "dashed"},
+            "itemStyle": {"color": "#e67e22"},
+            "showSymbol": False
+        }
+    ] + labels
+}
+
+output = {
+    "figures": [
+        {
+            "name": "plot1",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+    ]
+}
+
+print(json.dumps(output))
+```

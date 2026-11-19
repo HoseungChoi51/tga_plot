@@ -1,0 +1,12 @@
+```json
+{
+  "file": "TGA.xlsx",
+  "annotate": {
+    "vline1": {
+      "type": "vline",
+      "x": 450,
+      "text": "산화 시작"
+    }
+  }
+}
+```

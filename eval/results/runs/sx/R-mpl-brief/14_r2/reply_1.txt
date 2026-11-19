@@ -1,0 +1,110 @@
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/korean_excel.csv"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/14_r2/out"
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# Read the CSV file
+df = pd.read_csv(DATA_FILE)
+
+# Identify columns based on the preview
+time_col = "시간(분)"
+temp_col = "온도(°C)"
+weight_col = "무게(%)"
+dtg_col = "미분무게(%/°C)"
+
+# Extract data
+temperature = df[temp_col].values
+weight = df[weight_col].values
+dtg = df[dtg_col].values
+
+# Create figure and axis
+fig, ax1 = plt.subplots(figsize=(8, 6))
+
+# Plot Weight (%) on left y-axis
+color_weight = '#1f4e9c'
+ax1.set_xlabel('온도 (°C)', fontsize=12)
+ax1.set_ylabel('무게 (%)', color=color_weight, fontsize=12)
+line1, = ax1.plot(temperature, weight, color=color_weight, label='무게 (%)')
+ax1.tick_params(axis='y', labelcolor=color_weight)
+
+# Create second y-axis for DTG
+ax2 = ax1.twinx()
+color_dtg = '#c0392b'
+ax2.set_ylabel('DTG (%/°C)', color=color_dtg, fontsize=12)
+# Multiply DTG by -1 so peaks point up
+line2, = ax2.plot(temperature, dtg * -1, color=color_dtg, label='DTG (%/°C)')
+ax2.tick_params(axis='y', labelcolor=color_dtg)
+
+# Title: use sheet name if available, otherwise generic or filename stem
+sheet_name = "korean_excel"
+title_text = sheet_name
+if title_text == "korean_excel":
+    # If it's just the default csv name derived from file, maybe keep it simple or remove extension
+    pass 
+ax1.set_title(title_text, fontsize=14, pad=15)
+
+# Legend at center left
+lines = [line1, line2]
+labels = [l.get_label() for l in lines]
+ax1.legend(lines, labels, loc='center left', bbox_to_anchor=(0.02, 0.5), fontsize=10)
+
+# Calculate Residue at nearest 800°C
+idx_800 = np.argmin(np.abs(temperature - 800))
+residue_temp = temperature[idx_800]
+residue_weight = weight[idx_800]
+residue_label_str = f'Residue {residue_weight:.1f}%'
+
+# Mark residue point
+ax1.plot(residue_temp, residue_weight, 'o', color=color_weight, markersize=6)
+ax1.annotate(residue_label_str, xy=(residue_temp, residue_weight), xytext=(10, -15),
+             textcoords='offset points', ha='left', va='top', color=color_weight, fontsize=10,
+             arrowprops=dict(arrowstyle='->', color=color_weight, lw=1.5))
+
+# Calculate Peak: highest DTG peak above 150°C
+# We look for the maximum of (-DTG) because we plotted -DTG to make peaks positive/up
+# Or simply find min(DTG) since DTG is negative during mass loss.
+mask_peak_region = temperature > 150
+if np.any(mask_peak_region):
+    dtg_in_region = dtg[mask_peak_region]
+    temp_in_region = temperature[mask_peak_region]
+    
+    # Find index of minimum DTG (which corresponds to max mass loss rate)
+    idx_min_dtg_local = np.argmin(dtg_in_region)
+    peak_temp = temp_in_region[idx_min_dtg_local]
+    peak_dtg_val = dtg_in_region[idx_min_dtg_local]
+    
+    # The value on the plot is -peak_dtg_val
+    peak_plot_val = -peak_dtg_val
+    
+    # Mark peak point on ax2
+    ax2.plot(peak_temp, peak_plot_val, 'v', color=color_dtg, markersize=6)
+    
+    # Annotate peak temperature
+    peak_label_str = f'{peak_temp:.0f} °C'
+    ax2.annotate(peak_label_str, xy=(peak_temp, peak_plot_val), xytext=(10, 10),
+                 textcoords='offset points', ha='left', va='bottom', color=color_dtg, fontsize=10,
+                 arrowprops=dict(arrowstyle='->', color=color_dtg, lw=1.5))
+
+# Adjust layout
+plt.tight_layout()
+
+# Save as PNG and PDF
+base_filename = "korean_excel"
+png_path = os.path.join(OUT_DIR, f"{base_filename}.png")
+pdf_path = os.path.join(OUT_DIR, f"{base_filename}.pdf")
+
+fig.savefig(png_path, dpi=300, bbox_inches='tight')
+fig.savefig(pdf_path, bbox_inches='tight')
+
+plt.close(fig)
+```

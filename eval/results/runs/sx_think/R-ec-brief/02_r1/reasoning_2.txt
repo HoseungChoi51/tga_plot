@@ -1,0 +1,96 @@
+We need answer to user: "no ```python block in the reply
+Reply with the corrected complete script only, inside one ```python block." Need produce final only python block. Need infer from context? We need write corrected complete script. Likely previous response had no python block? Need create script for TGA plotting request. Need include code only. Need think through requirements.
+
+We have DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx". User Korean: wants 1006R1-V normal sheet experimental daily tensile strength? Actually TGA. B column X, C Y1, D Y2. Weight 20 units, Temperature 200 units, Deriv.Weight 0.2 units. Deriv.Weight max value displayed, temperature 800 nearest Y value residue {}%. Additional: temperature from 0 by 200 increments. Find value closest to 800 and display residue weight %. Output png.
+
+Need script reads Excel and prints ONE JSON document to stdout: {"figures":[{"name":"plot1","option":{...},"width":614,"height":442,"dpi":300,"formats":["png"]}]}. Need ECharts option plain JSON. Need Korean font? ECharts server-side maybe font family Noto Sans CJK KR. Need set textStyle fontFamily.
+
+Need standard TGA plot: x temp; left y weight %, line #1f4e9c; right y DTG, multiplied by -1 so peaks up; title sheet name; legend center left. Labels: residue at nearest 800 °C, marker; peak highest DTG above 150 °C, marker. User specifically asks Deriv.Weight max value displayed (highest DTG peak above 150? They say max value, likely derivative max? Since DTG negative while mass lost, multiplied by -1 peaks up. Need mark max of -DTG above 150? Or max of D.W? "Deriv.Weight 의 max값을 표시" likely max derivative weight (absolute) peak. Standard: peak highest DTG peak above 150 °C written like 600 °C. But user says max값 표시 maybe value? Could label temperature? Standard says peak: temperature of highest DTG peak above 150°C, written like "600 °C", marker. Additional says residue. Need include peak label maybe max derivative value? Let's parse: "그리고 Deriv.Weight 의 max값을 표시해주고, temperatur 800 근처일때의 Y값을 Residue {}% 으로 표시해줘." Could mean display max value of Deriv.Weight on plot. But standard labels: peak temperature. They may want peak marker/label. We can label with temperature and maybe value? Need avoid too clutter. Could mark point with label formatter showing temperature and max -DTG? But ECharts markPoint can use custom label. Need no functions. Can set label formatter string? ECharts formatter can be string with placeholders, e.g. "{b}\n{c}" but markPoint data item can have name/value. For scatter/markPoint, label formatter string can use {value}. We can set name = "Peak" value = [temp, -dtg] and label formatter "{c}" maybe shows both? In ECharts markPoint with coord data: value can be [x,y]? label formatter can use {c} prints coordinate? For markPoint, if data item is {coord: [x,y], value: value, name: name}, {c} maybe value. We can set value = f"{temp:.0f} °C" but series value coordinate? Need coordinate for y2. In ECharts markPoint da
+[...]
+ Yes.
+
+Need maybe if peak max value should be on Deriv.Weight curve. Yes.
+
+Potential issue: ECharts markPoint data coordinate for series with yAxisIndex=1 uses y2 axis. Good.
+
+Potential issue: If y2 axis min/max computed after y2 = -raw. Good.
+
+Potential issue: If y2 interval 0.2 and y2_min/max are floats like 1.2000000000000002? round. Good.
+
+Potential issue: If y1_max = 100.0, interval 20, ticks 0,20,...100. Good.
+
+Potential issue: If x_max = 1000.0, interval 200, ticks 0,200,...1000. Good.
+
+Potential issue: If x data max 900, x axis extends to 1000. Good.
+
+Potential issue: If data has x max 750 (not used), x_max=800. Good.
+
+Potential issue: If y2_max = 0.0? set max min+0.2. Good.
+
+Potential issue: If y2_min = 0.2 because all y2 positive and min_raw 0.2? We set if y2_min > 0: y2_min=0.0. Good.
+
+Potential issue: If y2_max = -0.2 because all y2 negative? set y2_max=0.0. Good.
+
+Potential issue: If y2_min_raw = -0.1, floor(-0.5)*0.2 = -0.2. Good.
+
+Potential issue: If y2_max_raw = 0.1, ceil(0.5)*0.2 = 0.2. Good.
+
+Potential issue: If y2_max_raw = 0.20000000000000004 due to float, ceil(1.0000000000000002)*0.2=0.4? Could happen if raw computed negative of raw, raw maybe 0.2? Not likely. Could use epsilon: math.ceil((y2_max_raw + 1e-12)/0.2). But if exact 0.2, adding epsilon still 1.000000000001 ceil 2 -> 0.4, bad. Use math.ceil(round(y2_max_raw/0.2, 10)). Better:
+y2_min = math.floor(round(y2_min_raw / 0.2, 10)) * 0.2
+y2_max = math.ceil(round(y2_max_raw / 0.2, 10)) * 0.2
+This avoids 1.0000000000000002. Use round. Similarly x/y1. For x max 900/200=4.5 ceil 5. If 1000/200=5.0 maybe round. Use round. Implement helper:
+def ceil_to_step(value, step):
+    return math.ceil(round(value / step, 10)) * step
+def floor_to_step(value, step):
+    return math.floor(round(value / step, 10)) * step
+Use. Good.
+
+Need adjust code.
+
+Potential issue: If y2_max_raw=0.0, ceil(round(0,10))*0.2=0, then y2_max <= y2_min? if min=0, set max=0.2. Good.
+
+Potential issue: If y2_min_raw=-0.0, floor(round(-0,10))=0, y2_min=0. Good.
+
+Let's incorporate helper.
+
+Potential issue: If y1_max_raw=100.0, ceil(round(5,10))*20=100. Good.
+
+Potential issue: If x_max_raw=900.0, ceil(round(4.5,10))*200=1000. Good.
+
+Potential issue: If x_max_raw=0.0, max(200, 0)=200.
+
+Need maybe if y1_max_raw=0, max(100,0)=100.
+
+Need maybe if y1 data max >100? use ceil. Good.
+
+Potential issue: If y1 data min negative? axis min 0. okay.
+
+Need maybe if y2 axis interval 0.2 but y2_min/max after round to 1 decimal. Good.
+
+Potential issue: ECharts interval with float 0.2 may produce floating tick labels like 0.2. okay.
+
+Potential issue: If y2_min=-0.2, y2_max=1.2, interval=0.2. Good.
+
+Need maybe if y2_min=0, y2_max=0.2, interval=0.2. Good.
+
+Potential issue: If y2_min=0, y2_max=1.2, interval=0.2. Good.
+
+Potential issue: If y2_max=1.2, interval=0.2, ticks include 1.2. Good.
+
+Need maybe if y2 axis nameGap 45. Good.
+
+Potential issue: If legend vertical left center, grid left 80, legend may overlap y axis label? left: 10, top: middle, legend width maybe 100? Could overlap. Maybe set grid left 100? Standard width 614. Legend center left may be inside grid? It says legend at center left. Could place left: 10, top: middle. It may overlap plot area but okay. To avoid, grid left 120? But y axis label also. Maybe standard uses legend inside. Let's set grid left 90, right 80. Legend left 10. It may overlay y axis but okay. Could set legend orient vertical, left: 10, top: middle, backgroundColor transparent. Good.
+
+Potential issue: If legend data names must match series names. Yes.
+
+Potential issue: If tooltip trigger axis with markPoint? okay.
+
+Potential issue: If server-side ECharts 6.1 SVG renderer, markPoint label formatter string with newline works? likely.
+
+Potential issue: If font family string with comma? Use only "Noto Sans CJK KR". Good.
+
+Potential issue: If output JSON must be one document and nothing else. We do.
+
+Need maybe not include type hints? okay.
+
+Let's final code. Ensure final only python block.

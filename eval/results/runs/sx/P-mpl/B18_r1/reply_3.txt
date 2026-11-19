@@ -1,0 +1,3 @@
+```json
+{"file": "cnt_batches.xlsx", "sheets": "Annealed", "code": "import numpy as np\nd = np.gradient(y1, x)\nidx = np.argmax(d < -0.05)\nif idx > 0:\n    T_onset = x[idx]\n    ax1.axvline(T_onset, color='red', linestyle='--')\n    ax1.text(T_onset, max(y1)*0.9, f'Onset: {T_onset:.1f} °C', color='red')"}
+```

@@ -1,0 +1,74 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+
+# 데이터 파일 경로 및 출력 디렉토리 설정
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/B07_r1/out"
+
+# 한글 폰트 설정
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+def main():
+    # 두 번째 시트(PVC)만 읽기
+    df = pd.read_excel(DATA_FILE, sheet_name='PVC')
+    
+    # 열 이름 확인 및 변수 할당 (데이터 미리보기 기준)
+    # A: Time, B: Temperature, C: Weight, D: Deriv Weight
+    temp_col = 'Temperature (°C)'
+    weight_col = 'Weight (%)'
+    
+    # 그래프 생성
+    fig, ax = plt.subplots(figsize=(8, 6))
+    
+    # TGA 곡선 그리기 (Temperature vs Weight)
+    ax.plot(df[temp_col], df[weight_col], label='PVC', color='blue', linewidth=2)
+    
+    # 특정 온도(300°C, 600°C)에서의 무게 찾기 및 표시
+    target_temps = [300, 600]
+    markers = ['o', 's']
+    colors = ['red', 'green']
+    
+    for i, t in enumerate(target_temps):
+        # 가장 가까운 온도 데이터 포인트 인덱스 찾기
+        idx = np.abs(df[temp_col] - t).idxmin()
+        actual_temp = df.loc[idx, temp_col]
+        actual_weight = df.loc[idx, weight_col]
+        
+        # 점 표시
+        ax.scatter(actual_temp, actual_weight, color=colors[i], s=100, zorder=5, marker=markers[i])
+        
+        # 텍스트로 값 표시
+        label_text = f'{int(t)}°C\n{actual_weight:.2f}%'
+        ax.annotate(label_text, 
+                    xy=(actual_temp, actual_weight), 
+                    xytext=(10, 10), textcoords='offset points',
+                    fontsize=10, fontweight='bold',
+                    bbox=dict(boxstyle='round,pad=0.3', fc='white', alpha=0.8),
+                    arrowprops=dict(arrowstyle='->', color=colors[i]))
+
+    # 축 라벨 및 제목 설정
+    ax.set_xlabel('Temperature (°C)', fontsize=12)
+    ax.set_ylabel('Weight (%)', fontsize=12)
+    ax.set_title('TGA Curve of PVC', fontsize=14)
+    
+    # 격자 및 레전드
+    ax.grid(True, linestyle='--', alpha=0.6)
+    ax.legend(loc='upper right')
+    
+    # 레이아웃 조정
+    plt.tight_layout()
+    
+    # 출력 파일명 설정
+    output_path = os.path.join(OUT_DIR, 'tga_pvc.png')
+    
+    # 저장
+    plt.savefig(output_path, dpi=300)
+    plt.close()
+
+if __name__ == '__main__':
+    if not os.path.exists(OUT_DIR):
+        os.makedirs(OUT_DIR)
+    main()

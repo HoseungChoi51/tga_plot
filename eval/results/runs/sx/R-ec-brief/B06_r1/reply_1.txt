@@ -1,0 +1,184 @@
+```python
+import pandas as pd
+import json
+
+def main():
+    file_path = "/home/chs/Work/tga_plot/eval/inputs_b/isothermal.txt"
+    
+    # Read the data file. It's a text file, likely tab or space separated.
+    # Based on the preview, it has headers in row 1 (index 0) and data starts at row 2 (index 1).
+    df = pd.read_csv(file_path, sep=r'\s+', header=0)
+    
+    # Identify columns based on the user request and data preview
+    # Time (min) -> x-axis
+    # Weight (%) -> left y-axis (y1)
+    # Temperature (°C) -> right y-axis (y2)
+    
+    time_col = "Time (min)"
+    weight_col = "Weight (%)"
+    temp_col = "Temperature (°C)"
+    
+    # Extract data
+    times = df[time_col].tolist()
+    weights = df[weight_col].tolist()
+    temps = df[temp_col].tolist()
+    
+    # Find the weight at 140 minutes for the label
+    # The max time is 140.0, so we look for the last point or closest to 140
+    target_time = 140.0
+    # Get the index of the point closest to 140 min
+    idx_140 = (df[time_col] - target_time).abs().idxmin()
+    weight_at_140 = df.loc[idx_140, weight_col]
+    time_at_140 = df.loc[idx_140, time_col]
+    
+    # Prepare series data
+    # Series 1: Weight (Left Y Axis)
+    # Data format for line chart with x/y axes: [[x, y], [x, y], ...]
+    weight_data = [[t, w] for t, w in zip(times, weights)]
+    
+    # Series 2: Temperature (Right Y Axis)
+    temp_data = [[t, temp] for t, temp in zip(times, temps)]
+    
+    # Construct ECharts option
+    option = {
+        "title": {
+            "text": "Isothermal TGA",
+            "left": "center",
+            "top": 10,
+            "textStyle": {
+                "fontSize": 16,
+                "fontWeight": "bold",
+                "color": "#333"
+            }
+        },
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {
+                "type": "cross"
+            },
+            "formatter": None # Default formatter handles multiple series well
+        },
+        "legend": {
+            "data": ["Weight (%)", "Temperature (°C)"],
+            "top": 40,
+            "left": "center"
+        },
+        "grid": {
+            "left": "10%",
+            "right": "10%",
+            "bottom": "15%",
+            "containLabel": True
+        },
+        "xAxis": {
+            "type": "value",
+            "name": "Time (min)",
+            "nameLocation": "middle",
+            "nameGap": 30,
+            "min": 0,
+            "max": 140,
+            "splitLine": {
+                "show": True,
+                "lineStyle": {
+                    "color": "#eee"
+                }
+            }
+        },
+        "yAxis": [
+            {
+                "type": "value",
+                "name": "Weight (%)",
+                "position": "left",
+                "min": 70,
+                "max": 105,
+                "splitLine": {
+                    "show": True,
+                    "lineStyle": {
+                        "color": "#eee"
+                    }
+                },
+                "axisLabel": {
+                    "formatter": "{value} %"
+                }
+            },
+            {
+                "type": "value",
+                "name": "Temperature (°C)",
+                "position": "right",
+                "min": 20,
+                "max": 420,
+                "splitLine": {
+                    "show": False
+                },
+                "axisLabel": {
+                    "formatter": "{value} °C"
+                }
+            }
+        ],
+        "series": [
+            {
+                "name": "Weight (%)",
+                "type": "line",
+                "yAxisIndex": 0,
+                "data": weight_data,
+                "smooth": True,
+                "symbol": "none",
+                "lineStyle": {
+                    "width": 2,
+                    "color": "#1f4e9c"
+                },
+                "markPoint": {
+                    "data": [
+                        {
+                            "coord": [time_at_140, weight_at_140],
+                            "symbolSize": 8,
+                            "itemStyle": {
+                                "color": "#1f4e9c"
+                            },
+                            "label": {
+                                "show": True,
+                                "formatter": f"{weight_at_140:.2f} %",
+                                "position": "top",
+                                "distance": 10,
+                                "backgroundColor": "rgba(255,255,255,0.8)",
+                                "padding": [2, 4],
+                                "borderRadius": 2,
+                                "color": "#1f4e9c",
+                                "fontWeight": "bold"
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "Temperature (°C)",
+                "type": "line",
+                "yAxisIndex": 1,
+                "data": temp_data,
+                "smooth": True,
+                "symbol": "none",
+                "lineStyle": {
+                    "width": 2,
+                    "color": "#c0392b"
+                }
+            }
+        ]
+    }
+    
+    figure = {
+        "name": "isothermal_tga",
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"]
+    }
+    
+    output = {
+        "figures": [figure]
+    }
+    
+    print(json.dumps(output))
+
+if __name__ == "__main__":
+    main()
+```

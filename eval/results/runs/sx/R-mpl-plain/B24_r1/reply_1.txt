@@ -1,0 +1,59 @@
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+# 설정
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/B24_r1/out"
+SHEET_NAME = "PE"
+
+# 한글 폰트 설정
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+# 데이터 로드
+df = pd.read_excel(DATA_FILE, sheet_name=SHEET_NAME)
+
+# 열 이름 확인 및 매핑 (미리보기 기준: B=Temperature, C=Weight, D=Deriv. Weight)
+temp_col = "Temperature (°C)"
+weight_col = "Weight (%)"
+deriv_col = "Deriv. Weight (%/°C)"
+
+# 온도 단위를 켈빈(K)으로 변환
+df["Temperature (K)"] = df[temp_col] + 273.15
+
+# 그래프 그리기
+fig, ax1 = plt.subplots(figsize=(8, 6))
+
+# TGA 곡선 (Weight %) - 왼쪽 Y축
+color1 = 'tab:blue'
+ax1.set_xlabel('Temperature (K)', fontsize=12)
+ax1.set_ylabel('Weight (%)', color=color1, fontsize=12)
+line1 = ax1.plot(df["Temperature (K)"], df[weight_col], color=color1, label='Weight (%)')
+ax1.tick_params(axis='y', labelcolor=color1)
+ax1.grid(True, linestyle='--', alpha=0.5)
+
+# DTG 곡선 (Deriv. Weight) - 오른쪽 Y축
+ax2 = ax1.twinx()
+color2 = 'tab:red'
+ax2.set_ylabel('Deriv. Weight (%/°C)', color=color2, fontsize=12)
+line2 = ax2.plot(df["Temperature (K)"], df[deriv_col], color=color2, label='Deriv. Weight (%/°C)')
+ax2.tick_params(axis='y', labelcolor=color2)
+
+# 제목
+plt.title(f'TGA/DTG Curve for {SHEET_NAME} (Temp in Kelvin)', fontsize=14)
+
+# 범례 추가
+lines = line1 + line2
+labels = [l.get_label() for l in lines]
+ax1.legend(lines, labels, loc='center left')
+
+plt.tight_layout()
+
+# 저장
+os.makedirs(OUT_DIR, exist_ok=True)
+output_path = os.path.join(OUT_DIR, "PE_tga_K.png")
+plt.savefig(output_path, dpi=300)
+plt.close()
+```

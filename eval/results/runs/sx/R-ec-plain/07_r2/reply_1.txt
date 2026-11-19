@@ -1,0 +1,179 @@
+```python
+import pandas as pd
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+# Read all sheets from the Excel file
+xls = pd.ExcelFile(DATA_FILE)
+sheets_data = {}
+for sheet_name in xls.sheet_names:
+    df = pd.read_excel(xls, sheet_name=sheet_name, header=0)
+    sheets_data[sheet_name] = df
+
+# Prepare series for TGA (Weight %) and DTG (D.W %/C)
+# We will create two charts or one chart with dual Y-axis? 
+# The request implies modifying an existing plot style. Usually TGA plots have Weight on left axis and DTG on right axis, or separate subplots.
+# Given the data structure, a single chart with dual Y-axes is common for TGA/DTG comparison, 
+# but often they are plotted separately to avoid scale issues. 
+# However, looking at standard lab requests, if not specified, I'll assume a combined view or just the main TGA curve?
+# Let's look at the columns: Weight(%) and D.W(%/C).
+# To make it readable, I will create ONE figure containing TWO charts side-by-side or stacked? 
+# No, the output format expects a list of figures. 
+# Let's create two figures: one for TGA (Weight vs Temp) and one for DTG (Rate vs Temp), comparing the 3 samples.
+# Or better yet, since the user asked to move legend and change font size, they likely want a single comprehensive chart or the standard TGA+DTG combo.
+# Standard practice: Plot TGA (Weight) and DTG (Derivative) together on dual axes is messy due to scales. 
+# Let's generate two separate figures: "TGA_Curve" and "DTG_Curve".
+
+def get_series_data(df, x_col, y_col):
+    # Clean NaNs
+    valid_df = df[[x_col, y_col]].dropna()
+    return [[float(x), float(y)] for x, y in zip(valid_df[x_col], valid_df[y_col])]
+
+# Define colors for the three samples
+colors = ['#1f77b4', '#ff7f0e', '#2ca02c'] # Blue, Orange, Green
+sample_names = ["Normal", "Acid", "750C"]
+sheet_keys = ["1006R1-V normal", "1006R1-V acid", "1006R1-V 750C"]
+
+# --- Figure 1: TGA (Weight Loss) ---
+tga_series = []
+for i, key in enumerate(sheet_keys):
+    df = sheets_data[key]
+    x_data = 'Temperature'
+    y_data = 'Weight(%)'
+    data_points = get_series_data(df, x_data, y_data)
+    tga_series.append({
+        "name": sample_names[i],
+        "type": "line",
+        "data": data_points,
+        "showSymbol": False,
+        "lineStyle": {"width": 2},
+        "itemStyle": {"color": colors[i]}
+    })
+
+tga_option = {
+    "title": {
+        "text": "TGA Curves",
+        "left": "center",
+        "top": 10,
+        "textStyle": {"fontSize": 14}
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "formatter": "{a}: <br/>Temp: {b} °C<br/>Weight: {c} %"
+    },
+    "legend": {
+        "data": sample_names,
+        "top": 10,
+        "right": 10,
+        "textStyle": {
+            "fontSize": 9
+        }
+    },
+    "grid": {
+        "left": "10%",
+        "right": "5%",
+        "bottom": "15%",
+        "top": "15%",
+        "containLabel": True
+    },
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 25,
+        "min": 30,
+        "max": 900
+    },
+    "yAxis": {
+        "type": "value",
+        "name": "Weight (%)",
+        "nameLocation": "middle",
+        "nameGap": 35,
+        "min": 0,
+        "max": 100
+    },
+    "series": tga_series
+}
+
+# --- Figure 2: DTG (Derivative Weight Loss) ---
+dtg_series = []
+for i, key in enumerate(sheet_keys):
+    df = sheets_data[key]
+    x_data = 'Temperature'
+    y_data = 'D.W(%/C)'
+    data_points = get_series_data(df, x_data, y_data)
+    dtg_series.append({
+        "name": sample_names[i],
+        "type": "line",
+        "data": data_points,
+        "showSymbol": False,
+        "lineStyle": {"width": 2},
+        "itemStyle": {"color": colors[i]}
+    })
+
+dtg_option = {
+    "title": {
+        "text": "DTG Curves",
+        "left": "center",
+        "top": 10,
+        "textStyle": {"fontSize": 14}
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "formatter": "{a}: <br/>Temp: {b} °C<br/>Rate: {c} %/°C"
+    },
+    "legend": {
+        "data": sample_names,
+        "top": 10,
+        "right": 10,
+        "textStyle": {
+            "fontSize": 9
+        }
+    },
+    "grid": {
+        "left": "10%",
+        "right": "5%",
+        "bottom": "15%",
+        "top": "15%",
+        "containLabel": True
+    },
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 25,
+        "min": 30,
+        "max": 900
+    },
+    "yAxis": {
+        "type": "value",
+        "name": "dW/dT (%/°C)",
+        "nameLocation": "middle",
+        "nameGap": 35
+    },
+    "series": dtg_series
+}
+
+figures = [
+    {
+        "name": "TGA_Curves",
+        "option": tga_option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"]
+    },
+    {
+        "name": "DTG_Curves",
+        "option": dtg_option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"]
+    }
+]
+
+output = {"figures": figures}
+print(json.dumps(output))
+```

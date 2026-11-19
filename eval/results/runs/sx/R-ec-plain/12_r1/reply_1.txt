@@ -1,0 +1,169 @@
+```python
+import pandas as pd
+import json
+import numpy as np
+
+def main():
+    file_path = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+    
+    # Read all sheets
+    xls = pd.ExcelFile(file_path)
+    sheet_names = xls.sheet_names
+    
+    figures = []
+    
+    for sheet_name in sheet_names:
+        df = pd.read_excel(xls, sheet_name=sheet_name)
+        
+        # Extract columns based on the preview structure
+        # Columns are typically: Time, Temperature, Weight(%), D.W(%/C)
+        try:
+            temp_col = 'Temperature'
+            weight_col = 'Weight(%)'
+            dtg_col = 'D.W(%/C)'
+            
+            if temp_col not in df.columns or weight_col not in df.columns:
+                continue
+                
+            temps = df[temp_col].dropna().tolist()
+            weights = df[weight_col].dropna().tolist()
+            dtgs = df[dtg_col].dropna().tolist() if dtg_col in df.columns else []
+            
+            # Prepare data for ECharts
+            # We will plot Weight and DTG on two Y-axes
+            
+            series_weight = {
+                "name": "Weight (%)",
+                "type": "line",
+                "data": [[t, w] for t, w in zip(temps, weights)],
+                "yAxisIndex": 0,
+                "showSymbol": False,
+                "lineStyle": {"width": 2},
+                "color": "#5470c6"
+            }
+            
+            series_dtg = {
+                "name": "DTG (%/°C)",
+                "type": "line",
+                "data": [[t, d] for t, d in zip(temps, dtgs)] if dtgs else [],
+                "yAxisIndex": 1,
+                "showSymbol": False,
+                "lineStyle": {"width": 2, "type": "dashed"},
+                "color": "#91cc75"
+            }
+            
+            option = {
+                "title": {
+                    "text": f"TGA - {sheet_name}",
+                    "left": "center",
+                    "textStyle": {
+                        "fontFamily": "Noto Sans CJK KR",
+                        "fontSize": 14
+                    }
+                },
+                "tooltip": {
+                    "trigger": "axis",
+                    "axisPointer": {
+                        "type": "cross"
+                    },
+                    "formatter": "{a}: <br/> Temp: {b} °C <br/> Value: {c}"
+                },
+                "legend": {
+                    "data": ["Weight (%)", "DTG (%/°C)"],
+                    "top": 30,
+                    "textStyle": {
+                        "fontFamily": "Noto Sans CJK KR"
+                    }
+                },
+                "grid": {
+                    "left": "10%",
+                    "right": "10%",
+                    "bottom": "15%",
+                    "containLabel": True
+                },
+                "xAxis": {
+                    "type": "value",
+                    "name": "Temperature (°C)",
+                    "nameLocation": "middle",
+                    "nameGap": 30,
+                    "min": 30,
+                    "max": 900,
+                    "axisLabel": {
+                        "formatter": "{value}"
+                    }
+                },
+                "yAxis": [
+                    {
+                        "type": "value",
+                        "name": "Weight (%)",
+                        "position": "left",
+                        "min": 0,
+                        "max": 105,
+                        "axisLabel": {
+                            "formatter": "{value} %"
+                        }
+                    },
+                    {
+                        "type": "value",
+                        "name": "DTG (%/°C)",
+                        "position": "right",
+                        "axisLabel": {
+                            "formatter": "{value}"
+                        }
+                    }
+                ],
+                "series": [
+                    series_weight,
+                    series_dtg
+                ]
+            }
+            
+            # Add mark line at 450°C with label "산화 시작"
+            # The markLine is added to the first series (Weight) but applies to the chart visually
+            option["series"][0]["markLine"] = {
+                "silent": True,
+                "symbol": ["none", "none"],
+                "lineStyle": {
+                    "color": "#ee6666",
+                    "width": 2,
+                    "type": "solid"
+                },
+                "label": {
+                    "show": True,
+                    "formatter": "산화 시작",
+                    "position": "insideEndTop",
+                    "distance": 5,
+                    "fontFamily": "Noto Sans CJK KR",
+                    "color": "#ee6666",
+                    "fontWeight": "bold"
+                },
+                "data": [
+                    {
+                        "xAxis": 450
+                    }
+                ]
+            }
+            
+            figure = {
+                "name": f"tga_{sheet_name.replace(' ', '_').replace('-', '_')}",
+                "option": option,
+                "width": 614,
+                "height": 442,
+                "dpi": 300,
+                "formats": ["png"]
+            }
+            figures.append(figure)
+            
+        except Exception as e:
+            print(f"Error processing sheet {sheet_name}: {e}")
+            continue
+
+    output = {
+        "figures": figures
+    }
+    
+    print(json.dumps(output))
+
+if __name__ == "__main__":
+    main()
+```

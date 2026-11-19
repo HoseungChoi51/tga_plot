@@ -42,11 +42,11 @@ Traceback (most recent call last):
     print(json.dumps(output))
           ~~~~~~~~~~^^^^^^^^
   File ""/home/chs/.local/share/uv/python/cpython-3.13.13-linux-x86_64-gnu/",results/runs/sx/R-ec-brief/03_r1
-2026-11-18 15:53:58,sx,R-ec-plain,A,A,04,0.7,1,1,0,0,1,,2,1,0,1,36.26,0.84,1310,867,,107,0,0,0,0,0,[ask] title: title size 13.5,,results/runs/sx/R-ec-plain/04_r1
+2026-11-18 15:53:58,sx,R-ec-plain,A,A,04,0.7,1,1,1,1,1,,2,0,1,1,36.26,0.84,1310,867,,107,0,0,0,0,0,,,results/runs/sx/R-ec-plain/04_r1
 2026-11-18 15:54:03,sx,R-mpl-brief,A,A,04,0.7,1,1,1,1,1,,2,0,1,1,56.93,0.72,1696,1148,,61,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/04_r1
 2026-11-18 15:54:04,sx,P-mpl,A,A,05,0.7,1,1,1,1,1,,3,0,1,1,6.25,0.62,4931,43,keys,,,,,,,,,results/runs/sx/P-mpl/05_r1
 2026-11-18 15:54:06,sx,P-ec,A,A,05,0.7,1,1,1,1,1,,3,0,1,1,3.37,1.05,5364,43,keys,,,,,,,,,results/runs/sx/P-ec/05_r1
-2026-11-18 15:54:41,sx,R-ec-brief,A,A,04,0.7,1,1,0,0,1,,2,1,0,1,63.3,0.96,1793,1609,,164,0,0,0,0,0,[ask] title: title size 13.5,,results/runs/sx/R-ec-brief/04_r1
+2026-11-18 15:54:41,sx,R-ec-brief,A,A,04,0.7,1,1,1,1,1,,2,0,1,1,63.3,0.96,1793,1609,,164,0,0,0,0,0,,,results/runs/sx/R-ec-brief/04_r1
 2026-11-18 15:55:03,sx,R-mpl-brief,A,A,05,0.7,1,1,0,0,1,,3,1,0,1,56.2,1.52,1682,1285,,70,0,0,0,0,0,"[ask] lines: y2 line style is 'dashed', want 'dotted'",,results/runs/sx/R-mpl-brief/05_r1
 2026-11-18 15:55:54,sx,R-ec-brief,A,A,05,0.7,1,1,0,0,1,,3,2,0,1,51.35,0.92,1779,1698,,170,0,0,0,0,0,"[ask] lines: y1 line width is 1.875, want 2.5 | [ask] lines: y2 line style is 'dashed', want 'dotted'",,results/runs/sx/R-ec-brief/05_r1
 2026-11-18 15:56:11,sx,R-ec-plain,A,A,05,0.7,1,1,0,0,1,,3,2,0,1,89.36,0.84,1296,1963,,166,0,1,0,0,0,"[ask] lines: y1 line width is 1.875, want 2.5 | [ask] lines: y2 line style is 'dashed', want 'dotted'",,results/runs/sx/R-ec-plain/05_r1
@@ -81,6 +81,1544 @@ Traceback (most recent call last):
     print(json.dumps(output))
           ~~~~~~~~~~^^^^^^^^
   File ""/home/chs/.local/share/uv/python/cpython-3.13.13-linux-x86_64-gnu/",results/runs/sx/R-ec-brief/06_r1
-2026-11-18 15:58:53,sx,R-ec-plain,A,A,07,0.7,1,1,0,0,1,,2,1,0,1,83.26,0.85,1283,1374,,141,0,0,0,0,0,[ask] legend: legend at outside; legend size 6.75,,results/runs/sx/R-ec-plain/07_r1
+2026-11-18 15:58:53,sx,R-ec-plain,A,A,07,0.7,1,1,0,0,1,,2,1,0,1,83.26,0.85,1283,1374,,141,0,0,0,0,0,[ask] legend: legend at outside,,results/runs/sx/R-ec-plain/07_r1
 2026-11-18 15:58:54,sx,P-mpl,A,A,08,0.7,1,1,1,1,1,,4,0,1,1,4.05,0.63,4946,57,keys,,,,,,,,,results/runs/sx/P-mpl/08_r1
 2026-11-18 15:58:56,sx,P-ec,A,A,08,0.7,1,1,1,1,1,,4,0,1,1,3.73,0.87,5379,83,keys,,,,,,,,,results/runs/sx/P-ec/08_r1
+2026-11-18 16:15:08,sx,R-mpl-plain,A,A,08,0.7,1,1,1,1,1,,4,0,1,1,53.67,0.96,1216,1393,,74,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/08_r1
+2026-11-18 16:15:50,sx,R-ec-brief,A,A,07,0.7,1,1,0,0,1,,2,1,0,2,94.94,1.56,5942,3936,,175,0,0,0,0,0,[ask] legend: legend at outside; legend at outside; legend at outside,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/07_r1/make_option.py"", line 215, in <module>
+    main()
+    ~~~~^^
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/07_r1/make_option.py"", line 212, in main
+ ",results/runs/sx/R-ec-brief/07_r1
+2026-11-18 16:16:09,sx,R-mpl-brief,A,A,08,0.7,1,1,1,1,1,,4,0,1,1,114.62,1.18,1699,1709,,89,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/08_r1
+2026-11-18 16:16:25,sx,R-ec-plain,A,A,08,0.7,1,1,1,1,1,,4,0,1,1,76.69,0.91,1312,1238,,121,0,0,0,0,0,,,results/runs/sx/R-ec-plain/08_r1
+2026-11-18 16:16:35,sx,P-mpl,A,A,09,0.7,1,1,1,1,1,,4,0,1,1,25.58,0.73,4919,52,keys,,,,,,,,,results/runs/sx/P-mpl/09_r1
+2026-11-18 16:16:36,sx,P-ec,A,A,09,0.7,1,1,1,1,1,,4,0,1,1,10.81,0.6,5352,52,keys,,,,,,,,,results/runs/sx/P-ec/09_r1
+2026-11-18 16:16:59,sx,R-mpl-plain,A,A,09,0.7,1,1,1,1,1,,4,0,1,1,23.89,0.94,1189,593,,32,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/09_r1
+2026-11-18 16:17:37,sx,R-mpl-brief,A,A,09,0.7,1,1,1,1,1,,4,0,1,1,60.69,1.19,1672,1249,,72,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/09_r1
+2026-11-18 16:18:11,sx,R-ec-plain,A,A,09,0.7,1,1,1,1,1,,4,0,1,1,71.66,0.93,1285,1117,,112,0,0,0,0,0,,,results/runs/sx/R-ec-plain/09_r1
+2026-11-18 16:18:32,sx,P-mpl,A,A,10,0.7,1,1,1,1,1,,2,0,1,1,21.85,0.33,4927,42,keys,,,,,,,,,results/runs/sx/P-mpl/10_r1
+2026-11-18 16:19:24,sx,R-ec-brief,A,A,08,0.7,1,1,1,1,1,,4,0,0,3,214.34,2.14,13338,7000,,220,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/08_r1/make_option.py"", line 270, in <module>
+    result = generate_charts()
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/08_r1/make_option.py"", line 101,  || The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/08_r1/make_option.py"", line 269, in <module>
+    print(json.dumps(result, ensure_ascii=False))
+          ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""/home/chs/.local/shar",results/runs/sx/R-ec-brief/08_r1
+2026-11-18 16:19:25,sx,P-ec,A,A,10,0.7,1,1,1,1,1,,2,0,1,1,52.22,0.34,5360,42,keys,,,,,,,,,results/runs/sx/P-ec/10_r1
+2026-11-18 16:19:29,sx,R-ec-brief,A,A,09,0.7,1,1,1,1,1,,4,0,1,1,112.65,0.94,1768,2114,,232,0,0,0,0,0,,,results/runs/sx/R-ec-brief/09_r1
+2026-11-18 16:19:54,sx,R-mpl-plain,A,A,10,0.7,1,1,0,0,1,,2,1,0,1,30.01,0.85,1197,819,,44,0,0,0,0,0,[ask] text_value: no label showing 8.1647±0.006; texts: [],,results/runs/sx/R-mpl-plain/10_r1
+2026-11-18 16:20:14,sx,R-mpl-brief,A,A,10,0.7,1,1,1,1,1,,2,0,1,1,48.94,1.34,1680,1430,,90,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/10_r1
+2026-11-18 16:20:30,sx,P-mpl,A,A,11,0.7,1,1,1,1,1,1,5,0,1,1,16.24,0.32,4911,21,keys,,,,,,,,,results/runs/sx/P-mpl/11_r1
+2026-11-18 16:20:30,sx,R-ec-plain,A,A,10,0.7,1,1,0,0,1,,2,1,0,1,60.55,0.9,1293,1373,,144,0,0,0,0,0,[ask] text_value: no label showing 8.1647±0.006; texts: [],,results/runs/sx/R-ec-plain/10_r1
+2026-11-18 16:20:31,sx,P-ec,A,A,11,0.7,1,1,1,1,1,1,5,0,1,1,0.93,0.34,5344,21,keys,,,,,,,,,results/runs/sx/P-ec/11_r1
+2026-11-18 16:21:00,sx,R-mpl-plain,A,A,11,0.7,1,1,0,1,1,0,5,1,0,1,29.5,0.95,1181,894,,58,0,0,0,0,0,[conv] text_value: no label showing 8.0117±0.1; texts: [],,results/runs/sx/R-mpl-plain/11_r1
+2026-11-18 16:21:18,sx,R-ec-brief,A,A,10,0.7,1,1,1,1,1,,2,0,1,1,83.36,0.94,1776,2280,,211,0,0,0,0,0,,,results/runs/sx/R-ec-brief/10_r1
+2026-11-18 16:21:33,sx,R-mpl-brief,A,A,11,0.7,1,1,1,1,1,1,5,0,1,1,61.87,1.15,1664,985,,50,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/11_r1
+2026-11-18 16:21:44,sx,R-ec-plain,A,A,11,0.7,1,1,0,1,1,0,5,1,0,1,44.85,0.95,1277,939,,92,0,0,0,0,0,[conv] text_value: no label showing 8.0117±0.1; texts: [],,results/runs/sx/R-ec-plain/11_r1
+2026-11-18 16:21:45,sx,P-mpl,A,A,12,0.7,1,1,1,1,1,,3,0,1,1,12.3,0.34,4923,44,keys,,,,,,,,,results/runs/sx/P-mpl/12_r1
+2026-11-18 16:21:47,sx,P-ec,A,A,12,0.7,1,1,1,1,1,,3,0,1,1,2.26,0.38,5356,44,keys,,,,,,,,,results/runs/sx/P-ec/12_r1
+2026-11-18 16:22:21,sx,R-ec-brief,A,A,11,0.7,1,1,1,1,1,1,5,0,1,1,63.67,0.92,1760,1772,,185,0,0,0,0,0,,,results/runs/sx/R-ec-brief/11_r1
+2026-11-18 16:22:27,sx,R-mpl-plain,A,A,12,0.7,1,1,1,1,1,,3,0,1,1,42.38,1.09,1193,976,,42,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/12_r1
+2026-11-18 16:22:59,sx,R-ec-plain,A,A,12,0.7,1,1,1,1,1,,3,0,1,1,38.06,0.94,1289,1288,,143,0,0,0,0,0,,,results/runs/sx/R-ec-plain/12_r1
+2026-11-18 16:23:20,sx,R-mpl-brief,A,A,12,0.7,1,1,1,1,1,,3,0,1,1,93.49,1.21,1676,1715,,100,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/12_r1
+2026-11-18 16:23:26,sx,P-mpl,A,A,13,0.7,1,1,1,1,1,,2,0,1,1,26.39,0.51,4482,32,keys,,,,,,,,,results/runs/sx/P-mpl/13_r1
+2026-11-18 16:23:32,sx,P-ec,A,A,13,0.7,1,1,1,1,1,,2,0,1,1,12.02,0.3,4915,32,keys,,,,,,,,,results/runs/sx/P-ec/13_r1
+2026-11-18 16:23:47,sx,R-mpl-plain,A,A,13,0.7,1,1,1,1,1,,2,0,1,1,21.6,0.82,753,409,,24,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/13_r1
+2026-11-18 16:24:07,sx,R-ec-brief,A,A,12,0.7,1,1,0,0,0,,3,1,0,1,99.9,0.94,1772,1929,,192,0,0,0,0,0,"[data] series: no y1 line with y None (x None); lines: [('y1', [-1.027, 0.003]), ('y2', [-0.003, 1.027]), ('y1', [-0.807, 0.003]), ('y2', [-0.003, 0.807]), ('y1', [-0.902, 0.004]), ('y2', [-0.004, 0.902])]",,results/runs/sx/R-ec-brief/12_r1
+2026-11-18 16:24:23,sx,R-ec-plain,A,A,13,0.7,1,1,1,1,1,,2,0,1,1,36.08,0.84,849,562,,68,0,0,0,0,0,,,results/runs/sx/R-ec-plain/13_r1
+2026-11-18 16:24:32,sx,R-mpl-brief,A,A,13,0.7,1,1,1,1,1,,2,0,1,1,59.31,0.88,1236,1293,,72,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/13_r1
+2026-11-18 16:24:37,sx,P-mpl,A,A,14,0.7,1,1,1,1,1,,2,0,1,1,13.41,0.23,4340,27,keys,,,,,,,,,results/runs/sx/P-mpl/14_r1
+2026-11-18 16:24:44,sx,P-ec,A,A,14,0.7,1,1,1,1,1,,2,0,1,1,12.05,0.49,4773,27,keys,,,,,,,,,results/runs/sx/P-ec/14_r1
+2026-11-18 16:25:47,sx,R-mpl-plain,A,A,14,0.7,1,1,1,1,1,,2,0,0,2,70.11,1.58,2373,1156,,40,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/_runner.py"", line 16, in <module>
+    runpy.run_path(script, run_name=""__main__"")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""<frozen runpy>"", line 287, in run_path
+  File ""<frozen runpy>""",results/runs/sx/R-mpl-plain/14_r1
+2026-11-18 16:26:20,sx,R-mpl-brief,A,A,14,0.7,1,1,1,1,1,,2,0,0,2,96.91,1.56,4049,2576,,76,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/_runner.py"", line 16, in <module>
+    runpy.run_path(script, run_name=""__main__"")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""<frozen runpy>"", line 287, in run_path
+  File ""<frozen runpy>""",results/runs/sx/R-mpl-brief/14_r1
+2026-11-18 16:26:30,sx,R-ec-brief,A,A,13,0.7,1,1,1,1,1,,2,0,0,2,142.12,1.41,5045,3652,,164,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/13_r1/make_option.py"", line 203, in <module>
+    main()
+    ~~~~^^
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/13_r1/make_option.py"", line 200, in main
+ ",results/runs/sx/R-ec-brief/13_r1
+2026-11-18 16:26:49,sx,P-mpl,A,A,15,0.7,1,1,1,1,1,,1,0,1,1,19.14,0.16,4919,18,keys,,,,,,,,,results/runs/sx/P-mpl/15_r1
+2026-11-18 16:27:17,sx,R-ec-plain,A,A,14,0.7,1,1,1,1,1,,2,0,0,2,89.59,1.56,3113,2490,,151,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-plain/14_r1/make_option.py"", line 7, in <module>
+    df = pd.read_csv(DATA_FILE)
+  File ""/home/chs/Work/tga_plot/.venv/lib/python3.13/site-packages/pandas/io/parsers/readers.py"", ",results/runs/sx/R-ec-plain/14_r1
+2026-11-18 16:27:17,sx,P-ec,A,A,15,0.7,1,1,1,1,1,,1,0,1,1,28.45,0.29,5352,24,keys,,,,,,,,,results/runs/sx/P-ec/15_r1
+2026-11-18 16:28:07,sx,R-mpl-brief,A,A,15,0.7,1,1,1,1,1,,1,0,1,1,49.59,0.9,1672,1173,,64,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/15_r1
+2026-11-18 16:28:12,sx,R-mpl-plain,A,A,15,0.7,1,1,1,1,1,,1,0,1,1,55.77,0.96,1189,1521,,87,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/15_r1
+2026-11-18 16:28:46,sx,R-ec-plain,A,A,15,0.7,1,1,1,1,1,,1,0,1,1,38.95,0.91,1285,1113,,130,0,0,0,0,0,,,results/runs/sx/R-ec-plain/15_r1
+2026-11-18 16:28:50,sx,R-ec-brief,A,A,14,0.7,1,1,1,1,1,,2,0,0,2,149.58,1.54,4638,3603,,192,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/14_r1/make_option.py"", line 8, in <module>
+    df = pd.read_csv(DATA_FILE)
+  File ""/home/chs/Work/tga_plot/.venv/lib/python3.13/site-packages/pandas/io/parsers/readers.py"", ",results/runs/sx/R-ec-brief/14_r1
+2026-11-18 16:28:50,sx,P-mpl,A,A,16,0.7,1,1,1,1,1,,2,0,1,1,4.45,0.1,4924,32,keys,,,,,,,,,results/runs/sx/P-mpl/16_r1
+2026-11-18 16:28:52,sx,P-ec,A,A,16,0.7,1,1,1,1,1,,2,0,1,1,1.66,0.28,5357,32,keys,,,,,,,,,results/runs/sx/P-ec/16_r1
+2026-11-18 16:29:36,sx,R-mpl-brief,A,A,16,0.7,1,1,1,1,1,,2,0,1,1,43.89,0.83,1677,787,,33,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/16_r1
+2026-11-18 16:30:06,sx,R-ec-plain,A,A,16,0.7,1,1,1,1,1,,2,0,1,1,30.14,0.85,1290,563,,66,0,0,0,0,0,,,results/runs/sx/R-ec-plain/16_r1
+2026-11-18 16:30:19,sx,R-mpl-plain,A,A,16,0.7,1,0,0,0,0,,1,1,0,3,88.8,2.09,5847,1564,,35,0,0,0,0,0,[data] run: no plot after retries,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/_runner.py"", line 16, in <module>
+    runpy.run_path(script, run_name=""__main__"")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""<frozen runpy>"", line 287, in run_path
+  File ""<frozen runpy>"" || The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/_runner.py"", line 16, in <module>
+    runpy.run_path(script, run_name=""__main__"")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""<frozen runpy>"", line 287, in run_path
+  File ""<frozen runpy>"" || The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/_runner.py"", line 16, in <module>
+    runpy.run_path(script, run_name=""__main__"")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""<frozen runpy>"", line 287, in run_path
+  File ""<frozen runpy>""",results/runs/sx/R-mpl-plain/16_r1
+2026-11-18 16:30:49,sx,R-ec-brief,A,A,16,0.7,1,1,1,1,1,,2,0,1,1,42.99,0.84,1773,1120,,123,0,0,0,0,0,,,results/runs/sx/R-ec-brief/16_r1
+2026-11-18 16:30:50,sx,P-mpl,A,A,17,0.7,1,1,1,1,1,,2,0,1,1,30.73,0.92,4923,30,keys,,,,,,,,,results/runs/sx/P-mpl/17_r1
+2026-11-18 16:30:51,sx,P-ec,A,A,17,0.7,1,1,1,1,1,,2,0,1,1,1.86,0.64,5356,30,keys,,,,,,,,,results/runs/sx/P-ec/17_r1
+2026-11-18 16:31:07,sx,R-ec-brief,A,A,15,0.7,1,1,1,1,1,,1,0,1,1,174.31,0.9,1768,4186,,303,0,0,0,0,0,,,results/runs/sx/R-ec-brief/15_r1
+2026-11-18 16:31:20,sx,R-mpl-plain,A,A,17,0.7,1,1,1,1,1,,2,0,1,1,30.51,1.09,1193,885,,58,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/17_r1
+2026-11-18 16:31:46,sx,R-ec-plain,A,A,17,0.7,1,1,1,1,1,,2,0,1,1,39.39,1.22,1289,1062,,125,0,0,0,0,0,,,results/runs/sx/R-ec-plain/17_r1
+2026-11-18 16:31:57,sx,P-mpl,A,A,18,0.7,1,1,1,1,1,,4,0,1,1,11.39,0.32,4929,45,keys,,,,,,,,,results/runs/sx/P-mpl/18_r1
+2026-11-18 16:31:58,sx,R-mpl-brief,A,A,17,0.7,1,1,1,1,1,,2,0,1,1,66.81,1.68,1676,1420,,75,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/17_r1
+2026-11-18 16:31:59,sx,P-ec,A,A,18,0.7,1,1,1,1,1,,4,0,1,1,1.98,0.39,5362,45,keys,,,,,,,,,results/runs/sx/P-ec/18_r1
+2026-11-18 16:32:25,sx,R-mpl-plain,A,A,18,0.7,1,1,1,1,1,,4,0,1,1,27.19,0.98,1199,811,,54,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/18_r1
+2026-11-18 16:32:39,sx,R-ec-brief,A,A,17,0.7,1,1,1,1,1,,2,0,1,1,78.9,1.23,1772,1952,,191,0,0,0,0,0,,,results/runs/sx/R-ec-brief/17_r1
+2026-11-18 16:33:05,sx,R-mpl-brief,A,A,18,0.7,1,1,1,1,1,,4,0,1,1,65.37,1.2,1682,1320,,84,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/18_r1
+2026-11-18 16:33:08,sx,R-ec-plain,A,A,18,0.7,1,1,0,0,1,,4,2,0,1,42.76,0.94,1295,992,,110,0,0,0,0,0,"[ask] axis: fig 0: x.step is 200.0, want 100; fig 1: x.step is 200.0, want 100; fig 2: x.step is 200.0, want 100 | [ask] axis: fig 0: y2.min is -1.2, want -0.05; fig 0: y2.max is 0.05, want 1.2; fig 1: y2.min is -1.2, want -0.05; fig 1: y2.max is 0.05, want 1.2",,results/runs/sx/R-ec-plain/18_r1
+2026-11-18 16:33:08,sx,P-mpl,A,A,19,0.7,1,1,1,1,1,,3,0,1,1,3.05,0.32,4919,28,keys,,,,,,,,,results/runs/sx/P-mpl/19_r1
+2026-11-18 16:33:09,sx,P-ec,A,A,19,0.7,1,1,1,1,1,,3,0,1,1,1.3,0.34,5352,28,keys,,,,,,,,,results/runs/sx/P-ec/19_r1
+2026-11-18 16:33:29,sx,R-mpl-plain,A,A,19,0.7,1,1,0,0,1,,3,1,0,1,21.15,1.04,1189,629,,39,0,0,0,0,0,[ask] text_color: 4/8 texts are gray,,results/runs/sx/R-mpl-plain/19_r1
+2026-11-18 16:34:11,sx,R-mpl-brief,A,A,19,0.7,1,1,0,0,1,,3,1,0,1,61.74,1.15,1672,1316,,76,0,0,0,0,0,[ask] text_color: 21/27 texts are gray,,results/runs/sx/R-mpl-brief/19_r1
+2026-11-18 16:34:51,sx,R-ec-plain,A,A,19,0.7,1,1,1,1,1,,3,0,1,1,81.97,0.91,1285,1343,,152,0,0,0,0,0,,,results/runs/sx/R-ec-plain/19_r1
+2026-11-18 16:35:00,sx,R-ec-brief,A,A,18,0.7,1,1,0,0,1,,4,1,0,2,141.07,1.51,6140,4291,,204,0,0,0,0,0,"[ask] axis: fig 0: x.step is 200.0, want 100; fig 1: x.step is 200.0, want 100; fig 2: x.step is 200.0, want 100","The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/18_r1/make_option.py"", line 244, in <module>
+    main()
+    ~~~~^^
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/18_r1/make_option.py"", line 241, in main
+ ",results/runs/sx/R-ec-brief/18_r1
+2026-11-18 16:35:01,sx,P-mpl,A,A,20,0.7,1,1,1,1,1,,2,0,1,1,10.03,0.33,4924,43,code,,,,,,,,,results/runs/sx/P-mpl/20_r1
+2026-11-18 16:35:03,sx,P-ec,A,A,20,0.7,1,1,1,1,1,,2,0,1,1,2.47,0.39,5357,59,keys,,,,,,,,,results/runs/sx/P-ec/20_r1
+2026-11-18 16:35:42,sx,R-mpl-plain,A,A,20,0.7,1,1,0,0,0,,2,2,0,1,40.71,0.99,1194,1203,,78,0,0,0,0,0,"[data] series: no y1 line with y None (x None); lines: [('y2', [-1.027, 0.003]), ('y2', [-0.807, 0.003]), ('y2', [-0.902, 0.004])] | [ask] span: no shaded 300–450; spans: []",,results/runs/sx/R-mpl-plain/20_r1
+2026-11-18 16:35:59,sx,R-ec-brief,A,A,19,0.7,1,1,0,0,1,,3,2,0,1,108.43,0.93,1768,2252,,190,0,0,0,0,0,"[ask] text_color: 15/24 texts are gray | [ask] font_size: axis text sizes [9.0, 9.8]",,results/runs/sx/R-ec-brief/19_r1
+2026-11-18 16:36:33,sx,R-ec-plain,A,A,20,0.7,1,1,1,1,1,,2,0,1,1,51.4,0.9,1290,1281,,143,0,0,0,0,0,,,results/runs/sx/R-ec-plain/20_r1
+2026-11-18 16:36:35,sx,R-mpl-brief,A,A,20,0.7,1,1,1,1,1,,2,0,1,1,92.48,1.18,1677,1474,,87,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/20_r1
+2026-11-18 16:36:36,sx,P-mpl,A,A,21,0.7,1,1,1,1,1,,2,0,1,1,2.49,0.11,4328,44,keys,,,,,,,,,results/runs/sx/P-mpl/21_r1
+2026-11-18 16:36:37,sx,P-ec,A,A,21,0.7,1,1,1,1,1,,2,0,1,1,2.1,0.28,4761,44,keys,,,,,,,,,results/runs/sx/P-ec/21_r1
+2026-11-18 16:37:16,sx,R-mpl-plain,A,A,21,0.7,1,1,1,1,1,,2,0,1,1,40.25,0.89,601,1007,,41,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/21_r1
+2026-11-18 16:37:57,sx,R-mpl-brief,A,A,21,0.7,1,1,1,1,1,,2,0,1,1,79.38,0.87,1084,1249,,57,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/21_r1
+2026-11-18 16:38:01,sx,R-ec-brief,A,A,20,0.7,1,1,1,1,1,,2,0,1,1,122.26,0.95,1773,2615,,222,0,0,0,0,0,,,results/runs/sx/R-ec-brief/20_r1
+2026-11-18 16:38:17,sx,R-ec-plain,A,A,21,0.7,1,1,1,1,1,,2,0,1,1,60.83,0.86,697,814,,89,0,0,0,0,0,,,results/runs/sx/R-ec-plain/21_r1
+2026-11-18 16:38:18,sx,P-mpl,A,A,22,0.7,1,1,1,1,1,,3,0,1,1,16.23,0.4,4924,30,keys,,,,,,,,,results/runs/sx/P-mpl/22_r1
+2026-11-18 16:38:19,sx,P-ec,A,A,22,0.7,1,1,1,1,1,,3,0,1,1,1.63,0.36,5357,30,keys,,,,,,,,,results/runs/sx/P-ec/22_r1
+2026-11-18 16:39:15,sx,R-mpl-plain,A,A,22,0.7,1,1,1,1,1,,3,0,1,1,57.42,0.94,1194,1116,,44,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/22_r1
+2026-11-18 16:39:38,sx,R-mpl-brief,A,A,22,0.7,1,1,1,1,1,,3,0,1,1,79.53,1.16,1677,1330,,84,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/22_r1
+2026-11-18 16:39:53,sx,R-ec-brief,A,A,21,0.7,1,1,1,1,1,,2,0,0,2,116.52,1.41,4760,3634,,187,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/21_r1/make_option.py"", line 236, in <module>
+    main()
+    ~~~~^^
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/21_r1/make_option.py"", line 233, in main
+ ",results/runs/sx/R-ec-brief/21_r1
+2026-11-18 16:40:13,sx,R-ec-plain,A,A,22,0.7,1,1,0,0,1,,3,1,0,1,57.91,0.94,1290,1134,,131,0,0,0,0,0,"[ask] axis: fig 0: y2.label_color is '#333333', want 'green'; fig 1: y2.label_color is '#333333', want 'green'; fig 2: y2.label_color is '#333333', want 'green'",,results/runs/sx/R-ec-plain/22_r1
+2026-11-18 16:40:13,sx,P-mpl,A,A,23,0.7,1,1,1,1,1,,2,0,1,1,19.9,0.1,4305,30,keys,,,,,,,,,results/runs/sx/P-mpl/23_r1
+2026-11-18 16:40:15,sx,P-ec,A,A,23,0.7,1,1,1,1,1,,2,0,1,1,1.86,0.28,4738,30,keys,,,,,,,,,results/runs/sx/P-ec/23_r1
+2026-11-18 16:41:45,sx,R-ec-brief,A,A,22,0.7,1,1,0,0,1,,3,2,0,2,127.26,1.51,5755,4080,,222,0,0,0,0,0,"[ask] lines: y2 line color is '#2ecc71', want 'green' | [ask] axis: fig 0: y2.label_color is '#2ecc71', want 'green'; fig 1: y2.label_color is '#2ecc71', want 'green'; fig 2: y2.label_color is '#2ecc71', want 'green'","The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/22_r1/make_option.py"", line 233, in <module>
+    option = make_tga_plot(df, sheet_name)
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/22_r1/make_option.py""",results/runs/sx/R-ec-brief/22_r1
+2026-11-18 16:42:02,sx,R-mpl-plain,A,A,23,0.7,1,1,0,0,0,,2,2,0,3,108.85,2.16,5140,1810,,35,0,0,0,0,0,"[data] series: no y1 line with y [2.9705, 100.0169] (x None); lines: [] | [ask] text_value: no label showing 3.0183±0.1; texts: []","The script failed (exit 1):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/23_r1/plot.py"", line 13, in <module>
+    df = pd.read_csv(DATA_FILE, sep='\t', skiprows=10, header=None, names=['A', 'B', 'C', 'D'])
+  File ""/home/chs/Work/tga_plot/.venv/lib/python3.13/site-packages/pandas/ || The script failed (exit 1):
+        axes, this, kwargs, ambiguous_fmt_datakey=ambiguous_fmt_datakey,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        return_kwargs=return_kwargs
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File ""/home/chs/Work/tga_plot/.venv/lib/",results/runs/sx/R-mpl-plain/23_r1
+2026-11-18 16:44:14,sx,R-mpl-brief,A,A,23,0.7,1,0,0,0,0,,1,1,0,3,239.12,2.0,8618,5095,,94,0,0,0,0,0,[data] run: no plot after retries,The script ran but saved no figure into OUT_DIR (use fig.savefig / plt.savefig). || The script ran but saved no figure into OUT_DIR (use fig.savefig / plt.savefig). || The script ran but saved no figure into OUT_DIR (use fig.savefig / plt.savefig).,results/runs/sx/R-mpl-brief/23_r1
+2026-11-18 16:44:19,sx,R-ec-plain,A,A,23,0.7,1,1,0,0,1,,2,1,0,3,153.96,1.87,6511,3183,,101,0,0,0,0,0,[ask] text_value: no label showing 3.0183±0.1; texts: [],"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-plain/23_r1/make_option.py"", line 11, in <module>
+    df = pd.read_csv(file_path, sep='\t', header=None, skiprows=10)
+  File ""/home/chs/Work/tga_plot/.venv/lib/python3.13/site-pac || The script failed (exit 1):
+  File ""<frozen codecs>"", line 325, in decode
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plo",results/runs/sx/R-ec-plain/23_r1
+2026-11-18 16:44:21,sx,P-mpl,A,A,24,0.7,1,1,1,1,1,,3,0,1,1,7.11,0.14,4486,63,keys,,,,,,,,,results/runs/sx/P-mpl/24_r1
+2026-11-18 16:44:23,sx,P-ec,A,A,24,0.7,1,1,1,1,1,,3,0,1,1,3.37,0.29,4919,42,keys,,,,,,,,,results/runs/sx/P-ec/24_r1
+2026-11-18 16:44:42,sx,R-mpl-plain,A,A,24,0.7,1,1,1,1,1,,3,0,1,1,21.1,0.86,757,531,,29,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/24_r1
+2026-11-18 16:45:14,sx,R-mpl-brief,A,A,24,0.7,1,1,1,1,1,,3,0,1,1,51.35,0.86,1240,786,,49,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/24_r1
+2026-11-18 16:45:40,sx,R-ec-plain,A,A,24,0.7,1,1,1,1,1,,3,0,1,1,57.56,0.85,853,901,,118,0,0,0,0,0,,,results/runs/sx/R-ec-plain/24_r1
+2026-11-18 16:46:03,sx,R-ec-brief,A,A,23,0.7,1,0,0,0,0,,1,1,0,3,241.34,2.15,10311,6711,,185,0,0,0,0,0,[data] run: no plot after retries,ECharts could not render the printed option: no figures in the printed JSON || ECharts could not render the printed option: no figures in the printed JSON || ECharts could not render the printed option: no figures in the printed JSON,results/runs/sx/R-ec-brief/23_r1
+2026-11-18 16:46:07,sx,P-mpl,B,in,B01,0.7,1,1,1,1,1,,4,0,1,1,27.18,0.14,4427,156,code,,,,,,,,,results/runs/sx/P-mpl/B01_r1
+2026-11-18 16:46:12,sx,P-ec,B,in,B01,0.7,1,1,1,1,1,,4,0,1,1,8.59,0.29,4860,232,keys,,,,,,,,,results/runs/sx/P-ec/B01_r1
+2026-11-18 16:46:28,sx,R-ec-brief,A,A,24,0.7,1,1,1,1,1,,3,0,1,1,73.79,0.86,1336,1423,,165,0,0,0,0,0,,,results/runs/sx/R-ec-brief/24_r1
+2026-11-18 16:46:53,sx,R-mpl-plain,B,in,B01,0.7,1,1,0,0,1,,4,2,0,1,46.22,0.87,699,957,,44,0,0,0,0,0,[ask] text_contains: no text containing 'H2O' | [ask] text_contains: no text containing 'CO2',,results/runs/sx/R-mpl-plain/B01_r1
+2026-11-18 16:46:55,sx,R-mpl-brief,B,in,B01,0.7,1,1,0,0,1,,4,2,0,1,42.91,0.82,1182,842,,48,0,0,0,0,0,[ask] text_contains: no text containing 'H2O' | [ask] text_contains: no text containing 'CO2',,results/runs/sx/R-mpl-brief/B01_r1
+2026-11-18 16:47:33,sx,R-ec-plain,B,in,B01,0.7,1,1,0,0,1,,4,2,0,1,64.76,0.8,795,1349,,130,0,0,0,0,0,[ask] text_contains: no text containing 'H2O' | [ask] text_contains: no text containing 'CO2',,results/runs/sx/R-ec-plain/B01_r1
+2026-11-18 16:47:36,sx,P-mpl,B,in,B02,0.7,1,1,0,0,1,,3,1,0,1,40.52,0.13,4398,161,keys,,,,,,,"[ask] text_values: no label for [184.0]; texts: ['Residue 38.5%', '738 °C', '507 °C', '507 °C']",,results/runs/sx/P-mpl/B02_r1
+2026-11-18 16:47:40,sx,P-ec,B,in,B02,0.7,1,1,0,0,1,,3,1,0,1,7.63,0.29,4831,171,keys,,,,,,,"[ask] text_values: no label for [184.0]; texts: ['Residue 38.5%', '507 °C', '738 °C']",,results/runs/sx/P-ec/B02_r1
+2026-11-18 16:48:15,sx,R-mpl-plain,B,in,B02,0.7,1,1,0,0,1,,3,1,0,1,39.07,1.17,670,1071,,59,0,0,0,0,0,"[ask] text_values: no label for [184.0]; texts: ['Endo 1\n508.0°C', 'Exo 1\n738.0°C']",,results/runs/sx/R-mpl-plain/B02_r1
+2026-11-18 16:48:48,sx,R-mpl-brief,B,in,B02,0.7,1,1,0,0,1,,3,1,0,1,67.26,1.14,1153,1192,,61,0,0,0,0,0,"[ask] text_values: no label for [738.0, 508.0]; texts: ['387 °C\n(Endo)', '437 °C\n(Endo)', '184 °C\n(Exo)']",,results/runs/sx/R-mpl-brief/B02_r1
+2026-11-18 16:49:33,sx,R-ec-brief,B,in,B01,0.7,1,1,0,0,1,,4,2,0,2,160.06,1.36,5447,4852,,227,0,0,0,0,0,[ask] text_contains: no text containing 'H2O' | [ask] text_contains: no text containing 'CO2',"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B01_r1/make_option.py"", line 256, in <module>
+    ""formatter"": function_placeholder, # Cannot use JS. Must be string template.
+                 ^^^^^^^^^^^^^^^^^^^^
+NameErro",results/runs/sx/R-ec-brief/B01_r1
+2026-11-18 16:49:43,sx,R-ec-plain,B,in,B02,0.7,1,1,0,0,1,,3,1,0,1,88.53,1.09,766,1882,,192,0,0,0,0,0,"[ask] text_values: no label for [184.0]; texts: ['508.0°C', '738.0°C']",,results/runs/sx/R-ec-plain/B02_r1
+2026-11-18 16:49:44,sx,P-mpl,B,in,B03,0.7,1,1,1,1,1,,5,0,1,1,10.92,0.22,4278,64,keys,,,,,,,,,results/runs/sx/P-mpl/B03_r1
+2026-11-18 16:49:46,sx,P-ec,B,in,B03,0.7,1,1,1,1,1,,5,0,1,1,2.8,0.27,4711,64,keys,,,,,,,,,results/runs/sx/P-ec/B03_r1
+2026-11-18 16:50:07,sx,R-mpl-plain,B,in,B03,0.7,1,1,1,1,1,,5,0,1,1,23.27,0.93,551,655,,38,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B03_r1
+2026-11-18 16:50:36,sx,R-mpl-brief,B,in,B03,0.7,1,1,1,1,1,,5,0,1,1,50.53,0.95,1034,745,,38,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B03_r1
+2026-11-18 16:51:04,sx,R-ec-brief,B,in,B03,0.7,1,1,1,1,1,,5,0,1,1,27.39,0.81,1130,708,,81,0,0,0,0,0,,,results/runs/sx/R-ec-brief/B03_r1
+2026-11-18 16:51:16,sx,R-ec-plain,B,in,B03,0.7,1,1,1,1,1,,5,0,1,1,68.47,0.83,647,1270,,146,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B03_r1
+2026-11-18 16:51:17,sx,P-mpl,B,in,B04,0.7,1,1,0,0,1,,3,1,0,1,13.13,0.12,4208,56,keys,,,,,,,"[ask] text_values: no label for [25.3]; texts: ['38', '55', '54', '48', '25']",,results/runs/sx/P-mpl/B04_r1
+2026-11-18 16:51:19,sx,P-ec,B,in,B04,0.7,1,1,0,0,1,,3,1,0,1,3.13,0.3,4641,56,keys,,,,,,,"[ask] text_values: no label for [25.3]; texts: ['38', '55', '54', '48', '25']",,results/runs/sx/P-ec/B04_r1
+2026-11-18 16:51:40,sx,R-mpl-plain,B,in,B04,0.7,1,1,0,0,1,,3,1,0,1,23.07,1.12,480,491,,33,0,0,0,0,0,"[ask] text_values: no label for [53.9, 55.1]; texts: ['25.30°', '25.04°', '47.94°', '25.58°', '37.80°']",,results/runs/sx/R-mpl-plain/B04_r1
+2026-11-18 16:51:56,sx,R-ec-brief,B,in,B02,0.7,1,1,0,0,1,,3,1,0,2,188.75,1.11,4868,4382,,199,0,0,0,0,0,"[ask] text_values: no label for [184.0, 738.0, 508.0]; texts: []","The script failed (exit 1):
+File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B02_r1/make_option.py"", line 87
+    ""formatter"": function_placeholder = ""{a0} <br/> Temp: {b0} °C<br/> Weight: {c0}%<br/>Heat Flow: {d0} W/g"" # Not strictly supported in pure JSON without JS functions, so we re",results/runs/sx/R-ec-brief/B02_r1
+2026-11-18 16:52:07,sx,R-mpl-brief,B,in,B04,0.7,1,1,0,0,1,,3,1,0,1,48.21,1.1,963,694,,39,0,0,0,0,0,"[ask] text_values: no label for [53.9, 37.8, 55.1]; texts: ['25.3°', '25.0°', '47.9°', '25.6°']",,results/runs/sx/R-mpl-brief/B04_r1
+2026-11-18 16:52:20,sx,R-ec-plain,B,in,B04,0.7,1,1,0,0,1,,3,1,0,1,40.14,1.11,576,801,,94,0,0,0,0,0,"[ask] text_values: no label for [25.3, 48.0, 53.9, 37.8, 55.1]; texts: ['{@[0]:.2f}°', '{@[0]:.2f}°', '{@[0]:.2f}°', '{@[0]:.2f}°', '{@[0]:.2f}°']",,results/runs/sx/R-ec-plain/B04_r1
+2026-11-18 16:52:22,sx,P-mpl,B,out,B05,0.7,1,1,0,0,1,,3,2,0,1,14.88,0.15,4683,58,keys,,,,,,,[ask] text_contains: no text containing 'Lot A' | [ask] text_contains: no text containing 'Lot B',,results/runs/sx/P-mpl/B05_r1
+2026-11-18 16:52:25,sx,P-ec,B,out,B05,0.7,1,1,0,0,1,,3,2,0,1,4.48,0.31,5116,58,keys,,,,,,,[ask] text_contains: no text containing 'Lot A' | [ask] text_contains: no text containing 'Lot B',,results/runs/sx/P-ec/B05_r1
+2026-11-18 16:52:40,sx,R-ec-brief,B,in,B04,0.7,1,1,0,0,1,,3,1,0,1,43.77,1.1,1059,1043,,114,0,0,0,0,0,"[ask] text_values: no label for [25.3, 48.0, 53.9, 37.8, 55.1]; texts: ['1131', '295', '418', '276', '259']",,results/runs/sx/R-ec-brief/B04_r1
+2026-11-18 16:53:06,sx,R-mpl-plain,B,out,B05,0.7,1,1,0,0,0,,3,1,0,1,43.67,4.46,973,934,,40,0,0,0,0,0,"[data] series_set: y1 lines [[9.97, 100.03], [0.0, 515.0]] do not cover [[9.9705, 100.03], [6.9768, 100.03]] in one figure",,results/runs/sx/R-mpl-plain/B05_r1
+2026-11-18 16:53:33,sx,R-ec-plain,B,out,B05,0.7,1,1,0,0,0,,3,1,0,1,52.83,0.86,1069,1204,,116,0,0,0,0,0,"[data] series_set: y1 lines [[9.97, 100.03]] do not cover [[9.9705, 100.03], [6.9768, 100.03]] in one figure",,results/runs/sx/R-ec-plain/B05_r1
+2026-11-18 16:53:51,sx,P-mpl,B,in,B06,0.7,1,1,1,1,1,,3,0,1,1,17.66,0.12,4263,98,keys,,,,,,,,,results/runs/sx/P-mpl/B06_r1
+2026-11-18 16:54:35,sx,R-mpl-brief,B,out,B05,0.7,1,1,0,0,0,,3,1,0,2,130.31,1.51,5091,3225,,89,0,0,0,0,0,"[data] series_set: check error: TypeError(""'NoneType' object is not iterable"")","The script failed (exit 1):
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File ""pandas/_libs/index.pyx"", line 172, in pandas._libs.index.IndexEngine.get_loc
+  File ""pandas/_libs/index.pyx"", line 201, in pandas._libs.index.IndexEngine.get_loc
+  File ""pandas",results/runs/sx/R-mpl-brief/B05_r1
+2026-11-18 16:54:38,sx,P-ec,B,in,B06,0.7,1,1,1,1,1,,3,0,1,1,47.93,0.29,4696,103,keys,,,,,,,,,results/runs/sx/P-ec/B06_r1
+2026-11-18 16:55:17,sx,R-mpl-plain,B,in,B06,0.7,1,1,1,1,1,,3,0,1,1,41.71,0.83,535,880,,55,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B06_r1
+2026-11-18 16:56:41,sx,R-mpl-brief,B,in,B06,0.7,1,1,1,1,1,,3,0,0,3,122.3,2.14,6766,2565,,51,0,0,0,0,0,,"The script failed (exit 1):
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File ""pandas/_libs/index.pyx"", line 172, in pandas._libs.index.IndexEngine.get_loc
+  File ""pandas/_libs/index.pyx"", line 201, in pandas._libs.index.IndexEngine.get_loc
+  File ""pandas || The script failed (exit 1):
+/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/B06_r1/plot.py:35: Pandas4Warning: The inplace keyword in DataFrame.dropna is deprecated and will be removed in a future version (PDEP-8).
+See https://pandas.pydata.org/docs/dev/whatsnew/v3.1.0.html#deprecation-inpl",results/runs/sx/R-mpl-brief/B06_r1
+2026-11-18 16:57:34,sx,R-ec-brief,B,out,B05,0.7,1,0,0,0,0,,1,1,0,3,268.4,1.61,13501,7521,,224,0,0,0,0,0,[data] run: no plot after retries,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/.venv/lib/python3.13/site-packages/pandas/core/indexes/base.py"", line 3816, in get_loc
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File ""pandas/_libs/index.pyx || The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B05_r1/make_option.py"", line 71, in <module>
+    t_A, w_A, d_A = load_data(""/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_A.csv"")
+                    ~~~~~~~~~^^^^^^^^^^^^^^ || The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B05_r1/make_option.py"", line 71, in <module>
+    t_A, w_A, d_A = load_data(""/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_A.csv"")
+                    ~~~~~~~~~^^^^^^^^^^^^^^",results/runs/sx/R-ec-brief/B05_r1
+2026-11-18 16:58:07,sx,R-ec-plain,B,in,B06,0.7,1,0,0,0,0,,1,1,0,3,170.2,1.97,6702,4003,,161,0,0,0,0,0,[data] run: no plot after retries,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/.venv/lib/python3.13/site-packages/pandas/core/indexes/base.py"", line 3816, in get_loc
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File ""pandas/_libs/index.pyx || ECharts could not render the printed option:     at JSON.parse (<anonymous>)
+    at file:///home/chs/Work/tga_plot/eval/render_option.mjs:19:20
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+Node.js v22.23.3 || ECharts could not render the printed option:     at JSON.parse (<anonymous>)
+    at file:///home/chs/Work/tga_plot/eval/render_option.mjs:19:20
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+Node.js v22.23.3",results/runs/sx/R-ec-plain/B06_r1
+2026-11-18 16:58:16,sx,P-ec,B,in,B07,0.7,1,1,1,1,1,,3,0,1,1,9.38,0.3,5382,92,keys,,,,,,,,,results/runs/sx/P-ec/B07_r1
+2026-11-18 16:58:19,sx,P-mpl,B,in,B07,0.7,1,1,1,1,1,,3,0,0,2,44.76,0.23,10116,288,keys,,,,,,,,"plotkit error: label template '{:.1f}%' is invalid (Replacement index 0 out of range for positional args tuple) | hint: use {x}, {y} or {}, e.g. ""Residue {y:.1f}%""",results/runs/sx/P-mpl/B07_r1
+2026-11-18 16:58:51,sx,R-mpl-plain,B,in,B07,0.7,1,1,1,1,1,,3,0,1,1,34.71,0.83,1222,741,,42,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B07_r1
+2026-11-18 16:59:31,sx,R-mpl-brief,B,in,B07,0.7,1,1,1,1,1,,3,0,1,1,72.3,0.88,1705,1118,,61,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B07_r1
+2026-11-18 17:00:07,sx,R-ec-brief,B,in,B06,0.7,1,0,0,0,0,,1,1,0,3,206.38,1.95,9045,4841,,162,0,0,0,0,0,[data] run: no plot after retries,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/.venv/lib/python3.13/site-packages/pandas/core/indexes/base.py"", line 3816, in get_loc
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File ""pandas/_libs/index.pyx || ECharts could not render the printed option:     at JSON.parse (<anonymous>)
+    at file:///home/chs/Work/tga_plot/eval/render_option.mjs:19:20
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+Node.js v22.23.3 || ECharts could not render the printed option:     at JSON.parse (<anonymous>)
+    at file:///home/chs/Work/tga_plot/eval/render_option.mjs:19:20
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+
+Node.js v22.23.3",results/runs/sx/R-ec-brief/B06_r1
+2026-11-18 17:00:29,sx,R-ec-plain,B,in,B07,0.7,1,1,1,1,1,,3,0,0,2,98.2,1.44,4012,2188,,102,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-plain/B07_r1/make_option.py"", line 132, in <module>
+    main()
+    ~~~~^^
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-plain/B07_r1/make_option.py"", line 86, in main
+",results/runs/sx/R-ec-plain/B07_r1
+2026-11-18 17:00:32,sx,P-mpl,B,in,B08,0.7,1,1,1,1,1,,3,0,1,1,24.93,0.15,4954,80,keys,,,,,,,,,results/runs/sx/P-mpl/B08_r1
+2026-11-18 17:00:37,sx,P-ec,B,in,B08,0.7,1,1,1,1,1,,3,0,1,1,7.21,0.31,5387,92,keys,,,,,,,,,results/runs/sx/P-ec/B08_r1
+2026-11-18 17:01:04,sx,R-mpl-plain,B,in,B08,0.7,1,1,1,1,1,,3,0,1,1,31.63,0.86,1227,707,,40,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B08_r1
+2026-11-18 17:01:23,sx,R-mpl-brief,B,in,B08,0.7,1,1,1,1,1,,3,0,1,1,46.01,0.85,1710,1139,,63,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B08_r1
+2026-11-18 17:01:37,sx,R-ec-brief,B,in,B07,0.7,1,1,1,1,1,,3,0,0,2,125.83,1.41,5496,3018,,166,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B07_r1/make_option.py"", line 183, in <module>
+    print(json.dumps(result, ensure_ascii=False))
+          ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""/home/chs/.local/sha",results/runs/sx/R-ec-brief/B07_r1
+2026-11-18 17:01:55,sx,R-ec-plain,B,in,B08,0.7,1,1,1,1,1,,3,0,1,1,51.53,0.85,1323,839,,105,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B08_r1
+2026-11-18 17:01:58,sx,P-mpl,B,messy,B09,0.7,1,1,1,1,1,,3,0,1,1,21.15,0.14,4966,91,keys,,,,,,,,,results/runs/sx/P-mpl/B09_r1
+2026-11-18 17:02:01,sx,P-ec,B,messy,B09,0.7,1,1,1,1,1,,3,0,1,1,5.51,0.3,5399,63,keys,,,,,,,,,results/runs/sx/P-ec/B09_r1
+2026-11-18 17:02:23,sx,R-mpl-plain,B,messy,B09,0.7,1,1,1,1,1,,3,0,1,1,24.53,0.85,1239,603,,37,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B09_r1
+2026-11-18 17:02:56,sx,R-ec-brief,B,in,B08,0.7,1,1,0,0,0,,3,1,0,1,93.53,0.97,1806,2223,,211,0,0,0,0,0,"[data] only: other y1 data drawn too: [[4.975, 100.01], [1.9743, 100.03]]",,results/runs/sx/R-ec-brief/B08_r1
+2026-11-18 17:03:21,sx,R-mpl-brief,B,messy,B09,0.7,1,1,1,1,1,,3,0,1,1,79.97,0.85,1722,1530,,63,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B09_r1
+2026-11-18 17:03:29,sx,R-ec-plain,B,messy,B09,0.7,1,1,0,0,1,,3,1,0,1,65.93,0.84,1335,1139,,133,0,0,0,0,0,"[ask] lines: y1 line width is 2.25, want 3",,results/runs/sx/R-ec-plain/B09_r1
+2026-11-18 17:03:31,sx,P-mpl,B,messy,B10,0.7,1,1,0,0,1,,5,2,0,1,10.08,0.17,4962,69,keys,,,,,,,"[ask] lines: y1 line color is '#1f4e9c', want 'black' | [ask] lines: y2 line color is '#c0392b', want ['black', 'gray']",,results/runs/sx/P-mpl/B10_r1
+2026-11-18 17:03:34,sx,P-ec,B,messy,B10,0.7,1,1,1,1,1,,5,0,1,1,5.58,0.31,5395,98,keys,,,,,,,,,results/runs/sx/P-ec/B10_r1
+2026-11-18 17:04:07,sx,R-mpl-plain,B,messy,B10,0.7,1,1,0,0,1,,5,1,0,1,36.06,0.82,1235,797,,42,0,0,0,0,0,"[ask] png_px: png sizes [[2040, 1500]]",,results/runs/sx/R-mpl-plain/B10_r1
+2026-11-18 17:04:49,sx,R-ec-brief,B,messy,B09,0.7,1,1,0,0,1,,3,1,0,1,113.09,0.85,1818,2483,,216,0,0,0,0,0,"[ask] lines: y1 line width is 2.25, want 3",,results/runs/sx/R-ec-brief/B09_r1
+2026-11-18 17:05:12,sx,R-mpl-brief,B,messy,B10,0.7,1,1,0,0,1,,5,1,0,1,97.88,1.16,1718,1689,,87,0,0,0,0,0,"[ask] png_px: png sizes [[2081, 1497]]",,results/runs/sx/R-mpl-brief/B10_r1
+2026-11-18 17:05:25,sx,R-ec-plain,B,messy,B10,0.7,1,1,0,0,1,,5,1,0,1,77.85,0.86,1331,1348,,153,0,0,0,0,0,"[ask] png_px: png sizes [[2100, 1556]]",,results/runs/sx/R-ec-plain/B10_r1
+2026-11-18 17:05:27,sx,P-mpl,B,messy,B11,0.7,1,1,1,1,1,,5,0,1,1,14.66,0.16,4956,65,keys,,,,,,,,,results/runs/sx/P-mpl/B11_r1
+2026-11-18 17:05:30,sx,P-ec,B,messy,B11,0.7,1,1,1,1,1,,5,0,1,1,4.91,0.3,5389,65,keys,,,,,,,,,results/runs/sx/P-ec/B11_r1
+2026-11-18 17:05:54,sx,R-mpl-plain,B,messy,B11,0.7,1,1,0,0,1,,5,2,0,1,27.25,0.88,1229,695,,34,0,0,0,0,0,[ask] title: no title | [ask] text_value: no label showing 17.009±0.03; texts: [],,results/runs/sx/R-mpl-plain/B11_r1
+2026-11-18 17:06:32,sx,R-mpl-brief,B,messy,B11,0.7,1,1,1,1,1,,5,0,1,1,62.07,0.89,1712,1014,,60,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B11_r1
+2026-11-18 17:06:57,sx,R-ec-plain,B,messy,B11,0.7,1,1,0,0,1,,5,2,0,1,62.27,0.84,1325,1056,,132,0,0,0,0,0,[ask] legend: legend at outside | [ask] text_value: no label showing 17.009±0.03; texts: [],,results/runs/sx/R-ec-plain/B11_r1
+2026-11-18 17:07:14,sx,P-mpl,B,messy,B12,0.7,1,1,1,1,1,,4,0,1,1,17.61,0.11,4402,53,keys,,,,,,,,,results/runs/sx/P-mpl/B12_r1
+2026-11-18 17:07:53,sx,R-ec-brief,B,messy,B11,0.7,1,1,0,0,1,,5,1,0,1,81.04,0.84,1808,1456,,138,0,0,0,0,0,[ask] legend: legend at outside,,results/runs/sx/R-ec-brief/B11_r1
+2026-11-18 17:07:55,sx,P-ec,B,messy,B12,0.7,1,1,1,1,1,,4,0,1,1,40.95,0.28,4835,82,keys,,,,,,,,,results/runs/sx/P-ec/B12_r1
+2026-11-18 17:08:25,sx,R-mpl-plain,B,messy,B12,0.7,1,1,1,1,1,,4,0,1,1,31.97,0.79,674,680,,36,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B12_r1
+2026-11-18 17:08:42,sx,R-mpl-brief,B,messy,B12,0.7,1,1,1,1,1,,4,0,1,1,46.61,0.81,1157,778,,35,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B12_r1
+2026-11-18 17:09:05,sx,R-ec-brief,B,messy,B10,0.7,1,1,0,0,1,,5,1,0,3,255.75,1.43,14790,7411,,225,0,0,0,0,0,"[ask] png_px: png sizes [[2100, 1556]]","The script failed (exit 1):
+File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B10_r1/make_option.py"", line 287
+    del option[""tooltip""][""formatter""] if ""formatter"" in option[""tooltip""] else None
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxE || The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B10_r1/make_option.py"", line 264, in <module>
+    print(json.dumps(result))
+          ~~~~~~~~~~^^^^^^^^
+  File ""/home/chs/.local/share/uv/python/cpython-3.13.11-linux-x86_6",results/runs/sx/R-ec-brief/B10_r1
+2026-11-18 17:09:11,sx,R-ec-plain,B,messy,B12,0.7,1,1,1,1,1,,4,0,1,1,45.91,0.8,770,909,,100,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B12_r1
+2026-11-18 17:09:12,sx,P-mpl,B,messy,B13,0.7,1,1,1,1,1,,2,0,1,1,7.33,0.15,4943,33,keys,,,,,,,,,results/runs/sx/P-mpl/B13_r1
+2026-11-18 17:09:14,sx,P-ec,B,messy,B13,0.7,1,1,1,1,1,,2,0,1,1,3.53,0.3,5376,33,keys,,,,,,,,,results/runs/sx/P-ec/B13_r1
+2026-11-18 17:09:50,sx,R-mpl-plain,B,messy,B13,0.7,1,1,0,0,1,,2,1,0,1,38.12,1.2,1216,834,,48,0,0,0,0,0,[ask] text_values: no label for [455]; texts: ['300.0 °C'],,results/runs/sx/R-mpl-plain/B13_r1
+2026-11-18 17:10:08,sx,R-ec-brief,B,messy,B12,0.7,1,1,1,1,1,,4,0,0,2,86.1,1.34,3511,1746,,104,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B12_r1/make_option.py"", line 18, in <module>
+    idx_900 = (x_data - 900).abs().argmin()
+              ^^^^^^^^^^^^^^^^^^
+AttributeError: 'numpy.ndarray' object has no attri",results/runs/sx/R-ec-brief/B12_r1
+2026-11-18 17:10:26,sx,R-mpl-brief,B,messy,B13,0.7,1,1,0,0,1,,2,1,0,1,71.42,0.86,1699,1313,,73,0,0,0,0,0,"[ask] text_values: no label for [300, 455]; texts: ['174 °C', '287 °C']",,results/runs/sx/R-mpl-brief/B13_r1
+2026-11-18 17:10:44,sx,P-mpl,B,messy,B14,0.7,1,1,1,1,1,,3,0,1,1,18.51,0.21,4944,49,keys,,,,,,,,,results/runs/sx/P-mpl/B14_r1
+2026-11-18 17:11:03,sx,R-ec-plain,B,messy,B13,0.7,1,1,0,0,1,,2,1,0,2,72.42,1.14,3715,1739,,81,0,0,0,0,0,"[ask] text_values: no label for [300, 455]; texts: ['71.007', '26.507']","The script failed (exit 1):
+File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-plain/B13_r1/make_option.py"", line 76
+    ""formatter"": function(params): return params.value[0].toFixed(1) + "" °C"",
+                                 ^
+SyntaxError: invalid syntax",results/runs/sx/R-ec-plain/B13_r1
+2026-11-18 17:11:05,sx,P-ec,B,messy,B14,0.7,1,1,1,1,1,,3,0,1,1,20.11,0.33,5377,45,keys,,,,,,,,,results/runs/sx/P-ec/B14_r1
+2026-11-18 17:11:36,sx,R-mpl-plain,B,messy,B14,0.7,1,1,0,0,1,,3,1,0,1,32.99,0.91,1217,755,,31,0,0,0,0,0,"[ask] font_size: axis text sizes [14.0, 16.0]",,results/runs/sx/R-mpl-plain/B14_r1
+2026-11-18 17:12:12,sx,R-mpl-brief,B,messy,B14,0.7,1,1,0,0,1,,3,1,0,1,67.22,0.9,1700,1021,,56,0,0,0,0,0,"[ask] font_size: axis text sizes [14.0, 16.0]",,results/runs/sx/R-mpl-brief/B14_r1
+2026-11-18 17:12:40,sx,R-ec-plain,B,messy,B14,0.7,1,1,1,1,1,,3,0,1,1,63.8,0.89,1313,1051,,106,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B14_r1
+2026-11-18 17:13:19,sx,R-ec-brief,B,messy,B13,0.7,1,1,1,1,1,,2,0,0,2,190.85,1.51,6611,5271,,230,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B13_r1/make_option.py"", line 295, in <module>
+    print(json.dumps(output, ensure_ascii=False))
+          ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""/home/chs/.local/sha",results/runs/sx/R-ec-brief/B13_r1
+2026-11-18 17:13:20,sx,P-mpl,B,out,B15,0.7,1,1,0,0,1,,2,1,0,1,40.22,0.17,4942,35,keys,,,,,,,[ask] legend: legend inside=True,,results/runs/sx/P-mpl/B15_r1
+2026-11-18 17:13:22,sx,P-ec,B,out,B15,0.7,1,1,0,0,1,,2,1,0,1,3.56,0.32,5375,29,keys,,,,,,,[ask] legend: legend inside=True,,results/runs/sx/P-ec/B15_r1
+2026-11-18 17:13:35,sx,R-mpl-plain,B,out,B15,0.7,1,1,1,1,1,,2,0,1,1,15.21,0.97,1215,455,,28,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B15_r1
+2026-11-18 17:13:58,sx,R-ec-brief,B,messy,B14,0.7,1,1,1,1,1,,3,0,1,1,105.73,0.88,1796,2063,,211,0,0,0,0,0,,,results/runs/sx/R-ec-brief/B14_r1
+2026-11-18 17:14:28,sx,R-ec-plain,B,out,B15,0.7,1,1,1,1,1,,2,0,1,1,52.72,0.93,1311,1012,,112,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B15_r1
+2026-11-18 17:14:52,sx,R-mpl-brief,B,out,B15,0.7,1,1,1,1,1,,2,0,1,1,89.66,0.94,1698,1814,,79,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B15_r1
+2026-11-18 17:14:56,sx,P-mpl,B,out,B16,0.7,1,1,0,0,1,,3,1,0,1,27.57,0.15,4392,129,code,,,,,,,[ask] panels: 1 panels,,results/runs/sx/P-mpl/B16_r1
+2026-11-18 17:15:19,sx,R-mpl-plain,B,out,B16,0.7,1,1,1,1,1,,3,0,1,1,23.91,0.86,664,435,,27,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B16_r1
+2026-11-18 17:15:36,sx,P-ec,B,out,B16,0.7,1,0,0,0,0,,1,1,0,3,44.2,0.0,15207,621,echarts,,,,,,,[data] run: no plot after retries,plotkit error: echarts.grid must be an object | hint:  || plotkit error: echarts.grid must be an object | hint:  || plotkit error: echarts.grid must be an object | hint: ,results/runs/sx/P-ec/B16_r1
+2026-11-18 17:16:03,sx,R-mpl-brief,B,out,B16,0.7,1,1,1,1,1,,3,0,1,1,43.64,0.84,1147,940,,55,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B16_r1
+2026-11-18 17:16:24,sx,R-ec-brief,B,out,B15,0.7,1,1,1,1,1,,2,0,0,2,146.64,0.92,5760,4090,,201,0,0,0,0,0,,"The script failed (exit 1):
+File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B15_r1/make_option.py"", line 187
+    ""formatter"": function_placeholder := None, # Can't use JS functions, so we'll embed text in data
+                                      ^^
+SyntaxError: invalid syntax",results/runs/sx/R-ec-brief/B15_r1
+2026-11-18 17:16:31,sx,R-ec-plain,B,out,B16,0.7,1,1,1,1,1,,3,0,1,1,54.44,0.8,760,852,,100,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B16_r1
+2026-11-18 17:16:35,sx,P-mpl,B,out,B17,0.7,1,1,1,1,1,,1,0,1,1,10.86,0.15,4951,111,code,,,,,,,,,results/runs/sx/P-mpl/B17_r1
+2026-11-18 17:16:37,sx,P-ec,B,out,B17,0.7,1,1,0,0,1,,1,1,0,1,6.65,0.34,5384,31,keys,,,,,,,[ask] offset: curves are not offset,,results/runs/sx/P-ec/B17_r1
+2026-11-18 17:16:54,sx,R-mpl-plain,B,out,B17,0.7,1,1,1,1,1,,1,0,1,1,18.74,0.86,1224,474,,31,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B17_r1
+2026-11-18 17:17:12,sx,R-ec-brief,B,out,B16,0.7,1,1,0,0,1,,3,1,0,1,68.7,0.83,1243,1578,,168,0,0,0,0,0,[ask] panels: 1 panels,,results/runs/sx/R-ec-brief/B16_r1
+2026-11-18 17:17:18,sx,R-mpl-brief,B,out,B17,0.7,1,1,1,1,1,,1,0,1,1,40.56,0.84,1707,476,,36,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B17_r1
+2026-11-18 17:17:42,sx,R-ec-plain,B,out,B17,0.7,1,1,1,1,1,,1,0,1,1,48.48,0.85,1320,986,,109,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B17_r1
+2026-11-18 17:17:48,sx,P-ec,B,out,B18,0.7,1,1,0,0,1,,2,1,0,1,5.86,0.34,5378,100,keys,,,,,,,"[ask] text_value: no label showing 604.8±8; texts: ['Residue 2.0%', '640 °C', 'Onset: 261 °C']",,results/runs/sx/P-ec/B18_r1
+2026-11-18 17:18:15,sx,P-mpl,B,out,B18,0.7,1,1,0,0,1,,2,1,0,3,57.04,0.21,15240,292,code,,,,,,,"[ask] text_value: no label showing 604.8±8; texts: ['Onset: 569.0 °C', 'Residue 2.0%', '640 °C']","plotkit error: annotate.onset.type 'tangent_onset' unknown. | hint: types: band, hline, peak, text, value_at_x, vline || plotkit error: the extra code failed: SyntaxError: invalid syntax (<spec code>, line 1) | hint: fix the code; names available: fig, ax1, ax2, x, y1, y2, sheet, plt, np",results/runs/sx/P-mpl/B18_r1
+2026-11-18 17:19:19,sx,R-mpl-plain,B,out,B18,0.7,1,1,0,0,0,,2,1,0,1,90.55,1.02,1218,1659,,77,0,0,0,0,0,"[data] only: other y1 data drawn too: [[32.19621168831236, 99.91575714285716]]",,results/runs/sx/R-mpl-plain/B18_r1
+2026-11-18 17:19:54,sx,R-ec-brief,B,out,B17,0.7,1,0,0,0,0,,1,1,0,3,162.59,2.32,11027,5449,,198,0,0,0,0,0,[data] run: no plot after retries,ECharts could not render the printed option: no figures in the printed JSON || ECharts could not render the printed option: no figures in the printed JSON || ECharts could not render the printed option: no figures in the printed JSON,results/runs/sx/R-ec-brief/B17_r1
+2026-11-18 17:20:27,sx,R-mpl-brief,B,out,B18,0.7,1,1,0,0,1,,2,1,0,1,132.08,1.22,1701,2310,,122,0,0,0,0,0,"[ask] text_value: no label showing 604.8±8; texts: ['Residue 2.0%', 'Onset\n584.6 °C', '641 °C']",,results/runs/sx/R-mpl-brief/B18_r1
+2026-11-18 17:20:55,sx,R-ec-plain,B,out,B18,0.7,1,1,0,0,1,,2,1,0,1,95.79,0.84,1314,1788,,137,0,0,0,0,0,"[ask] text_value: no label showing 604.8±8; texts: ['87.6009', '48.647']",,results/runs/sx/R-ec-plain/B18_r1
+2026-11-18 17:20:59,sx,P-mpl,B,out,B19,0.7,1,1,0,0,1,,2,1,0,1,31.46,0.16,4957,143,code,,,,,,,"[ask] text_value: no label showing 58.43±0.6; texts: ['ΔW: 0.1%', 'Residue 12.0%', '300 °C']",,results/runs/sx/P-mpl/B19_r1
+2026-11-18 17:21:03,sx,P-ec,B,out,B19,0.7,1,1,0,0,1,,2,1,0,1,8.3,0.31,5390,124,keys,,,,,,,"[ask] text_value: no label showing 58.43±0.6; texts: ['Mass loss (200-400°C): {y:.1f}%', 'Residue 12.0%', '300 °C']",,results/runs/sx/P-ec/B19_r1
+2026-11-18 17:21:40,sx,R-mpl-plain,B,out,B19,0.7,1,1,1,1,1,,2,0,1,1,41.13,0.88,1230,997,,44,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B19_r1
+2026-11-18 17:21:50,sx,R-ec-brief,B,out,B18,0.7,1,1,1,1,1,,2,0,1,1,115.88,0.84,1797,2334,,222,0,0,0,0,0,,,results/runs/sx/R-ec-brief/B18_r1
+2026-11-18 17:22:27,sx,R-ec-plain,B,out,B19,0.7,1,1,0,0,1,,2,1,0,1,47.51,0.84,1326,1276,,104,0,0,0,0,0,"[ask] text_value: no label showing 58.43±0.6; texts: ['100.01', '41.582']",,results/runs/sx/R-ec-plain/B19_r1
+2026-11-18 17:22:37,sx,R-mpl-brief,B,out,B19,0.7,1,1,1,1,1,,2,0,1,1,93.64,0.86,1713,1543,,79,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B19_r1
+2026-11-18 17:22:38,sx,P-mpl,B,out,B20,0.7,1,1,1,1,1,,2,0,1,1,10.84,0.18,4943,34,code,,,,,,,,,results/runs/sx/P-mpl/B20_r1
+2026-11-18 17:22:41,sx,P-ec,B,out,B20,0.7,1,1,1,1,1,,2,0,1,1,4.33,0.31,5376,65,echarts,,,,,,,,,results/runs/sx/P-ec/B20_r1
+2026-11-18 17:23:02,sx,R-mpl-plain,B,out,B20,0.7,1,1,1,1,1,,2,0,1,1,24.18,0.88,1216,553,,30,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B20_r1
+2026-11-18 17:23:45,sx,R-mpl-brief,B,out,B20,0.7,1,1,1,1,1,,2,0,1,1,64.38,0.86,1699,1231,,80,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B20_r1
+2026-11-18 17:23:54,sx,R-ec-plain,B,out,B20,0.7,1,1,1,1,1,,2,0,1,1,51.93,0.85,1312,784,,82,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B20_r1
+2026-11-18 17:24:27,sx,R-ec-brief,B,out,B19,0.7,1,1,1,1,1,,2,0,0,2,156.63,1.44,5943,3695,,170,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B19_r1/make_option.py"", line 216, in <module>
+    print(json.dumps(output))
+          ~~~~~~~~~~^^^^^^^^
+  File ""/home/chs/.local/share/uv/python/cpython-3.13.11-linux-x86_6",results/runs/sx/R-ec-brief/B19_r1
+2026-11-18 17:24:31,sx,P-mpl,B,out,B21,0.7,1,1,1,1,1,,2,0,0,2,37.25,0.15,9973,58,code,,,,,,,,"plotkit error: unknown key ""x.flip"". | hint: allowed keys for x: col, label, label_color, label_size, log, max, min, step, tick_color, tick_size",results/runs/sx/P-mpl/B21_r1
+2026-11-18 17:24:33,sx,P-ec,B,out,B21,0.7,1,1,1,1,1,,2,0,0,2,5.99,0.3,10839,59,echarts,,,,,,,,"plotkit error: unknown key ""x.flip"". | hint: allowed keys for x: col, label, label_color, label_size, log, max, min, step, tick_color, tick_size",results/runs/sx/P-ec/B21_r1
+2026-11-18 17:24:54,sx,R-mpl-plain,B,out,B21,0.7,1,1,1,1,1,,2,0,1,1,22.19,0.86,1214,534,,32,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B21_r1
+2026-11-18 17:25:27,sx,R-ec-plain,B,out,B21,0.7,1,1,1,1,1,,2,0,1,1,33.06,0.85,1310,985,,123,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B21_r1
+2026-11-18 17:25:37,sx,R-mpl-brief,B,out,B21,0.7,1,1,1,1,1,,2,0,1,1,64.14,0.84,1697,966,,53,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B21_r1
+2026-11-18 17:26:07,sx,R-ec-brief,B,out,B20,0.7,1,1,1,1,1,,2,0,0,2,141.73,1.41,5825,3542,,191,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B20_r1/make_option.py"", line 219, in <module>
+    main()
+    ~~~~^^
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B20_r1/make_option.py"", line 216, in main",results/runs/sx/R-ec-brief/B20_r1
+2026-11-18 17:26:11,sx,P-mpl,B,out,B22,0.7,1,1,1,1,1,,1,0,1,1,33.63,0.14,4950,109,code,,,,,,,,,results/runs/sx/P-mpl/B22_r1
+2026-11-18 17:26:41,sx,R-ec-brief,B,out,B21,0.7,1,1,1,1,1,,2,0,1,1,73.84,0.85,1793,1983,,211,0,0,0,0,0,,,results/runs/sx/R-ec-brief/B21_r1
+2026-11-18 17:27:13,sx,R-mpl-plain,B,out,B22,0.7,1,1,1,1,1,,1,0,1,1,62.47,0.84,1223,928,,47,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B22_r1
+2026-11-18 17:27:17,sx,P-ec,B,out,B22,0.7,1,1,0,0,1,,1,1,0,1,70.12,0.31,5383,1028,keys,,,,,,,"[ask] series: no y1 line with y [15.19563054557268, 101.53093338206331] (x None); lines: [('y1', [14.968, 100.01]), ('y2', [-0.002, 0.849])]",,results/runs/sx/P-ec/B22_r1
+2026-11-18 17:27:51,sx,R-mpl-brief,B,out,B22,0.7,1,1,1,1,1,,1,0,1,1,70.1,0.86,1706,1121,,62,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B22_r1
+2026-11-18 17:27:55,sx,R-ec-plain,B,out,B22,0.7,1,1,1,1,1,,1,0,1,1,41.3,0.84,1319,1116,,113,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B22_r1
+2026-11-18 17:27:57,sx,P-mpl,B,out,B23,0.7,1,1,0,0,1,,4,3,0,1,5.85,0.22,4951,52,keys,,,,,,,"[ask] line_color: that line is #1f4e9c, want black | [ask] line_color: that line is #c0392b, want blue | [ask] line_color: that line is #2e8b57, want red",,results/runs/sx/P-mpl/B23_r1
+2026-11-18 17:28:22,sx,R-mpl-plain,B,out,B23,0.7,1,1,1,1,1,,4,0,1,1,24.88,0.94,1224,577,,35,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B23_r1
+2026-11-18 17:28:23,sx,P-ec,B,out,B23,0.7,1,1,1,1,1,,4,0,0,2,28.72,0.32,10906,133,echarts,,,,,,,,"plotkit error: unknown key ""series_colors"". Did you mean ""text_color""? | hint: top-level keys: file, sheets, preset, read, x, y1, y2, annotate, title, legend, text_color, tick_direction, code, echarts, grid, size, dpi, font, font_size, combine, output",results/runs/sx/P-ec/B23_r1
+2026-11-18 17:28:43,sx,R-ec-brief,B,out,B22,0.7,1,1,1,1,1,,1,0,1,1,86.1,0.85,1802,1817,,202,0,0,0,0,0,,,results/runs/sx/R-ec-brief/B22_r1
+2026-11-18 17:29:09,sx,R-ec-plain,B,out,B23,0.7,1,1,0,0,1,,4,1,0,1,45.31,0.92,1320,945,,108,0,0,0,0,0,"[ask] line_color: that line is #1f77b4, want blue",,results/runs/sx/R-ec-plain/B23_r1
+2026-11-18 17:29:17,sx,R-mpl-brief,B,out,B23,0.7,1,1,1,1,1,,4,0,1,1,55.6,0.97,1707,1220,,74,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B23_r1
+2026-11-18 17:29:19,sx,P-mpl,B,out,B24,0.7,1,1,0,0,1,,2,1,0,1,10.15,0.15,4938,55,code,,,,,,,"[ask] series: no y1 line with y [0.9724, 100.01] (x [303.15, 1173.15]); lines: [('y1', [0.972, 100.01]), ('y2', [-0.002, 2.456])]",,results/runs/sx/P-mpl/B24_r1
+2026-11-18 17:29:42,sx,R-mpl-plain,B,out,B24,0.7,1,1,1,1,1,,2,0,1,1,23.6,0.85,1211,592,,34,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B24_r1
+2026-11-18 17:29:43,sx,P-ec,B,out,B24,0.7,1,1,0,0,1,,2,1,0,2,26.21,0.26,10908,139,keys,,,,,,,"[ask] series: no y1 line with y [0.9724, 100.01] (x [303.15, 1173.15]); lines: [('y1', [0.972, 100.01]), ('y2', [-0.002, 2.456])]","plotkit error: unknown path ""echarts.series[0].data"" | hint: allowed here: name, lineStyle, itemStyle, areaStyle, symbol, symbolSize, showSymbol, smooth, step, z, label, emphasis, markArea, markLine, markPoint",results/runs/sx/P-ec/B24_r1
+2026-11-18 17:30:19,sx,R-mpl-brief,B,out,B24,0.7,1,1,1,1,1,,2,0,1,1,36.51,0.87,1694,1066,,60,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B24_r1
+2026-11-18 17:30:52,sx,R-ec-plain,B,out,B24,0.7,1,1,1,1,1,,2,0,1,1,69.1,0.82,1307,1330,,154,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B24_r1
+2026-11-18 17:31:08,sx,P-mpl,A,A,01,0.7,2,1,1,1,1,1,4,0,1,1,15.02,0.34,4912,13,keys,,,,,,,,,results/runs/sx/P-mpl/01_r2
+2026-11-18 17:32:00,sx,P-ec,A,A,01,0.7,2,1,1,1,1,1,4,0,1,1,52.34,0.38,5345,13,keys,,,,,,,,,results/runs/sx/P-ec/01_r2
+2026-11-18 17:32:40,sx,R-ec-brief,B,out,B24,0.7,1,1,1,1,1,,2,0,0,2,141.44,1.43,5522,3420,,179,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B24_r1/make_option.py"", line 209, in <module>
+    main()
+    ~~~~^^
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B24_r1/make_option.py"", line 100, in main",results/runs/sx/R-ec-brief/B24_r1
+2026-11-18 17:32:44,sx,R-mpl-plain,A,A,01,0.7,2,1,0,1,1,0,4,3,0,1,44.55,1.07,1182,660,,50,0,0,0,0,0,"[conv] text_value: no label showing 8.0117±0.1; texts: [] | [conv] text_value: no label showing 3.0183±0.1; texts: [] | [conv] text_values: no label for [600, 560, 540]; texts: []",,results/runs/sx/R-mpl-plain/01_r2
+2026-11-18 17:33:34,sx,R-mpl-brief,A,A,01,0.7,2,1,1,1,1,1,4,0,1,1,53.9,1.22,1665,1335,,77,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/01_r2
+2026-11-18 17:33:39,sx,R-ec-brief,B,out,B23,0.7,1,1,0,0,1,,4,1,0,3,295.45,2.07,14450,7679,,212,0,0,0,0,0,"[ask] line_color: that line is #007bff, want blue","The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B23_r1/make_option.py"", line 304, in <module>
+    main()
+    ~~~~^^
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B23_r1/make_option.py"", line 238, in main || The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B23_r1/make_option.py"", line 265, in <module>
+    main()
+    ~~~~^^
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B23_r1/make_option.py"", line 262, in main",results/runs/sx/R-ec-brief/B23_r1
+2026-11-18 17:34:13,sx,P-mpl,A,A,02,0.7,2,1,1,1,1,,8,0,1,1,34.23,0.12,5102,200,keys,,,,,,,,,results/runs/sx/P-mpl/02_r2
+2026-11-18 17:34:40,sx,R-ec-plain,A,A,01,0.7,2,1,0,1,1,0,4,3,0,2,115.06,1.57,4175,2304,,140,0,0,0,0,0,"[conv] text_value: no label showing 8.0117±0.1; texts: [] | [conv] text_value: no label showing 3.0183±0.1; texts: [] | [conv] text_values: no label for [600, 560, 540]; texts: []","The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-plain/01_r2/make_option.py"", line 156, in <module>
+    main()
+    ~~~~^^
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-plain/01_r2/make_option.py"", line 153, in main
+ ",results/runs/sx/R-ec-plain/01_r2
+2026-11-18 17:34:44,sx,P-ec,A,A,02,0.7,2,1,1,1,1,,8,0,1,1,31.06,0.3,5535,200,keys,,,,,,,,,results/runs/sx/P-ec/02_r2
+2026-11-18 17:35:45,sx,R-mpl-brief,A,A,02,0.7,2,1,1,1,1,,8,0,1,1,60.46,0.83,1855,995,,57,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/02_r2
+2026-11-18 17:36:14,sx,R-mpl-plain,A,A,02,0.7,2,1,0,0,1,,8,2,0,1,94.2,0.92,1372,2025,,93,0,0,0,0,0,"[ask] text_value: value 8.0117 shown as ['Residue @ ~800.0°C:\n8.01%'], not matching ^Residue \d+(\.\d+)?\s?%$ | [ask] any_of: no label for [600]; texts: ['Residue @ ~800.0°C:\n8.01%', 'Max D.W: 0.0025 %/C\nTemp: 808.0 °C'] / no label showing 1.0269±0.03; texts: ['Residue @ ~800.0°C:\n8.01%', 'Max D.W: 0.0025 %/C\nTemp: 808.0 °C']",,results/runs/sx/R-mpl-plain/02_r2
+2026-11-18 17:36:41,sx,R-ec-brief,A,A,01,0.7,2,1,0,1,1,0,4,3,0,2,186.69,1.54,6345,4886,,218,0,0,0,0,0,"[conv] text_value: no label showing 8.0117±0.1; texts: [] | [conv] text_value: no label showing 3.0183±0.1; texts: [] | [conv] text_values: no label for [600, 560, 540]; texts: []","The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/01_r2/make_option.py"", line 263, in <module>
+    print(json.dumps(output))
+          ~~~~~~~~~~^^^^^^^^
+  File ""/home/chs/.local/share/uv/python/cpython-3.13.11-linux-x86_64",results/runs/sx/R-ec-brief/01_r2
+2026-11-18 17:37:06,sx,R-ec-plain,A,A,02,0.7,2,1,0,0,1,,8,2,0,1,81.57,0.84,1468,1283,,143,0,0,0,0,0,"[ask] text_value: value 8.0117 shown as ['Residue\n8.01%'], not matching ^Residue \d+(\.\d+)?\s?%$ | [ask] any_of: no label for [600]; texts: ['Residue\n8.01%', 'Max DW\n0.0025'] / no label showing 1.0269±0.03; texts: ['Residue\n8.01%', 'Max DW\n0.0025']",,results/runs/sx/R-ec-plain/02_r2
+2026-11-18 17:37:07,sx,P-mpl,A,A,03,0.7,2,1,1,1,1,,3,0,1,1,25.9,0.13,4937,57,keys,,,,,,,,,results/runs/sx/P-mpl/03_r2
+2026-11-18 17:37:09,sx,P-ec,A,A,03,0.7,2,1,1,1,1,,3,0,1,1,2.59,0.3,5370,57,keys,,,,,,,,,results/runs/sx/P-ec/03_r2
+2026-11-18 17:37:51,sx,R-ec-brief,A,A,02,0.7,2,1,1,1,1,,8,0,1,1,97.52,0.84,1951,2186,,191,0,1,0,0,0,,,results/runs/sx/R-ec-brief/02_r2
+2026-11-18 17:37:59,sx,R-mpl-plain,A,A,03,0.7,2,1,1,1,1,,3,0,1,1,52.25,1.23,1207,1181,,51,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/03_r2
+2026-11-18 17:38:33,sx,R-ec-plain,A,A,03,0.7,2,1,0,0,1,,3,1,0,1,41.79,1.11,1303,1246,,119,0,0,0,0,0,"[ask] any_of: no label for [560, 400]; texts: [] / no label for [0.8067, 0.1626]; texts: []",,results/runs/sx/R-ec-plain/03_r2
+2026-11-18 17:38:44,sx,R-mpl-brief,A,A,03,0.7,2,1,1,1,1,,3,0,1,1,94.64,1.2,1690,1392,,71,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/03_r2
+2026-11-18 17:38:44,sx,P-mpl,A,A,04,0.7,2,1,1,1,1,,2,0,1,1,10.88,0.12,4945,53,keys,,,,,,,,,results/runs/sx/P-mpl/04_r2
+2026-11-18 17:38:47,sx,P-ec,A,A,04,0.7,2,1,1,1,1,,2,0,1,1,3.13,0.26,5378,68,keys,,,,,,,,,results/runs/sx/P-ec/04_r2
+2026-11-18 17:39:29,sx,R-ec-brief,A,A,03,0.7,2,1,0,0,1,,3,1,0,1,89.81,0.84,1786,1861,,188,0,0,0,0,0,"[ask] any_of: no label for [560, 400]; texts: [] / no label for [0.8067, 0.1626]; texts: []",,results/runs/sx/R-ec-brief/03_r2
+2026-11-18 17:39:43,sx,R-mpl-plain,A,A,04,0.7,2,1,1,1,1,,2,0,0,2,59.33,1.57,3255,1186,,35,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/_runner.py"", line 16, in <module>
+    runpy.run_path(script, run_name=""__main__"")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""<frozen runpy>"", line 287, in run_path
+  File ""<frozen runpy>""",results/runs/sx/R-mpl-plain/04_r2
+2026-11-18 17:39:48,sx,R-mpl-brief,A,A,04,0.7,2,1,1,1,1,,2,0,1,1,61.8,0.87,1698,1186,,65,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/04_r2
+2026-11-18 17:40:08,sx,R-ec-plain,A,A,04,0.7,2,1,1,1,1,,2,0,1,1,39.18,0.81,1311,890,,109,0,0,0,0,0,,,results/runs/sx/R-ec-plain/04_r2
+2026-11-18 17:40:09,sx,P-mpl,A,A,05,0.7,2,1,1,1,1,,3,0,1,1,20.63,0.35,4931,43,keys,,,,,,,,,results/runs/sx/P-mpl/05_r2
+2026-11-18 17:40:10,sx,P-ec,A,A,05,0.7,2,1,1,1,1,,3,0,1,1,1.91,0.36,5364,43,keys,,,,,,,,,results/runs/sx/P-ec/05_r2
+2026-11-18 17:40:41,sx,R-ec-brief,A,A,04,0.7,2,1,1,1,1,,2,0,1,1,57.16,0.81,1794,1800,,176,0,0,0,0,0,,,results/runs/sx/R-ec-brief/04_r2
+2026-11-18 17:41:15,sx,R-mpl-brief,A,A,05,0.7,2,1,0,0,1,,3,1,0,1,64.98,1.16,1684,1274,,74,0,0,0,0,0,"[ask] lines: y2 line style is 'dashed', want 'dotted'",,results/runs/sx/R-mpl-brief/05_r2
+2026-11-18 17:42:19,sx,R-ec-plain,A,A,05,0.7,2,1,0,0,1,,3,2,0,1,98.96,0.88,1297,2075,,160,0,0,0,0,0,"[ask] lines: y1 line width is 1.875, want 2.5 | [ask] lines: y2 line style is 'dashed', want 'dotted'",,results/runs/sx/R-ec-plain/05_r2
+2026-11-18 17:42:46,sx,R-mpl-plain,A,A,05,0.7,2,1,0,0,1,,3,2,0,2,156.81,1.15,5223,3508,,50,0,0,0,0,0,"[ask] lines: y1 line color is '#0000ff', want 'black'; y1 line color is '#ff0000', want 'black' | [ask] lines: y2 line style is 'dashed', want 'dotted'","The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/_runner.py"", line 16, in <module>
+    runpy.run_path(script, run_name=""__main__"")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""<frozen runpy>"", line 286, in run_path
+  File ""<frozen runpy>""",results/runs/sx/R-mpl-plain/05_r2
+2026-11-18 17:42:46,sx,P-mpl,A,A,06,0.7,2,1,1,1,1,,3,0,1,1,26.61,0.36,4916,24,keys,,,,,,,,,results/runs/sx/P-mpl/06_r2
+2026-11-18 17:42:47,sx,P-ec,A,A,06,0.7,2,1,1,1,1,,3,0,1,1,1.08,0.33,5349,24,keys,,,,,,,,,results/runs/sx/P-ec/06_r2
+2026-11-18 17:43:28,sx,R-mpl-plain,A,A,06,0.7,2,1,1,1,1,,3,0,1,1,41.67,0.93,1186,996,,36,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/06_r2
+2026-11-18 17:44:10,sx,R-mpl-brief,A,A,06,0.7,2,1,1,1,1,,3,0,1,1,82.71,1.15,1669,1331,,84,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/06_r2
+2026-11-18 17:44:10,sx,R-ec-brief,A,A,05,0.7,2,1,0,0,1,,3,2,0,2,174.88,1.47,5854,3758,,170,0,0,0,0,0,"[ask] lines: y1 line width is 1.875, want 2.5 | [ask] lines: y2 line style is 'dashed', want 'dotted'","The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/05_r2/make_option.py"", line 209, in <module>
+    print(json.dumps(output))
+          ~~~~~~~~~~^^^^^^^^
+  File ""/home/chs/.local/share/uv/python/cpython-3.13.11-linux-x86_64",results/runs/sx/R-ec-brief/05_r2
+2026-11-18 17:44:58,sx,R-ec-plain,A,A,06,0.7,2,1,1,1,1,,3,0,1,1,90.38,0.92,1282,1887,,210,0,0,0,0,0,,,results/runs/sx/R-ec-plain/06_r2
+2026-11-18 17:44:58,sx,P-mpl,A,A,07,0.7,2,1,1,1,1,,2,0,1,1,48.22,0.33,4918,29,keys,,,,,,,,,results/runs/sx/P-mpl/07_r2
+2026-11-18 17:44:59,sx,P-ec,A,A,07,0.7,2,1,1,1,1,,2,0,1,1,1.19,0.34,5351,29,keys,,,,,,,,,results/runs/sx/P-ec/07_r2
+2026-11-18 17:45:30,sx,R-mpl-plain,A,A,07,0.7,2,1,1,1,1,,2,0,1,1,31.84,0.91,1188,863,,50,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/07_r2
+2026-11-18 17:46:07,sx,R-ec-brief,A,A,06,0.7,2,1,1,1,1,,3,0,0,2,117.24,0.98,5595,3491,,174,0,0,0,0,0,,"The script failed (exit 1):
+File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/06_r2/make_option.py"", line 124
+    ""show"": False # Usually only one set of grid lines is preferred to avoid clutter, 
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Synt",results/runs/sx/R-ec-brief/06_r2
+2026-11-18 17:46:13,sx,R-mpl-brief,A,A,07,0.7,2,1,1,1,1,,2,0,1,1,73.63,1.12,1671,1448,,90,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/07_r2
+2026-11-18 17:46:55,sx,R-ec-plain,A,A,07,0.7,2,1,0,0,1,,2,1,0,1,84.63,0.91,1284,1659,,148,0,1,0,0,0,[ask] legend: legend at outside; legend at outside,,results/runs/sx/R-ec-plain/07_r2
+2026-11-18 17:46:56,sx,P-mpl,A,A,08,0.7,2,1,1,1,1,,4,0,1,1,42.99,0.34,4946,57,keys,,,,,,,,,results/runs/sx/P-mpl/08_r2
+2026-11-18 17:46:58,sx,P-ec,A,A,08,0.7,2,1,1,1,1,,4,0,1,1,3.22,0.37,5379,64,keys,,,,,,,,,results/runs/sx/P-ec/08_r2
+2026-11-18 17:47:20,sx,R-mpl-plain,A,A,08,0.7,2,1,1,1,1,,4,0,1,1,23.71,0.94,1216,615,,36,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/08_r2
+2026-11-18 17:47:29,sx,R-ec-brief,A,A,07,0.7,2,1,0,0,1,,2,1,0,1,81.5,0.93,1767,2450,,231,0,0,0,0,0,[ask] legend: legend at outside; legend at outside; legend at outside,,results/runs/sx/R-ec-brief/07_r2
+2026-11-18 17:48:03,sx,R-ec-plain,A,A,08,0.7,2,1,1,1,1,,4,0,1,1,43.27,0.9,1312,1271,,111,0,0,0,0,0,,,results/runs/sx/R-ec-plain/08_r2
+2026-11-18 17:48:12,sx,R-mpl-brief,A,A,08,0.7,2,1,1,1,1,,4,0,1,1,74.0,1.21,1699,1466,,82,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/08_r2
+2026-11-18 17:48:13,sx,P-mpl,A,A,09,0.7,2,1,1,1,1,,4,0,1,1,9.43,0.32,4919,52,keys,,,,,,,,,results/runs/sx/P-mpl/09_r2
+2026-11-18 17:48:14,sx,P-ec,A,A,09,0.7,2,1,1,1,1,,4,0,1,1,1.68,0.38,5352,52,keys,,,,,,,,,results/runs/sx/P-ec/09_r2
+2026-11-18 17:48:49,sx,R-mpl-plain,A,A,09,0.7,2,1,0,0,0,,4,2,0,1,36.8,0.81,1189,892,,57,0,0,0,0,0,[data] series: no y1 line with y None (x None); lines: [] | [ask] axis: fig 0: no y2 axis,,results/runs/sx/R-mpl-plain/09_r2
+2026-11-18 17:48:55,sx,R-ec-brief,A,A,08,0.7,2,1,1,1,1,,4,0,1,1,85.93,0.93,1795,1766,,193,0,0,0,0,0,,,results/runs/sx/R-ec-brief/08_r2
+2026-11-18 17:49:27,sx,R-mpl-brief,A,A,09,0.7,2,1,1,1,1,,4,0,1,1,73.61,1.15,1672,1269,,73,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/09_r2
+2026-11-18 17:49:34,sx,R-ec-plain,A,A,09,0.7,2,1,1,1,1,,4,0,1,1,44.19,0.92,1285,1282,,146,0,0,0,0,0,,,results/runs/sx/R-ec-plain/09_r2
+2026-11-18 17:49:34,sx,P-mpl,A,A,10,0.7,2,1,1,1,1,,2,0,1,1,6.66,0.34,4927,42,keys,,,,,,,,,results/runs/sx/P-mpl/10_r2
+2026-11-18 17:49:35,sx,P-ec,A,A,10,0.7,2,1,1,1,1,,2,0,1,1,1.87,0.36,5360,42,keys,,,,,,,,,results/runs/sx/P-ec/10_r2
+2026-11-18 17:50:38,sx,R-ec-brief,A,A,09,0.7,2,1,1,1,1,,4,0,1,1,103.13,0.93,1768,2332,,203,0,0,0,0,0,,,results/runs/sx/R-ec-brief/09_r2
+2026-11-18 17:51:19,sx,R-mpl-brief,A,A,10,0.7,2,1,1,1,1,,2,0,1,1,103.68,1.31,1680,1786,,98,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/10_r2
+2026-11-18 17:51:37,sx,R-ec-plain,A,A,10,0.7,2,1,0,0,1,,2,1,0,1,58.89,0.87,1293,1185,,111,0,0,0,0,0,[ask] text_value: no label showing 8.1647±0.006; texts: [],,results/runs/sx/R-ec-plain/10_r2
+2026-11-18 17:51:47,sx,R-mpl-plain,A,A,10,0.7,2,0,0,0,0,,1,1,0,3,133.2,2.15,7151,2783,,62,0,0,0,0,0,[data] run: no plot after retries,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/_runner.py"", line 16, in <module>
+    runpy.run_path(script, run_name=""__main__"")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""<frozen runpy>"", line 287, in run_path
+  File ""<frozen runpy>"" || The script failed (exit 1):
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File ""pandas/_libs/index.pyx"", line 172, in pandas._libs.index.IndexEngine.get_loc
+  File ""pandas/_libs/index.pyx"", line 201, in pandas._libs.index.IndexEngine.get_loc
+  File ""pandas || The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/_runner.py"", line 16, in <module>
+    runpy.run_path(script, run_name=""__main__"")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""<frozen runpy>"", line 287, in run_path
+  File ""<frozen runpy>""",results/runs/sx/R-mpl-plain/10_r2
+2026-11-18 17:51:48,sx,P-mpl,A,A,11,0.7,2,1,1,1,1,1,5,0,1,1,11.13,0.32,4911,21,keys,,,,,,,,,results/runs/sx/P-mpl/11_r2
+2026-11-18 17:51:49,sx,P-ec,A,A,11,0.7,2,1,1,1,1,1,5,0,1,1,1.18,0.34,5344,21,keys,,,,,,,,,results/runs/sx/P-ec/11_r2
+2026-11-18 17:52:19,sx,R-mpl-plain,A,A,11,0.7,2,1,0,1,1,0,5,1,0,1,31.12,1.08,1181,807,,48,0,0,0,0,0,[conv] text_value: no label showing 8.0117±0.1; texts: [],,results/runs/sx/R-mpl-plain/11_r2
+2026-11-18 17:52:31,sx,R-ec-brief,A,A,10,0.7,2,1,0,0,1,,2,1,0,1,72.13,0.96,1776,1715,,169,0,0,0,0,0,[ask] text_value: no label showing 8.1647±0.006; texts: [],,results/runs/sx/R-ec-brief/10_r2
+2026-11-18 17:53:04,sx,R-mpl-brief,A,A,11,0.7,2,1,1,1,1,1,5,0,1,1,75.79,1.19,1664,1304,,76,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/11_r2
+2026-11-18 17:53:11,sx,R-ec-plain,A,A,11,0.7,2,1,0,1,1,0,5,1,0,1,52.46,0.91,1277,1340,,124,0,0,0,0,0,[conv] text_value: no label showing 8.0117±0.1; texts: [],,results/runs/sx/R-ec-plain/11_r2
+2026-11-18 17:53:12,sx,P-mpl,A,A,12,0.7,2,1,1,1,1,,3,0,1,1,7.7,0.33,4923,44,keys,,,,,,,,,results/runs/sx/P-mpl/12_r2
+2026-11-18 17:53:13,sx,P-ec,A,A,12,0.7,2,1,1,1,1,,3,0,1,1,2.01,0.37,5356,44,keys,,,,,,,,,results/runs/sx/P-ec/12_r2
+2026-11-18 17:53:50,sx,R-mpl-plain,A,A,12,0.7,2,1,1,1,1,,3,0,1,1,37.95,1.08,1193,939,,39,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/12_r2
+2026-11-18 17:54:48,sx,R-mpl-brief,A,A,12,0.7,2,1,1,1,1,,3,0,1,1,94.34,1.32,1676,1564,,77,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/12_r2
+2026-11-18 17:54:50,sx,R-ec-plain,A,A,12,0.7,2,1,1,1,1,,3,0,1,1,59.77,0.9,1289,1711,,161,0,0,0,0,0,,,results/runs/sx/R-ec-plain/12_r2
+2026-11-18 17:55:35,sx,R-ec-brief,A,A,11,0.7,2,1,0,1,1,0,5,1,0,2,183.94,1.69,5251,3428,,168,0,0,0,0,0,"[conv] text_value: no label showing 8.0117±0.1; texts: ['{@[0]} °C\n{@[1]:.1f}%', '{@[0]} °C\n{@[1]:.1f}%', '{@[0]} °C\n{@[1]:.1f}%']",ECharts could not render the printed option: no figures in the printed JSON,results/runs/sx/R-ec-brief/11_r2
+2026-11-18 17:55:37,sx,P-mpl,A,A,13,0.7,2,1,1,1,1,,2,0,1,1,46.94,0.14,4482,46,keys,,,,,,,,,results/runs/sx/P-mpl/13_r2
+2026-11-18 17:55:39,sx,P-ec,A,A,13,0.7,2,1,1,1,1,,2,0,1,1,3.56,0.3,4915,32,keys,,,,,,,,,results/runs/sx/P-ec/13_r2
+2026-11-18 17:55:54,sx,R-mpl-plain,A,A,13,0.7,2,1,1,1,1,,2,0,1,1,17.39,0.82,753,423,,22,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/13_r2
+2026-11-18 17:56:30,sx,R-mpl-brief,A,A,13,0.7,2,1,1,1,1,,2,0,1,1,50.91,0.87,1236,1181,,74,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/13_r2
+2026-11-18 17:56:31,sx,R-ec-plain,A,A,13,0.7,2,1,1,1,1,,2,0,1,1,36.71,0.8,849,661,,76,0,0,0,0,0,,,results/runs/sx/R-ec-plain/13_r2
+2026-11-18 17:57:21,sx,R-ec-brief,A,A,12,0.7,2,1,1,1,1,,3,0,0,2,152.81,1.53,6282,4593,,205,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/12_r2/make_option.py"", line 262, in <module>
+    print(json.dumps(output, ensure_ascii=False))
+          ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""/home/chs/.local/shar",results/runs/sx/R-ec-brief/12_r2
+2026-11-18 17:57:21,sx,P-mpl,A,A,14,0.7,2,1,1,1,1,,2,0,1,1,50.37,0.18,4340,27,keys,,,,,,,,,results/runs/sx/P-mpl/14_r2
+2026-11-18 17:57:23,sx,P-ec,A,A,14,0.7,2,1,1,1,1,,2,0,1,1,2.69,0.51,4773,27,keys,,,,,,,,,results/runs/sx/P-ec/14_r2
+2026-11-18 17:57:40,sx,R-ec-brief,A,A,13,0.7,2,1,1,1,1,,2,0,1,1,69.84,0.85,1332,1987,,199,0,0,0,0,0,,,results/runs/sx/R-ec-brief/13_r2
+2026-11-18 17:58:39,sx,R-mpl-plain,A,A,14,0.7,2,1,1,1,1,,2,0,0,2,77.73,1.63,2475,1315,,36,0,0,0,0,0,,"The script failed (exit 1):
+    runpy.run_path(script, run_name=""__main__"")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""<frozen runpy>"", line 287, in run_path
+  File ""<frozen runpy>"", line 98, in _run_module_code
+  File ""<frozen runpy>"", line 88, in _run_code
+  File ""/home/chs/Work/tga_p",results/runs/sx/R-mpl-plain/14_r2
+2026-11-18 17:58:55,sx,R-ec-plain,A,A,14,0.7,2,1,1,1,1,,2,0,0,2,75.51,1.55,2987,2256,,140,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-plain/14_r2/make_option.py"", line 6, in <module>
+    df = pd.read_csv(DATA_FILE)
+  File ""/home/chs/Work/tga_plot/.venv/lib/python3.13/site-packages/pandas/io/parsers/readers.py"", ",results/runs/sx/R-ec-plain/14_r2
+2026-11-18 17:59:18,sx,R-mpl-brief,A,A,14,0.7,2,1,1,1,1,,2,0,0,2,114.56,1.57,3983,2444,,70,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/_runner.py"", line 16, in <module>
+    runpy.run_path(script, run_name=""__main__"")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""<frozen runpy>"", line 287, in run_path
+  File ""<frozen runpy>""",results/runs/sx/R-mpl-brief/14_r2
+2026-11-18 17:59:18,sx,P-mpl,A,A,15,0.7,2,1,1,1,1,,1,0,1,1,22.72,0.14,4919,18,keys,,,,,,,,,results/runs/sx/P-mpl/15_r2
+2026-11-18 17:59:19,sx,P-ec,A,A,15,0.7,2,1,1,1,1,,1,0,1,1,1.19,0.3,5352,18,keys,,,,,,,,,results/runs/sx/P-ec/15_r2
+2026-11-18 17:59:56,sx,R-mpl-plain,A,A,15,0.7,2,1,1,1,1,,1,0,1,1,37.87,0.95,1189,896,,45,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/15_r2
+2026-11-18 18:00:37,sx,R-ec-brief,A,A,14,0.7,2,1,1,1,1,,2,0,0,2,117.96,1.56,4686,3587,,198,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/14_r2/make_option.py"", line 218, in <module>
+    main()
+    ~~~~^^
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/14_r2/make_option.py"", line 9, in main
+   ",results/runs/sx/R-ec-brief/14_r2
+2026-11-18 18:00:59,sx,R-mpl-brief,A,A,15,0.7,2,1,1,1,1,,1,0,1,1,99.9,0.94,1672,1732,,93,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/15_r2
+2026-11-18 18:01:11,sx,R-ec-plain,A,A,15,0.7,2,1,1,1,1,,1,0,1,1,75.17,0.88,1285,1315,,139,0,0,0,0,0,,,results/runs/sx/R-ec-plain/15_r2
+2026-11-18 18:01:11,sx,P-mpl,A,A,16,0.7,2,1,1,1,1,,2,0,1,1,12.41,0.1,4924,32,keys,,,,,,,,,results/runs/sx/P-mpl/16_r2
+2026-11-18 18:01:13,sx,P-ec,A,A,16,0.7,2,1,1,1,1,,2,0,1,1,2.02,0.28,5357,32,keys,,,,,,,,,results/runs/sx/P-ec/16_r2
+2026-11-18 18:01:28,sx,R-mpl-plain,A,A,16,0.7,2,1,1,1,1,,2,0,1,1,16.39,0.82,1194,341,,21,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/16_r2
+2026-11-18 18:01:45,sx,R-mpl-brief,A,A,16,0.7,2,1,1,1,1,,2,0,1,1,31.86,0.82,1677,544,,33,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/16_r2
+2026-11-18 18:02:06,sx,R-ec-plain,A,A,16,0.7,2,1,1,1,1,,2,0,1,1,38.19,0.84,1290,820,,102,0,0,0,0,0,,,results/runs/sx/R-ec-plain/16_r2
+2026-11-18 18:02:30,sx,R-ec-brief,A,A,15,0.7,2,1,1,1,1,,1,0,1,1,113.27,0.88,1768,3122,,315,0,0,0,0,0,,,results/runs/sx/R-ec-brief/15_r2
+2026-11-18 18:02:31,sx,P-mpl,A,A,17,0.7,2,1,1,1,1,,2,0,1,1,25.41,0.91,4923,30,keys,,,,,,,,,results/runs/sx/P-mpl/17_r2
+2026-11-18 18:02:32,sx,P-ec,A,A,17,0.7,2,1,1,1,1,,2,0,1,1,1.86,0.68,5356,30,keys,,,,,,,,,results/runs/sx/P-ec/17_r2
+2026-11-18 18:02:41,sx,R-ec-brief,A,A,16,0.7,2,1,1,1,1,,2,0,1,1,55.99,0.84,1773,1085,,106,0,0,0,0,0,,,results/runs/sx/R-ec-brief/16_r2
+2026-11-18 18:02:58,sx,R-mpl-plain,A,A,17,0.7,2,1,1,1,1,,2,0,1,1,26.08,1.07,1193,713,,47,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/17_r2
+2026-11-18 18:03:22,sx,R-mpl-brief,A,A,17,0.7,2,1,1,1,1,,2,0,1,1,49.36,2.0,1676,1148,,74,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/17_r2
+2026-11-18 18:03:27,sx,R-ec-plain,A,A,17,0.7,2,1,1,1,1,,2,0,1,1,45.85,0.99,1289,1116,,117,0,0,0,0,0,,,results/runs/sx/R-ec-plain/17_r2
+2026-11-18 18:03:27,sx,P-mpl,A,A,18,0.7,2,1,1,1,1,,4,0,1,1,5.79,0.32,4929,45,keys,,,,,,,,,results/runs/sx/P-mpl/18_r2
+2026-11-18 18:03:29,sx,P-ec,A,A,18,0.7,2,1,1,1,1,,4,0,1,1,1.85,0.36,5362,45,keys,,,,,,,,,results/runs/sx/P-ec/18_r2
+2026-11-18 18:04:06,sx,R-mpl-plain,A,A,18,0.7,2,1,0,0,0,,4,1,0,1,39.08,0.95,1199,960,,43,0,0,0,0,0,"[data] visible: y2 data [[-0.902, 0.004]] mostly outside the axis range",,results/runs/sx/R-mpl-plain/18_r2
+2026-11-18 18:04:57,sx,R-mpl-brief,A,A,18,0.7,2,1,1,1,1,,4,0,1,1,88.52,1.18,1682,1595,,82,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/18_r2
+2026-11-18 18:06:00,sx,R-ec-brief,A,A,17,0.7,2,1,1,1,1,,2,0,0,2,182.56,1.99,6386,5436,,235,0,0,0,0,0,,ECharts could not render the printed option: no figures in the printed JSON,results/runs/sx/R-ec-brief/17_r2
+2026-11-18 18:06:25,sx,R-ec-plain,A,A,18,0.7,2,1,0,0,0,,4,1,0,2,138.95,1.53,4325,2559,,142,0,0,0,0,0,"[data] visible: y2 data [[-1.027, 0.003], [-0.807, 0.003]] mostly outside the axis range","The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-plain/18_r2/make_option.py"", line 164, in <module>
+    main()
+    ~~~~^^
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-plain/18_r2/make_option.py"", line 161, in main
+ ",results/runs/sx/R-ec-plain/18_r2
+2026-11-18 18:06:26,sx,P-mpl,A,A,19,0.7,2,1,1,1,1,,3,0,1,1,25.56,0.31,4919,28,keys,,,,,,,,,results/runs/sx/P-mpl/19_r2
+2026-11-18 18:06:27,sx,P-ec,A,A,19,0.7,2,1,1,1,1,,3,0,1,1,1.39,0.36,5352,28,keys,,,,,,,,,results/runs/sx/P-ec/19_r2
+2026-11-18 18:07:15,sx,R-mpl-plain,A,A,19,0.7,2,1,1,1,1,,3,0,1,1,48.84,1.16,1189,1056,,54,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/19_r2
+2026-11-18 18:07:34,sx,R-mpl-brief,A,A,19,0.7,2,1,0,0,1,,3,1,0,1,66.91,1.19,1672,1458,,86,0,0,0,0,0,[ask] text_color: 21/27 texts are gray,,results/runs/sx/R-mpl-brief/19_r2
+2026-11-18 18:08:00,sx,R-ec-brief,A,A,18,0.7,2,1,1,1,1,,4,0,0,2,183.25,1.52,6282,4316,,207,0,0,0,0,0,,"The script failed (exit 1):
+/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/18_r2/make_option.py:236: Pandas4Warning: ExcelFile.parse is deprecated. Use pd.read_excel instead.
+  df = xl.parse(sheet_name, header=0)
+/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/18_r2/make_option.py:2",results/runs/sx/R-ec-brief/18_r2
+2026-11-18 18:08:24,sx,R-ec-plain,A,A,19,0.7,2,1,1,1,1,,3,0,1,1,69.01,0.88,1285,1513,,165,0,0,0,0,0,,,results/runs/sx/R-ec-plain/19_r2
+2026-11-18 18:08:24,sx,P-mpl,A,A,20,0.7,2,1,1,1,1,,2,0,1,1,23.88,0.32,4924,44,code,,,,,,,,,results/runs/sx/P-mpl/20_r2
+2026-11-18 18:08:26,sx,P-ec,A,A,20,0.7,2,1,1,1,1,,2,0,1,1,2.25,0.38,5357,59,keys,,,,,,,,,results/runs/sx/P-ec/20_r2
+2026-11-18 18:08:59,sx,R-mpl-plain,A,A,20,0.7,2,1,1,1,1,,2,0,1,1,34.71,0.95,1194,775,,41,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/20_r2
+2026-11-18 18:09:09,sx,R-ec-brief,A,A,19,0.7,2,1,1,1,1,,3,0,1,1,95.44,0.95,1768,2508,,263,0,0,0,0,0,,,results/runs/sx/R-ec-brief/19_r2
+2026-11-18 18:09:59,sx,R-mpl-brief,A,A,20,0.7,2,1,1,1,1,,2,0,1,1,92.66,1.17,1677,1690,,86,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/20_r2
+2026-11-18 18:09:59,sx,R-ec-plain,A,A,20,0.7,2,1,1,1,1,,2,0,1,1,60.3,0.88,1290,1592,,141,0,0,0,0,0,,,results/runs/sx/R-ec-plain/20_r2
+2026-11-18 18:10:00,sx,P-mpl,A,A,21,0.7,2,1,1,1,1,,2,0,1,1,1.7,0.12,4328,44,keys,,,,,,,,,results/runs/sx/P-mpl/21_r2
+2026-11-18 18:10:02,sx,P-ec,A,A,21,0.7,2,1,1,1,1,,2,0,1,1,2.56,0.29,4761,44,keys,,,,,,,,,results/runs/sx/P-ec/21_r2
+2026-11-18 18:10:42,sx,R-mpl-plain,A,A,21,0.7,2,1,0,0,0,,2,2,0,1,41.36,0.86,601,1007,,39,0,0,0,0,0,"[data] series: no y1 line with y [2.9705, 100.02] (x [30.0, 900.0]); lines: [('y1', [31.0, 900.0]), ('y2', [2.97, 100.02])] | [data] series: no y2 line with y [-0.80667, 0.003301] (x None); lines: [('y1', [31.0, 900.0]), ('y2', [2.97, 100.02])]",,results/runs/sx/R-mpl-plain/21_r2
+2026-11-18 18:11:06,sx,R-ec-brief,A,A,20,0.7,2,1,1,1,1,,2,0,1,1,116.43,0.94,1773,2587,,269,0,0,0,0,0,,,results/runs/sx/R-ec-brief/20_r2
+2026-11-18 18:11:23,sx,R-ec-plain,A,A,21,0.7,2,1,1,1,1,,2,0,1,1,41.05,0.85,697,697,,78,0,0,0,0,0,,,results/runs/sx/R-ec-plain/21_r2
+2026-11-18 18:11:25,sx,P-mpl,A,A,22,0.7,2,1,1,1,1,,3,0,1,1,2.12,0.32,4924,30,keys,,,,,,,,,results/runs/sx/P-mpl/22_r2
+2026-11-18 18:12:11,sx,R-ec-brief,A,A,21,0.7,2,1,1,1,1,,2,0,1,1,64.9,0.86,1180,1800,,202,0,0,0,0,0,,,results/runs/sx/R-ec-brief/21_r2
+2026-11-18 18:12:11,sx,P-ec,A,A,22,0.7,2,1,1,1,1,,3,0,1,1,46.42,0.34,5357,30,keys,,,,,,,,,results/runs/sx/P-ec/22_r2
+2026-11-18 18:12:21,sx,R-mpl-brief,A,A,21,0.7,2,1,0,0,0,,2,2,0,2,138.89,1.54,3726,2781,,81,0,0,0,0,0,"[data] series: no y1 line with y [2.9705, 100.02] (x [30.0, 900.0]); lines: [('y1', [31.0, 900.0]), ('y2', [-100.02, -2.97])] | [data] series: no y2 line with y [-0.80667, 0.003301] (x None); lines: [('y1', [31.0, 900.0]), ('y2', [-100.02, -2.97])]","The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/_runner.py"", line 16, in <module>
+    runpy.run_path(script, run_name=""__main__"")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""<frozen runpy>"", line 287, in run_path
+  File ""<frozen runpy>""",results/runs/sx/R-mpl-brief/21_r2
+2026-11-18 18:12:35,sx,R-mpl-plain,A,A,22,0.7,2,1,1,1,1,,3,0,1,1,24.52,1.17,1194,624,,39,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/22_r2
+2026-11-18 18:13:11,sx,R-ec-plain,A,A,22,0.7,2,1,1,1,1,,3,0,1,1,50.6,0.9,1290,1522,,173,0,0,0,0,0,,,results/runs/sx/R-ec-plain/22_r2
+2026-11-18 18:13:14,sx,R-mpl-brief,A,A,22,0.7,2,1,1,1,1,,3,0,1,1,62.21,1.17,1677,1359,,73,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/22_r2
+2026-11-18 18:13:14,sx,P-mpl,A,A,23,0.7,2,1,1,1,1,,2,0,1,1,2.27,0.1,4305,30,keys,,,,,,,,,results/runs/sx/P-mpl/23_r2
+2026-11-18 18:13:15,sx,P-ec,A,A,23,0.7,2,1,1,1,1,,2,0,1,1,1.72,0.28,4738,30,keys,,,,,,,,,results/runs/sx/P-ec/23_r2
+2026-11-18 18:14:08,sx,R-ec-brief,A,A,22,0.7,2,1,0,0,1,,3,2,0,1,92.6,0.95,1773,1926,,197,0,0,0,0,0,"[ask] lines: y2 line color is '#27ae60', want 'green' | [ask] axis: fig 0: y2.label_color is '#333333', want 'green'; fig 1: y2.label_color is '#333333', want 'green'; fig 2: y2.label_color is '#333333', want 'green'",,results/runs/sx/R-ec-brief/22_r2
+2026-11-18 18:14:28,sx,R-mpl-plain,A,A,23,0.7,2,1,1,1,1,,2,0,0,2,74.31,1.51,2718,1899,,45,0,0,0,0,0,,"The script failed (exit 1):
+    self._engine = self._make_engine(f, self.engine)
+                   ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File ""/home/chs/Work/tga_plot/.venv/lib/python3.13/site-packages/pandas/io/parsers/readers.py"", line 3006, in _make_engine
+    return mapping[engine](f, **self.opti",results/runs/sx/R-mpl-plain/23_r2
+2026-11-18 18:17:08,sx,R-mpl-brief,A,A,23,0.7,2,1,1,1,1,,2,0,0,3,232.66,2.14,9997,5422,,105,0,0,0,0,0,,"The script failed (exit 1):
+    ~~~~^^
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/23_r2/plot.py"", line 128, in main
+    df = load_data(DATA_FILE)
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/23_r2/plot.py"", line 21, in load_data
+    df = pd.read_csv(file_pat || The script failed (exit 1):
+    next(self.data)
+    ~~~~^^^^^^^^^^^
+  File ""/home/chs/Work/tga_plot/.venv/lib/python3.13/site-packages/pandas/io/parsers/python_parser.py"", line 267, in _read
+    line = f.readline()
+  File ""<frozen codecs>"", line 325, in decode
+UnicodeDecodeError: 'utf-8' codec can't",results/runs/sx/R-mpl-brief/23_r2
+2026-11-18 18:17:21,sx,P-mpl,A,A,24,0.7,2,1,1,1,1,,3,0,1,1,13.11,0.14,4486,42,keys,,,,,,,,,results/runs/sx/P-mpl/24_r2
+2026-11-18 18:17:54,sx,R-ec-plain,A,A,23,0.7,2,0,0,0,0,,1,1,0,3,226.67,1.6,8138,4517,,163,0,0,0,0,0,[data] run: no plot after retries,"The script failed (exit 1):
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-plain/23_r2/make_option.py"", line 20, in <module>
+    df = pd.read_csv(DATA_FILE, sep='\t', header=None, skipr || The script failed (exit 1):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-plain/23_r2/make_option.py"", line 18, in <module>
+    df = pd.read_csv(DATA_FILE, sep=',', header=None, skiprows=10)
+  File ""/home/chs/Work/tga_plot/.venv/lib/python3.13/site-packages/pandas/io/parsers/readers.py"", || The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-plain/23_r2/make_option.py"", line 27, in <module>
+    raise ValueError(""Could not read file with any tried encoding."")
+ValueError: Could not read file with any tried encoding.",results/runs/sx/R-ec-plain/23_r2
+2026-11-18 18:17:56,sx,P-ec,A,A,24,0.7,2,1,1,1,1,,3,0,1,1,35.04,0.29,4919,42,keys,,,,,,,,,results/runs/sx/P-ec/24_r2
+2026-11-18 18:18:09,sx,R-ec-brief,A,A,23,0.7,2,0,0,0,0,,1,1,0,3,220.7,1.62,10394,5553,,162,0,0,0,0,0,[data] run: no plot after retries,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/23_r2/make_option.py"", line 9, in <module>
+    df = pd.read_csv(DATA_FILE, sep=r'\s+', header=None, skiprows=10)
+  File ""/home/chs/Work/tga_plot/.venv/lib/python3.13/site-pa || The script failed (exit 1):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/23_r2/make_option.py"", line 18, in <module>
+    df = pd.read_csv(DATA_FILE, sep=r'\s+', header=None, skiprows=10, on_bad_lines='skip', engine='c')
+  File ""/home/chs/Work/tga_plot/.venv/lib/python3.13/site-pac || The script failed (exit 1):
+  File ""/home/chs/Work/tga_plot/.venv/lib/python3.13/site-packages/pandas/io/parsers/readers.py"", line 2721, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File ""/home/chs/Work/tga_plot/.venv/lib/pyt",results/runs/sx/R-ec-brief/23_r2
+2026-11-18 18:18:23,sx,R-mpl-plain,A,A,24,0.7,2,1,1,1,1,,3,0,1,1,28.47,0.87,757,647,,35,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/24_r2
+2026-11-18 18:18:41,sx,R-ec-plain,A,A,24,0.7,2,1,1,1,1,,3,0,1,1,32.54,0.87,853,735,,89,0,0,0,0,0,,,results/runs/sx/R-ec-plain/24_r2
+2026-11-18 18:18:49,sx,P-mpl,B,in,B01,0.7,2,1,1,1,1,,4,0,1,1,7.89,0.14,4427,162,code,,,,,,,,,results/runs/sx/P-mpl/B01_r2
+2026-11-18 18:19:15,sx,R-ec-brief,A,A,24,0.7,2,1,1,1,1,,3,0,1,1,52.04,0.86,1336,1387,,169,0,0,0,0,0,,,results/runs/sx/R-ec-brief/24_r2
+2026-11-18 18:19:19,sx,P-ec,B,in,B01,0.7,2,1,1,1,1,,4,0,1,1,29.78,0.3,4860,168,keys,,,,,,,,,results/runs/sx/P-ec/B01_r2
+2026-11-18 18:19:46,sx,R-mpl-plain,B,in,B01,0.7,2,1,1,1,1,,4,0,1,1,31.5,0.85,699,650,,39,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B01_r2
+2026-11-18 18:20:12,sx,R-mpl-brief,A,A,24,0.7,2,0,0,0,0,,1,1,0,3,135.74,2.1,7159,3446,,61,0,0,0,0,0,[data] run: no plot after retries,The script ran but saved no figure into OUT_DIR (use fig.savefig / plt.savefig). || The script ran but saved no figure into OUT_DIR (use fig.savefig / plt.savefig). || The script ran but saved no figure into OUT_DIR (use fig.savefig / plt.savefig).,results/runs/sx/R-mpl-brief/24_r2
+2026-11-18 18:20:29,sx,R-mpl-brief,B,in,B01,0.7,2,1,1,1,1,,4,0,1,1,70.44,0.86,1182,1491,,83,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B01_r2
+2026-11-18 18:21:22,sx,R-ec-plain,B,in,B01,0.7,2,1,1,1,1,,4,0,1,1,95.38,0.82,795,2035,,175,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B01_r2
+2026-11-18 18:21:25,sx,P-mpl,B,in,B02,0.7,2,1,0,0,1,,3,1,0,1,55.88,0.14,4398,175,keys,,,,,,,"[ask] text_values: no label for [184.0]; texts: ['Residue 38.5%', '738 °C', '507 °C', '507 °C']",,results/runs/sx/P-mpl/B02_r2
+2026-11-18 18:21:29,sx,P-ec,B,in,B02,0.7,2,1,1,1,1,,3,0,1,1,7.1,0.3,4831,120,keys,,,,,,,,,results/runs/sx/P-ec/B02_r2
+2026-11-18 18:21:49,sx,R-ec-brief,B,in,B01,0.7,2,1,0,0,1,,4,3,0,1,97.27,0.81,1278,2637,,242,0,0,0,0,0,"[ask] spans: missing shaded ranges [[120, 250], [430, 580], [640, 830]] | [ask] text_contains: no text containing 'H2O' | [ask] text_contains: no text containing 'CO2'",,results/runs/sx/R-ec-brief/B01_r2
+2026-11-18 18:22:29,sx,R-mpl-plain,B,in,B02,0.7,2,1,0,0,1,,3,1,0,1,63.57,1.24,670,1606,,73,0,0,0,0,0,"[ask] text_values: no label for [184.0]; texts: ['Endo\n508.0 °C', 'Exo\n738.0 °C']",,results/runs/sx/R-mpl-plain/B02_r2
+2026-11-18 18:23:18,sx,R-ec-plain,B,in,B02,0.7,2,1,0,0,1,,3,1,0,1,88.75,1.11,766,2018,,221,0,0,0,0,0,"[ask] text_values: no label for [184.0]; texts: ['Endo\n508.0°C', 'Exo\n738.0°C']",,results/runs/sx/R-ec-plain/B02_r2
+2026-11-18 18:23:27,sx,R-mpl-brief,B,in,B02,0.7,2,1,1,1,1,,3,0,1,1,118.35,1.17,1153,2638,,106,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B02_r2
+2026-11-18 18:23:28,sx,P-mpl,B,in,B03,0.7,2,1,1,1,1,,5,0,1,1,10.14,0.19,4278,64,keys,,,,,,,,,results/runs/sx/P-mpl/B03_r2
+2026-11-18 18:23:30,sx,P-ec,B,in,B03,0.7,2,1,1,1,1,,5,0,1,1,2.66,0.27,4711,64,keys,,,,,,,,,results/runs/sx/P-ec/B03_r2
+2026-11-18 18:23:46,sx,R-mpl-plain,B,in,B03,0.7,2,1,1,1,1,,5,0,1,1,18.19,0.94,551,517,,34,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B03_r2
+2026-11-18 18:24:10,sx,R-mpl-brief,B,in,B03,0.7,2,1,1,1,1,,5,0,1,1,40.06,0.97,1034,687,,38,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B03_r2
+2026-11-18 18:24:15,sx,R-ec-brief,B,in,B02,0.7,2,1,0,0,1,,3,1,0,1,105.66,1.09,1249,2110,,217,0,0,0,0,0,"[ask] text_values: no label for [184.0]; texts: ['Residue 38.5%', '508 °C\nEndo', '925 °C\nEndo', '738 °C\nExo']",,results/runs/sx/R-ec-brief/B02_r2
+2026-11-18 18:24:29,sx,R-ec-plain,B,in,B03,0.7,2,1,1,1,1,,5,0,1,1,42.32,0.8,647,721,,93,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B03_r2
+2026-11-18 18:24:30,sx,P-mpl,B,in,B04,0.7,2,1,0,0,1,,3,1,0,1,15.08,0.12,4208,56,keys,,,,,,,"[ask] text_values: no label for [25.3]; texts: ['38', '55', '54', '48', '25']",,results/runs/sx/P-mpl/B04_r2
+2026-11-18 18:24:33,sx,P-ec,B,in,B04,0.7,2,1,1,1,1,,3,0,1,1,4.31,0.31,4641,117,keys,,,,,,,,,results/runs/sx/P-ec/B04_r2
+2026-11-18 18:24:43,sx,R-ec-brief,B,in,B03,0.7,2,1,1,1,1,,5,0,1,1,33.12,0.81,1130,1106,,142,0,0,0,0,0,,,results/runs/sx/R-ec-brief/B03_r2
+2026-11-18 18:24:55,sx,R-mpl-plain,B,in,B04,0.7,2,1,1,1,1,,3,0,1,1,25.05,1.12,480,555,,39,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B04_r2
+2026-11-18 18:25:10,sx,R-mpl-brief,B,in,B04,0.7,2,1,1,1,1,,3,0,1,1,36.94,1.12,963,778,,44,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B04_r2
+2026-11-18 18:25:20,sx,R-ec-plain,B,in,B04,0.7,2,1,0,0,1,,3,1,0,1,37.15,1.1,576,898,,102,0,0,0,0,0,"[ask] text_values: no label for [55.1]; texts: ['25.30', '25.34', '47.94', '37.80', '53.92']",,results/runs/sx/R-ec-plain/B04_r2
+2026-11-18 18:25:22,sx,P-mpl,B,out,B05,0.7,2,1,0,0,1,,3,2,0,1,12.06,0.15,4683,47,keys,,,,,,,[ask] text_contains: no text containing 'Lot A' | [ask] text_contains: no text containing 'Lot B',,results/runs/sx/P-mpl/B05_r2
+2026-11-18 18:25:24,sx,P-ec,B,out,B05,0.7,2,1,0,0,1,,3,2,0,1,4.04,0.29,5116,52,keys,,,,,,,[ask] text_contains: no text containing 'Lot A' | [ask] text_contains: no text containing 'Lot B',,results/runs/sx/P-ec/B05_r2
+2026-11-18 18:25:49,sx,R-ec-brief,B,in,B04,0.7,2,1,0,0,1,,3,1,0,1,54.52,1.12,1059,1170,,128,0,0,0,0,0,"[ask] text_values: no label for [25.3, 48.0, 53.9, 37.8, 55.1]; texts: []",,results/runs/sx/R-ec-brief/B04_r2
+2026-11-18 18:26:25,sx,R-mpl-plain,B,out,B05,0.7,2,1,0,0,0,,3,1,0,2,63.02,8.51,3042,1668,,70,0,0,0,0,0,"[data] series_set: y1 lines [[9.97, 100.03], [0.0, 870.0], [-1.18, 0.0], [0.0, 870.0]] do not cover [[9.9705, 100.03], [6.9768, 100.03]] in one figure","The script failed (exit 1):
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File ""pandas/_libs/index.pyx"", line 172, in pandas._libs.index.IndexEngine.get_loc
+  File ""pandas/_libs/index.pyx"", line 201, in pandas._libs.index.IndexEngine.get_loc
+  File ""pandas",results/runs/sx/R-mpl-plain/B05_r2
+2026-11-18 18:28:02,sx,R-mpl-brief,B,out,B05,0.7,2,0,0,0,0,,1,1,0,3,158.13,2.02,9480,3913,,95,0,0,0,0,0,[data] run: no plot after retries,"The script failed (exit 1):
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File ""pandas/_libs/index.pyx"", line 172, in pandas._libs.index.IndexEngine.get_loc
+  File ""pandas/_libs/index.pyx"", line 201, in pandas._libs.index.IndexEngine.get_loc
+  File ""pandas || The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/_runner.py"", line 16, in <module>
+    runpy.run_path(script, run_name=""__main__"")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""<frozen runpy>"", line 287, in run_path
+  File ""<frozen runpy>"" || The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/_runner.py"", line 16, in <module>
+    runpy.run_path(script, run_name=""__main__"")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""<frozen runpy>"", line 287, in run_path
+  File ""<frozen runpy>""",results/runs/sx/R-mpl-brief/B05_r2
+2026-11-18 18:28:31,sx,R-ec-plain,B,out,B05,0.7,2,0,0,0,0,,1,1,0,3,162.05,1.62,8904,4224,,161,0,0,0,0,0,[data] run: no plot after retries,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/.venv/lib/python3.13/site-packages/pandas/core/indexes/base.py"", line 3816, in get_loc
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File ""pandas/_libs/index.pyx || The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/.venv/lib/python3.13/site-packages/pandas/core/indexes/base.py"", line 3816, in get_loc
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File ""pandas/_libs/index.pyx || The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/.venv/lib/python3.13/site-packages/pandas/core/indexes/base.py"", line 3816, in get_loc
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File ""pandas/_libs/index.pyx",results/runs/sx/R-ec-plain/B05_r2
+2026-11-18 18:28:35,sx,P-mpl,B,in,B06,0.7,2,1,1,1,1,,3,0,1,1,32.52,0.13,4263,163,keys,,,,,,,,,results/runs/sx/P-mpl/B06_r2
+2026-11-18 18:28:37,sx,P-ec,B,in,B06,0.7,2,1,1,1,1,,3,0,1,1,6.19,0.29,4696,83,keys,,,,,,,,,results/runs/sx/P-ec/B06_r2
+2026-11-18 18:28:58,sx,R-mpl-plain,B,in,B06,0.7,2,1,1,1,1,,3,0,1,1,22.69,0.85,535,688,,38,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B06_r2
+2026-11-18 18:29:51,sx,R-mpl-brief,B,in,B06,0.7,2,1,0,0,0,,3,3,0,1,73.56,0.84,1018,1310,,77,0,0,0,0,0,"[data] series: no y1 line with y [75.177, 100.0] (x [0, 140]); lines: [('y1', []), ('y2', [75.177, 100.0])] | [data] series: no y2 line with y [30.0, 400.0] (x None); lines: [('y1', []), ('y2', [75.177, 100.0])] | [ask] text_value: no label showing 75.177±0.1; texts: []",,results/runs/sx/R-mpl-brief/B06_r2
+2026-11-18 18:30:27,sx,R-ec-plain,B,in,B06,0.7,2,1,0,0,0,,3,3,0,2,88.95,1.33,2680,2249,,146,0,0,0,0,0,"[data] series: no y1 line with y [75.177, 100.0] (x [0, 140]); lines: [] | [data] series: no y2 line with y [30.0, 400.0] (x None); lines: [] | [ask] text_value: no label showing 75.177±0.1; texts: []","The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/.venv/lib/python3.13/site-packages/pandas/core/indexes/base.py"", line 3816, in get_loc
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File ""pandas/_libs/index.pyx",results/runs/sx/R-ec-plain/B06_r2
+2026-11-18 18:31:22,sx,R-ec-brief,B,in,B06,0.7,2,1,0,0,1,,3,1,0,1,91.45,0.8,1114,1763,,198,0,0,0,0,0,[ask] text_value: no label showing 75.177±0.1; texts: ['Residue 100.0%'],,results/runs/sx/R-ec-brief/B06_r2
+2026-11-18 18:31:25,sx,P-mpl,B,in,B07,0.7,2,1,1,1,1,,3,0,0,2,58.7,0.16,10083,205,keys,,,,,,,,"plotkit error: annotate.residue must be an object, true or false, got [{'x': 300, 'text': 'Weight at 300 °C: {y:.1f}%'}, {'x': 600, 'text': 'Weight at 600 °C: {y:.1f}%'}] | hint: ",results/runs/sx/P-mpl/B07_r2
+2026-11-18 18:31:29,sx,P-ec,B,in,B07,0.7,2,1,0,0,1,,3,1,0,1,6.72,0.31,5382,69,keys,,,,,,,"[ask] text_value: no label showing 71.007±0.15; texts: ['Residue 12.0%', '300 °C']",,results/runs/sx/P-ec/B07_r2
+2026-11-18 18:31:43,sx,R-ec-brief,B,out,B05,0.7,2,0,0,0,0,,1,1,0,3,318.19,1.6,14255,7947,,212,0,0,0,0,0,[data] run: no plot after retries,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B05_r2/make_option.py"", line 137, in <module>
+    ""coord"": [s_info[""peak_temp""], -dtgs_at_peak], # Need dtg value at peak
+                                    ^^^^^^^^^^^^
+Na || The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B05_r2/make_option.py"", line 123, in <module>
+    res_b = process_file(files[1], lot_names[1], *colors_b)
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B05 || The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B05_r2/make_option.py"", line 145, in <module>
+    res_b = process_file(files[1], lot_names[1], *colors_b)
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B05",results/runs/sx/R-ec-brief/B05_r2
+2026-11-18 18:32:09,sx,R-mpl-brief,B,in,B07,0.7,2,1,1,1,1,,3,0,1,1,40.14,0.85,1705,864,,46,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B07_r2
+2026-11-18 18:32:27,sx,R-mpl-plain,B,in,B07,0.7,2,1,0,0,0,,3,1,0,2,61.39,1.63,3588,1643,,41,0,0,0,0,0,"[data] only: other y1 data drawn too: [[-1.0514, 0.0025185]]","The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/_runner.py"", line 16, in <module>
+    runpy.run_path(script, run_name=""__main__"")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""<frozen runpy>"", line 287, in run_path
+  File ""<frozen runpy>""",results/runs/sx/R-mpl-plain/B07_r2
+2026-11-18 18:32:41,sx,R-ec-plain,B,in,B07,0.7,2,1,1,1,1,,3,0,1,1,57.51,0.84,1318,1216,,140,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B07_r2
+2026-11-18 18:32:44,sx,P-mpl,B,in,B08,0.7,2,1,1,1,1,,3,0,1,1,16.85,0.16,4954,121,keys,,,,,,,,,results/runs/sx/P-mpl/B08_r2
+2026-11-18 18:32:48,sx,P-ec,B,in,B08,0.7,2,1,1,1,1,,3,0,1,1,7.1,0.32,5387,111,keys,,,,,,,,,results/runs/sx/P-ec/B08_r2
+2026-11-18 18:33:16,sx,R-mpl-plain,B,in,B08,0.7,2,1,1,1,1,,3,0,1,1,32.35,0.82,1227,693,,37,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B08_r2
+2026-11-18 18:33:29,sx,R-ec-brief,B,in,B07,0.7,2,1,0,0,1,,3,2,0,1,79.74,0.86,1801,2058,,211,0,0,0,0,0,[ask] text_value: no label showing 71.007±0.15; texts: [] | [ask] text_value: no label showing 12.001±0.15; texts: [],,results/runs/sx/R-ec-brief/B07_r2
+2026-11-18 18:33:48,sx,R-mpl-brief,B,in,B08,0.7,2,1,1,1,1,,3,0,1,1,60.5,0.86,1710,1001,,57,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B08_r2
+2026-11-18 18:34:02,sx,R-ec-plain,B,in,B08,0.7,2,1,0,0,1,,3,1,0,1,46.17,0.85,1323,1121,,115,0,0,0,0,0,"[ask] text_contains: no text containing '공기, 10 °C/min'",,results/runs/sx/R-ec-plain/B08_r2
+2026-11-18 18:34:05,sx,P-mpl,B,messy,B09,0.7,2,1,1,1,1,,3,0,1,1,16.77,0.19,4966,91,keys,,,,,,,,,results/runs/sx/P-mpl/B09_r2
+2026-11-18 18:34:09,sx,P-ec,B,messy,B09,0.7,2,1,1,1,1,,3,0,1,1,6.64,0.3,5399,91,keys,,,,,,,,,results/runs/sx/P-ec/B09_r2
+2026-11-18 18:34:30,sx,R-mpl-plain,B,messy,B09,0.7,2,1,1,1,1,,3,0,1,1,24.98,0.86,1239,578,,30,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B09_r2
+2026-11-18 18:35:05,sx,R-ec-plain,B,messy,B09,0.7,2,1,0,0,1,,3,1,0,1,34.63,0.85,1335,999,,131,0,0,0,0,0,"[ask] lines: y1 line width is 2.25, want 3",,results/runs/sx/R-ec-plain/B09_r2
+2026-11-18 18:35:44,sx,R-ec-brief,B,in,B08,0.7,2,1,1,1,1,,3,0,0,2,134.75,1.41,5788,3592,,200,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B08_r2/make_option.py"", line 224, in <module>
+    print(json.dumps(output))
+          ~~~~~~~~~~^^^^^^^^
+  File ""/home/chs/.local/share/uv/python/cpython-3.13.11-linux-x86_6",results/runs/sx/R-ec-brief/B08_r2
+2026-11-18 18:35:57,sx,R-mpl-brief,B,messy,B09,0.7,2,1,1,1,1,,3,0,1,1,108.22,0.85,1722,1815,,59,0,1,0,0,0,,,results/runs/sx/R-mpl-brief/B09_r2
+2026-11-18 18:35:59,sx,P-mpl,B,messy,B10,0.7,2,1,1,1,1,,5,0,1,1,15.48,0.17,4962,86,keys,,,,,,,,,results/runs/sx/P-mpl/B10_r2
+2026-11-18 18:36:03,sx,P-ec,B,messy,B10,0.7,2,1,1,1,1,,5,0,1,1,5.52,0.31,5395,85,keys,,,,,,,,,results/runs/sx/P-ec/B10_r2
+2026-11-18 18:36:21,sx,R-mpl-plain,B,messy,B10,0.7,2,1,0,0,1,,5,1,0,1,21.9,0.82,1235,623,,32,0,0,0,0,0,"[ask] png_px: png sizes [[2043, 1497]]",,results/runs/sx/R-mpl-plain/B10_r2
+2026-11-18 18:36:43,sx,R-ec-brief,B,messy,B09,0.7,2,1,0,0,1,,3,1,0,1,98.08,0.85,1818,1930,,202,0,0,0,0,0,"[ask] lines: y1 line color is '#c0392b', want 'red'; y1 line width is 2.25, want 3",,results/runs/sx/R-ec-brief/B09_r2
+2026-11-18 18:37:10,sx,R-ec-plain,B,messy,B10,0.7,2,1,0,0,1,,5,1,0,1,48.25,0.85,1331,1244,,106,0,0,0,0,0,"[ask] png_px: png sizes [[2100, 1556]]",,results/runs/sx/R-ec-plain/B10_r2
+2026-11-18 18:37:21,sx,R-mpl-brief,B,messy,B10,0.7,2,1,0,0,1,,5,1,0,1,78.38,0.84,1718,1440,,71,0,0,0,0,0,"[ask] png_px: png sizes [[2081, 1497]]",,results/runs/sx/R-mpl-brief/B10_r2
+2026-11-18 18:37:23,sx,P-mpl,B,messy,B11,0.7,2,1,1,1,1,,5,0,1,1,13.39,0.15,4956,62,keys,,,,,,,,,results/runs/sx/P-mpl/B11_r2
+2026-11-18 18:37:27,sx,P-ec,B,messy,B11,0.7,2,1,1,1,1,,5,0,1,1,5.69,0.31,5389,85,keys,,,,,,,,,results/runs/sx/P-ec/B11_r2
+2026-11-18 18:37:44,sx,R-mpl-plain,B,messy,B11,0.7,2,1,0,0,1,,5,2,0,1,21.33,0.87,1229,586,,30,0,0,0,0,0,[ask] title: no title | [ask] text_value: no label showing 17.009±0.03; texts: [],,results/runs/sx/R-mpl-plain/B11_r2
+2026-11-18 18:38:15,sx,R-ec-brief,B,messy,B10,0.7,2,1,0,0,1,,5,1,0,1,92.41,0.84,1814,2103,,200,0,0,0,0,0,"[ask] png_px: png sizes [[2100, 1556]]",,results/runs/sx/R-ec-brief/B10_r2
+2026-11-18 18:38:28,sx,R-mpl-brief,B,messy,B11,0.7,2,1,1,1,1,,5,0,1,1,61.01,0.86,1712,1127,,62,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B11_r2
+2026-11-18 18:38:35,sx,R-ec-plain,B,messy,B11,0.7,2,1,0,0,1,,5,2,0,1,50.78,0.85,1325,783,,90,0,0,0,0,0,[ask] legend: legend at outside | [ask] text_value: no label showing 17.009±0.03; texts: [],,results/runs/sx/R-ec-plain/B11_r2
+2026-11-18 18:38:36,sx,P-mpl,B,messy,B12,0.7,2,1,1,1,1,,4,0,1,1,8.27,0.1,4402,53,keys,,,,,,,,,results/runs/sx/P-mpl/B12_r2
+2026-11-18 18:38:39,sx,P-ec,B,messy,B12,0.7,2,1,1,1,1,,4,0,1,1,3.64,0.28,4835,82,keys,,,,,,,,,results/runs/sx/P-ec/B12_r2
+2026-11-18 18:38:57,sx,R-mpl-plain,B,messy,B12,0.7,2,1,1,1,1,,4,0,1,1,20.45,0.8,674,597,,38,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B12_r2
+2026-11-18 18:39:10,sx,R-ec-brief,B,messy,B11,0.7,2,1,0,0,1,,5,2,0,1,54.9,0.86,1808,1562,,176,0,0,0,0,0,"[ask] legend: legend at outside | [ask] text_value: value 17.009 shown as ['17.009'], not matching \d+\.\d{2}(?!\d)",,results/runs/sx/R-ec-brief/B11_r2
+2026-11-18 18:39:26,sx,R-mpl-brief,B,messy,B12,0.7,2,1,1,1,1,,4,0,1,1,47.01,0.8,1157,657,,33,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B12_r2
+2026-11-18 18:39:33,sx,R-ec-plain,B,messy,B12,0.7,2,1,1,1,1,,4,0,1,1,36.19,0.83,770,960,,111,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B12_r2
+2026-11-18 18:39:34,sx,P-mpl,B,messy,B13,0.7,2,1,1,1,1,,2,0,1,1,8.27,0.15,4943,33,keys,,,,,,,,,results/runs/sx/P-mpl/B13_r2
+2026-11-18 18:39:36,sx,P-ec,B,messy,B13,0.7,2,1,1,1,1,,2,0,1,1,3.63,0.3,5376,33,keys,,,,,,,,,results/runs/sx/P-ec/B13_r2
+2026-11-18 18:39:55,sx,R-ec-brief,B,messy,B12,0.7,2,1,1,1,1,,4,0,1,1,44.6,0.81,1253,946,,108,0,0,0,0,0,,,results/runs/sx/R-ec-brief/B12_r2
+2026-11-18 18:40:07,sx,R-mpl-plain,B,messy,B13,0.7,2,1,0,0,1,,2,1,0,1,32.82,1.19,1216,790,,45,0,0,0,0,0,[ask] text_values: no label for [455]; texts: ['300.0 °C'],,results/runs/sx/R-mpl-plain/B13_r2
+2026-11-18 18:40:48,sx,R-mpl-brief,B,messy,B13,0.7,2,1,1,1,1,,2,0,1,1,71.44,1.18,1699,1416,,71,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B13_r2
+2026-11-18 18:40:51,sx,R-ec-plain,B,messy,B13,0.7,2,1,0,0,1,,2,1,0,1,56.57,1.14,1312,1578,,162,0,0,0,0,0,"[ask] text_values: no label for [300, 455]; texts: []",,results/runs/sx/R-ec-plain/B13_r2
+2026-11-18 18:40:53,sx,P-mpl,B,messy,B14,0.7,2,1,1,1,1,,3,0,1,1,4.74,0.22,4944,39,keys,,,,,,,,,results/runs/sx/P-mpl/B14_r2
+2026-11-18 18:40:55,sx,P-ec,B,messy,B14,0.7,2,1,1,1,1,,3,0,1,1,3.42,0.33,5377,39,keys,,,,,,,,,results/runs/sx/P-ec/B14_r2
+2026-11-18 18:41:10,sx,R-mpl-plain,B,messy,B14,0.7,2,1,0,0,1,,3,1,0,1,16.98,0.89,1217,556,,32,0,0,0,0,0,"[ask] font_size: axis text sizes [10.0, 16.0]",,results/runs/sx/R-mpl-plain/B14_r2
+2026-11-18 18:41:48,sx,R-mpl-brief,B,messy,B14,0.7,2,1,1,1,1,,3,0,1,1,52.9,0.9,1700,1218,,70,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B14_r2
+2026-11-18 18:41:56,sx,R-ec-brief,B,messy,B13,0.7,2,1,1,1,1,,2,0,1,1,109.27,1.15,1795,1843,,173,0,0,0,0,0,,,results/runs/sx/R-ec-brief/B13_r2
+2026-11-18 18:42:45,sx,R-ec-plain,B,messy,B14,0.7,2,1,1,1,1,,3,0,1,1,95.1,0.86,1313,1772,,165,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B14_r2
+2026-11-18 18:42:46,sx,P-mpl,B,out,B15,0.7,2,1,0,0,1,,2,1,0,1,49.82,0.17,4942,29,keys,,,,,,,[ask] legend: legend inside=True,,results/runs/sx/P-mpl/B15_r2
+2026-11-18 18:42:48,sx,P-ec,B,out,B15,0.7,2,1,0,0,1,,2,1,0,1,3.62,0.33,5375,28,keys,,,,,,,[ask] legend: legend inside=True,,results/runs/sx/P-ec/B15_r2
+2026-11-18 18:43:35,sx,R-mpl-plain,B,out,B15,0.7,2,1,1,1,1,,2,0,1,1,48.96,0.91,1215,1110,,41,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B15_r2
+2026-11-18 18:43:40,sx,R-mpl-brief,B,out,B15,0.7,2,1,1,1,1,,2,0,1,1,51.85,0.92,1698,1296,,69,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B15_r2
+2026-11-18 18:44:03,sx,R-ec-plain,B,out,B15,0.7,2,1,1,1,1,,2,0,1,1,28.02,0.87,1311,738,,91,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B15_r2
+2026-11-18 18:44:22,sx,R-ec-brief,B,messy,B14,0.7,2,1,1,1,1,,3,0,0,2,154.12,1.44,5891,4238,,218,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B14_r2/make_option.py"", line 253, in <module>
+    fig = generate_figure(""PVC"", df_pvc)
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B14_r2/make_option.py""",results/runs/sx/R-ec-brief/B14_r2
+2026-11-18 18:44:25,sx,P-mpl,B,out,B16,0.7,2,1,0,0,1,,3,1,0,1,21.91,0.15,4392,123,code,,,,,,,[ask] panels: 1 panels,,results/runs/sx/P-mpl/B16_r2
+2026-11-18 18:44:49,sx,R-mpl-plain,B,out,B16,0.7,2,1,1,1,1,,3,0,1,1,24.33,0.86,664,585,,33,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B16_r2
+2026-11-18 18:44:51,sx,P-ec,B,out,B16,0.7,2,1,0,0,1,,3,1,0,2,29.37,0.28,10010,389,echarts,,,,,,,[ask] panels: 1 panels,plotkit error: echarts.grid must be an object | hint: ,results/runs/sx/P-ec/B16_r2
+2026-11-18 18:45:20,sx,R-mpl-brief,B,out,B16,0.7,2,1,1,1,1,,3,0,1,1,30.25,0.88,1147,990,,57,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B16_r2
+2026-11-18 18:45:57,sx,R-ec-plain,B,out,B16,0.7,2,1,0,0,1,,3,1,0,1,66.22,0.82,760,1379,,123,0,0,0,0,0,[ask] panels: 1 panels,,results/runs/sx/R-ec-plain/B16_r2
+2026-11-18 18:46:35,sx,R-ec-brief,B,out,B16,0.7,2,1,0,0,1,,3,1,0,1,75.43,0.83,1243,1973,,175,0,0,0,0,0,[ask] panels: 1 panels,,results/runs/sx/R-ec-brief/B16_r2
+2026-11-18 18:46:56,sx,P-ec,B,out,B17,0.7,2,1,0,0,1,,1,1,0,1,20.6,0.3,5384,25,keys,,,,,,,[ask] offset: curves are not offset,,results/runs/sx/P-ec/B17_r2
+2026-11-18 18:47:45,sx,R-ec-brief,B,out,B15,0.7,2,1,1,1,1,,2,0,0,3,244.63,2.17,13561,7447,,226,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B15_r2/make_option.py"", line 192, in <module>
+    ""formatter"": function_placeholder # Not allowed, must be plain JSON. Use default or simple string.
+                 ^^^^^^^ || The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B15_r2/make_option.py"", line 271, in <module>
+    print(json.dumps(result))
+          ~~~~~~~~~~^^^^^^^^
+  File ""/home/chs/.local/share/uv/python/cpython-3.13.11-linux-x86_6",results/runs/sx/R-ec-brief/B15_r2
+2026-11-18 18:47:48,sx,P-mpl,B,out,B17,0.7,2,1,1,1,1,,1,0,0,2,110.71,0.19,10707,846,code,,,,,,,,"plotkit error: the extra code failed: ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all() | hint: fix the code; names available: fig, ax1, ax2, x, y1, y2, sheet, plt, np",results/runs/sx/P-mpl/B17_r2
+2026-11-18 18:47:50,sx,R-mpl-plain,B,out,B17,0.7,2,1,1,1,1,,1,0,1,1,54.29,0.84,1224,487,,36,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B17_r2
+2026-11-18 18:48:15,sx,R-mpl-brief,B,out,B17,0.7,2,1,1,1,1,,1,0,1,1,30.36,0.85,1707,640,,40,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B17_r2
+2026-11-18 18:48:17,sx,R-ec-plain,B,out,B17,0.7,2,1,1,1,1,,1,0,1,1,28.86,0.86,1320,854,,80,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B17_r2
+2026-11-18 18:48:19,sx,P-mpl,B,out,B18,0.7,2,1,0,0,1,,2,1,0,1,4.0,0.16,4945,57,keys,,,,,,,"[ask] text_value: no label showing 604.8±8; texts: ['Onset: {x:.0f} °C', 'Residue 2.0%', '640 °C']",,results/runs/sx/P-mpl/B18_r2
+2026-11-18 18:48:21,sx,P-ec,B,out,B18,0.7,2,1,0,0,1,,2,1,0,1,4.24,0.3,5378,20,keys,,,,,,,"[ask] text_value: no label showing 604.8±8; texts: ['Residue 2.0%', '640 °C']",,results/runs/sx/P-ec/B18_r2
+2026-11-18 18:48:48,sx,R-ec-brief,B,out,B17,0.7,2,1,1,1,1,,1,0,1,1,57.84,0.87,1803,1090,,125,0,0,0,0,0,,,results/runs/sx/R-ec-brief/B17_r2
+2026-11-18 18:49:15,sx,R-mpl-plain,B,out,B18,0.7,2,1,0,0,0,,2,1,0,1,56.07,0.94,1218,1507,,73,0,0,0,0,0,"[data] only: other y1 data drawn too: [[10.74428364945993, 135.3243579834059], [-1.3676, 0.0028978]]",,results/runs/sx/R-mpl-plain/B18_r2
+2026-11-18 18:50:06,sx,R-ec-plain,B,out,B18,0.7,2,1,0,0,0,,2,1,0,1,78.12,0.87,1314,1831,,173,0,0,0,0,0,"[data] only: other y1 data drawn too: [[-1.3676, 0.0028978]]",,results/runs/sx/R-ec-plain/B18_r2
+2026-11-18 18:50:15,sx,R-mpl-brief,B,out,B18,0.7,2,1,1,1,1,,2,0,1,1,113.81,0.88,1701,2406,,125,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B18_r2
+2026-11-18 18:50:20,sx,P-mpl,B,out,B19,0.7,2,1,0,0,1,,2,1,0,1,13.53,0.16,4957,150,code,,,,,,,"[ask] text_value: no label showing 58.43±0.6; texts: ['질량 감소: 0.06%', 'Residue 12.0%', '300 °C']",,results/runs/sx/P-mpl/B19_r2
+2026-11-18 18:50:58,sx,R-mpl-plain,B,out,B19,0.7,2,1,1,1,1,,2,0,1,1,38.27,0.87,1230,1070,,50,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B19_r2
+2026-11-18 18:51:00,sx,P-ec,B,out,B19,0.7,2,1,0,0,1,,2,1,0,2,44.7,0.31,10999,244,keys,,,,,,,"[ask] text_value: no label showing 58.43±0.6; texts: ['Mass Loss (200-400°C)', 'Residue 12.0%', '300 °C']","plotkit error: unknown key ""annotate.mass_loss_200_400.calc"". | hint: allowed: alpha, color, count, kind, linestyle, marker, method, min_rel, on, size, text, type, where, x, x_max, x_min, y",results/runs/sx/P-ec/B19_r2
+2026-11-18 18:51:56,sx,R-mpl-brief,B,out,B19,0.7,2,1,1,1,1,,2,0,1,1,58.24,0.87,1713,1559,,88,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B19_r2
+2026-11-18 18:52:26,sx,R-ec-plain,B,out,B19,0.7,2,1,0,0,1,,2,1,0,1,85.99,0.86,1326,1316,,113,0,0,0,0,0,"[ask] text_value: no label showing 58.43±0.6; texts: ['200°C', '400°C']",,results/runs/sx/R-ec-plain/B19_r2
+2026-11-18 18:53:02,sx,P-mpl,B,out,B20,0.7,2,1,1,1,1,,2,0,1,1,36.54,0.18,4943,34,code,,,,,,,,,results/runs/sx/P-mpl/B20_r2
+2026-11-18 18:53:50,sx,P-ec,B,out,B20,0.7,2,1,1,1,1,,2,0,1,1,47.22,0.31,5376,40,echarts,,,,,,,,,results/runs/sx/P-ec/B20_r2
+2026-11-18 18:54:09,sx,R-ec-brief,B,out,B18,0.7,2,0,0,0,0,,1,1,0,3,293.34,0.61,15085,8792,,253,0,0,0,0,0,[data] run: no plot after retries,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B18_r2/make_option.py"", line 321, in <module>
+    print(json.dumps(output))
+          ~~~~~~~~~~^^^^^^^^
+  File ""/home/chs/.local/share/uv/python/cpython-3.13.11-linux-x86_6 || The script failed (exit 1):
+File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B18_r2/make_option.py"", line 239
+    ""coord"": [label_peak_temp, float(-dtgs[int(np.argmin(np.abs(temps - label_peak_temp)))])),
+                                                                                   || The script failed (exit 1):
+File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B18_r2/make_option.py"", line 239
+    ""coord"": [label_peak_temp, float(-dtgs[int(np.argmin(np.abs(temps - label_peak_temp)))])),
+                                                                                  ",results/runs/sx/R-ec-brief/B18_r2
+2026-11-18 18:54:39,sx,R-ec-brief,B,out,B19,0.7,2,1,1,1,1,,2,0,0,2,163.04,1.44,6043,4043,,196,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B19_r2/make_option.py"", line 227, in <module>
+    print(json.dumps(output))
+          ~~~~~~~~~~^^^^^^^^
+  File ""/home/chs/.local/share/uv/python/cpython-3.13.11-linux-x86_6",results/runs/sx/R-ec-brief/B19_r2
+2026-11-18 18:54:41,sx,R-mpl-plain,B,out,B20,0.7,2,1,1,1,1,,2,0,1,1,51.56,0.88,1216,692,,37,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B20_r2
+2026-11-18 18:55:10,sx,R-ec-plain,B,out,B20,0.7,2,1,1,1,1,,2,0,1,1,31.13,0.85,1312,1090,,127,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B20_r2
+2026-11-18 18:55:21,sx,R-mpl-brief,B,out,B20,0.7,2,1,1,1,1,,2,0,1,1,71.72,0.86,1699,1191,,73,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B20_r2
+2026-11-18 18:55:25,sx,P-mpl,B,out,B21,0.7,2,1,1,1,1,,2,0,0,2,14.43,0.15,9973,58,code,,,,,,,,"plotkit error: unknown key ""x.flip"". | hint: allowed keys for x: col, label, label_color, label_size, log, max, min, step, tick_color, tick_size",results/runs/sx/P-mpl/B21_r2
+2026-11-18 18:55:26,sx,P-ec,B,out,B21,0.7,2,1,1,1,1,,2,0,0,2,5.67,0.3,10839,59,echarts,,,,,,,,"plotkit error: unknown key ""x.flip"". | hint: allowed keys for x: col, label, label_color, label_size, log, max, min, step, tick_color, tick_size",results/runs/sx/P-ec/B21_r2
+2026-11-18 18:55:43,sx,R-mpl-plain,B,out,B21,0.7,2,1,1,1,1,,2,0,1,1,18.4,0.86,1214,540,,30,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B21_r2
+2026-11-18 18:56:17,sx,R-mpl-brief,B,out,B21,0.7,2,1,1,1,1,,2,0,1,1,50.53,0.86,1697,1041,,58,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B21_r2
+2026-11-18 18:56:43,sx,R-ec-plain,B,out,B21,0.7,2,1,1,1,1,,2,0,1,1,60.12,0.85,1310,1006,,129,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B21_r2
+2026-11-18 18:57:37,sx,R-ec-brief,B,out,B20,0.7,2,1,1,1,1,,2,0,0,2,176.12,1.43,6549,5044,,264,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B20_r2/make_option.py"", line 310, in <module>
+    main()
+    ~~~~^^
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B20_r2/make_option.py"", line 307, in main",results/runs/sx/R-ec-brief/B20_r2
+2026-11-18 18:57:42,sx,P-ec,B,out,B22,0.7,2,1,0,0,1,,1,1,0,1,4.22,0.31,5383,19,keys,,,,,,,"[ask] series: no y1 line with y [15.19563054557268, 101.53093338206331] (x None); lines: [('y1', [14.968, 100.01]), ('y2', [-0.002, 0.849])]",,results/runs/sx/P-ec/B22_r2
+2026-11-18 18:57:45,sx,P-mpl,B,out,B22,0.7,2,1,0,0,1,,1,1,0,1,61.56,0.15,4950,86,code,,,,,,,"[ask] series: no y1 line with y [15.19563054557268, 101.53093338206331] (x None); lines: [('y1', [14.968, 100.01]), ('y2', [-0.002, 0.849])]",,results/runs/sx/P-mpl/B22_r2
+2026-11-18 18:58:17,sx,R-mpl-plain,B,out,B22,0.7,2,1,1,1,1,,1,0,1,1,35.18,0.81,1223,564,,29,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B22_r2
+2026-11-18 18:58:21,sx,R-ec-brief,B,out,B21,0.7,2,1,1,1,1,,2,0,0,2,123.95,0.89,5660,3690,,183,0,0,0,0,0,,"The script failed (exit 1):
+File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B21_r2/make_option.py"", line 81
+    ""formatter"": function_placeholder = None # Not allowed in JSON output directly if strict, but ECharts accepts string templates or null. 
+                                     ",results/runs/sx/R-ec-brief/B21_r2
+2026-11-18 18:58:48,sx,R-ec-plain,B,out,B22,0.7,2,1,1,1,1,,1,0,1,1,31.35,0.84,1319,1054,,111,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B22_r2
+2026-11-18 18:59:34,sx,R-mpl-brief,B,out,B22,0.7,2,1,1,1,1,,1,0,0,2,108.61,1.55,4820,2348,,53,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/_runner.py"", line 16, in <module>
+    runpy.run_path(script, run_name=""__main__"")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""<frozen runpy>"", line 287, in run_path
+  File ""<frozen runpy>""",results/runs/sx/R-mpl-brief/B22_r2
+2026-11-18 18:59:35,sx,R-ec-brief,B,out,B22,0.7,2,1,1,1,1,,1,0,1,1,74.0,0.8,1802,1674,,171,0,0,0,0,0,,,results/runs/sx/R-ec-brief/B22_r2
+2026-11-18 18:59:38,sx,P-mpl,B,out,B23,0.7,2,1,1,1,1,,4,0,0,2,49.96,0.18,10028,139,code,,,,,,,,"plotkit error: y1.color: ['black', 'blue', 'red'] is not a color | hint: use a name like ""red"", ""navy"", ""black"" or a hex code like ""#c0392b""",results/runs/sx/P-mpl/B23_r2
+2026-11-18 18:59:42,sx,P-ec,B,out,B23,0.7,2,1,1,1,1,,4,0,0,2,8.32,0.33,10899,145,echarts,,,,,,,,"plotkit error: unknown key ""series_colors"". Did you mean ""text_color""? | hint: top-level keys: file, sheets, preset, read, x, y1, y2, annotate, title, legend, text_color, tick_direction, code, echarts, grid, size, dpi, font, font_size, combine, output",results/runs/sx/P-ec/B23_r2
+2026-11-18 18:59:58,sx,R-mpl-plain,B,out,B23,0.7,2,1,1,1,1,,4,0,1,1,23.49,0.94,1224,651,,36,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B23_r2
+2026-11-18 19:00:14,sx,R-mpl-brief,B,out,B23,0.7,2,1,1,1,1,,4,0,1,1,36.12,0.91,1707,1038,,69,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B23_r2
+2026-11-18 19:00:35,sx,R-ec-plain,B,out,B23,0.7,2,1,0,0,1,,4,1,0,1,52.54,0.87,1320,1072,,108,0,0,0,0,0,"[ask] line_color: that line is #1f77b4, want blue",,results/runs/sx/R-ec-plain/B23_r2
+2026-11-18 19:00:40,sx,P-ec,B,out,B24,0.7,2,1,0,0,1,,2,1,0,1,5.34,0.31,5371,72,keys,,,,,,,"[ask] series: no y1 line with y [0.9724, 100.01] (x [303.15, 1173.15]); lines: [('y1', [0.972, 100.01]), ('y2', [-0.002, 2.456])]",,results/runs/sx/P-ec/B24_r2
+2026-11-18 19:00:42,sx,P-mpl,B,out,B24,0.7,2,1,1,1,1,,2,0,0,2,27.36,0.15,9999,127,code,,,,,,,,"plotkit error: unknown key ""x.code"". Did you mean ""col""? | hint: allowed keys for x: col, label, label_color, label_size, log, max, min, step, tick_color, tick_size",results/runs/sx/P-mpl/B24_r2
+2026-11-18 19:01:07,sx,R-mpl-plain,B,out,B24,0.7,2,1,1,1,1,,2,0,1,1,27.13,0.88,1211,741,,35,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B24_r2
+2026-11-18 19:01:46,sx,R-ec-brief,B,out,B23,0.7,2,1,0,0,1,,4,1,0,1,107.7,0.9,1803,2909,,238,0,0,0,0,0,"[ask] line_color: that line is #1f78b4, want blue",,results/runs/sx/R-ec-brief/B23_r2
+2026-11-18 19:02:06,sx,R-mpl-brief,B,out,B24,0.7,2,1,1,1,1,,2,0,1,1,83.79,0.86,1694,1566,,89,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B24_r2
+2026-11-18 19:02:11,sx,R-ec-plain,B,out,B24,0.7,2,1,1,1,1,,2,0,1,1,63.83,0.86,1307,981,,98,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B24_r2
+2026-11-18 19:02:12,sx,P-mpl,A,A,01,0.7,3,1,1,1,1,1,4,0,1,1,6.49,0.34,4912,13,keys,,,,,,,,,results/runs/sx/P-mpl/01_r3
+2026-11-18 19:02:14,sx,P-ec,A,A,01,0.7,3,1,1,1,1,1,4,0,1,1,2.85,0.38,5345,13,keys,,,,,,,,,results/runs/sx/P-ec/01_r3
+2026-11-18 19:02:38,sx,R-mpl-plain,A,A,01,0.7,3,1,0,1,1,0,4,3,0,1,25.42,1.13,1182,797,,41,0,0,0,0,0,"[conv] text_value: no label showing 8.0117±0.1; texts: [] | [conv] text_value: no label showing 3.0183±0.1; texts: [] | [conv] text_values: no label for [600, 560, 540]; texts: []",,results/runs/sx/R-mpl-plain/01_r3
+2026-11-18 19:03:12,sx,R-ec-brief,B,out,B24,0.7,2,1,1,1,1,,2,0,1,1,86.1,0.86,1790,2123,,203,0,0,0,0,0,,,results/runs/sx/R-ec-brief/B24_r2
+2026-11-18 19:03:25,sx,R-mpl-brief,A,A,01,0.7,3,1,1,1,1,1,4,0,1,1,71.72,1.2,1665,1443,,91,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/01_r3
+2026-11-18 19:04:06,sx,R-ec-plain,A,A,01,0.7,3,1,0,1,1,0,4,3,0,1,88.3,0.97,1278,1821,,178,0,0,0,0,0,"[conv] text_value: no label showing 8.0117±0.1; texts: [] | [conv] text_value: no label showing 3.0183±0.1; texts: [] | [conv] text_values: no label for [600, 560, 540]; texts: []",,results/runs/sx/R-ec-plain/01_r3
+2026-11-18 19:04:11,sx,P-mpl,A,A,02,0.7,3,1,1,1,1,,8,0,1,1,45.09,0.14,5102,200,keys,,,,,,,,,results/runs/sx/P-mpl/02_r3
+2026-11-18 19:04:16,sx,P-ec,A,A,02,0.7,3,1,1,1,1,,8,0,1,1,10.41,0.31,5535,200,keys,,,,,,,,,results/runs/sx/P-ec/02_r3
+2026-11-18 19:04:33,sx,R-ec-brief,A,A,01,0.7,3,1,1,1,1,1,4,0,1,1,81.37,0.93,1761,2278,,243,0,0,0,0,0,,,results/runs/sx/R-ec-brief/01_r3
+2026-11-18 19:04:59,sx,R-mpl-plain,A,A,02,0.7,3,1,0,0,1,,8,1,0,1,48.47,0.92,1372,1201,,63,0,0,0,0,0,"[ask] any_of: no label for [600]; texts: ['Residue 8.01%', 'Max Deriv. Weight\n0.0025 %/°C @ 808.0°C'] / no label showing 1.0269±0.03; texts: ['Residue 8.01%', 'Max Deriv. Weight\n0.0025 %/°C @ 808.0°C']",,results/runs/sx/R-mpl-plain/02_r3
+2026-11-18 19:05:20,sx,R-mpl-brief,A,A,02,0.7,3,1,1,1,1,,8,0,1,1,63.45,0.86,1855,1470,,77,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/02_r3
+2026-11-18 19:05:49,sx,R-ec-plain,A,A,02,0.7,3,1,0,0,1,,8,2,0,1,75.09,0.88,1468,1756,,200,0,0,0,0,0,"[ask] text_value: value 8.0117 shown as [': Residue\n8.01%'], not matching ^Residue \d+(\.\d+)?\s?%$ | [ask] any_of: no label for [600]; texts: [': Residue\n8.01%', ': Max\n0.0025'] / no label showing 1.0269±0.03; texts: [': Residue\n8.01%', ': Max\n0.0025']",,results/runs/sx/R-ec-plain/02_r3
+2026-11-18 19:05:49,sx,P-mpl,A,A,03,0.7,3,1,1,1,1,,3,0,1,1,29.34,0.15,4937,57,keys,,,,,,,,,results/runs/sx/P-mpl/03_r3
+2026-11-18 19:05:51,sx,P-ec,A,A,03,0.7,3,1,1,1,1,,3,0,1,1,2.0,0.29,5370,57,keys,,,,,,,,,results/runs/sx/P-ec/03_r3
+2026-11-18 19:06:46,sx,R-mpl-plain,A,A,03,0.7,3,1,1,1,1,,3,0,1,1,56.66,1.24,1207,1382,,62,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/03_r3
+2026-11-18 19:07:25,sx,R-mpl-brief,A,A,03,0.7,3,1,0,0,1,,3,1,0,1,94.42,1.21,1690,1396,,72,0,0,0,0,0,"[ask] any_of: no label for [560, 400]; texts: ['Residue 3.0%', '153 °C', '151 °C'] / no label for [0.8067, 0.1626]; texts: ['Residue 3.0%', '153 °C', '151 °C']",,results/runs/sx/R-mpl-brief/03_r3
+2026-11-18 19:07:38,sx,R-ec-brief,A,A,02,0.7,3,1,0,0,1,,8,2,0,2,159.06,1.45,6438,4757,,217,0,0,0,0,0,[ask] text_value: no label showing 8.0117±0.1; texts: [] | [ask] any_of: no label for [600]; texts: [] / no label showing 1.0269±0.03; texts: [],"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/02_r3/make_option.py"", line 110, in <module>
+    max_plotted_dtg = np.max(data_dtg, key=lambda x: x[1])[1] if len(data_dtg) > 0 else 1.0
+                      ~~~~~~^^^^^^^^",results/runs/sx/R-ec-brief/02_r3
+2026-11-18 19:08:09,sx,R-ec-plain,A,A,03,0.7,3,1,0,0,1,,3,1,0,1,83.48,0.85,1303,1597,,180,0,0,0,0,0,"[ask] any_of: no label for [400]; texts: ['560.0°C', '559.0°C'] / no label for [0.8067, 0.1626]; texts: ['560.0°C', '559.0°C']",,results/runs/sx/R-ec-plain/03_r3
+2026-11-18 19:08:10,sx,P-mpl,A,A,04,0.7,3,1,1,1,1,,2,0,1,1,32.0,0.15,4945,53,keys,,,,,,,,,results/runs/sx/P-mpl/04_r3
+2026-11-18 19:08:12,sx,P-ec,A,A,04,0.7,3,1,1,1,1,,2,0,1,1,2.49,0.3,5378,53,keys,,,,,,,,,results/runs/sx/P-ec/04_r3
+2026-11-18 19:08:30,sx,R-ec-brief,A,A,03,0.7,3,1,0,0,1,,3,1,0,1,64.9,0.86,1786,1820,,188,0,0,0,0,0,"[ask] any_of: no label for [400]; texts: ['Residue 3.0%', '560 °C', '563 °C'] / no label for [0.8067, 0.1626]; texts: ['Residue 3.0%', '560 °C', '563 °C']",,results/runs/sx/R-ec-brief/03_r3
+2026-11-18 19:08:36,sx,R-mpl-plain,A,A,04,0.7,3,1,0,0,1,,2,1,0,1,26.06,0.89,1215,745,,46,0,0,0,0,0,[ask] title: no title,,results/runs/sx/R-mpl-plain/04_r3
+2026-11-18 19:08:57,sx,R-ec-plain,A,A,04,0.7,3,1,1,1,1,,2,0,1,1,26.87,0.86,1311,851,,92,0,0,0,0,0,,,results/runs/sx/R-ec-plain/04_r3
+2026-11-18 19:09:01,sx,R-mpl-brief,A,A,04,0.7,3,1,1,1,1,,2,0,1,1,49.16,0.86,1698,1020,,65,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/04_r3
+2026-11-18 19:09:02,sx,P-mpl,A,A,05,0.7,3,1,1,1,1,,3,0,1,1,4.7,0.32,4931,43,keys,,,,,,,,,results/runs/sx/P-mpl/05_r3
+2026-11-18 19:09:03,sx,P-ec,A,A,05,0.7,3,1,1,1,1,,3,0,1,1,1.78,0.37,5364,43,keys,,,,,,,,,results/runs/sx/P-ec/05_r3
+2026-11-18 19:09:32,sx,R-mpl-plain,A,A,05,0.7,3,1,0,0,1,,3,1,0,1,30.69,0.93,1201,846,,49,0,0,0,0,0,"[ask] lines: y2 line style is 'dashed', want 'dotted'",,results/runs/sx/R-mpl-plain/05_r3
+2026-11-18 19:09:35,sx,R-ec-brief,A,A,04,0.7,3,1,1,1,1,,2,0,1,1,58.24,0.84,1794,1542,,154,0,0,0,0,0,,,results/runs/sx/R-ec-brief/04_r3
+2026-11-18 19:10:10,sx,R-ec-plain,A,A,05,0.7,3,1,0,0,1,,3,2,0,1,37.46,0.9,1297,1383,,124,0,0,0,0,0,"[ask] lines: y1 line width is 1.875, want 2.5 | [ask] lines: y2 line style is 'dashed', want 'dotted'",,results/runs/sx/R-ec-plain/05_r3
+2026-11-18 19:10:10,sx,R-mpl-brief,A,A,05,0.7,3,1,0,0,1,,3,1,0,1,67.02,1.22,1684,1155,,67,0,0,0,0,0,"[ask] lines: y2 line style is 'dashed', want 'dotted'",,results/runs/sx/R-mpl-brief/05_r3
+2026-11-18 19:10:11,sx,P-mpl,A,A,06,0.7,3,1,1,1,1,,3,0,1,1,1.16,0.35,4916,24,keys,,,,,,,,,results/runs/sx/P-mpl/06_r3
+2026-11-18 19:10:12,sx,P-ec,A,A,06,0.7,3,1,1,1,1,,3,0,1,1,1.93,0.34,5349,24,keys,,,,,,,,,results/runs/sx/P-ec/06_r3
+2026-11-18 19:10:36,sx,R-mpl-plain,A,A,06,0.7,3,1,1,1,1,,3,0,1,1,24.68,1.1,1186,738,,36,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/06_r3
+2026-11-18 19:11:11,sx,R-mpl-brief,A,A,06,0.7,3,1,1,1,1,,3,0,1,1,59.56,1.16,1669,1159,,70,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/06_r3
+2026-11-18 19:11:35,sx,R-ec-plain,A,A,06,0.7,3,1,1,1,1,,3,0,1,1,59.56,1.02,1282,922,,101,0,0,0,0,0,,,results/runs/sx/R-ec-plain/06_r3
+2026-11-18 19:12:17,sx,R-ec-brief,A,A,05,0.7,3,1,0,0,1,,3,2,0,2,162.16,1.56,6467,4403,,193,0,0,0,0,0,"[ask] lines: y1 line width is 1.875, want 2.5 | [ask] lines: y2 line style is 'dashed', want 'dotted'","The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/05_r3/make_option.py"", line 279, in <module>
+    print(json.dumps(output, ensure_ascii=False))
+          ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""/home/chs/.local/shar",results/runs/sx/R-ec-brief/05_r3
+2026-11-18 19:12:17,sx,P-mpl,A,A,07,0.7,3,1,1,1,1,,2,0,1,1,41.79,0.33,4918,29,keys,,,,,,,,,results/runs/sx/P-mpl/07_r3
+2026-11-18 19:12:18,sx,P-ec,A,A,07,0.7,3,1,1,1,1,,2,0,1,1,1.34,0.36,5351,29,keys,,,,,,,,,results/runs/sx/P-ec/07_r3
+2026-11-18 19:13:15,sx,R-mpl-plain,A,A,07,0.7,3,1,1,1,1,,2,0,0,2,57.46,1.66,3231,1327,,51,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/_runner.py"", line 16, in <module>
+    runpy.run_path(script, run_name=""__main__"")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""<frozen runpy>"", line 287, in run_path
+  File ""<frozen runpy>""",results/runs/sx/R-mpl-plain/07_r3
+2026-11-18 19:13:34,sx,R-mpl-brief,A,A,07,0.7,3,1,1,1,1,,2,0,1,1,76.4,1.2,1671,1396,,80,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/07_r3
+2026-11-18 19:14:14,sx,R-ec-brief,A,A,06,0.7,3,1,1,1,1,,3,0,0,2,182.63,1.54,6627,5314,,250,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/06_r3/make_option.py"", line 300, in <module>
+    main()
+    ~~~~^^
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/06_r3/make_option.py"", line 297, in main
+ ",results/runs/sx/R-ec-brief/06_r3
+2026-11-18 19:14:24,sx,R-ec-plain,A,A,07,0.7,3,1,0,0,1,,2,1,0,1,69.25,0.88,1284,1367,,147,0,0,0,0,0,[ask] legend: legend at outside,,results/runs/sx/R-ec-plain/07_r3
+2026-11-18 19:14:25,sx,P-mpl,A,A,08,0.7,3,1,1,1,1,,4,0,1,1,11.07,0.34,4946,57,keys,,,,,,,,,results/runs/sx/P-mpl/08_r3
+2026-11-18 19:14:27,sx,P-ec,A,A,08,0.7,3,1,1,1,1,,4,0,1,1,3.38,0.38,5379,64,keys,,,,,,,,,results/runs/sx/P-ec/08_r3
+2026-11-18 19:15:31,sx,R-mpl-brief,A,A,08,0.7,3,1,1,1,1,,4,0,1,1,63.63,1.17,1699,1143,,74,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/08_r3
+2026-11-18 19:15:38,sx,R-mpl-plain,A,A,08,0.7,3,1,1,1,1,,4,0,0,2,72.71,1.68,3471,1582,,48,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/_runner.py"", line 16, in <module>
+    runpy.run_path(script, run_name=""__main__"")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""<frozen runpy>"", line 287, in run_path
+  File ""<frozen runpy>""",results/runs/sx/R-mpl-plain/08_r3
+2026-11-18 19:16:09,sx,R-ec-brief,A,A,07,0.7,3,1,0,0,1,,2,1,0,2,154.37,1.52,6162,3977,,194,0,0,0,0,0,[ask] legend: legend at outside; legend at outside; legend at outside,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/07_r3/make_option.py"", line 252, in <module>
+    main()
+    ~~~~^^
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/07_r3/make_option.py"", line 249, in main
+ ",results/runs/sx/R-ec-brief/07_r3
+2026-11-18 19:16:26,sx,R-ec-plain,A,A,08,0.7,3,1,1,1,1,,4,0,1,1,55.26,0.98,1312,1420,,134,0,0,0,0,0,,,results/runs/sx/R-ec-plain/08_r3
+2026-11-18 19:16:27,sx,P-mpl,A,A,09,0.7,3,1,1,1,1,,4,0,1,1,17.81,0.31,4919,52,keys,,,,,,,,,results/runs/sx/P-mpl/09_r3
+2026-11-18 19:16:28,sx,P-ec,A,A,09,0.7,3,1,1,1,1,,4,0,1,1,1.85,0.37,5352,52,keys,,,,,,,,,results/runs/sx/P-ec/09_r3
+2026-11-18 19:16:52,sx,R-mpl-plain,A,A,09,0.7,3,1,0,0,0,,4,4,0,1,25.35,0.9,1189,721,,51,0,0,0,0,0,"[data] series: no y1 line with y None (x None); lines: [] | [ask] axis: fig 0: x.tick_size is 10.0, want 9 | [ask] axis: fig 0: y1.tick_size is 10.0, want 9 | [ask] axis: fig 0: no y2 axis",,results/runs/sx/R-mpl-plain/09_r3
+2026-11-18 19:17:01,sx,R-ec-brief,A,A,08,0.7,3,1,1,1,1,,4,0,1,1,83.37,0.94,1795,2016,,213,0,0,0,0,0,,,results/runs/sx/R-ec-brief/08_r3
+2026-11-18 19:17:28,sx,R-mpl-brief,A,A,09,0.7,3,1,1,1,1,,4,0,1,1,59.68,1.23,1672,1251,,74,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/09_r3
+2026-11-18 19:17:36,sx,R-ec-plain,A,A,09,0.7,3,1,1,1,1,,4,0,1,1,43.45,0.91,1285,1273,,129,0,0,0,0,0,,,results/runs/sx/R-ec-plain/09_r3
+2026-11-18 19:17:36,sx,P-mpl,A,A,10,0.7,3,1,1,1,1,,2,0,1,1,8.46,0.32,4927,42,keys,,,,,,,,,results/runs/sx/P-mpl/10_r3
+2026-11-18 19:17:37,sx,P-ec,A,A,10,0.7,3,1,1,1,1,,2,0,1,1,1.79,0.36,5360,38,keys,,,,,,,,,results/runs/sx/P-ec/10_r3
+2026-11-18 19:18:30,sx,R-ec-brief,A,A,09,0.7,3,1,1,1,1,,4,0,1,1,89.19,0.94,1768,2147,,196,0,0,0,0,0,,,results/runs/sx/R-ec-brief/09_r3
+2026-11-18 19:18:44,sx,R-mpl-plain,A,A,10,0.7,3,1,1,1,1,,2,0,1,1,67.49,0.97,1197,1764,,91,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/10_r3
+2026-11-18 19:19:21,sx,R-ec-plain,A,A,10,0.7,3,1,1,1,1,,2,0,1,1,50.95,0.89,1293,1424,,139,0,0,0,0,0,,,results/runs/sx/R-ec-plain/10_r3
+2026-11-18 19:19:31,sx,P-mpl,A,A,11,0.7,3,1,1,1,1,1,5,0,1,1,9.58,0.36,4911,21,keys,,,,,,,,,results/runs/sx/P-mpl/11_r3
+2026-11-18 19:19:31,sx,R-mpl-brief,A,A,10,0.7,3,1,1,1,1,,2,0,1,1,113.66,1.2,1680,1766,,100,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/10_r3
+2026-11-18 19:19:32,sx,P-ec,A,A,11,0.7,3,1,1,1,1,1,5,0,1,1,1.1,0.34,5344,21,keys,,,,,,,,,results/runs/sx/P-ec/11_r3
+2026-11-18 19:20:00,sx,R-mpl-plain,A,A,11,0.7,3,1,0,1,1,0,5,1,0,1,29.15,1.08,1181,787,,49,0,0,0,0,0,[conv] text_value: no label showing 8.0117±0.1; texts: [],,results/runs/sx/R-mpl-plain/11_r3
+2026-11-18 19:20:06,sx,R-ec-brief,A,A,10,0.7,3,1,0,0,1,,2,1,0,1,82.59,0.94,1776,1769,,195,0,0,0,0,0,"[ask] text_value: no label showing 8.1647±0.006; texts: ['Residue', 'Peak', 'Residue', 'Peak', 'Residue', 'Peak']",,results/runs/sx/R-ec-brief/10_r3
+2026-11-18 19:20:35,sx,R-mpl-brief,A,A,11,0.7,3,1,1,1,1,1,5,0,1,1,62.78,1.17,1664,1125,,62,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/11_r3
+2026-11-18 19:20:36,sx,R-ec-plain,A,A,11,0.7,3,1,0,1,1,0,5,1,0,1,35.87,0.86,1277,1079,,113,0,0,0,0,0,[conv] text_value: no label showing 8.0117±0.1; texts: [],,results/runs/sx/R-ec-plain/11_r3
+2026-11-18 19:20:37,sx,P-mpl,A,A,12,0.7,3,1,1,1,1,,3,0,1,1,1.82,0.33,4923,44,keys,,,,,,,,,results/runs/sx/P-mpl/12_r3
+2026-11-18 19:20:38,sx,P-ec,A,A,12,0.7,3,1,1,1,1,,3,0,1,1,1.85,0.4,5356,44,keys,,,,,,,,,results/runs/sx/P-ec/12_r3
+2026-11-18 19:21:07,sx,R-mpl-plain,A,A,12,0.7,3,1,1,1,1,,3,0,1,1,29.92,1.09,1193,896,,46,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/12_r3
+2026-11-18 19:21:59,sx,R-mpl-brief,A,A,12,0.7,3,1,1,1,1,,3,0,1,1,80.93,1.16,1676,1563,,88,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/12_r3
+2026-11-18 19:22:06,sx,R-ec-plain,A,A,12,0.7,3,1,1,1,1,,3,0,1,1,59.57,0.98,1289,1215,,127,0,0,0,0,0,,,results/runs/sx/R-ec-plain/12_r3
+2026-11-18 19:22:37,sx,R-ec-brief,A,A,11,0.7,3,1,0,1,1,0,5,1,0,2,150.87,1.57,5861,3764,,203,0,0,0,0,0,[conv] text_value: no label showing 8.0117±0.1; texts: [],"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/11_r3/make_option.py"", line 232, in <module>
+    main()
+    ~~~~^^
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/11_r3/make_option.py"", line 229, in main
+ ",results/runs/sx/R-ec-brief/11_r3
+2026-11-18 19:22:38,sx,P-mpl,A,A,13,0.7,3,1,1,1,1,,2,0,1,1,31.88,0.14,4482,43,keys,,,,,,,,,results/runs/sx/P-mpl/13_r3
+2026-11-18 19:22:40,sx,P-ec,A,A,13,0.7,3,1,1,1,1,,2,0,1,1,2.73,0.3,4915,32,keys,,,,,,,,,results/runs/sx/P-ec/13_r3
+2026-11-18 19:22:51,sx,R-mpl-plain,A,A,13,0.7,3,1,1,1,1,,2,0,1,1,13.31,0.82,753,357,,20,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/13_r3
+2026-11-18 19:23:32,sx,R-ec-brief,A,A,12,0.7,3,1,1,1,1,,3,0,1,1,92.9,0.97,1772,2489,,241,0,0,0,0,0,,,results/runs/sx/R-ec-brief/12_r3
+2026-11-18 19:23:44,sx,R-mpl-brief,A,A,13,0.7,3,1,1,1,1,,2,0,1,1,63.69,0.86,1236,1623,,96,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/13_r3
+2026-11-18 19:23:46,sx,R-ec-plain,A,A,13,0.7,3,1,1,1,1,,2,0,1,1,54.45,0.83,849,574,,73,0,0,0,0,0,,,results/runs/sx/R-ec-plain/13_r3
+2026-11-18 19:23:47,sx,P-mpl,A,A,14,0.7,3,1,1,1,1,,2,0,1,1,3.13,0.16,4340,27,keys,,,,,,,,,results/runs/sx/P-mpl/14_r3
+2026-11-18 19:23:49,sx,P-ec,A,A,14,0.7,3,1,1,1,1,,2,0,1,1,2.62,0.51,4773,27,keys,,,,,,,,,results/runs/sx/P-ec/14_r3
+2026-11-18 19:24:59,sx,R-mpl-plain,A,A,14,0.7,3,1,1,1,1,,2,0,0,2,72.42,1.6,2451,1331,,40,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/_runner.py"", line 16, in <module>
+    runpy.run_path(script, run_name=""__main__"")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""<frozen runpy>"", line 287, in run_path
+  File ""<frozen runpy>""",results/runs/sx/R-mpl-plain/14_r3
+2026-11-18 19:25:26,sx,R-mpl-brief,A,A,14,0.7,3,1,1,1,1,,2,0,0,2,97.2,1.57,3872,2222,,69,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/_runner.py"", line 16, in <module>
+    runpy.run_path(script, run_name=""__main__"")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""<frozen runpy>"", line 287, in run_path
+  File ""<frozen runpy>""",results/runs/sx/R-mpl-brief/14_r3
+2026-11-18 19:25:56,sx,R-ec-brief,A,A,13,0.7,3,1,1,1,1,,2,0,0,2,144.23,1.43,5340,4475,,201,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/13_r3/make_option.py"", line 249, in <module>
+    main()
+    ~~~~^^
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/13_r3/make_option.py"", line 246, in main
+ ",results/runs/sx/R-ec-brief/13_r3
+2026-11-18 19:26:18,sx,R-ec-plain,A,A,14,0.7,3,1,1,1,1,,2,0,0,2,78.37,1.56,2788,1840,,111,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-plain/14_r3/make_option.py"", line 7, in <module>
+    df = pd.read_csv(DATA_FILE)
+  File ""/home/chs/Work/tga_plot/.venv/lib/python3.13/site-packages/pandas/io/parsers/readers.py"", ",results/runs/sx/R-ec-plain/14_r3
+2026-11-18 19:26:18,sx,P-mpl,A,A,15,0.7,3,1,1,1,1,,1,0,1,1,21.56,0.15,4919,18,keys,,,,,,,,,results/runs/sx/P-mpl/15_r3
+2026-11-18 19:26:19,sx,P-ec,A,A,15,0.7,3,1,1,1,1,,1,0,1,1,1.54,0.32,5352,24,keys,,,,,,,,,results/runs/sx/P-ec/15_r3
+2026-11-18 19:26:52,sx,R-mpl-plain,A,A,15,0.7,3,1,1,1,1,,1,0,1,1,34.53,0.94,1189,791,,49,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/15_r3
+2026-11-18 19:27:24,sx,R-ec-brief,A,A,14,0.7,3,1,1,1,1,,2,0,0,2,118.26,1.53,4583,3234,,178,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/14_r3/make_option.py"", line 8, in <module>
+    df = pd.read_csv(DATA_FILE)
+  File ""/home/chs/Work/tga_plot/.venv/lib/python3.13/site-packages/pandas/io/parsers/readers.py"", ",results/runs/sx/R-ec-brief/14_r3
+2026-11-18 19:27:45,sx,R-mpl-brief,A,A,15,0.7,3,1,1,1,1,,1,0,1,1,86.22,1.27,1672,1635,,86,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/15_r3
+2026-11-18 19:27:48,sx,R-ec-plain,A,A,15,0.7,3,1,1,1,1,,1,0,1,1,56.09,0.91,1285,1011,,116,0,0,0,0,0,,,results/runs/sx/R-ec-plain/15_r3
+2026-11-18 19:27:48,sx,P-mpl,A,A,16,0.7,3,1,1,1,1,,2,0,1,1,3.08,0.1,4924,32,keys,,,,,,,,,results/runs/sx/P-mpl/16_r3
+2026-11-18 19:27:50,sx,P-ec,A,A,16,0.7,3,1,1,1,1,,2,0,1,1,1.33,0.27,5357,32,keys,,,,,,,,,results/runs/sx/P-ec/16_r3
+2026-11-18 19:28:02,sx,R-mpl-plain,A,A,16,0.7,3,1,1,1,1,,2,0,1,1,13.87,0.82,1194,411,,22,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/16_r3
+2026-11-18 19:28:25,sx,R-mpl-brief,A,A,16,0.7,3,1,1,1,1,,2,0,1,1,34.86,0.83,1677,678,,38,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/16_r3
+2026-11-18 19:28:40,sx,R-ec-plain,A,A,16,0.7,3,1,1,1,1,,2,0,1,1,37.17,0.82,1290,628,,76,0,0,0,0,0,,,results/runs/sx/R-ec-plain/16_r3
+2026-11-18 19:29:18,sx,R-ec-brief,A,A,16,0.7,3,1,1,1,1,,2,0,1,1,53.72,0.85,1773,1282,,124,0,0,0,0,0,,,results/runs/sx/R-ec-brief/16_r3
+2026-11-18 19:29:19,sx,P-mpl,A,A,17,0.7,3,1,1,1,1,,2,0,1,1,39.62,0.91,4923,30,keys,,,,,,,,,results/runs/sx/P-mpl/17_r3
+2026-11-18 19:29:20,sx,P-ec,A,A,17,0.7,3,1,1,1,1,,2,0,1,1,1.53,0.64,5356,30,keys,,,,,,,,,results/runs/sx/P-ec/17_r3
+2026-11-18 19:29:45,sx,R-ec-brief,A,A,15,0.7,3,1,1,1,1,,1,0,1,1,141.32,0.91,1768,3853,,277,0,0,0,0,0,,,results/runs/sx/R-ec-brief/15_r3
+2026-11-18 19:29:48,sx,R-mpl-plain,A,A,17,0.7,3,1,1,1,1,,2,0,1,1,29.27,1.1,1193,775,,52,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/17_r3
+2026-11-18 19:30:27,sx,R-ec-plain,A,A,17,0.7,3,1,1,1,1,,2,0,1,1,41.78,1.02,1289,1432,,136,0,0,0,0,0,,,results/runs/sx/R-ec-plain/17_r3
+2026-11-18 19:30:29,sx,P-mpl,A,A,18,0.7,3,1,1,1,1,,4,0,1,1,1.67,0.32,4929,45,keys,,,,,,,,,results/runs/sx/P-mpl/18_r3
+2026-11-18 19:30:29,sx,R-mpl-brief,A,A,17,0.7,3,1,1,1,1,,2,0,1,1,69.04,1.66,1676,1404,,90,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/17_r3
+2026-11-18 19:30:31,sx,P-ec,A,A,18,0.7,3,1,1,1,1,,4,0,1,1,1.61,0.37,5362,45,keys,,,,,,,,,results/runs/sx/P-ec/18_r3
+2026-11-18 19:31:02,sx,R-mpl-plain,A,A,18,0.7,3,1,0,0,0,,4,1,0,1,33.51,1.13,1199,914,,45,0,0,0,0,0,"[data] visible: y2 data [[-1.027, 0.003], [-0.807, 0.003]] mostly outside the axis range",,results/runs/sx/R-mpl-plain/18_r3
+2026-11-18 19:31:29,sx,R-ec-brief,A,A,17,0.7,3,1,1,1,1,,2,0,1,1,100.43,1.69,1772,2326,,226,0,0,0,0,0,,,results/runs/sx/R-ec-brief/17_r3
+2026-11-18 19:31:56,sx,R-mpl-brief,A,A,18,0.7,3,1,1,1,1,,4,0,1,1,85.03,1.2,1682,1566,,84,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/18_r3
+2026-11-18 19:32:04,sx,R-ec-plain,A,A,18,0.7,3,1,0,0,0,,4,1,0,1,61.7,0.9,1295,1285,,128,0,0,0,0,0,"[data] visible: y2 data [[-1.027, 0.003], [-0.807, 0.003]] mostly outside the axis range",,results/runs/sx/R-ec-plain/18_r3
+2026-11-18 19:32:04,sx,P-mpl,A,A,19,0.7,3,1,1,1,1,,3,0,1,1,8.77,0.31,4919,28,keys,,,,,,,,,results/runs/sx/P-mpl/19_r3
+2026-11-18 19:32:05,sx,P-ec,A,A,19,0.7,3,1,1,1,1,,3,0,1,1,1.26,0.35,5352,28,keys,,,,,,,,,results/runs/sx/P-ec/19_r3
+2026-11-18 19:32:56,sx,R-ec-brief,A,A,18,0.7,3,1,0,0,1,,4,1,0,1,86.61,0.96,1778,1936,,204,0,0,0,0,0,"[ask] axis: fig 0: x.step is 200.0, want 100; fig 1: x.step is 200.0, want 100; fig 2: x.step is 200.0, want 100",,results/runs/sx/R-ec-brief/18_r3
+2026-11-18 19:33:26,sx,R-mpl-brief,A,A,19,0.7,3,1,1,1,1,,3,0,1,1,80.66,1.18,1672,1618,,89,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/19_r3
+2026-11-18 19:33:40,sx,R-ec-plain,A,A,19,0.7,3,1,1,1,1,,3,0,1,1,44.28,0.93,1285,973,,95,0,0,0,0,0,,,results/runs/sx/R-ec-plain/19_r3
+2026-11-18 19:33:50,sx,R-mpl-plain,A,A,19,0.7,3,1,0,0,1,,3,1,0,3,105.57,2.57,7307,2394,,38,0,0,0,0,0,[ask] text_color: 7/9 texts are gray,"The script failed (exit 1):
+  File ""/home/chs/Work/tga_plot/.venv/lib/python3.13/site-packages/pandas/core/indexes/base.py"", line 3816, in get_loc
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File ""pandas/_libs/index.pyx"", line 172, in pandas._libs.index. || The script failed (exit 1):
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File ""pandas/_libs/index.pyx"", line 172, in pandas._libs.index.IndexEngine.get_loc
+  File ""pandas/_libs/index.pyx"", line 201, in pandas._libs.index.IndexEngine.get_loc
+  File ""pandas",results/runs/sx/R-mpl-plain/19_r3
+2026-11-18 19:33:50,sx,P-mpl,A,A,20,0.7,3,1,1,1,1,,2,0,1,1,10.39,0.33,4924,44,code,,,,,,,,,results/runs/sx/P-mpl/20_r3
+2026-11-18 19:33:52,sx,P-ec,A,A,20,0.7,3,1,1,1,1,,2,0,1,1,1.79,0.38,5357,59,keys,,,,,,,,,results/runs/sx/P-ec/20_r3
+2026-11-18 19:34:34,sx,R-mpl-plain,A,A,20,0.7,3,1,1,1,1,,2,0,1,1,44.22,1.06,1194,1143,,68,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/20_r3
+2026-11-18 19:35:16,sx,R-mpl-brief,A,A,20,0.7,3,1,1,1,1,,2,0,1,1,83.86,1.17,1677,1281,,75,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/20_r3
+2026-11-18 19:35:45,sx,R-ec-plain,A,A,20,0.7,3,1,1,1,1,,2,0,1,1,70.69,0.94,1290,1409,,153,0,0,0,0,0,,,results/runs/sx/R-ec-plain/20_r3
+2026-11-18 19:36:19,sx,R-ec-brief,A,A,19,0.7,3,1,0,0,1,,3,2,0,2,173.33,1.53,6772,5389,,218,0,0,0,0,0,"[ask] text_color: 15/24 texts are gray | [ask] font_size: axis text sizes [9.0, 9.8]","The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/19_r3/make_option.py"", line 290, in <module>
+    main()
+    ~~~~^^
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/19_r3/make_option.py"", line 287, in main
+ ",results/runs/sx/R-ec-brief/19_r3
+2026-11-18 19:36:20,sx,P-mpl,A,A,21,0.7,3,1,1,1,1,,2,0,1,1,35.0,0.12,4328,44,keys,,,,,,,,,results/runs/sx/P-mpl/21_r3
+2026-11-18 19:36:22,sx,P-ec,A,A,21,0.7,3,1,1,1,1,,2,0,1,1,2.38,0.3,4761,44,keys,,,,,,,,,results/runs/sx/P-ec/21_r3
+2026-11-18 19:36:38,sx,R-mpl-plain,A,A,21,0.7,3,1,1,1,1,,2,0,1,1,17.44,0.88,601,492,,28,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/21_r3
+2026-11-18 19:36:51,sx,R-ec-brief,A,A,20,0.7,3,1,1,1,1,,2,0,1,1,95.49,0.94,1773,2159,,208,0,0,0,0,0,,,results/runs/sx/R-ec-brief/20_r3
+2026-11-18 19:37:13,sx,R-ec-plain,A,A,21,0.7,3,1,1,1,1,,2,0,1,1,34.9,0.85,697,733,,85,0,0,0,0,0,,,results/runs/sx/R-ec-plain/21_r3
+2026-11-18 19:37:19,sx,R-mpl-brief,A,A,21,0.7,3,1,1,1,1,,2,0,1,1,56.91,0.87,1084,1227,,60,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/21_r3
+2026-11-18 19:37:19,sx,P-mpl,A,A,22,0.7,3,1,1,1,1,,3,0,1,1,6.57,0.32,4924,30,keys,,,,,,,,,results/runs/sx/P-mpl/22_r3
+2026-11-18 19:37:20,sx,P-ec,A,A,22,0.7,3,1,1,1,1,,3,0,1,1,1.38,0.38,5357,30,keys,,,,,,,,,results/runs/sx/P-ec/22_r3
+2026-11-18 19:37:37,sx,R-mpl-plain,A,A,22,0.7,3,1,1,1,1,,3,0,1,1,17.46,1.13,1194,613,,41,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/22_r3
+2026-11-18 19:38:06,sx,R-ec-brief,A,A,21,0.7,3,1,1,1,1,,2,0,1,1,74.63,0.85,1180,1722,,170,0,0,0,0,0,,,results/runs/sx/R-ec-brief/21_r3
+2026-11-18 19:38:13,sx,R-mpl-brief,A,A,22,0.7,3,1,1,1,1,,3,0,1,1,52.81,1.15,1677,1146,,70,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/22_r3
+2026-11-18 19:39:12,sx,R-ec-plain,A,A,22,0.7,3,1,0,0,1,,3,1,0,1,94.99,0.91,1290,2086,,146,0,1,0,0,0,"[ask] lines: y2 line color is '#4caf50', want 'green'; y2 line color is '#8bc34a', want 'green'",,results/runs/sx/R-ec-plain/22_r3
+2026-11-18 19:39:12,sx,P-mpl,A,A,23,0.7,3,1,1,1,1,,2,0,1,1,59.01,0.11,4305,30,keys,,,,,,,,,results/runs/sx/P-mpl/23_r3
+2026-11-18 19:39:14,sx,P-ec,A,A,23,0.7,3,1,1,1,1,,2,0,1,1,1.92,0.28,4738,30,keys,,,,,,,,,results/runs/sx/P-ec/23_r3
+2026-11-18 19:40:35,sx,R-ec-brief,A,A,22,0.7,3,1,0,0,1,,3,1,0,2,149.26,1.57,6549,5061,,237,0,0,0,0,0,"[ask] axis: fig 0: y2.label_color is '#333333', want 'green'; fig 1: y2.label_color is '#333333', want 'green'; fig 2: y2.label_color is '#333333', want 'green'","The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/22_r3/make_option.py"", line 287, in <module>
+    main()
+    ~~~~^^
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/22_r3/make_option.py"", line 284, in main
+ ",results/runs/sx/R-ec-brief/22_r3
+2026-11-18 19:40:56,sx,R-mpl-plain,A,A,23,0.7,3,0,0,0,0,,1,1,0,3,104.43,2.05,5941,2698,,47,0,0,0,0,0,[data] run: no plot after retries,"The script failed (exit 1):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/23_r3/plot.py"", line 15, in <module>
+    df = pd.read_csv(DATA_FILE, sep=r'\s+', header=None, skiprows=10, names=['Index', 'Temperature', 'Mass_Percent', 'DTG'])
+  File ""/home/chs/Work/tga_plot/.venv/lib/pyt || The script failed (exit 1):
+/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/23_r3/plot.py:31: Pandas4Warning: The inplace keyword in DataFrame.dropna is deprecated and will be removed in a future version (PDEP-8).
+See https://pandas.pydata.org/docs/dev/whatsnew/v3.1.0.html#deprecation-inpla || The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/_runner.py"", line 16, in <module>
+    runpy.run_path(script, run_name=""__main__"")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""<frozen runpy>"", line 287, in run_path
+  File ""<frozen runpy>""",results/runs/sx/R-mpl-plain/23_r3
+2026-11-18 19:42:05,sx,R-mpl-brief,A,A,23,0.7,3,0,0,0,0,,1,1,0,3,171.25,1.98,7023,3917,,72,0,0,0,0,0,[data] run: no plot after retries,The script ran but saved no figure into OUT_DIR (use fig.savefig / plt.savefig). || The script ran but saved no figure into OUT_DIR (use fig.savefig / plt.savefig). || The script ran but saved no figure into OUT_DIR (use fig.savefig / plt.savefig).,results/runs/sx/R-mpl-brief/23_r3
+2026-11-18 19:42:43,sx,P-mpl,A,A,24,0.7,3,1,1,1,1,,3,0,1,1,37.78,0.14,4486,42,keys,,,,,,,,,results/runs/sx/P-mpl/24_r3
+2026-11-18 19:43:09,sx,P-ec,A,A,24,0.7,3,1,1,1,1,,3,0,1,1,26.44,0.3,4919,63,keys,,,,,,,,,results/runs/sx/P-ec/24_r3
+2026-11-18 19:43:20,sx,R-ec-plain,A,A,23,0.7,3,1,0,0,1,,2,1,0,3,164.88,1.87,6988,3665,,137,0,0,0,0,0,[ask] text_value: no label showing 3.0183±0.1; texts: ['Residue: 0.003301%'],"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-plain/23_r3/make_option.py"", line 9, in <module>
+    df = pd.read_csv(file_path, sep='\t', header=None, skiprows=10)
+  File ""/home/chs/Work/tga_plot/.venv/lib/python3.13/site-pack || The script failed (exit 1):
+    ) = self._engine.read(  # type: ignore[attr-defined]
+        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        nrows
+        ^^^^^
+    )
+    ^
+  File ""/home/chs/Work/tga_plot/.venv/lib/python3.13/site-packages/pandas/io/parsers/c_parser_wrapper.py"", line 297, i",results/runs/sx/R-ec-plain/23_r3
+2026-11-18 19:43:41,sx,R-mpl-plain,A,A,24,0.7,3,1,1,1,1,,3,0,1,1,31.65,0.86,757,555,,32,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/24_r3
+2026-11-18 19:44:25,sx,R-mpl-brief,A,A,24,0.7,3,1,1,1,1,,3,0,1,1,64.85,0.86,1240,1078,,58,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/24_r3
+2026-11-18 19:44:42,sx,R-ec-plain,A,A,24,0.7,3,1,1,1,1,,3,0,1,1,61.21,0.85,853,1103,,134,0,0,0,0,0,,,results/runs/sx/R-ec-plain/24_r3
+2026-11-18 19:45:19,sx,R-ec-brief,A,A,24,0.7,3,1,1,1,1,,3,0,1,1,54.24,0.86,1336,1331,,154,0,0,0,0,0,,,results/runs/sx/R-ec-brief/24_r3
+2026-11-18 19:45:25,sx,P-mpl,B,in,B01,0.7,3,1,1,1,1,,4,0,1,1,43.22,0.14,4427,181,code,,,,,,,,,results/runs/sx/P-mpl/B01_r3
+2026-11-18 19:45:26,sx,R-ec-brief,A,A,23,0.7,3,0,0,0,0,,1,1,0,3,269.83,1.58,13299,8000,,230,0,0,0,0,0,[data] run: no plot after retries,"The script failed (exit 1):
+  File ""/home/chs/Work/tga_plot/.venv/lib/python3.13/site-packages/pandas/io/parsers/readers.py"", line 2721, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File ""/home/chs/Work/tga_plot/.venv/lib/pyt || The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/23_r3/make_option.py"", line 284, in <module>
+    main()
+    ~~~~^^
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/23_r3/make_option.py"", line 102, in main
+  || The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/23_r3/make_option.py"", line 4, in <module>
+    import chardet
+ModuleNotFoundError: No module named 'chardet'",results/runs/sx/R-ec-brief/23_r3
+2026-11-18 19:45:31,sx,P-ec,B,in,B01,0.7,3,1,1,1,1,,4,0,1,1,11.54,0.3,4860,230,keys,,,,,,,,,results/runs/sx/P-ec/B01_r3
+2026-11-18 19:46:05,sx,R-mpl-brief,B,in,B01,0.7,3,1,1,1,1,,4,0,1,1,39.04,0.86,1182,1312,,73,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B01_r3
+2026-11-18 19:46:09,sx,R-mpl-plain,B,in,B01,0.7,3,1,0,0,1,,4,2,0,1,43.91,0.82,699,872,,38,0,0,0,0,0,[ask] text_contains: no text containing 'H2O' | [ask] text_contains: no text containing 'CO2',,results/runs/sx/R-mpl-plain/B01_r3
+2026-11-18 19:46:55,sx,R-ec-plain,B,in,B01,0.7,3,1,0,0,1,,4,2,0,1,84.8,0.82,795,1813,,174,0,0,0,0,0,[ask] text_contains: no text containing 'H2O' | [ask] text_contains: no text containing 'CO2',,results/runs/sx/R-ec-plain/B01_r3
+2026-11-18 19:46:59,sx,P-mpl,B,in,B02,0.7,3,1,0,0,1,,3,1,0,1,50.0,0.13,4398,183,keys,,,,,,,"[ask] text_values: no label for [184.0]; texts: ['Residue 38.5%', '738 °C', '507 °C']",,results/runs/sx/P-mpl/B02_r3
+2026-11-18 19:47:03,sx,P-ec,B,in,B02,0.7,3,1,0,0,1,,3,1,0,1,7.84,0.3,4831,175,keys,,,,,,,"[ask] text_values: no label for [184.0]; texts: ['Residue 38.5%', '507 °C', '507 °C', '738 °C']",,results/runs/sx/P-ec/B02_r3
+2026-11-18 19:47:44,sx,R-mpl-plain,B,in,B02,0.7,3,1,1,1,1,,3,0,1,1,44.87,1.18,670,1119,,55,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B02_r3
+2026-11-18 19:48:11,sx,R-mpl-brief,B,in,B02,0.7,3,1,0,0,1,,3,1,0,1,68.12,1.16,1153,1202,,59,0,0,0,0,0,"[ask] text_values: no label for [184.0]; texts: ['508 °C\n(Endo)', '738 °C\n(Exo)']",,results/runs/sx/R-mpl-brief/B02_r3
+2026-11-18 19:48:57,sx,R-ec-plain,B,in,B02,0.7,3,1,0,0,1,,3,1,0,1,72.61,1.1,766,1564,,156,0,0,0,0,0,"[ask] text_values: no label for [184.0]; texts: ['Endo Peak (508.0°C)', 'Exo Peak (738.0°C)']",,results/runs/sx/R-ec-plain/B02_r3
+2026-11-18 19:49:47,sx,R-ec-brief,B,in,B01,0.7,3,0,0,0,0,,1,1,0,3,221.41,0.05,11574,7461,,195,0,0,0,0,0,[data] run: no plot after retries,"The script failed (exit 1):
+File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B01_r3/make_option.py"", line 140
+    peak_label = {
+                 ^
+SyntaxError: '{' was never closed || The script failed (exit 1):
+File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B01_r3/make_option.py"", line 140
+    peak_label = {
+                 ^
+SyntaxError: '{' was never closed || The script failed (exit 1):
+File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B01_r3/make_option.py"", line 140
+    peak_label = {
+                 ^
+SyntaxError: '{' was never closed",results/runs/sx/R-ec-brief/B01_r3
+2026-11-18 19:49:50,sx,P-mpl,B,in,B03,0.7,3,1,1,1,1,,5,0,1,1,53.94,0.24,4278,118,keys,,,,,,,,,results/runs/sx/P-mpl/B03_r3
+2026-11-18 19:49:53,sx,P-ec,B,in,B03,0.7,3,1,1,1,1,,5,0,1,1,6.02,0.27,4711,64,keys,,,,,,,,,results/runs/sx/P-ec/B03_r3
+2026-11-18 19:49:59,sx,R-ec-brief,B,in,B02,0.7,3,1,0,0,1,,3,1,0,1,107.82,1.11,1249,2060,,189,0,0,0,0,0,"[ask] text_values: no label for [184.0, 738.0, 508.0]; texts: ['2.3073', '-1.3741', '38.456']",,results/runs/sx/R-ec-brief/B02_r3
+2026-11-18 19:50:14,sx,R-mpl-brief,B,in,B03,0.7,3,1,1,1,1,,5,0,1,1,21.29,0.93,1034,569,,38,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B03_r3
+2026-11-18 19:50:17,sx,R-mpl-plain,B,in,B03,0.7,3,1,1,1,1,,5,0,1,1,26.93,0.96,551,670,,35,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B03_r3
+2026-11-18 19:50:42,sx,R-ec-brief,B,in,B03,0.7,3,1,1,1,1,,5,0,1,1,27.81,0.83,1130,1074,,127,0,0,0,0,0,,,results/runs/sx/R-ec-brief/B03_r3
+2026-11-18 19:50:43,sx,P-mpl,B,in,B04,0.7,3,1,0,0,1,,3,1,0,1,25.57,0.12,4208,56,keys,,,,,,,"[ask] text_values: no label for [25.3]; texts: ['38', '55', '54', '48', '25']",,results/runs/sx/P-mpl/B04_r3
+2026-11-18 19:50:45,sx,P-ec,B,in,B04,0.7,3,1,0,0,1,,3,1,0,1,3.41,0.3,4641,56,keys,,,,,,,"[ask] text_values: no label for [25.3]; texts: ['38', '55', '54', '48', '25']",,results/runs/sx/P-ec/B04_r3
+2026-11-18 19:50:53,sx,R-ec-plain,B,in,B03,0.7,3,1,1,1,1,,5,0,1,1,53.42,0.83,647,1363,,157,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B03_r3
+2026-11-18 19:51:05,sx,R-mpl-plain,B,in,B04,0.7,3,1,1,1,1,,3,0,1,1,21.74,1.11,480,583,,38,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B04_r3
+2026-11-18 19:51:25,sx,R-mpl-brief,B,in,B04,0.7,3,1,1,1,1,,3,0,1,1,39.84,1.13,963,926,,51,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B04_r3
+2026-11-18 19:51:32,sx,R-ec-plain,B,in,B04,0.7,3,1,0,0,1,,3,1,0,1,39.84,1.13,576,1001,,110,0,0,0,0,0,"[ask] text_values: no label for [53.9, 37.8, 55.1]; texts: ['25.30', '25.34', '25.40', '25.04', '47.94']",,results/runs/sx/R-ec-plain/B04_r3
+2026-11-18 19:51:34,sx,P-mpl,B,out,B05,0.7,3,1,0,0,1,,3,2,0,1,8.84,0.15,4683,47,keys,,,,,,,[ask] text_contains: no text containing 'Lot A' | [ask] text_contains: no text containing 'Lot B',,results/runs/sx/P-mpl/B05_r3
+2026-11-18 19:51:38,sx,P-ec,B,out,B05,0.7,3,1,0,0,1,,3,2,0,1,5.85,0.31,5116,109,keys,,,,,,,[ask] text_contains: no text containing 'Lot A' | [ask] text_contains: no text containing 'Lot B',,results/runs/sx/P-ec/B05_r3
+2026-11-18 19:51:53,sx,R-ec-brief,B,in,B04,0.7,3,1,0,0,1,,3,1,0,1,48.03,1.1,1059,993,,112,0,0,0,0,0,"[ask] text_values: no label for [25.3, 48.0, 53.9, 37.8, 55.1]; texts: ['Peak 1', 'Peak 2', 'Peak 3', 'Peak 4', 'Peak 5']",,results/runs/sx/R-ec-brief/B04_r3
+2026-11-18 19:53:48,sx,R-ec-plain,B,out,B05,0.7,3,1,0,0,0,,3,1,0,2,115.08,1.36,3620,2911,,146,0,0,0,0,0,"[data] series_set: y1 lines [[9.97, 100.03]] do not cover [[9.9705, 100.03], [6.9768, 100.03]] in one figure","The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-plain/B05_r3/make_option.py"", line 38, in <module>
+    data_weight_b = [[float(t), float(w)] for t, w in zip(temp_b, weight_b)]
+                      ~~~~~^^^
+ValueError: could no",results/runs/sx/R-ec-plain/B05_r3
+2026-11-18 19:53:59,sx,R-mpl-plain,B,out,B05,0.7,3,1,0,0,0,,3,1,0,3,144.72,6.7,6716,2651,,47,0,0,0,0,0,"[data] series_set: y1 lines [[9.97, 100.03], [0.0, 515.0]] do not cover [[9.9705, 100.03], [6.9768, 100.03]] in one figure","The script failed (exit 1):
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File ""pandas/_libs/index.pyx"", line 172, in pandas._libs.index.IndexEngine.get_loc
+  File ""pandas/_libs/index.pyx"", line 201, in pandas._libs.index.IndexEngine.get_loc
+  File ""pandas || The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/_runner.py"", line 16, in <module>
+    runpy.run_path(script, run_name=""__main__"")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""<frozen runpy>"", line 287, in run_path
+  File ""<frozen runpy>""",results/runs/sx/R-mpl-plain/B05_r3
+2026-11-18 19:54:34,sx,P-mpl,B,in,B06,0.7,3,1,1,1,1,,3,0,1,1,35.7,0.12,4263,70,keys,,,,,,,,,results/runs/sx/P-mpl/B06_r3
+2026-11-18 19:55:08,sx,P-ec,B,in,B06,0.7,3,1,1,1,1,,3,0,1,1,34.05,0.29,4696,103,keys,,,,,,,,,results/runs/sx/P-ec/B06_r3
+2026-11-18 19:55:19,sx,R-mpl-brief,B,out,B05,0.7,3,1,0,0,0,,3,1,0,3,220.68,2.17,12569,5853,,97,0,0,0,0,0,"[data] series_set: y1 lines [[9.97, 100.03]] do not cover [[9.9705, 100.03], [6.9768, 100.03]] in one figure","The script failed (exit 1):
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File ""pandas/_libs/index.pyx"", line 172, in pandas._libs.index.IndexEngine.get_loc
+  File ""pandas/_libs/index.pyx"", line 201, in pandas._libs.index.IndexEngine.get_loc
+  File ""pandas || The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/_runner.py"", line 16, in <module>
+    runpy.run_path(script, run_name=""__main__"")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""<frozen runpy>"", line 287, in run_path
+  File ""<frozen runpy>""",results/runs/sx/R-mpl-brief/B05_r3
+2026-11-18 19:56:31,sx,R-mpl-brief,B,in,B06,0.7,3,1,1,1,1,,3,0,1,1,72.36,0.81,1018,863,,50,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B06_r3
+2026-11-18 19:56:46,sx,R-ec-brief,B,out,B05,0.7,3,0,0,0,0,,1,1,0,3,177.65,1.62,11707,6133,,202,0,0,0,0,0,[data] run: no plot after retries,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B05_r3/make_option.py"", line 70, in <module>
+    df = load_data(fpath)
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B05_r3/make_option.py"", line 25, in lo || The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B05_r3/make_option.py"", line 77, in <module>
+    df = load_data(fpath)
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B05_r3/make_option.py"", line 30, in lo || The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B05_r3/make_option.py"", line 80, in <module>
+    df = load_data(fpath)
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B05_r3/make_option.py"", line 33, in lo",results/runs/sx/R-ec-brief/B05_r3
+2026-11-18 19:57:48,sx,R-mpl-plain,B,in,B06,0.7,3,1,0,0,0,,3,3,0,3,159.07,1.74,5383,2932,,64,0,0,0,0,0,"[data] series: no y1 line with y [75.177, 100.0] (x [0, 140]); lines: [('y1', []), ('y2', [75.177, 100.0])] | [data] series: no y2 line with y [30.0, 400.0] (x None); lines: [('y1', []), ('y2', [75.177, 100.0])] | [ask] text_value: no label showing 75.177±0.1; texts: []","The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/_runner.py"", line 16, in <module>
+    runpy.run_path(script, run_name=""__main__"")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""<frozen runpy>"", line 286, in run_path
+  File ""<frozen runpy>"" || The script failed (exit 1):
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File ""pandas/_libs/index.pyx"", line 172, in pandas._libs.index.IndexEngine.get_loc
+  File ""pandas/_libs/index.pyx"", line 201, in pandas._libs.index.IndexEngine.get_loc
+  File ""pandas",results/runs/sx/R-mpl-plain/B06_r3
+2026-11-18 19:57:53,sx,P-mpl,B,in,B07,0.7,3,1,1,1,1,,3,0,1,1,5.7,0.16,4949,79,keys,,,,,,,,,results/runs/sx/P-mpl/B07_r3
+2026-11-18 19:58:14,sx,R-ec-brief,B,in,B06,0.7,3,1,1,1,1,,3,0,0,2,88.73,1.4,3851,2066,,126,0,0,0,0,0,,"The script failed (exit 1):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B06_r3/make_option.py"", line 18, in <module>
+    idx_140 = df[time_col].idxmin(key=lambda x: abs(x - 140.0))
+  File ""/home/chs/Work/tga_plot/.venv/lib/python3.13/site-packages/pandas/core/series.py"", line 280",results/runs/sx/R-ec-brief/B06_r3
+2026-11-18 19:58:16,sx,P-ec,B,in,B07,0.7,3,1,0,0,1,,3,1,0,1,22.73,0.3,5382,29,keys,,,,,,,"[ask] text_value: no label showing 71.007±0.15; texts: ['Residue 12.0%', '300 °C']",,results/runs/sx/P-ec/B07_r3
+2026-11-18 19:58:22,sx,R-ec-plain,B,in,B06,0.7,3,0,0,0,0,,1,1,0,3,110.66,1.59,6088,3303,,111,0,0,0,0,0,[data] run: no plot after retries,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/.venv/lib/python3.13/site-packages/pandas/core/indexes/base.py"", line 3816, in get_loc
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File ""pandas/_libs/index.pyx || The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-plain/B06_r3/make_option.py"", line 17, in <module>
+    raise ValueError(""Could not identify required columns: Time, Temperature, Weight"")
+ValueError: Could not identify required c || The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-plain/B06_r3/make_option.py"", line 17, in <module>
+    raise ValueError(""Could not identify required columns: Time, Temperature, Weight"")
+ValueError: Could not identify required c",results/runs/sx/R-ec-plain/B06_r3
+2026-11-18 19:58:46,sx,R-mpl-plain,B,in,B07,0.7,3,1,1,1,1,,3,0,1,1,31.77,0.92,1222,954,,50,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B07_r3
+2026-11-18 19:58:50,sx,R-mpl-brief,B,in,B07,0.7,3,1,1,1,1,,3,0,1,1,33.69,0.87,1705,848,,51,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B07_r3
+2026-11-18 19:59:15,sx,R-ec-plain,B,in,B07,0.7,3,1,1,1,1,,3,0,1,1,53.22,0.85,1318,1117,,99,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B07_r3
+2026-11-18 19:59:18,sx,P-mpl,B,in,B08,0.7,3,1,1,1,1,,3,0,1,1,28.36,0.15,4954,92,keys,,,,,,,,,results/runs/sx/P-mpl/B08_r3
+2026-11-18 19:59:22,sx,P-ec,B,in,B08,0.7,3,1,1,1,1,,3,0,1,1,6.49,0.31,5387,115,keys,,,,,,,,,results/runs/sx/P-ec/B08_r3
+2026-11-18 19:59:31,sx,R-ec-brief,B,in,B07,0.7,3,1,1,1,1,,3,0,1,1,44.41,0.88,1801,1418,,156,0,0,0,0,0,,,results/runs/sx/R-ec-brief/B07_r3
+2026-11-18 19:59:48,sx,R-mpl-plain,B,in,B08,0.7,3,1,1,1,1,,3,0,1,1,30.0,0.83,1227,615,,28,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B08_r3
+2026-11-18 20:00:10,sx,R-mpl-brief,B,in,B08,0.7,3,1,1,1,1,,3,0,1,1,48.01,0.88,1710,1149,,57,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B08_r3
+2026-11-18 20:00:20,sx,R-ec-plain,B,in,B08,0.7,3,1,1,1,1,,3,0,1,1,49.84,0.85,1323,1248,,154,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B08_r3
+2026-11-18 20:00:22,sx,P-mpl,B,messy,B09,0.7,3,1,1,1,1,,3,0,1,1,12.42,0.14,4966,63,keys,,,,,,,,,results/runs/sx/P-mpl/B09_r3
+2026-11-18 20:00:26,sx,P-ec,B,messy,B09,0.7,3,1,1,1,1,,3,0,1,1,5.66,0.31,5399,91,keys,,,,,,,,,results/runs/sx/P-ec/B09_r3
+2026-11-18 20:00:46,sx,R-mpl-plain,B,messy,B09,0.7,3,1,1,1,1,,3,0,1,1,23.25,0.85,1239,646,,33,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B09_r3
+2026-11-18 20:01:00,sx,R-ec-brief,B,in,B08,0.7,3,1,0,0,0,,3,1,0,1,71.64,0.94,1806,1745,,178,0,0,0,0,0,"[data] only: other y1 data drawn too: [[4.975, 100.01], [1.9743, 100.03]]",,results/runs/sx/R-ec-brief/B08_r3
+2026-11-18 20:01:31,sx,R-ec-plain,B,messy,B09,0.7,3,1,0,0,1,,3,1,0,1,45.17,0.86,1335,1087,,115,0,0,0,0,0,"[ask] lines: y1 line width is 2.25, want 3",,results/runs/sx/R-ec-plain/B09_r3
+2026-11-18 20:01:34,sx,R-mpl-brief,B,messy,B09,0.7,3,1,1,1,1,,3,0,1,1,67.68,0.85,1722,1258,,60,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B09_r3
+2026-11-18 20:01:35,sx,P-mpl,B,messy,B10,0.7,3,1,0,0,1,,5,2,0,1,4.75,0.16,4962,48,keys,,,,,,,"[ask] lines: y1 line color is '#1f4e9c', want 'black' | [ask] lines: y2 line color is '#c0392b', want ['black', 'gray']",,results/runs/sx/P-mpl/B10_r3
+2026-11-18 20:01:38,sx,P-ec,B,messy,B10,0.7,3,1,0,0,1,,5,2,0,1,4.55,0.31,5395,69,keys,,,,,,,"[ask] lines: y1 line color is '#1f4e9c', want 'black' | [ask] lines: y2 line color is '#c0392b', want ['black', 'gray']",,results/runs/sx/P-ec/B10_r3
+2026-11-18 20:02:03,sx,R-mpl-plain,B,messy,B10,0.7,3,1,0,0,1,,5,1,0,1,27.83,0.82,1235,793,,47,0,0,0,0,0,"[ask] png_px: png sizes [[2044, 1497]]",,results/runs/sx/R-mpl-plain/B10_r3
+2026-11-18 20:02:41,sx,R-mpl-brief,B,messy,B10,0.7,3,1,0,0,1,,5,1,0,1,62.8,0.85,1718,1291,,67,0,0,0,0,0,"[ask] png_px: png sizes [[2282, 1661]]",,results/runs/sx/R-mpl-brief/B10_r3
+2026-11-18 20:03:08,sx,R-ec-plain,B,messy,B10,0.7,3,1,0,0,0,,5,4,0,1,64.43,0.89,1331,1134,,106,0,0,0,0,0,"[data] only: other y1 data drawn too: [[-1.3676, 0.0028978]] | [ask] lines: no y2 line | [ask] png_px: png sizes [[2100, 1556]] | [ask] axis: fig 0: x.label_size is 9.0, want 8",,results/runs/sx/R-ec-plain/B10_r3
+2026-11-18 20:04:05,sx,P-mpl,B,messy,B11,0.7,3,1,1,1,1,,5,0,1,1,57.25,0.15,4956,81,keys,,,,,,,,,results/runs/sx/P-mpl/B11_r3
+2026-11-18 20:04:13,sx,R-ec-brief,B,messy,B09,0.7,3,1,0,0,1,,3,1,0,1,193.39,0.85,1818,4192,,253,0,1,0,0,0,"[ask] lines: y1 line width is 2.25, want 3",,results/runs/sx/R-ec-brief/B09_r3
+2026-11-18 20:04:16,sx,P-ec,B,messy,B11,0.7,3,1,1,1,1,,5,0,1,1,10.56,0.31,5389,65,keys,,,,,,,,,results/runs/sx/P-ec/B11_r3
+2026-11-18 20:04:43,sx,R-mpl-plain,B,messy,B11,0.7,3,1,0,0,1,,5,1,0,1,29.32,0.85,1229,584,,32,0,0,0,0,0,[ask] text_value: no label showing 17.009±0.03; texts: [],,results/runs/sx/R-mpl-plain/B11_r3
+2026-11-18 20:04:54,sx,R-ec-brief,B,messy,B10,0.7,3,1,0,0,1,,5,1,0,2,132.5,1.44,6142,4174,,218,0,0,0,0,0,"[ask] png_px: png sizes [[2100, 1556]]","The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B10_r3/make_option.py"", line 250, in <module>
+    print(json.dumps(output))
+          ~~~~~~~~~~^^^^^^^^
+  File ""/home/chs/.local/share/uv/python/cpython-3.13.11-linux-x86_6",results/runs/sx/R-ec-brief/B10_r3
+2026-11-18 20:05:17,sx,R-ec-plain,B,messy,B11,0.7,3,1,0,0,1,,5,2,0,1,34.03,0.84,1325,936,,107,0,0,0,0,0,[ask] legend: legend at outside | [ask] text_value: no label showing 17.009±0.03; texts: [],,results/runs/sx/R-ec-plain/B11_r3
+2026-11-18 20:05:32,sx,R-mpl-brief,B,messy,B11,0.7,3,1,1,1,1,,5,0,1,1,76.05,0.86,1712,1352,,69,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B11_r3
+2026-11-18 20:05:33,sx,P-mpl,B,messy,B12,0.7,3,1,1,1,1,,4,0,1,1,16.62,0.11,4402,53,keys,,,,,,,,,results/runs/sx/P-mpl/B12_r3
+2026-11-18 20:05:36,sx,P-ec,B,messy,B12,0.7,3,1,1,1,1,,4,0,1,1,3.78,0.28,4835,53,keys,,,,,,,,,results/runs/sx/P-ec/B12_r3
+2026-11-18 20:06:02,sx,R-mpl-plain,B,messy,B12,0.7,3,1,1,1,1,,4,0,1,1,28.76,0.81,674,672,,34,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B12_r3
+2026-11-18 20:06:16,sx,R-ec-brief,B,messy,B11,0.7,3,1,0,0,1,,5,1,0,1,82.09,0.85,1808,2136,,220,0,0,0,0,0,[ask] legend: legend at outside,,results/runs/sx/R-ec-brief/B11_r3
+2026-11-18 20:06:21,sx,R-mpl-brief,B,messy,B12,0.7,3,1,1,1,1,,4,0,1,1,45.43,0.79,1157,635,,37,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B12_r3
+2026-11-18 20:06:43,sx,R-ec-plain,B,messy,B12,0.7,3,1,1,1,1,,4,0,1,1,40.61,0.81,770,1109,,114,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B12_r3
+2026-11-18 20:06:44,sx,P-mpl,B,messy,B13,0.7,3,1,1,1,1,,2,0,1,1,23.13,0.15,4943,33,keys,,,,,,,,,results/runs/sx/P-mpl/B13_r3
+2026-11-18 20:06:47,sx,P-ec,B,messy,B13,0.7,3,1,1,1,1,,2,0,1,1,4.06,0.33,5376,33,keys,,,,,,,,,results/runs/sx/P-ec/B13_r3
+2026-11-18 20:06:52,sx,R-ec-brief,B,messy,B12,0.7,3,1,1,1,1,,4,0,1,1,36.4,0.82,1253,1076,,127,0,0,0,0,0,,,results/runs/sx/R-ec-brief/B12_r3
+2026-11-18 20:07:28,sx,R-mpl-brief,B,messy,B13,0.7,3,1,1,1,1,,2,0,1,1,41.23,1.18,1699,1194,,66,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B13_r3
+2026-11-18 20:07:37,sx,R-mpl-plain,B,messy,B13,0.7,3,1,1,1,1,,2,0,1,1,52.44,1.2,1216,1297,,68,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B13_r3
+2026-11-18 20:08:03,sx,P-mpl,B,messy,B14,0.7,3,1,1,1,1,,3,0,1,1,26.77,0.22,4944,41,keys,,,,,,,,,results/runs/sx/P-mpl/B14_r3
+2026-11-18 20:08:34,sx,R-ec-plain,B,messy,B13,0.7,3,1,0,0,1,,2,1,0,2,101.39,1.99,3918,2285,,103,0,0,0,0,0,"[ask] text_values: no label for [300, 455]; texts: ['{@[0]}°C']","The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-plain/B13_r3/make_option.py"", line 135, in <module>
+    main()
+    ~~~~^^
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-plain/B13_r3/make_option.py"", line 33, in main
+",results/runs/sx/R-ec-plain/B13_r3
+2026-11-18 20:08:35,sx,P-ec,B,messy,B14,0.7,3,1,1,1,1,,3,0,1,1,31.9,0.33,5377,41,keys,,,,,,,,,results/runs/sx/P-ec/B14_r3
+2026-11-18 20:09:01,sx,R-mpl-plain,B,messy,B14,0.7,3,1,1,1,1,,3,0,1,1,27.76,0.9,1217,662,,37,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B14_r3
+2026-11-18 20:09:23,sx,R-mpl-brief,B,messy,B14,0.7,3,1,0,0,1,,3,1,0,1,47.37,0.89,1700,1287,,74,0,0,0,0,0,"[ask] font_size: axis text sizes [14.0, 16.0]",,results/runs/sx/R-mpl-brief/B14_r3
+2026-11-18 20:10:04,sx,R-ec-plain,B,messy,B14,0.7,3,1,0,0,1,,3,1,0,1,62.19,0.88,1313,1402,,154,0,0,0,0,0,"[ask] font_size: axis text sizes [12.0, 13.5]",,results/runs/sx/R-ec-plain/B14_r3
+2026-11-18 20:10:42,sx,R-ec-brief,B,messy,B13,0.7,3,1,0,0,1,,2,1,0,3,193.89,1.99,11505,5374,,135,0,0,0,0,0,"[ask] text_values: no label for [300, 455]; texts: []","The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B13_r3/make_option.py"", line 75, in <module>
+    knee_temps = find_knee_temperatures(temp, weight)
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B13_r3/mak || The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B13_r3/make_option.py"", line 186, in <module>
+    print(json.dumps(result))
+          ~~~~~~~~~~^^^^^^^^
+  File ""/home/chs/.local/share/uv/python/cpython-3.13.11-linux-x86_6",results/runs/sx/R-ec-brief/B13_r3
+2026-11-18 20:10:43,sx,P-mpl,B,out,B15,0.7,3,1,0,0,1,,2,1,0,1,39.83,0.17,4942,35,keys,,,,,,,[ask] legend: legend inside=True,,results/runs/sx/P-mpl/B15_r3
+2026-11-18 20:10:46,sx,P-ec,B,out,B15,0.7,3,1,0,0,1,,2,1,0,1,4.14,0.33,5375,29,keys,,,,,,,[ask] legend: legend inside=True,,results/runs/sx/P-ec/B15_r3
+2026-11-18 20:11:33,sx,R-mpl-brief,B,out,B15,0.7,3,1,1,1,1,,2,0,1,1,47.45,0.91,1698,988,,64,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B15_r3
+2026-11-18 20:11:41,sx,R-mpl-plain,B,out,B15,0.7,3,1,1,1,1,,2,0,0,2,57.32,1.62,3232,1105,,36,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/_runner.py"", line 16, in <module>
+    runpy.run_path(script, run_name=""__main__"")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""<frozen runpy>"", line 287, in run_path
+  File ""<frozen runpy>""",results/runs/sx/R-mpl-plain/B15_r3
+2026-11-18 20:12:18,sx,R-ec-plain,B,out,B15,0.7,3,1,1,1,1,,2,0,1,1,44.24,0.89,1311,1118,,126,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B15_r3
+2026-11-18 20:12:27,sx,P-mpl,B,out,B16,0.7,3,1,1,1,1,,3,0,1,1,9.4,0.14,4392,123,code,,,,,,,,,results/runs/sx/P-mpl/B16_r3
+2026-11-18 20:13:13,sx,R-ec-brief,B,messy,B14,0.7,3,0,0,0,0,,1,1,0,3,230.58,2.28,13121,7123,,218,0,0,0,0,0,[data] run: no plot after retries,ECharts could not render the printed option: no figures in the printed JSON || ECharts could not render the printed option: no figures in the printed JSON || ECharts could not render the printed option: no figures in the printed JSON,results/runs/sx/R-ec-brief/B14_r3
+2026-11-18 20:13:40,sx,R-ec-brief,B,out,B15,0.7,3,1,1,1,1,,2,0,1,1,119.4,0.9,1794,2590,,217,0,0,0,0,0,,,results/runs/sx/R-ec-brief/B15_r3
+2026-11-18 20:13:53,sx,R-mpl-plain,B,out,B16,0.7,3,1,1,1,1,,3,0,1,1,39.35,0.87,664,448,,26,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B16_r3
+2026-11-18 20:14:15,sx,R-mpl-brief,B,out,B16,0.7,3,1,1,1,1,,3,0,1,1,34.81,0.84,1147,877,,52,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B16_r3
+2026-11-18 20:14:46,sx,R-ec-plain,B,out,B16,0.7,3,1,0,0,1,,3,1,0,1,52.93,0.86,760,1257,,146,0,0,0,0,0,[ask] panels: 1 panels,,results/runs/sx/R-ec-plain/B16_r3
+2026-11-18 20:15:18,sx,P-mpl,B,out,B17,0.7,3,1,1,1,1,,1,0,1,1,32.45,0.14,4951,152,code,,,,,,,,,results/runs/sx/P-mpl/B17_r3
+2026-11-18 20:15:30,sx,P-ec,B,out,B17,0.7,3,1,0,0,1,,1,1,0,1,11.86,0.31,5384,25,keys,,,,,,,[ask] offset: curves are not offset,,results/runs/sx/P-ec/B17_r3
+2026-11-18 20:15:37,sx,R-ec-brief,B,out,B16,0.7,3,1,1,1,1,,3,0,1,1,81.87,0.81,1243,1889,,198,0,0,0,0,0,,,results/runs/sx/R-ec-brief/B16_r3
+2026-11-18 20:15:38,sx,P-ec,B,out,B16,0.7,3,0,0,0,0,,1,1,0,3,190.62,0.0,20073,3196,echarts,,,,,,,[data] run: no plot after retries,plotkit error: echarts.grid must be an object | hint:  || plotkit error: echarts.xAxis must be an object | hint:  || plotkit error: echarts.grid must be an object | hint: ,results/runs/sx/P-ec/B16_r3
+2026-11-18 20:15:57,sx,R-mpl-plain,B,out,B17,0.7,3,1,1,1,1,,1,0,1,1,26.88,0.88,1224,565,,32,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B17_r3
+2026-11-18 20:16:03,sx,R-mpl-brief,B,out,B17,0.7,3,1,1,1,1,,1,0,1,1,25.65,0.85,1707,612,,37,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B17_r3
+2026-11-18 20:16:19,sx,R-ec-plain,B,out,B17,0.7,3,1,1,1,1,,1,0,1,1,41.14,0.88,1320,842,,82,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B17_r3
+2026-11-18 20:16:36,sx,R-ec-brief,B,out,B17,0.7,3,1,1,1,1,,1,0,1,1,39.08,0.89,1803,1143,,121,0,0,0,0,0,,,results/runs/sx/R-ec-brief/B17_r3
+2026-11-18 20:16:39,sx,P-ec,B,out,B18,0.7,3,1,0,0,1,,2,1,0,1,19.71,0.3,5378,84,keys,,,,,,,"[ask] text_value: no label showing 604.8±8; texts: ['Onset (extrapolated): ~460 °C', 'Residue 2.0%', '640 °C']",,results/runs/sx/P-ec/B18_r3
+2026-11-18 20:16:46,sx,P-mpl,B,out,B18,0.7,3,1,0,0,1,,2,1,0,1,43.45,0.16,4945,588,code,,,,,,,"[ask] text_value: no label showing 604.8±8; texts: ['Residue 2.0%', '640 °C']",,results/runs/sx/P-mpl/B18_r3
+2026-11-18 20:17:52,sx,R-mpl-plain,B,out,B18,0.7,3,1,0,0,1,,2,1,0,1,76.5,0.88,1218,2015,,95,0,0,0,0,0,[ask] text_value: no label showing 604.8±8; texts: [],,results/runs/sx/R-mpl-plain/B18_r3
+2026-11-18 20:18:32,sx,R-mpl-brief,B,out,B18,0.7,3,1,1,1,1,,2,0,0,2,113.01,2.19,5603,3667,,97,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/_runner.py"", line 16, in <module>
+    runpy.run_path(script, run_name=""__main__"")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""<frozen runpy>"", line 287, in run_path
+  File ""<frozen runpy>""",results/runs/sx/R-mpl-brief/B18_r3
+2026-11-18 20:18:47,sx,P-mpl,B,out,B19,0.7,3,1,1,1,1,,2,0,1,1,15.49,0.16,4957,163,code,,,,,,,,,results/runs/sx/P-mpl/B19_r3
+2026-11-18 20:19:20,sx,R-ec-plain,B,out,B18,0.7,3,1,0,0,1,,2,1,0,2,153.49,2.01,4544,3067,,144,0,0,0,0,0,[ask] text_value: no label showing 604.8±8; texts: ['0'],"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-plain/B18_r3/make_option.py"", line 171, in <module>
+    print(json.dumps(result, ensure_ascii=False))
+          ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""/home/chs/.local/sha",results/runs/sx/R-ec-plain/B18_r3
+2026-11-18 20:19:22,sx,P-ec,B,out,B19,0.7,3,1,0,0,1,,2,1,0,1,34.73,0.3,5390,72,keys,,,,,,,"[ask] text_value: no label showing 58.43±0.6; texts: ['ΔW(200-400°C): 78.5%', 'Residue 12.0%', '300 °C']",,results/runs/sx/P-ec/B19_r3
+2026-11-18 20:20:01,sx,R-mpl-plain,B,out,B19,0.7,3,1,1,1,1,,2,0,1,1,41.06,1.03,1230,1196,,59,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B19_r3
+2026-11-18 20:20:41,sx,R-mpl-brief,B,out,B19,0.7,3,1,1,1,1,,2,0,1,1,79.19,0.88,1713,1391,,73,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B19_r3
+2026-11-18 20:21:03,sx,R-ec-plain,B,out,B19,0.7,3,1,0,0,1,,2,1,0,1,61.85,0.84,1326,1483,,139,0,0,0,0,0,[ask] text_value: no label showing 58.43±0.6; texts: [],,results/runs/sx/R-ec-plain/B19_r3
+2026-11-18 20:21:51,sx,P-mpl,B,out,B20,0.7,3,1,1,1,1,,2,0,1,1,48.73,0.18,4943,34,code,,,,,,,,,results/runs/sx/P-mpl/B20_r3
+2026-11-18 20:22:07,sx,P-ec,B,out,B20,0.7,3,1,1,1,1,,2,0,1,1,15.84,0.31,5376,101,echarts,,,,,,,,,results/runs/sx/P-ec/B20_r3
+2026-11-18 20:22:49,sx,R-ec-brief,B,out,B19,0.7,3,1,0,0,1,,2,1,0,2,128.14,1.42,5789,3574,,170,0,0,0,0,0,"[ask] text_value: no label showing 58.43±0.6; texts: ['Residue 12.0%', '300 °C']","The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B19_r3/make_option.py"", line 194, in <module>
+    print(json.dumps(result, ensure_ascii=False))
+          ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""/home/chs/.local/sha",results/runs/sx/R-ec-brief/B19_r3
+2026-11-18 20:22:57,sx,R-ec-brief,B,out,B18,0.7,3,1,1,1,1,,2,0,0,3,304.41,1.46,14475,8308,,241,0,0,0,0,0,,"The script failed (exit 1):
+File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B18_r3/make_option.py"", line 134
+    ""formatter"": function(params):
+                                 ^
+SyntaxError: invalid syntax || The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B18_r3/make_option.py"", line 325, in <module>
+    print(json.dumps(output))
+          ~~~~~~~~~~^^^^^^^^
+  File ""/home/chs/.local/share/uv/python/cpython-3.13.11-linux-x86_6",results/runs/sx/R-ec-brief/B18_r3
+2026-11-18 20:23:18,sx,R-mpl-plain,B,out,B20,0.7,3,1,1,1,1,,2,0,1,1,70.36,0.86,1216,715,,37,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B20_r3
+2026-11-18 20:23:32,sx,R-mpl-brief,B,out,B20,0.7,3,1,1,1,1,,2,0,1,1,42.33,0.87,1699,1079,,63,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B20_r3
+2026-11-18 20:23:44,sx,R-ec-plain,B,out,B20,0.7,3,1,1,1,1,,2,0,1,1,46.65,0.84,1312,1032,,121,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B20_r3
+2026-11-18 20:23:49,sx,P-mpl,B,out,B21,0.7,3,1,1,1,1,,2,0,0,2,16.88,0.15,9973,58,code,,,,,,,,"plotkit error: unknown key ""x.flip"". | hint: allowed keys for x: col, label, label_color, label_size, log, max, min, step, tick_color, tick_size",results/runs/sx/P-mpl/B21_r3
+2026-11-18 20:24:06,sx,R-mpl-plain,B,out,B21,0.7,3,1,0,0,0,,2,2,0,1,17.2,0.84,1214,452,,28,0,0,0,0,0,"[data] only: other y1 data drawn too: [[-0.84916, 0.0021801]] | [ask] axis: fig 0: x.inverted is False, want True",,results/runs/sx/R-mpl-plain/B21_r3
+2026-11-18 20:24:07,sx,P-ec,B,out,B21,0.7,3,1,1,1,1,,2,0,0,3,23.32,0.31,16435,146,echarts,,,,,,,,"plotkit error: unknown key ""x.flip"". | hint: allowed keys for x: col, label, label_color, label_size, log, max, min, step, tick_color, tick_size || plotkit error: axis range is empty (min 900.0 >= max 30.0) | hint: ",results/runs/sx/P-ec/B21_r3
+2026-11-18 20:24:39,sx,R-mpl-brief,B,out,B21,0.7,3,1,1,1,1,,2,0,1,1,33.11,0.85,1697,951,,59,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B21_r3
+2026-11-18 20:24:57,sx,R-ec-plain,B,out,B21,0.7,3,1,1,1,1,,2,0,1,1,49.71,0.85,1310,856,,100,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B21_r3
+2026-11-18 20:25:21,sx,R-ec-brief,B,out,B20,0.7,3,1,1,1,1,,2,0,0,2,123.93,1.42,5976,3894,,188,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B20_r3/make_option.py"", line 224, in <module>
+    main()
+    ~~~~^^
+  File ""/home/chs/Work/tga_plot/eval/results/runs/sx/R-ec-brief/B20_r3/make_option.py"", line 221, in main",results/runs/sx/R-ec-brief/B20_r3
+2026-11-18 20:25:24,sx,P-mpl,B,out,B22,0.7,3,1,0,0,1,,1,1,0,1,27.85,0.15,4950,78,code,,,,,,,"[ask] series: no y1 line with y [15.19563054557268, 101.53093338206331] (x None); lines: [('y1', [14.968, 100.01]), ('y2', [-0.002, 0.849])]",,results/runs/sx/P-mpl/B22_r3
+2026-11-18 20:25:26,sx,P-ec,B,out,B22,0.7,3,1,0,0,1,,1,1,0,1,4.92,0.3,5383,19,keys,,,,,,,"[ask] series: no y1 line with y [15.19563054557268, 101.53093338206331] (x None); lines: [('y1', [14.968, 100.01]), ('y2', [-0.002, 0.849])]",,results/runs/sx/P-ec/B22_r3
+2026-11-18 20:26:10,sx,R-ec-brief,B,out,B21,0.7,3,1,1,1,1,,2,0,1,1,90.82,0.85,1793,2139,,215,0,0,0,0,0,,,results/runs/sx/R-ec-brief/B21_r3
+2026-11-18 20:26:21,sx,R-mpl-plain,B,out,B22,0.7,3,1,1,1,1,,1,0,0,2,56.12,1.53,3181,1013,,24,0,0,0,0,0,,"The script failed (exit 1):
+Traceback (most recent call last):
+  File ""/home/chs/Work/tga_plot/eval/_runner.py"", line 16, in <module>
+    runpy.run_path(script, run_name=""__main__"")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""<frozen runpy>"", line 287, in run_path
+  File ""<frozen runpy>""",results/runs/sx/R-mpl-plain/B22_r3
+2026-11-18 20:26:27,sx,R-mpl-brief,B,out,B22,0.7,3,1,1,1,1,,1,0,1,1,61.02,0.88,1706,1162,,63,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B22_r3
+2026-11-18 20:26:43,sx,R-ec-plain,B,out,B22,0.7,3,1,1,1,1,,1,0,1,1,33.33,0.85,1319,834,,87,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B22_r3
+2026-11-18 20:26:57,sx,P-ec,B,out,B23,0.7,3,1,1,1,1,,4,0,0,2,14.21,0.33,10933,206,echarts,,,,,,,,"plotkit error: unknown key ""series_styles"". Did you mean ""sheets""? | hint: top-level keys: file, sheets, preset, read, x, y1, y2, annotate, title, legend, text_color, tick_direction, code, echarts, grid, size, dpi, font, font_size, combine, output",results/runs/sx/P-ec/B23_r3
+2026-11-18 20:27:01,sx,P-mpl,B,out,B23,0.7,3,0,0,0,0,,1,1,0,3,33.28,0.07,15540,444,keys,,,,,,,[data] run: no plot after retries,"plotkit error: sheet ""{'name': 'Raw', 'y1': {'color': 'black'}, 'y2': {'color': 'black'}}"" not found in cnt_batches.xlsx | hint: sheet names: ['Raw', 'Acid-washed', 'Annealed'] || plotkit error: sheet ""{'name': 'Raw', 'y1': {'color': 'black'}, 'y2': {'color': 'black'}}"" not found in cnt_batches.xlsx | hint: sheet names: ['Raw', 'Acid-washed', 'Annealed'] || plotkit error: sheet ""{'name': 'Raw', 'y1': {'color': 'black'}, 'y2': {'color': 'black'}}"" not found in cnt_batches.xlsx | hint: sheet names: ['Raw', 'Acid-washed', 'Annealed']",results/runs/sx/P-mpl/B23_r3
+2026-11-18 20:27:24,sx,R-mpl-plain,B,out,B23,0.7,3,1,1,1,1,,4,0,1,1,26.42,0.93,1224,679,,51,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B23_r3
+2026-11-18 20:27:37,sx,R-ec-brief,B,out,B22,0.7,3,1,1,1,1,,1,0,1,1,76.56,0.85,1802,2367,,220,0,0,0,0,0,,,results/runs/sx/R-ec-brief/B22_r3
+2026-11-18 20:27:59,sx,R-ec-plain,B,out,B23,0.7,3,1,0,0,1,,4,1,0,1,35.37,0.9,1320,928,,96,0,0,0,0,0,"[ask] line_color: that line is #1f77b4, want blue",,results/runs/sx/R-ec-plain/B23_r3
+2026-11-18 20:28:08,sx,R-mpl-brief,B,out,B23,0.7,3,1,1,1,1,,4,0,1,1,66.88,0.98,1707,1247,,80,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B23_r3
+2026-11-18 20:28:14,sx,P-ec,B,out,B24,0.7,3,1,0,0,1,,2,1,0,1,6.05,0.31,5371,67,echarts,,,,,,,"[ask] series: no y1 line with y [0.9724, 100.01] (x [303.15, 1173.15]); lines: [('y1', [0.972, 100.01]), ('y2', [-0.002, 2.456])]",,results/runs/sx/P-ec/B24_r3
+2026-11-18 20:28:19,sx,P-mpl,B,out,B24,0.7,3,1,0,0,1,,2,1,0,2,20.01,0.15,10011,240,code,,,,,,,"[ask] axis: fig 0: x.label_contains is None, want 'K'","plotkit error: unknown key ""x.code"". Did you mean ""col""? | hint: allowed keys for x: col, label, label_color, label_size, log, max, min, step, tick_color, tick_size",results/runs/sx/P-mpl/B24_r3
+2026-11-18 20:28:38,sx,R-mpl-plain,B,out,B24,0.7,3,1,1,1,1,,2,0,1,1,24.16,0.88,1211,557,,33,0,0,0,0,0,,,results/runs/sx/R-mpl-plain/B24_r3
+2026-11-18 20:29:02,sx,R-ec-brief,B,out,B23,0.7,3,1,0,0,1,,4,2,0,1,84.88,0.88,1803,2033,,188,0,0,0,0,0,"[ask] line_color: that line is #1f4e9c, want blue | [ask] line_color: that line is #c0392b, want red",,results/runs/sx/R-ec-brief/B23_r3
+2026-11-18 20:29:11,sx,R-mpl-brief,B,out,B24,0.7,3,1,1,1,1,,2,0,1,1,51.37,1.19,1694,1089,,57,0,0,0,0,0,,,results/runs/sx/R-mpl-brief/B24_r3
+2026-11-18 20:29:34,sx,R-ec-plain,B,out,B24,0.7,3,1,1,1,1,,2,0,1,1,56.3,0.85,1307,1048,,118,0,0,0,0,0,,,results/runs/sx/R-ec-plain/B24_r3
+2026-11-18 20:30:14,sx,R-ec-brief,B,out,B24,0.7,3,1,1,1,1,,2,0,1,1,71.42,0.84,1790,2763,,250,0,0,0,0,0,,,results/runs/sx/R-ec-brief/B24_r3

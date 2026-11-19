@@ -1,0 +1,59 @@
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+# File paths
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/B17_r3/out"
+
+# Ensure output directory exists
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# Read data from Excel sheets
+sheet_names = ["PE", "PVC", "PET"]
+data_dict = {}
+
+for sheet in sheet_names:
+    df = pd.read_excel(DATA_FILE, sheet_name=sheet)
+    # Rename columns for easier access if needed, but we know the names
+    # Columns: Time (min), Temperature (°C), Weight (%), Deriv. Weight (%/°C)
+    data_dict[sheet] = df
+
+# Plotting
+fig, ax = plt.subplots(figsize=(10, 6))
+
+colors = {'PE': '#1f77b4', 'PVC': '#ff7f0e', 'PET': '#2ca02c'}
+offset_step = 20.0  # Offset by 20% for each curve to avoid overlap
+
+for i, sheet in enumerate(sheet_names):
+    df = data_dict[sheet]
+    temp = df['Temperature (°C)']
+    weight = df['Weight (%)']
+    
+    # Calculate offset: PE=0, PVC=+20, PET=+40 (or similar strategy)
+    # To stack them nicely, we add an increasing offset to the y-values
+    current_offset = i * offset_step
+    
+    ax.plot(temp, weight + current_offset, label=f"{sheet} (Offset {current_offset}%)", color=colors[sheet], linewidth=1.5)
+
+# Formatting
+ax.set_xlabel("Temperature (°C)", fontsize=12)
+ax.set_ylabel("Weight (%)", fontsize=12)
+ax.set_title("TGA Curves of Polymers (Stacked with Offset)", fontsize=14)
+ax.legend(loc='best')
+ax.grid(True, linestyle='--', alpha=0.5)
+
+# Adjust layout
+plt.tight_layout()
+
+# Save figure
+output_path = os.path.join(OUT_DIR, "tga_stacked.png")
+plt.savefig(output_path, dpi=300, bbox_inches='tight')
+plt.close()
+```

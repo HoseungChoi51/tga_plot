@@ -1,0 +1,97 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import find_peaks
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/caox.csv"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/B02_r3/out"
+
+# Read data
+df = pd.read_csv(DATA_FILE)
+
+# Extract columns
+temp = df["Temperature (°C)"].values
+weight = df["Weight (%)"].values
+heat_flow = df["Heat Flow (W/g)"].values
+
+# Find peaks in Heat Flow
+# Endothermic peaks: positive heat flow peaks
+# Exothermic peaks: negative heat flow peaks
+
+# Find endothermic peaks (positive values)
+endothermic_indices, _ = find_peaks(heat_flow, height=0.5, distance=50)
+endothermic_temps = temp[endothermic_indices]
+endothermic_values = heat_flow[endothermic_indices]
+
+# Sort by temperature and take top 2 if more than 2 exist
+if len(endothermic_temps) > 2:
+    # Sort by value descending to get the two largest peaks
+    sorted_idx = np.argsort(endothermic_values)[::-1][:2]
+    endothermic_temps = endothermic_temps[sorted_idx]
+    endothermic_values = endothermic_values[sorted_idx]
+    # Re-sort by temperature for labeling order
+    sort_by_temp = np.argsort(endothermic_temps)
+    endothermic_temps = endothermic_temps[sort_by_temp]
+    endothermic_values = endothermic_values[sort_by_temp]
+
+# Find exothermic peaks (negative values)
+exothermic_indices, _ = find_peaks(-heat_flow, height=0.5, distance=50)
+exothermic_temps = temp[exothermic_indices]
+exothermic_values = heat_flow[exothermic_indices]
+
+# Take the largest exothermic peak (most negative)
+if len(exothermic_temps) > 0:
+    max_exo_idx = np.argmin(exothermic_values)
+    exothermic_temps = np.array([exothermic_temps[max_exo_idx]])
+    exothermic_values = np.array([exothermic_values[max_exo_idx]])
+
+# Create plot
+fig, ax1 = plt.subplots(figsize=(8, 6))
+
+# Left y-axis: Weight (%)
+color1 = '#1f4e9c'
+ax1.plot(temp, weight, color=color1, linewidth=1.5, label='Weight (%)')
+ax1.set_xlabel('Temperature (°C)', fontsize=12)
+ax1.set_ylabel('Weight (%)', color=color1, fontsize=12)
+ax1.tick_params(axis='y', labelcolor=color1)
+ax1.set_xlim(min(temp), max(temp))
+
+# Right y-axis: Heat Flow (W/g)
+ax2 = ax1.twinx()
+color2 = '#c0392b'
+ax2.plot(temp, heat_flow, color=color2, linewidth=1.5, label='Heat Flow (W/g)')
+ax2.set_ylabel('Heat Flow (W/g)', color=color2, fontsize=12)
+ax2.tick_params(axis='y', labelcolor=color2)
+
+# Mark endothermic peaks (positive heat flow)
+for i, (t, v) in enumerate(zip(endothermic_temps, endothermic_values)):
+    ax2.scatter(t, v, color='#2ecc71', s=80, zorder=5, edgecolors='black', linewidths=1)
+    ax2.annotate(f'{t:.0f} °C\n(Endo)', xy=(t, v), xytext=(t+20, v*1.1),
+                 fontsize=9, color='#27ae60', ha='left', va='bottom',
+                 arrowprops=dict(arrowstyle='->', color='#27ae60', lw=1))
+
+# Mark exothermic peak (negative heat flow)
+for t, v in zip(exothermic_temps, exothermic_values):
+    ax2.scatter(t, v, color='#e74c3c', s=80, zorder=5, edgecolors='black', linewidths=1)
+    ax2.annotate(f'{t:.0f} °C\n(Exo)', xy=(t, v), xytext=(t+20, v*1.1),
+                 fontsize=9, color='#c0392b', ha='left', va='top',
+                 arrowprops=dict(arrowstyle='->', color='#c0392b', lw=1))
+
+# Title
+ax1.set_title('caox', fontsize=14, fontweight='bold')
+
+# Legend
+lines1, labels1 = ax1.get_legend_handles_labels()
+lines2, labels2 = ax2.get_legend_handles_labels()
+ax1.legend(lines1 + lines2, labels1 + labels2, loc='center left', fontsize=10)
+
+plt.tight_layout()
+
+# Save figure
+output_path = f"{OUT_DIR}/caox.png"
+plt.savefig(output_path, dpi=300, bbox_inches='tight')
+plt.close()

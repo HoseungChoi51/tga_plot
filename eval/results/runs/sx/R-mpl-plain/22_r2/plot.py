@@ -1,0 +1,62 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/22_r2/out"
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# Read all sheets from the Excel file
+xls = pd.ExcelFile(DATA_FILE)
+sheet_names = xls.sheet_names
+
+fig, axes = plt.subplots(len(sheet_names), 1, figsize=(10, 4 * len(sheet_names)), sharex=True)
+
+if len(sheet_names) == 1:
+    axes = [axes]
+
+colors_y1 = ['blue', 'red', 'purple']
+color_y2 = 'green'  # User requested green for y2 line and label
+
+for idx, sheet_name in enumerate(sheet_names):
+    df = pd.read_excel(DATA_FILE, sheet_name=sheet_name)
+    
+    # Identify columns based on the preview info
+    x_col = 'Temperature'
+    y1_col = 'Weight(%)'
+    y2_col = 'D.W(%/C)'
+    
+    ax1 = axes[idx]
+    
+    # Plot Weight (%) on primary axis (left)
+    color1 = colors_y1[idx % len(colors_y1)]
+    ax1.plot(df[x_col], df[y1_col], color=color1, label='Weight (%)')
+    ax1.set_ylabel('Weight (%)', color=color1)
+    ax1.tick_params(axis='y', labelcolor=color1)
+    ax1.set_xlabel('Temperature (°C)')
+    ax1.grid(True, linestyle='--', alpha=0.5)
+    
+    # Create secondary axis for D.W (%/C)
+    ax2 = ax1.twinx()
+    ax2.plot(df[x_col], df[y2_col], color=color_y2, label='D.W (%/C)', linestyle='--')
+    ax2.set_ylabel('D.W (%/C)', color=color_y2)
+    ax2.tick_params(axis='y', labelcolor=color_y2)
+    
+    # Title
+    ax1.set_title(f'TGA - {sheet_name}')
+    
+    # Combine legends
+    lines_1, labels_1 = ax1.get_legend_handles_labels()
+    lines_2, labels_2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='best')
+
+plt.tight_layout()
+
+output_path = os.path.join(OUT_DIR, "tga_plots.png")
+plt.savefig(output_path, dpi=300, bbox_inches='tight')
+plt.close()

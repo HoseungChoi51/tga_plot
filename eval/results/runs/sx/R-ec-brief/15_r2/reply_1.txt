@@ -1,0 +1,365 @@
+```python
+import pandas as pd
+import numpy as np
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+def load_tga_data(file_path):
+    """Load all sheets from the Excel file and return a list of dicts with sheet name, temperature, weight, dtg."""
+    xls = pd.ExcelFile(file_path)
+    data_list = []
+    for sheet_name in xls.sheet_names:
+        df = pd.read_excel(xls, sheet_name=sheet_name, header=0)
+        # Identify columns by name or position
+        cols = df.columns.tolist()
+        temp_col = None
+        weight_col = None
+        dtg_col = None
+        for c in cols:
+            cl = str(c).lower()
+            if 'temperature' in cl or 'temp' in cl:
+                temp_col = c
+            elif 'weight' in cl and '%' in cl:
+                weight_col = c
+            elif 'd.w' in cl or 'dtg' in cl or 'derivative' in cl:
+                dtg_col = c
+        if temp_col is None or weight_col is None or dtg_col is None:
+            continue
+        temps = df[temp_col].dropna().values.astype(float)
+        weights = df[weight_col].dropna().values.astype(float)
+        dtgs = df[dtg_col].dropna().values.astype(float)
+        # Align lengths
+        min_len = min(len(temps), len(weights), len(dtgs))
+        temps = temps[:min_len]
+        weights = weights[:min_len]
+        dtgs = dtgs[:min_len]
+        data_list.append({
+            'sheet': sheet_name,
+            'temperature': temps,
+            'weight': weights,
+            'dtg': dtgs
+        })
+    return data_list
+
+def find_residue_at_800(temps, weights):
+    """Find the weight at the temperature closest to 800°C."""
+    idx = np.argmin(np.abs(temps - 800.0))
+    return temps[idx], weights[idx]
+
+def find_dtg_peak_above_150(temps, dtgs):
+    """Find the temperature of the highest DTG peak (most negative DTG) above 150°C."""
+    mask = temps > 150.0
+    if not np.any(mask):
+        return None, None
+    filtered_temps = temps[mask]
+    filtered_dtgs = dtgs[mask]
+    # Highest peak means most negative DTG value
+    idx_min = np.argmin(filtered_dtgs)
+    return filtered_temps[idx_min], filtered_dtgs[idx_min]
+
+def generate_tga_combined_option(data_list):
+    """Generate ECharts option for combined TGA plot."""
+    series_weight = []
+    series_dtg = []
+    
+    # Color palette for multiple series
+    colors_weight = ['#1f4e9c', '#2e7d32', '#6a1b9a']
+    colors_dtg = ['#c0392b', '#e67e22', '#8e44ad']
+    
+    residue_markers = []
+    peak_markers = []
+    
+    for i, d in enumerate(data_list):
+        temps = d['temperature']
+        weights = d['weight']
+        dtgs = d['dtg']
+        sheet = d['sheet']
+        
+        # Weight series
+        w_color = colors_weight[i % len(colors_weight)]
+        series_weight.append({
+            "name": f"{sheet} Weight",
+            "type": "line",
+            "yAxisIndex": 0,
+            "data": [[float(t), float(w)] for t, w in zip(temps, weights)],
+            "lineStyle": {"color": w_color, "width": 2},
+            "itemStyle": {"color": w_color},
+            "showSymbol": False,
+            "smooth": False
+        })
+        
+        # DTG series (multiplied by -1 so peaks point up)
+        dtg_color = colors_dtg[i % len(colors_dtg)]
+        neg_dtgs = [-v for v in dtgs]
+        series_dtg.append({
+            "name": f"{sheet} DTG",
+            "type": "line",
+            "yAxisIndex": 1,
+            "data": [[float(t), float(nd)] for t, nd in zip(temps, neg_dtgs)],
+            "lineStyle": {"color": dtg_color, "width": 2},
+            "itemStyle": {"color": dtg_color},
+            "showSymbol": False,
+            "smooth": False
+        })
+        
+        # Residue marker at ~800°C
+        res_temp, res_weight = find_residue_at_800(temps, weights)
+        residue_markers.append({
+            "coord": [res_temp, res_weight],
+            "label": {
+                "formatter": f"Residue {res_weight:.1f}%\n({sheet})",
+                "position": "right",
+                "fontSize": 10,
+                "color": w_color
+            },
+            "symbol": "circle",
+            "symbolSize": 8,
+            "itemStyle": {"color": w_color}
+        })
+        
+        # Peak marker
+        peak_temp, peak_val = find_dtg_peak_above_150(temps, dtgs)
+        if peak_temp is not None:
+            neg_peak_val = -peak_val
+            peak_markers.append({
+                "coord": [peak_temp, neg_peak_val],
+                "label": {
+                    "formatter": f"{peak_temp:.0f}°C\n({sheet})",
+                    "position": "top",
+                    "fontSize": 10,
+                    "color": dtg_color
+                },
+                "symbol": "triangle",
+                "symbolSize": 10,
+                "itemStyle": {"color": dtg_color}
+            })
+    
+    # Combine markers into scatter-like series for annotation
+    # We'll add them as separate markPoint entries on each series instead
+    
+    # Actually, let's add residue and peak markers as additional scatter series or use markPoint on existing series
+    # For simplicity, we'll create two extra series for markers
+    
+    residue_series = {
+        "name": "Residue @800°C",
+        "type": "scatter",
+        "yAxisIndex": 0,
+        "data": [],
+        "symbolSize": 8,
+        "showSymbol": True,
+        "silent": True
+    }
+    peak_series = {
+        "name": "DTG Peak",
+        "type": "scatter",
+        "yAxisIndex": 1,
+        "data": [],
+        "symbolSize": 10,
+        "showSymbol": True,
+        "silent": True
+    }
+    
+    # Instead of separate scatter series, embed markers in each weight/dtg series via markPoint
+    # But markPoint doesn't support per-point labels easily in combined view. Let's just add annotation series.
+    
+    # Build final series list
+    all_series = series_weight + series_dtg
+    
+    # Add residue annotations as a single scatter series with custom labels
+    if residue_markers:
+        res_data = []
+        for rm in residue_markers:
+            coord = rm["coord"]
+            label_text = rm["label"]["formatter"]
+            color = rm["itemStyle"]["color"]
+            res_data.append({
+                "value": coord,
+                "label": {
+                    "show": True,
+                    "formatter": label_text,
+                    "position": "right",
+                    "fontSize": 9,
+                    "color": color
+                },
+                "itemStyle": {"color": color}
+            })
+        all_series.append({
+            "name": "Residue @800°C",
+            "type": "scatter",
+            "yAxisIndex": 0,
+            "data": res_data,
+            "symbolSize": 8,
+            "showSymbol": True,
+            "silent": True
+        })
+    
+    if peak_markers:
+        pk_data = []
+        for pm in peak_markers:
+            coord = pm["coord"]
+            label_text = pm["label"]["formatter"]
+            color = pm["itemStyle"]["color"]
+            pk_data.append({
+                "value": coord,
+                "label": {
+                    "show": True,
+                    "formatter": label_text,
+                    "position": "top",
+                    "fontSize": 9,
+                    "color": color
+                },
+                "itemStyle": {"color": color}
+            })
+        all_series.append({
+            "name": "DTG Peak",
+            "type": "scatter",
+            "yAxisIndex": 1,
+            "data": pk_data,
+            "symbolSize": 10,
+            "showSymbol": True,
+            "silent": True
+        })
+    
+    # Determine axis ranges
+    all_temps = []
+    all_weights = []
+    all_neg_dtgs = []
+    for d in data_list:
+        all_temps.extend(d['temperature'])
+        all_weights.extend(d['weight'])
+        all_neg_dtgs.extend([-v for v in d['dtg']])
+    
+    x_min = min(all_temps)
+    x_max = max(all_temps)
+    y1_min = min(all_weights)
+    y1_max = max(all_weights)
+    y2_min = min(all_neg_dtgs)
+    y2_max = max(all_neg_dtgs)
+    
+    # Add some padding
+    x_range = x_max - x_min
+    y1_range = y1_max - y1_min
+    y2_range = y2_max - y2_min
+    
+    x_axis_min = max(0, x_min - 0.05 * x_range)
+    x_axis_max = x_max + 0.05 * x_range
+    y1_axis_min = max(0, y1_min - 0.05 * y1_range)
+    y1_axis_max = y1_max + 0.05 * y1_range
+    y2_axis_min = y2_min - 0.05 * abs(y2_range) if y2_range != 0 else -0.1
+    y2_axis_max = y2_max + 0.05 * abs(y2_range) if y2_range != 0 else 0.1
+    
+    option = {
+        "title": {
+            "text": "TGA Combined Plot",
+            "left": "center",
+            "textStyle": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 16
+            }
+        },
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {
+                "type": "cross"
+            }
+        },
+        "legend": {
+            "orient": "vertical",
+            "left": "left",
+            "top": "middle",
+            "data": [s["name"] for s in all_series],
+            "textStyle": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 10
+            }
+        },
+        "grid": {
+            "left": "12%",
+            "right": "12%",
+            "top": "12%",
+            "bottom": "12%"
+        },
+        "xAxis": {
+            "type": "value",
+            "name": "Temperature (°C)",
+            "nameLocation": "middle",
+            "nameGap": 30,
+            "min": x_axis_min,
+            "max": x_axis_max,
+            "axisLabel": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 10
+            },
+            "splitLine": {
+                "show": True,
+                "lineStyle": {
+                    "type": "dashed",
+                    "color": "#ccc"
+                }
+            }
+        },
+        "yAxis": [
+            {
+                "type": "value",
+                "name": "Weight (%)",
+                "nameLocation": "middle",
+                "nameGap": 40,
+                "min": y1_axis_min,
+                "max": y1_axis_max,
+                "axisLabel": {
+                    "fontFamily": "Noto Sans CJK KR",
+                    "fontSize": 10
+                },
+                "splitLine": {
+                    "show": True,
+                    "lineStyle": {
+                        "type": "dashed",
+                        "color": "#ccc"
+                    }
+                }
+            },
+            {
+                "type": "value",
+                "name": "DTG (%/°C)",
+                "nameLocation": "middle",
+                "nameGap": 40,
+                "min": y2_axis_min,
+                "max": y2_axis_max,
+                "axisLabel": {
+                    "fontFamily": "Noto Sans CJK KR",
+                    "fontSize": 10
+                },
+                "splitLine": {
+                    "show": False
+                }
+            }
+        ],
+        "series": all_series
+    }
+    
+    return option
+
+def main():
+    data_list = load_tga_data(DATA_FILE)
+    if not data_list:
+        print(json.dumps({"figures": []}))
+        return
+    
+    option = generate_tga_combined_option(data_list)
+    
+    figure = {
+        "name": "plot1",
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"]
+    }
+    
+    output = {"figures": [figure]}
+    print(json.dumps(output, ensure_ascii=False))
+
+if __name__ == "__main__":
+    main()
+```

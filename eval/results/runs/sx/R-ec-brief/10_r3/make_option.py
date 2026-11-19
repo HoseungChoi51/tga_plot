@@ -1,0 +1,225 @@
+import pandas as pd
+import numpy as np
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+def make_tga_chart(df, sheet_name):
+    x_col = "Temperature"
+    y1_col = "Weight(%)"
+    y2_col = "D.W(%/C)"
+    
+    # Ensure columns exist and are numeric
+    df[x_col] = pd.to_numeric(df[x_col], errors='coerce')
+    df[y1_col] = pd.to_numeric(df[y1_col], errors='coerce')
+    df[y2_col] = pd.to_numeric(df[y2_col], errors='coerce')
+    
+    # Drop rows with NaN in critical columns
+    df_clean = df.dropna(subset=[x_col, y1_col, y2_col]).copy()
+    
+    if df_clean.empty:
+        return None
+        
+    # Sort by temperature just in case
+    df_clean = df_clean.sort_values(by=x_col)
+    
+    temp = df_clean[x_col].values
+    weight = df_clean[y1_col].values
+    dtg_raw = df_clean[y2_col].values
+    
+    # DTG multiplied by -1 so peaks point up
+    dtg = dtg_raw * -1.0
+    
+    # 1. Find Residue at nearest 700 °C
+    target_residue_temp = 700.0
+    idx_residue = np.argmin(np.abs(temp - target_residue_temp))
+    residue_weight = weight[idx_residue]
+    residue_temp = temp[idx_residue]
+    residue_label = f"Residue {residue_weight:.2f}%"
+    
+    # 2. Find Peak above 150 °C
+    mask_peak = temp > 150.0
+    if np.any(mask_peak):
+        dtg_masked = dtg[mask_peak]
+        temp_masked = temp[mask_peak]
+        max_dtg_idx = np.argmax(dtg_masked)
+        peak_temp = temp_masked[max_dtg_idx]
+        peak_val = dtg_masked[max_dtg_idx]
+        peak_label = f"{peak_temp:.0f} °C"
+    else:
+        # Fallback if no data above 150
+        peak_temp = temp[np.argmax(dtg)]
+        peak_val = np.max(dtg)
+        peak_label = f"{peak_temp:.0f} °C"
+
+    # Prepare data for ECharts
+    # Line 1: Weight (yAxisIndex 0)
+    line_data_weight = [[float(t), float(w)] for t, w in zip(temp, weight)]
+    # Line 2: DTG (yAxisIndex 1)
+    line_data_dtg = [[float(t), float(d)] for t, d in zip(temp, dtg)]
+    
+    # Markers
+    mark_point_weight = {
+        "data": [
+            {
+                "coord": [float(residue_temp), float(residue_weight)],
+                "name": "Residue",
+                "value": residue_label,
+                "symbolSize": 8,
+                "label": {
+                    "show": True,
+                    "formatter": "{b}",
+                    "position": "top",
+                    "fontSize": 12,
+                    "color": "#1f4e9c"
+                },
+                "itemStyle": {
+                    "color": "#1f4e9c"
+                }
+            }
+        ]
+    }
+    
+    mark_point_dtg = {
+        "data": [
+            {
+                "coord": [float(peak_temp), float(peak_val)],
+                "name": "Peak",
+                "value": peak_label,
+                "symbolSize": 8,
+                "label": {
+                    "show": True,
+                    "formatter": "{b}",
+                    "position": "top",
+                    "fontSize": 12,
+                    "color": "#c0392b"
+                },
+                "itemStyle": {
+                    "color": "#c0392b"
+                }
+            }
+        ]
+    }
+
+    option = {
+        "title": {
+            "text": sheet_name,
+            "left": "center",
+            "textStyle": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 16
+            }
+        },
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {
+                "type": "cross"
+            }
+        },
+        "legend": {
+            "data": ["Weight (%)", "DTG"],
+            "orient": "vertical",
+            "left": "left",
+            "top": "middle",
+            "textStyle": {
+                "fontFamily": "Noto Sans CJK KR"
+            }
+        },
+        "grid": {
+            "left": "10%",
+            "right": "10%",
+            "bottom": "15%",
+            "containLabel": True
+        },
+        "xAxis": {
+            "type": "value",
+            "name": "Temperature (°C)",
+            "nameLocation": "middle",
+            "nameGap": 30,
+            "axisLabel": {
+                "formatter": "{value}"
+            }
+        },
+        "yAxis": [
+            {
+                "type": "value",
+                "name": "Weight (%)",
+                "position": "left",
+                "axisLine": {
+                    "lineStyle": {
+                        "color": "#1f4e9c"
+                    }
+                },
+                "axisLabel": {
+                    "color": "#1f4e9c"
+                }
+            },
+            {
+                "type": "value",
+                "name": "DTG (%/°C)",
+                "position": "right",
+                "axisLine": {
+                    "lineStyle": {
+                        "color": "#c0392b"
+                    }
+                },
+                "axisLabel": {
+                    "color": "#c0392b"
+                }
+            }
+        ],
+        "series": [
+            {
+                "name": "Weight (%)",
+                "type": "line",
+                "data": line_data_weight,
+                "yAxisIndex": 0,
+                "smooth": False,
+                "symbol": "none",
+                "lineStyle": {
+                    "color": "#1f4e9c",
+                    "width": 2
+                },
+                "markPoint": mark_point_weight
+            },
+            {
+                "name": "DTG",
+                "type": "line",
+                "data": line_data_dtg,
+                "yAxisIndex": 1,
+                "smooth": False,
+                "symbol": "none",
+                "lineStyle": {
+                    "color": "#c0392b",
+                    "width": 2
+                },
+                "markPoint": mark_point_dtg
+            }
+        ]
+    }
+    
+    return {
+        "name": sheet_name.replace(" ", "_"),
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"]
+    }
+
+def main():
+    figures = []
+    xl_file = pd.ExcelFile(DATA_FILE)
+    sheet_names = xl_file.sheet_names
+    
+    for name in sheet_names:
+        df = pd.read_excel(DATA_FILE, sheet_name=name, header=0)
+        fig_opt = make_tga_chart(df, name)
+        if fig_opt:
+            figures.append(fig_opt)
+            
+    output = {"figures": figures}
+    print(json.dumps(output, ensure_ascii=False))
+
+if __name__ == "__main__":
+    main()

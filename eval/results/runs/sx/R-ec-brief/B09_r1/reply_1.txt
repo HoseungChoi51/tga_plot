@@ -1,0 +1,265 @@
+```python
+import pandas as pd
+import numpy as np
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+
+def create_tga_plot(df, sheet_name):
+    # Identify columns based on the preview structure
+    x_col = "Temperature (°C)"
+    y1_col = "Weight (%)"
+    y2_col = "Deriv. Weight (%/°C)"
+    
+    temp = df[x_col].values
+    weight = df[y1_col].values
+    dtg = df[y2_col].values
+    
+    # Prepare data for ECharts: [x, y] pairs
+    # Filter out NaNs if any
+    mask = ~np.isnan(temp) & ~np.isnan(weight)
+    temp_clean = temp[mask]
+    weight_clean = weight[mask]
+    
+    mask_dtg = ~np.isnan(temp) & ~np.isnan(dtg)
+    temp_dtg = temp[mask_dtg]
+    dtg_clean = dtg[mask_dtg]
+    
+    # Invert DTG so peaks point up
+    dtg_inverted = -dtg_clean
+    
+    # Find Residue at 800°C
+    idx_800 = np.argmin(np.abs(temp_clean - 800))
+    residue_val = weight_clean[idx_800]
+    residue_temp = temp_clean[idx_800]
+    
+    # Find Peak Temperature (>150°C) from inverted DTG (highest positive value)
+    # We need to look at the original DTG values where T > 150 and find the minimum (most negative)
+    # which corresponds to the maximum of the inverted DTG.
+    mask_peak = temp_dtg > 150
+    if np.any(mask_peak):
+        dtg_subset = dtg_clean[mask_peak]
+        temp_subset = temp_dtg[mask_peak]
+        
+        # Find index of minimum DTG (max mass loss rate)
+        min_idx = np.argmin(dtg_subset)
+        peak_temp = temp_subset[min_idx]
+        peak_weight_at_peak = weight_clean[np.argmin(np.abs(temp_clean - peak_temp))]
+    else:
+        peak_temp = None
+        peak_weight_at_peak = None
+        
+    # Series Data
+    series_data_y1 = [[float(t), float(w)] for t, w in zip(temp_clean, weight_clean)]
+    series_data_y2 = [[float(t), float(d)] for t, d in zip(temp_dtg, dtg_inverted)]
+    
+    # Markers for labels
+    markers = []
+    if residue_temp is not None:
+        markers.append({
+            "coord": [float(residue_temp), float(residue_val)],
+            "value": f"Residue {residue_val:.1f}%",
+            "symbolSize": 6,
+            "itemStyle": {"color": "#1f4e9c"}
+        })
+        
+    if peak_temp is not None:
+        # Marker on the DTG curve (y2 axis)
+        # The value in the marker should be the temperature string
+        # But we need to place it on the correct axis. 
+        # Since it's a scatter on yAxisIndex 1, the coord y needs to be the inverted DTG value at that temp.
+        # Let's find the inverted DTG value at peak_temp
+        idx_peak_on_dtg = np.argmin(np.abs(temp_dtg - peak_temp))
+        dtg_val_at_peak = dtg_inverted[idx_peak_on_dtg]
+        
+        markers.append({
+            "coord": [float(peak_temp), float(dtg_val_at_peak)],
+            "value": f"{int(round(peak_temp))} °C",
+            "symbolSize": 6,
+            "itemStyle": {"color": "#c0392b"},
+            "yAxisIndex": 1 # This marker belongs to the second axis conceptually, but in ECharts scatter series, we just put it in the series associated with that axis or use a separate series.
+        })
+
+    # Option Construction
+    option = {
+        "title": {
+            "text": sheet_name,
+            "left": "center",
+            "textStyle": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 16
+            }
+        },
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {
+                "type": "cross"
+            }
+        },
+        "legend": {
+            "data": ["Weight (%)", "DTG (-%/°C)"],
+            "orient": "vertical",
+            "left": "left",
+            "top": "middle",
+            "textStyle": {
+                "fontFamily": "Noto Sans CJK KR"
+            }
+        },
+        "grid": {
+            "left": "10%",
+            "right": "10%",
+            "bottom": "15%",
+            "containLabel": True
+        },
+        "xAxis": {
+            "name": "Temperature (°C)",
+            "type": "value",
+            "min": 100,
+            "max": 700,
+            "interval": 100,
+            "nameLocation": "middle",
+            "nameGap": 30,
+            "axisLabel": {
+                "formatter": "{value}",
+                "fontFamily": "Noto Sans CJK KR"
+            },
+            "splitLine": {
+                "show": False
+            }
+        },
+        "yAxis": [
+            {
+                "name": "Weight (%)",
+                "type": "value",
+                "position": "left",
+                "nameLocation": "middle",
+                "nameGap": 40,
+                "axisLabel": {
+                    "formatter": "{value}",
+                    "fontFamily": "Noto Sans CJK KR"
+                },
+                "splitLine": {
+                    "show": True,
+                    "lineStyle": {
+                        "type": "dashed"
+                    }
+                }
+            },
+            {
+                "name": "DTG (-%/°C)",
+                "type": "value",
+                "position": "right",
+                "nameLocation": "middle",
+                "nameGap": 40,
+                "axisLabel": {
+                    "formatter": "{value}",
+                    "fontFamily": "Noto Sans CJK KR"
+                },
+                "splitLine": {
+                    "show": False
+                }
+            }
+        ],
+        "series": [
+            {
+                "name": "Weight (%)",
+                "type": "line",
+                "data": series_data_y1,
+                "smooth": False,
+                "symbol": "none",
+                "lineStyle": {
+                    "width": 3,
+                    "color": "red" # User requested red color for y1 line
+                },
+                "markPoint": {
+                    "data": [m for m in markers if 'yAxisIndex' not in m],
+                    "label": {
+                        "show": True,
+                        "position": "top",
+                        "formatter": "{@[1]} %", # Custom formatter might be tricky, let's rely on the 'value' passed in data if possible, but markPoint label formatter usually takes params.
+                        # Actually, simpler way: use custom symbol or just text in label.formatter using the value stored in data object if supported, or pre-calculate strings.
+                        # ECharts markPoint data can have a 'value' field which is displayed if formatter is '{b}'? No.
+                        # Let's use a different approach for labels: use 'graphic' elements or just standard markPoint with specific formatter.
+                        # For simplicity and robustness in JSON-only output without JS functions, I will embed the text directly into the markPoint label via a workaround or just accept default behavior if complex formatting isn't strictly enforced by "no JS".
+                        # Wait, the prompt says "no JavaScript functions". So `formatter` must be a string template.
+                        # String templates like `{value}` work. If I pass `value: "Residue 8%"`, then `{value}` works.
+                        "fontFamily": "Noto Sans CJK KR",
+                        "fontSize": 10,
+                        "color": "black"
+                    }
+                }
+            },
+            {
+                "name": "DTG (-%/°C)",
+                "type": "line",
+                "yAxisIndex": 1,
+                "data": series_data_y2,
+                "smooth": False,
+                "symbol": "none",
+                "lineStyle": {
+                    "width": 1.5,
+                    "color": "#c0392b"
+                },
+                "markPoint": {
+                    "data": [m for m in markers if 'yAxisIndex' in m],
+                    "label": {
+                        "show": True,
+                        "position": "top",
+                        "formatter": "{value}", # Will display the string passed in 'value'
+                        "fontFamily": "Noto Sans CJK KR",
+                        "fontSize": 10,
+                        "color": "black"
+                    }
+                }
+            }
+        ]
+    }
+    
+    # Refining markPoint data to ensure 'value' is used correctly for labels
+    # For Y1 (Weight) marker:
+    opt_series_0 = option["series"][0]
+    if markers:
+        mp_data_y1 = []
+        for m in markers:
+            if 'yAxisIndex' not in m:
+                mp_data_y1.append({
+                    "coord": m["coord"],
+                    "value": m["value"], # This string will be shown by formatter "{value}"
+                    "symbolSize": m["symbolSize"],
+                    "itemStyle": m["itemStyle"]
+                })
+        opt_series_0["markPoint"]["data"] = mp_data_y1
+        
+    # For Y2 (DTG) marker:
+    opt_series_1 = option["series"][1]
+    if markers:
+        mp_data_y2 = []
+        for m in markers:
+            if 'yAxisIndex' in m:
+                mp_data_y2.append({
+                    "coord": m["coord"],
+                    "value": m["value"], # This string will be shown by formatter "{value}"
+                    "symbolSize": m["symbolSize"],
+                    "itemStyle": m["itemStyle"]
+                })
+        opt_series_1["markPoint"]["data"] = mp_data_y2
+
+    return {
+        "name": "plot_PE",
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"]
+    }
+
+# Load only PE sheet as requested
+df_pe = pd.read_excel(DATA_FILE, sheet_name="PE")
+figure_pe = create_tga_plot(df_pe, "PE")
+
+output = {
+    "figures": [figure_pe]
+}
+
+print(json.dumps(output, ensure_ascii=False))
+```

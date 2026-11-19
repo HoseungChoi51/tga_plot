@@ -1,0 +1,179 @@
+import pandas as pd
+import json
+
+def main():
+    file_path = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+    
+    # Sheet names from the preview
+    sheets = ["1006R1-V normal", "1006R1-V acid", "1006R1-V 750C"]
+    
+    series_list = []
+    
+    # Colors for different samples to distinguish them
+    colors = ['#2E91E5', '#E15759', '#54A24B']
+    
+    for idx, sheet_name in enumerate(sheets):
+        try:
+            df = pd.read_excel(file_path, sheet_name=sheet_name)
+            
+            # Identify columns based on standard TGA structure seen in preview
+            # Col B is Temperature, Col C is Weight(%), Col D is D.W(%/C)
+            temp_col = 'Temperature'
+            weight_col = 'Weight(%)'
+            dtg_col = 'D.W(%/C)'
+            
+            # Extract data and clean NaNs if any
+            x_data = df[temp_col].dropna().tolist()
+            y_weight = df[weight_col].dropna().tolist()
+            y_dtg = df[dtg_col].dropna().tolist()
+            
+            # Create series for Weight (%) - Left Y Axis
+            series_list.append({
+                "name": f"{sheet_name} (Weight)",
+                "type": "line",
+                "data": list(zip(x_data, y_weight)),
+                "yAxisIndex": 0,
+                "showSymbol": False,
+                "lineStyle": {
+                    "width": 2,
+                    "color": colors[idx % len(colors)]
+                },
+                "itemStyle": {
+                    "color": colors[idx % len(colors)]
+                }
+            })
+            
+            # Create series for DTG (%/C) - Right Y Axis
+            series_list.append({
+                "name": f"{sheet_name} (DTG)",
+                "type": "line",
+                "data": list(zip(x_data, y_dtg)),
+                "yAxisIndex": 1,
+                "showSymbol": False,
+                "lineStyle": {
+                    "width": 1.5,
+                    "color": colors[idx % len(colors)],
+                    "type": "dashed"
+                },
+                "itemStyle": {
+                    "color": colors[idx % len(colors)]
+                }
+            })
+            
+        except Exception as e:
+            print(f"Error processing sheet {sheet_name}: {e}")
+
+    # Define the mark area for 300-450 C
+    # We apply this to the first series or a dedicated background series, 
+    # but usually markArea works best attached to one of the series or added globally via graphic.
+    # Using markArea on the first series is common practice.
+    if series_list:
+        series_list[0]["markArea"] = {
+            "silent": True,
+            "itemStyle": {
+                "color": "rgba(200, 200, 200, 0.3)" # Light gray with transparency
+            },
+            "data": [
+                [
+                    {"xAxis": 300},
+                    {"xAxis": 450}
+                ]
+            ]
+        }
+
+    option = {
+        "title": {
+            "text": "TGA / DTG Analysis",
+            "left": "center",
+            "textStyle": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 16
+            }
+        },
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {
+                "type": "cross"
+            },
+            "formatter": None # Default formatter handles arrays well enough for basic view
+        },
+        "legend": {
+            "data": [f"{s['name']}" for s in series_list],
+            "bottom": 0,
+            "textStyle": {
+                "fontFamily": "Noto Sans CJK KR"
+            }
+        },
+        "grid": {
+            "left": "8%",
+            "right": "8%",
+            "top": "15%",
+            "bottom": "15%",
+            "containLabel": True
+        },
+        "xAxis": {
+            "name": "Temperature (°C)",
+            "nameLocation": "middle",
+            "nameGap": 30,
+            "type": "value",
+            "min": 0,
+            "max": 900,
+            "splitLine": {
+                "show": True,
+                "lineStyle": {
+                    "color": "#eee"
+                }
+            },
+            "axisLabel": {
+                "fontFamily": "Noto Sans CJK KR"
+            }
+        },
+        "yAxis": [
+            {
+                "type": "value",
+                "name": "Weight (%)",
+                "position": "left",
+                "min": 0,
+                "max": 105,
+                "axisLabel": {
+                    "fontFamily": "Noto Sans CJK KR"
+                },
+                "splitLine": {
+                    "show": True,
+                    "lineStyle": {
+                        "color": "#eee"
+                    }
+                }
+            },
+            {
+                "type": "value",
+                "name": "DTG (%/°C)",
+                "position": "right",
+                "axisLabel": {
+                    "fontFamily": "Noto Sans CJK KR"
+                },
+                "splitLine": {
+                    "show": False
+                }
+            }
+        ],
+        "series": series_list
+    }
+
+    result = {
+        "figures": [
+            {
+                "name": "tga_plot",
+                "option": option,
+                "width": 800,
+                "height": 600,
+                "dpi": 300,
+                "formats": ["png"]
+            }
+        ]
+    }
+    
+    print(json.dumps(result))
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,95 @@
+We need answer user's request in Korean? Need produce Python script only inside python block. Need analyze requirements.
+
+User: DATA_FILE polymers.xlsx. Request: "PET 시트, 제목은 'PET 열분해', 범례는 왼쪽 아래, 격자 켜고, 잔류량은 소수 둘째 자리까지"
+Need script reads file, prints JSON one figure for PET sheet. Standard TGA plot: x temp, y1 weight %, y2 DTG multiplied by -1 peaks up. Title sheet name unless user says; here title 'PET 열분해'. Legend at center left standard but user says left bottom. Grid on. Residue label: weight at measured point nearest 800 °C, written "Residue 8.0%" with marker on curve. User says residue to two decimal places. Need likely label like "Residue 8.00%"? Korean request: 잔류량은 소수 둘째 자리까지. Standard says written like "Residue 8.0%". Need format two decimals. Maybe "Residue 8.00%". Peak label: temperature highest DTG peak above 150 °C, written like "600 °C", marker. Always drawn unless user says otherwise. Need include both labels. Need font Korean. ECharts option JSON. Need no JS functions. Need use data in series.data. Need compute residue and peak in Python. Need output only JSON. Need width/height/dpi/formats. Default? Not specified. Standard maybe 614x442 dpi 300 png. Could use that. Need ensure Korean font: textStyle fontFamily 'Noto Sans CJK KR'. Axis labels? x = Temperature (°C), y1 = Weight (%), y2 = DTG (%/°C) maybe. Need y2 multiplied by -1. Need axis range? Not specified. Could auto. But for dual axis, maybe set y2 axis inverse? Wait standard: right y axis = DTG, multiplied by -1 so peaks point up. If we multiply data by -1, then axis label maybe DTG (%/°C) but values positive for peaks. Could set y2 axis name 'DTG (%/°C)' but values are -DTG. Or label 'DTG (%/°C) (×-1)'? Standard says y2 = DTG, multiplied by -1. Could axis name 'DTG (%/°C)'. Need avoid confusion. Maybe use axis name 'DTG (%/°C)'.
+
+Need plot one per sheet? User only PET sheet. So one figure name maybe plot1 or PET? They said one entry per figure; name maybe "PET". But output example plot1. Use "PET".
+
+Need compute nearest 800°C. Data columns names maybe with units. Use pandas read_excel sheet_name='PET'. Need robust find columns by keywords. x: Temperature, y1: Weight, y2: Deriv. Weight. If names include. Then sort by temperature? TGA time monotonic temp maybe. Use numeric. Remove NaN.
+
+Peak: highest DTG peak above 150 °C. Since raw DTG negative while mass lost. Highest peak means most negative? If multiply by -1, highest positive. Need find temperature where -DTG maximum among temp >150. If multiple? use max. Need maybe smooth? Not specified. Use raw. But derivative may have noise; maybe max -DTG. Could also find local maxima? Standard says highest DTG peak above 150. Use global max of -DTG. If all positive? Use max of -DTG. If no data above 150? fallback.
+
+Residue: weight at measured point nearest 800. Need marker on curve. Need label. Format two decimals. Need if residue value maybe 16.97 -> "Residue 16.97%". Use f"Residue {residue:.2f}%".
+
+Need markers on curves: add s
+[...]
+max = float(np.max(y1))
+    if y1_min >= -1e-9: y1_axis['min']=0
+    if y1_max <= 105: y1_axis['max']=105
+
+    y2_axis = {...}
+    if y2_max > 0 and y2_min > -0.05 * y2_max:
+       y2_axis['min'] = 0
+       y2_axis['max'] = float(np.ceil(y2_max * 10.0) / 10.0)
+
+    option = {...}
+    payload = {"figures":[{"name":"plot1","option":option,"width":614,"height":442,"dpi":300,"formats":["png"]}]}
+    sys.stdout.buffer.write(json.dumps(payload, ensure_ascii=False).encode('utf-8'))
+
+if __name__ == '__main__': main()
+
+Need if y2_axis max maybe equal peak_y, label bottom inside. If max ceil to 1.8, peak 1.731, label bottom maybe okay. If y2_max 1.0, max 1.0, label bottom at point maybe inside. Good.
+
+Need maybe if y2_max very small and ceil gives 0.0? If y2_max >0, ceil(0.0001*10)/10 = 0.0? 0.0001*10=0.001 ceil=1 =>0.1. Good.
+
+Need maybe if y2_min > -0.05*y2_max. If y2_max 1.73, threshold -0.086. min -0.003 true. Good.
+
+Need maybe if y2 axis min 0 and max 1.8, but y2 contains negative -0.01, clipped. Good.
+
+Need maybe if y1 axis min 0 max 105, but y1 max 100. Good.
+
+Need maybe if x axis auto and y axes have min/max. Good.
+
+Potential issue: If y1 axis min 0, max 105, but y1 data has small negative due to noise? If min >= -1e-9. If min -0.001, no min 0. Fine.
+
+Need maybe if y2 axis max ceil but if y2_max 1.731, max 1.8. Good.
+
+Need maybe if y2 axis name color black? Let's decide. Use axisLabel color '#333333' for x and y1, '#c0392b' for y2? The instruction line colors, not axis. Could set y2 axis label red to associate. Good. But if evaluation expects default? Not likely.
+
+Need maybe if legend textStyle color default. Good.
+
+Need maybe if title text color default.
+
+Need maybe if grid splitLine show true. Good.
+
+Need maybe if yAxis[0].splitLine show true, yAxis[1].splitLine false. Good.
+
+Need maybe if xAxis.splitLine show true. Good.
+
+Need maybe if axisTick show? Not specified. Could leave default. If "틱" not requested. Default ticks maybe shown. Good.
+
+Need maybe if "격자 켜고" could mean grid.show true? In ECharts, grid.show false by default? Actually grid component can have show false? The plot area background not shown. But "격자" usually splitLine. We set splitLine. Good.
+
+Need maybe if grid lines color. Good.
+
+Potential issue: If option includes "animation": False, server-side may still okay.
+
+Need maybe if no tooltip, but if label backgroundColor white, okay.
+
+Let's consider if ECharts scatter series label formatter static string with percent sign might be interpreted as percent? In ECharts, string template uses {value}, {name}, etc. Percent sign is literal. Good.
+
+Potential issue: If label formatter string contains newline? no.
+
+Potential issue: If peak_label uses degree symbol, ensure utf-8. Good.
+
+Need maybe if file path includes spaces? no.
+
+Could include comments? Script can have comments. Final answer only code. Fine.
+
+Let's think about hidden requirement: "The script reads the data file(s) given as DATA_FILE (or DATA_FILES) in the message" Could they run script with DATA_FILE environment variable? Hardcoding path from message likely okay. But maybe they replace DATA_FILE? Better to read from environment with fallback:
+import os
+DATA_FILE = os.environ.get("DATA_FILE", "/home/...")
+But instruction says DATA_FILE in message. Using env may be robust. However if env not set, fallback. Good. But if they expect constant? Not matter. Use os.environ.
+
+But if they run script in directory with file name polymers.xlsx? fallback path maybe. Could also if not exists, use 'polymers.xlsx'. But not necessary. Could implement:
+DATA_FILE = os.environ.get("DATA_FILE", "/home/...")
+if not os.path.exists(DATA_FILE): DATA_FILE = "polymers.xlsx"
+Need import os. Good.
+
+Need maybe if DATA_FILES env with multiple? Not here. Could ignore.
+
+Potential issue: If using os.path.exists on remote path? okay.
+
+Need maybe if ExcelFile fails due to path, fallback? Could try read_excel directly. Not necessary.
+
+Let's think if output should include formats ["png"] only.

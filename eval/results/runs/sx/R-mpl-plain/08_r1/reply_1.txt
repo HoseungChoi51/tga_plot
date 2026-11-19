@@ -3,100 +3,127 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 
-# 설정
-DATA_FILE = "/home/chs/CNT/Plot/tests/inputs/TGA.xlsx"
-OUT_DIR = "/home/chs/CNT/Plot/eval/results/runs/sx/R-mpl-plain/08_r1/out"
-
-# 한글 폰트 설정
+# Set Korean font
 plt.rcParams['font.family'] = 'Noto Sans CJK KR'
 plt.rcParams['axes.unicode_minus'] = False
 
-# 출력 디렉토리 생성
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/08_r1/out"
+
+# Ensure output directory exists
 os.makedirs(OUT_DIR, exist_ok=True)
 
-# 데이터 읽기 (모든 시트)
-xls = pd.ExcelFile(DATA_FILE)
-sheet_names = xls.sheet_names
+# Read all sheets from the Excel file
+xl_file = pd.ExcelFile(DATA_FILE)
+sheet_names = xl_file.sheet_names
 
-# 각 시트별로 플롯 그리기
-for sheet_name in sheet_names:
-    df = pd.read_excel(DATA_FILE, sheet_name=sheet_name, header=1)
+fig, ax1 = plt.subplots(figsize=(10, 6))
+
+colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
+
+for i, sheet_name in enumerate(sheet_names):
+    df = pd.read_excel(xl_file, sheet_name=sheet_name)
     
-    # 컬럼 이름 정리 (공백 제거 등)
-    df.columns = [str(col).strip() for col in df.columns]
+    # Identify columns based on standard TGA naming conventions provided in preview
+    # Temperature is x-axis
+    temp_col = None
+    weight_col = None
+    dtg_col = None
     
-    # 필요한 컬럼 확인 및 추출
-    # TGA guess에 따라 x는 Temperature, y1은 Weight(%), y2는 D.W(%/C)
-    try:
-        temp_col = 'Temperature'
-        weight_col = 'Weight(%)'
-        dw_col = 'D.W(%/C)'
-        
-        # 컬럼이 없으면 유사한 이름 찾기 (대소문자 무시 등)
-        if temp_col not in df.columns:
-            for c in df.columns:
-                if 'temp' in c.lower():
-                    temp_col = c
-                    break
-        if weight_col not in df.columns:
-            for c in df.columns:
-                if 'weight' in c.lower() and '%' in c:
-                    weight_col = c
-                    break
-        if dw_col not in df.columns:
-            for c in df.columns:
-                if 'd.w' in c.lower() or 'dw' in c.lower():
-                    dw_col = c
-                    break
-                    
-        if temp_col not in df.columns or weight_col not in df.columns or dw_col not in df.columns:
-            print(f"시트 {sheet_name}에서 필요한 컬럼을 찾을 수 없습니다.")
-            continue
+    for col in df.columns:
+        col_lower = str(col).lower()
+        if 'temperature' in col_lower or 'temp' in col_lower:
+            temp_col = col
+        elif 'weight' in col_lower and '%' in col_lower and 'd.' not in col_lower and 'dw' not in col_lower:
+            # Heuristic to distinguish Weight(%) from D.W(%/C)
+            if 'd.w' not in col_lower and 'dw' not in col_lower:
+                weight_col = col
+        elif 'd.w' in col_lower or 'dw' in col_lower or 'derivative' in col_lower:
+            dtg_col = col
             
-        x = df[temp_col]
-        y1 = df[weight_col]
-        y2 = df[dw_col]
-        
-    except Exception as e:
-        print(f"시트 {sheet_name} 처리 중 오류 발생: {e}")
-        continue
-    
-    # 플롯 생성
-    fig, ax1 = plt.subplots(figsize=(10, 6))
-    
-    # 첫 번째 축 (무게 %)
-    color1 = 'tab:blue'
-    ax1.set_xlabel('온도 (°C)', fontsize=12)
-    ax1.set_ylabel('무게 (%)', color=color1, fontsize=12)
-    line1 = ax1.plot(x, y1, color=color1, label='무게 (%)')
-    ax1.tick_params(axis='y', labelcolor=color1)
-    
-    # 두 번째 축 (미분 무게 %/°C)
-    ax2 = ax1.twinx()
-    color2 = 'tab:red'
-    ax2.set_ylabel('미분 무게 (%/°C)', color=color2, fontsize=12)
-    line2 = ax2.plot(x, y2, color=color2, linestyle='--', label='미분 무게 (%/°C)')
-    ax2.tick_params(axis='y', labelcolor=color2)
-    
-    # 제목
-    plt.title(f'TGA 결과: {sheet_name}', fontsize=14)
-    
-    # 범례 추가
-    lines = line1 + line2
-    labels = [l.get_label() for l in lines]
-    ax1.legend(lines, labels, loc='best')
-    
-    # 레이아웃 조정
-    fig.tight_layout()
-    
-    # 파일 저장
-    safe_sheet_name = "".join([c if c.isalnum() or c in (' ', '-', '_') else '_' for c in sheet_name]).rstrip()
-    output_filename = f"TGA_{safe_sheet_name}.png"
-    output_path = os.path.join(OUT_DIR, output_filename)
-    
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
-    plt.close(fig)
-    print(f"저장 완료: {output_path}")
+    # Fallback if names are slightly different but order is known (A=Time, B=Temp, C=Weight, D=DTG)
+    if temp_col is None and len(df.columns) >= 2:
+        temp_col = df.columns[1]
+    if weight_col is None and len(df.columns) >= 3:
+        weight_col = df.columns[2]
+    if dtg_col is None and len(df.columns) >= 4:
+        dtg_col = df.columns[3]
 
-print("모든 그래프 생성 완료")
+    if temp_col and weight_col:
+        color = colors[i % len(colors)]
+        
+        # Plot Weight (%) on primary y-axis (ax1)
+        line1 = ax1.plot(df[temp_col], df[weight_col], label=f'{sheet_name} - 무게', color=color, linewidth=2)
+        
+        # Create secondary y-axis for DTG if column exists
+        if dtg_col:
+            ax2 = ax1.twinx()
+            # Offset the position of the second y-axis so they don't overlap completely if needed, 
+            # but standard twin usually works fine. Let's keep it simple.
+            line2 = ax2.plot(df[temp_col], df[dtg_col], label=f'{sheet_name} - 미분 무게', color=color, linestyle='--', linewidth=1.5, alpha=0.7)
+            
+            # Combine legends if we have multiple lines per axis group? 
+            # Usually better to combine handles and labels at the end.
+            
+# Labels requested by user
+ax1.set_xlabel('온도 (°C)', fontsize=12)
+ax1.set_ylabel('무게 (%)', fontsize=12, color='black')
+ax1.tick_params(axis='y', labelcolor='black')
+
+# For the secondary axis label
+# We need to access ax2. Since ax2 is created inside the loop only if dtg_col exists, 
+# we should ensure ax2 exists for labeling.
+# Refactoring slightly to ensure ax2 is accessible outside loop if any sheet has DTG data.
+
+# Re-run logic to ensure ax2 is defined properly for labeling
+has_dtg = False
+if 'ax2' not in locals():
+    # If no dtg was plotted, create a dummy twin just for structure consistency? 
+    # No, better to check if any sheet had dtg. Based on preview, all do.
+    pass 
+
+# Actually, let's restructure the plotting part slightly to be cleaner regarding axes creation
+plt.close(fig) # Close previous fig to restart cleanly with correct axis handling
+
+fig, ax1 = plt.subplots(figsize=(10, 6))
+ax2 = ax1.twinx() # Always create twinx since all sheets have DTG data in preview
+
+all_lines_1 = []
+all_labels_1 = []
+all_lines_2 = []
+all_labels_2 = []
+
+for i, sheet_name in enumerate(sheet_names):
+    df = pd.read_excel(xl_file, sheet_name=sheet_name)
+    
+    temp_col = df.columns[1] # B
+    weight_col = df.columns[2] # C
+    dtg_col = df.columns[3] # D
+    
+    color = colors[i % len(colors)]
+    
+    l1, = ax1.plot(df[temp_col], df[weight_col], label=f'{sheet_name}', color=color, linewidth=2)
+    l2, = ax2.plot(df[temp_col], df[dtg_col], color=color, linestyle='--', linewidth=1.5, alpha=0.7)
+    
+    all_lines_1.append(l1)
+    all_labels_1.append(f'{sheet_name} (무게)')
+    all_lines_2.append(l2)
+    all_labels_2.append(f'{sheet_name} (미분)')
+
+# Set labels as requested
+ax1.set_xlabel('온도 (°C)', fontsize=12)
+ax1.set_ylabel('무게 (%)', fontsize=12)
+ax2.set_ylabel('미분 무게 (%/°C)', fontsize=12)
+
+# Combine legends
+lines = all_lines_1 + all_lines_2
+labels = all_labels_1 + all_labels_2
+ax1.legend(lines, labels, loc='center left', bbox_to_anchor=(1, 0.5), title='시트 이름')
+
+plt.title('TGA 분석 결과', fontsize=14)
+plt.tight_layout()
+
+out_path = os.path.join(OUT_DIR, "tga_plot.png")
+plt.savefig(out_path, dpi=300)
+plt.close()
 ```

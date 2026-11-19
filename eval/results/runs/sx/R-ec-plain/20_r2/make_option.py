@@ -1,0 +1,182 @@
+import pandas as pd
+import json
+
+def main():
+    file_path = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+    
+    # Read all sheets
+    xls = pd.ExcelFile(file_path)
+    
+    figures = []
+    
+    # We will create one figure per sheet, or combine them? 
+    # The request implies highlighting a region. Usually TGA plots are separate or overlaid.
+    # Given the distinct names "normal", "acid", "750C", it's best to plot them separately for clarity,
+    # OR overlay them if they are comparable samples. 
+    # Let's create one chart per sample (sheet) to keep data clean, or one combined chart.
+    # Standard lab practice often compares these. Let's make ONE combined chart with 3 series for Weight and 3 for DTG?
+    # That might be too cluttered. 
+    # Let's look at the request: "300~450 °C 구간을 연한 회색으로 칠해줘".
+    # This is a visual annotation. It applies to the x-axis.
+    
+    # Strategy: Create one figure containing all three datasets overlaid for comparison, 
+    # using two Y-axes (Weight % on left, D.W %/C on right).
+    
+    series_weight = []
+    series_dtg = []
+    
+    colors_weight = ['#1f77b4', '#ff7f0e', '#2ca02c']
+    colors_dtg = ['#aec7e8', '#ffbb78', '#98df8a'] # Lighter versions for DTG
+    
+    sheet_names = ['1006R1-V normal', '1006R1-V acid', '1006R1-V 750C']
+    
+    for i, name in enumerate(sheet_names):
+        df = pd.read_excel(xls, sheet_name=name)
+        
+        # Clean data: ensure numeric
+        temp = df['Temperature'].astype(float)
+        weight = df['Weight(%)'].astype(float)
+        dtg = df['D.W(%/C)'].astype(float)
+        
+        # Prepare data for ECharts (list of [x, y])
+        # Downsample slightly if needed, but 871 points is fine for SVG/PNG usually.
+        
+        w_data = [[float(t), float(w)] for t, w in zip(temp, weight)]
+        d_data = [[float(t), float(d)] for t, d in zip(temp, dtg)]
+        
+        # Weight Series (Left Y Axis)
+        series_weight.append({
+            "name": f"{name} (Weight)",
+            "type": "line",
+            "data": w_data,
+            "yAxisIndex": 0,
+            "smooth": True,
+            "showSymbol": False,
+            "lineStyle": {
+                "width": 2,
+                "color": colors_weight[i]
+            },
+            "itemStyle": {
+                "color": colors_weight[i]
+            }
+        })
+        
+        # DTG Series (Right Y Axis)
+        series_dtg.append({
+            "name": f"{name} (DTG)",
+            "type": "line",
+            "data": d_data,
+            "yAxisIndex": 1,
+            "smooth": True,
+            "showSymbol": False,
+            "lineStyle": {
+                "width": 1.5,
+                "color": colors_dtg[i],
+                "type": "dashed"
+            },
+            "itemStyle": {
+                "color": colors_dtg[i]
+            }
+        })
+
+    # Mark Area for 300-450 C
+    mark_area_data = [
+        [
+            {"xAxis": 300},
+            {"xAxis": 450}
+        ]
+    ]
+    
+    # Add markArea to the first weight series so it appears once
+    if series_weight:
+        series_weight[0]["markArea"] = {
+            "silent": True,
+            "itemStyle": {
+                "color": "rgba(200, 200, 200, 0.3)" # 연한 회색
+            },
+            "data": mark_area_data
+        }
+
+    option = {
+        "title": {
+            "text": "TGA/DTG Analysis Comparison",
+            "subtext": "Normal vs Acid vs 750C",
+            "left": "center",
+            "textStyle": {
+                "fontFamily": "Noto Sans CJK KR"
+            }
+        },
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {
+                "type": "cross"
+            }
+        },
+        "legend": {
+            "data": [
+                "1006R1-V normal (Weight)", "1006R1-V acid (Weight)", "1006R1-V 750C (Weight)",
+                "1006R1-V normal (DTG)", "1006R1-V acid (DTG)", "1006R1-V 750C (DTG)"
+            ],
+            "top": 60,
+            "textStyle": {
+                "fontFamily": "Noto Sans CJK KR"
+            }
+        },
+        "grid": {
+            "left": "10%",
+            "right": "10%",
+            "bottom": "15%",
+            "containLabel": True
+        },
+        "xAxis": {
+            "type": "value",
+            "name": "Temperature (°C)",
+            "nameLocation": "middle",
+            "nameGap": 30,
+            "min": 30,
+            "max": 900,
+            "splitLine": {
+                "show": True,
+                "lineStyle": {
+                    "type": "dashed"
+                }
+            }
+        },
+        "yAxis": [
+            {
+                "type": "value",
+                "name": "Weight (%)",
+                "position": "left",
+                "min": 0,
+                "max": 110
+            },
+            {
+                "type": "value",
+                "name": "DTG (%/°C)",
+                "position": "right",
+                "min": -1.2,
+                "max": 0.1
+            }
+        ],
+        "series": series_weight + series_dtg
+    }
+
+    figure = {
+        "name": "tga_comparison",
+        "option": option,
+        "width": 800,
+        "height": 600,
+        "dpi": 300,
+        "formats": ["png"]
+    }
+    
+    figures.append(figure)
+    
+    output = {
+        "figures": figures
+    }
+    
+    print(json.dumps(output))
+
+if __name__ == "__main__":
+    main()

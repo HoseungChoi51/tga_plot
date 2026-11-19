@@ -1,0 +1,237 @@
+```python
+import pandas as pd
+import json
+import numpy as np
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+def get_korean_font():
+    return "Noto Sans CJK KR"
+
+class NpEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        else:
+            return super(NpEncoder, self).default(obj)
+
+def process_sheet(df, sheet_name):
+    # Identify columns based on standard TGA structure from preview
+    cols = df.columns.tolist()
+    
+    # Find temperature column (x-axis)
+    temp_col = None
+    for c in cols:
+        if 'temp' in str(c).lower():
+            temp_col = c
+            break
+    if temp_col is None and len(cols) > 1:
+        temp_col = cols[1] # Fallback to B
+        
+    # Find weight column (y1)
+    weight_col = None
+    for c in cols:
+        if 'weight' in str(c).lower():
+            weight_col = c
+            break
+    if weight_col is None and len(cols) > 2:
+        weight_col = cols[2] # Fallback to C
+        
+    # Find DTG column (y2)
+    dtg_col = None
+    for c in cols:
+        if 'd.w' in str(c).lower() or 'dtg' in str(c).lower() or 'derivative' in str(c).lower():
+            dtg_col = c
+            break
+    if dtg_col is None and len(cols) > 3:
+        dtg_col = cols[3] # Fallback to D
+
+    if not all([temp_col, weight_col, dtg_col]):
+        return None
+
+    # Extract data
+    x_data = df[temp_col].dropna().values
+    y1_data = df[weight_col].dropna().values
+    y2_data = df[dtg_col].dropna().values
+    
+    # Align lengths just in case dropna removed different rows
+    min_len = min(len(x_data), len(y1_data), len(y2_data))
+    x_data = x_data[:min_len]
+    y1_data = y1_data[:min_len]
+    y2_data = y2_data[:min_len]
+    
+    # Prepare series data
+    # Series 1: Weight (%)
+    series_weight = []
+    for i in range(min_len):
+        series_weight.append([float(x_data[i]), float(y1_data[i])])
+        
+    # Series 2: DTG (-DTG so peaks point up)
+    series_dtg = []
+    for i in range(min_len):
+        series_dtg.append([float(x_data[i]), float(-y2_data[i])])
+        
+    # Calculate Residue at ~800C
+    residue_val = None
+    residue_temp = None
+    target_temp = 800.0
+    min_diff = float('inf')
+    
+    for i in range(min_len):
+        diff = abs(x_data[i] - target_temp)
+        if diff < min_diff:
+            min_diff = diff
+            residue_val = y1_data[i]
+            residue_temp = x_data[i]
+            
+    mark_points = []
+    
+    if residue_val is not None:
+        mark_points.append({
+            "coord": [float(residue_temp), float(residue_val)],
+            "value": f"Residue {residue_val:.1f}%",
+            "symbol": "circle",
+            "symbolSize": 8,
+            "itemStyle": {"color": "#1f4e9c"},
+            "label": {
+                "show": True,
+                "formatter": "{b}",
+                "position": "right",
+                "fontSize": 10,
+                "fontFamily": get_korean_font(),
+                "color": "#1f4e9c"
+            }
+        })
+
+    option = {
+        "title": {
+            "text": sheet_name,
+            "left": "center",
+            "top": "2%",
+            "textStyle": {
+                "fontFamily": get_korean_font(),
+                "fontSize": 14,
+                "fontWeight": "bold"
+            }
+        },
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {"type": "cross"}
+        },
+        "legend": {
+            "data": ["Weight (%)", "-DTG (%/°C)"],
+            "orient": "vertical",
+            "left": "5%",
+            "top": "middle",
+            "textStyle": {
+                "fontFamily": get_korean_font(),
+                "fontSize": 10
+            }
+        },
+        "grid": {
+            "left": "15%",
+            "right": "15%",
+            "bottom": "15%",
+            "top": "15%"
+        },
+        "xAxis": {
+            "name": "Temperature (°C)",
+            "nameLocation": "middle",
+            "nameGap": 30,
+            "type": "value",
+            "scale": False,
+            "axisLabel": {
+                "fontFamily": get_korean_font(),
+                "fontSize": 10
+            },
+            "splitLine": {"show": True, "lineStyle": {"type": "dashed"}}
+        },
+        "yAxis": [
+            {
+                "name": "Weight (%)",
+                "nameLocation": "middle",
+                "nameGap": 40,
+                "type": "value",
+                "scale": False,
+                "position": "left",
+                "axisLabel": {
+                    "fontFamily": get_korean_font(),
+                    "fontSize": 10,
+                    "color": "#1f4e9c"
+                },
+                "splitLine": {"show": True, "lineStyle": {"type": "dashed"}}
+            },
+            {
+                "name": "-DTG (%/°C)",
+                "nameLocation": "middle",
+                "nameGap": 40,
+                "type": "value",
+                "scale": False,
+                "position": "right",
+                "axisLabel": {
+                    "fontFamily": get_korean_font(),
+                    "fontSize": 10,
+                    "color": "#c0392b"
+                },
+                "splitLine": {"show": False}
+            }
+        ],
+        "series": [
+            {
+                "name": "Weight (%)",
+                "type": "line",
+                "data": series_weight,
+                "smooth": True,
+                "showSymbol": False,
+                "lineStyle": {
+                    "color": "#1f4e9c",
+                    "width": 2
+                },
+                "markPoint": {
+                    "data": mark_points
+                }
+            },
+            {
+                "name": "-DTG (%/°C)",
+                "type": "line",
+                "data": series_dtg,
+                "yAxisIndex": 1,
+                "smooth": True,
+                "showSymbol": False,
+                "lineStyle": {
+                    "color": "#c0392b",
+                    "width": 2
+                }
+            }
+        ]
+    }
+    
+    return {
+        "name": sheet_name.replace(" ", "_"),
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"]
+    }
+
+def main():
+    figures = []
+    xl_file = pd.ExcelFile(DATA_FILE)
+    
+    for sheet_name in xl_file.sheet_names:
+        df = pd.read_excel(DATA_FILE, sheet_name=sheet_name)
+        fig_opt = process_sheet(df, sheet_name)
+        if fig_opt:
+            figures.append(fig_opt)
+            
+    output = {"figures": figures}
+    print(json.dumps(output, ensure_ascii=False, cls=NpEncoder))
+
+if __name__ == "__main__":
+    main()
+```

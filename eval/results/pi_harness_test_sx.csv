@@ -1,0 +1,2 @@
+arm,request,set,group,rc,seconds,ok_run,pass_all,pass_ask,tool_calls,plot_runs,input_tokens,output_tokens,note,failed,answer,workspace
+P-mpl,12,A,A,0,133.2,1,1,1,3,2,7745,415,spec.json,,그림 완료했습니다. 450 °C에 '산화 시작' 세로 보조선을 넣었습니다.  **저장된 파일** (`tests/inputs/TGA_plots/`) - `1006R1-V_normal.png` - `1006R1-V_acid.png` - `1006R1-V_750C.png`  **표시된 값** | 시트 | 잔류량 (800 °C) | 최고 DTG 피크 | |---|---|---| | 1006R1-V normal | 8.0 % | 599 °C | | 1006R1-V acid | 3.0 % | 559 °C | | 1006R1-V 750C | 데이터 없음 (데이터는 750 °C까지) | 540 °C |  경고 없습니다.,/home/chs/Work/tga_plot/eval/results/pi_ws/P-mpl/12

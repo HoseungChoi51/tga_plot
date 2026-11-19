@@ -1,0 +1,202 @@
+import pandas as pd
+import numpy as np
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+
+# Read the PVC sheet
+df_pvc = pd.read_excel(DATA_FILE, sheet_name="PVC")
+
+# Identify columns based on preview
+x_col = "Temperature (°C)"
+y1_col = "Weight (%)"
+y2_col = "Deriv. Weight (%/°C)"
+
+# Filter data for 200-400 °C range to calculate mass loss
+mask_range = (df_pvc[x_col] >= 200) & (df_pvc[x_col] <= 400)
+df_range = df_pvc[mask_range].copy()
+
+if not df_range.empty:
+    # Mass loss is typically defined as Weight at start - Weight at end
+    # We find the weight at the point closest to 200 and closest to 400 within the filtered range
+    
+    # Find index closest to 200
+    idx_200 = (df_range[x_col] - 200).abs().idxmin()
+    w_200 = float(df_range.loc[idx_200, y1_col])
+    
+    # Find index closest to 400
+    idx_400 = (df_range[x_col] - 400).abs().idxmin()
+    w_400 = float(df_range.loc[idx_400, y1_col])
+    
+    mass_loss = w_200 - w_400
+else:
+    mass_loss = 0.0
+
+# Prepare full data for plotting
+temp = [float(t) for t in df_pvc[x_col]]
+weight = [float(w) for w in df_pvc[y1_col]]
+dtg_raw = [float(d) for d in df_pvc[y2_col]]
+
+# Invert DTG so peaks point up
+dtg_inverted = [-val for val in dtg_raw]
+
+# Calculate Residue at ~800°C
+idx_res = (df_pvc[x_col] - 800).abs().idxmin()
+residue_val = float(df_pvc.loc[idx_res, y1_col])
+residue_temp = float(df_pvc.loc[idx_res, x_col])
+
+# Calculate Peak temperature (highest DTG peak > 150°C)
+# Filter for temp > 150
+mask_peak = df_pvc[x_col] > 150
+df_peak_region = df_pvc[mask_peak]
+if not df_peak_region.empty:
+    # Find max inverted DTG (which corresponds to min raw DTG / steepest drop)
+    idx_peak = df_peak_region[y2_col].idxmin()
+    peak_temp = float(df_pvc.loc[idx_peak, x_col])
+    peak_dtg_inv = float(-df_pvc.loc[idx_peak, y2_col])
+else:
+    peak_temp = 0.0
+    peak_dtg_inv = 0.0
+
+# Build ECharts Option
+option = {
+    "title": {
+        "text": "PVC",
+        "left": "center",
+        "top": 10,
+        "textStyle": {"fontSize": 16}
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {"type": "cross"}
+    },
+    "legend": {
+        "data": ["Weight (%)", "-DTG (%/°C)"],
+        "left": "left",
+        "top": "middle",
+        "orient": "vertical"
+    },
+    "grid": {
+        "left": "10%",
+        "right": "10%",
+        "bottom": "15%",
+        "containLabel": True
+    },
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "min": 30,
+        "max": 900
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Weight (%)",
+            "position": "left",
+            "min": 0,
+            "max": 105
+        },
+        {
+            "type": "value",
+            "name": "-DTG (%/°C)",
+            "position": "right",
+            "splitLine": {"show": False}
+        }
+    ],
+    "series": [
+        {
+            "name": "Weight (%)",
+            "type": "line",
+            "yAxisIndex": 0,
+            "data": [[t, w] for t, w in zip(temp, weight)],
+            "itemStyle": {"color": "#1f4e9c"},
+            "lineStyle": {"width": 2},
+            "symbol": "none",
+            "markPoint": {
+                "data": [
+                    {
+                        "coord": [residue_temp, residue_val],
+                        "name": f"Residue {residue_val:.1f}%",
+                        "symbolSize": 8,
+                        "label": {
+                            "show": True,
+                            "formatter": f"Residue {residue_val:.1f}%",
+                            "position": "bottom",
+                            "distance": 10
+                        }
+                    }
+                ]
+            },
+            "markArea": {
+                "silent": True,
+                "itemStyle": {
+                    "color": "rgba(255, 173, 173, 0.2)"
+                },
+                "data": [
+                    [
+                        {"xAxis": 200},
+                        {"xAxis": 400}
+                    ]
+                ]
+            }
+        },
+        {
+            "name": "-DTG (%/°C)",
+            "type": "line",
+            "yAxisIndex": 1,
+            "data": [[t, d] for t, d in zip(temp, dtg_inverted)],
+            "itemStyle": {"color": "#c0392b"},
+            "lineStyle": {"width": 2},
+            "symbol": "none",
+            "markPoint": {
+                "data": [
+                    {
+                        "coord": [peak_temp, peak_dtg_inv],
+                        "name": f"{peak_temp:.0f} °C",
+                        "symbolSize": 8,
+                        "label": {
+                            "show": True,
+                            "formatter": f"{peak_temp:.0f} °C",
+                            "position": "top",
+                            "distance": 10
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
+
+# Add annotation for mass loss between 200 and 400 C
+# Using graphic element to place text on the chart
+option["graphic"] = {
+    "elements": [
+        {
+            "type": "text",
+            "left": "center",
+            "top": "15%",
+            "style": {
+                "text": f"Mass Loss (200-400°C): {mass_loss:.2f} %",
+                "fill": "#d35400",
+                "font": "bold 14px sans-serif"
+            }
+        }
+    ]
+}
+
+output = {
+    "figures": [
+        {
+            "name": "plot1",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+    ]
+}
+
+print(json.dumps(output))

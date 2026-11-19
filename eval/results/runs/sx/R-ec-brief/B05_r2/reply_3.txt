@@ -1,0 +1,259 @@
+```python
+import pandas as pd
+import numpy as np
+import json
+
+def read_data(file_path):
+    if file_path.endswith('.csv'):
+        return pd.read_csv(file_path)
+    elif file_path.endswith('.txt'):
+        # Assuming tab or whitespace separated, but header is row 1. 
+        # The preview suggests standard CSV-like structure with headers.
+        # Let's try sep=None with engine='python' to detect delimiter automatically for txt files that might be csv-like.
+        return pd.read_csv(file_path, sep=None, engine='python')
+    else:
+        raise ValueError("Unsupported file format")
+
+def process_file(f, name, color_w, color_d):
+    df = read_data(f)
+    
+    # Identify columns based on the preview info provided in the prompt context
+    # x = Temperature (°C), y1 = Weight (%), y2 = Deriv. Weight (%/°C)
+    temp_col = 'Temperature (°C)'
+    weight_col = 'Weight (%)'
+    dtg_col = 'Deriv. Weight (%/°C)'
+    
+    # Fallback heuristic if exact names not found
+    if temp_col not in df.columns:
+        cols = df.columns.tolist()
+        temp_col = [c for c in cols if 'Temp' in c][0]
+        weight_col = [c for c in cols if 'Weight' in c and 'Deriv' not in c][0]
+        dtg_col = [c for c in cols if 'Deriv' in c][0]
+
+    temps = df[temp_col].values
+    weights = df[weight_col].values
+    dtgs = df[dtg_col].values
+    
+    # Convert to float to ensure compatibility with np.isnan
+    try:
+        temps = np.array(temps, dtype=float)
+        weights = np.array(weights, dtype=float)
+        dtgs = np.array(dtgs, dtype=float)
+    except ValueError as e:
+        # If conversion fails, it means there are non-numeric values that can't be coerced.
+        # We'll filter them out by attempting to convert individually or using dropna after coercion attempt.
+        # A robust way: convert to numeric, errors='coerce', then drop NaNs
+        pass
+        
+    # Better approach: Use pd.to_numeric to handle mixed types gracefully
+    temps = pd.to_numeric(df[temp_col], errors='coerce').dropna().values
+    weights = pd.to_numeric(df[weight_col], errors='coerce').dropna().values
+    dtgs = pd.to_numeric(df[dtg_col], errors='coerce').dropna().values
+    
+    # Ensure lengths match after dropping NaNs independently? No, we need row-wise consistency.
+    # Re-read and clean properly
+    df_clean = df.copy()
+    df_clean[temp_col] = pd.to_numeric(df_clean[temp_col], errors='coerce')
+    df_clean[weight_col] = pd.to_numeric(df_clean[weight_col], errors='coerce')
+    df_clean[dtg_col] = pd.to_numeric(df_clean[dtg_col], errors='coerce')
+    df_clean = df_clean.dropna(subset=[temp_col, weight_col, dtg_col])
+    
+    temps = df_clean[temp_col].values
+    weights = df_clean[weight_col].values
+    dtgs = df_clean[dtg_col].values
+    
+    # Prepare data points for ECharts [x, y]
+    # Weight series: [Temp, Weight]
+    weight_data = [[float(t), float(w)] for t, w in zip(temps, weights)]
+    
+    # DTG series: [Temp, -DTG] so peaks point up
+    dtg_data = [[float(t), float(-d)] for t, d in zip(temps, dtgs)]
+    
+    # Calculate Residue at ~800°C
+    idx_800 = np.argmin(np.abs(temps - 800))
+    res_temp = float(temps[idx_800])
+    res_val = float(weights[idx_800])
+    
+    # Calculate Peak Temp > 150°C
+    valid_mask = temps > 150
+    pk_temp = None
+    pk_val_plotted = None # This is the plotted value (-DTG)
+    
+    if np.any(valid_mask):
+        v_dtgs = dtgs[valid_mask]
+        v_temps = temps[valid_mask]
+        # Find index of min DTG (most negative) which corresponds to max mass loss rate
+        min_idx_local = np.argmin(v_dtgs)
+        pk_temp = float(v_temps[min_idx_local])
+        pk_dtg_raw = float(v_dtgs[min_idx_local])
+        pk_val_plotted = -pk_dtg_raw
+        
+    return {
+        "w_series": {
+            "name": f"{name} Weight",
+            "type": "line",
+            "yAxisIndex": 0,
+            "data": weight_data,
+            "showSymbol": False,
+            "lineStyle": {"width": 2, "color": color_w},
+            "itemStyle": {"color": color_w}
+        },
+        "d_series": {
+            "name": f"{name} DTG",
+            "type": "line",
+            "yAxisIndex": 1,
+            "data": dtg_data,
+            "showSymbol": False,
+            "lineStyle": {"width": 2, "color": color_d, "type": "dashed"},
+            "itemStyle": {"color": color_d}
+        },
+        "mp_w": {
+            "coord": [res_temp, res_val],
+            "name": f"Residue {res_val:.1f}%",
+            "symbolSize": 8,
+            "label": {
+                "position": "top",
+                "distance": 5,
+                "fontSize": 10,
+                "color": color_w,
+                "formatter": "{b}"
+            },
+            "itemStyle": {"color": color_w}
+        },
+        "mp_d": {
+            "coord": [pk_temp, pk_val_plotted],
+            "name": f"{pk_temp:.0f} °C",
+            "symbolSize": 8,
+            "label": {
+                "position": "top",
+                "distance": 5,
+                "fontSize": 10,
+                "color": color_d,
+                "formatter": "{b}"
+            },
+            "itemStyle": {"color": color_d}
+        } if pk_temp is not None else None
+    }
+
+files = ["/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_A.csv", "/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_B.txt"]
+lot_names = ["Lot A", "Lot B"]
+
+# Colors
+colors_a = ("#1f4e9c", "#c0392b")
+colors_b = ("#27ae60", "#e67e22")
+
+res_a = process_file(files[0], lot_names[0], *colors_a)
+res_b = process_file(files[1], lot_names[1], *colors_b)
+
+series = [
+    res_a["w_series"],
+    res_a["d_series"],
+    res_b["w_series"],
+    res_b["d_series"]
+]
+
+mark_points_all = []
+if res_a["mp_w"]:
+    mark_points_all.append(res_a["mp_w"])
+if res_a["mp_d"]:
+    mark_points_all.append(res_a["mp_d"])
+if res_b["mp_w"]:
+    mark_points_all.append(res_b["mp_w"])
+if res_b["mp_d"]:
+    mark_points_all.append(res_b["mp_d"])
+
+# Attach all mark points to the first series for simplicity
+if mark_points_all:
+    series[0]["markPoint"] = {
+        "data": mark_points_all,
+        "symbol": "circle"
+    }
+
+option = {
+    "title": {
+        "text": "TGA Comparison: Lot A vs Lot B",
+        "left": "center",
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR",
+            "fontSize": 16
+        }
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {
+            "type": "cross"
+        },
+        "formatter": "{a}<br/>Temp: {b} °C<br/>Value: {c}"
+    },
+    "legend": {
+        "data": [
+            "Lot A Weight",
+            "Lot A DTG",
+            "Lot B Weight",
+            "Lot B DTG"
+        ],
+        "top": 30,
+        "left": "center",
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR"
+        }
+    },
+    "grid": {
+        "left": "10%",
+        "right": "10%",
+        "bottom": "15%",
+        "containLabel": True
+    },
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "min": 30,
+        "max": 900,
+        "splitLine": {
+            "show": True,
+            "lineStyle": {"type": "dashed"}
+        }
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Weight (%)",
+            "position": "left",
+            "min": 0,
+            "max": 110,
+            "splitLine": {
+                "show": True,
+                "lineStyle": {"type": "dashed"}
+            }
+        },
+        {
+            "type": "value",
+            "name": "DTG (%/°C)",
+            "position": "right",
+            "min": 0, # Since we flipped sign, min is 0 (or close to it)
+            "max": 1.5,
+            "splitLine": {
+                "show": False
+            }
+        }
+    ],
+    "series": series
+}
+
+output = {
+    "figures": [
+        {
+            "name": "plot1",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+    ]
+}
+
+print(json.dumps(output))
+```

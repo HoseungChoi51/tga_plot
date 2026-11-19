@@ -1,0 +1,124 @@
+```python
+import os
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib import rcParams
+
+# Set Korean font
+rcParams['font.family'] = 'Noto Sans CJK KR'
+rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/11_r2/out"
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+def plot_tga_sheet(df, sheet_name, out_path):
+    """Plot TGA data for a single sheet."""
+    # Identify columns based on standard TGA structure
+    # Assuming: Temperature (B), Weight (%) (C), DTG (D)
+    # We need to find the correct column names dynamically or use indices if known.
+    # From preview: B="Temperature", C="Weight(%)", D="D.W(%/C)"
+    
+    # Find temperature column
+    temp_col = None
+    weight_col = None
+    dtg_col = None
+    
+    for col in df.columns:
+        col_lower = str(col).lower()
+        if 'temp' in col_lower:
+            temp_col = col
+        elif 'weight' in col_lower and '%' in col_lower:
+            weight_col = col
+        elif 'd.w' in col_lower or 'dtg' in col_lower or ('derivative' in col_lower and 'weight' in col_lower):
+            dtg_col = col
+            
+    # Fallback if not found by name (using indices from preview logic)
+    if temp_col is None and len(df.columns) > 1: temp_col = df.columns[1]
+    if weight_col is None and len(df.columns) > 2: weight_col = df.columns[2]
+    if dtg_col is None and len(df.columns) > 3: dtg_col = df.columns[3]
+
+    if temp_col is None or weight_col is None or dtg_col is None:
+        print(f"Could not identify required columns in sheet {sheet_name}")
+        return
+
+    x = df[temp_col].values
+    y1 = df[weight_col].values
+    y2 = df[dtg_col].values
+    
+    # Filter valid data
+    mask = ~(np.isnan(x) | np.isnan(y1) | np.isnan(y2))
+    x = x[mask]
+    y1 = y1[mask]
+    y2 = y2[mask]
+    
+    if len(x) == 0:
+        return
+
+    fig, ax1 = plt.subplots(figsize=(8, 6))
+    
+    # Plot Weight (left axis)
+    color1 = '#1f4e9c'
+    ax1.plot(x, y1, color=color1, label='Weight (%)')
+    ax1.set_xlabel('Temperature (°C)', fontsize=12)
+    ax1.set_ylabel('Weight (%)', color=color1, fontsize=12)
+    ax1.tick_params(axis='y', labelcolor=color1)
+    
+    # Create twin axis for DTG
+    ax2 = ax1.twinx()
+    color2 = '#c0392b'
+    # Invert DTG so peaks point up
+    y2_inv = -y2
+    ax2.plot(x, y2_inv, color=color2, linestyle='--', label='DTG (%/°C)')
+    ax2.set_ylabel('DTG (%/°C)', color=color2, fontsize=12)
+    ax2.tick_params(axis='y', labelcolor=color2)
+    
+    # Title
+    ax1.set_title(sheet_name, fontsize=14, pad=15)
+    
+    # Legend
+    lines_1, labels_1 = ax1.get_legend_handles_labels()
+    lines_2, labels_2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='center left')
+    
+    # Residue Label (at nearest 800°C)
+    target_temp = 800
+    idx_residue = np.argmin(np.abs(x - target_temp))
+    residue_val = y1[idx_residue]
+    residue_temp = x[idx_residue]
+    
+    # Draw marker for residue
+    ax1.plot(residue_temp, residue_val, 'o', color=color1, markersize=6)
+    # Add text annotation
+    ax1.annotate(f'Residue {residue_val:.1f}%', 
+                 xy=(residue_temp, residue_val), 
+                 xytext=(residue_temp + 20, residue_val + 5),
+                 arrowprops=dict(arrowstyle='->', color=color1),
+                 color=color1, fontsize=10)
+                 
+    # Peak Label (Highest DTG peak above 150°C)
+    # Note: The user asked to REMOVE the peak display ("피크 표시 지워줘").
+    # So we do NOT add the peak marker or annotation here.
+    
+    plt.tight_layout()
+    plt.savefig(out_path, dpi=300, bbox_inches='tight')
+    plt.close(fig)
+
+# Load Excel file
+xls = pd.ExcelFile(DATA_FILE)
+
+for sheet_name in xls.sheet_names:
+    df = pd.read_excel(xls, sheet_name=sheet_name)
+    
+    # Clean column names if necessary (strip whitespace)
+    df.columns = [str(c).strip() for c in df.columns]
+    
+    safe_sheet_name = "".join([c if c.isalnum() else "_" for c in sheet_name])
+    out_filename = f"{safe_sheet_name}.png"
+    out_path = os.path.join(OUT_DIR, out_filename)
+    
+    plot_tga_sheet(df, sheet_name, out_path)
+    print(f"Saved plot for sheet: {sheet_name} to {out_path}")
+```

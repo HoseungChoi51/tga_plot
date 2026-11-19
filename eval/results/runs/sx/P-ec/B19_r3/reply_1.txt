@@ -1,0 +1,3 @@
+```json
+{"file": "polymers.xlsx", "sheets": "PVC", "annotate": {"mass_loss_200_400": {"type": "text", "text": "ΔW(200-400°C): 78.5%", "where": "upper right"}}}
+```

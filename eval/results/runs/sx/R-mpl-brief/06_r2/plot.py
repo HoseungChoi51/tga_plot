@@ -1,0 +1,130 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+from pathlib import Path
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/06_r2/out"
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+xls = pd.ExcelFile(DATA_FILE)
+sheet_names = xls.sheet_names
+
+for sheet_name in sheet_names:
+    df = pd.read_excel(DATA_FILE, sheet_name=sheet_name, header=0)
+    
+    # Identify columns based on standard TGA structure
+    # Assuming: Time, Temperature, Weight(%), D.W(%/C)
+    cols = df.columns.tolist()
+    
+    # Find temperature column (usually second or named Temperature)
+    temp_col = None
+    weight_col = None
+    dtg_col = None
+    
+    for col in cols:
+        col_lower = str(col).lower()
+        if 'temp' in col_lower:
+            temp_col = col
+        elif 'weight' in col_lower and '%' in col_lower:
+            weight_col = col
+        elif 'd.w' in col_lower or 'dtg' in col_lower or ('derivative' in col_lower):
+            dtg_col = col
+            
+    # Fallback to position if names not found
+    if temp_col is None:
+        temp_col = cols[1] if len(cols) > 1 else cols[0]
+    if weight_col is None:
+        weight_col = cols[2] if len(cols) > 2 else cols[1]
+    if dtg_col is None:
+        dtg_col = cols[3] if len(cols) > 3 else cols[2]
+
+    x = df[temp_col].values
+    y1 = df[weight_col].values
+    y2 = df[dtg_col].values
+    
+    # Clean data: remove NaN
+    mask = ~(np.isnan(x) | np.isnan(y1) | np.isnan(y2))
+    x = x[mask]
+    y1 = y1[mask]
+    y2 = y2[mask]
+    
+    if len(x) == 0:
+        continue
+        
+    fig, ax1 = plt.subplots(figsize=(8, 6))
+    
+    # Plot Weight (%) on left axis
+    color1 = '#1f4e9c'
+    ax1.plot(x, y1, color=color1, label='Weight (%)')
+    ax1.set_xlabel('Temperature (°C)', fontsize=12)
+    ax1.set_ylabel('Weight (%)', color=color1, fontsize=12)
+    ax1.tick_params(axis='y', labelcolor=color1)
+    
+    # Plot DTG on right axis (inverted so peaks point up)
+    ax2 = ax1.twinx()
+    color2 = '#c0392b'
+    ax2.plot(x, -y2, color=color2, label='DTG (%/°C)')
+    ax2.set_ylabel('DTG (%/°C)', color=color2, fontsize=12)
+    ax2.tick_params(axis='y', labelcolor=color2)
+    
+    # Title
+    ax1.set_title(sheet_name, fontsize=14)
+    
+    # Grid ON
+    ax1.grid(True, linestyle='--', alpha=0.7)
+    
+    # Legend OFF (User request: 범례 없애고)
+    # No legend call needed
+    
+    # Calculate Residue at ~800°C
+    target_temp_residue = 800
+    idx_residue = np.argmin(np.abs(x - target_temp_residue))
+    residue_val = y1[idx_residue]
+    residue_temp = x[idx_residue]
+    
+    # Add residue marker and label
+    ax1.plot(residue_temp, residue_val, 'o', color=color1, markersize=5)
+    ax1.annotate(f'Residue {residue_val:.1f}%', 
+                 xy=(residue_temp, residue_val), 
+                 xytext=(10, -15), textcoords='offset points',
+                 color=color1, fontsize=10,
+                 arrowprops=dict(arrowstyle='->', color=color1))
+                 
+    # Calculate Peak: highest DTG peak above 150°C
+    # We look for the most negative value in original y2 (which becomes positive max in -y2)
+    # Or simply find max of -y2 where x > 150
+    mask_peak = x > 150
+    if np.any(mask_peak):
+        y2_inv = -y2
+        y2_inv_masked = y2_inv[mask_peak]
+        x_masked = x[mask_peak]
+        
+        idx_peak_local = np.argmax(y2_inv_masked)
+        peak_temp = x_masked[idx_peak_local]
+        peak_val = y2_inv_masked[idx_peak_local]
+        
+        # Add peak marker and label
+        ax2.plot(peak_temp, peak_val, 'o', color=color2, markersize=5)
+        ax2.annotate(f'{peak_temp:.0f} °C', 
+                     xy=(peak_temp, peak_val), 
+                     xytext=(10, 10), textcoords='offset points',
+                     color=color2, fontsize=10,
+                     arrowprops=dict(arrowstyle='->', color=color2))
+    
+    # Adjust layout
+    fig.tight_layout()
+    
+    # Save figure
+    safe_sheet_name = "".join([c if c.isalnum() or c in (' ', '-', '_') else '_' for c in sheet_name]).strip().replace(' ', '_')
+    out_path = os.path.join(OUT_DIR, f"{safe_sheet_name}.png")
+    fig.savefig(out_path, dpi=300)
+    plt.close(fig)
+
+print("Plots saved successfully.")

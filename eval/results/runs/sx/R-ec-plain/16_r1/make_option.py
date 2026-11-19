@@ -1,0 +1,76 @@
+import pandas as pd
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+# Read the specific sheet '1006R1-V normal'
+df = pd.read_excel(DATA_FILE, sheet_name='1006R1-V normal')
+
+# Extract data columns based on preview: B is Temperature, C is Weight(%)
+x_data = df['Temperature'].tolist()
+y_data = df['Weight(%)'].tolist()
+
+# Create ECharts option for a single line chart (TGA curve)
+option = {
+    "title": {
+        "text": "TGA Curve - 1006R1-V normal",
+        "left": "center"
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "formatter": "{a} <br/>{b}: {c}%"
+    },
+    "grid": {
+        "left": "3%",
+        "right": "4%",
+        "bottom": "3%",
+        "containLabel": True
+    },
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "min": 30,
+        "max": 900,
+        "axisLabel": {
+            "formatter": "{value}"
+        }
+    },
+    "yAxis": {
+        "type": "value",
+        "name": "Weight (%)",
+        "min": 0,
+        "max": 105,
+        "axisLabel": {
+            "formatter": "{value}%"
+        }
+    },
+    "series": [
+        {
+            "name": "Weight",
+            "type": "line",
+            "smooth": False,
+            "showSymbol": False,
+            "data": [[x, y] for x, y in zip(x_data, y_data)],
+            "lineStyle": {
+                "width": 2,
+                "color": "#5470C6"
+            }
+        }
+    ]
+}
+
+# Construct the final JSON output
+output = {
+    "figures": [
+        {
+            "name": "tga_normal_weight_only",
+            "option": option,
+            "width": 800,
+            "height": 500,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+    ]
+}
+
+print(json.dumps(output))

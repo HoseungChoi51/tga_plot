@@ -1,0 +1,289 @@
+```python
+import pandas as pd
+import numpy as np
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+def make_tga_chart(df, sheet_name):
+    x_col = "Temperature"
+    y1_col = "Weight(%)"
+    y2_col = "D.W(%/C)"
+    
+    # Ensure columns exist
+    if x_col not in df.columns or y1_col not in df.columns or y2_col not in df.columns:
+        return None
+    
+    temp = df[x_col].values.astype(float)
+    weight = df[y1_col].values.astype(float)
+    dtg = df[y2_col].values.astype(float)
+    
+    # Prepare data for series
+    weight_data = [[t, w] for t, w in zip(temp, weight)]
+    # DTG multiplied by -1 so peaks point up
+    dtg_data = [[t, d * -1] for t, d in zip(temp, dtg)]
+    
+    # Find residue at nearest 800°C
+    idx_800 = np.argmin(np.abs(temp - 800))
+    residue_val = weight[idx_800]
+    residue_temp = temp[idx_800]
+    
+    # Find highest DTG peak above 150°C (in original negative values, so most negative)
+    mask = temp > 150
+    if np.any(mask):
+        dtg_masked = dtg[mask]
+        temp_masked = temp[mask]
+        min_idx = np.argmin(dtg_masked) # Most negative value is the peak of mass loss
+        peak_temp = temp_masked[min_idx]
+        peak_dtg_val = dtg_masked[min_idx]
+    else:
+        peak_temp = None
+        peak_dtg_val = None
+        
+    # Markers for annotations
+    markers = []
+    if len(weight_data) > 0:
+        # Residue marker on weight curve
+        markers.append({
+            "coord": [residue_temp, residue_val],
+            "symbol": "circle",
+            "symbolSize": 6,
+            "itemStyle": {"color": "#1f4e9c"}
+        })
+        
+    if peak_temp is not None:
+        # Peak marker on DTG curve (remember DTG is plotted as -DTG)
+        markers.append({
+            "coord": [peak_temp, peak_dtg_val * -1],
+            "symbol": "circle",
+            "symbolSize": 6,
+            "itemStyle": {"color": "#c0392b"}
+        })
+
+    option = {
+        "title": {
+            "text": sheet_name,
+            "left": "center",
+            "top": "2%",
+            "textStyle": {
+                "fontSize": 14,
+                "fontFamily": "Noto Sans CJK KR"
+            }
+        },
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {
+                "type": "cross"
+            }
+        },
+        "legend": {
+            "data": ["Weight (%)", "-DTG (%/°C)"],
+            "orient": "vertical",
+            "left": "left",
+            "top": "middle",
+            "textStyle": {
+                "fontFamily": "Noto Sans CJK KR"
+            }
+        },
+        "grid": {
+            "left": "10%",
+            "right": "10%",
+            "bottom": "15%",
+            "containLabel": True
+        },
+        "xAxis": {
+            "type": "value",
+            "name": "Temperature (°C)",
+            "nameLocation": "middle",
+            "nameGap": 25,
+            "axisLine": {"lineStyle": {"color": "#333"}},
+            "axisTick": {"show": True},
+            "splitLine": {"show": False}
+        },
+        "yAxis": [
+            {
+                "type": "value",
+                "name": "Weight (%)",
+                "position": "left",
+                "axisLine": {"lineStyle": {"color": "#1f4e9c"}},
+                "axisTick": {"show": True},
+                "splitLine": {"show": True, "lineStyle": {"color": "#eee"}}
+            },
+            {
+                "type": "value",
+                "name": "-DTG (%/°C)",
+                "position": "right",
+                "axisLine": {"lineStyle": {"color": "#c0392b"}},
+                "axisTick": {"show": True},
+                "splitLine": {"show": False}
+            }
+        ],
+        "series": [
+            {
+                "name": "Weight (%)",
+                "type": "line",
+                "data": weight_data,
+                "smooth": False,
+                "showSymbol": False,
+                "lineStyle": {"color": "#1f4e9c", "width": 1.5},
+                "markPoint": {
+                    "data": markers,
+                    "label": {
+                        "show": True,
+                        "formatter": function_placeholder(), # Will replace below
+                        "position": "top",
+                        "distance": 5
+                    }
+                }
+            },
+            {
+                "name": "-DTG (%/°C)",
+                "type": "line",
+                "yAxisIndex": 1,
+                "data": dtg_data,
+                "smooth": False,
+                "showSymbol": False,
+                "lineStyle": {"color": "#c0392b", "width": 1.5},
+                "markArea": {
+                    "silent": True,
+                    "itemStyle": {
+                        "color": "rgba(200, 200, 200, 0.3)" # Light gray
+                    },
+                    "data": [
+                        [
+                            {"xAxis": 300},
+                            {"xAxis": 450}
+                        ]
+                    ]
+                }
+            }
+        ]
+    }
+    
+    # Handle markPoint labels manually since we can't use JS functions
+    # We need to inject specific text for residue and peak
+    mp_data = option["series"][0]["markPoint"]["data"]
+    
+    # Clear existing formatter and set specific labels
+    option["series"][0]["markPoint"]["label"]["show"] = False # Hide default label
+    
+    # Add custom labels via graphic elements or just add them to markPoint with specific names?
+    # ECharts markPoint doesn't easily support different text per point without formatter function.
+    # Alternative: Use 'graphic' layer for text, or simpler: use markPoint with name field if supported?
+    # Actually, easiest way in JSON config without JS function is to create separate markPoints or use rich text?
+    # Let's try adding two separate markPoints entries with explicit labels using 'name' isn't standard for display.
+    # Best approach: Create a second series or use 'graphic' component for text overlays.
+    
+    # Let's remove markPoint from series and use 'graphic' for precise text placement
+    option["series"][0]["markPoint"] = {} 
+    
+    graphics = []
+    
+    # Residue Label
+    graphics.append({
+        "type": "text",
+        "left": f"{(residue_temp - 30)/(900-30)*100:.2f}%", # Approximate position logic might be tricky
+        "top": "middle", 
+        "style": {
+            "text": f"Residue {residue_val:.1f}%",
+            "fill": "#1f4e9c",
+            "fontSize": 10,
+            "fontFamily": "Noto Sans CJK KR"
+        },
+        "z": 100
+    })
+    
+    # This graphic positioning is hard because it depends on chart layout calculation.
+    # Better strategy: Keep markPoint but use `formatter` string template if possible? No, dynamic values needed.
+    # Let's go back to markPoint but define the label content directly in the data item if possible?
+    # In ECharts, markPoint data items can have `name`. If we don't use a formatter, does it show name? No.
+    
+    # Correct approach for static JSON: Use multiple markPoints where each has its own label configuration?
+    # No, markPoint.label applies to all.
+    
+    # Workaround: Use two separate markPoint definitions? Not allowed in one series.
+    # Use a dummy series for labels? Overkill.
+    
+    # Let's try using the `name` property in markPoint data and see if we can format it globally?
+    # Actually, we can use `label.formatter` with `{b}` which is the name.
+    
+    option["series"][0]["markPoint"] = {
+        "data": [],
+        "label": {
+            "show": True,
+            "formatter": "{b}",
+            "position": "top",
+            "distance": 5,
+            "color": "#000"
+        }
+    }
+    
+    # Add residue point
+    option["series"][0]["markPoint"]["data"].append({
+        "coord": [residue_temp, residue_val],
+        "name": f"Residue {residue_val:.1f}%",
+        "symbol": "circle",
+        "symbolSize": 6,
+        "itemStyle": {"color": "#1f4e9c"},
+        "label": {
+            "color": "#1f4e9c",
+            "fontWeight": "bold"
+        }
+    })
+    
+    if peak_temp is not None:
+        # Add peak point to DTG series instead? Or keep in weight series but coord is on right axis?
+        # markPoint coord follows the series yAxisIndex.
+        # So we should add the peak marker to the DTG series.
+        
+        option["series"][1]["markPoint"] = {
+            "data": [
+                {
+                    "coord": [peak_temp, peak_dtg_val * -1],
+                    "name": f"{peak_temp:.0f} °C",
+                    "symbol": "circle",
+                    "symbolSize": 6,
+                    "itemStyle": {"color": "#c0392b"},
+                    "label": {
+                        "show": True,
+                        "formatter": "{b}",
+                        "position": "top",
+                        "distance": 5,
+                        "color": "#c0392b",
+                        "fontWeight": "bold"
+                    }
+                }
+            ]
+        }
+
+    return option
+
+def function_placeholder():
+    return ""
+
+def main():
+    xls = pd.ExcelFile(DATA_FILE)
+    figures = []
+    
+    for sheet_name in xls.sheet_names:
+        df = pd.read_excel(xls, sheet_name=sheet_name)
+        # Clean column names if needed, though preview suggests they are clean
+        df.columns = df.columns.str.strip()
+        
+        opt = make_tga_chart(df, sheet_name)
+        if opt:
+            figures.append({
+                "name": sheet_name.replace(" ", "_").replace("/", "_"),
+                "option": opt,
+                "width": 614,
+                "height": 442,
+                "dpi": 300,
+                "formats": ["png"]
+            })
+            
+    result = {"figures": figures}
+    print(json.dumps(result, ensure_ascii=False))
+
+if __name__ == "__main__":
+    main()
+```

@@ -1,0 +1,247 @@
+```python
+import pandas as pd
+import numpy as np
+import json
+
+def main():
+    file_path = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+    
+    # Read only the PE sheet
+    df = pd.read_excel(file_path, sheet_name="PE")
+    
+    # Identify columns based on the preview
+    temp_col = "Temperature (°C)"
+    weight_col = "Weight (%)"
+    dtg_col = "Deriv. Weight (%/°C)"
+    
+    # Extract data
+    temps_c = df[temp_col].values
+    weights = df[weight_col].values
+    dtgs = df[dtg_col].values
+    
+    # Convert Temperature from Celsius to Kelvin
+    temps_k = temps_c + 273.15
+    
+    # Prepare series data for ECharts
+    # Format: [[x, y], ...]
+    weight_data = [[round(t, 4), round(w, 4)] for t, w in zip(temps_k, weights)]
+    # DTG is multiplied by -1 so peaks point up
+    dtg_data = [[round(t, 4), round(-d, 6)] for t, d in zip(temps_k, dtgs)]
+    
+    # Find Residue at nearest 800 °C (which is 1073.15 K)
+    target_temp_c = 800.0
+    target_temp_k = target_temp_c + 273.15
+    idx_residue = np.argmin(np.abs(temps_k - target_temp_k))
+    residue_weight = weights[idx_residue]
+    residue_temp_k = temps_k[idx_residue]
+    
+    # Find Peak of DTG above 150 °C (423.15 K)
+    # Filter indices where temp > 150 C
+    mask_peak = temps_c > 150.0
+    if not np.any(mask_peak):
+        peak_temp_c = None
+        peak_dtg_val = None
+    else:
+        filtered_temps_c = temps_c[mask_peak]
+        filtered_dtgs = dtgs[mask_peak]
+        # Highest DTG peak means most negative value in original data, 
+        # or highest value in inverted data.
+        # We want the temperature of the maximum absolute loss rate.
+        # In inverted data (-dtg), we look for max value.
+        idx_max_inverted = np.argmax(filtered_dtgs * -1) # equivalent to argmin(dtgs)
+        peak_temp_c = filtered_temps_c[idx_max_inverted]
+        peak_temp_k = peak_temp_c + 273.15
+        peak_dtg_val = dtgs[np.where(temps_c == peak_temp_c)[0][0]] # Get original DTG value if needed, but label uses temp
+        
+    # Construct Markers
+    markers = []
+    
+    # Residue Marker
+    markers.append({
+        "coord": [residue_temp_k, residue_weight],
+        "value": f"Residue {residue_weight:.1f}%",
+        "symbol": "circle",
+        "symbolSize": 8,
+        "itemStyle": {"color": "#1f4e9c"},
+        "label": {
+            "show": True,
+            "position": "top",
+            "formatter": "{b}",
+            "fontSize": 10,
+            "color": "#1f4e9c"
+        }
+    })
+    
+    # Peak Marker
+    if peak_temp_c is not None:
+        # The peak marker should be on the DTG curve (y2 axis).
+        # Since y2 is inverted (-DTG), the visual peak is at -peak_dtg_val
+        visual_peak_y = -peak_dtg_val
+        markers.append({
+            "coord": [peak_temp_k, visual_peak_y],
+            "value": f"{peak_temp_c:.0f} °C",
+            "symbol": "diamond",
+            "symbolSize": 8,
+            "itemStyle": {"color": "#c0392b"},
+            "label": {
+                "show": True,
+                "position": "top",
+                "formatter": "{b}",
+                "fontSize": 10,
+                "color": "#c0392b"
+            }
+        })
+
+    # Define Axes Ranges dynamically or fixed? 
+    # Temp K range: approx 30+273=303 to 900+273=1173
+    min_t_k = np.min(temps_k)
+    max_t_k = np.max(temps_k)
+    
+    # Weight Y1 range
+    min_w = np.min(weights)
+    max_w = np.max(weights)
+    
+    # DTG Y2 range (inverted)
+    min_d_inv = np.min([-d for d in dtgs])
+    max_d_inv = np.max([-d for d in dtgs])
+
+    option = {
+        "title": {
+            "text": "PE",
+            "left": "center",
+            "textStyle": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 16
+            }
+        },
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {
+                "type": "cross"
+            }
+        },
+        "legend": {
+            "data": ["Weight (%)", "-DTG (%/°C)"],
+            "left": "left",
+            "orient": "vertical",
+            "top": "middle",
+            "textStyle": {
+                "fontFamily": "Noto Sans CJK KR"
+            }
+        },
+        "grid": {
+            "left": "10%",
+            "right": "10%",
+            "bottom": "15%",
+            "containLabel": True
+        },
+        "xAxis": {
+            "name": "Temperature (K)",
+            "nameLocation": "middle",
+            "nameGap": 30,
+            "type": "value",
+            "min": round(min_t_k, 0),
+            "max": round(max_t_k, 0),
+            "splitLine": {
+                "show": False
+            },
+            "axisLabel": {
+                "fontFamily": "Noto Sans CJK KR"
+            }
+        },
+        "yAxis": [
+            {
+                "name": "Weight (%)",
+                "type": "value",
+                "min": 0,
+                "max": 100,
+                "position": "left",
+                "axisLine": {
+                    "lineStyle": {
+                        "color": "#1f4e9c"
+                    }
+                },
+                "axisLabel": {
+                    "formatter": "{value}",
+                    "fontFamily": "Noto Sans CJK KR",
+                    "color": "#1f4e9c"
+                },
+                "splitLine": {
+                    "show": True,
+                    "lineStyle": {
+                        "type": "dashed",
+                        "color": "#eee"
+                    }
+                }
+            },
+            {
+                "name": "-DTG (%/°C)",
+                "type": "value",
+                "min": round(min_d_inv, 2),
+                "max": round(max_d_inv, 2),
+                "position": "right",
+                "axisLine": {
+                    "lineStyle": {
+                        "color": "#c0392b"
+                    }
+                },
+                "axisLabel": {
+                    "formatter": "{value}",
+                    "fontFamily": "Noto Sans CJK KR",
+                    "color": "#c0392b"
+                },
+                "splitLine": {
+                    "show": False
+                }
+            }
+        ],
+        "series": [
+            {
+                "name": "Weight (%)",
+                "type": "line",
+                "yAxisIndex": 0,
+                "data": weight_data,
+                "showSymbol": False,
+                "lineStyle": {
+                    "color": "#1f4e9c",
+                    "width": 2
+                },
+                "markPoint": {
+                    "data": [m for m in markers if m["itemStyle"]["color"] == "#1f4e9c"]
+                }
+            },
+            {
+                "name": "-DTG (%/°C)",
+                "type": "line",
+                "yAxisIndex": 1,
+                "data": dtg_data,
+                "showSymbol": False,
+                "lineStyle": {
+                    "color": "#c0392b",
+                    "width": 2
+                },
+                "markPoint": {
+                    "data": [m for m in markers if m["itemStyle"]["color"] == "#c0392b"]
+                }
+            }
+        ]
+    }
+    
+    figure = {
+        "name": "plot1",
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"]
+    }
+    
+    output = {
+        "figures": [figure]
+    }
+    
+    print(json.dumps(output, ensure_ascii=False))
+
+if __name__ == "__main__":
+    main()
+```
