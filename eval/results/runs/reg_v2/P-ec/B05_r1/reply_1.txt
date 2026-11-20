@@ -1,0 +1,23 @@
+```json
+{
+ "file": [
+  "cnt_lot_A.csv",
+  "cnt_lot_B.txt"
+ ],
+ "combine": true,
+ "names": [
+  "Lot A",
+  "Lot B"
+ ],
+ "asks": [
+  {
+   "ask": "두 파일 겹쳐 그리기",
+   "how": "key"
+  },
+  {
+   "ask": "범례 이름 Lot A, Lot B",
+   "how": "key"
+  }
+ ]
+}
+```

@@ -1,0 +1,11 @@
+```json
+{
+ "file": "polymers.xlsx",
+ "sheets": "PVC",
+ "data_code": "d = np.interp(200, x, y1) - np.interp(400, x, y1); marks.append({'type': 'text', 'x': 300, 'y': float(np.interp(300, x, y1)), 'text': f'Δm(200–400 °C) = {d:.1f}%'})",
+ "asks": [
+  {"ask": "PVC 시트", "how": "key"},
+  {"ask": "200~400 °C 질량 감소량 표시", "how": "data_code"}
+ ]
+}
+```

@@ -1,0 +1,24 @@
+{
+ "file": "data/doe_temp_h2.csv",
+ "chart": "line",
+ "x": {
+  "col": "2존온도(°C)",
+  "step": 25
+ },
+ "y": {
+  "col": "수율(g/g-cat)",
+  "agg": "mean"
+ },
+ "by": "H2/C2H4비",
+ "error": "std",
+ "grid": true,
+ "asks": [
+  {
+   "ask": "H2 비율별 선 분리",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/SS11_r2/out/t2"
+ }
+}

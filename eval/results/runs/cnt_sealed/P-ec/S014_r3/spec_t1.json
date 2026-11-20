@@ -1,0 +1,38 @@
+{
+ "file": [
+  "data/downtime.xlsx",
+  "data/run_log.xlsx"
+ ],
+ "chart": "scatter",
+ "x": {
+  "col": "정지시간_h",
+  "label": "주차별 총 정지시간 (h)"
+ },
+ "y": {
+  "col": "총생산량(kg)",
+  "label": "주차별 총생산량 (kg)"
+ },
+ "trend": true,
+ "data_code": "dt = df[df.columns[0:5]].copy()\ndt.columns = ['일자', '시작시각', '반응기', '원인', '정지시간(분)']\ndt['일자'] = pd.to_datetime(dt['일자'])\nstart_date = pd.Timestamp('2026-03-02')\ndt['주차'] = ((dt['일자'] - start_date).dt.days // 7) + 1\nweekly_downtime = dt.groupby('주차')['정지시간(분)'].sum().reset_index()\nweekly_downtime['정지시간_h'] = weekly_downtime['정지시간(분)'] / 60.0\nsummary_cols = ['주차', '시작일', '런수', '평균수율(g/g-cat)', '평균잔류금속(wt%)', '합격률(%)', '총생산량(kg)']\nsummary = df.iloc[:, -len(summary_cols):].copy()\nsummary.columns = summary_cols\ndf = summary.merge(weekly_downtime[['주차', '정지시간_h']], on='주차', how='left')\ndf['정지시간_h'] = df['정지시간_h'].fillna(0)",
+ "asks": [
+  {
+   "ask": "주차별 총 정지시간과 총생산량의 관계 산점도",
+   "how": "key"
+  },
+  {
+   "ask": "정지시간 단위 변환 (분 -> 시간)",
+   "how": "data_code"
+  },
+  {
+   "ask": "데이터 병합 (downtime 주별 합계와 주간요약 생산량)",
+   "how": "data_code"
+  },
+  {
+   "ask": "추세선 표시",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-ec/S014_r3/out/t1"
+ }
+}

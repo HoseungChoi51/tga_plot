@@ -1,0 +1,164 @@
+{
+ "arm": "R-mpl",
+ "item": "S003",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "생산팀장",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "6월 1일부터 8월 30일까지 설비 정지 건수를 원인별 비율로 파이차트 만들어 주세요. 보고서를 흑백으로 인쇄하니까 색 대신 회색 톤이나 해칭으로 구분되게 하고, 퍼센트도 표시해 주세요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Configure environment\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Load data\ndf_downtime = pd.read_excel(\"data/downtime.xlsx\", sheet_name=\"정지이력\")\n\n# Convert date column to datetime for filtering\ndf_downtime['일자'] = pd.to_datetime(df_downtime['일자'])\n\n# Filter data: June 1st to August 30th\nstart_date = '2026-06-01'\nend_date = '2026-08-30'\nmask = (df_downtime['일자'] >= start_date) & (df_downtime['일자'] <= end_date)\ndf_filtered = df_downtime[mask]\n\n# Count occurrences by cause ('원인')\ncounts = df_filtered['원인'].value_counts()\n\n# If no data in the range, handle gracefully or just plot empty? \n# Assuming there is data based on preview range ending Aug 30.\nlabels = counts.index.tolist()\nsizes = counts.values.tolist()\n\n# Create pie chart\nfig, ax = plt.subplots(figsize=(8, 8))\n\n# Define hatch patterns and gray colors for black/white printing compatibility\nhatches = ['///', '\\\\\\\\\\\\', 'xxx', '...', '|||', '+++', '---']\ncolors = ['#ffffff', '#dddddd', '#bbbbbb', '#999999', '#777777', '#555555', '#333333']\n\n# Ensure we have enough hatches/colors if more categories exist than predefined\nwhile len(hatches) < len(labels):\n    hatches.append('...') # default fallback pattern\nwhile len(colors) < len(labels):\n    colors.append('#ffffff')\n\nwedges, texts, autotexts = ax.pie(\n    sizes, \n    labels=labels, \n    autopct='%1.1f%%', \n    startangle=90,\n    pctdistance=0.75,\n    wedgeprops=dict(edgecolor='black', linewidth=1),\n    hatch=hatches[:len(labels)] if len(hatches) >= len(labels) else [h % len(hatches) for h in range(len(labels))] # Simple logic to repeat if needed, though value_counts usually small\n)\n\n# Apply colors manually to wedges to ensure contrast with hatches if needed, \n# but for B/W report, distinct hatches + edge color is key. \n# The 'colors' parameter in pie sets face color. \n# Let's re-create with explicit facecolors for better control over grayscale.\nax.clear()\n\nwedges, texts, autotexts = ax.pie(\n    sizes, \n    labels=labels, \n    autopct='%1.1f%%', \n    startangle=90,\n    pctdistance=0.75,\n    colors=colors[:len(labels)], # Use grayscale shades\n    hatch=[hatches[i % len(hatches)] for i in range(len(labels))],\n    wedgeprops=dict(edgecolor='black', linewidth=1.5)\n)\n\n# Adjust text properties for visibility on grayscale/hatched background\nfor autotext in autotexts:\n    autotext.set_color('black')\n    autotext.set_fontweight('bold')\n    \nfor text in texts:\n    text.set_fontsize(12)\n\nax.set_title(f\"설비 정지 원인별 비율 ({start_date} ~ {end_date})\", fontsize=14, pad=20)\n\n# Add a legend instead of cluttered labels if preferred, but request asked for percentage display.\n# Labels are already in pie. \n\nplt.tight_layout()\nsave_path = os.path.join(OUT_DIR, \"downtime_pie_chart_bw.png\")\nplt.savefig(save_path, dpi=300, bbox_inches='tight')\nplt.close()\n```",
+     "llm_s": 15.706,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 3044,
+     "output_chars": 2932,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Configure environment\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Load data\ndf_downtime = pd.read_excel(\"data/downtime.xlsx\", sheet_name=\"정지이력\")\n\n# Convert date column to datetime for filtering\ndf_downtime['일자'] = pd.to_datetime(df_downtime['일자'])\n\n# Filter data: June 1st to August 30th\nstart_date = '2026-06-01'\nend_date = '2026-08-30'\nmask = (df_downtime['일자'] >= start_date) & (df_downtime['일자'] <= end_date)\ndf_filtered = df_downtime[mask]\n\n# Count occurrences by cause ('원인')\ncounts = df_filtered['원인'].value_counts()\n\n# If no data in the range, handle gracefully or just plot empty? \n# Assuming there is data based on preview range ending Aug 30.\nlabels = counts.index.tolist()\nsizes = counts.values.tolist()\n\n# Create pie chart\nfig, ax = plt.subplots(figsize=(8, 8))\n\n# Define hatch patterns and gray colors for black/white printing compatibility\nhatches = ['///', '\\\\\\\\\\\\', 'xxx', '...', '|||', '+++', '---']\ncolors = ['#ffffff', '#dddddd', '#bbbbbb', '#999999', '#777777', '#555555', '#333333']\n\n# Ensure we have enough hatches/colors if more categories exist than predefined\nwhile len(hatches) < len(labels):\n    hatches.append('...') # default fallback pattern\nwhile len(colors) < len(labels):\n    colors.append('#ffffff')\n\nwedges, texts, autotexts = ax.pie(\n    sizes, \n    labels=labels, \n    autopct='%1.1f%%', \n    startangle=90,\n    pctdistance=0.75,\n    wedgeprops=dict(edgecolor='black', linewidth=1),\n    hatch=hatches[:len(labels)] if len(hatches) >= len(labels) else [h % len(hatches) for h in range(len(labels))] # Simple logic to repeat if needed, though value_counts usually small\n)\n\n# Apply colors manually to wedges to ensure contrast with hatches if needed, \n# but for B/W report, distinct hatches + edge color is key. \n# The 'colors' parameter in pie sets face color. \n# Let's re-create with explicit facecolors for better control over grayscale.\nax.clear()\n\nwedges, texts, autotexts = ax.pie(\n    sizes, \n    labels=labels, \n    autopct='%1.1f%%', \n    startangle=90,\n    pctdistance=0.75,\n    colors=colors[:len(labels)], # Use grayscale shades\n    hatch=[hatches[i % len(hatches)] for i in range(len(labels))],\n    wedgeprops=dict(edgecolor='black', linewidth=1.5)\n)\n\n# Adjust text properties for visibility on grayscale/hatched background\nfor autotext in autotexts:\n    autotext.set_color('black')\n    autotext.set_fontweight('bold')\n    \nfor text in texts:\n    text.set_fontsize(12)\n\nax.set_title(f\"설비 정지 원인별 비율 ({start_date} ~ {end_date})\", fontsize=14, pad=20)\n\n# Add a legend instead of cluttered labels if preferred, but request asked for percentage display.\n# Labels are already in pie. \n\nplt.tight_layout()\nsave_path = os.path.join(OUT_DIR, \"downtime_pie_chart_bw.png\")\nplt.savefig(save_path, dpi=300, bbox_inches='tight')\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      8.0,
+      8.0
+     ],
+     "dpi": null,
+     "title": "설비 정지 원인별 비율 (2026-06-01 ~ 2026-08-30)",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": {
+        "labels": [
+         "노즐 막힘",
+         "기타",
+         "촉매 공급 이상",
+         "히터 고장",
+         "전력"
+        ],
+        "shares": [
+         0.3370165745856354,
+         0.23204419889502764,
+         0.19337016574585641,
+         0.1491712707182319,
+         0.08839779005524867
+        ],
+        "values": null,
+        "colors": [
+         "#ffffff",
+         "#dddddd",
+         "#bbbbbb",
+         "#999999",
+         "#777777"
+        ]
+       },
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 5,
+       "texts": [
+        "노즐 막힘",
+        "기타",
+        "촉매 공급 이상",
+        "히터 고장",
+        "전력",
+        "33.7%",
+        "23.2%",
+        "19.3%",
+        "14.9%",
+        "8.8%"
+       ],
+       "x": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.25,
+        "max": 1.25,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.25,
+        "max": 1.25,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "title": "설비 정지 원인별 비율 (2026-06-01 ~ 2026-08-30)"
+      }
+     ],
+     "texts": [
+      "노즐 막힘",
+      "기타",
+      "촉매 공급 이상",
+      "히터 고장",
+      "전력",
+      "33.7%",
+      "23.2%",
+      "19.3%",
+      "14.9%",
+      "8.8%"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t1/downtime_pie_chart_bw.png",
+       "format": "png",
+       "px": [
+        2271,
+        2370
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.4997522830963135,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [],
+    "unchecked": [
+     "grayscale=True"
+    ],
+    "n_checks": 4,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 16.207
+  }
+ ]
+}

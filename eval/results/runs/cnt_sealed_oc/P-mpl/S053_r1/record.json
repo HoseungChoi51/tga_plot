@@ -1,0 +1,298 @@
+{
+ "arm": "P-mpl",
+ "item": "S053",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "데이터 분석가",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "Top 10 longest downtime events by 정지시간(분) as a bar chart, sorted desc, tick labels '반응기 / 원인 / 일자'.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/downtime.xlsx\",\n  \"chart\": \"bar\",\n  \"x\": {\"col\": \"_label\"},\n  \"y\": {\"col\": \"정지시간(분)\", \"agg\": \"max\"},\n  \"sort\": \"desc\",\n  \"top\": 10,\n  \"data_code\": \"df['_label'] = df['반응기'].astype(str) + ' / ' + df['원인'].astype(str) + ' / ' + df['일자'].astype(str)\",\n  \"asks\": [\n    {\n      \"ask\": \"Top 10 longest downtime events by 정지시간(분) as a bar chart\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"sorted desc\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"tick labels '반응기 / 원인 / 일자'\",\n      \"how\": \"code\"\n    }\n  ]\n}\n```",
+     "llm_s": 4.473,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 17191,
+     "output_chars": 537,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/downtime.xlsx",
+    "chart": "bar",
+    "x": {
+     "col": "_label"
+    },
+    "y": {
+     "col": "정지시간(분)",
+     "agg": "max"
+    },
+    "sort": "desc",
+    "top": 10,
+    "data_code": "df['_label'] = df['반응기'].astype(str) + ' / ' + df['원인'].astype(str) + ' / ' + df['일자'].astype(str)",
+    "asks": [
+     {
+      "ask": "Top 10 longest downtime events by 정지시간(분) as a bar chart",
+      "how": "key"
+     },
+     {
+      "ask": "sorted desc",
+      "how": "key"
+     },
+     {
+      "ask": "tick labels '반응기 / 원인 / 일자'",
+      "how": "code"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S053_r1/out/t1/bar_정지시간_분.png"
+    ],
+    "chart": "bar",
+    "rows_used": 294,
+    "rows_total": 294,
+    "values": {
+     "categories": [
+      "R3 / 히터 고장 / 2026-07-30",
+      "R1 / 히터 고장 / 2026-07-16",
+      "R4 / 기타 / 2026-04-22",
+      "R4 / 히터 고장 / 2026-05-06",
+      "R4 / 히터 고장 / 2026-05-13",
+      "R2 / 히터 고장 / 2026-04-08",
+      "R4 / 히터 고장 / 2026-08-13",
+      "R2 / 히터 고장 / 2026-06-10",
+      "R3 / 촉매 공급 이상 / 2026-08-24",
+      "R2 / 히터 고장 / 2026-05-04"
+     ],
+     "series": {
+      "정지시간(분)": [
+       922.0,
+       485.0,
+       454.0,
+       428.0,
+       421.0,
+       412.0,
+       401.0,
+       366.0,
+       362.0,
+       342.0
+      ]
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "막대 그래프를 저장했습니다: bar_정지시간_분.png\n사용한 행: 294 / 294\n정지시간(분): R3 / 히터 고장 / 2026-07-30 922, R1 / 히터 고장 / 2026-07-16 485, R4 / 기타 / 2026-04-22 454, R4 / 히터 고장 / 2026-05-06 428, R4 / 히터 고장 / 2026-05-13 421, R2 / 히터 고장 / 2026-04-08 412, R4 / 히터 고장 / 2026-08-13 401, R2 / 히터 고장 / 2026-06-10 366 …"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": null,
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "정지시간(분)",
+         "orient": "v",
+         "cats": [
+          "R3 / 히터 고장 / 2026-07-30",
+          "R1 / 히터 고장 / 2026-07-16",
+          "R4 / 기타 / 2026-04-22",
+          "R4 / 히터 고장 / 2026-05-06",
+          "R4 / 히터 고장 / 2026-05-13",
+          "R2 / 히터 고장 / 2026-04-08",
+          "R4 / 히터 고장 / 2026-08-13",
+          "R2 / 히터 고장 / 2026-06-10",
+          "R3 / 촉매 공급 이상 / 2026-08-24",
+          "R2 / 히터 고장 / 2026-05-04"
+         ],
+         "values": [
+          922.0,
+          485.0,
+          454.0,
+          428.0,
+          421.0,
+          412.0,
+          401.0,
+          366.0,
+          362.0,
+          342.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0,
+          7.0,
+          8.0,
+          9.0
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "_label",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0,
+         5.0,
+         6.0,
+         7.0,
+         8.0,
+         9.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "R3 / 히터 고장 / 2026-07-30",
+         "R1 / 히터 고장 / 2026-07-16",
+         "R4 / 기타 / 2026-04-22",
+         "R4 / 히터 고장 / 2026-05-06",
+         "R4 / 히터 고장 / 2026-05-13",
+         "R2 / 히터 고장 / 2026-04-08",
+         "R4 / 히터 고장 / 2026-08-13",
+         "R2 / 히터 고장 / 2026-06-10",
+         "R3 / 촉매 공급 이상 / 2026-08-24",
+         "R2 / 히터 고장 / 2026-05-04"
+        ],
+        "min": -0.8900000000000001,
+        "max": 9.89,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "R3 / 히터 고장 / 2026-07-30",
+         "R1 / 히터 고장 / 2026-07-16",
+         "R4 / 기타 / 2026-04-22",
+         "R4 / 히터 고장 / 2026-05-06",
+         "R4 / 히터 고장 / 2026-05-13",
+         "R2 / 히터 고장 / 2026-04-08",
+         "R4 / 히터 고장 / 2026-08-13",
+         "R2 / 히터 고장 / 2026-06-10",
+         "R3 / 촉매 공급 이상 / 2026-08-24",
+         "R2 / 히터 고장 / 2026-05-04"
+        ],
+        "rotate": 90.0
+       },
+       "y": {
+        "label": "정지시간(분) (max)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         200.0,
+         400.0,
+         600.0,
+         800.0,
+         1000.0
+        ],
+        "step": 200.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 1000.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "-200",
+         "0",
+         "200",
+         "400",
+         "600",
+         "800",
+         "1000",
+         "1200"
+        ],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S053_r1/out/t1/bar_정지시간_분.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.4595646858215332,
+   "check": {
+    "kind_expected": "bar",
+    "failed": [
+     "values: categories not drawn: ['R4 / 촉매 공급 이상 / 2026-05-15', 'R3 / 히터 고장 / 2026-06-20'] (drawn: ['R3 / 히터 고장 / 2026-07-30', 'R1 / 히터 고장 / 2026-07-16', 'R4 / 기타 / 2026-04-22', 'R4 / 히터 고장 / 2026-05-06', 'R4 / 히터 고장 / 2026-05-13', 'R2 / 히터 고장 / 2026-04-08', 'R4 / 히터 고장 / 2026-08-13', 'R2 / 히터 고장 / 2026-06-10'])"
+    ],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 1,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 5.009
+  }
+ ]
+}

@@ -1,0 +1,27 @@
+{
+ "file": "data/tga_batches.xlsx",
+ "sheets": [
+  "R1-260326-1",
+  "R1-260716-1"
+ ],
+ "combine": true,
+ "names": [
+  "R1-260326-1 (ΔW: {df1:.2f} wt%)",
+  "R1-260716-1 (ΔW: {df2:.2f} wt%)"
+ ],
+ "data_code": "import numpy as np\n# Calculate mass loss for each sheet's y1 curve in 200-450 C range\n# data_code runs once per sheet? No, combine usually processes all. \n# Actually, plotkit's 'combine' with 'data_code' is tricky if code needs to distinguish sheets.\n# However, the spec says data_code names x, y1, y2. In combine mode, this likely applies to the merged or individual contexts?\n# Looking at examples, data_code modifies arrays. If combined, it might be complex.\n# Alternative: Use Python code key to modify legend labels after drawing, calculating from the plotted lines.\n# But the prompt asks for a JSON spec. The 'code' key allows matplotlib manipulation.\n# Let's use 'code' to calculate and update legend labels because it has access to the axes and lines.",
+ "code": "\nax1 = plt.gca() # Assuming single axis or left axis\nlines, labels = ax1.get_legend_handles_labels()\nif not lines:\n    # Try getting from figure if needed, but usually gca works\n    pass\nnew_labels = []\nfor line, label in zip(lines, labels):\n    x_data = line.get_xdata()\n    y_data = line.get_ydata()\n    # Sort by x just in case\n    order = np.argsort(x_data)\n    x_sorted = x_data[order]\n    y_sorted = y_data[order]\n    try:\n        w200 = np.interp(200, x_sorted, y_sorted)\n        w450 = np.interp(450, x_sorted, y_sorted)\n        delta_w = w200 - w450\n        new_labels.append(f\"{label} (ΔW: {delta_w:.2f} wt%)\")\n    except:\n        new_labels.append(label)\nax1.legend(new_labels, loc='best')\n",
+ "asks": [
+  {
+   "ask": "R1-260326-1과 R1-260716-1 TG 곡선 비교 그래프",
+   "how": "key"
+  },
+  {
+   "ask": "각 배치 200–450 °C 구간 질량 변화량(W200 − W450, wt%)을 계산해서 범례 라벨에 같이 넣어 주세요",
+   "how": "code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S018_r2/out/t1"
+ }
+}

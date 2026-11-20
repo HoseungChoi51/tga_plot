@@ -1,0 +1,19 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "bar",
+ "x": "촉매로트",
+ "y": {
+  "col": "CNT수율 (g/g-cat)",
+  "agg": "mean"
+ },
+ "asks": [
+  {
+   "ask": "촉매로트별 평균 CNT수율 막대그래프",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/sessions/E3_G1_P-ec/out/t3"
+ }
+}

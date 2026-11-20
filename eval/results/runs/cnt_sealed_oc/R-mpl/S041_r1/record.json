@@ -1,0 +1,238 @@
+{
+ "arm": "R-mpl",
+ "item": "S041",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "신입 연구원",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "촉매 로트가 여러 개던데, 로트별로 런이 몇 번 돌았는지 가로 막대로 보여 주실 수 있나요?",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 환경 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 로드\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name='런로그')\n\n# 촉매 로트별 런 횟수 계산\nlot_counts = df['촉매로트'].value_counts().sort_index()\n\n# 막대 그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\nbars = ax.bar(lot_counts.index, lot_counts.values, color='steelblue', edgecolor='black')\n\n# 각 막대 위에 값 표시\nfor bar in bars:\n    height = bar.get_height()\n    ax.text(bar.get_x() + bar.get_width() / 2., height,\n            f'{int(height)}',\n            ha='center', va='bottom', fontsize=12)\n\n# 축 레이블 및 제목 설정\nax.set_xlabel('촉매 로트', fontsize=14)\nax.set_ylabel('런 횟수 (회)', fontsize=14)\nax.set_title('촉매 로트별 런 횟수 분포', fontsize=16, pad=15)\n\n# y축 눈금 간격 조정 (필요시)\nmax_count = lot_counts.max()\nax.set_ylim(0, max_count * 1.1)\n\n# 격자선 추가 (y축 기준)\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\n# 레이아웃 정리\nplt.tight_layout()\n\n# 저장\noutput_filename = \"lot_run_counts.png\"\noutput_path = os.path.join(OUT_DIR, output_filename)\nplt.savefig(output_path, dpi=300)\nplt.close()\n\nprint(f\"Plots saved to {output_path}\")\n```",
+     "llm_s": 4.871,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 3758,
+     "output_chars": 1234,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 환경 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 로드\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name='런로그')\n\n# 촉매 로트별 런 횟수 계산\nlot_counts = df['촉매로트'].value_counts().sort_index()\n\n# 막대 그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\nbars = ax.bar(lot_counts.index, lot_counts.values, color='steelblue', edgecolor='black')\n\n# 각 막대 위에 값 표시\nfor bar in bars:\n    height = bar.get_height()\n    ax.text(bar.get_x() + bar.get_width() / 2., height,\n            f'{int(height)}',\n            ha='center', va='bottom', fontsize=12)\n\n# 축 레이블 및 제목 설정\nax.set_xlabel('촉매 로트', fontsize=14)\nax.set_ylabel('런 횟수 (회)', fontsize=14)\nax.set_title('촉매 로트별 런 횟수 분포', fontsize=16, pad=15)\n\n# y축 눈금 간격 조정 (필요시)\nmax_count = lot_counts.max()\nax.set_ylim(0, max_count * 1.1)\n\n# 격자선 추가 (y축 기준)\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\n# 레이아웃 정리\nplt.tight_layout()\n\n# 저장\noutput_filename = \"lot_run_counts.png\"\noutput_path = os.path.join(OUT_DIR, output_filename)\nplt.savefig(output_path, dpi=300)\nplt.close()\n\nprint(f\"Plots saved to {output_path}\")\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "촉매 로트별 런 횟수 분포",
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "",
+         "orient": "v",
+         "cats": [
+          "-",
+          "FC-2602",
+          "FC-2603",
+          "FC-2604",
+          "FC-2605",
+          "FC-2606",
+          "FC-2607",
+          "FC-2608"
+         ],
+         "values": [
+          1.0,
+          148.0,
+          150.0,
+          113.0,
+          101.0,
+          170.0,
+          160.0,
+          155.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#4682b4",
+          "#4682b4",
+          "#4682b4",
+          "#4682b4",
+          "#4682b4",
+          "#4682b4",
+          "#4682b4",
+          "#4682b4"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0,
+          7.0
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 8,
+       "texts": [
+        "1",
+        "148",
+        "150",
+        "113",
+        "101",
+        "170",
+        "160",
+        "155"
+       ],
+       "x": {
+        "label": "촉매 로트",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0,
+         5.0,
+         6.0,
+         7.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "-",
+         "FC-2602",
+         "FC-2603",
+         "FC-2604",
+         "FC-2605",
+         "FC-2606",
+         "FC-2607",
+         "FC-2608"
+        ],
+        "min": -0.79,
+        "max": 7.789999999999999,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "-",
+         "FC-2602",
+         "FC-2603",
+         "FC-2604",
+         "FC-2605",
+         "FC-2606",
+         "FC-2607",
+         "FC-2608"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "런 횟수 (회)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         25.0,
+         50.0,
+         75.0,
+         100.0,
+         125.0,
+         150.0,
+         175.0
+        ],
+        "step": 25.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 187.00000000000003,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "25",
+         "50",
+         "75",
+         "100",
+         "125",
+         "150",
+         "175",
+         "200"
+        ],
+        "rotate": 0.0
+       },
+       "title": "촉매 로트별 런 횟수 분포"
+      }
+     ],
+     "texts": [
+      "1",
+      "148",
+      "150",
+      "113",
+      "101",
+      "170",
+      "160",
+      "155"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t1/lot_run_counts.png",
+       "format": "png",
+       "px": [
+        3000,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.4969456195831299,
+   "check": {
+    "kind_expected": "hbar",
+    "failed": [
+     "kind: drawn ['bar'], want hbar"
+    ],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 1,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 5.368
+  }
+ ]
+}

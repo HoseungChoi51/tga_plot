@@ -1,0 +1,809 @@
+{
+ "arm": "R-mpl",
+ "item": "SS07",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "session",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "런로그 잔류금속(wt%) 히스토그램 부탁합니다. bin 0.25 wt% 간격, 1.75–6.5 범위로요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Load data\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Extract the column for residual metal (wt%)\n# The header is '잔류금속 (wt%)' based on preview, but let's handle potential whitespace or exact match\ncol_name = None\nfor col in df.columns:\n    if \"잔류금속\" in str(col):\n        col_name = col\n        break\n\nif col_name is None:\n    raise ValueError(\"Column '잔류금속' not found in data.\")\n\ndata = df[col_name].dropna()\n\n# Define bins and range\nbin_width = 0.25\nmin_val = 1.75\nmax_val = 6.5\nbins = np.arange(min_val, max_val + bin_width, bin_width)\n\n# Plot histogram\nfig, ax = plt.subplots(figsize=(10, 6))\n\nax.hist(data, bins=bins, color='steelblue', edgecolor='black', alpha=0.7)\n\n# Add title and labels\nax.set_title('CNT 런로그 잔류금속(wt%) 분포 히스토그램', fontsize=14)\nax.set_xlabel('잔류금속 (wt%)', fontsize=12)\nax.set_ylabel('빈도 수', fontsize=12)\n\n# Set x-axis limits to ensure full range is shown nicely\nax.set_xlim(min_val - 0.2, max_val + 0.2)\n\n# Add grid\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\n# Save figure\noutput_file = os.path.join(OUT_DIR, \"histogram_residual_metal.png\")\nplt.tight_layout()\nplt.savefig(output_file, dpi=300)\nplt.close()\n```",
+     "llm_s": 7.683,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 3743,
+     "output_chars": 1459,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Load data\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Extract the column for residual metal (wt%)\ncol_name = None\nfor col in df.columns:\n    if \"잔류금속\" in str(col):\n        col_name = col\n        break\n\nif col_name is None:\n    raise ValueError(\"Column '잔류금속' not found in data.\")\n\n# Convert to numeric and drop NaNs to ensure we have float values\ndata = pd.to_numeric(df[col_name], errors='coerce').dropna()\n\n# Define bins and range\nbin_width = 0.25\nmin_val = 1.75\nmax_val = 6.5\nbins = np.arange(min_val, max_val + bin_width, bin_width)\n\n# Plot histogram\nfig, ax = plt.subplots(figsize=(10, 6))\n\nax.hist(data, bins=bins, color='steelblue', edgecolor='black', alpha=0.7)\n\n# Add title and labels\nax.set_title('CNT 런로그 잔류금속(wt%) 분포 히스토그램', fontsize=14)\nax.set_xlabel('잔류금속 (wt%)', fontsize=12)\nax.set_ylabel('빈도 수', fontsize=12)\n\n# Set x-axis limits to ensure full range is shown nicely\nax.set_xlim(min_val - 0.2, max_val + 0.2)\n\n# Add grid\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\n# Save figure\noutput_file = os.path.join(OUT_DIR, \"histogram_residual_metal.png\")\nplt.tight_layout()\nplt.savefig(output_file, dpi=300)\nplt.close()\n```",
+     "llm_s": 7.344,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 6862,
+     "output_chars": 1457,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Load data\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Extract the column for residual metal (wt%)\ncol_name = None\nfor col in df.columns:\n    if \"잔류금속\" in str(col):\n        col_name = col\n        break\n\nif col_name is None:\n    raise ValueError(\"Column '잔류금속' not found in data.\")\n\n# Convert to numeric and drop NaNs to ensure we have float values\ndata = pd.to_numeric(df[col_name], errors='coerce').dropna()\n\n# Define bins and range\nbin_width = 0.25\nmin_val = 1.75\nmax_val = 6.5\nbins = np.arange(min_val, max_val + bin_width, bin_width)\n\n# Plot histogram\nfig, ax = plt.subplots(figsize=(10, 6))\n\nax.hist(data, bins=bins, color='steelblue', edgecolor='black', alpha=0.7)\n\n# Add title and labels\nax.set_title('CNT 런로그 잔류금속(wt%) 분포 히스토그램', fontsize=14)\nax.set_xlabel('잔류금속 (wt%)', fontsize=12)\nax.set_ylabel('빈도 수', fontsize=12)\n\n# Set x-axis limits to ensure full range is shown nicely\nax.set_xlim(min_val - 0.2, max_val + 0.2)\n\n# Add grid\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\n# Save figure\noutput_file = os.path.join(OUT_DIR, \"histogram_residual_metal.png\")\nplt.tight_layout()\nplt.savefig(output_file, dpi=300)\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "CNT 런로그 잔류금속(wt%) 분포 히스토그램",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [
+        {
+         "name": "",
+         "edges": [
+          1.75,
+          2.0,
+          2.25,
+          2.5,
+          2.75,
+          3.0,
+          3.25,
+          3.5,
+          3.75,
+          4.0,
+          4.25,
+          4.5,
+          4.75,
+          5.0,
+          5.25,
+          5.5,
+          5.75,
+          6.0,
+          6.25,
+          6.5
+         ],
+         "counts": [
+          2.0,
+          4.0,
+          25.0,
+          52.0,
+          98.0,
+          142.0,
+          153.0,
+          90.0,
+          76.0,
+          76.0,
+          76.0,
+          81.0,
+          45.0,
+          31.0,
+          20.0,
+          11.0,
+          7.0,
+          6.0,
+          2.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#4682b4"
+        }
+       ],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "잔류금속 (wt%)",
+        "type": "value",
+        "ticks": [
+         2.0,
+         3.0,
+         4.0,
+         5.0,
+         6.0
+        ],
+        "step": 1.0,
+        "categories": null,
+        "min": 1.55,
+        "max": 6.7,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "1",
+         "2",
+         "3",
+         "4",
+         "5",
+         "6",
+         "7"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "빈도 수",
+        "type": "value",
+        "ticks": [
+         0.0,
+         20.0,
+         40.0,
+         60.0,
+         80.0,
+         100.0,
+         120.0,
+         140.0,
+         160.0
+        ],
+        "step": 20.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 160.65,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "20",
+         "40",
+         "60",
+         "80",
+         "100",
+         "120",
+         "140",
+         "160",
+         "180"
+        ],
+        "rotate": 0.0
+       },
+       "title": "CNT 런로그 잔류금속(wt%) 분포 히스토그램"
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t1/histogram_residual_metal.png",
+       "format": "png",
+       "px": [
+        3000,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5170176029205322,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 15.944
+  },
+  {
+   "turn": 2,
+   "text": "R4하고 나머지(R1–R3)로 나눠서 반투명하게 겹쳐 주세요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Load data\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Identify columns\ncol_metal = None\ncol_reactor = None\nfor col in df.columns:\n    if \"잔류금속\" in str(col):\n        col_metal = col\n    if \"반응기\" in str(col):\n        col_reactor = col\n\nif col_metal is None or col_reactor is None:\n    raise ValueError(\"Required columns not found.\")\n\n# Clean and prepare data\ndf[col_metal] = pd.to_numeric(df[col_metal], errors='coerce')\ndf = df.dropna(subset=[col_metal, col_reactor])\n\n# Split data into R4 and others (R1-R3)\nr4_data = df[df[col_reactor] == 'R4'][col_metal]\nothers_data = df[df[col_reactor].isin(['R1', 'R2', 'R3'])][col_metal]\n\n# Define bins and range\nbin_width = 0.25\nmin_val = 1.75\nmax_val = 6.5\nbins = np.arange(min_val, max_val + bin_width, bin_width)\n\n# Plot histogram with overlapping transparency\nfig, ax = plt.subplots(figsize=(10, 6))\n\nax.hist(others_data, bins=bins, color='steelblue', edgecolor='black', alpha=0.5, label='R1-R3 (나머지)')\nax.hist(r4_data, bins=bins, color='darkorange', edgecolor='black', alpha=0.5, label='R4')\n\n# Add title and labels\nax.set_title('CNT 런로그 잔류금속(wt%) 분포 히스토그램 (반응기별 비교)', fontsize=14)\nax.set_xlabel('잔류금속 (wt%)', fontsize=12)\nax.set_ylabel('빈도 수', fontsize=12)\n\n# Set x-axis limits to ensure full range is shown nicely\nax.set_xlim(min_val - 0.2, max_val + 0.2)\n\n# Add grid\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\n# Add legend\nax.legend(loc='upper right')\n\n# Save figure\noutput_file = os.path.join(OUT_DIR, \"histogram_residual_metal_by_reactor.png\")\nplt.tight_layout()\nplt.savefig(output_file, dpi=300)\nplt.close()\n```",
+     "llm_s": 7.126,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 8593,
+     "output_chars": 1888,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Load data\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Identify columns\ncol_metal = None\ncol_reactor = None\nfor col in df.columns:\n    if \"잔류금속\" in str(col):\n        col_metal = col\n    if \"반응기\" in str(col):\n        col_reactor = col\n\nif col_metal is None or col_reactor is None:\n    raise ValueError(\"Required columns not found.\")\n\n# Clean and prepare data\ndf[col_metal] = pd.to_numeric(df[col_metal], errors='coerce')\ndf = df.dropna(subset=[col_metal, col_reactor])\n\n# Split data into R4 and others (R1-R3)\nr4_data = df[df[col_reactor] == 'R4'][col_metal]\nothers_data = df[df[col_reactor].isin(['R1', 'R2', 'R3'])][col_metal]\n\n# Define bins and range\nbin_width = 0.25\nmin_val = 1.75\nmax_val = 6.5\nbins = np.arange(min_val, max_val + bin_width, bin_width)\n\n# Plot histogram with overlapping transparency\nfig, ax = plt.subplots(figsize=(10, 6))\n\nax.hist(others_data, bins=bins, color='steelblue', edgecolor='black', alpha=0.5, label='R1-R3 (나머지)')\nax.hist(r4_data, bins=bins, color='darkorange', edgecolor='black', alpha=0.5, label='R4')\n\n# Add title and labels\nax.set_title('CNT 런로그 잔류금속(wt%) 분포 히스토그램 (반응기별 비교)', fontsize=14)\nax.set_xlabel('잔류금속 (wt%)', fontsize=12)\nax.set_ylabel('빈도 수', fontsize=12)\n\n# Set x-axis limits to ensure full range is shown nicely\nax.set_xlim(min_val - 0.2, max_val + 0.2)\n\n# Add grid\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\n# Add legend\nax.legend(loc='upper right')\n\n# Save figure\noutput_file = os.path.join(OUT_DIR, \"histogram_residual_metal_by_reactor.png\")\nplt.tight_layout()\nplt.savefig(output_file, dpi=300)\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "CNT 런로그 잔류금속(wt%) 분포 히스토그램 (반응기별 비교)",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [
+        {
+         "name": "",
+         "edges": [
+          1.75,
+          2.0,
+          2.25,
+          2.5,
+          2.75,
+          3.0,
+          3.25,
+          3.5,
+          3.75,
+          4.0,
+          4.25,
+          4.5,
+          4.75,
+          5.0,
+          5.25,
+          5.5,
+          5.75,
+          6.0,
+          6.25,
+          6.5
+         ],
+         "counts": [
+          2.0,
+          4.0,
+          25.0,
+          52.0,
+          98.0,
+          142.0,
+          152.0,
+          86.0,
+          57.0,
+          52.0,
+          29.0,
+          28.0,
+          11.0,
+          4.0,
+          4.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#4682b4"
+        },
+        {
+         "name": "",
+         "edges": [
+          1.75,
+          2.0,
+          2.25,
+          2.5,
+          2.75,
+          3.0,
+          3.25,
+          3.5,
+          3.75,
+          4.0,
+          4.25,
+          4.5,
+          4.75,
+          5.0,
+          5.25,
+          5.5,
+          5.75,
+          6.0,
+          6.25,
+          6.5
+         ],
+         "counts": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          4.0,
+          19.0,
+          24.0,
+          47.0,
+          53.0,
+          34.0,
+          27.0,
+          16.0,
+          11.0,
+          7.0,
+          6.0,
+          2.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#ff8c00"
+        }
+       ],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "잔류금속 (wt%)",
+        "type": "value",
+        "ticks": [
+         2.0,
+         3.0,
+         4.0,
+         5.0,
+         6.0
+        ],
+        "step": 1.0,
+        "categories": null,
+        "min": 1.55,
+        "max": 6.7,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "1",
+         "2",
+         "3",
+         "4",
+         "5",
+         "6",
+         "7"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "빈도 수",
+        "type": "value",
+        "ticks": [
+         0.0,
+         20.0,
+         40.0,
+         60.0,
+         80.0,
+         100.0,
+         120.0,
+         140.0
+        ],
+        "step": 20.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 159.6,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "20",
+         "40",
+         "60",
+         "80",
+         "100",
+         "120",
+         "140",
+         "160"
+        ],
+        "rotate": 0.0
+       },
+       "title": "CNT 런로그 잔류금속(wt%) 분포 히스토그램 (반응기별 비교)"
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "R1-R3 (나머지)",
+       "R4"
+      ],
+      "inside": true,
+      "where": "upper right"
+     },
+     "files": [
+      {
+       "path": "out/t2/histogram_residual_metal_by_reactor.png",
+       "format": "png",
+       "px": [
+        3000,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.4896576404571533,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [],
+    "unchecked": [
+     "alpha=< 1 (semi-transparent overlay)"
+    ],
+    "n_checks": 3,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 7.616
+  },
+  {
+   "turn": 3,
+   "text": "규격 상한 5.0 wt%에 세로 점선 넣고, y축을 개수 대신 밀도(density)로 바꿔 주세요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Load data\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Identify columns\ncol_metal = None\ncol_reactor = None\nfor col in df.columns:\n    if \"잔류금속\" in str(col):\n        col_metal = col\n    if \"반응기\" in str(col):\n        col_reactor = col\n\nif col_metal is None or col_reactor is None:\n    raise ValueError(\"Required columns not found.\")\n\n# Clean and prepare data\ndf[col_metal] = pd.to_numeric(df[col_metal], errors='coerce')\ndf = df.dropna(subset=[col_metal, col_reactor])\n\n# Split data into R4 and others (R1-R3)\nr4_data = df[df[col_reactor] == 'R4'][col_metal]\nothers_data = df[df[col_reactor].isin(['R1', 'R2', 'R3'])][col_metal]\n\n# Define bins and range\nbin_width = 0.25\nmin_val = 1.75\nmax_val = 6.5\nbins = np.arange(min_val, max_val + bin_width, bin_width)\n\n# Plot histogram with overlapping transparency and density\nfig, ax = plt.subplots(figsize=(10, 6))\n\nax.hist(others_data, bins=bins, color='steelblue', edgecolor='black', alpha=0.5, density=True, label='R1-R3 (나머지)')\nax.hist(r4_data, bins=bins, color='darkorange', edgecolor='black', alpha=0.5, density=True, label='R4')\n\n# Add vertical dashed line for spec limit at 5.0 wt%\nlimit_val = 5.0\nax.axvline(x=limit_val, color='red', linestyle='--', linewidth=2, label=f'규격 상한 ({limit_val} wt%)')\n\n# Add title and labels\nax.set_title('CNT 런로그 잔류금속(wt%) 분포 히스토그램 (반응기별 비교, 밀도)', fontsize=14)\nax.set_xlabel('잔류금속 (wt%)', fontsize=12)\nax.set_ylabel('밀도 (Density)', fontsize=12)\n\n# Set x-axis limits to ensure full range is shown nicely\nax.set_xlim(min_val - 0.2, max_val + 0.2)\n\n# Add grid\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\n# Add legend\nax.legend(loc='upper right')\n\n# Save figure\noutput_file = os.path.join(OUT_DIR, \"histogram_residual_metal_by_reactor_density.png\")\nplt.tight_layout()\nplt.savefig(output_file, dpi=300)\nplt.close()\n```",
+     "llm_s": 11.995,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 10815,
+     "output_chars": 2118,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Load data\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Identify columns\ncol_metal = None\ncol_reactor = None\nfor col in df.columns:\n    if \"잔류금속\" in str(col):\n        col_metal = col\n    if \"반응기\" in str(col):\n        col_reactor = col\n\nif col_metal is None or col_reactor is None:\n    raise ValueError(\"Required columns not found.\")\n\n# Clean and prepare data\ndf[col_metal] = pd.to_numeric(df[col_metal], errors='coerce')\ndf = df.dropna(subset=[col_metal, col_reactor])\n\n# Split data into R4 and others (R1-R3)\nr4_data = df[df[col_reactor] == 'R4'][col_metal]\nothers_data = df[df[col_reactor].isin(['R1', 'R2', 'R3'])][col_metal]\n\n# Define bins and range\nbin_width = 0.25\nmin_val = 1.75\nmax_val = 6.5\nbins = np.arange(min_val, max_val + bin_width, bin_width)\n\n# Plot histogram with overlapping transparency and density\nfig, ax = plt.subplots(figsize=(10, 6))\n\nax.hist(others_data, bins=bins, color='steelblue', edgecolor='black', alpha=0.5, density=True, label='R1-R3 (나머지)')\nax.hist(r4_data, bins=bins, color='darkorange', edgecolor='black', alpha=0.5, density=True, label='R4')\n\n# Add vertical dashed line for spec limit at 5.0 wt%\nlimit_val = 5.0\nax.axvline(x=limit_val, color='red', linestyle='--', linewidth=2, label=f'규격 상한 ({limit_val} wt%)')\n\n# Add title and labels\nax.set_title('CNT 런로그 잔류금속(wt%) 분포 히스토그램 (반응기별 비교, 밀도)', fontsize=14)\nax.set_xlabel('잔류금속 (wt%)', fontsize=12)\nax.set_ylabel('밀도 (Density)', fontsize=12)\n\n# Set x-axis limits to ensure full range is shown nicely\nax.set_xlim(min_val - 0.2, max_val + 0.2)\n\n# Add grid\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\n# Add legend\nax.legend(loc='upper right')\n\n# Save figure\noutput_file = os.path.join(OUT_DIR, \"histogram_residual_metal_by_reactor_density.png\")\nplt.tight_layout()\nplt.savefig(output_file, dpi=300)\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "CNT 런로그 잔류금속(wt%) 분포 히스토그램 (반응기별 비교, 밀도)",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [
+        {
+         "name": "",
+         "edges": [
+          1.75,
+          2.0,
+          2.25,
+          2.5,
+          2.75,
+          3.0,
+          3.25,
+          3.5,
+          3.75,
+          4.0,
+          4.25,
+          4.5,
+          4.75,
+          5.0,
+          5.25,
+          5.5,
+          5.75,
+          6.0,
+          6.25,
+          6.5
+         ],
+         "counts": [
+          0.010723860589812333,
+          0.021447721179624665,
+          0.13404825737265416,
+          0.27882037533512066,
+          0.5254691689008043,
+          0.7613941018766756,
+          0.8150134048257373,
+          0.46112600536193027,
+          0.30563002680965146,
+          0.27882037533512066,
+          0.1554959785522788,
+          0.15013404825737264,
+          0.058981233243967826,
+          0.021447721179624665,
+          0.021447721179624665,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#4682b4"
+        },
+        {
+         "name": "",
+         "edges": [
+          1.75,
+          2.0,
+          2.25,
+          2.5,
+          2.75,
+          3.0,
+          3.25,
+          3.5,
+          3.75,
+          4.0,
+          4.25,
+          4.5,
+          4.75,
+          5.0,
+          5.25,
+          5.5,
+          5.75,
+          6.0,
+          6.25,
+          6.5
+         ],
+         "counts": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.01593625498007968,
+          0.06374501992031872,
+          0.30278884462151395,
+          0.38247011952191234,
+          0.749003984063745,
+          0.8446215139442231,
+          0.5418326693227091,
+          0.4302788844621514,
+          0.2549800796812749,
+          0.1752988047808765,
+          0.11155378486055777,
+          0.09561752988047809,
+          0.03187250996015936
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#ff8c00"
+        }
+       ],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [
+        5.0
+       ],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "잔류금속 (wt%)",
+        "type": "value",
+        "ticks": [
+         2.0,
+         3.0,
+         4.0,
+         5.0,
+         6.0
+        ],
+        "step": 1.0,
+        "categories": null,
+        "min": 1.55,
+        "max": 6.7,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "1",
+         "2",
+         "3",
+         "4",
+         "5",
+         "6",
+         "7"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "밀도 (Density)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         0.1,
+         0.2,
+         0.30000000000000004,
+         0.4,
+         0.5,
+         0.6000000000000001,
+         0.7000000000000001,
+         0.8
+        ],
+        "step": 0.1,
+        "categories": null,
+        "min": 0.0,
+        "max": 0.8868525896414343,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0.0",
+         "0.1",
+         "0.2",
+         "0.3",
+         "0.4",
+         "0.5",
+         "0.6",
+         "0.7",
+         "0.8",
+         "0.9"
+        ],
+        "rotate": 0.0
+       },
+       "title": "CNT 런로그 잔류금속(wt%) 분포 히스토그램 (반응기별 비교, 밀도)"
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "R1-R3 (나머지)",
+       "R4",
+       "규격 상한 (5.0 wt%)"
+      ],
+      "inside": true,
+      "where": "upper right"
+     },
+     "files": [
+      {
+       "path": "out/t3/histogram_residual_metal_by_reactor_density.png",
+       "format": "png",
+       "px": [
+        3000,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5056631565093994,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [
+     "histogram: 8 values counted, want 997",
+     "histogram R1–R3: bins/counts differ",
+     "histogram R4: bins/counts differ"
+    ],
+    "unchecked": [
+     "alpha=< 1 (semi-transparent overlay)",
+     "ref_line=5.0"
+    ],
+    "n_checks": 4,
+    "n_failed": 3,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 12.501
+  }
+ ]
+}

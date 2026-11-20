@@ -1,0 +1,172 @@
+```python
+import json
+import os
+import re
+import numpy as np
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/caox.csv"
+
+df = pd.read_csv(DATA_FILE)
+columns = list(df.columns)
+
+def find_column(pattern, fallback_index):
+    for col in columns:
+        if re.search(pattern, str(col), re.IGNORECASE):
+            return col
+    return columns[fallback_index]
+
+x_col = find_column(r"temperature|temp", 1)
+y_col = find_column(r"weight", 2)
+dtg_col = find_column(r"deriv|dtg", 3)
+
+x = pd.to_numeric(df[x_col], errors="coerce")
+weight = pd.to_numeric(df[y_col], errors="coerce")
+dtg = pd.to_numeric(df[dtg_col], errors="coerce")
+valid = x.notna() & weight.notna()
+if dtg.notna().any():
+    valid &= dtg.notna()
+
+x = x[valid].to_numpy(dtype=float)
+weight = weight[valid].to_numpy(dtype=float)
+dtg = dtg[valid].to_numpy(dtype=float) if dtg.notna().any() else np.zeros(len(x))
+
+order = np.argsort(x)
+x, weight, dtg = x[order], weight[order], dtg[order]
+
+residue_idx = int(np.argmin(np.abs(x - 800)))
+peak_candidates = np.where((x > 150) & (dtg > 0))[0]
+if len(peak_candidates):
+    peak_idx = int(peak_candidates[np.argmax(dtg[peak_candidates])])
+else:
+    peak_idx = int(np.argmin(np.abs(x - 600)))
+
+# Use the measured-point x-range for each highlighted temperature interval.
+ranges = [
+    (120, 250, "H2O", "rgba(52, 152, 219, 0.16)"),
+    (430, 580, "CO", "rgba(46, 204, 113, 0.16)"),
+    (640, 830, "CO2", "rgba(243, 156, 18, 0.17)"),
+]
+
+mark_areas = []
+for lo, hi, label, color in ranges:
+    mark_areas.append([
+        {
+            "name": label,
+            "xAxis": lo,
+            "itemStyle": {"color": color},
+            "label": {
+                "show": True,
+                "formatter": label,
+                "position": "insideTop",
+                "color": "#333333",
+                "fontSize": 14,
+                "fontWeight": "bold",
+            },
+        },
+        {"xAxis": hi},
+    ])
+
+option = {
+    "animation": False,
+    "title": {
+        "text": os.path.splitext(os.path.basename(DATA_FILE))[0],
+        "left": "center",
+        "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 16},
+    },
+    "tooltip": {"trigger": "axis"},
+    "legend": {
+        "data": ["Weight (%)", "-DTG (%/°C)"],
+        "left": "center",
+        "bottom": 8,
+        "textStyle": {"fontFamily": "Noto Sans CJK KR"},
+    },
+    "grid": {"left": 72, "right": 72, "top": 58, "bottom": 64},
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 34,
+        "min": float(np.nanmin(x)),
+        "max": float(np.nanmax(x)),
+        "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+        "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Weight (%)",
+            "nameLocation": "middle",
+            "nameGap": 48,
+            "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+            "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+            "scale": True,
+        },
+        {
+            "type": "value",
+            "name": "-DTG (%/°C)",
+            "nameLocation": "middle",
+            "nameGap": 48,
+            "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+            "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+            "scale": True,
+        },
+    ],
+    "series": [
+        {
+            "name": "Weight (%)",
+            "type": "line",
+            "showSymbol": False,
+            "data": [[float(a), float(b)] for a, b in zip(x, weight)],
+            "lineStyle": {"color": "#1f4e9c", "width": 2},
+            "markArea": {
+                "silent": True,
+                "data": mark_areas,
+            },
+            "markPoint": {
+                "symbol": "circle",
+                "symbolSize": 9,
+                "itemStyle": {"color": "#1f4e9c"},
+                "label": {
+                    "show": True,
+                    "formatter": f"Residue {weight[residue_idx]:.1f}%",
+                    "position": "top",
+                    "fontFamily": "Noto Sans CJK KR",
+                },
+                "data": [{"coord": [float(x[residue_idx]), float(weight[residue_idx])]}],
+            },
+        },
+        {
+            "name": "-DTG (%/°C)",
+            "type": "line",
+            "yAxisIndex": 1,
+            "showSymbol": False,
+            "data": [[float(a), float(-b)] for a, b in zip(x, dtg)],
+            "lineStyle": {"color": "#c0392b", "width": 1.8},
+            "markPoint": {
+                "symbol": "circle",
+                "symbolSize": 9,
+                "itemStyle": {"color": "#c0392b"},
+                "label": {
+                    "show": True,
+                    "formatter": f"{x[peak_idx]:.0f} °C",
+                    "position": "top",
+                    "fontFamily": "Noto Sans CJK KR",
+                },
+                "data": [{"coord": [float(x[peak_idx]), float(-dtg[peak_idx])]}],
+            },
+        },
+    ],
+}
+
+print(json.dumps({
+    "figures": [{
+        "name": "caox",
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"],
+    }]
+}, ensure_ascii=False, allow_nan=False))
+```

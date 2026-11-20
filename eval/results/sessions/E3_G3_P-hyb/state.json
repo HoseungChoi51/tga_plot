@@ -1,0 +1,608 @@
+{
+ "arm": "P-hyb",
+ "messages": [
+  {
+   "role": "system",
+   "content": "# plotkit guide (system prompt)\n\nYou make plots of lab and production data for a Korean CNT team. Each turn you get the user's request\n(Korean, sometimes English), a preview of every data file (sheets, columns with their letter, type and\nvalues), and in a follow-up turn the spec you wrote last time. Reply with ONE JSON spec in a ```json block\nand nothing else. plotkit reads the data, computes everything and draws it; you never write a plotting script.\n\nThere are two kinds of spec:\n- **Curves** from an instrument export (TGA, DSC, Raman, XRD, a sensor log): one x column against one or\n  two y columns, no grouping. No `\"chart\"` key. See \"Curves\".\n- **Charts** of a table of records (a run log: one row per run, event or sample): grouping, averaging,\n  counting, bars, scatter, histogram, heatmap, pie. Give `\"chart\"`. See \"Charts\".\n\n## Rules for both\n\n- Put in the spec only what the user asked for. Everything else has defaults; do not repeat them.\n- Take file, sheet and column names from the preview; never invent them. A column can be given by its letter\n  (\"B\") or by part of its name (\"수율\"); the unit in brackets may be left out. B열, B행, B칸 all mean column B.\n  Several files: a list, or a pattern such as `\"data/raman/*.csv\"`.\n- **List every ask in `\"asks\"`** with how you did it: `{\"ask\": \"<short Korean>\", \"how\": \"key\"}`, or `\"data_code\"`,\n  `\"code\"`, `\"echarts\"`, or `\"unsupported\"` when nothing here can do it. Never leave an ask out silently: an\n  `unsupported` ask is reported to the user, a dropped one is not. Default settings are not asks.\n- In a follow-up turn, start from your last spec and change only what the user now asks; keep everything else\n  (file, filters, colours, sizes). Write the whole new spec.\n- Colours: English (`red`, `navy`, `green`, `black`, `gray`), Korean (빨강, 파랑, 초록, 검정, 회색, 주황, 보라, 남색) or hex.\n  흑백 / 흑백으로 / black and white → `\"colors\": \"mono\"` (charts and curves).\n- Legend positions: `best`, `upper right`, `upper left`, `lower right`, `lower left`, `center left`, `center right`,\n  `upper center`, `lower center`, `outside right` (그래프 밖 오른쪽), `outside bottom`, `none`.\n- Shared keys: `title` (text or {\"text\", \"size\", \"color\"}; \"\" = none), `legend`, `font_size`, `font`, `text_color`,\n  `grid` (true), `size` ([가로, 세로] inches), `dpi`, `output` ({\"format\": \"png\" | \"pdf\" | \"svg\" | \"jpg\" or a list,\n  \"name\": file name}). \"슬라이드용 크게, 글자 16\" → `\"size\": [10, 6], \"font_size\": 16`.\n- `data_code` changes the data before anything is drawn (Python, runs in a sandbox): use it for numbers no key\n  computes (unit change, ratio, normalising, a difference, an onset). It works on both engines.\n\n## Curves (instrument exports)\n\nA log with a date/time column (a sensor log, the run log) is a chart, not a curve: `\"chart\": \"line\"` with the\ntime column as x. The TGA preset is the default for curves: x = temperature, y1 (left) = weight %, y2 (right) = derivative weight with peaks\nup, the residue at 800 °C and the highest DTG peak labelled. For other x–y data use `\"preset\": \"none\"` and give\n`x.col` and `y1.col` (and `y2.col` or `\"y2\": false`).\n\n| ask | key | example |\n|---|---|---|\n| 그림 제목 | `title` | \"제목 'CNT 산화', 크기 16\" → `\"title\": {\"text\": \"CNT 산화\", \"size\": 16}` |\n| 축 라벨 | `<axis>.label`, `.label_size`, `.label_color` | \"x축 라벨 '온도 (°C)'\" → `\"x\": {\"label\": \"온도 (°C)\"}` |\n| 틱 방향 | `tick_direction` (`in`/`out`/`inout`) | \"틱 바깥쪽\" → `\"tick_direction\": \"out\"` |\n| 틱 라벨 | `<axis>.tick_size`, `.tick_color` | \"x축 틱 라벨 9\" → `\"x\": {\"tick_size\": 9}` |\n| 틱 간격 | `<axis>.step` | \"200 간격\", \"200씩\", \"200단위\" → `\"step\": 200` |\n| 축 범위 | `<axis>.min`, `.max` | \"0~900\" → `\"min\": 0, \"max\": 900` |\n| 보조 눈금 | `<axis>.minor` | \"x축 보조 눈금\" → `\"x\": {\"minor\": true}` |\n| 축 뒤집기 | `<axis>.invert` | \"x축 뒤집어서 (높은 온도가 왼쪽)\" → `\"x\": {\"invert\": true}` |\n| 로그 축 | `<axis>.log` | |\n| 선 | `y1.color`, `.width`, `.linestyle`, `.style` (line/scatter/line+marker) | \"y1 선 초록, 굵기 2, 점선\" → `\"y1\": {\"color\": \"green\", \"width\": 2, \"linestyle\": \"dotted\"}` |\n| 선 종류 | 실선 = `solid`, 파선 = `dashed`, 점선 = `dotted`, 일점쇄선 = `dashdot` | \"y2 선 점선\" → `\"y2\": {\"linestyle\": \"dotted\"}` |\n| 범례 | `legend` (position or {\"where\", \"show\", \"size\"}), `<axis>.legend` (the name shown) | \"범례 바깥 오른쪽\" → `\"legend\": \"outside right\"`; \"범례 없애줘\" → `\"legend\": \"none\"` |\n| 글자 크기 | all text: `font_size`; one part: `title.size`, `<axis>.label_size`, `<axis>.tick_size`, `legend.size`, `annotate.<name>.size` | \"범례 글자 크기 9\" → `\"legend\": {\"size\": 9}` (not `font_size`) |\n| 잔류량 표시 | `annotate.residue` | \"잔류량 700 °C\" → `\"annotate\": {\"residue\": {\"x\": 700}}`; mentioned at all → include it (`true`); \"소수점 둘째 자리\" → `\"text\": \"Residue {y:.2f}%\"` |\n| 피크 표시 | `annotate.peak` (`count`, `kind` max/min, `x_min`, `x_max`, `text`) | \"피크 2개, 150 °C 이상\" → `{\"count\": 2, \"x_min\": 150}`; \"피크 표시 빼줘\" → `\"annotate\": {\"peak\": false}` |\n| 어떤 x의 값 표시 | `annotate.<name>` with `\"type\": \"value_at_x\"`, `x`, `text` (`method` nearest/interp) | \"300 °C의 무게 표시\" → `\"annotate\": {\"w300\": {\"type\": \"value_at_x\", \"x\": 300, \"text\": \"300 °C: {y:.1f}%\"}}` |\n| 흡열/발열 피크 (heat flow) | `annotate.<name>` peak with `\"kind\": \"min\"` (흡열, endo) or `\"max\"` (발열, exo) | |\n| 보조선 | `annotate.<name>` `vline`/`hline`/`band` | `\"v1\": {\"type\": \"vline\", \"x\": 450, \"text\": \"450 °C\"}` |\n| 시트 | `sheets` (name, number, list, `\"all\"`) | |\n| 겹쳐 그리기 | `combine`, `colors` (one per sheet/file, in order), `names` (legend names, in order) | \"Raw 검정, Acid 파랑\" → `\"combine\": true, \"colors\": [\"black\", \"blue\"]` |\n| 위아래로 띄우기 | `offset` (combine: each curve shifted by this much) | \"20%씩 띄워서\" → `\"combine\": true, \"offset\": 20` |\n| 위아래 두 그래프 | `panels` | \"무게는 위, DTG는 아래 (x축 같이)\" → `\"panels\": \"split\"` |\n| 격자, 크기, 해상도, 형식 | `grid`, `size`, `dpi`, `output` | |\n\n`<axis>` is `x`, `y1` or `y2`. \"y축\" alone means y1. A setting that names no axis applies to x, y1 and y2:\n\"틱 라벨 크기 9\" → `\"x\": {\"tick_size\": 9}, \"y1\": {\"tick_size\": 9}, \"y2\": {\"tick_size\": 9}`.\n\nAnnotation text templates: `{}` = the main value, `{y:.2f}` = y with 2 decimals, `{x:.0f}` = x without decimals.\n\"Residue {}%\" is fine as written. \"가장 가까운 값\" → `\"method\": \"nearest\"` (default), \"보간\" → `\"interp\"`.\n\n`data_code` for curves: names `x`, `y1`, `y2` (numpy arrays, per sheet), `sheet`, `np`, and `marks` (a list).\nReassign `x`/`y1`/`y2` to change the curve; append `{\"type\": \"vline\" | \"hline\" | \"text\", \"x\": ..., \"y\": ..., \"text\": ...}`\nto `marks` to label a computed value. Examples:\n- kelvin: `\"data_code\": \"x = x + 273.15\", \"x\": {\"label\": \"Temperature (K)\"}`\n- dry basis at 150 °C: `\"data_code\": \"y1 = y1 / np.interp(150, x, y1) * 100\"`\n- mass loss 200–400 °C: `\"data_code\": \"d = np.interp(200, x, y1) - np.interp(400, x, y1); marks.append({'type': 'text', 'x': 300, 'y': float(np.interp(300, x, y1)), 'text': f'Δm(200–400 °C) = {d:.1f}%'})\"`\n- onset (tangent at the steepest drop meets the baseline): `\"data_code\": \"i = np.argmin(np.gradient(y1, x)); base = np.median(y1[x < x[i] - 100]); t0 = x[i] + (base - y1[i]) / np.gradient(y1, x)[i]; marks.append({'type': 'vline', 'x': float(t0), 'text': f'Onset {t0:.0f} °C'})\"`\n\n## Charts (tables of records)\n\n| ask | key | example |\n|---|---|---|\n| kind | `chart`: `bar`, `hbar`, `line`, `scatter`, `histogram`, `heatmap`, `pie` | 막대 → bar, 가로 막대 → hbar, 추이/트렌드 → line, 관계/상관 (two numbers) → scatter, 분포 → histogram, 구성/비율/점유율 → pie |\n| x, y | `x`, `y`: a column, or {\"col\", \"label\", \"min\", \"max\", \"step\", \"log\", \"flip\", \"rotate\", \"format\"} | `\"x\": \"반응기\", \"y\": \"수율\"` |\n| aggregate | `y.agg`: `mean` (default for bar/line), `sum`, `count`, `median`, `max`, `min`, `std` | \"반응기별 평균 수율\" → `\"x\": \"반응기\", \"y\": {\"col\": \"수율\", \"agg\": \"mean\"}`; \"건수\" → `\"y\": \"count\"` |\n| by date | `x.period`: `day`, `week`, `month` (x must be a date column) | \"주별 평균 수율 추이\" → `\"chart\": \"line\", \"x\": {\"col\": \"날짜\", \"period\": \"week\"}, \"y\": \"수율\"` |\n| split into series | `by` (one colour each; bars side by side) | \"교대별로 나눠서\" → `\"by\": \"교대\"` |\n| stacked | `stack: true` | \"원인별로 쌓아서\" → `\"by\": \"원인\", \"stack\": true` |\n| several measures | `y` as a list | `\"y\": [\"수율\", \"순도\"]` |\n| filter | `filter`: a list of `\"<column> <op> <value>\"`, op `==` `!=` `>` `>=` `<` `<=` `in` `not in` `between` `contains` | `[\"반응기 == R3\", \"날짜 between 2024-03-01 and 2024-03-31\", \"로트 in [FC-2405, FC-2407]\"]` |\n| order / top N | `sort`: `desc`, `asc`, `x`, or a list; `top`: N | \"상위 5개 원인\" → `\"sort\": \"desc\", \"top\": 5` |\n| value labels | `values`: true, a format like `\"{:.1f}\"`, or `\"n\"` (the number of rows in each bar); pie: `\"percent\"` (default), `\"value\"`, `\"both\"` | \"막대 위에 값 표시\" → `\"values\": true`; \"구간별 런 수 표시\" → `\"values\": \"n\"` |\n| bins of a numeric x | `x.bins`: N, {\"width\": w}, {\"width\": w, \"min\": a, \"max\": b}, or {\"edges\": [..]}; a bin is [a, b) | \"체류시간 0.5 s 구간별 평균 수율\" → `\"x\": {\"col\": \"체류시간\", \"bins\": {\"width\": 0.5}}` |\n| category order | `x.order` / `y.order`: a list | \"월화수목금토일 순서\" → `\"y\": {\"col\": \"요일\", \"order\": [\"월\", \"화\", \"수\", \"목\", \"금\", \"토\", \"일\"]}` |\n| colours | `colors`: a list, {\"R3\": \"red\"}, or `\"mono\"` | |\n| highlight | `highlight`: a category (others grey) | \"R3만 빨간색으로 강조\" → `\"highlight\": \"R3\", \"colors\": {\"R3\": \"red\"}` |\n| reference lines | `ref`: [{\"y\": 5.2, \"text\": \"목표\"}, {\"y\": \"mean\"}, {\"x\": ...}] | \"평균선\" → `\"ref\": [{\"y\": \"mean\"}]` |\n| fit line | `trend: true` (scatter); `{\"label\": true}` also writes slope and R² | |\n| error bars | `error`: `std`, `sem`, `minmax` (bar) | \"표준편차 에러바\" → `\"error\": \"std\"` |\n| moving average | `smooth`: N, or {\"window\": N, \"raw\": true} to keep the raw line | |\n| histogram bins | `bins`: N, {\"width\": w}, {\"width\": w, \"min\": a, \"max\": b}, or a list of edges; `density: true` | \"1 nm 간격, 3~28 nm\" → `\"bins\": {\"width\": 1, \"min\": 3, \"max\": 28}` |\n| heatmap | `x`, `y` (two columns), `z` {\"col\", \"agg\"} (default count); `x.bins` for a numeric axis; `cmap`; `values` | \"온도와 H2 비에 따른 평균 수율\" → `\"chart\": \"heatmap\", \"x\": \"온도\", \"y\": \"H2\", \"z\": {\"col\": \"수율\", \"agg\": \"mean\"}` |\n| correlation | `\"chart\": \"heatmap\", \"corr\": [columns]` (or `\"all\"`) | |\n| pie | `x` = the slice labels, `y` = the value (default: count of rows), `top` N (rest → 기타) | \"원인별 다운타임 비율\" → `\"chart\": \"pie\", \"x\": \"원인\", \"y\": {\"col\": \"시간\", \"agg\": \"sum\"}` |\n\n`data_code` for charts: Python on the pandas DataFrame `df` (also `pd`, `np`), before filters. Add or change columns:\n- `\"data_code\": \"df['수율_kg'] = df['수율'] * df['촉매량'] / 1000\"` then use `\"y\": \"수율_kg\"`.\n- weekday names, ratios, differences from a target, flags like `df['합격'] = df['순도'] >= 95`.\n\n## Examples\n\nRequest: \"TGA.xlsx 그래프 그려줘\"\n```json\n{\"file\": \"TGA.xlsx\", \"asks\": [{\"ask\": \"그래프\", \"how\": \"key\"}]}\n```\n\nRequest: \"Annealed 시트, x축 0부터 200 간격, 피크 2개 표시, pdf로\"\n```json\n{\"file\": \"tga.xlsx\", \"sheets\": \"Annealed\", \"x\": {\"min\": 0, \"step\": 200}, \"annotate\": {\"peak\": {\"count\": 2}},\n \"output\": {\"format\": \"pdf\"},\n \"asks\": [{\"ask\": \"Annealed 시트\", \"how\": \"key\"}, {\"ask\": \"x축 0부터 200 간격\", \"how\": \"key\"},\n          {\"ask\": \"피크 2개\", \"how\": \"key\"}, {\"ask\": \"pdf\", \"how\": \"key\"}]}\n```\n\nRequest: \"반응기별 평균 수율 막대로, 값 표시하고 평균선도\"\n```json\n{\"file\": \"run_log.xlsx\", \"chart\": \"bar\", \"x\": \"반응기\", \"y\": {\"col\": \"수율\", \"agg\": \"mean\"}, \"values\": true,\n \"ref\": [{\"y\": \"mean\"}],\n \"asks\": [{\"ask\": \"반응기별 평균 수율 막대\", \"how\": \"key\"}, {\"ask\": \"값 표시\", \"how\": \"key\"}, {\"ask\": \"평균선\", \"how\": \"key\"}]}\n```\n\nRequest: \"3월 R2, R3 주별 수율 추이, 교대별로 따로\"\n```json\n{\"file\": \"run_log.xlsx\", \"chart\": \"line\", \"x\": {\"col\": \"날짜\", \"period\": \"week\"}, \"y\": \"수율\", \"by\": \"교대\",\n \"filter\": [\"날짜 between 2024-03-01 and 2024-03-31\", \"반응기 in [R2, R3]\"],\n \"asks\": [{\"ask\": \"3월\", \"how\": \"key\"}, {\"ask\": \"R2, R3\", \"how\": \"key\"}, {\"ask\": \"주별 수율 추이\", \"how\": \"key\"},\n          {\"ask\": \"교대별\", \"how\": \"key\"}]}\n```\n\nRequest: \"온도랑 수율 관계 보고 싶어. 촉매 로트별 색 다르게, 추세선\"\n```json\n{\"file\": \"run_log.xlsx\", \"chart\": \"scatter\", \"x\": \"온도\", \"y\": \"수율\", \"by\": \"촉매 로트\", \"trend\": true,\n \"asks\": [{\"ask\": \"온도-수율 관계\", \"how\": \"key\"}, {\"ask\": \"로트별 색\", \"how\": \"key\"}, {\"ask\": \"추세선\", \"how\": \"key\"}]}\n```\n\nRequest: \"다운타임 원인 상위 5개, 시간 합계로 가로 막대, 큰 순서\"\n```json\n{\"file\": \"downtime.xlsx\", \"chart\": \"hbar\", \"x\": \"원인\", \"y\": {\"col\": \"시간\", \"agg\": \"sum\"}, \"sort\": \"desc\", \"top\": 5,\n \"asks\": [{\"ask\": \"원인 상위 5개\", \"how\": \"key\"}, {\"ask\": \"시간 합계\", \"how\": \"key\"}, {\"ask\": \"가로 막대, 큰 순서\", \"how\": \"key\"}]}\n```\n\nRequest (follow-up, last spec was the bar chart above): \"R4는 빼고, 막대 색은 흑백으로\"\n```json\n{\"file\": \"run_log.xlsx\", \"chart\": \"bar\", \"x\": \"반응기\", \"y\": {\"col\": \"수율\", \"agg\": \"mean\"}, \"values\": true,\n \"ref\": [{\"y\": \"mean\"}], \"filter\": [\"반응기 != R4\"], \"colors\": \"mono\",\n \"asks\": [{\"ask\": \"R4 제외\", \"how\": \"key\"}, {\"ask\": \"흑백\", \"how\": \"key\"}]}\n```\n\nRequest: \"수율이랑 순도를 3D 표면으로\"\n```json\n{\"file\": \"run_log.xlsx\", \"chart\": \"heatmap\", \"x\": \"온도\", \"y\": \"H2\", \"z\": {\"col\": \"수율\", \"agg\": \"mean\"},\n \"asks\": [{\"ask\": \"3D 표면\", \"how\": \"unsupported\"}, {\"ask\": \"수율 지도 (히트맵으로 대신)\", \"how\": \"key\"}]}\n```\n\n## Drawing hatch: \"code\" (matplotlib, only when no key fits)\n\n`\"code\"` is Python run after drawing and before saving, for drawing changes only (data changes go in `data_code`).\nNames: curves: `fig`, `ax1` (left y), `ax2` (right y or None), `plt`, `np`; charts: `fig`, `ax`, `plt`, `np`, `data`\n(the drawn numbers). Changing `x` or `y1` here does nothing: the data is already drawn.\n\n- Shade 300–450 °C: `\"code\": \"ax1.axvspan(300, 450, color='gray', alpha=0.15)\"`\n- Arrow with text: `\"code\": \"ax1.annotate('산화 시작', xy=(450, 90), xytext=(250, 60), arrowprops=dict(arrowstyle='->'))\"`\n- Hide the top frame: `\"code\": \"ax.spines['top'].set_visible(False)\"`\n- Inset or a second x axis on top: draw it here with matplotlib.\n"
+  },
+  {
+   "role": "user",
+   "content": "데이터 미리보기:\n파일 data/run_log.xlsx (시트 2개)\n  시트 '런로그' (997행): A 런ID [텍스트 997종: R1-260302-1, R2-260302-1, R3-260302-1, R4-260302-1, R3-260303-1, R1-260303-1, R2-260303-1, R4-260303-1, R3-260303-2, R2-260303-2, R1-260303-2, R4-260304-1, …] | B 일자 (yyyy-mm-dd) [날짜 2026-03-02~2026-08-30] | C 주차 [수치 1~26] | D 근무조 [텍스트 2종: 주간, 야간] | E 반응기 [텍스트 4종: R1, R2, R3, R4] | F 촉매로트 [텍스트 7종: FC-2602, FC-2603, FC-2604, FC-2605, FC-2606, FC-2607, FC-2608] | G 작업자 [텍스트 8종: 이서준, 김도현, 강하늘, 정민호, 한수빈, 최유진, 윤재원, 박지훈] | H 1존온도 (°C) [수치 1041.6~1058.9] | I 2존온도 (°C) [수치 1142.7~1169.7] | J 3존온도 (°C) [수치 1063.1~1110.7] | K C2H4유량 (sccm) [수치 1845~4520] | L H2유량 (sccm) [수치 18740~50320] | M H2/C2H4비 [수치 9.08~12.64] | N 체류시간 (s) [수치 2.49~6.58] | O 외기습도 (%) [수치 32.2~99] | P 가동시간 (h) [수치 2~16.5] | Q CNT수율 (g/g-cat) [수치 12.69~34.94] | R 생산속도 (g/h) [수치 16.5~59.4] | S 잔류금속 (wt%) [수치 1.94~6.26] | T 산화개시온도 (°C) [수치 537.1~603.7] | U IG/ID [수치 1.44~3.23] | V 등급 (A/B/C) [텍스트 3종: B, A, C]\n  시트 '주간요약' (26행): A 주차 [수치 1~26] | B 시작일 [날짜 2026-03-02~2026-08-24] | C 런수 [수치 37~42; 값 [37, 38, 39, 40, 41, 42]] | D 평균수율(g/g-cat) [수치 22.58~28.06] | E 평균잔류금속(wt%) [수치 3.38~4.64] | F 합격률(%) [수치 63.2~100] | G 총생산량(kg) [수치 14~19.2]\n\n사용자 요청:\n반응기별 IG/ID 분포를 박스플롯으로 보여줘"
+  },
+  {
+   "role": "assistant",
+   "content": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"boxplot\",\n  \"x\": \"반응기\",\n  \"y\": \"IG/ID\",\n  \"asks\": [\n    {\n      \"ask\": \"반응기별 IG/ID 분포 박스플롯\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```"
+  },
+  {
+   "role": "user",
+   "content": "plotkit error: unknown chart \"boxplot\"\nhint: use one of: bar, hbar, line, scatter, histogram, heatmap, pie\n\n고쳐서 다시 보내 주세요."
+  },
+  {
+   "role": "assistant",
+   "content": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"scatter\",\n  \"x\": \"반응기\",\n  \"y\": \"IG/ID\",\n  \"asks\": [\n    {\n      \"ask\": \"반응기별 IG/ID 분포 박스플롯\",\n      \"how\": \"unsupported\"\n    },\n    {\n      \"ask\": \"대신 산점도로 반응기별 IG/ID 값 표시\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```"
+  },
+  {
+   "role": "user",
+   "content": "사용자 요청 (이어서):\n반응기별로 색을 다르게 해서 일자에 따른 IG/ID 산점도 보여줘"
+  },
+  {
+   "role": "assistant",
+   "content": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"scatter\",\n  \"x\": \"일자\",\n  \"y\": \"IG/ID\",\n  \"by\": \"반응기\",\n  \"asks\": [\n    {\n      \"ask\": \"일자에 따른 IG/ID 산점도\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"반응기별 색 구분\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```"
+  },
+  {
+   "role": "user",
+   "content": "사용자 요청 (이어서):\nR2만 가동시간(h)에 따른 IG/ID 산점도 보여줘"
+  },
+  {
+   "role": "assistant",
+   "content": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"scatter\",\n  \"x\": \"가동시간 (h)\",\n  \"y\": \"IG/ID\",\n  \"filter\": [\n    \"반응기 == R2\"\n  ],\n  \"asks\": [\n    {\n      \"ask\": \"R2만 필터링\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"가동시간에 따른 IG/ID 산점도\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```"
+  },
+  {
+   "role": "user",
+   "content": "사용자 요청 (이어서):\nR2만 촉매로트별로 색을 다르게 해서 일자에 따른 IG/ID 산점도 보여줘"
+  },
+  {
+   "role": "assistant",
+   "content": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"scatter\",\n  \"x\": \"일자\",\n  \"y\": \"IG/ID\",\n  \"filter\": [\n    \"반응기 == R2\"\n  ],\n  \"by\": \"촉매로트\",\n  \"asks\": [\n    {\n      \"ask\": \"R2만 필터링\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"일자에 따른 IG/ID 산점도\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"촉매로트별 색 구분\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```"
+  },
+  {
+   "role": "user",
+   "content": "사용자 요청 (이어서):\nR2만 2존온도에 따른 IG/ID 산점도 보여줘"
+  },
+  {
+   "role": "assistant",
+   "content": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"scatter\",\n  \"x\": \"2존온도 (°C)\",\n  \"y\": \"IG/ID\",\n  \"filter\": [\n    \"반응기 == R2\"\n  ],\n  \"asks\": [\n    {\n      \"ask\": \"R2만 필터링\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"2존온도에 따른 IG/ID 산점도\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```"
+  },
+  {
+   "role": "user",
+   "content": "사용자 요청 (이어서):\n반응기별 색을 다르게 해서 2존온도에 따른 IG/ID 산점도 보여줘"
+  },
+  {
+   "role": "assistant",
+   "content": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"scatter\",\n  \"x\": \"2존온도 (°C)\",\n  \"y\": \"IG/ID\",\n  \"by\": \"반응기\",\n  \"asks\": [\n    {\n      \"ask\": \"2존온도에 따른 IG/ID 산점도\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"반응기별 색 구분\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```"
+  },
+  {
+   "role": "user",
+   "content": "사용자 요청 (이어서):\nR2만 일자에 따른 2존온도 추이 선그래프로 보여줘"
+  },
+  {
+   "role": "assistant",
+   "content": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"line\",\n  \"x\": \"일자\",\n  \"y\": \"2존온도 (°C)\",\n  \"filter\": [\n    \"반응기 == R2\"\n  ],\n  \"asks\": [\n    {\n      \"ask\": \"R2만 필터링\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"일자에 따른 2존온도 추이 선그래프\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```"
+  },
+  {
+   "role": "user",
+   "content": "사용자 요청 (이어서):\n반응기별 색을 다르게 해서 2존온도에 따른 산화개시온도 산점도 보여줘"
+  },
+  {
+   "role": "assistant",
+   "content": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"scatter\",\n  \"x\": \"2존온도 (°C)\",\n  \"y\": \"산화개시온도 (°C)\",\n  \"by\": \"반응기\",\n  \"asks\": [\n    {\n      \"ask\": \"2존온도에 따른 산화개시온도 산점도\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"반응기별 색 구분\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```"
+  },
+  {
+   "role": "user",
+   "content": "데이터 미리보기:\n파일 data/r2_zone_temps.csv\n  시트 'r2_zone_temps' (8640행): A 시각 [날짜 2026-06-17~2026-06-17] | B 1존(°C) [수치 1047.2~1055.6] | C 2존(°C) [수치 1146.7~1183.7] | D 3존(°C) [수치 1097.1~1110.7] | E 2존 SP(°C) [수치 1150~1150; 값 [1150]]\n\n사용자 요청 (이어서):\n2존 온도와 2존 SP를 시간에 따라 한 그래프에 겹쳐서 보여줘"
+  },
+  {
+   "role": "assistant",
+   "content": "```json\n{\n  \"file\": \"data/r2_zone_temps.csv\",\n  \"preset\": \"none\",\n  \"x\": {\n    \"col\": \"시각\"\n  },\n  \"y1\": {\n    \"col\": \"2존(°C)\",\n    \"label\": \"2존 온도 (°C)\"\n  },\n  \"y2\": {\n    \"col\": \"2존 SP(°C)\",\n    \"label\": \"2존 설정값 (SP) (°C)\"\n  },\n  \"asks\": [\n    {\n      \"ask\": \"시간에 따른 2존 온도와 2존 SP 겹쳐서 보기\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```"
+  },
+  {
+   "role": "user",
+   "content": "사용자 요청 (이어서):\nR2만 근무조별로 색을 다르게 해서 2존온도에 따른 IG/ID 산점도 보여줘"
+  },
+  {
+   "role": "assistant",
+   "content": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"scatter\",\n  \"x\": \"2존온도 (°C)\",\n  \"y\": \"IG/ID\",\n  \"filter\": [\n    \"반응기 == R2\"\n  ],\n  \"by\": \"근무조\",\n  \"asks\": [\n    {\n      \"ask\": \"R2만 필터링\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"근무조별 색 구분\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"2존온도에 따른 IG/ID 산점도\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```"
+  }
+ ],
+ "turns": [
+  {
+   "turn": 1,
+   "request": "반응기별 IG/ID 분포를 박스플롯으로 보여줘",
+   "files": [
+    "data/run_log.xlsx"
+   ],
+   "ok": true,
+   "images": [
+    "/home/chs/Work/tga_plot/eval/results/sessions/E3_G3_P-hyb/out/t1/scatter_IG_ID.png"
+   ],
+   "summary": "산점도 그래프를 저장했습니다: scatter_IG_ID.png\n사용한 행: 997 / 997\nIG/ID: 997점\n처리하지 못한 요청: 반응기별 IG/ID 분포 박스플롯\n처리하지 못한 요청: 반응기별 IG/ID 분포 박스플롯",
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "scatter",
+    "x": "반응기",
+    "y": "IG/ID",
+    "asks": [
+     {
+      "ask": "반응기별 IG/ID 분포 박스플롯",
+      "how": "unsupported"
+     },
+     {
+      "ask": "대신 산점도로 반응기별 IG/ID 값 표시",
+      "how": "key"
+     }
+    ]
+   },
+   "calls": [
+    {
+     "llm_s": 2.528,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 17966,
+     "output_chars": 198,
+     "attempts": 1
+    },
+    {
+     "llm_s": 3.674,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 18562,
+     "output_chars": 278,
+     "attempts": 1
+    }
+   ],
+   "turn_s": 7.31,
+   "error": null
+  },
+  {
+   "turn": 2,
+   "request": "반응기별로 색을 다르게 해서 일자에 따른 IG/ID 산점도 보여줘",
+   "files": [
+    "data/run_log.xlsx"
+   ],
+   "ok": true,
+   "images": [
+    "/home/chs/Work/tga_plot/eval/results/sessions/E3_G3_P-hyb/out/t2/scatter_IG_ID.png"
+   ],
+   "summary": "산점도 그래프를 저장했습니다: scatter_IG_ID.png\n사용한 행: 997 / 997\nR1: 251점\nR2: 250점\nR3: 245점\nR4: 251점",
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "scatter",
+    "x": "일자",
+    "y": "IG/ID",
+    "by": "반응기",
+    "asks": [
+     {
+      "ask": "일자에 따른 IG/ID 산점도",
+      "how": "key"
+     },
+     {
+      "ask": "반응기별 색 구분",
+      "how": "key"
+     }
+    ]
+   },
+   "calls": [
+    {
+     "llm_s": 3.617,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 19096,
+     "output_chars": 268,
+     "attempts": 1
+    }
+   ],
+   "turn_s": 4.37,
+   "error": null
+  },
+  {
+   "turn": 3,
+   "request": "R2만 가동시간(h)에 따른 IG/ID 산점도 보여줘",
+   "files": [
+    "data/run_log.xlsx"
+   ],
+   "ok": true,
+   "images": [
+    "/home/chs/Work/tga_plot/eval/results/sessions/E3_G3_P-hyb/out/t3/scatter_IG_ID.png"
+   ],
+   "summary": "산점도 그래프를 저장했습니다: scatter_IG_ID.png\n사용한 행: 250 / 997\nIG/ID: 250점",
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "scatter",
+    "x": "가동시간 (h)",
+    "y": "IG/ID",
+    "filter": [
+     "반응기 == R2"
+    ],
+    "asks": [
+     {
+      "ask": "R2만 필터링",
+      "how": "key"
+     },
+     {
+      "ask": "가동시간에 따른 IG/ID 산점도",
+      "how": "key"
+     }
+    ]
+   },
+   "calls": [
+    {
+     "llm_s": 2.992,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 19588,
+     "output_chars": 294,
+     "attempts": 1
+    }
+   ],
+   "turn_s": 3.75,
+   "error": null
+  },
+  {
+   "turn": 4,
+   "request": "R2만 촉매로트별로 색을 다르게 해서 일자에 따른 IG/ID 산점도 보여줘",
+   "files": [
+    "data/run_log.xlsx"
+   ],
+   "ok": true,
+   "images": [
+    "/home/chs/Work/tga_plot/eval/results/sessions/E3_G3_P-hyb/out/t4/scatter_IG_ID.png"
+   ],
+   "summary": "산점도 그래프를 저장했습니다: scatter_IG_ID.png\n사용한 행: 250 / 997\nFC-2602: 34점\nFC-2603: 37점\nFC-2604: 29점\nFC-2605: 26점\nFC-2606: 43점\nFC-2607: 39점\nFC-2608: 42점",
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "scatter",
+    "x": "일자",
+    "y": "IG/ID",
+    "filter": [
+     "반응기 == R2"
+    ],
+    "by": "촉매로트",
+    "asks": [
+     {
+      "ask": "R2만 필터링",
+      "how": "key"
+     },
+     {
+      "ask": "일자에 따른 IG/ID 산점도",
+      "how": "key"
+     },
+     {
+      "ask": "촉매로트별 색 구분",
+      "how": "key"
+     }
+    ]
+   },
+   "calls": [
+    {
+     "llm_s": 4.689,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 20144,
+     "output_chars": 361,
+     "attempts": 1
+    }
+   ],
+   "turn_s": 5.53,
+   "error": null
+  },
+  {
+   "turn": 5,
+   "request": "R2만 2존온도에 따른 IG/ID 산점도 보여줘",
+   "files": [
+    "data/run_log.xlsx"
+   ],
+   "ok": true,
+   "images": [
+    "/home/chs/Work/tga_plot/eval/results/sessions/E3_G3_P-hyb/out/t5/scatter_IG_ID.png"
+   ],
+   "summary": "산점도 그래프를 저장했습니다: scatter_IG_ID.png\n사용한 행: 250 / 997\nIG/ID: 250점",
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "scatter",
+    "x": "2존온도 (°C)",
+    "y": "IG/ID",
+    "filter": [
+     "반응기 == R2"
+    ],
+    "asks": [
+     {
+      "ask": "R2만 필터링",
+      "how": "key"
+     },
+     {
+      "ask": "2존온도에 따른 IG/ID 산점도",
+      "how": "key"
+     }
+    ]
+   },
+   "calls": [
+    {
+     "llm_s": 2.641,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 20761,
+     "output_chars": 295,
+     "attempts": 1
+    }
+   ],
+   "turn_s": 3.36,
+   "error": null
+  },
+  {
+   "turn": 6,
+   "request": "반응기별 색을 다르게 해서 2존온도에 따른 IG/ID 산점도 보여줘",
+   "files": [
+    "data/run_log.xlsx"
+   ],
+   "ok": true,
+   "images": [
+    "/home/chs/Work/tga_plot/eval/results/sessions/E3_G3_P-hyb/out/t6/scatter_IG_ID.png"
+   ],
+   "summary": "산점도 그래프를 저장했습니다: scatter_IG_ID.png\n사용한 행: 997 / 997\nR1: 251점\nR2: 250점\nR3: 245점\nR4: 251점",
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "scatter",
+    "x": "2존온도 (°C)",
+    "y": "IG/ID",
+    "by": "반응기",
+    "asks": [
+     {
+      "ask": "2존온도에 따른 IG/ID 산점도",
+      "how": "key"
+     },
+     {
+      "ask": "반응기별 색 구분",
+      "how": "key"
+     }
+    ]
+   },
+   "calls": [
+    {
+     "llm_s": 3.303,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 21307,
+     "output_chars": 277,
+     "attempts": 1
+    }
+   ],
+   "turn_s": 4.12,
+   "error": null
+  },
+  {
+   "turn": 7,
+   "request": "R2만 일자에 따른 2존온도 추이 선그래프로 보여줘",
+   "files": [
+    "data/run_log.xlsx"
+   ],
+   "ok": true,
+   "images": [
+    "/home/chs/Work/tga_plot/eval/results/sessions/E3_G3_P-hyb/out/t7/line_2존온도_C.png"
+   ],
+   "summary": "선 그래프를 저장했습니다: line_2존온도_C.png\n사용한 행: 250 / 997\n2존온도 (°C): 182점, 1144 ~ 1169\n참고: several rows per 일자 (yyyy-mm-dd): the mean is drawn",
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "line",
+    "x": "일자",
+    "y": "2존온도 (°C)",
+    "filter": [
+     "반응기 == R2"
+    ],
+    "asks": [
+     {
+      "ask": "R2만 필터링",
+      "how": "key"
+     },
+     {
+      "ask": "일자에 따른 2존온도 추이 선그래프",
+      "how": "key"
+     }
+    ]
+   },
+   "calls": [
+    {
+     "llm_s": 2.814,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 21822,
+     "output_chars": 290,
+     "attempts": 1
+    }
+   ],
+   "turn_s": 3.64,
+   "error": null
+  },
+  {
+   "turn": 8,
+   "request": "반응기별 색을 다르게 해서 2존온도에 따른 산화개시온도 산점도 보여줘",
+   "files": [
+    "data/run_log.xlsx"
+   ],
+   "ok": true,
+   "images": [
+    "/home/chs/Work/tga_plot/eval/results/sessions/E3_G3_P-hyb/out/t8/scatter_산화개시온도_C.png"
+   ],
+   "summary": "산점도 그래프를 저장했습니다: scatter_산화개시온도_C.png\n사용한 행: 997 / 997\nR1: 251점\nR2: 250점\nR3: 245점\nR4: 251점",
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "scatter",
+    "x": "2존온도 (°C)",
+    "y": "산화개시온도 (°C)",
+    "by": "반응기",
+    "asks": [
+     {
+      "ask": "2존온도에 따른 산화개시온도 산점도",
+      "how": "key"
+     },
+     {
+      "ask": "반응기별 색 구분",
+      "how": "key"
+     }
+    ]
+   },
+   "calls": [
+    {
+     "llm_s": 2.648,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 22390,
+     "output_chars": 284,
+     "attempts": 1
+    }
+   ],
+   "turn_s": 3.55,
+   "error": null
+  },
+  {
+   "turn": 9,
+   "request": "2존 온도와 2존 SP를 시간에 따라 한 그래프에 겹쳐서 보여줘",
+   "files": [
+    "data/r2_zone_temps.csv"
+   ],
+   "ok": true,
+   "images": [
+    "/home/chs/Work/tga_plot/eval/results/sessions/E3_G3_P-hyb/out/t9/line__2존_C_2존_SP_C.png"
+   ],
+   "summary": "선 그래프를 저장했습니다: line__2존_C_2존_SP_C.png\n사용한 행: 8640 / 8640\n2존(°C): 8640점, 1147 ~ 1184\n2존 SP(°C): 8640점, 1150 ~ 1150",
+   "spec": {
+    "file": "data/r2_zone_temps.csv",
+    "preset": "none",
+    "x": {
+     "col": "시각"
+    },
+    "y1": {
+     "col": "2존(°C)",
+     "label": "2존 온도 (°C)"
+    },
+    "y2": {
+     "col": "2존 SP(°C)",
+     "label": "2존 설정값 (SP) (°C)"
+    },
+    "asks": [
+     {
+      "ask": "시간에 따른 2존 온도와 2존 SP 겹쳐서 보기",
+      "how": "key"
+     }
+    ]
+   },
+   "calls": [
+    {
+     "llm_s": 4.148,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 23244,
+     "output_chars": 324,
+     "attempts": 1
+    }
+   ],
+   "turn_s": 6.71,
+   "error": null
+  },
+  {
+   "turn": 10,
+   "request": "R2만 근무조별로 색을 다르게 해서 2존온도에 따른 IG/ID 산점도 보여줘",
+   "files": [
+    "data/run_log.xlsx"
+   ],
+   "ok": true,
+   "images": [
+    "/home/chs/Work/tga_plot/eval/results/sessions/E3_G3_P-hyb/out/t10/scatter_IG_ID.png"
+   ],
+   "summary": "산점도 그래프를 저장했습니다: scatter_IG_ID.png\n사용한 행: 250 / 997\n야간: 126점\n주간: 124점",
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "scatter",
+    "x": "2존온도 (°C)",
+    "y": "IG/ID",
+    "filter": [
+     "반응기 == R2"
+    ],
+    "by": "근무조",
+    "asks": [
+     {
+      "ask": "R2만 필터링",
+      "how": "key"
+     },
+     {
+      "ask": "근무조별 색 구분",
+      "how": "key"
+     },
+     {
+      "ask": "2존온도에 따른 IG/ID 산점도",
+      "how": "key"
+     }
+    ]
+   },
+   "calls": [
+    {
+     "llm_s": 3.353,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 23842,
+     "output_chars": 368,
+     "attempts": 1
+    }
+   ],
+   "turn_s": 4.09,
+   "error": null
+  }
+ ],
+ "seen_files": [
+  "data/run_log.xlsx",
+  "data/r2_zone_temps.csv"
+ ]
+}

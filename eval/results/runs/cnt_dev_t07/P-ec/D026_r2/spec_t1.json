@@ -1,0 +1,65 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "heatmap",
+ "data_code": "import pandas as pd\n# 요일 추출 (월~일)\ndf['요일'] = pd.to_datetime(df['일자']).dt.day_name()\nweekday_map = {'Monday': '월', 'Tuesday': '화', 'Wednesday': '수', 'Thursday': '목', 'Friday': '금', 'Saturday': '토', 'Sunday': '일'}\ndf['요일'] = df['요일'].map(weekday_map)\n# 시간대 추출 (0~23시) -> 문자열로 변환하여 정렬 용이하게 함\ndf['시간대'] = pd.to_datetime(df['시작시각'], format='%H:%M').dt.hour.astype(str).str.zfill(2)\n",
+ "x": {
+  "col": "시간대",
+  "order": [
+   "00",
+   "01",
+   "02",
+   "03",
+   "04",
+   "05",
+   "06",
+   "07",
+   "08",
+   "09",
+   "10",
+   "11",
+   "12",
+   "13",
+   "14",
+   "15",
+   "16",
+   "17",
+   "18",
+   "19",
+   "20",
+   "21",
+   "22",
+   "23"
+  ],
+  "label": "시작 시각 (시)"
+ },
+ "y": {
+  "col": "요일",
+  "order": [
+   "월",
+   "화",
+   "수",
+   "목",
+   "금",
+   "토",
+   "일"
+  ],
+  "label": "요일"
+ },
+ "z": {
+  "agg": "count"
+ },
+ "title": "설비 정지 발생 빈도 (요일별·시간대별)",
+ "asks": [
+  {
+   "ask": "요일 및 시간대별 히트맵",
+   "how": "key"
+  },
+  {
+   "ask": "정지 건수(count) 기반 색상",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_t07/P-ec/D026_r2/out/t1"
+ }
+}

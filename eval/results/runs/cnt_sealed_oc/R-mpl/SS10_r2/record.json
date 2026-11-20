@@ -1,0 +1,632 @@
+{
+ "arm": "R-mpl",
+ "item": "SS10",
+ "repeat": 2,
+ "split": "sealed",
+ "persona": "신입 연구원",
+ "type": "session",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "TEM 직경 데이터로 시료별 평균 직경을 막대그래프로 보고 싶어요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/diameters.csv\"\ndf = pd.read_csv(file_path, encoding='utf-8')\n\n# 시료별 평균 직경 계산\nmean_diameters = df.groupby('시료')['직경(nm)'].mean().reset_index()\n\n# 정렬 (막대 그래프 보기 좋게)\nmean_diameters = mean_diameters.sort_values(by='시료')\n\n# 그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\nbars = ax.bar(mean_diameters['시료'], mean_diameters['직경(nm)'], color='skyblue', edgecolor='black')\n\n# 막대 위에 값 표시\nfor bar in bars:\n    height = bar.get_height()\n    ax.annotate(f'{height:.2f}',\n                xy=(bar.get_x() + bar.get_width() / 2, height),\n                xytext=(0, 3),  # 3 points vertical offset\n                textcoords=\"offset points\",\n                ha='center', va='bottom', fontsize=10)\n\n# 라벨 및 제목\nax.set_xlabel('시료 (Sample)', fontsize=12)\nax.set_ylabel('평균 직경 (nm)', fontsize=12)\nax.set_title('TEM 시료별 평균 탄소나노튜브 직경', fontsize=14)\n\n# Y축 범위 조절 (여백 추가)\nmax_val = mean_diameters['직경(nm)'].max()\nax.set_ylim(0, max_val * 1.15)\n\n# 격자선\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\nplt.tight_layout()\n\n# 저장\nsave_path = os.path.join(OUT_DIR, 'tem_mean_diameter_bar.png')\nplt.savefig(save_path, dpi=300)\nplt.close(fig)\n\nprint(f\"그래프가 {save_path}에 저장되었습니다.\")\n```",
+     "llm_s": 7.665,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 2407,
+     "output_chars": 1398,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/diameters.csv\"\ndf = pd.read_csv(file_path, encoding='utf-8')\n\n# 시료별 평균 직경 계산\nmean_diameters = df.groupby('시료')['직경(nm)'].mean().reset_index()\n\n# 정렬 (막대 그래프 보기 좋게)\nmean_diameters = mean_diameters.sort_values(by='시료')\n\n# 그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\nbars = ax.bar(mean_diameters['시료'], mean_diameters['직경(nm)'], color='skyblue', edgecolor='black')\n\n# 막대 위에 값 표시\nfor bar in bars:\n    height = bar.get_height()\n    ax.annotate(f'{height:.2f}',\n                xy=(bar.get_x() + bar.get_width() / 2, height),\n                xytext=(0, 3),  # 3 points vertical offset\n                textcoords=\"offset points\",\n                ha='center', va='bottom', fontsize=10)\n\n# 라벨 및 제목\nax.set_xlabel('시료 (Sample)', fontsize=12)\nax.set_ylabel('평균 직경 (nm)', fontsize=12)\nax.set_title('TEM 시료별 평균 탄소나노튜브 직경', fontsize=14)\n\n# Y축 범위 조절 (여백 추가)\nmax_val = mean_diameters['직경(nm)'].max()\nax.set_ylim(0, max_val * 1.15)\n\n# 격자선\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\nplt.tight_layout()\n\n# 저장\nsave_path = os.path.join(OUT_DIR, 'tem_mean_diameter_bar.png')\nplt.savefig(save_path, dpi=300)\nplt.close(fig)\n\nprint(f\"그래프가 {save_path}에 저장되었습니다.\")\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "TEM 시료별 평균 탄소나노튜브 직경",
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "",
+         "orient": "v",
+         "cats": [
+          "TEM-01",
+          "TEM-02",
+          "TEM-03",
+          "TEM-04",
+          "TEM-05",
+          "TEM-06"
+         ],
+         "values": [
+          9.386111111111113,
+          11.743181818181819,
+          9.7375,
+          9.8548,
+          10.3135,
+          12.268275862068966
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 6,
+       "texts": [
+        "9.39",
+        "11.74",
+        "9.74",
+        "9.85",
+        "10.31",
+        "12.27"
+       ],
+       "x": {
+        "label": "시료 (Sample)",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0,
+         5.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "TEM-01",
+         "TEM-02",
+         "TEM-03",
+         "TEM-04",
+         "TEM-05",
+         "TEM-06"
+        ],
+        "min": -0.69,
+        "max": 5.6899999999999995,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "TEM-01",
+         "TEM-02",
+         "TEM-03",
+         "TEM-04",
+         "TEM-05",
+         "TEM-06"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "평균 직경 (nm)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         2.0,
+         4.0,
+         6.0,
+         8.0,
+         10.0,
+         12.0,
+         14.0
+        ],
+        "step": 2.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 14.10851724137931,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "2",
+         "4",
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16"
+        ],
+        "rotate": 0.0
+       },
+       "title": "TEM 시료별 평균 탄소나노튜브 직경"
+      }
+     ],
+     "texts": [
+      "9.39",
+      "11.74",
+      "9.74",
+      "9.85",
+      "10.31",
+      "12.27"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t1/tem_mean_diameter_bar.png",
+       "format": "png",
+       "px": [
+        3000,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5197422504425049,
+   "check": {
+    "kind_expected": "bar",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 8.186
+  },
+  {
+   "turn": 2,
+   "text": "혹시 오차막대로 표준편차도 넣어 주실 수 있나요?",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/diameters.csv\"\ndf = pd.read_csv(file_path, encoding='utf-8')\n\n# 시료별 평균 및 표준편차 계산\nstats = df.groupby('시료')['직경(nm)'].agg(['mean', 'std']).reset_index()\nstats.columns = ['시료', '평균_직경', '표준편차']\n\n# 정렬 (막대 그래프 보기 좋게)\nstats = stats.sort_values(by='시료').reset_index(drop=True)\n\n# 그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\nx_pos = np.arange(len(stats['시료']))\nbars = ax.bar(x_pos, stats['평균_직경'], yerr=stats['표준편차'], \n              capsize=5, color='skyblue', edgecolor='black', ecolor='red')\n\n# 막대 위에 값 표시 (평균 ± 표준편차)\nfor i, bar in enumerate(bars):\n    height = bar.get_height()\n    std = stats.iloc[i]['표준편차']\n    # 상단 오차막대 끝부분에 텍스트 배치 또는 중앙 배치 가능하나, 여기서는 막대 중심 높이 근처에 표시하거나\n    # 오차막대 상단 위에 표시하는 것이 일반적입니다.\n    error_top = height + std\n    ax.annotate(f'{height:.2f} ± {std:.2f}',\n                xy=(bar.get_x() + bar.get_width() / 2, error_top),\n                xytext=(0, 3),  # 3 points vertical offset from top of error bar\n                textcoords=\"offset points\",\n                ha='center', va='bottom', fontsize=9)\n\n# 라벨 및 제목\nax.set_xlabel('시료 (Sample)', fontsize=12)\nax.set_ylabel('평균 직경 (nm) ± 표준편차', fontsize=12)\nax.set_title('TEM 시료별 탄소나노튜브 직경 분포 (오차막대 포함)', fontsize=14)\n\n# X축 눈금 라벨 설정\nax.set_xticks(x_pos)\nax.set_xticklabels(stats['시료'])\n\n# Y축 범위 조절 (여백 추가)\nmax_val = (stats['평균_직경'] + stats['표준편차']).max()\nax.set_ylim(0, max_val * 1.2)\n\n# 격자선\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\nplt.tight_layout()\n\n# 저장\nsave_path = os.path.join(OUT_DIR, 'tem_mean_diameter_bar_with_std.png')\nplt.savefig(save_path, dpi=300)\nplt.close(fig)\n\nprint(f\"그래프가 {save_path}에 저장되었습니다.\")\n```",
+     "llm_s": 10.298,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 4352,
+     "output_chars": 1864,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/diameters.csv\"\ndf = pd.read_csv(file_path, encoding='utf-8')\n\n# 시료별 평균 및 표준편차 계산\nstats = df.groupby('시료')['직경(nm)'].agg(['mean', 'std']).reset_index()\nstats.columns = ['시료', '평균_직경', '표준편차']\n\n# 정렬 (막대 그래프 보기 좋게)\nstats = stats.sort_values(by='시료').reset_index(drop=True)\n\n# 그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\nx_pos = np.arange(len(stats['시료']))\nbars = ax.bar(x_pos, stats['평균_직경'], yerr=stats['표준편차'], \n              capsize=5, color='skyblue', edgecolor='black', ecolor='red')\n\n# 막대 위에 값 표시 (평균 ± 표준편차)\nfor i, bar in enumerate(bars):\n    height = bar.get_height()\n    std = stats.iloc[i]['표준편차']\n    # 상단 오차막대 끝부분에 텍스트 배치 또는 중앙 배치 가능하나, 여기서는 막대 중심 높이 근처에 표시하거나\n    # 오차막대 상단 위에 표시하는 것이 일반적입니다.\n    error_top = height + std\n    ax.annotate(f'{height:.2f} ± {std:.2f}',\n                xy=(bar.get_x() + bar.get_width() / 2, error_top),\n                xytext=(0, 3),  # 3 points vertical offset from top of error bar\n                textcoords=\"offset points\",\n                ha='center', va='bottom', fontsize=9)\n\n# 라벨 및 제목\nax.set_xlabel('시료 (Sample)', fontsize=12)\nax.set_ylabel('평균 직경 (nm) ± 표준편차', fontsize=12)\nax.set_title('TEM 시료별 탄소나노튜브 직경 분포 (오차막대 포함)', fontsize=14)\n\n# X축 눈금 라벨 설정\nax.set_xticks(x_pos)\nax.set_xticklabels(stats['시료'])\n\n# Y축 범위 조절 (여백 추가)\nmax_val = (stats['평균_직경'] + stats['표준편차']).max()\nax.set_ylim(0, max_val * 1.2)\n\n# 격자선\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\nplt.tight_layout()\n\n# 저장\nsave_path = os.path.join(OUT_DIR, 'tem_mean_diameter_bar_with_std.png')\nplt.savefig(save_path, dpi=300)\nplt.close(fig)\n\nprint(f\"그래프가 {save_path}에 저장되었습니다.\")\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "TEM 시료별 탄소나노튜브 직경 분포 (오차막대 포함)",
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "",
+         "orient": "v",
+         "cats": [
+          "TEM-01",
+          "TEM-02",
+          "TEM-03",
+          "TEM-04",
+          "TEM-05",
+          "TEM-06"
+         ],
+         "values": [
+          9.386111111111113,
+          11.743181818181819,
+          9.7375,
+          9.8548,
+          10.3135,
+          12.268275862068966
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [
+        "9.39 ± 2.60",
+        "11.74 ± 3.28",
+        "9.74 ± 2.56",
+        "9.85 ± 2.75",
+        "10.31 ± 3.16",
+        "12.27 ± 3.49"
+       ],
+       "x": {
+        "label": "시료 (Sample)",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0,
+         5.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "TEM-01",
+         "TEM-02",
+         "TEM-03",
+         "TEM-04",
+         "TEM-05",
+         "TEM-06"
+        ],
+        "min": -0.69,
+        "max": 5.6899999999999995,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "TEM-01",
+         "TEM-02",
+         "TEM-03",
+         "TEM-04",
+         "TEM-05",
+         "TEM-06"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "평균 직경 (nm) ± 표준편차",
+        "type": "value",
+        "ticks": [
+         0.0,
+         2.5,
+         5.0,
+         7.5,
+         10.0,
+         12.5,
+         15.0,
+         17.5
+        ],
+        "step": 2.5,
+        "categories": null,
+        "min": 0.0,
+        "max": 18.91185754308365,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0.0",
+         "2.5",
+         "5.0",
+         "7.5",
+         "10.0",
+         "12.5",
+         "15.0",
+         "17.5",
+         "20.0"
+        ],
+        "rotate": 0.0
+       },
+       "title": "TEM 시료별 탄소나노튜브 직경 분포 (오차막대 포함)"
+      }
+     ],
+     "texts": [
+      "9.39 ± 2.60",
+      "11.74 ± 3.28",
+      "9.74 ± 2.56",
+      "9.85 ± 2.75",
+      "10.31 ± 3.16",
+      "12.27 ± 3.49"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t2/tem_mean_diameter_bar_with_std.png",
+       "format": "png",
+       "px": [
+        3000,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.4512457847595215,
+   "check": {
+    "kind_expected": "bar",
+    "failed": [],
+    "unchecked": [
+     "error_bars={'TEM-01': 2.595, 'TEM-02': 3.284, 'TEM-03': 2.561, 'TEM-04': 2.746, 'TEM-05': 3.157, 'TEM-06': 3.492}"
+    ],
+    "n_checks": 3,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 10.749
+  },
+  {
+   "turn": 3,
+   "text": "시료 이름 대신 '반응기 / 촉매로트'로 라벨을 바꿔 주실 수 있을까요? 예를 들면 'R1 / FC-2604'처럼요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/diameters.csv\"\ndf = pd.read_csv(file_path, encoding='utf-8')\n\n# 라벨 생성: '반응기 / 촉매로트' 형식으로 결합\ndf['라벨'] = df['반응기'] + ' / ' + df['촉매로트']\n\n# 시료 이름 대신 '반응기/촉매로트' 조합별 평균 및 표준편차 계산\nstats = df.groupby('라벨')['직경(nm)'].agg(['mean', 'std']).reset_index()\nstats.columns = ['라벨', '평균_직경', '표준편차']\n\n# 정렬 (막대 그래프 보기 좋게, 알파벳/숫자 순서대로)\nstats = stats.sort_values(by='라벨').reset_index(drop=True)\n\n# 그래프 그리기\nfig, ax = plt.subplots(figsize=(12, 7)) # 가로폭을 넓혀 라벨 가독성 확보\n\nx_pos = np.arange(len(stats['라벨']))\nbars = ax.bar(x_pos, stats['평균_직경'], yerr=stats['표준편차'], \n              capsize=5, color='skyblue', edgecolor='black', ecolor='red')\n\n# 막대 위에 값 표시 (평균 ± 표준편차)\nfor i, bar in enumerate(bars):\n    height = bar.get_height()\n    std = stats.iloc[i]['표준편차']\n    error_top = height + std\n    ax.annotate(f'{height:.2f} ± {std:.2f}',\n                xy=(bar.get_x() + bar.get_width() / 2, error_top),\n                xytext=(0, 3),\n                textcoords=\"offset points\",\n                ha='center', va='bottom', fontsize=9)\n\n# 라벨 및 제목\nax.set_xlabel('반응기 / 촉매로트', fontsize=12)\nax.set_ylabel('평균 직경 (nm) ± 표준편차', fontsize=12)\nax.set_title('TEM 탄소나노튜브 직경 분포 (반응기/촉매로트별)', fontsize=14)\n\n# X축 눈금 라벨 설정\nax.set_xticks(x_pos)\nax.set_xticklabels(stats['라벨'], rotation=45, ha='right') # 라벨이 길어지므로 회전 적용\n\n# Y축 범위 조절 (여백 추가)\nmax_val = (stats['평균_직경'] + stats['표준편차']).max()\nax.set_ylim(0, max_val * 1.2)\n\n# 격자선\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\nplt.tight_layout()\n\n# 저장\nsave_path = os.path.join(OUT_DIR, 'tem_mean_diameter_bar_by_reactor_catalyst.png')\nplt.savefig(save_path, dpi=300)\nplt.close(fig)\n\nprint(f\"그래프가 {save_path}에 저장되었습니다.\")\n```",
+     "llm_s": 8.882,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 6930,
+     "output_chars": 1893,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/diameters.csv\"\ndf = pd.read_csv(file_path, encoding='utf-8')\n\n# 라벨 생성: '반응기 / 촉매로트' 형식으로 결합\ndf['라벨'] = df['반응기'] + ' / ' + df['촉매로트']\n\n# 시료 이름 대신 '반응기/촉매로트' 조합별 평균 및 표준편차 계산\nstats = df.groupby('라벨')['직경(nm)'].agg(['mean', 'std']).reset_index()\nstats.columns = ['라벨', '평균_직경', '표준편차']\n\n# 정렬 (막대 그래프 보기 좋게, 알파벳/숫자 순서대로)\nstats = stats.sort_values(by='라벨').reset_index(drop=True)\n\n# 그래프 그리기\nfig, ax = plt.subplots(figsize=(12, 7)) # 가로폭을 넓혀 라벨 가독성 확보\n\nx_pos = np.arange(len(stats['라벨']))\nbars = ax.bar(x_pos, stats['평균_직경'], yerr=stats['표준편차'], \n              capsize=5, color='skyblue', edgecolor='black', ecolor='red')\n\n# 막대 위에 값 표시 (평균 ± 표준편차)\nfor i, bar in enumerate(bars):\n    height = bar.get_height()\n    std = stats.iloc[i]['표준편차']\n    error_top = height + std\n    ax.annotate(f'{height:.2f} ± {std:.2f}',\n                xy=(bar.get_x() + bar.get_width() / 2, error_top),\n                xytext=(0, 3),\n                textcoords=\"offset points\",\n                ha='center', va='bottom', fontsize=9)\n\n# 라벨 및 제목\nax.set_xlabel('반응기 / 촉매로트', fontsize=12)\nax.set_ylabel('평균 직경 (nm) ± 표준편차', fontsize=12)\nax.set_title('TEM 탄소나노튜브 직경 분포 (반응기/촉매로트별)', fontsize=14)\n\n# X축 눈금 라벨 설정\nax.set_xticks(x_pos)\nax.set_xticklabels(stats['라벨'], rotation=45, ha='right') # 라벨이 길어지므로 회전 적용\n\n# Y축 범위 조절 (여백 추가)\nmax_val = (stats['평균_직경'] + stats['표준편차']).max()\nax.set_ylim(0, max_val * 1.2)\n\n# 격자선\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\nplt.tight_layout()\n\n# 저장\nsave_path = os.path.join(OUT_DIR, 'tem_mean_diameter_bar_by_reactor_catalyst.png')\nplt.savefig(save_path, dpi=300)\nplt.close(fig)\n\nprint(f\"그래프가 {save_path}에 저장되었습니다.\")\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      12.0,
+      7.0
+     ],
+     "dpi": null,
+     "title": "TEM 탄소나노튜브 직경 분포 (반응기/촉매로트별)",
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "",
+         "orient": "v",
+         "cats": [
+          "R1 / FC-2604",
+          "R1 / FC-2607",
+          "R2 / FC-2605",
+          "R3 / FC-2604",
+          "R4 / FC-2604",
+          "R4 / FC-2607"
+         ],
+         "values": [
+          9.386111111111113,
+          11.743181818181819,
+          9.7375,
+          9.8548,
+          10.3135,
+          12.268275862068966
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [
+        "9.39 ± 2.60",
+        "11.74 ± 3.28",
+        "9.74 ± 2.56",
+        "9.85 ± 2.75",
+        "10.31 ± 3.16",
+        "12.27 ± 3.49"
+       ],
+       "x": {
+        "label": "반응기 / 촉매로트",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0,
+         5.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "R1 / FC-2604",
+         "R1 / FC-2607",
+         "R2 / FC-2605",
+         "R3 / FC-2604",
+         "R4 / FC-2604",
+         "R4 / FC-2607"
+        ],
+        "min": -0.69,
+        "max": 5.6899999999999995,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "R1 / FC-2604",
+         "R1 / FC-2607",
+         "R2 / FC-2605",
+         "R3 / FC-2604",
+         "R4 / FC-2604",
+         "R4 / FC-2607"
+        ],
+        "rotate": 45.0
+       },
+       "y": {
+        "label": "평균 직경 (nm) ± 표준편차",
+        "type": "value",
+        "ticks": [
+         0.0,
+         2.5,
+         5.0,
+         7.5,
+         10.0,
+         12.5,
+         15.0,
+         17.5
+        ],
+        "step": 2.5,
+        "categories": null,
+        "min": 0.0,
+        "max": 18.91185754308365,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0.0",
+         "2.5",
+         "5.0",
+         "7.5",
+         "10.0",
+         "12.5",
+         "15.0",
+         "17.5",
+         "20.0"
+        ],
+        "rotate": 0.0
+       },
+       "title": "TEM 탄소나노튜브 직경 분포 (반응기/촉매로트별)"
+      }
+     ],
+     "texts": [
+      "9.39 ± 2.60",
+      "11.74 ± 3.28",
+      "9.74 ± 2.56",
+      "9.85 ± 2.75",
+      "10.31 ± 3.16",
+      "12.27 ± 3.49"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t3/tem_mean_diameter_bar_by_reactor_catalyst.png",
+       "format": "png",
+       "px": [
+        3600,
+        2100
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5078160762786865,
+   "check": {
+    "kind_expected": "bar",
+    "failed": [],
+    "unchecked": [
+     "error_bars={'R1 / FC-2604': 2.595, 'R1 / FC-2607': 3.284, 'R2 / FC-2605': 2.561, 'R3 / FC-2604': 2.746, 'R4 / FC-2604': 3.157, 'R4 / FC-2607': 3.492}"
+    ],
+    "n_checks": 3,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 9.391
+  }
+ ]
+}

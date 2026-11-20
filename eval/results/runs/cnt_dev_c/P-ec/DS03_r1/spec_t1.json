@@ -1,0 +1,15 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "bar",
+ "x": "반응기",
+ "y": "count",
+ "asks": [
+  {
+   "ask": "반응기별 정지 횟수 막대",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_c/P-ec/DS03_r1/out/t1"
+ }
+}

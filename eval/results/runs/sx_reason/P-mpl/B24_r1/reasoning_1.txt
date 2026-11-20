@@ -1,0 +1,50 @@
+We need answer user's request in test mode: only JSON spec inside ```json block. Need analyze. User Korean: "PE 시트를 온도 단위 켈빈(K)으로 바꿔서 그려줘" Means plot PE sheet with temperature unit changed to Kelvin. We have inspect polymers.xlsx sheets PE, PVC, PET. TGA guess x B Temperature °C. Need convert temperature axis to Kelvin. How to express? Need use spec keys. There is no unit conversion key. Need maybe use x.col B and label "Temperature (K)"? But data values are Celsius. Need convert to Kelvin. Could use extra code? Need plot with x in Kelvin. plotkit draws x from column B as Celsius. To change unit to Kelvin, maybe use x.col B and label, but values remain Celsius unless transform. Could use code? The code runs after drawing and before saving, names x,y1,y2 arrays of plotted data. Can we change x axis to Kelvin by plotting y1 vs x+273.15? Code after drawing cannot re-plot? It can maybe clear and replot? But rule: Do not write new plotting script. If no key covers request, put few lines of matplotlib in code. Need decide acceptable. Could use x.col: "B" and label "Temperature (K)", but not converting data. That's misleading. Could use code to convert axis tick labels? For example after drawing, set x axis tick labels to [t+273.15]? But data plotted still Celsius positions; axis ticks values Celsius but labels Kelvin? If tick labels changed but tick positions remain Celsius, axis scale wrong if ticks not adjusted. Could use code: ax1.set_xticks([t+273.15 for t in ax1.get_xticks()])? Actually if we set tick positions to Kelvin values while data plotted at Celsius, points will be shifted incorrectly unless we also transform? If axis xlim remains Celsius? Let's think: plot data x Celsius. To display Kelvin, need transform data x to Kelvin or set axis tick labels but tick positions correspond to Celsius numeric values; if tick positions are set to Kelvin numbers, the plotted points at Celsius coordinates will be far left (30-900 vs ticks 303-1173) maybe not visible. Could use ax1.set_xlim(303.15, 1173.15) and transform plotted data? Can't transform existing line easily? Could use line.set_xdata(x+273.15) for each line. Code can modify plotted lines: for line in ax1.get_lines(): line.set_xdata(np.asarray(line.get_xdata()) + 273.15); if ax2: for line in ax2.get_lines(): line.set_xdata(np.asarray(line.get_xdata()) + 273.15); ax1.set_xlim(ax1.get_xlim()[0]+273.15, ax1.get_xlim()[1]+273.15); ax1.set_xlabel('Temperature (K)'); maybe ax2? But x axis shared? TGA preset likely has twin axis with same x? ax2 shares x. Need convert annotations too? Residue at 800 °C? If default residue at 800 °C, after converting x data to K, residue annotation likely placed at x=800? It may be created before code? If code after drawing, annotation positions are Celsius. If we convert line data and xlim, annotations remain at 800 Celsius coordinate, now wrong (should 1073.15 K). Could adjust annotations? Hard. Could instead set x label to K and use code to transform all artists: line
+[...]
+ib Annotation, `xy` attribute can be set? I think yes? Maybe not? Could use `t.set_xy`? Not sure. If set fails, code error. Could wrap try. To be safe:
+```
+if xy is not None and xlim[0] <= xy[0] <= xlim[1]:
+    try: t.xy = (xy[0] + 273.15, xy[1])
+    except Exception: pass
+```
+Add try. Good.
+
+Need maybe if `t.set_position` for Annotation with textcoords offset points? It might accept data? okay.
+
+Could code be too long for spec? fine.
+
+But maybe test expects minimal code, not robust. Long code may be okay. Need ensure no syntax errors with try/except inside nested for in JSON string. We'll write carefully.
+
+Let's produce final JSON with code string. Need no extra text. Ensure JSON valid: double quotes outside, inside use single quotes. Need escape backslashes? In JSON, newline escape is `\n`? Actually in JSON source, to represent newline, use `\n`? Wait JSON string escape sequence is `\n`? No, JSON uses `
+` for newline, which in a text file is backslash + n. In final markdown, we need type `\n`? Let's be precise: JSON string literal: `"code": "line1\nline2"` contains backslash and n. In markdown, we type backslash then n. So in final, write `
+` not actual newlines inside string. In analysis we used `
+`. In final code block, it will appear as `
+`. Good.
+
+Need maybe include actual newlines in JSON? JSON permits literal newlines? No, not in strings. So use escaped.
+
+Let's construct final:
+```json
+{
+  "file": "polymers.xlsx",
+  "sheets": "PE",
+  "x": {"label": "Temperature (K)"},
+  "code": "xlim = ax1.get_xlim()\nticks = ax1.get_xticks()\nfor ax in filter(None, (ax1, ax2)):\n    for line in ax.get_lines():\n        xd = np.asarray(line.get_xdata())\n        if xd.size and np.all((xd >= xlim[0]) & (xd <= xlim[1])):\n            line.set_xdata(xd + 273.15)\n    for t in ax.texts:\n        p = t.get_position()\n        if xlim[0] <= p[0] <= xlim[1]:\n            t.set_position((p[0] + 273.15, p[1]))\n        xy = getattr(t, 'xy', None)\n        if xy is not None and xlim[0] <= xy[0] <= xlim[1]:\n            try:\n                t.xy = (xy[0] + 273.15, xy[1])\n            except Exception:\n                pass\n        s = t.get_text()\n        if '°C' in s:\n            num = ''.join(ch for ch in s if ch.isdigit() or ch == '.' or ch == '-')\n            if num:\n                try:\n                    t.set_text(f'{float(num) + 273.15:.0f} K')\n                except Exception:\n                    pass\nax1.set_xlim(xlim[0] + 273.15, xlim[1] + 273.15)\nax1.set_xticks([tick + 273.15 for tick in ticks])\nif ax2 is not None:\n    ax2.set_xlim(xlim[0] + 273.15, xlim[1] + 273.15)\n    ax2.set_xticks([tick + 273.15 for tick in ticks])"
+}
+```
+Need check JSON: f-string contains `{float(num) + 273.15:.0f}` braces; okay. Contains `°` unicode; okay. Contains single quotes; okay. Contains backslash escapes for newlines only. Good.
+
+Could there be issue with `filter(None, (ax1, ax2))` if ax2 is a matplotlib Axes object that is falsy? Axes truthy? okay. If ax2 is None, skip.
+
+Need maybe if `ax2` is not None but not shared, using ax1 ticks/xlim for ax2 maybe wrong. But TGA twin. Good.
+
+Need maybe if code shifts text `°C` to K but also text position p maybe old Celsius. Good.
+
+Need maybe if `t.get_text()` on Annotation returns text with template already formatted. Good.
+
+Could there be issue: `num = ''.join(...)` for text "Residue 12.3%" doesn't contain °C. For peak text "450 °C" good. For text "Peak at 450 °C" good. For text "450 °C (max)" good. For text with two numbers "150 °C to 450 °C" num "150.450" float fails? Actually float("150.450") works (150.45) wrong. But not default.
+
+Need maybe if code updates text for °C but if text is "Temperature (°C)"? ax.texts maybe not label. x label is Text? `ax1.xaxis.label` not in ax.texts? likely not. Good.
+
+Potential alternative: Use `x: {"label": "Temperature (K)"}` but code also sets x ticks; if x label default from spec set before code, okay.
+
+Need final only JSON. Ensure no analysis in final. Done.

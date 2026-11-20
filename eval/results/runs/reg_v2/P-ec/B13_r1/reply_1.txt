@@ -1,0 +1,11 @@
+```json
+{
+ "file": "polymers.xlsx",
+ "sheets": "PVC",
+ "data_code": "import numpy as np\n\ndef find_peaks(y, x, n=2):\n    dy = np.gradient(y, x)\n    peaks = []\n    for i in range(1, len(dy)-1):\n        if dy[i] < 0 and dy[i-1] >= 0 and dy[i+1] > dy[i]: # local min of derivative (steepest drop)\n            peaks.append((i, dy[i]))\n    peaks.sort(key=lambda t: t[1])\n    return [p[0] for p in peaks[:n]]\n\nidxs = find_peaks(y1, x, 2)\nfor idx in idxs:\n    temp = float(x[idx])\n    marks.append({'type': 'vline', 'x': temp, 'text': f'{temp:.0f} °C'})",
+ "asks": [
+  {"ask": "PVC 시트", "how": "key"},
+  {"ask": "무게가 확 꺾이는 데 두 군데 온도 표시", "how": "data_code"}
+ ]
+}
+```

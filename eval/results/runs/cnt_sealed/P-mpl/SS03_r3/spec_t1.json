@@ -1,0 +1,27 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "bar",
+ "x": "반응기",
+ "y": {
+  "col": "등급",
+  "agg": "count"
+ },
+ "filter": [
+  "등급 in [A, B]"
+ ],
+ "asks": [
+  {
+   "ask": "반응기별 합격률(A·B 등급 비율, %)",
+   "how": "data_code"
+  },
+  {
+   "ask": "막대",
+   "how": "key"
+  }
+ ],
+ "data_code": "df['합격'] = df['등급'].isin(['A', 'B']).astype(int)\ngrouped = df.groupby('반응기')['합격'].mean() * 100\ndf['합격률(%)'] = df['반응기'].map(grouped)",
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-mpl/SS03_r3/out/t1"
+ }
+}

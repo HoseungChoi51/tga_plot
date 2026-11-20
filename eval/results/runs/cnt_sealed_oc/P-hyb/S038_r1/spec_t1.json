@@ -1,0 +1,24 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "bar",
+ "x": "반응기",
+ "y": {
+  "col": "CNT수율 (g/g-cat)",
+  "agg": "mean"
+ },
+ "error": "std",
+ "asks": [
+  {
+   "ask": "반응기별 수율 비교",
+   "how": "key"
+  },
+  {
+   "ask": "차이(분산) 확인",
+   "how": "error: std"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S038_r1/out/t1"
+ }
+}

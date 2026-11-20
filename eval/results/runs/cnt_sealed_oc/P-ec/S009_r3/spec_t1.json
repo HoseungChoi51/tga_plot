@@ -1,0 +1,30 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "bar",
+ "x": {
+  "col": "주차",
+  "label": "주차"
+ },
+ "y": "count",
+ "values": true,
+ "ref": [
+  {
+   "y": "mean",
+   "text": "26주 평균 런 수"
+  }
+ ],
+ "asks": [
+  {
+   "ask": "주차별 런 수 막대",
+   "how": "key"
+  },
+  {
+   "ask": "26주 평균 런 수 가로선",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/S009_r3/out/t1"
+ }
+}

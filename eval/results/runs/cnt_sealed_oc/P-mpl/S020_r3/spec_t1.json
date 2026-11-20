@@ -1,0 +1,47 @@
+{
+ "file": [
+  "data/raman/R1-260326-1.csv",
+  "data/raman/R2-260616-1.csv",
+  "data/raman/R4-260721-1.csv"
+ ],
+ "combine": true,
+ "names": [
+  "R1",
+  "R2",
+  "R4"
+ ],
+ "x": {
+  "col": "Raman Shift (cm-1)",
+  "min": 1000,
+  "max": 2000,
+  "label": "Raman Shift (cm⁻¹)"
+ },
+ "y1": {
+  "col": "Intensity (a.u.)",
+  "label": "Normalized Intensity"
+ },
+ "preset": "none",
+ "legend": "upper right",
+ "data_code": "import numpy as np\n\n# Baseline calculation points: avg of 1100±10 and 1800±10\nmask_b1 = (x >= 1090) & (x <= 1110)\nmask_b2 = (x >= 1790) & (x <= 1810)\n\n# Handle case where no points fall in range (unlikely with dense data but safe)\nif mask_b1.sum() > 0 and mask_b2.sum() > 0:\n    b1_val = y1[mask_b1].mean()\n    b2_val = y1[mask_b2].mean()\nelse:\n    b1_val = y1[0]\n    b2_val = y1[-1]\n\n# Generate baseline line\nbaseline = np.interp(x, [x[mask_b1][0], x[mask_b2][-1]], [b1_val, b2_val])\nif mask_b1.sum() == 0:\n     # Fallback if start point missing from mask logic above, use global min/max indices for interpolation anchors roughly\n     pass \n\n# Subtract baseline\ny_corrected = y1 - baseline\n\n# Normalize G band (1550-1620) to 1\nmask_g = (x >= 1550) & (x <= 1620)\nif mask_g.sum() > 0:\n    g_max = y_corrected[mask_g].max()\n    if g_max != 0:\n        y_final = y_corrected / g_max\n    else:\n        y_final = y_corrected\nelse:\n    y_final = y_corrected\n\ny1 = y_final",
+ "asks": [
+  {
+   "ask": "세 개 파일 overlay",
+   "how": "key"
+  },
+  {
+   "ask": "직선 베이스라인 빼기",
+   "how": "data_code"
+  },
+  {
+   "ask": "G 밴드 정규화",
+   "how": "data_code"
+  },
+  {
+   "ask": "1000–2000 cm⁻¹ 구간",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S020_r3/out/t1"
+ }
+}

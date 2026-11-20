@@ -1,0 +1,30 @@
+We need answer user's request with JSON spec only in one json block. Need analyze in Korean? User Korean, same language. Need produce spec. Need understand data: isothermal.txt, sheet isothermal. Columns A Time min, B Temperature °C, C Weight %. tga_guess incomplete (x,y1 found); give x/y1/y2 explicitly. User: 시간(분)을 x축으로, 무게는 왼쪽 축, 온도는 오른쪽 축에 그려줘. 140분일 때 무게를 표시해줘.
+This is not TGA default? It has time x, weight y1, temperature y2. Need preset none? Guide: Keep TGA preset for TGA data. For other data use preset none and give x.col and y1.col. Here isothermal data, not TGA? It includes weight and temperature vs time. User wants y2 temp. Default TGA preset draws x temperature, y1 weight, y2 derivative weight. Not appropriate. Use preset none. Need x col A, y1 col C, y2 col B. Need annotate residue? "140분일 때 무게를 표시해줘" = residue at x=140 on y1. Since residue is annotation key. For non-TGA preset, does annotate.residue work? likely yes? The TGA preset has residue default. For preset none, if user asks mark weight at 140 min, use annotate.residue: {x:140, on y1?}. The spec key annotate.residue default type value_at_x on y1 x 800. Need include. Maybe text? default text Residue {y:.1f}%? If on y1 weight, okay. But if not TGA, maybe residue default still works? The guide says default TGA preset already draws... For other data use preset none. Annotations? If using preset none, do defaults for residue exist? Need maybe include annotate.residue with type value_at_x? The schema likely accepts annotate.residue as label. To be safe: "annotate": {"residue": {"x": 140}}. But if preset none, maybe residue annotation not automatically present? The guide says annotate is dict of named labels. The TGA preset has two. If preset none, maybe no default residue? But if we include residue key, should create it? Need maybe specify type: "value_at_x", on: "y1", x:140. But examples show only change keys for residue; for new annotations include type. Since residue is a named label with defaults? If preset none, maybe residue default not included unless specified? The key exists? The guide: `annotate` is a dict of named labels. The TGA preset has two: residue... peak... Change only what you need: {"annotate": {"residue": {"x": 700}}}. Remove one. This implies residue is recognized. Even for preset none? Probably yes, but if preset none, maybe no default annotations; specifying residue should instantiate? To be robust, include full type? But rules: Leave out every key user did not mention. Exception: if user mentions residue display include annotate.residue. But type is internal not requested. Could include only x. Yet if preset none, maybe no default residue, but the tool may know residue key? Hmm.
+
+Need maybe labels? User says 시간(분), 무게, 온도. Could set axis labels? They didn't explicitly ask to change labels, but column headers already Time (min), Weight (%), Temperature (°C). No need. Need y2 axis. Since preset none, need y2 col. Maybe y2 line? no styling. Need output? no.
+
+Potential issue: TGA guess incomplete; if preset none, no y2 default. Use x col A, y1 col C, y2 col B. Need maybe "sheets"? only one sheet, not necessary. File exact "isothermal.txt". Need maybe "preset": "none". Since TGA data? The file is isothermal, not TGA? It has Weight and Temperature but no derivative. User wants temperature on right axis. Default TGA would use x temp, y1 weight, y2 derivative. Not desired. So preset none.
+
+Need annotate residue at 140. Should we use "annotate": {"residue": {"x": 140}} or full? If preset none and residue label defaults may not be loaded. Could use new annotation name? But user asks weight at 140, residue. Use residue key. If need type: {"annotate": {"residue": {"type": "value_at_x", "on": "y1", "x": 140, "text": "140 min: {y:.1f}%"}}}. But rule leave out every key not mentioned? Type/on are not user-facing maybe okay? But examples for residue don't include type/on. However for preset none, perhaps default residue absent, and specifying only x might not create annotation? The guide says annotate is dict of named labels, TGA preset has two. It doesn't say residue works with preset none. But likely schema includes residue default regardless? Let's infer from plotkit design: spec has preset. If preset tga, it sets defaults for x/y1/y2 and annotations. If preset none, it may not include default annotations. But annotate key can add labels. The residue label may have defaults? It might be a built-in label type. The table says 잔류량 표시 spec key annotate.residue. It likely works independent of preset. But if preset none, x axis is time; residue x=140 on y1. Should work.
+
+Need maybe "annotate": {"residue": {"x": 140}}. If default text Residue {y:.1f}%, okay. User says "140분일 때 무게를 표시해줘" not necessarily "Residue". Could custom text "140 min: {y:.1f}%"? But leave out if not requested. Default Residue may be acceptable. But maybe if data is not TGA, label Residue is odd. Yet key is residue. Could set text: "{y:.1f}%"? User didn't ask text. Hmm.
+
+Need answer only JSON block. Need ensure valid JSON.
+
+Let's consider if y2 axis should be "Temperature" and right axis. With preset none, y2.col B. Does y2 label default header? likely yes. Need maybe "y2": {"col": "B"}. Good.
+
+Potential issue: "무게는 왼쪽 축, 온도는 오른쪽 축" means y1 Weight, y2 Temperature. Need if y2 axis range? no.
+
+Potential issue: data is isothermal.txt, not Excel, sheet name is isothermal. No sheets needed.
+
+Need maybe "annotate": {"residue": {"x": 140, "method": "nearest"}}? User says 140분일 때, exact time exists (A max 140). Default nearest. Leave method.
+
+Need maybe "annotate": {"residue": true}? No, x changed to 140. Since default x=800 not applicable. Include x.
+
+Could include "preset": "none", "x": {"col": "A"}, "y1": {"col": "C"}, "y2": {"col": "B"}, "annotate": {"residue": {"x": 140}}. That's likely.
+
+Need think about rule: For other data use preset none and give x.col and y1.col. It doesn't say give y2.col if y2 requested, but yes.
+
+Need maybe if tga_guess incomplete, explicit columns. Good.
+
+Need no extra text. Final only json. Ensure no comments.

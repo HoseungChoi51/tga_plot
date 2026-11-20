@@ -1,0 +1,42 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "주간요약",
+ "chart": "bar",
+ "x": "주차",
+ "y": {
+  "col": "총생산량(kg)",
+  "label": "생산량 (kg)"
+ },
+ "title": "주간 생산량 추이 (3~8월)",
+ "colors": {
+  "before14": "steelblue",
+  "after14": "orange"
+ },
+ "ref": [
+  {
+   "y": 25.0,
+   "text": "1-13주 평균 (참고)"
+  },
+  {
+   "y": 16.0,
+   "text": "14-26주 평균 (참고)"
+  }
+ ],
+ "asks": [
+  {
+   "ask": "제목 변경",
+   "how": "key"
+  },
+  {
+   "ask": "y축 이름 변경",
+   "how": "key"
+  },
+  {
+   "ask": "평균선 재계산 필요(data_code 변수는 ref에서 직접 사용 불가, 값 입력 또는 별도 처리 필요)",
+   "how": "unsupported"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/SS01_r1/out/t4"
+ }
+}

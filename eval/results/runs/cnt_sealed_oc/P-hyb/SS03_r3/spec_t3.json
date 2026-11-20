@@ -1,0 +1,38 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "bar",
+ "x": {
+  "col": "일자",
+  "period": "month"
+ },
+ "y": {
+  "col": "pass_rate",
+  "agg": "mean",
+  "min": 40,
+  "max": 100
+ },
+ "by": "반응기",
+ "values": true,
+ "ref": [
+  {
+   "y": 90,
+   "text": "목표 90%",
+   "linestyle": "dashed"
+  }
+ ],
+ "asks": [
+  {
+   "ask": "y축 범위 40~100",
+   "how": "key"
+  },
+  {
+   "ask": "목표 90% 점선",
+   "how": "key"
+  }
+ ],
+ "data_code": "df['is_pass'] = df['등급'].isin(['A', 'B'])\ndf['pass_rate'] = df['is_pass'].astype(float) * 100",
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/SS03_r3/out/t3"
+ }
+}

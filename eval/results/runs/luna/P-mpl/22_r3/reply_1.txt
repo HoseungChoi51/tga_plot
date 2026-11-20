@@ -1,0 +1,3 @@
+```json
+{"file": "TGA.xlsx", "y2": {"color": "green", "label_color": "green"}}
+```

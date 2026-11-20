@@ -1,0 +1,107 @@
+{
+ "arm": "P-mpl",
+ "item": "S024",
+ "repeat": 2,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "TGA 10개 배치 각각 800 °C 잔량(wt%)을 Fe로 환산(Fe₂O₃ → Fe, ×0.699)해서 런로그 잔류금속(wt%)과 비교하는 산점도 그려 주세요. 시트 이름이 런ID입니다. y = x 기준선도 넣어 주세요.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": [\n    \"data/tga_batches.xlsx\",\n    \"data/run_log.xlsx\"\n  ],\n  \"chart\": \"scatter\",\n  \"x\": {\n    \"col\": \"TGA_Fe_wt\",\n    \"label\": \"TGA 잔류량 환산 Fe (wt%)\"\n  },\n  \"y\": {\n    \"col\": \"잔류금속 (wt%)\",\n    \"label\": \"런로그 잔류금속 (wt%)\"\n  },\n  \"ref\": [\n    {\n      \"type\": \"line\",\n      \"slope\": 1,\n      \"intercept\": 0,\n      \"text\": \"y = x\"\n    }\n  ],\n  \"data_code\": \"import pandas as pd\\n# Load TGA data and calculate Fe equivalent residue at 800C\\ntga_file = 'data/tga_batches.xlsx'\\nrun_file = 'data/run_log.xlsx'\\n\\n# Read all sheets from TGA file\\ntga_sheets = pd.read_excel(tga_file, sheet_name=None)\\n\\nresults = []\\nfor sheet_name, df_tga in tga_sheets.items():\\n    # Find weight % column (usually column C or named '중량 (%)')\\n    weight_col = None\\n    for col in df_tga.columns:\\n        if '중량' in str(col) or '%' in str(col):\\n            weight_col = col\\n            break\\n    if weight_col is None:\\n        continue\\n        \\n    # Interpolate weight at 800°C\\n    temp_col = None\\n    for col in df_tga.columns:\\n        if '온도' in str(col) or 'Temp' in str(col):\\n            temp_col = col\\n            break\\n    if temp_col is None:\\n        continue\\n        \\n    # Sort by temperature just in case\\n    df_sorted = df_tga.sort_values(temp_col)\\n    \\n    # Get weight at 800C via interpolation\\n    w_800 = np.interp(800, df_sorted[temp_col].values, df_sorted[weight_col].values)\\n    \\n    # Convert to Fe equivalent: Fe2O3 -> Fe factor 0.699\\n    fe_equiv = w_800 * 0.699\\n    \\n    results.append({\\n        '런ID': sheet_name,\\n        'TGA_Fe_wt': fe_equiv\\n    })\\n\\ntga_df = pd.DataFrame(results)\\n\\n# Merge with run log\\nrun_df = pd.read_excel(run_file, sheet_name='런로그')\\ndf = pd.merge(tga_df, run_df, on='런ID', how='inner')\\n\",\n  \"asks\": [\n    {\n      \"ask\": \"TGA 10개 배치 각각 800 °C 잔량(wt%)을 Fe로 환산(Fe₂O₃ → Fe, ×0.699)\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"런로그 잔류금속(wt%)과 비교하는 산점도\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"시트 이름이 런ID\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"y = x 기준선\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 25.776,
+     "prompt_tokens": 7491,
+     "output_tokens": 777,
+     "cached_tokens": 7484,
+     "prompt_n": 7,
+     "prefill_ms": 138.362038,
+     "decode_ms": 22795.939204000006,
+     "finish": "stop"
+    },
+    {
+     "reply": "```json\n{\n  \"file\": [\n    \"data/tga_batches.xlsx\",\n    \"data/run_log.xlsx\"\n  ],\n  \"chart\": \"scatter\",\n  \"x\": {\n    \"col\": \"TGA_Fe_wt\",\n    \"label\": \"TGA 잔류량 환산 Fe (wt%)\"\n  },\n  \"y\": {\n    \"col\": \"잔류금속 (wt%)\",\n    \"label\": \"런로그 잔류금속 (wt%)\"\n  },\n  \"ref\": [\n    {\n      \"type\": \"line\",\n      \"slope\": 1,\n      \"intercept\": 0,\n      \"text\": \"y = x\"\n    }\n  ],\n  \"data_code\": \"# The 'df' variable contains the data from the first file listed in 'file'.\\n# Since we need to merge TGA and Run Log, and plotkit loads files sequentially,\\n# this approach is tricky if df only holds one sheet.\\n# However, usually 'df' in data_code for charts refers to the main table being plotted.\\n# If multiple files are provided, plotkit might concatenate or require specific handling.\\n# Given the error, it seems I cannot read external files inside data_code easily or paths are wrong.\\n# Let's assume the user wants me to use the 'run_log' as the base df and somehow get TGA data?\\n# No, the previous attempt failed because I tried to read files manually.\\n# In PlotKit, if you provide multiple files, they are often merged or available via context.\\n# But standard behavior: 'df' is the dataframe of the *current* chart source.\\n# To compare two different sources, we typically need them in one dataframe.\\n# Since I cannot run arbitrary python to load other sheets/files reliably in this sandbox without knowing the exact internal state of 'df',\\n# and the prompt says \\\"names: df ... leave result in df\\\", it implies I should transform 'df'.\\n\\n# Hypothesis: The system might have already merged them? Unlikely.\\n# Alternative: Use 'code' key? No, that's for drawing.\\n# Correct approach for multi-file comparison in PlotKit specs when direct join isn't automatic:\\n# Often, users must prepare a joined CSV. But here I must fix the spec.\\n\\n# Let's look at the structure again. \\n# File 1: tga_batches.xlsx (sheets named by RunID)\\n# File 2: run_log.xlsx (sheet 런로그 has RunID column)\\n\\n# If I set 'file' to just run_log, I don't have TGA data.\\n# If I set 'file' to both, how does 'df' look?\\n# Usually, if not specified, it might take the first file or fail.\\n\\n# Actually, there is no built-in \\\"join\\\" key in the simple spec list provided.\\n# The `data_code` runs on `df`. If `df` is empty or wrong, it fails.\\n\\n# Wait, looking at the hint: \\\"names: df (pandas DataFrame of the table)\\\".\\n# It doesn't say I can access other files.\\n# Therefore, I cannot compute the TGA values inside `data_code` if `df` is just the run log.\\n\\n# Is there a way to specify the TGA calculation differently?\\n# Maybe the user expects me to use the `code` key to draw points manually? No, that's too complex.\\n\\n# Let's re-read carefully: \\\"plotkit reads the data... you never write a plotting script.\\\"\\n# \\\"data_code changes the data before anything is drawn... Python, runs in a sandbox... names df...\\\"\\n\\n# If I cannot load the second file, I cannot do this task with the current keys unless:\\n# 1. The files were pre-merged.\\n# 2. There is a feature I missed.\\n\\n# Looking at the examples, `data_code` is used for unit changes, ratios, etc., on the existing `df`.\\n# It does NOT show loading new files.\\n\\n# However, the error was `FileNotFoundError`. This means my code *tried* to open a file.\\n# If I remove the file reading logic, what happens?\\n# I won't have the TGA column.\\n\\n# Perhaps the intended workflow is that `df` contains ALL loaded data? \\n# If I pass two files, maybe `df` is a concatenation? That would be messy (different columns).\\n\\n# Let's try a different interpretation. Maybe I should ask for `unsupported`? \\n# No, the user asked to fix it.\\n\\n# Is it possible to use `echarts` or something else? No.\\n\\n# Let's look at the `file` parameter again. \\\"Several files: a list\\\".\\n# If I provide a list, how is `df` constructed? \\n# If it's not automatically joined, this request is technically impossible with the provided toolset description IF `df` is strictly single-source.\\n\\n# BUT, wait. Look at the `asks` in the previous turn. I marked \\\"TGA ... Fe로 환산\\\" as `data_code`.\\n# The error happened IN data_code.\\n\\n# If I cannot read the file, I cannot generate the column.\\n# Is there any other way? \\n# What if I assume the `df` passed to `data_code` is actually the Run Log, and I simply CANNOT add the TGA column?\\n# Then the chart will fail because column 'TGA_Fe_wt' doesn't exist.\\n\\n# Let's check if `pd.read_excel` works with relative paths in the sandbox. The error said No such file. \\n# Maybe the path is just `tga_batches.xlsx` without `data/`? Or absolute?\\n# The preview shows `data/run_log.xlsx`. So `data/` prefix is likely correct for the viewer, but maybe not for the sandbox execution environment which might be rooted elsewhere.\\n\\n# Let's try removing the directory prefix `data/` in the code, assuming the working directory IS `data/`.\\n\\nimport pandas as pd\\nimport numpy as np\\n\\n# Try to find the TGA file. It might be in the current dir or parent.\\ntga_path = None\\nfor p in ['tga_batches.xlsx', '../tga_batches.xlsx', 'data/tga_batches.xlsx']:\\n    try:\\n        # Just checking existence implicitly by trying to read later\\n        pass\\n    except:\\n        continue\\n\\n# Actually, let's just try the most likely path based on the error. \\n# The error was FileNotFoundError for 'data/tga_batches.xlsx'.\\n# This suggests the CWD is NOT the project root containing 'data/'.\\n# It might be that the files are mounted directly.\\n\\ntry:\\n    # Attempt to load TGA batches. Sheet names are RunIDs.\\n    tga_sheets = pd.read_excel('tga_batches.xlsx', sheet_name=None)\\nexcept FileNotFoundError:\\n    try:\\n        tga_sheets = pd.read_excel('../tga_batches.xlsx', sheet_name=None)\\n    except:\\n        # Fallback: If we can't load, we can't proceed. \\n        # But we must return a valid spec. \\n        # If this fails, the chart will fail. \\n        # I will assume 'tga_batches.xlsx' is accessible in the sandbox root.\\n        raise Exception(\\\"Could not find tga_batches.xlsx\\\")\\n\\nresults = []\\nfor sheet_name, df_tga in tga_sheets.items():\\n    # Identify columns dynamically\\n    temp_col = None\\n    weight_col = None\\n    for col in df_tga.columns:\\n        c_str = str(col).lower()\\n        if '온도' in c_str or 'temp' in c_str:\\n            temp_col = col\\n        elif '중량' in c_str or '%' in c_str:\\n            weight_col = col\\n            \\n    if temp_col and weight_col:\\n        # Sort by temperature\\n        df_sorted = df_tga.sort_values(temp_col)\\n        # Interpolate weight at 800C\\n        w_800 = np.interp(800, df_sorted[temp_col].values, df_sorted[weight_col].values)\\n        # Convert to Fe equivalent\\n        fe_equiv = w_800 * 0.699\\n        results.append({'런ID': sheet_name, 'TGA_Fe_wt': fe_equiv})\\n\\ntga_df = pd.DataFrame(results)\\n\\n# Now merge with the current df (which should be the run log)\\n# Ensure '런ID' exists in df\\nif '런ID' in df.columns:\\n    df = pd.merge(df, tga_df, on='런ID', how='inner')\\nelse:\\n    # If the main df doesn't have 런ID, we can't merge. \\n    # Based on preview, Column A is 런ID.\\n    pass\\n\",\n  \"asks\": [\n    {\n      \"ask\": \"TGA 10개 배치 각각 800 °C 잔량(wt%)을 Fe로 환산(Fe₂O₃ → Fe, ×0.699)\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"런로그 잔류금속(wt%)과 비교하는 산점도\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"시트 이름이 런ID\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"y = x 기준선\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 70.509,
+     "prompt_tokens": 8342,
+     "output_tokens": 2141,
+     "cached_tokens": 8268,
+     "prompt_n": 74,
+     "prefill_ms": 335.155445,
+     "decode_ms": 69474.90601599995,
+     "finish": "stop"
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"scatter\",\n  \"x\": {\n    \"col\": \"잔류금속 (wt%)\",\n    \"label\": \"런로그 잔류금속 (wt%)\"\n  },\n  \"y\": {\n    \"col\": \"TGA_Fe_wt\",\n    \"label\": \"TGA 잔류량 환산 Fe (wt%)\"\n  },\n  \"ref\": [\n    {\n      \"type\": \"line\",\n      \"slope\": 1,\n      \"intercept\": 0,\n      \"text\": \"y = x\"\n    }\n  ],\n  \"asks\": [\n    {\n      \"ask\": \"TGA 10개 배치 각각 800 °C 잔량(wt%)을 Fe로 환산(Fe₂O₃ → Fe, ×0.699)\",\n      \"how\": \"unsupported\"\n    },\n    {\n      \"ask\": \"런로그 잔류금속(wt%)과 비교하는 산점도\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"시트 이름이 런ID\",\n      \"how\": \"unsupported\"\n    },\n    {\n      \"ask\": \"y = x 기준선\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 7.448,
+     "prompt_tokens": 10545,
+     "output_tokens": 323,
+     "cached_tokens": 10483,
+     "prompt_n": 62,
+     "prefill_ms": 324.384793,
+     "decode_ms": 6606.152929,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "scatter",
+    "x": {
+     "col": "잔류금속 (wt%)",
+     "label": "런로그 잔류금속 (wt%)"
+    },
+    "y": {
+     "col": "TGA_Fe_wt",
+     "label": "TGA 잔류량 환산 Fe (wt%)"
+    },
+    "ref": [
+     {
+      "type": "line",
+      "slope": 1,
+      "intercept": 0,
+      "text": "y = x"
+     }
+    ],
+    "asks": [
+     {
+      "ask": "TGA 10개 배치 각각 800 °C 잔량(wt%)을 Fe로 환산(Fe₂O₃ → Fe, ×0.699)",
+      "how": "unsupported"
+     },
+     {
+      "ask": "런로그 잔류금속(wt%)과 비교하는 산점도",
+      "how": "key"
+     },
+     {
+      "ask": "시트 이름이 런ID",
+      "how": "unsupported"
+     },
+     {
+      "ask": "y = x 기준선",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": false,
+    "error": "y: no column matches \"TGA_Fe_wt\"",
+    "hint": "columns: A \"런ID\", B \"일자 (yyyy-mm-dd)\", C \"주차\", D \"근무조\", E \"반응기\", F \"촉매로트\", G \"작업자\", H \"1존온도 (°C)\", I \"2존온도 (°C)\", J \"3존온도 (°C)\", K \"C2H4유량 (sccm)\", L \"H2유량 (sccm)\", M \"H2/C2H4비\", N \"체류시간 (s)\", O \"외기습도 (%)\", P \"가동시간 (h)\", Q \"CNT수율 (g/g-cat)\", R \"생산속도 (g/h)\", S \"잔류금속 (wt%)\", T \"산화개시온도 (°C)\", U \"IG/ID\", V \"등급 (A/B/C)\""
+   },
+   "facts": [],
+   "draw_s": 0.3255155086517334,
+   "check": {
+    "kind_expected": "scatter",
+    "failed": [
+     "run: no plot (y: no column matches \"TGA_Fe_wt\")"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 105.449
+  }
+ ]
+}

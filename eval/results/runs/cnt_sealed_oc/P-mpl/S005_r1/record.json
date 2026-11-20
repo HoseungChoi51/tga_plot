@@ -1,0 +1,180 @@
+{
+ "arm": "P-mpl",
+ "item": "S005",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "생산팀장",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "불량 비율 한 장으로 보여줄 수 있어요? 이번 주 임원 보고에 들어갑니다.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"chart\": \"pie\",\n  \"x\": \"등급 (A/B/C)\",\n  \"filter\": [\"등급 (A/B/C) == C\"],\n  \"values\": \"percent\",\n  \"title\": {\n    \"text\": \"불량(C급) 비율 - 임원 보고용\",\n    \"size\": 14\n  },\n  \"colors\": [\"#d32f2f\", \"#e0e0e0\"],\n  \"asks\": [\n    {\"ask\": \"불량 비율 한 장으로 보여줄 수 있어요?\", \"how\": \"key\"},\n    {\"ask\": \"임원 보고용\", \"how\": \"default\"}\n  ]\n}\n```",
+     "llm_s": 3.383,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 18006,
+     "output_chars": 353,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "chart": "pie",
+    "x": "등급 (A/B/C)",
+    "filter": [
+     "등급 (A/B/C) == C"
+    ],
+    "values": "percent",
+    "title": {
+     "text": "불량(C급) 비율 - 임원 보고용",
+     "size": 14
+    },
+    "colors": [
+     "#d32f2f",
+     "#e0e0e0"
+    ],
+    "asks": [
+     {
+      "ask": "불량 비율 한 장으로 보여줄 수 있어요?",
+      "how": "key"
+     },
+     {
+      "ask": "임원 보고용",
+      "how": "default"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S005_r1/out/t1/pie_등급_A_B_C.png"
+    ],
+    "chart": "pie",
+    "rows_used": 126,
+    "rows_total": 997,
+    "values": {
+     "slices": {
+      "C": 126.0
+     },
+     "shares": {
+      "C": 1.0
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "원 그래프를 저장했습니다: pie_등급_A_B_C.png\n사용한 행: 126 / 997\nC 100.0%"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": "불량(C급) 비율 - 임원 보고용",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": {
+        "labels": [
+         "C"
+        ],
+        "shares": [
+         1.0
+        ],
+        "values": null,
+        "colors": [
+         "#d32f2f"
+        ]
+       },
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 1,
+       "texts": [
+        "C",
+        "100.0%"
+       ],
+       "x": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.6917478973853683,
+        "max": 1.6917478973853683,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.1,
+        "max": 1.1,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "title": "불량(C급) 비율 - 임원 보고용"
+      }
+     ],
+     "texts": [
+      "C",
+      "100.0%"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S005_r1/out/t1/pie_등급_A_B_C.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.3834719657897949,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [
+     "pie: slices ['C'], want ['불합격(C)', '합격(A·B)']"
+    ],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 1,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 3.857
+  }
+ ]
+}

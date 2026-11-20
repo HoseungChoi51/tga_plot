@@ -1,0 +1,15 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "scatter",
+ "x": "외기습도 (%)",
+ "y": "잔류금속 (wt%)",
+ "asks": [
+  {
+   "ask": "습도와 잔류금속 관계 점그래프",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_b/P-ec/D011_r2/out/t1"
+ }
+}

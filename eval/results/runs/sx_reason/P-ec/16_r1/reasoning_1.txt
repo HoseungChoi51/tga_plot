@@ -1,0 +1,6 @@
+We need answer user's request in test mode: reply only JSON spec inside ```json block and nothing else. Need analyze in same language as user's request? User Korean. Need produce spec.
+
+User: "1006R1-V normal 시트, y2축 없이 무게만 그려줘"
+Given inspect. Need spec: file TGA.xlsx, sheets "1006R1-V normal", y2: false. TGA preset default draws x temp, y1 weight, y2 derivative. User asks y2 without, weight only. So include sheets and y2 false. Maybe no other keys. Could include preset? For TGA data keep TGA preset default. If y2 false, should be okay. Need maybe x/y1 defaults from guess. No need specify. Need ensure sheet name exact. JSON: {"file":"TGA.xlsx","sheets":"1006R1-V normal","y2":false}. That's all.
+
+Need final only json block. Ensure no extra.

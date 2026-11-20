@@ -1,0 +1,3 @@
+```json
+{"file":"caox.csv","echarts":{"grid":[{"top":"10%","height":"35%"},{"top":"55%","height":"35%"}],"xAxis":[{"gridIndex":0},{"gridIndex":1}],"yAxis":[{"gridIndex":0},{"gridIndex":1}]}}
+```

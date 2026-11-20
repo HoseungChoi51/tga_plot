@@ -1,0 +1,36 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "bar",
+ "x": {
+  "col": "C",
+  "label": "반응기 / 원인 / 일자"
+ },
+ "y": {
+  "col": "E",
+  "agg": "sum"
+ },
+ "sort": "desc",
+ "top": 10,
+ "asks": [
+  {
+   "ask": "Top 10 longest downtime events by 정지시간(분)",
+   "how": "key"
+  },
+  {
+   "ask": "bar chart",
+   "how": "key"
+  },
+  {
+   "ask": "sorted desc",
+   "how": "key"
+  },
+  {
+   "ask": "tick labels '반응기 / 원인 / 일자'",
+   "how": "code"
+  }
+ ],
+ "data_code": "df['combo'] = df['반응기'].astype(str) + ' / ' + df['원인'].astype(str) + ' / ' + df['일자'].astype(str)\ndf = df.sort_values('정지시간(분)', ascending=False).head(10)\nx_col = 'combo'",
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S053_r2/out/t1"
+ }
+}

@@ -1,0 +1,85 @@
+We need answer user's request. Need produce JSON spec only in ```json block, nothing else. Need analyze. User: "무게는 위 그래프, DTG는 아래 그래프로 따로 나눠서 그려줘 (x축은 같이)" Means plot weight on top graph, DTG on bottom graph, separate, share x-axis. We have caox.csv, TGA-like columns: B Temperature, C Weight, D Deriv. Weight. Default TGA preset currently draws y1 left weight, y2 right derivative on same axes? Need create separate subplots top/bottom sharing x. Does plotkit spec support? Need infer from guide. Keys: title, x, y1, y2, preset, combine, etc. No explicit subplot/stacked. Could use extra code? But cannot write new plotting script? Rules: If no key covers request, put few lines matplotlib in code. But code runs after drawing and before saving; names fig, ax1, ax2. To split into top/bottom, need create new axes? Could maybe set y2 to false and use code to create subplots? But code after drawing on existing ax? We need produce spec that plotkit can handle. Is there a key for layout? Not in guide. Could use code: maybe create new figure with subplots and plot data? But code runs after drawing and before saving; can manipulate fig. We can use code to create new figure? But plotkit saves original fig? It likely saves fig after code. We can create new axes? Need careful.
+
+Request: separate top weight, bottom DTG, x-axis shared. Default TGA preset draws both y1 and y2 on same axes. To satisfy, maybe use preset "none" with x col B, y1 col C, y2 false? Then code to create second axes for DTG? But code has ax1, x, y1, y2 arrays. If y2 false, y2 maybe None? The guide says y2 (numpy arrays of plotted data). If y2 false, perhaps y2 None? We can still plot y2? Need know variable y2 available? It says names you can use: fig, ax1 (left y), ax2 (right y, or None), x, y1, y2 (numpy arrays of the plotted data), sheet, plt, np. If y2 false, maybe y2 not plotted? It might still be array? Hmm.
+
+Could use preset none and y1 C, y2 D? That still dual axis. To make separate subplots, code can create new fig? But plotkit saves fig, so if code creates new fig and assigns? It saves fig object, not global fig? In Python, if code does `fig, (ax1, ax2) = plt.subplots(...)` it rebinds local fig? The plotkit may use local variable fig after exec? If exec code in same namespace and then save fig, reassigning fig would save new figure. But guide says names you can use fig, ax1, ax2... Could reassign? It says Python lines run after drawing and before saving. Names you can use: fig, ax1... It doesn't forbid reassigning. But "Do not write a new plotting script" maybe extra code can do. Need likely expected to use code because no key for stacked plots. Need output spec with code. Need ensure code works.
+
+Need decide columns: x B, y1 C, y2 D. Maybe set preset "none"? If use default TGA preset, it will draw y1 and y2 with right axis, annotations etc. Then code can create subplots? But default preset includes y2 on ax2, residue/peak. To split, better disable y2? But need DTG bottom. Could use p
+[...]
+s Unicode. Good.
+
+Need final only ```json block. No explanation.
+
+Let's consider if we should use simpler code to avoid potential unknown methods. The moving axes code uses many methods but all standard. Good.
+
+Alternative: use `fig.clf()` and replot with annotations manually? No.
+
+Could use `ax1.set_position([0.1, 0.55, 0.8, 0.4]); ax2.set_position([0.1, 0.1, 0.8, 0.4])`; sum heights 0.8, okay.
+
+Need maybe if ax2's y-axis label on left may overlap with tick labels? tight? no.
+
+Could set `ax2.yaxis.set_label_coords(-0.08, 0.5)`? Not necessary.
+
+Need maybe if ax2's y-axis tick labels are on left but the axis spine left is visible; good.
+
+Potential issue: `ax2.spines['left'].set_visible(True)` may show left spine but y-axis line maybe still right? Actually the y-axis line is the left spine for left ticks. Good.
+
+Potential issue: `ax2.spines['right'].set_visible(False)` hides right frame. Good.
+
+Potential issue: `ax1.spines['bottom'].set_visible(False)` hides bottom frame. Good.
+
+Need maybe if ax2's top spine should be hidden to avoid double line? There is no double line because ax1 bottom hidden. But top spine of bottom panel is separate. Could leave.
+
+Could set `ax2.spines['top'].set_visible(False)` to make open top. Not necessary. If we hide, bottom panel looks like just left/bottom/right frame. Fine. Could add? Not requested. Leave.
+
+Need maybe if ax1 top spine visible; okay.
+
+Let's think of plotkit's `code` execution: It may use `exec(code, globals(), locals())`? If it uses a separate locals dict, reassigning ax1/ax2 may not persist? But modifying objects persists. Our code modifies ax1/ax2 objects, no reassign except no. Good. It doesn't reassign fig. So safe. It calls methods on ax1/ax2. Good.
+
+Need maybe if `ax2` is None, method error. no.
+
+Could code use `ax2.yaxis.tick_left()` which modifies ax2. Good.
+
+Need maybe if `ax2.xaxis.set_visible(True)` modifies. Good.
+
+No reassign, so even if locals not persist, saved fig modified. Good.
+
+Thus final spec with code moving axes.
+
+But wait: If `ax2` is a twin axis, its position may be linked to ax1? Setting position may not work because twinx shares x-axis but position is independent? Yes axes have position. Good.
+
+Need maybe if ax2's x-axis is not independent, but moving position changes its bbox. Good.
+
+Could there be issue with ax2's x tick labels appearing at bottom of ax2 but the x-axis line is actually ax1's? It should draw.
+
+Now, should we include `"output": {"format": "png"}`? No.
+
+Need maybe if file name exactly caox.csv. Yes.
+
+Final JSON:
+{
+  "file": "caox.csv",
+  "code": "ax1.set_position([0.1, 0.55, 0.8, 0.35]); ax2.set_position([0.1, 0.1, 0.8, 0.35]); ax2.yaxis.tick_left(); ax2.yaxis.set_label_position('left'); ax2.spines['right'].set_visible(False); ax2.spines['left'].set_visible(True); ax2.xaxis.set_visible(True); ax2.xaxis.set_ticks_position('bottom'); ax2.xaxis.set_label_position('bottom'); ax2.tick_params(bottom=True, labelbottom=True); ax1.tick_params(bottom=False, labelbottom=False); ax1.spines['bottom'].set_visible(False); ax1.set_xlabel(''); ax1.set_ylabel('Weight (%)'); ax2.set_ylabel('DTG (%/°C)'); ax2.set_xlabel('Temperature (°C)')"
+}
+
+Need check semicolon after `ax2.set_ylabel('DTG (%/°C)')`? yes.
+
+Could `ax2.yaxis.tick_left()` not a method? In matplotlib, Axis has `tick_left()`, `tick_right()`. Yes.
+
+Could `ax2.xaxis.set_ticks_position('bottom')` work? Yes.
+
+Could `ax2.xaxis.set_label_position('bottom')` yes.
+
+Could `ax2.tick_params(bottom=True, labelbottom=True)` yes.
+
+Could `ax1.set_xlabel('')` yes.
+
+Potential issue: If default y2 axis is on right and inverted, moving ticks left but y-axis label left. Good.
+
+Need maybe if default y2 line color etc. preserved.
+
+One more thought: The default TGA preset may not use `ax2` for y2 if it plots y2 on ax1 with secondary y-axis? But guide says ax2 right y. Good.
+
+Could there be a built-in `y2` key to disable right axis and then code create bottom? no.
+
+Now, final should only JSON block. Ensure no extra. final.

@@ -1,0 +1,110 @@
+```python
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+from matplotlib.ticker import MultipleLocator
+import pandas as pd
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/02_r2/out")
+SHEET_NAME = "1006R1-V normal"
+OUTPUT_FILE = OUT_DIR / "1006R1-V_normal.png"
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+df = pd.read_excel(DATA_FILE, sheet_name=SHEET_NAME)
+data = pd.DataFrame({
+    "temperature": pd.to_numeric(df.iloc[:, 1], errors="coerce"),
+    "weight": pd.to_numeric(df.iloc[:, 2], errors="coerce"),
+    "deriv_weight": pd.to_numeric(df.iloc[:, 3], errors="coerce"),
+}).dropna()
+
+if data.empty:
+    raise ValueError(f"'{SHEET_NAME}' 시트에서 유효한 측정 데이터를 찾지 못했습니다.")
+
+x = data["temperature"].to_numpy()
+weight = data["weight"].to_numpy()
+deriv_weight = data["deriv_weight"].to_numpy()
+
+# 최대 Deriv.Weight 값과 해당 온도
+max_idx = int(deriv_weight.argmax())
+max_temp = x[max_idx]
+max_deriv = deriv_weight[max_idx]
+
+# 800 °C에 가장 가까운 실제 측정점의 weight
+residue_idx = int((data["temperature"] - 800).abs().argmin())
+residue_temp = x[residue_idx]
+residue_weight = weight[residue_idx]
+
+fig, ax1 = plt.subplots(figsize=(10, 6))
+ax2 = ax1.twinx()
+
+weight_line, = ax1.plot(
+    x, weight, color="#1f4e9c", linewidth=1.8, label="Weight (%)"
+)
+deriv_line, = ax2.plot(
+    x, -deriv_weight, color="#c0392b", linewidth=1.6,
+    label="-Deriv.Weight (%/°C)"
+)
+
+ax1.set_title(SHEET_NAME)
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)", color="#1f4e9c")
+ax2.set_ylabel("-Deriv.Weight (%/°C)", color="#c0392b")
+ax1.tick_params(axis="y", colors="#1f4e9c")
+ax2.tick_params(axis="y", colors="#c0392b")
+
+ax1.set_xlim(left=0)
+ax1.xaxis.set_major_locator(MultipleLocator(200))
+ax1.yaxis.set_major_locator(MultipleLocator(20))
+ax2.yaxis.set_major_locator(MultipleLocator(0.2))
+
+# 최고 Deriv.Weight 지점 표시
+max_plot_value = -max_deriv
+ax2.scatter(
+    [max_temp], [max_plot_value], color="#c0392b", edgecolor="white",
+    linewidth=0.7, s=45, zorder=5
+)
+ax2.annotate(
+    f"Max Deriv.Weight {max_deriv:.3g}%/°C\n{max_temp:.0f} °C",
+    xy=(max_temp, max_plot_value),
+    xytext=(8, 12),
+    textcoords="offset points",
+    color="#c0392b",
+    fontsize=9,
+    ha="left",
+    va="bottom",
+)
+
+# 800 °C에 가장 가까운 측정점의 residue 표시
+ax1.scatter(
+    [residue_temp], [residue_weight], color="#1f4e9c",
+    edgecolor="white", linewidth=0.7, s=48, zorder=5
+)
+ax1.annotate(
+    f"Residue {residue_weight:.1f}%",
+    xy=(residue_temp, residue_weight),
+    xytext=(10, -18),
+    textcoords="offset points",
+    color="#1f4e9c",
+    fontsize=9,
+    ha="left",
+    va="top",
+)
+
+ax1.grid(True, linestyle=":", linewidth=0.7, alpha=0.55)
+ax1.legend(
+    [weight_line, deriv_line],
+    [weight_line.get_label(), deriv_line.get_label()],
+    loc="center left",
+    frameon=True,
+)
+
+fig.tight_layout()
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+fig.savefig(OUTPUT_FILE, dpi=300, format="png", bbox_inches="tight")
+plt.close(fig)
+```

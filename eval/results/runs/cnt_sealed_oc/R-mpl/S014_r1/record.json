@@ -1,0 +1,1355 @@
+{
+ "arm": "R-mpl",
+ "item": "S014",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "생산팀장",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "주차별 총 정지시간과 주차별 총생산량이 관계가 있는지 산점도로 볼 수 있을까요? 정지시간은 downtime 파일에서 시간 단위로, 생산량은 런로그 주간요약 시트 기준으로 해 주세요. 주차는 3월 2일(월)이 1주차예요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 1. Read Run Log (Weekly Summary) for Production Volume\nrun_log_path = \"data/run_log.xlsx\"\ndf_weekly_summary = pd.read_excel(run_log_path, sheet_name='주간요약')\n\n# Ensure '주차' is numeric and clean data\ndf_weekly_summary['주차'] = pd.to_numeric(df_weekly_summary['주차'], errors='coerce')\ndf_weekly_summary = df_weekly_summary.dropna(subset=['주차'])\ndf_weekly_summary['총생산량(kg)'] = pd.to_numeric(df_weekly_summary['총생산량(kg)'], errors='coerce')\n\n# 2. Read Downtime Log to calculate Weekly Total Downtime in Hours\ndowntime_path = \"data/downtime.xlsx\"\ndf_downtime = pd.read_excel(downtime_path, sheet_name='정지이력')\n\n# Parse dates\ndf_downtime['일자'] = pd.to_datetime(df_downtime['일자'])\n\n# Determine the start date of Week 1 based on user request: March 2nd is Week 1 Monday\nweek_1_start = pd.Timestamp('2026-03-02')\n\n# Function to map a date to its week number relative to week_1_start\ndef get_week_number(date):\n    delta_days = (date - week_1_start).days\n    if delta_days < 0:\n        return None # Before week 1\n    # Weeks are 7 days long. Week 1 covers day 0-6.\n    week_num = int(delta_days // 7) + 1\n    return week_num\n\ndf_downtime['주차'] = df_downtime['일자'].apply(get_week_number)\n\n# Filter out rows where week number could not be determined or is outside expected range if needed\ndf_downtime_valid = df_downtime.dropna(subset=['주차']).copy()\n\n# Convert downtime from minutes to hours\ndf_downtime_valid['정지시간(분)'] = pd.to_numeric(df_downtime_valid['정지시간(분)'], errors='coerce')\ndf_downtime_valid['정지시간(시간)'] = df_downtime_valid['정지시간(분)'] / 60.0\n\n# Aggregate total downtime by week\ndf_downtime_weekly = df_downtime_valid.groupby('주차')['정지시간(시간)'].sum().reset_index()\ndf_downtime_weekly.columns = ['주차', '총정지시간(시간)']\n\n# 3. Merge Dataframes\n# We use an outer join to see if there are weeks with production but no recorded downtime, or vice versa.\n# However, since the weekly summary comes from run logs which likely cover all active weeks, \n# merging on the weekly summary index is appropriate.\nmerged_df = pd.merge(df_weekly_summary[['주차', '총생산량(kg)']], \n                     df_downtime_weekly, \n                     on='주차', \n                     how='left')\n\n# Fill NaN downtime with 0 (assuming if no downtime record exists for that week, it was 0 or not logged)\nmerged_df['총정지시간(시간)'] = merged_df['총정지시간(시간)'].fillna(0)\n\n# Drop rows where production data might be missing (though unlikely given the source)\nmerged_df = merged_df.dropna(subset=['총생산량(kg)'])\n\n# 4. Plot Scatter Chart\nfig, ax = plt.subplots(figsize=(10, 7))\n\nscatter = ax.scatter(\n    merged_df['총정지시간(시간)'], \n    merged_df['총생산량(kg)'],\n    s=100,\n    c=merged_df['주차'],\n    cmap='viridis',\n    edgecolors='k',\n    alpha=0.8\n)\n\nax.set_xlabel('주차별 총 정지시간 (시간)', fontsize=12)\nax.set_ylabel('주차별 총생산량 (kg)', fontsize=12)\nax.set_title('주차별 총 정지시간과 총생산량의 관계 산점도', fontsize=14)\n\n# Add colorbar for week reference\ncbar = fig.colorbar(scatter, ax=ax)\ncbar.set_label('주차', fontsize=10)\n\n# Calculate correlation for context\ncorr = merged_df['총정지시간(시간)'].corr(merged_df['총생산량(kg)'])\nax.text(0.05, 0.95, f'Correlation: {corr:.3f}', transform=ax.transAxes, fontsize=10,\n        verticalalignment='top', bbox=dict(boxstyle='round,pad=0.5', fc='white', alpha=0.8))\n\nax.grid(True, linestyle='--', alpha=0.6)\nplt.tight_layout()\n\noutput_file = os.path.join(OUT_DIR, \"downtime_vs_production_scatter.png\")\nplt.savefig(output_file, dpi=300)\nplt.close()\n```",
+     "llm_s": 17.007,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 4668,
+     "output_chars": 3609,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 1. Read Run Log (Weekly Summary) for Production Volume\nrun_log_path = \"data/run_log.xlsx\"\ndf_weekly_summary = pd.read_excel(run_log_path, sheet_name='주간요약')\n\n# Ensure '주차' is numeric and clean data\ndf_weekly_summary['주차'] = pd.to_numeric(df_weekly_summary['주차'], errors='coerce')\ndf_weekly_summary = df_weekly_summary.dropna(subset=['주차'])\ndf_weekly_summary['총생산량(kg)'] = pd.to_numeric(df_weekly_summary['총생산량(kg)'], errors='coerce')\n\n# 2. Read Downtime Log to calculate Weekly Total Downtime in Hours\ndowntime_path = \"data/downtime.xlsx\"\ndf_downtime = pd.read_excel(downtime_path, sheet_name='정지이력')\n\n# Parse dates\ndf_downtime['일자'] = pd.to_datetime(df_downtime['일자'])\n\n# Determine the start date of Week 1 based on user request: March 2nd is Week 1 Monday\nweek_1_start = pd.Timestamp('2026-03-02')\n\n# Function to map a date to its week number relative to week_1_start\ndef get_week_number(date):\n    delta_days = (date - week_1_start).days\n    if delta_days < 0:\n        return None # Before week 1\n    # Weeks are 7 days long. Week 1 covers day 0-6.\n    week_num = int(delta_days // 7) + 1\n    return week_num\n\ndf_downtime['주차'] = df_downtime['일자'].apply(get_week_number)\n\n# Filter out rows where week number could not be determined or is outside expected range if needed\ndf_downtime_valid = df_downtime.dropna(subset=['주차']).copy()\n\n# Convert downtime from minutes to hours\ndf_downtime_valid['정지시간(분)'] = pd.to_numeric(df_downtime_valid['정지시간(분)'], errors='coerce')\ndf_downtime_valid['정지시간(시간)'] = df_downtime_valid['정지시간(분)'] / 60.0\n\n# Aggregate total downtime by week\ndf_downtime_weekly = df_downtime_valid.groupby('주차')['정지시간(시간)'].sum().reset_index()\ndf_downtime_weekly.columns = ['주차', '총정지시간(시간)']\n\n# 3. Merge Dataframes\n# We use an outer join to see if there are weeks with production but no recorded downtime, or vice versa.\n# However, since the weekly summary comes from run logs which likely cover all active weeks, \n# merging on the weekly summary index is appropriate.\nmerged_df = pd.merge(df_weekly_summary[['주차', '총생산량(kg)']], \n                     df_downtime_weekly, \n                     on='주차', \n                     how='left')\n\n# Fill NaN downtime with 0 (assuming if no downtime record exists for that week, it was 0 or not logged)\nmerged_df['총정지시간(시간)'] = merged_df['총정지시간(시간)'].fillna(0)\n\n# Drop rows where production data might be missing (though unlikely given the source)\nmerged_df = merged_df.dropna(subset=['총생산량(kg)'])\n\n# 4. Plot Scatter Chart\nfig, ax = plt.subplots(figsize=(10, 7))\n\nscatter = ax.scatter(\n    merged_df['총정지시간(시간)'], \n    merged_df['총생산량(kg)'],\n    s=100,\n    c=merged_df['주차'],\n    cmap='viridis',\n    edgecolors='k',\n    alpha=0.8\n)\n\nax.set_xlabel('주차별 총 정지시간 (시간)', fontsize=12)\nax.set_ylabel('주차별 총생산량 (kg)', fontsize=12)\nax.set_title('주차별 총 정지시간과 총생산량의 관계 산점도', fontsize=14)\n\n# Add colorbar for week reference\ncbar = fig.colorbar(scatter, ax=ax)\ncbar.set_label('주차', fontsize=10)\n\n# Calculate correlation for context\ncorr = merged_df['총정지시간(시간)'].corr(merged_df['총생산량(kg)'])\nax.text(0.05, 0.95, f'Correlation: {corr:.3f}', transform=ax.transAxes, fontsize=10,\n        verticalalignment='top', bbox=dict(boxstyle='round,pad=0.5', fc='white', alpha=0.8))\n\nax.grid(True, linestyle='--', alpha=0.6)\nplt.tight_layout()\n\noutput_file = os.path.join(OUT_DIR, \"downtime_vs_production_scatter.png\")\nplt.savefig(output_file, dpi=300)\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      7.0
+     ],
+     "dpi": null,
+     "title": "주차별 총 정지시간과 총생산량의 관계 산점도",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [
+        {
+         "name": "",
+         "n": 26,
+         "x_range": [
+          4.6000000000000005,
+          41.53333333333333
+         ],
+         "y_range": [
+          14.0,
+          19.2
+         ],
+         "color": "#440154",
+         "colors": [
+          "#1f958b",
+          "#1f9f88",
+          "#228b8d",
+          "#22a884",
+          "#26828e",
+          "#2a788e",
+          "#2cb17e",
+          "#2e6f8e",
+          "#32648e",
+          "#375a8c",
+          "#3bbb75",
+          "#3c4f8a",
+          "#414487",
+          "#440154",
+          "#453781",
+          "#471063",
+          "#472a7a",
+          "#481d6f",
+          "#4ec36b",
+          "#63cb5f",
+          "#7ad151",
+          "#95d840",
+          "#b0dd2f",
+          "#cae11f",
+          "#e5e419",
+          "#fde725"
+         ],
+         "x": [
+          5.9,
+          18.633333333333333,
+          14.850000000000001,
+          6.233333333333333,
+          9.533333333333333,
+          25.316666666666663,
+          5.65,
+          25.416666666666664,
+          13.3,
+          22.566666666666666,
+          17.733333333333334,
+          4.6000000000000005,
+          8.5,
+          11.733333333333333,
+          20.616666666666667,
+          16.05,
+          11.85,
+          21.46666666666667,
+          11.416666666666666,
+          32.400000000000006,
+          7.25,
+          41.53333333333333,
+          11.633333333333333,
+          19.000000000000004,
+          17.900000000000002,
+          28.566666666666663
+         ],
+         "y": [
+          16.4,
+          18.2,
+          18.8,
+          17.7,
+          16.9,
+          17.4,
+          19.2,
+          16.9,
+          17.8,
+          18.0,
+          17.7,
+          18.3,
+          17.5,
+          17.5,
+          14.8,
+          14.4,
+          15.6,
+          15.6,
+          16.8,
+          15.0,
+          15.9,
+          14.0,
+          14.8,
+          15.2,
+          14.8,
+          14.2
+         ]
+        }
+       ],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [
+        "Correlation: -0.497"
+       ],
+       "x": {
+        "label": "주차별 총 정지시간 (시간)",
+        "type": "value",
+        "ticks": [
+         5.0,
+         10.0,
+         15.0,
+         20.0,
+         25.0,
+         30.0,
+         35.0,
+         40.0
+        ],
+        "step": 5.0,
+        "categories": null,
+        "min": 2.753333333333334,
+        "max": 43.379999999999995,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "5",
+         "10",
+         "15",
+         "20",
+         "25",
+         "30",
+         "35",
+         "40",
+         "45"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "주차별 총생산량 (kg)",
+        "type": "value",
+        "ticks": [
+         14.0,
+         15.0,
+         16.0,
+         17.0,
+         18.0,
+         19.0
+        ],
+        "step": 1.0,
+        "categories": null,
+        "min": 13.74,
+        "max": 19.46,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "13",
+         "14",
+         "15",
+         "16",
+         "17",
+         "18",
+         "19",
+         "20"
+        ],
+        "rotate": 0.0
+       },
+       "title": "주차별 총 정지시간과 총생산량의 관계 산점도"
+      },
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": {
+        "rows": [
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         "30",
+         null,
+         null,
+         null,
+         null,
+         null,
+         "25",
+         null,
+         null,
+         null,
+         "20",
+         null,
+         null,
+         null,
+         null,
+         null,
+         "15",
+         null,
+         null,
+         null,
+         "10",
+         null,
+         null,
+         null,
+         null,
+         null,
+         "5",
+         null,
+         null,
+         null,
+         "0"
+        ],
+        "cols": [
+         null
+        ],
+        "z": [
+         [
+          25.951171875
+         ],
+         [
+          25.853515625
+         ],
+         [
+          25.755859375
+         ],
+         [
+          25.658203125
+         ],
+         [
+          25.560546875
+         ],
+         [
+          25.462890625
+         ],
+         [
+          25.365234375
+         ],
+         [
+          25.267578125
+         ],
+         [
+          25.169921875
+         ],
+         [
+          25.072265625
+         ],
+         [
+          24.974609375
+         ],
+         [
+          24.876953125
+         ],
+         [
+          24.779296875
+         ],
+         [
+          24.681640625
+         ],
+         [
+          24.583984375
+         ],
+         [
+          24.486328125
+         ],
+         [
+          24.388671875
+         ],
+         [
+          24.291015625
+         ],
+         [
+          24.193359375
+         ],
+         [
+          24.095703125
+         ],
+         [
+          23.998046875
+         ],
+         [
+          23.900390625
+         ],
+         [
+          23.802734375
+         ],
+         [
+          23.705078125
+         ],
+         [
+          23.607421875
+         ],
+         [
+          23.509765625
+         ],
+         [
+          23.412109375
+         ],
+         [
+          23.314453125
+         ],
+         [
+          23.216796875
+         ],
+         [
+          23.119140625
+         ],
+         [
+          23.021484375
+         ],
+         [
+          22.923828125
+         ],
+         [
+          22.826171875
+         ],
+         [
+          22.728515625
+         ],
+         [
+          22.630859375
+         ],
+         [
+          22.533203125
+         ],
+         [
+          22.435546875
+         ],
+         [
+          22.337890625
+         ],
+         [
+          22.240234375
+         ],
+         [
+          22.142578125
+         ],
+         [
+          22.044921875
+         ],
+         [
+          21.947265625
+         ],
+         [
+          21.849609375
+         ],
+         [
+          21.751953125
+         ],
+         [
+          21.654296875
+         ],
+         [
+          21.556640625
+         ],
+         [
+          21.458984375
+         ],
+         [
+          21.361328125
+         ],
+         [
+          21.263671875
+         ],
+         [
+          21.166015625
+         ],
+         [
+          21.068359375
+         ],
+         [
+          20.970703125
+         ],
+         [
+          20.873046875
+         ],
+         [
+          20.775390625
+         ],
+         [
+          20.677734375
+         ],
+         [
+          20.580078125
+         ],
+         [
+          20.482421875
+         ],
+         [
+          20.384765625
+         ],
+         [
+          20.287109375
+         ],
+         [
+          20.189453125
+         ],
+         [
+          20.091796875
+         ],
+         [
+          19.994140625
+         ],
+         [
+          19.896484375
+         ],
+         [
+          19.798828125
+         ],
+         [
+          19.701171875
+         ],
+         [
+          19.603515625
+         ],
+         [
+          19.505859375
+         ],
+         [
+          19.408203125
+         ],
+         [
+          19.310546875
+         ],
+         [
+          19.212890625
+         ],
+         [
+          19.115234375
+         ],
+         [
+          19.017578125
+         ],
+         [
+          18.919921875
+         ],
+         [
+          18.822265625
+         ],
+         [
+          18.724609375
+         ],
+         [
+          18.626953125
+         ],
+         [
+          18.529296875
+         ],
+         [
+          18.431640625
+         ],
+         [
+          18.333984375
+         ],
+         [
+          18.236328125
+         ],
+         [
+          18.138671875
+         ],
+         [
+          18.041015625
+         ],
+         [
+          17.943359375
+         ],
+         [
+          17.845703125
+         ],
+         [
+          17.748046875
+         ],
+         [
+          17.650390625
+         ],
+         [
+          17.552734375
+         ],
+         [
+          17.455078125
+         ],
+         [
+          17.357421875
+         ],
+         [
+          17.259765625
+         ],
+         [
+          17.162109375
+         ],
+         [
+          17.064453125
+         ],
+         [
+          16.966796875
+         ],
+         [
+          16.869140625
+         ],
+         [
+          16.771484375
+         ],
+         [
+          16.673828125
+         ],
+         [
+          16.576171875
+         ],
+         [
+          16.478515625
+         ],
+         [
+          16.380859375
+         ],
+         [
+          16.283203125
+         ],
+         [
+          16.185546875
+         ],
+         [
+          16.087890625
+         ],
+         [
+          15.990234375
+         ],
+         [
+          15.892578125
+         ],
+         [
+          15.794921875
+         ],
+         [
+          15.697265625
+         ],
+         [
+          15.599609375
+         ],
+         [
+          15.501953125
+         ],
+         [
+          15.404296875
+         ],
+         [
+          15.306640625
+         ],
+         [
+          15.208984375
+         ],
+         [
+          15.111328125
+         ],
+         [
+          15.013671875
+         ],
+         [
+          14.916015625
+         ],
+         [
+          14.818359375
+         ],
+         [
+          14.720703125
+         ],
+         [
+          14.623046875
+         ],
+         [
+          14.525390625
+         ],
+         [
+          14.427734375
+         ],
+         [
+          14.330078125
+         ],
+         [
+          14.232421875
+         ],
+         [
+          14.134765625
+         ],
+         [
+          14.037109375
+         ],
+         [
+          13.939453125
+         ],
+         [
+          13.841796875
+         ],
+         [
+          13.744140625
+         ],
+         [
+          13.646484375
+         ],
+         [
+          13.548828125
+         ],
+         [
+          13.451171875
+         ],
+         [
+          13.353515625
+         ],
+         [
+          13.255859375
+         ],
+         [
+          13.158203125
+         ],
+         [
+          13.060546875
+         ],
+         [
+          12.962890625
+         ],
+         [
+          12.865234375
+         ],
+         [
+          12.767578125
+         ],
+         [
+          12.669921875
+         ],
+         [
+          12.572265625
+         ],
+         [
+          12.474609375
+         ],
+         [
+          12.376953125
+         ],
+         [
+          12.279296875
+         ],
+         [
+          12.181640625
+         ],
+         [
+          12.083984375
+         ],
+         [
+          11.986328125
+         ],
+         [
+          11.888671875
+         ],
+         [
+          11.791015625
+         ],
+         [
+          11.693359375
+         ],
+         [
+          11.595703125
+         ],
+         [
+          11.498046875
+         ],
+         [
+          11.400390625
+         ],
+         [
+          11.302734375
+         ],
+         [
+          11.205078125
+         ],
+         [
+          11.107421875
+         ],
+         [
+          11.009765625
+         ],
+         [
+          10.912109375
+         ],
+         [
+          10.814453125
+         ],
+         [
+          10.716796875
+         ],
+         [
+          10.619140625
+         ],
+         [
+          10.521484375
+         ],
+         [
+          10.423828125
+         ],
+         [
+          10.326171875
+         ],
+         [
+          10.228515625
+         ],
+         [
+          10.130859375
+         ],
+         [
+          10.033203125
+         ],
+         [
+          9.935546875
+         ],
+         [
+          9.837890625
+         ],
+         [
+          9.740234375
+         ],
+         [
+          9.642578125
+         ],
+         [
+          9.544921875
+         ],
+         [
+          9.447265625
+         ],
+         [
+          9.349609375
+         ],
+         [
+          9.251953125
+         ],
+         [
+          9.154296875
+         ],
+         [
+          9.056640625
+         ],
+         [
+          8.958984375
+         ],
+         [
+          8.861328125
+         ],
+         [
+          8.763671875
+         ],
+         [
+          8.666015625
+         ],
+         [
+          8.568359375
+         ],
+         [
+          8.470703125
+         ],
+         [
+          8.373046875
+         ],
+         [
+          8.275390625
+         ],
+         [
+          8.177734375
+         ],
+         [
+          8.080078125
+         ],
+         [
+          7.982421875
+         ],
+         [
+          7.884765625
+         ],
+         [
+          7.787109375
+         ],
+         [
+          7.689453125
+         ],
+         [
+          7.591796875
+         ],
+         [
+          7.494140625
+         ],
+         [
+          7.396484375
+         ],
+         [
+          7.298828125
+         ],
+         [
+          7.201171875
+         ],
+         [
+          7.103515625
+         ],
+         [
+          7.005859375
+         ],
+         [
+          6.908203125
+         ],
+         [
+          6.810546875
+         ],
+         [
+          6.712890625
+         ],
+         [
+          6.615234375
+         ],
+         [
+          6.517578125
+         ],
+         [
+          6.419921875
+         ],
+         [
+          6.322265625
+         ],
+         [
+          6.224609375
+         ],
+         [
+          6.126953125
+         ],
+         [
+          6.029296875
+         ],
+         [
+          5.931640625
+         ],
+         [
+          5.833984375
+         ],
+         [
+          5.736328125
+         ],
+         [
+          5.638671875
+         ],
+         [
+          5.541015625
+         ],
+         [
+          5.443359375
+         ],
+         [
+          5.345703125
+         ],
+         [
+          5.248046875
+         ],
+         [
+          5.150390625
+         ],
+         [
+          5.052734375
+         ],
+         [
+          4.955078125
+         ],
+         [
+          4.857421875
+         ],
+         [
+          4.759765625
+         ],
+         [
+          4.662109375
+         ],
+         [
+          4.564453125
+         ],
+         [
+          4.466796875
+         ],
+         [
+          4.369140625
+         ],
+         [
+          4.271484375
+         ],
+         [
+          4.173828125
+         ],
+         [
+          4.076171875
+         ],
+         [
+          3.978515625
+         ],
+         [
+          3.880859375
+         ],
+         [
+          3.783203125
+         ],
+         [
+          3.685546875
+         ],
+         [
+          3.587890625
+         ],
+         [
+          3.490234375
+         ],
+         [
+          3.392578125
+         ],
+         [
+          3.294921875
+         ],
+         [
+          3.197265625
+         ],
+         [
+          3.099609375
+         ],
+         [
+          3.001953125
+         ],
+         [
+          2.904296875
+         ],
+         [
+          2.806640625
+         ],
+         [
+          2.708984375
+         ],
+         [
+          2.611328125
+         ],
+         [
+          2.513671875
+         ],
+         [
+          2.416015625
+         ],
+         [
+          2.318359375
+         ],
+         [
+          2.220703125
+         ],
+         [
+          2.123046875
+         ],
+         [
+          2.025390625
+         ],
+         [
+          1.927734375
+         ],
+         [
+          1.830078125
+         ],
+         [
+          1.732421875
+         ],
+         [
+          1.634765625
+         ],
+         [
+          1.537109375
+         ],
+         [
+          1.439453125
+         ],
+         [
+          1.341796875
+         ],
+         [
+          1.244140625
+         ],
+         [
+          1.146484375
+         ],
+         [
+          1.048828125
+         ]
+        ],
+        "colorbar": false,
+        "values_shown": false,
+        "cmap": "viridis",
+        "clim": [
+         1.0,
+         26.0
+        ]
+       },
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "",
+        "type": "category",
+        "ticks": [],
+        "step": null,
+        "categories": [],
+        "min": 0.0,
+        "max": 1.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "주차",
+        "type": "category",
+        "ticks": [
+         5.0,
+         10.0,
+         15.0,
+         20.0,
+         25.0
+        ],
+        "step": 5.0,
+        "categories": [
+         "0",
+         "5",
+         "10",
+         "15",
+         "20",
+         "25",
+         "30"
+        ],
+        "min": 1.0,
+        "max": 26.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "5",
+         "10",
+         "15",
+         "20",
+         "25",
+         "30"
+        ],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [
+      "Correlation: -0.497"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t1/downtime_vs_production_scatter.png",
+       "format": "png",
+       "px": [
+        3000,
+        2100
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5788850784301758,
+   "check": {
+    "kind_expected": "scatter",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 17.587
+  }
+ ]
+}

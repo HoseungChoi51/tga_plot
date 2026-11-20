@@ -1,0 +1,18 @@
+We need answer user's request with JSON spec only in json block. Need analyze in same language as user's request? User Korean. Need produce final only JSON. Need map request: "Annealed 시트 논문에 넣을 거라 흑백으로 해줘. 글자 크기 8, 그림 3.5×2.6 인치, 600 dpi"
+File cnt_batches.xlsx. Sheet Annealed. Black and white. Need infer how to make grayscale? No explicit key for grayscale. Could use text_color black? But "흑백으로" likely all colors black/gray? Need maybe use echarts? Allowed echarts. But rules: If no key covers request, put few ECharts settings. Black and white might need line colors black and gray, text black, background white. But maybe there is a key? All keys? Not shown. We can set text_color black, y1 color black, y2 color gray? But "흑백" often means grayscale: y1 black, y2 gray, text black, grid maybe gray. Need not overdo? User didn't ask grid. Need font size 8, size [3.5,2.6], dpi 600. Sheet Annealed. Default TGA preset. Need include sheets: "Annealed". For black and white, maybe `"text_color": "black"`, `"y1": {"color": "black"}, "y2": {"color": "gray"}`? But if no mention y lines, is that too much? The request explicitly black and white, so apply to plot colors. Could also use `"echarts": {"backgroundColor": "white", "textStyle": {"color": "black"}, "series": [{"lineStyle": {"color": "black"}}, {"lineStyle": {"color": "gray"}}]}`. But allowed. However if we set text_color black and y colors, likely sufficient. But "흑백" could require annotations colors black? Default annotations maybe colored? Need maybe set text_color black and y1/y2 black/gray. But if y2 is derivative weight, default may be red? In black-and-white, y2 should be gray or dashed? User didn't request line style. Could set y2 color gray. If both black, indistinguishable? In TGA with dual axes, black and gray okay. Could use y2 color gray. But if "흑백" means no color, gray is acceptable. Need maybe include `"text_color": "black"`? Font size applies all text. Size, dpi.
+Need output JSON only. Ensure no extra. Spec:
+{
+ "file": "cnt_batches.xlsx",
+ "sheets": "Annealed",
+ "text_color": "black",
+ "y1": {"color": "black"},
+ "y2": {"color": "gray"},
+ "font_size": 8,
+ "size": [3.5, 2.6],
+ "dpi": 600
+}
+Could also set `"echarts": {"backgroundColor": "white"}`? Not necessary. But black and white maybe background white default. If annotations colored? text_color black may affect labels? Need maybe annotate peak/residue colors? If text_color applies all text, okay. Lines? y1/y2. What about grid? default grid maybe gray. Fine.
+Could there be key for "black_white"? Not in guide. Use echarts if no key. But we have color keys. Need not repeat defaults. text_color not default? likely default black? But request black and white, okay.
+Need maybe include `"font": "Malgun Gothic"`? No, user didn't ask.
+Need ensure sheet name exact "Annealed".
+Final only json block.

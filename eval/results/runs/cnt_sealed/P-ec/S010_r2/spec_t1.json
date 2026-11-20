@@ -1,0 +1,38 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "bar",
+ "x": "반응기",
+ "y": {
+  "col": "CNT수율 (g/g-cat)",
+  "agg": "mean"
+ },
+ "by": "월",
+ "filter": [
+  "일자 between 2026-03-01 and 2026-08-31"
+ ],
+ "data_code": "df = df[df['일자'].dt.month.isin([3, 8])].copy()\ndf['월'] = df['일자'].dt.month.map({3: '3월', 8: '8월'})",
+ "title": "반응기별 월 평균 수율 비교 (3월 vs 8월)",
+ "values": true,
+ "asks": [
+  {
+   "ask": "반응기별 묶은 막대",
+   "how": "key"
+  },
+  {
+   "ask": "3월과 8월 비교",
+   "how": "key"
+  },
+  {
+   "ask": "평균 수율",
+   "how": "key"
+  },
+  {
+   "ask": "보고용 제목/값 표시",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-ec/S010_r2/out/t1"
+ }
+}

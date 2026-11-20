@@ -1,0 +1,26 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheets": "주간요약",
+ "chart": "scatter",
+ "x": {
+  "col": "주차",
+  "label": "주차"
+ },
+ "y": {
+  "col": "총생산량(kg)",
+  "label": "총생산량 (kg)"
+ },
+ "asks": [
+  {
+   "ask": "주차별 총 정지시간과 총생산량의 관계 산점도",
+   "how": "unsupported"
+  },
+  {
+   "ask": "정지시간 데이터 병합",
+   "how": "unsupported"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-hyb/S014_r2/out/t1"
+ }
+}

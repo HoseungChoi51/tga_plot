@@ -1,0 +1,9 @@
+We need answer user's request. Need produce JSON spec only in ```json block, nothing else. User Korean: "PVC 시트 발표 슬라이드용으로 크게. 가로 10인치, 글자 16" Means PVC sheet, for presentation slides, large. width 10 inches, font size 16. Need infer size? "가로 10인치" likely width 10 inches. Need set size [10, ?]. Maybe default height? Need choose aspect? For slides large maybe [10, 6]? Need only include requested keys? Rule: Leave out every key user did not mention. But if user says 가로 10인치, only width? `size` = [가로, 세로] in inches. Could set [10, 6]? Is height implied? "크게" maybe large, "가로 10인치" only horizontal; maybe use [10, 6] standard. But "Leave out every key the user did not mention" exception? If only width given, maybe size [10, 6]? Need not repeat defaults. Could set `size`: [10, 6] because size key requires both; height not specified but needed. Alternatively `size`: [10, 5]? Need decide. The user says "크게. 가로 10인치" maybe means make figure width 10 inches, likely height proportional? In plotting, size [width, height]. If only width given, maybe set [10, 6] (common 10x6). But rule says leave out unmentioned. However can't specify only width. Could use `size`: [10, 6] as reasonable for slides. Font 16 -> `font_size`: 16. Sheets: PVC -> `"sheets": "PVC"`. File: polymers.xlsx. TGA preset default. Should we include title? No. Need maybe output? No. So spec:
+{
+ "file": "polymers.xlsx",
+ "sheets": "PVC",
+ "size": [10, 6],
+ "font_size": 16
+}
+Need ensure no extra. Could "크게" mean dpi? no. "발표 슬라이드용으로 크게" maybe size large; width 10, font 16. Good.
+Need final only json block. Ensure no analysis outside.

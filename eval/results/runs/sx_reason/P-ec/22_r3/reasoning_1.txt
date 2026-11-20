@@ -1,0 +1,3 @@
+We need answer user's request. Need produce JSON spec only. Need analyze in Korean? User Korean. Need comply: test mode reply JSON block only. Request: "y2 선 색깔 초록으로, y2축 라벨 글자 색깔도 초록". Need map to y2.color and y2.label_color. Use file TGA.xlsx. Keep TGA preset. No other keys. Need ensure color green. JSON:
+{"file": "TGA.xlsx", "y2": {"color": "green", "label_color": "green"}}
+Need maybe label_color for y2 axis label. Yes.

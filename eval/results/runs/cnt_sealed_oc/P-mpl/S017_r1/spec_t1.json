@@ -1,0 +1,18 @@
+{
+ "file": "data/tga_batches.xlsx",
+ "sheets": "R2-260616-1",
+ "asks": [
+  {
+   "ask": "TG 곡선 그리기",
+   "how": "key"
+  },
+  {
+   "ask": "Extrapolated onset 계산 및 표시 (접선: DTG max, 기준선: 500°C 중량)",
+   "how": "code"
+  }
+ ],
+ "code": "import numpy as np\nmask = (x >= 450) & (x <= 800)\nif not np.any(mask):\n    mask = (x >= 450)\ny2_masked = y2[mask]\nx_masked = x[mask]\nidx_max_local = np.argmax(y2_masked)\nidx_max_global = np.where(x == x_masked[idx_max_local])[0][0]\nt_x = x[idx_max_global]\nt_y = y1[idx_max_global]\nwindow_size = 5\nstart_idx = max(0, idx_max_global - window_size)\nend_idx = min(len(x), idx_max_global + window_size + 1)\nslope = np.polyfit(x[start_idx:end_idx], y1[start_idx:end_idx], 1)[0]\nbaseline_y = np.interp(500, x, y1)\nif slope != 0:\n    x_onset = t_x + (baseline_y - t_y) / slope\nelse:\n    x_onset = t_x\nx_line_start = max(x[0], t_x - 50)\nx_line_end = min(t_x + 50, x[-1])\ny_line_start = t_y + slope * (x_line_start - t_x)\ny_line_end = t_y + slope * (x_line_end - t_x)\nax1.plot([x_line_start, x_line_end], [y_line_start, y_line_end], 'r--', label='Tangent')\nax1.axhline(y=baseline_y, xmin=(np.searchsorted(x, max(x[0], t_x-100))/len(x)), xmax=(np.searchsorted(x, min(x[-1], t_x+100))/len(x)), color='gray', linestyle=':', label='Baseline (500°C)')\nax1.scatter([x_onset], [baseline_y], color='red', zorder=5)\nax1.annotate(f'Onset: {x_onset:.1f} °C', xy=(x_onset, baseline_y), xytext=(x_onset + 20, baseline_y + 5), arrowprops=dict(facecolor='black', shrink=0.05, width=1, headwidth=8))\nhandles, labels = ax1.get_legend_handles_labels()\nby_label = dict(zip(labels, handles))\nax1.legend(by_label.values(), by_label.keys(), loc='best')",
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S017_r1/out/t1"
+ }
+}

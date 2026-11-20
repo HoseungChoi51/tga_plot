@@ -1,0 +1,33 @@
+```json
+{
+ "file": "polymers.xlsx",
+ "sheets": "PE",
+ "x": {
+  "min": 100,
+  "max": 700,
+  "step": 100
+ },
+ "y1": {
+  "width": 3,
+  "color": "red"
+ },
+ "asks": [
+  {
+   "ask": "PE시트 그래프",
+   "how": "key"
+  },
+  {
+   "ask": "x축 범위 100~700",
+   "how": "key"
+  },
+  {
+   "ask": "틱간격 100",
+   "how": "key"
+  },
+  {
+   "ask": "y1 선 굵게(3) 빨간색",
+   "how": "key"
+  }
+ ]
+}
+```

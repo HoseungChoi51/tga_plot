@@ -1,0 +1,23 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheets": "주간요약",
+ "chart": "bar",
+ "x": "주차",
+ "y": {
+  "col": "총생산량(kg)",
+  "agg": "mean"
+ },
+ "asks": [
+  {
+   "ask": "주간요약 시트",
+   "how": "key"
+  },
+  {
+   "ask": "주차별 총생산량 막대그래프",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/SS01_r1/out/t1"
+ }
+}

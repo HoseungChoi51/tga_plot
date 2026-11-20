@@ -1,0 +1,18 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "heatmap",
+ "x": "반응기",
+ "y": "원인",
+ "z": {
+  "agg": "count"
+ },
+ "asks": [
+  {
+   "ask": "정지 이력 표처럼 보기 (반응기별 원인 빈도)",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S044_r1/out/t1"
+ }
+}

@@ -1,0 +1,938 @@
+{
+ "arm": "P-mpl",
+ "item": "SS07",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "session",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "런로그 잔류금속(wt%) 히스토그램 부탁합니다. bin 0.25 wt% 간격, 1.75–6.5 범위로요.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"histogram\",\n  \"x\": {\n    \"col\": \"잔류금속 (wt%)\",\n    \"bins\": {\n      \"width\": 0.25,\n      \"min\": 1.75,\n      \"max\": 6.5\n    }\n  },\n  \"asks\": [\n    {\n      \"ask\": \"잔류금속 히스토그램\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"bin 0.25 간격\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"1.75~6.5 범위\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 3.446,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 18015,
+     "output_chars": 398,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "histogram",
+    "x": {
+     "col": "잔류금속 (wt%)",
+     "bins": {
+      "width": 0.25,
+      "min": 1.75,
+      "max": 6.5
+     }
+    },
+    "asks": [
+     {
+      "ask": "잔류금속 히스토그램",
+      "how": "key"
+     },
+     {
+      "ask": "bin 0.25 간격",
+      "how": "key"
+     },
+     {
+      "ask": "1.75~6.5 범위",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS07_r3/out/t1/histogram_잔류금속_wt.png"
+    ],
+    "chart": "histogram",
+    "rows_used": 997,
+    "rows_total": 997,
+    "values": {
+     "bins": 19,
+     "series": {
+      "잔류금속 (wt%)": {
+       "n": 997,
+       "mean": 3.7318956870611832
+      }
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "히스토그램 그래프를 저장했습니다: histogram_잔류금속_wt.png\n사용한 행: 997 / 997\n잔류금속 (wt%): 997개, 평균 3.732"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [
+        {
+         "name": "",
+         "edges": [
+          1.75,
+          2.0,
+          2.25,
+          2.5,
+          2.75,
+          3.0,
+          3.25,
+          3.5,
+          3.75,
+          4.0,
+          4.25,
+          4.5,
+          4.75,
+          5.0,
+          5.25,
+          5.5,
+          5.75,
+          6.0,
+          6.25,
+          6.5
+         ],
+         "counts": [
+          2.0,
+          4.0,
+          25.0,
+          52.0,
+          98.0,
+          142.0,
+          153.0,
+          90.0,
+          76.0,
+          76.0,
+          76.0,
+          81.0,
+          45.0,
+          31.0,
+          20.0,
+          11.0,
+          7.0,
+          6.0,
+          2.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#1f4e9c"
+        }
+       ],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "잔류금속 (wt%)",
+        "type": "value",
+        "ticks": [
+         2.0,
+         3.0,
+         4.0,
+         5.0,
+         6.0
+        ],
+        "step": 1.0,
+        "categories": null,
+        "min": 1.5125,
+        "max": 6.7375,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "2",
+         "3",
+         "4",
+         "5",
+         "6"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "count",
+        "type": "value",
+        "ticks": [
+         0.0,
+         50.0,
+         100.0,
+         150.0,
+         200.0
+        ],
+        "step": 50.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 200.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "-50",
+         "0",
+         "50",
+         "100",
+         "150",
+         "200",
+         "250"
+        ],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS07_r3/out/t1/histogram_잔류금속_wt.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.44248104095458984,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 4.034
+  },
+  {
+   "turn": 2,
+   "text": "R4하고 나머지(R1–R3)로 나눠서 반투명하게 겹쳐 주세요.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"histogram\",\n  \"x\": {\n    \"col\": \"잔류금속 (wt%)\",\n    \"bins\": {\n      \"width\": 0.25,\n      \"min\": 1.75,\n      \"max\": 6.5\n    }\n  },\n  \"by\": \"반응기\",\n  \"code\": \"import pandas as pd\\n\\ndf = data.copy() if hasattr(data, 'copy') else None\\n# Fallback to original file reading logic in sandbox context usually provided by plotkit helper or manual load if 'df' not directly available in code block for histogram splitting.\\n# However, standard plotkit behavior: 'by' splits automatically. To force R4 vs Rest and transparency/overlap:\\n\\n# The 'by' key handles the split. We need to ensure they are overlaid and transparent.\\n# In Matplotlib backend used by PlotKit, histograms from 'by' might stack or side-by-side depending on defaults.\\n# To achieve specific \\\"R4 vs Rest\\\" grouping where Rest is a single group of R1-R3:\\n# This requires modifying the data before plotting because 'by' groups by unique values in column E (R1, R2, R3, R4).\\n# Grouping into two categories: 'R4' and 'Others' needs a derived column.\\n\\nif df is not None:\\n    df['그룹'] = df['반응기'].apply(lambda x: 'R4' if x == 'R4' else 'R1-R3')\\n    # Replace the original '반응기' usage with this new grouping for the split\\n    # But wait, the spec uses 'by'. If I use 'data_code', I can modify the dataframe passed to the chart.\\n    pass\\n\\n# Correct approach using data_code to create a binary categorical column for splitting\\n# Note: data_code runs BEFORE drawing but AFTER loading. For charts, it modifies 'df'.\\n# We will add a column 'Group_Rest' which is either 'R4' or 'R1-R3'\\n\",\n  \"data_code\": \"df['구분'] = df['반응기'].apply(lambda r: 'R4' if r == 'R4' else 'R1-R3')\",\n  \"by\": \"구분\",\n  \"style\": {\n    \"alpha\": 0.5,\n    \"edgecolor\": \"black\"\n  },\n  \"asks\": [\n    {\n      \"ask\": \"R4와 나머지(R1–R3)로 나눠서\",\n      \"how\": \"key + data_code\"\n    },\n    {\n      \"ask\": \"반투명하게 겹쳐 주세요\",\n      \"how\": \"code\"\n    }\n  ]\n}\n```",
+     "llm_s": 10.765,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 18813,
+     "output_chars": 1943,
+     "attempts": 1
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"histogram\",\n  \"x\": {\n    \"col\": \"잔류금속 (wt%)\",\n    \"bins\": {\n      \"width\": 0.25,\n      \"min\": 1.75,\n      \"max\": 6.5\n    }\n  },\n  \"data_code\": \"df['구분'] = df['반응기'].apply(lambda r: 'R4' if r == 'R4' else 'R1-R3')\",\n  \"by\": \"구분\",\n  \"alpha\": 0.5,\n  \"asks\": [\n    {\n      \"ask\": \"R4와 나머지(R1–R3)로 나눠서\",\n      \"how\": \"key + data_code\"\n    },\n    {\n      \"ask\": \"반투명하게 겹쳐 주세요\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 4.619,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 21411,
+     "output_chars": 477,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "histogram",
+    "x": {
+     "col": "잔류금속 (wt%)",
+     "bins": {
+      "width": 0.25,
+      "min": 1.75,
+      "max": 6.5
+     }
+    },
+    "data_code": "df['구분'] = df['반응기'].apply(lambda r: 'R4' if r == 'R4' else 'R1-R3')",
+    "by": "구분",
+    "alpha": 0.5,
+    "asks": [
+     {
+      "ask": "R4와 나머지(R1–R3)로 나눠서",
+      "how": "key + data_code"
+     },
+     {
+      "ask": "반투명하게 겹쳐 주세요",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS07_r3/out/t2/histogram_잔류금속_wt.png"
+    ],
+    "chart": "histogram",
+    "rows_used": 997,
+    "rows_total": 997,
+    "values": {
+     "bins": 19,
+     "series": {
+      "R1-R3": {
+       "n": 746,
+       "mean": 3.4006166219839136
+      },
+      "R4": {
+       "n": 251,
+       "mean": 4.716494023904382
+      }
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "히스토그램 그래프를 저장했습니다: histogram_잔류금속_wt.png\n사용한 행: 997 / 997\nR1-R3: 746개, 평균 3.401\nR4: 251개, 평균 4.716"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [
+        {
+         "name": "R1-R3",
+         "edges": [
+          1.75,
+          2.0,
+          2.25,
+          2.5,
+          2.75,
+          3.0,
+          3.25,
+          3.5,
+          3.75,
+          4.0,
+          4.25,
+          4.5,
+          4.75,
+          5.0,
+          5.25,
+          5.5,
+          5.75,
+          6.0,
+          6.25,
+          6.5
+         ],
+         "counts": [
+          2.0,
+          4.0,
+          25.0,
+          52.0,
+          98.0,
+          142.0,
+          152.0,
+          86.0,
+          57.0,
+          52.0,
+          29.0,
+          28.0,
+          11.0,
+          4.0,
+          4.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#1f4e9c"
+        },
+        {
+         "name": "R4",
+         "edges": [
+          1.75,
+          2.0,
+          2.25,
+          2.5,
+          2.75,
+          3.0,
+          3.25,
+          3.5,
+          3.75,
+          4.0,
+          4.25,
+          4.5,
+          4.75,
+          5.0,
+          5.25,
+          5.5,
+          5.75,
+          6.0,
+          6.25,
+          6.5
+         ],
+         "counts": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          4.0,
+          19.0,
+          24.0,
+          47.0,
+          53.0,
+          34.0,
+          27.0,
+          16.0,
+          11.0,
+          7.0,
+          6.0,
+          2.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#c0392b"
+        }
+       ],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "잔류금속 (wt%)",
+        "type": "value",
+        "ticks": [
+         2.0,
+         3.0,
+         4.0,
+         5.0,
+         6.0
+        ],
+        "step": 1.0,
+        "categories": null,
+        "min": 1.5125,
+        "max": 6.7375,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "2",
+         "3",
+         "4",
+         "5",
+         "6"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "count",
+        "type": "value",
+        "ticks": [
+         0.0,
+         50.0,
+         100.0,
+         150.0,
+         200.0
+        ],
+        "step": 50.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 200.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "-50",
+         "0",
+         "50",
+         "100",
+         "150",
+         "200",
+         "250"
+        ],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "R1-R3",
+       "R4"
+      ],
+      "inside": true,
+      "where": "upper right"
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS07_r3/out/t2/histogram_잔류금속_wt.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5196130275726318,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [],
+    "unchecked": [
+     "alpha=< 1 (semi-transparent overlay)"
+    ],
+    "n_checks": 3,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 16.218
+  },
+  {
+   "turn": 3,
+   "text": "규격 상한 5.0 wt%에 세로 점선 넣고, y축을 개수 대신 밀도(density)로 바꿔 주세요.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"histogram\",\n  \"x\": {\n    \"col\": \"잔류금속 (wt%)\",\n    \"bins\": {\n      \"width\": 0.25,\n      \"min\": 1.75,\n      \"max\": 6.5\n    }\n  },\n  \"data_code\": \"df['구분'] = df['반응기'].apply(lambda r: 'R4' if r == 'R4' else 'R1-R3')\",\n  \"by\": \"구분\",\n  \"alpha\": 0.5,\n  \"density\": true,\n  \"ref\": [\n    {\n      \"x\": 5.0,\n      \"text\": \"규격 상한 5.0 wt%\",\n      \"linestyle\": \"dashed\"\n    }\n  ],\n  \"asks\": [\n    {\n      \"ask\": \"규격 상한 5.0 세로 점선\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"y축 밀도(density)\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 7.024,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 22200,
+     "output_chars": 585,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "histogram",
+    "x": {
+     "col": "잔류금속 (wt%)",
+     "bins": {
+      "width": 0.25,
+      "min": 1.75,
+      "max": 6.5
+     }
+    },
+    "data_code": "df['구분'] = df['반응기'].apply(lambda r: 'R4' if r == 'R4' else 'R1-R3')",
+    "by": "구분",
+    "alpha": 0.5,
+    "density": true,
+    "ref": [
+     {
+      "x": 5.0,
+      "text": "규격 상한 5.0 wt%",
+      "linestyle": "dashed"
+     }
+    ],
+    "asks": [
+     {
+      "ask": "규격 상한 5.0 세로 점선",
+      "how": "key"
+     },
+     {
+      "ask": "y축 밀도(density)",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS07_r3/out/t3/histogram_잔류금속_wt.png"
+    ],
+    "chart": "histogram",
+    "rows_used": 997,
+    "rows_total": 997,
+    "values": {
+     "bins": 19,
+     "series": {
+      "R1-R3": {
+       "n": 746,
+       "mean": 3.4006166219839136
+      },
+      "R4": {
+       "n": 251,
+       "mean": 4.716494023904382
+      }
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "히스토그램 그래프를 저장했습니다: histogram_잔류금속_wt.png\n사용한 행: 997 / 997\nR1-R3: 746개, 평균 3.401\nR4: 251개, 평균 4.716\n기준선: 규격 상한 5.0 wt%"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [
+        {
+         "name": "R1-R3",
+         "edges": [
+          1.75,
+          2.0,
+          2.25,
+          2.5,
+          2.75,
+          3.0,
+          3.25,
+          3.5,
+          3.75,
+          4.0,
+          4.25,
+          4.5,
+          4.75,
+          5.0,
+          5.25,
+          5.5,
+          5.75,
+          6.0,
+          6.25,
+          6.5
+         ],
+         "counts": [
+          0.010723860589812333,
+          0.021447721179624665,
+          0.13404825737265416,
+          0.27882037533512066,
+          0.5254691689008043,
+          0.7613941018766756,
+          0.8150134048257373,
+          0.46112600536193027,
+          0.30563002680965146,
+          0.27882037533512066,
+          0.1554959785522788,
+          0.15013404825737264,
+          0.058981233243967826,
+          0.021447721179624665,
+          0.021447721179624665,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#1f4e9c"
+        },
+        {
+         "name": "R4",
+         "edges": [
+          1.75,
+          2.0,
+          2.25,
+          2.5,
+          2.75,
+          3.0,
+          3.25,
+          3.5,
+          3.75,
+          4.0,
+          4.25,
+          4.5,
+          4.75,
+          5.0,
+          5.25,
+          5.5,
+          5.75,
+          6.0,
+          6.25,
+          6.5
+         ],
+         "counts": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.01593625498007968,
+          0.06374501992031872,
+          0.30278884462151395,
+          0.38247011952191234,
+          0.749003984063745,
+          0.8446215139442231,
+          0.5418326693227091,
+          0.4302788844621514,
+          0.2549800796812749,
+          0.1752988047808765,
+          0.11155378486055777,
+          0.09561752988047809,
+          0.03187250996015936
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#c0392b"
+        }
+       ],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [
+        5.0
+       ],
+       "value_labels": 0,
+       "texts": [
+        "규격 상한 5.0 wt%"
+       ],
+       "x": {
+        "label": "잔류금속 (wt%)",
+        "type": "value",
+        "ticks": [
+         2.0,
+         3.0,
+         4.0,
+         5.0,
+         6.0
+        ],
+        "step": 1.0,
+        "categories": null,
+        "min": 1.5125,
+        "max": 6.7375,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "2",
+         "3",
+         "4",
+         "5",
+         "6"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "density",
+        "type": "value",
+        "ticks": [
+         0.0,
+         0.2,
+         0.4000000000000001,
+         0.6000000000000001,
+         0.8,
+         1.0000000000000002
+        ],
+        "step": 0.2,
+        "categories": null,
+        "min": 0.0,
+        "max": 1.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "-0.2",
+         "0.0",
+         "0.2",
+         "0.4",
+         "0.6",
+         "0.8",
+         "1.0",
+         "1.2"
+        ],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [
+      "규격 상한 5.0 wt%"
+     ],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "R1-R3",
+       "R4"
+      ],
+      "inside": true,
+      "where": "upper right"
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS07_r3/out/t3/histogram_잔류금속_wt.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5009365081787109,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [
+     "histogram: 8 values counted, want 997",
+     "histogram R1–R3: bins/counts differ",
+     "histogram R4: bins/counts differ"
+    ],
+    "unchecked": [
+     "alpha=< 1 (semi-transparent overlay)",
+     "ref_line=5.0"
+    ],
+    "n_checks": 4,
+    "n_failed": 3,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 7.602
+  }
+ ]
+}

@@ -1,0 +1,233 @@
+{
+ "arm": "R-mpl",
+ "item": "S024",
+ "repeat": 2,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "TGA 10개 배치 각각 800 °C 잔량(wt%)을 Fe로 환산(Fe₂O₃ → Fe, ×0.699)해서 런로그 잔류금속(wt%)과 비교하는 산점도 그려 주세요. 시트 이름이 런ID입니다. y = x 기준선도 넣어 주세요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# Configuration\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# 1. Load Run Log Data\nrun_log_path = \"data/run_log.xlsx\"\ndf_run = pd.read_excel(run_log_path, sheet_name=\"런로그\")\n\n# Prepare a dictionary for quick lookup of residual metal by Run ID\n# Assuming '런ID' column corresponds to the sheet names in tga_batches.xlsx\n# We need '잔류금속 (wt%)' column from run log\nif '런ID' not in df_run.columns:\n    # Fallback if column name is slightly different or spaces matter\n    # Based on preview: A 런ID ... S 잔류금속 (wt%)\n    pass \n\n# Map Run ID to Residual Metal (wt%)\n# The user request implies comparing TGA derived Fe wt% with Run Log residual metal wt%.\n# Note: Run log says \"잔류금속 (wt%)\". Usually this is total ash/metal content.\n# The conversion factor 0.699 converts Fe2O3 weight to Fe weight.\n# So we calculate Fe_wt% from TGA residue and compare it to the reported Residual Metal.\n\n# Let's ensure we handle potential whitespace in keys\ndf_run['런ID_clean'] = df_run['런ID'].astype(str).str.strip()\nresidual_map = dict(zip(df_run['런ID_clean'], df_run['잔류금속 (wt%)']))\n\n# 2. Load TGA Data\ntga_path = \"data/tga_batches.xlsx\"\ntga_sheets = pd.ExcelFile(tga_path).sheet_names\n\nresults = []\n\nfor sheet in tga_sheets:\n    # Read sheet\n    df_tga = pd.read_excel(tga_path, sheet_name=sheet)\n    \n    # Identify columns based on preview:\n    # B 온도 (°C), C 중량 (%)\n    temp_col = None\n    weight_col = None\n    \n    for col in df_tga.columns:\n        if '온도' in str(col):\n            temp_col = col\n        elif '중량' in str(col) and '미분' not in str(col):\n            weight_col = col\n            \n    if temp_col is None or weight_col is None:\n        continue\n        \n    # Extract data at ~800°C\n    # Find index closest to 800\n    mask_800 = (df_tga[temp_col] >= 795) & (df_tga[temp_col] <= 805)\n    subset = df_tga[mask_800]\n    \n    if subset.empty:\n        # If no exact match, take nearest neighbor\n        idx = (df_tga[temp_col] - 800).abs().idxmin()\n        weight_at_800 = df_tga.loc[idx, weight_col]\n    else:\n        # Average if multiple points fall in range (though unlikely with high res logs)\n        weight_at_800 = subset[weight_col].mean()\n        \n    # Calculate Fe equivalent\n    # Formula: Weight % * 0.699\n    fe_equiv = weight_at_800 * 0.699\n    \n    # Get corresponding value from Run Log\n    # Sheet name is likely the Run ID\n    clean_sheet_name = sheet.strip()\n    \n    # Look up in map\n    run_metal_val = residual_map.get(clean_sheet_name)\n    \n    if run_metal_val is not None:\n        results.append({\n            'Run_ID': clean_sheet_name,\n            'TGA_Fe_wt_pct': fe_equiv,\n            'Run_Log_Residual_Metal_wt_pct': run_metal_val\n        })\n    else:\n        print(f\"Warning: Run ID {clean_sheet_name} found in TGA but not in Run Log map.\")\n\n# Convert to DataFrame\ndf_comp = pd.DataFrame(results)\n\n# 3. Plot Scatter\nfig, ax = plt.subplots(figsize=(8, 8))\n\nax.scatter(\n    df_comp['Run_Log_Residual_Metal_wt_pct'], \n    df_comp['TGA_Fe_wt_pct'], \n    s=100, \n    alpha=0.7, \n    edgecolors='k', \n    color='steelblue',\n    label='배치 데이터'\n)\n\n# Add y=x baseline\nlims = [\n    min(df_comp['Run_Log_Residual_Metal_wt_pct'].min(), df_comp['TGA_Fe_wt_pct'].min()) - 0.5,\n    max(df_comp['Run_Log_Residual_Metal_wt_pct'].max(), df_comp['TGA_Fe_wt_pct'].max()) + 0.5\n]\nax.plot(lims, lims, 'r--', linewidth=1.5, label='y = x 기준선')\n\n# Formatting\nax.set_xlabel('런로그 잔류금속 (wt%)', fontsize=12)\nax.set_ylabel('TGA 잔류량 환산 Fe (wt%)', fontsize=12)\nax.set_title('TGA 분석값(Fe 환산) vs 런로그 기록 비교', fontsize=14)\nax.legend(loc='upper left')\nax.grid(True, linestyle=':', alpha=0.6)\n\n# Set aspect ratio equal to make visual inspection easier\nax.set_aspect('equal', adjustable='box')\n\nplt.tight_layout()\nplt.savefig(os.path.join(OUT_DIR, 'tga_vs_runlog_scatter.png'), dpi=300)\nplt.close()\n```",
+     "llm_s": 19.293,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 5834,
+     "output_chars": 3938,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# Configuration\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# 1. Load Run Log Data\nrun_log_path = \"data/run_log.xlsx\"\ndf_run = pd.read_excel(run_log_path, sheet_name=\"런로그\")\n\n# Identify the correct column for Residual Metal\n# The error suggests '잔류금속 (wt%)' might not be exact or has different spacing/characters.\n# We look for a column containing '잔류금속'.\nmetal_col = None\nfor col in df_run.columns:\n    if '잔류금속' in str(col):\n        metal_col = col\n        break\n\nif metal_col is None:\n    raise ValueError(\"Could not find '잔류금속' column in run log.\")\n\n# Prepare a dictionary for quick lookup of residual metal by Run ID\n# Ensure Run IDs are strings and stripped for matching with sheet names\ndf_run['런ID_clean'] = df_run['런ID'].astype(str).str.strip()\nresidual_map = dict(zip(df_run['런ID_clean'], df_run[metal_col]))\n\n# 2. Load TGA Data\ntga_path = \"data/tga_batches.xlsx\"\ntga_sheets = pd.ExcelFile(tga_path).sheet_names\n\nresults = []\n\nfor sheet in tga_sheets:\n    # Read sheet\n    df_tga = pd.read_excel(tga_path, sheet_name=sheet)\n    \n    # Identify columns based on preview:\n    # B 온도 (°C), C 중량 (%)\n    temp_col = None\n    weight_col = None\n    \n    for col in df_tga.columns:\n        if '온도' in str(col):\n            temp_col = col\n        elif '중량' in str(col) and '미분' not in str(col):\n            weight_col = col\n            \n    if temp_col is None or weight_col is None:\n        continue\n        \n    # Extract data at ~800°C\n    # Find index closest to 800\n    mask_800 = (df_tga[temp_col] >= 795) & (df_tga[temp_col] <= 805)\n    subset = df_tga[mask_800]\n    \n    if subset.empty:\n        # If no exact match, take nearest neighbor\n        idx = (df_tga[temp_col] - 800).abs().idxmin()\n        weight_at_800 = df_tga.loc[idx, weight_col]\n    else:\n        # Average if multiple points fall in range\n        weight_at_800 = subset[weight_col].mean()\n        \n    # Calculate Fe equivalent\n    # Formula: Weight % * 0.699\n    fe_equiv = weight_at_800 * 0.699\n    \n    # Get corresponding value from Run Log\n    # Sheet name is likely the Run ID\n    clean_sheet_name = sheet.strip()\n    \n    # Look up in map\n    run_metal_val = residual_map.get(clean_sheet_name)\n    \n    if run_metal_val is not None:\n        results.append({\n            'Run_ID': clean_sheet_name,\n            'TGA_Fe_wt_pct': fe_equiv,\n            'Run_Log_Residual_Metal_wt_pct': run_metal_val\n        })\n    else:\n        print(f\"Warning: Run ID {clean_sheet_name} found in TGA but not in Run Log map.\")\n\n# Convert to DataFrame\ndf_comp = pd.DataFrame(results)\n\nif df_comp.empty:\n    raise ValueError(\"No matching data found between TGA sheets and Run Log.\")\n\n# 3. Plot Scatter\nfig, ax = plt.subplots(figsize=(8, 8))\n\nax.scatter(\n    df_comp['Run_Log_Residual_Metal_wt_pct'], \n    df_comp['TGA_Fe_wt_pct'], \n    s=100, \n    alpha=0.7, \n    edgecolors='k', \n    color='steelblue',\n    label='배치 데이터'\n)\n\n# Add y=x baseline\nlims = [\n    min(df_comp['Run_Log_Residual_Metal_wt_pct'].min(), df_comp['TGA_Fe_wt_pct'].min()) - 0.5,\n    max(df_comp['Run_Log_Residual_Metal_wt_pct'].max(), df_comp['TGA_Fe_wt_pct'].max()) + 0.5\n]\nax.plot(lims, lims, 'r--', linewidth=1.5, label='y = x 기준선')\n\n# Formatting\nax.set_xlabel('런로그 잔류금속 (wt%)', fontsize=12)\nax.set_ylabel('TGA 잔류량 환산 Fe (wt%)', fontsize=12)\nax.set_title('TGA 분석값(Fe 환산) vs 런로그 기록 비교', fontsize=14)\nax.legend(loc='upper left')\nax.grid(True, linestyle=':', alpha=0.6)\n\n# Set aspect ratio equal to make visual inspection easier\nax.set_aspect('equal', adjustable='box')\n\nplt.tight_layout()\nplt.savefig(os.path.join(OUT_DIR, 'tga_vs_runlog_scatter.png'), dpi=300)\nplt.close()\n```",
+     "llm_s": 15.972,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 11508,
+     "output_chars": 3758,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# Configuration\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# 1. Load Run Log Data\nrun_log_path = \"data/run_log.xlsx\"\ndf_run = pd.read_excel(run_log_path, sheet_name=\"런로그\")\n\n# Identify the correct column for Residual Metal\n# The error suggests '잔류금속 (wt%)' might not be exact or has different spacing/characters.\n# We look for a column containing '잔류금속'.\nmetal_col = None\nfor col in df_run.columns:\n    if '잔류금속' in str(col):\n        metal_col = col\n        break\n\nif metal_col is None:\n    raise ValueError(\"Could not find '잔류금속' column in run log.\")\n\n# Prepare a dictionary for quick lookup of residual metal by Run ID\n# Ensure Run IDs are strings and stripped for matching with sheet names\ndf_run['런ID_clean'] = df_run['런ID'].astype(str).str.strip()\nresidual_map = dict(zip(df_run['런ID_clean'], df_run[metal_col]))\n\n# 2. Load TGA Data\ntga_path = \"data/tga_batches.xlsx\"\ntga_sheets = pd.ExcelFile(tga_path).sheet_names\n\nresults = []\n\nfor sheet in tga_sheets:\n    # Read sheet\n    df_tga = pd.read_excel(tga_path, sheet_name=sheet)\n    \n    # Identify columns based on preview:\n    # B 온도 (°C), C 중량 (%)\n    temp_col = None\n    weight_col = None\n    \n    for col in df_tga.columns:\n        if '온도' in str(col):\n            temp_col = col\n        elif '중량' in str(col) and '미분' not in str(col):\n            weight_col = col\n            \n    if temp_col is None or weight_col is None:\n        continue\n        \n    # Extract data at ~800°C\n    # Find index closest to 800\n    mask_800 = (df_tga[temp_col] >= 795) & (df_tga[temp_col] <= 805)\n    subset = df_tga[mask_800]\n    \n    if subset.empty:\n        # If no exact match, take nearest neighbor\n        idx = (df_tga[temp_col] - 800).abs().idxmin()\n        weight_at_800 = df_tga.loc[idx, weight_col]\n    else:\n        # Average if multiple points fall in range\n        weight_at_800 = subset[weight_col].mean()\n        \n    # Calculate Fe equivalent\n    # Formula: Weight % * 0.699\n    fe_equiv = weight_at_800 * 0.699\n    \n    # Get corresponding value from Run Log\n    # Sheet name is likely the Run ID\n    clean_sheet_name = sheet.strip()\n    \n    # Look up in map\n    run_metal_val = residual_map.get(clean_sheet_name)\n    \n    if run_metal_val is not None:\n        results.append({\n            'Run_ID': clean_sheet_name,\n            'TGA_Fe_wt_pct': fe_equiv,\n            'Run_Log_Residual_Metal_wt_pct': run_metal_val\n        })\n    else:\n        print(f\"Warning: Run ID {clean_sheet_name} found in TGA but not in Run Log map.\")\n\n# Convert to DataFrame\ndf_comp = pd.DataFrame(results)\n\nif df_comp.empty:\n    raise ValueError(\"No matching data found between TGA sheets and Run Log.\")\n\n# 3. Plot Scatter\nfig, ax = plt.subplots(figsize=(8, 8))\n\nax.scatter(\n    df_comp['Run_Log_Residual_Metal_wt_pct'], \n    df_comp['TGA_Fe_wt_pct'], \n    s=100, \n    alpha=0.7, \n    edgecolors='k', \n    color='steelblue',\n    label='배치 데이터'\n)\n\n# Add y=x baseline\nlims = [\n    min(df_comp['Run_Log_Residual_Metal_wt_pct'].min(), df_comp['TGA_Fe_wt_pct'].min()) - 0.5,\n    max(df_comp['Run_Log_Residual_Metal_wt_pct'].max(), df_comp['TGA_Fe_wt_pct'].max()) + 0.5\n]\nax.plot(lims, lims, 'r--', linewidth=1.5, label='y = x 기준선')\n\n# Formatting\nax.set_xlabel('런로그 잔류금속 (wt%)', fontsize=12)\nax.set_ylabel('TGA 잔류량 환산 Fe (wt%)', fontsize=12)\nax.set_title('TGA 분석값(Fe 환산) vs 런로그 기록 비교', fontsize=14)\nax.legend(loc='upper left')\nax.grid(True, linestyle=':', alpha=0.6)\n\n# Set aspect ratio equal to make visual inspection easier\nax.set_aspect('equal', adjustable='box')\n\nplt.tight_layout()\nplt.savefig(os.path.join(OUT_DIR, 'tga_vs_runlog_scatter.png'), dpi=300)\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      8.0,
+      8.0
+     ],
+     "dpi": null,
+     "title": "TGA 분석값(Fe 환산) vs 런로그 기록 비교",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [
+        {
+         "name": "y = x 기준선",
+         "n": 2,
+         "x": [
+          2.5691544842105256,
+          6.01
+         ],
+         "y": [
+          2.5691544842105256,
+          6.01
+         ],
+         "color": "#ff0000",
+         "style": "--",
+         "width": 1.5
+        }
+       ],
+       "points": [
+        {
+         "name": "배치 데이터",
+         "n": 10,
+         "x_range": [
+          3.07,
+          5.51
+         ],
+         "y_range": [
+          3.0691544842105256,
+          5.506688714285714
+         ],
+         "color": "#4682b4",
+         "colors": null,
+         "x": [
+          3.18,
+          4.15,
+          3.09,
+          3.07,
+          3.44,
+          3.41,
+          5.08,
+          5.51,
+          4.71,
+          3.6
+         ],
+         "y": [
+          3.1787793900000003,
+          4.147446599999999,
+          3.0882052999999994,
+          3.0691544842105256,
+          3.437854910526315,
+          3.4080959052631576,
+          5.078179079999999,
+          5.506688714285714,
+          4.708572344999999,
+          3.5979847736842103
+         ]
+        }
+       ],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "런로그 잔류금속 (wt%)",
+        "type": "value",
+        "ticks": [
+         2.5,
+         3.0,
+         3.5,
+         4.0,
+         4.5,
+         5.0,
+         5.5,
+         6.0
+        ],
+        "step": 0.5,
+        "categories": null,
+        "min": 2.397112208421052,
+        "max": 6.182042275789474,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "2.0",
+         "2.5",
+         "3.0",
+         "3.5",
+         "4.0",
+         "4.5",
+         "5.0",
+         "5.5",
+         "6.0",
+         "6.5"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "TGA 잔류량 환산 Fe (wt%)",
+        "type": "value",
+        "ticks": [
+         2.5,
+         3.0,
+         3.5,
+         4.0,
+         4.5,
+         5.0,
+         5.5,
+         6.0
+        ],
+        "step": 0.5,
+        "categories": null,
+        "min": 2.397112208421052,
+        "max": 6.182042275789474,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "2.0",
+         "2.5",
+         "3.0",
+         "3.5",
+         "4.0",
+         "4.5",
+         "5.0",
+         "5.5",
+         "6.0",
+         "6.5"
+        ],
+        "rotate": 0.0
+       },
+       "title": "TGA 분석값(Fe 환산) vs 런로그 기록 비교"
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "배치 데이터",
+       "y = x 기준선"
+      ],
+      "inside": true,
+      "where": "upper left"
+     },
+     "files": [
+      {
+       "path": "out/t1/tga_vs_runlog_scatter.png",
+       "format": "png",
+       "px": [
+        2400,
+        2400
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.8484652042388916,
+   "check": {
+    "kind_expected": "scatter",
+    "failed": [
+     "computed TGA-derived Fe (wt%) per batch: {'R1-260326-1': 3.176, 'R1-260716-1': 4.143, 'R2-260617-1': 3.092, 'R2-260616-1': 3.067, 'R3-260428-1': 3.442, 'R3-260810-2': 3.405, 'R4-260407-1': 5.08, 'R4-260721-1': 5.504, 'R1-260711-1': 4.711, 'R2-260312-1': 3.599} not shown"
+    ],
+    "unchecked": [
+     "ref_line=y = x"
+    ],
+    "n_checks": 4,
+    "n_failed": 1,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 36.484
+  }
+ ]
+}

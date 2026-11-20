@@ -1,0 +1,15 @@
+We need answer user's request in Korean? They asked: "XRD 패턴 그려주고 강한 피크 5개의 2θ 값을 표시해줘. 오른쪽 축은 필요 없어" We are in test mode: cannot run commands. Need reply JSON spec only inside ```json block, nothing else. Need use inspect result file xrd.csv. Need infer spec. Data not TGA, preset none, x col A, y1 col B. Need right axis not needed: "y2": false. Strong peaks 5 of 2theta values: annotate peak count 5, on y1? Since TGA preset peak default on y2, but here preset none. Need specify annotate.peak type peak on y1 count 5 text maybe "{x:.1f}" or "{x:.0f}"? User wants 2θ values. Could use text "{x:.1f}°"? The guide says peak text default "{x:.0f} °C" for TGA. For XRD, likely want 2θ values, maybe text "{x:.1f}°" or "{x:.1f}° 2θ"? Need only what asked. "강한 피크 5개의 2θ 값을 표시해줘" => annotate peak count 5. Need set on y1 because no y2. Also maybe text "{x:.1f}°". Should we include title? No. Need maybe x label? Not requested. But for non-TGA, preset none and x/y1 col explicit. Could include y2 false. Spec:
+{
+ "file": "xrd.csv",
+ "preset": "none",
+ "x": {"col": "A"},
+ "y1": {"col": "B"},
+ "y2": false,
+ "annotate": {"peak": {"on": "y1", "count": 5, "text": "{x:.1f}°"}}
+}
+Need consider peak options: kind max default? Strong peaks = max. Count 5. Text maybe "{x:.1f}" enough? They asked 2θ values. Maybe text "{x:.1f}°". If axis label not set, 2Theta (deg) from header maybe used? But not necessary. Could set x label? Not requested. The guide: Leave out every key user did not mention. Exception? For non-TGA use preset none and give x.col and y1.col. Need y2 false because right axis not needed.
+Need ensure JSON valid. Could annotate peak type? Since preset none might not have default peak; need full annotation? The guide says annotate is dict of named labels. For new? peak is known. If preset none, does peak require type? The schema likely supports peak type. In examples for TGA preset, peak exists. For other data? Need maybe include "type": "peak", "on": "y1", "count": 5, "text": "{x:.1f}°". To be safe include type. The guide says Add new ones under new names with type. But peak is known. Could include type. Does plotkit accept type peak with count? likely.
+Need maybe "annotate": {"peak": {"type": "peak", "on": "y1", "count": 5, "text": "{x:.1f}°"}}.
+Need no y2 key? "오른쪽 축은 필요 없어" => y2 false.
+Need maybe output? no.
+Need only JSON block. Ensure no extra text.

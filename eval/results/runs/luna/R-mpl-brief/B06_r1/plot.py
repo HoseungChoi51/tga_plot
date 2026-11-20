@@ -1,0 +1,64 @@
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import pandas as pd
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/eval/inputs_b/isothermal.txt")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/B06_r1/out")
+
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+# Read the tabular text file, allowing common whitespace- or delimiter-separated formats.
+try:
+    df = pd.read_csv(DATA_FILE, sep=None, engine="python", comment="#")
+    if df.shape[1] < 3:
+        raise ValueError("Could not infer the text-file delimiter.")
+except Exception:
+    df = pd.read_csv(DATA_FILE, sep=r"\s+|,", engine="python", comment="#")
+
+# The preview identifies columns A, B, C as time, temperature, and weight.
+time = pd.to_numeric(df.iloc[:, 0], errors="coerce")
+temperature = pd.to_numeric(df.iloc[:, 1], errors="coerce")
+weight = pd.to_numeric(df.iloc[:, 2], errors="coerce")
+
+data = pd.DataFrame({"time": time, "temperature": temperature, "weight": weight}).dropna()
+if data.empty:
+    raise ValueError(f"No numeric data rows found in {DATA_FILE}")
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+fig, ax1 = plt.subplots(figsize=(8, 5))
+ax1.plot(data["time"], data["weight"], color="#1f4e9c", linewidth=1.8, label="무게")
+ax1.set_xlabel("시간 (분)")
+ax1.set_ylabel("무게 (%)", color="#1f4e9c")
+ax1.tick_params(axis="y", labelcolor="#1f4e9c")
+ax1.grid(True, alpha=0.25)
+
+ax2 = ax1.twinx()
+ax2.plot(data["time"], data["temperature"], color="#c0392b", linewidth=1.8, label="온도")
+ax2.set_ylabel("온도 (°C)", color="#c0392b")
+ax2.tick_params(axis="y", labelcolor="#c0392b")
+
+# Mark and label the weight measured at, or nearest to, 140 minutes.
+target_time = 140.0
+idx = (data["time"] - target_time).abs().idxmin()
+mark_time = data.loc[idx, "time"]
+mark_weight = data.loc[idx, "weight"]
+ax1.scatter([mark_time], [mark_weight], color="#1f4e9c", edgecolor="white", zorder=5)
+ax1.annotate(
+    f"{mark_time:g}분 무게 {mark_weight:.2f}%",
+    xy=(mark_time, mark_weight),
+    xytext=(-10, 12),
+    textcoords="offset points",
+    ha="right",
+    color="#1f4e9c",
+    fontsize=9,
+)
+
+ax1.set_title("isothermal")
+fig.tight_layout()
+fig.savefig(OUT_DIR / "isothermal.png", dpi=300, bbox_inches="tight")
+plt.close(fig)

@@ -1,0 +1,38 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "histogram",
+ "x": {
+  "col": "CNT수율 (g/g-cat)",
+  "bins": {
+   "width": 1,
+   "min": 12,
+   "max": 36
+  }
+ },
+ "by": "주차_group",
+ "data_code": "import pandas as pd\ndf['주차_group'] = df['주차'].apply(lambda x: 'P1-13' if x <= 13 else 'P14-26')",
+ "ref": [
+  {
+   "x": "median",
+   "text": "Median"
+  }
+ ],
+ "asks": [
+  {
+   "ask": "두 기간(주차 1–13 vs 14–26) 겹치기",
+   "how": "data_code"
+  },
+  {
+   "ask": "공용 빈 경계, 1 g/g-cat 간격, 12~36",
+   "how": "key"
+  },
+  {
+   "ask": "각 기간 중위값 세로선",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/SS15_r2/out/t3"
+ }
+}

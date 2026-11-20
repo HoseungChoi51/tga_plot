@@ -1,0 +1,35 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "line",
+ "x": {
+  "col": "체류시간 (s)",
+  "bins": {
+   "width": 0.25,
+   "min": 2.5,
+   "max": 6.75
+  }
+ },
+ "y": {
+  "col": "CNT수율 (g/g-cat)",
+  "agg": "mean"
+ },
+ "by": "촉매그룹",
+ "data_code": "df['촉매그룹'] = df['촉매로트'].apply(lambda x: 'old' if x in ['FC-2602', 'FC-2603', 'FC-2604', 'FC-2605'] else 'new')\nimport pandas as pd\nimport numpy as np\nedges = np.arange(2.5, 6.75 + 0.25, 0.25)\ndf['bin_idx'] = pd.cut(df['체류시간 (s)'], bins=edges, right=False, labels=False)\ndf = df.dropna(subset=['bin_idx'])\ndf['bin_idx'] = df['bin_idx'].astype(int)\ncounts = df.groupby(['촉매그룹', 'bin_idx']).size().reset_index(name='n')\nvalid_bins = counts[counts['n'] >= 10][['촉매그룹', 'bin_idx']]\ndf = df.merge(valid_bins[['촉매그룹', 'bin_idx']], on=['촉매그룹', 'bin_idx'])\ndf['midpoint'] = edges[df['bin_idx']] + 0.125",
+ "asks": [
+  {
+   "ask": "Scatter 체류시간 vs CNT수율, all runs",
+   "how": "key"
+  },
+  {
+   "ask": "Color by catalyst lot group (old/new)",
+   "how": "data_code"
+  },
+  {
+   "ask": "Bin 체류시간 0.25s (2.5–6.75), mean CNT수율 per bin vs midpoint, line per group, drop n<10",
+   "how": "data_code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-mpl/SS13_r1/out/t3"
+ }
+}

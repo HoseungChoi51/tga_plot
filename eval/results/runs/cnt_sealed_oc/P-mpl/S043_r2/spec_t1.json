@@ -1,0 +1,26 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "heatmap",
+ "x": {
+  "col": "주차"
+ },
+ "y": "반응기",
+ "z": {
+  "col": "IG/ID",
+  "agg": "mean"
+ },
+ "asks": [
+  {
+   "ask": "반응기별 주별 IG/ID 변화",
+   "how": "key"
+  },
+  {
+   "ask": "표처럼 색으로 보여 주는 그래프 (히트맵)",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S043_r2/out/t1"
+ }
+}

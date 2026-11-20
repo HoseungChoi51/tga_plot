@@ -1,0 +1,264 @@
+{
+ "arm": "P-hyb",
+ "item": "S025",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "raman 폴더 8개 파일 각각 I_G/I_D를 계산해서 막대그래프로, 높은 순으로 정렬해 주세요. 베이스라인 보정 없이 피크 높이비로요: I_G는 1550–1620 cm⁻¹ 최대값, I_D는 1300–1400 cm⁻¹ 최대값입니다.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/raman/*.csv\",\n  \"chart\": \"bar\",\n  \"x\": \"파일명\",\n  \"y\": {\"col\": \"IG_ID\", \"agg\": \"mean\"},\n  \"sort\": \"desc\",\n  \"values\": true,\n  \"data_code\": \"import os\\nimport numpy as np\\n\\n# This data_code runs on the combined DataFrame of all files.\\n# However, for Raman curves, we need to process each file individually to compute ratios.\\n# The 'df' here is likely empty or not structured for this calculation directly from raw spectra.\\n# plotkit's standard chart flow expects a table. \\n# To handle multiple curve files and derive a single metric per file for a bar chart,\\n# we typically rely on the engine's ability to aggregate if supported, OR we must use 'code' to generate the plot manually if 'data_code' cannot inject new rows into the charting dataframe easily in this specific multi-file context.\\n# BUT, looking at the prompt structure: 'data_code' changes data before drawing. \\n# If the input is multiple CSVs treated as separate sheets/files, 'df' might be concatenated with a source column.\\n# Let's assume 'df' contains columns from all files concatenated, possibly with a 'source' or filename indicator.\\n# Actually, the preview shows separate files. Usually, multi-file inputs for charts require a common schema.\\n# Here, the schema is identical (A, B). \\n# A robust way in these systems when 'data_code' operates on a concatenated df is that there is often a hidden column indicating the source file, or we have to iterate.\\n# Given the constraints, I will attempt to construct the summary dataframe within data_code if possible, but usually, you can't replace the whole df structure for the chart keys easily unless the system supports it.\\n# Alternative: Use 'code' to draw the bar chart manually using matplotlib, calculating values from the loaded data objects if available? No, 'code' only has fig/ax.\\n# Let's look at the 'Curves' vs 'Charts' distinction. This is a derived metric from multiple curve files.\\n# Standard approach: The system might support aggregating across files if specified. But here we need custom math (max in range).\\n# Since I cannot write a script outside, I must rely on `data_code` to prepare the data for the `chart` keys.\\n# If `df` is the concatenation of all files, it needs a grouping key. Often the filename is added as a column like 'file' or 'sheet'.\\n# Let's assume the column 'sheet' or similar exists, or we extract it from the index/filename if accessible. \\n# In many such sandboxes, `df` has a column identifying the source. Let's try to detect it or assume 'sheet' based on the preview showing sheet names matching filenames.\\n\\nif 'sheet' in df.columns:\\n    group_col = 'sheet'\\nelif 'file' in df.columns:\\n    group_col = 'file'\\nelse:\\n    # Fallback: try to find any object column that looks like a filename/sheet name\\n    obj_cols = df.select_dtypes(include=['object']).columns\\n    if len(obj_cols) > 0:\\n        group_col = obj_cols[0]\\n    else:\\n        raise ValueError(\\\"No grouping column found\\\")\\n\\nresults = []\\nfor name, group in df.groupby(group_col):\\n    x = group['Raman Shift (cm-1)'].values\\n    y = group['Intensity (a.u.)'].values\\n    \\n    # Mask for D band (1300-1400)\\n    mask_d = (x >= 1300) & (x <= 1400)\\n    # Mask for G band (1550-1620)\\n    mask_g = (x >= 1550) & (x <= 1620)\\n    \\n    if not mask_d.any() or not mask_g.any():\\n        continue\\n        \\n    i_d = np.max(y[mask_d])\\n    i_g = np.max(y[mask_g])\\n    \\n    ratio = i_g / i_d if i_d != 0 else 0\\n    results.append({'파일명': name, 'IG_ID': ratio})\\n\\nimport pandas as pd\\nsummary_df = pd.DataFrame(results)\\n\\n# Replace the original df with the summary so the chart keys work on it\\ndf = summary_df\",\n  \"asks\": [\n    {\"ask\": \"8개 파일 각각 I_G/I_D 계산\", \"how\": \"data_code\"},\n    {\"ask\": \"베이스라인 보정 없이 피크 높이비\", \"how\": \"data_code\"},\n    {\"ask\": \"I_G는 1550–1620 cm⁻¹ 최대값\", \"how\": \"data_code\"},\n    {\"ask\": \"I_D는 1300–1400 cm⁻¹ 최대값\", \"how\": \"data_code\"},\n    {\"ask\": \"막대그래프\", \"how\": \"key\"},\n    {\"ask\": \"높은 순으로 정렬\", \"how\": \"key\"}\n  ]\n}\n```",
+     "llm_s": 49.25,
+     "prompt_tokens": 6116,
+     "output_tokens": 1154,
+     "cached_tokens": 5052,
+     "prompt_n": 1064,
+     "prefill_ms": 1342.5661180000002,
+     "decode_ms": 44797.897947,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": "data/raman/*.csv",
+    "chart": "bar",
+    "x": "파일명",
+    "y": {
+     "col": "IG_ID",
+     "agg": "mean"
+    },
+    "sort": "desc",
+    "values": true,
+    "data_code": "import os\nimport numpy as np\n\n# This data_code runs on the combined DataFrame of all files.\n# However, for Raman curves, we need to process each file individually to compute ratios.\n# The 'df' here is likely empty or not structured for this calculation directly from raw spectra.\n# plotkit's standard chart flow expects a table. \n# To handle multiple curve files and derive a single metric per file for a bar chart,\n# we typically rely on the engine's ability to aggregate if supported, OR we must use 'code' to generate the plot manually if 'data_code' cannot inject new rows into the charting dataframe easily in this specific multi-file context.\n# BUT, looking at the prompt structure: 'data_code' changes data before drawing. \n# If the input is multiple CSVs treated as separate sheets/files, 'df' might be concatenated with a source column.\n# Let's assume 'df' contains columns from all files concatenated, possibly with a 'source' or filename indicator.\n# Actually, the preview shows separate files. Usually, multi-file inputs for charts require a common schema.\n# Here, the schema is identical (A, B). \n# A robust way in these systems when 'data_code' operates on a concatenated df is that there is often a hidden column indicating the source file, or we have to iterate.\n# Given the constraints, I will attempt to construct the summary dataframe within data_code if possible, but usually, you can't replace the whole df structure for the chart keys easily unless the system supports it.\n# Alternative: Use 'code' to draw the bar chart manually using matplotlib, calculating values from the loaded data objects if available? No, 'code' only has fig/ax.\n# Let's look at the 'Curves' vs 'Charts' distinction. This is a derived metric from multiple curve files.\n# Standard approach: The system might support aggregating across files if specified. But here we need custom math (max in range).\n# Since I cannot write a script outside, I must rely on `data_code` to prepare the data for the `chart` keys.\n# If `df` is the concatenation of all files, it needs a grouping key. Often the filename is added as a column like 'file' or 'sheet'.\n# Let's assume the column 'sheet' or similar exists, or we extract it from the index/filename if accessible. \n# In many such sandboxes, `df` has a column identifying the source. Let's try to detect it or assume 'sheet' based on the preview showing sheet names matching filenames.\n\nif 'sheet' in df.columns:\n    group_col = 'sheet'\nelif 'file' in df.columns:\n    group_col = 'file'\nelse:\n    # Fallback: try to find any object column that looks like a filename/sheet name\n    obj_cols = df.select_dtypes(include=['object']).columns\n    if len(obj_cols) > 0:\n        group_col = obj_cols[0]\n    else:\n        raise ValueError(\"No grouping column found\")\n\nresults = []\nfor name, group in df.groupby(group_col):\n    x = group['Raman Shift (cm-1)'].values\n    y = group['Intensity (a.u.)'].values\n    \n    # Mask for D band (1300-1400)\n    mask_d = (x >= 1300) & (x <= 1400)\n    # Mask for G band (1550-1620)\n    mask_g = (x >= 1550) & (x <= 1620)\n    \n    if not mask_d.any() or not mask_g.any():\n        continue\n        \n    i_d = np.max(y[mask_d])\n    i_g = np.max(y[mask_g])\n    \n    ratio = i_g / i_d if i_d != 0 else 0\n    results.append({'파일명': name, 'IG_ID': ratio})\n\nimport pandas as pd\nsummary_df = pd.DataFrame(results)\n\n# Replace the original df with the summary so the chart keys work on it\ndf = summary_df",
+    "asks": [
+     {
+      "ask": "8개 파일 각각 I_G/I_D 계산",
+      "how": "data_code"
+     },
+     {
+      "ask": "베이스라인 보정 없이 피크 높이비",
+      "how": "data_code"
+     },
+     {
+      "ask": "I_G는 1550–1620 cm⁻¹ 최대값",
+      "how": "data_code"
+     },
+     {
+      "ask": "I_D는 1300–1400 cm⁻¹ 최대값",
+      "how": "data_code"
+     },
+     {
+      "ask": "막대그래프",
+      "how": "key"
+     },
+     {
+      "ask": "높은 순으로 정렬",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": true,
+    "engine": "echarts",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-hyb/S025_r1/out/t1/bar_IG_ID.png"
+    ],
+    "chart": "bar",
+    "rows_used": 8,
+    "rows_total": 8,
+    "values": {
+     "categories": [
+      "R2-260617-1",
+      "R1-260326-1",
+      "R1-260716-1",
+      "R1-260711-1",
+      "R2-260616-1",
+      "R3-260810-2",
+      "R4-260407-1",
+      "R4-260721-1"
+     ],
+     "series": {
+      "IG_ID": [
+       2.3726,
+       2.2392,
+       2.1754,
+       2.1321,
+       2.0822,
+       2.0242,
+       1.9225,
+       1.8228
+      ]
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "막대 그래프를 저장했습니다: bar_IG_ID.png\n사용한 행: 8 / 8\nIG_ID: R2-260617-1 2.37, R1-260326-1 2.24, R1-260716-1 2.18, R1-260711-1 2.13, R2-260616-1 2.08, R3-260810-2 2.02, R4-260407-1 1.92, R4-260721-1 1.82"
+   },
+   "facts": [
+    {
+     "engine": "echarts",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": 300,
+     "title": null,
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "IG_ID",
+         "orient": "v",
+         "cats": [
+          "R2-260617-1",
+          "R1-260326-1",
+          "R1-260716-1",
+          "R1-260711-1",
+          "R2-260616-1",
+          "R3-260810-2",
+          "R4-260407-1",
+          "R4-260721-1"
+         ],
+         "values": [
+          2.372622388525101,
+          2.239154210718192,
+          2.1754147970364186,
+          2.1321364757934145,
+          2.082213343019736,
+          2.0241622976977434,
+          1.9225493476078956,
+          1.822779357284397
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c"
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 8,
+       "texts": [
+        "2.37",
+        "2.24",
+        "2.18",
+        "2.13",
+        "2.08",
+        "2.02",
+        "1.92",
+        "1.82"
+       ],
+       "x": {
+        "label": "파일명",
+        "type": "category",
+        "ticks": [],
+        "step": null,
+        "categories": [
+         "R2-260617-1",
+         "R1-260326-1",
+         "R1-260716-1",
+         "R1-260711-1",
+         "R2-260616-1",
+         "R3-260810-2",
+         "R4-260407-1",
+         "R4-260721-1"
+        ],
+        "min": 0.0,
+        "max": 7.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 45.0
+       },
+       "y": {
+        "label": "IG_ID",
+        "type": "value",
+        "ticks": [
+         0.0,
+         0.5,
+         1.0,
+         1.5,
+         2.0,
+         2.5,
+         3.0
+        ],
+        "step": 0.5,
+        "categories": null,
+        "min": 0.0,
+        "max": 3.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       }
+      }
+     ],
+     "texts": [
+      "2.37",
+      "2.24",
+      "2.18",
+      "2.13",
+      "2.08",
+      "2.02",
+      "1.92",
+      "1.82"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-hyb/S025_r1/out/t1/bar_IG_ID.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.6902406215667725,
+   "check": {
+    "kind_expected": "bar",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 50.014
+  }
+ ]
+}

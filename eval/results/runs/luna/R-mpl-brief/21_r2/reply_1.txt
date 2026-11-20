@@ -1,0 +1,85 @@
+```python
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/tests/inputs/blank_rows_on_top.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/21_r2/out")
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+sheets = pd.read_excel(DATA_FILE, sheet_name=None, header=7)
+
+for sheet_name, df in sheets.items():
+    # Excel C, D, E columns correspond to the first three data columns here.
+    if df.shape[1] < 4:
+        continue
+
+    x = pd.to_numeric(df.iloc[:, 1], errors="coerce")  # C: Temperature
+    y1 = pd.to_numeric(df.iloc[:, 2], errors="coerce")  # D: Weight(%)
+    y2 = pd.to_numeric(df.iloc[:, 3], errors="coerce")  # E: D.W(%/C)
+    valid = x.notna() & y1.notna() & y2.notna()
+    x, y1, y2 = x[valid], y1[valid], y2[valid]
+    if x.empty:
+        continue
+
+    fig, ax1 = plt.subplots(figsize=(10, 6))
+    ax2 = ax1.twinx()
+
+    ax1.plot(x, y1, color="#1f4e9c", label="Weight (%)", linewidth=1.8)
+    # Negate DTG so mass-loss peaks point upward.
+    ax2.plot(x, -y2, color="#c0392b", label="DTG (-D.W)", linewidth=1.5)
+
+    ax1.set_title(str(sheet_name))
+    ax1.set_xlabel("Temperature (°C)")
+    ax1.set_ylabel("Weight (%)", color="#1f4e9c")
+    ax2.set_ylabel("-D.W (%/°C)", color="#c0392b")
+    ax1.tick_params(axis="y", labelcolor="#1f4e9c")
+    ax2.tick_params(axis="y", labelcolor="#c0392b")
+    ax1.grid(True, alpha=0.25)
+
+    # Residue at the measured point nearest 800 °C.
+    residue_idx = (x - 800).abs().idxmin()
+    residue_temp = float(x.loc[residue_idx])
+    residue = float(y1.loc[residue_idx])
+    ax1.scatter([residue_temp], [residue], color="#1f4e9c", zorder=5)
+    ax1.annotate(
+        f"Residue {residue:.1f}%",
+        (residue_temp, residue),
+        xytext=(7, 10),
+        textcoords="offset points",
+        color="#1f4e9c",
+        fontsize=9,
+    )
+
+    # Highest upward-pointing DTG peak above 150 °C.
+    peak_mask = x > 150
+    if peak_mask.any():
+        peak_idx = (-y2[peak_mask]).idxmax()
+        peak_temp = float(x.loc[peak_idx])
+        peak_value = float(-y2.loc[peak_idx])
+        ax2.scatter([peak_temp], [peak_value], color="#c0392b", zorder=5)
+        ax2.annotate(
+            f"{peak_temp:.0f} °C",
+            (peak_temp, peak_value),
+            xytext=(7, 10),
+            textcoords="offset points",
+            color="#c0392b",
+            fontsize=9,
+        )
+
+    lines = ax1.get_lines() + ax2.get_lines()
+    ax1.legend(lines, [line.get_label() for line in lines], loc="center left")
+
+    fig.tight_layout()
+    safe_name = "".join(c if c.isalnum() or c in "-_." else "_" for c in str(sheet_name))
+    fig.savefig(OUT_DIR / f"{safe_name}.png", dpi=300, bbox_inches="tight")
+    plt.close(fig)
+```

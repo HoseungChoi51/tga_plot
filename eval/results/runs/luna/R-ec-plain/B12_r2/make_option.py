@@ -1,0 +1,87 @@
+import json
+import os
+import pandas as pd
+
+data_file = "/home/chs/Work/tga_plot/eval/inputs_b/caox.csv"
+df = pd.read_csv(data_file)
+
+temperature = pd.to_numeric(df["Temperature (°C)"], errors="coerce")
+weight = pd.to_numeric(df["Weight (%)"], errors="coerce")
+valid = temperature.notna() & weight.notna()
+df = pd.DataFrame({"temperature": temperature[valid], "weight": weight[valid]})
+df = df[(df["temperature"] >= 100) & (df["temperature"] <= 900)].sort_values("temperature")
+
+# Use the measured point closest to 900 °C for the residue annotation.
+residue_row = df.iloc[(df["temperature"] - 900).abs().argmin()]
+residue_temp = float(residue_row["temperature"])
+residue_weight = float(residue_row["weight"])
+
+option = {
+    "animation": False,
+    "textStyle": {"fontFamily": "Noto Sans CJK KR"},
+    "grid": {"left": 78, "right": 35, "top": 35, "bottom": 70},
+    "tooltip": {"trigger": "axis"},
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 42,
+        "min": 100,
+        "max": 900,
+        "axisLine": {"lineStyle": {"color": "#444"}},
+        "axisLabel": {"color": "#333"},
+        "splitLine": {"show": False},
+    },
+    "yAxis": {
+        "type": "value",
+        "name": "Weight (%)",
+        "nameLocation": "middle",
+        "nameGap": 55,
+        "axisLine": {"lineStyle": {"color": "#444"}},
+        "axisLabel": {"color": "#333"},
+        "splitLine": {"show": True, "lineStyle": {"color": "#e5e5e5"}},
+    },
+    "series": [
+        {
+            "name": "Weight",
+            "type": "line",
+            "showSymbol": False,
+            "data": [
+                [float(row.temperature), float(row.weight)]
+                for row in df.itertuples(index=False)
+            ],
+            "lineStyle": {"width": 2, "color": "#2563a6"},
+            "itemStyle": {"color": "#2563a6"},
+            "markPoint": {
+                "symbol": "circle",
+                "symbolSize": 9,
+                "itemStyle": {"color": "#c43c39"},
+                "label": {
+                    "show": True,
+                    "position": "top",
+                    "formatter": f"Residue: {residue_weight:.2f}%",
+                    "color": "#9f2926",
+                    "fontSize": 12,
+                    "fontWeight": "bold",
+                },
+                "data": [
+                    {
+                        "coord": [residue_temp, residue_weight],
+                        "value": residue_weight,
+                    }
+                ],
+            },
+        }
+    ],
+}
+
+print(json.dumps({
+    "figures": [{
+        "name": "caox_weight",
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"],
+    }]
+}, ensure_ascii=False, allow_nan=False))

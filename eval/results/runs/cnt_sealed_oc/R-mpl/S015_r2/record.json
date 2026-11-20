@@ -1,0 +1,288 @@
+{
+ "arm": "R-mpl",
+ "item": "S015",
+ "repeat": 2,
+ "split": "sealed",
+ "persona": "생산팀장",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "가동시간 분포 히스토그램 부탁해요. 1시간 간격으로 2~17 h 범위로요. 중간에 끊긴 런이 얼마나 되는지 보려고 합니다.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Ensure output directory exists\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Load data\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Extract the relevant column: 가동시간 (h)\noperating_time = df['가동시간 (h)'].dropna()\n\n# Define histogram parameters based on user request\nbins = np.arange(2, 18, 1)  # 1-hour intervals from 2 to 17 h (range covers 2 up to <18, effectively 2-17 bins)\n\n# Create the plot\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# Plot histogram\ncounts, bin_edges, patches = ax.hist(operating_time, bins=bins, edgecolor='black', color='steelblue', alpha=0.7)\n\n# Add title and labels\nax.set_title('가동시간 분포 히스토그램', fontsize=14, pad=15)\nax.set_xlabel('가동시간 (h)', fontsize=12)\nax.set_ylabel('빈도 수 (Count)', fontsize=12)\n\n# Configure x-axis ticks to show integer boundaries clearly\nax.set_xticks(np.arange(2, 18, 1))\n\n# Add grid for better readability\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\n# Annotate counts on top of each bar if desired (optional but helpful for distribution analysis)\nfor count, rect in zip(counts, patches):\n    height = rect.get_height()\n    if height > 0:\n        ax.annotate(f'{int(height)}',\n                    xy=(rect.get_x() + rect.get_width() / 2, height),\n                    xytext=(0, 3),  # 3 points vertical offset\n                    textcoords=\"offset points\",\n                    ha='center', va='bottom',\n                    fontsize=9)\n\n# Save the figure\noutput_filename = os.path.join(OUT_DIR, \"operating_time_histogram.png\")\nplt.tight_layout()\nplt.savefig(output_filename, dpi=300)\nplt.close()\n```",
+     "llm_s": 7.221,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 3793,
+     "output_chars": 1800,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Ensure output directory exists\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Load data\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Clean column names to handle potential whitespace or hidden characters\ndf.columns = df.columns.str.strip()\n\n# Identify the correct column name for operating time\n# The preview shows 'P 가동시간 (h)', so the header is likely '가동시간 (h)' or similar.\n# We will search for a column containing '가동시간' and '(h)' to be robust against minor formatting differences.\ntarget_col = None\nfor col in df.columns:\n    if '가동시간' in col and ('h' in col.lower() or 'hour' in col.lower()):\n        target_col = col\n        break\n\nif target_col is None:\n    # Fallback: just look for '가동시간'\n    for col in df.columns:\n        if '가동시간' in col:\n            target_col = col\n            break\n            \nif target_col is None:\n    raise ValueError(\"Could not find '가동시간' column in the dataframe.\")\n\nprint(f\"Using column: '{target_col}'\")\n\n# Extract the relevant column\noperating_time = df[target_col].dropna()\n\n# Define histogram parameters based on user request\n# 1-hour intervals from 2 to 17 h range.\n# bins: [2,3,4,...,17,18] -> creates bars centered at 2.5, 3.5 ... 17.5 covering 2-18\nbins = np.arange(2, 18 + 1, 1) \n\n# Create the plot\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# Plot histogram\ncounts, bin_edges, patches = ax.hist(operating_time, bins=bins, edgecolor='black', color='steelblue', alpha=0.7)\n\n# Add title and labels\nax.set_title('가동시간 분포 히스토그램', fontsize=14, pad=15)\nax.set_xlabel('가동시간 (h)', fontsize=12)\nax.set_ylabel('빈도 수 (Count)', fontsize=12)\n\n# Configure x-axis ticks to show integer boundaries clearly\nax.set_xticks(np.arange(2, 19, 1))\n\n# Add grid for better readability\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\n# Annotate counts on top of each bar\nfor count, rect in zip(counts, patches):\n    height = rect.get_height()\n    if height > 0:\n        ax.annotate(f'{int(height)}',\n                    xy=(rect.get_x() + rect.get_width() / 2, height),\n                    xytext=(0, 3),  # 3 points vertical offset\n                    textcoords=\"offset points\",\n                    ha='center', va='bottom',\n                    fontsize=9)\n\n# Save the figure\noutput_filename = os.path.join(OUT_DIR, \"operating_time_histogram.png\")\nplt.tight_layout()\nplt.savefig(output_filename, dpi=300)\nplt.close()\n```",
+     "llm_s": 12.951,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 7114,
+     "output_chars": 2592,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Ensure output directory exists\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Load data\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Clean column names to handle potential whitespace or hidden characters\ndf.columns = df.columns.str.strip()\n\n# Identify the correct column name for operating time robustly\ntarget_col = None\nfor col in df.columns:\n    if '가동시간' in str(col):\n        target_col = col\n        break\n\nif target_col is None:\n    raise ValueError(\"Could not find '가동시간' column in the dataframe.\")\n\n# Extract the relevant column and force it to numeric type\n# This fixes the TypeError caused by mixed types (strings/floats) in the data\noperating_time = pd.to_numeric(df[target_col], errors='coerce').dropna()\n\n# Define histogram parameters based on user request\n# 1-hour intervals from 2 to 17 h range.\n# bins: [2,3,4,...,17,18] -> creates bars covering 2-18\nbins = np.arange(2, 18 + 1, 1) \n\n# Create the plot\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# Plot histogram\ncounts, bin_edges, patches = ax.hist(operating_time, bins=bins, edgecolor='black', color='steelblue', alpha=0.7)\n\n# Add title and labels\nax.set_title('가동시간 분포 히스토그램', fontsize=14, pad=15)\nax.set_xlabel('가동시간 (h)', fontsize=12)\nax.set_ylabel('빈도 수 (Count)', fontsize=12)\n\n# Configure x-axis ticks to show integer boundaries clearly\nax.set_xticks(np.arange(2, 19, 1))\n\n# Add grid for better readability\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\n# Annotate counts on top of each bar\nfor count, rect in zip(counts, patches):\n    height = rect.get_height()\n    if height > 0:\n        ax.annotate(f'{int(height)}',\n                    xy=(rect.get_x() + rect.get_width() / 2, height),\n                    xytext=(0, 3),  # 3 points vertical offset\n                    textcoords=\"offset points\",\n                    ha='center', va='bottom',\n                    fontsize=9)\n\n# Save the figure\noutput_filename = os.path.join(OUT_DIR, \"operating_time_histogram.png\")\nplt.tight_layout()\nplt.savefig(output_filename, dpi=300)\nplt.close()\n```",
+     "llm_s": 7.491,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 11273,
+     "output_chars": 2262,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Ensure output directory exists\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Load data\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Clean column names to handle potential whitespace or hidden characters\ndf.columns = df.columns.str.strip()\n\n# Identify the correct column name for operating time robustly\ntarget_col = None\nfor col in df.columns:\n    if '가동시간' in str(col):\n        target_col = col\n        break\n\nif target_col is None:\n    raise ValueError(\"Could not find '가동시간' column in the dataframe.\")\n\n# Extract the relevant column and force it to numeric type\n# This fixes the TypeError caused by mixed types (strings/floats) in the data\noperating_time = pd.to_numeric(df[target_col], errors='coerce').dropna()\n\n# Define histogram parameters based on user request\n# 1-hour intervals from 2 to 17 h range.\n# bins: [2,3,4,...,17,18] -> creates bars covering 2-18\nbins = np.arange(2, 18 + 1, 1) \n\n# Create the plot\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# Plot histogram\ncounts, bin_edges, patches = ax.hist(operating_time, bins=bins, edgecolor='black', color='steelblue', alpha=0.7)\n\n# Add title and labels\nax.set_title('가동시간 분포 히스토그램', fontsize=14, pad=15)\nax.set_xlabel('가동시간 (h)', fontsize=12)\nax.set_ylabel('빈도 수 (Count)', fontsize=12)\n\n# Configure x-axis ticks to show integer boundaries clearly\nax.set_xticks(np.arange(2, 19, 1))\n\n# Add grid for better readability\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\n# Annotate counts on top of each bar\nfor count, rect in zip(counts, patches):\n    height = rect.get_height()\n    if height > 0:\n        ax.annotate(f'{int(height)}',\n                    xy=(rect.get_x() + rect.get_width() / 2, height),\n                    xytext=(0, 3),  # 3 points vertical offset\n                    textcoords=\"offset points\",\n                    ha='center', va='bottom',\n                    fontsize=9)\n\n# Save the figure\noutput_filename = os.path.join(OUT_DIR, \"operating_time_histogram.png\")\nplt.tight_layout()\nplt.savefig(output_filename, dpi=300)\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "가동시간 분포 히스토그램",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [
+        {
+         "name": "",
+         "edges": [
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0,
+          7.0,
+          8.0,
+          9.0,
+          10.0,
+          11.0,
+          12.0,
+          13.0,
+          14.0,
+          15.0,
+          16.0,
+          17.0,
+          18.0
+         ],
+         "counts": [
+          55.0,
+          14.0,
+          22.0,
+          13.0,
+          28.0,
+          15.0,
+          15.0,
+          21.0,
+          50.0,
+          128.0,
+          222.0,
+          247.0,
+          123.0,
+          35.0,
+          9.0,
+          0.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#4682b4"
+        }
+       ],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 15,
+       "texts": [
+        "55",
+        "14",
+        "22",
+        "13",
+        "28",
+        "15",
+        "15",
+        "21",
+        "50",
+        "128",
+        "222",
+        "247",
+        "123",
+        "35",
+        "9"
+       ],
+       "x": {
+        "label": "가동시간 (h)",
+        "type": "value",
+        "ticks": [
+         2.0,
+         3.0,
+         4.0,
+         5.0,
+         6.0,
+         7.0,
+         8.0,
+         9.0,
+         10.0,
+         11.0,
+         12.0,
+         13.0,
+         14.0,
+         15.0,
+         16.0,
+         17.0,
+         18.0
+        ],
+        "step": 1.0,
+        "categories": null,
+        "min": 1.2,
+        "max": 18.8,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "2",
+         "3",
+         "4",
+         "5",
+         "6",
+         "7",
+         "8",
+         "9",
+         "10",
+         "11",
+         "12",
+         "13",
+         "14",
+         "15",
+         "16",
+         "17",
+         "18"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "빈도 수 (Count)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         50.0,
+         100.0,
+         150.0,
+         200.0,
+         250.0
+        ],
+        "step": 50.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 259.35,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "50",
+         "100",
+         "150",
+         "200",
+         "250",
+         "300"
+        ],
+        "rotate": 0.0
+       },
+       "title": "가동시간 분포 히스토그램"
+      }
+     ],
+     "texts": [
+      "55",
+      "14",
+      "22",
+      "13",
+      "28",
+      "15",
+      "15",
+      "21",
+      "50",
+      "128",
+      "222",
+      "247",
+      "123",
+      "35",
+      "9"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t1/operating_time_histogram.png",
+       "format": "png",
+       "px": [
+        3000,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5587878227233887,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 29.034
+  }
+ ]
+}

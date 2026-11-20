@@ -1,0 +1,15 @@
+{
+ "file": "data/r2_zone_temps.csv",
+ "chart": "line",
+ "x": "시각",
+ "y": "2존(°C)",
+ "asks": [
+  {
+   "ask": "2존 온도 추이",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_t07/P-mpl/DS04_r2/out/t1"
+ }
+}

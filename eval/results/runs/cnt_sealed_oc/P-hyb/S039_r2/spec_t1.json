@@ -1,0 +1,28 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "bar",
+ "x": "반응기",
+ "y": {
+  "col": "2존온도 (°C)",
+  "agg": "mean"
+ },
+ "by": "근무조",
+ "asks": [
+  {
+   "ask": "주간/야간 차이 확인",
+   "how": "key"
+  },
+  {
+   "ask": "반응기별 평균 2존 온도",
+   "how": "key"
+  },
+  {
+   "ask": "주간/야간으로 나누어 막대",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S039_r2/out/t1"
+ }
+}

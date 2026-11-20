@@ -1,0 +1,37 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "heatmap",
+ "x": {
+  "col": "반응기"
+ },
+ "y": {
+  "col": "체류시간 (s)",
+  "bins": {
+   "width": 0.5,
+   "min": 2.5,
+   "max": 7.0
+  }
+ },
+ "z": {
+  "col": "CNT수율 (g/g-cat)",
+  "agg": "mean"
+ },
+ "asks": [
+  {
+   "ask": "Mean CNT수율 by 체류시간 bin × 반응기 as a heatmap",
+   "how": "key"
+  },
+  {
+   "ask": "bins as rows",
+   "how": "key"
+  },
+  {
+   "ask": "0.5 s wide, 2.5–7.0 s, left-closed",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/S059_r2/out/t1"
+ }
+}

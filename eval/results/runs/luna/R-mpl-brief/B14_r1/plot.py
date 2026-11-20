@@ -1,0 +1,67 @@
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/B14_r1/out"
+
+Path(OUT_DIR).mkdir(parents=True, exist_ok=True)
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+df = pd.read_excel(DATA_FILE, sheet_name="PVC")
+df.columns = [str(col).strip() for col in df.columns]
+
+temperature_col = next(col for col in df.columns if "Temperature" in col)
+weight_col = next(col for col in df.columns if "Weight (%)" in col and "Deriv" not in col)
+dtg_col = next(col for col in df.columns if "Deriv" in col and "Weight" in col)
+
+data = df[[temperature_col, weight_col, dtg_col]].apply(pd.to_numeric, errors="coerce").dropna()
+temperature = data[temperature_col].to_numpy()
+weight = data[weight_col].to_numpy()
+dtg_up = -data[dtg_col].to_numpy()
+
+fig, ax1 = plt.subplots(figsize=(10, 6))
+ax2 = ax1.twinx()
+
+weight_line, = ax1.plot(temperature, weight, color="#1f4e9c", linewidth=2.5, label="Weight")
+dtg_line, = ax2.plot(temperature, dtg_up, color="#c0392b", linewidth=2.5, label="DTG")
+
+residue_idx = int(np.argmin(np.abs(temperature - 800)))
+ax1.scatter(temperature[residue_idx], weight[residue_idx], color="#1f4e9c",
+            edgecolor="white", linewidth=1, s=75, zorder=5)
+ax1.annotate(
+    f"Residue {weight[residue_idx]:.1f}%",
+    (temperature[residue_idx], weight[residue_idx]),
+    xytext=(10, 12), textcoords="offset points", color="#1f4e9c",
+    fontsize=16, fontweight="bold"
+)
+
+peak_mask = temperature > 150
+peak_candidates = np.flatnonzero(peak_mask)
+peak_idx = peak_candidates[np.argmax(dtg_up[peak_mask])]
+ax2.scatter(temperature[peak_idx], dtg_up[peak_idx], color="#c0392b",
+            edgecolor="white", linewidth=1, s=75, zorder=5)
+ax2.annotate(
+    f"{temperature[peak_idx]:.0f} °C",
+    (temperature[peak_idx], dtg_up[peak_idx]),
+    xytext=(10, 12), textcoords="offset points", color="#c0392b",
+    fontsize=16, fontweight="bold"
+)
+
+ax1.set_title("PVC", fontsize=16, pad=14)
+ax1.set_xlabel("Temperature (°C)", fontsize=16)
+ax1.set_ylabel("Weight (%)", fontsize=16, color="#1f4e9c")
+ax2.set_ylabel("-DTG (%/°C)", fontsize=16, color="#c0392b")
+ax1.tick_params(axis="both", labelsize=16)
+ax2.tick_params(axis="y", labelsize=16)
+ax1.grid(True, alpha=0.3)
+ax1.legend([weight_line, dtg_line], ["Weight", "DTG"], loc="center left", fontsize=16)
+
+fig.tight_layout()
+fig.savefig(Path(OUT_DIR) / "PVC.png", dpi=300, bbox_inches="tight")
+plt.close(fig)

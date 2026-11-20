@@ -1,0 +1,24 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "scatter",
+ "x": "체류시간 (s)",
+ "y": "CNT수율 (g/g-cat)",
+ "by": "반응기",
+ "asks": [
+  {
+   "ask": "체류시간 vs CNT수율 scatter",
+   "how": "key"
+  },
+  {
+   "ask": "반응기별 색 구분",
+   "how": "key"
+  },
+  {
+   "ask": "26주 전체 런",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_a/P-ec/D009_r2/out/t1"
+ }
+}

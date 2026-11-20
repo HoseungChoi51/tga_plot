@@ -1,0 +1,179 @@
+{
+ "arm": "P-mpl",
+ "item": "S005",
+ "repeat": 2,
+ "split": "sealed",
+ "persona": "생산팀장",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "불량 비율 한 장으로 보여줄 수 있어요? 이번 주 임원 보고에 들어갑니다.",
+   "calls": [
+    {
+     "reply": "{\n  \"file\": \"data/run_log.xlsx\",\n  \"chart\": \"pie\",\n  \"x\": \"등급 (A/B/C)\",\n  \"asks\": [\n    {\"ask\": \"불량 비율 한 장으로 보여줄 수 있어요?\", \"how\": \"key\"}\n  ]\n}",
+     "llm_s": 2.878,
+     "prompt_tokens": 6262,
+     "output_tokens": 66,
+     "cached_tokens": 6233,
+     "prompt_n": 29,
+     "prefill_ms": 236.90438799999998,
+     "decode_ms": 2223.025818,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "chart": "pie",
+    "x": "등급 (A/B/C)",
+    "asks": [
+     {
+      "ask": "불량 비율 한 장으로 보여줄 수 있어요?",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-mpl/S005_r2/out/t1/pie_등급_A_B_C.png"
+    ],
+    "chart": "pie",
+    "rows_used": 997,
+    "rows_total": 997,
+    "values": {
+     "slices": {
+      "B": 522.0,
+      "A": 349.0,
+      "C": 126.0
+     },
+     "shares": {
+      "B": 0.5236,
+      "A": 0.3501,
+      "C": 0.1264
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "원 그래프를 저장했습니다: pie_등급_A_B_C.png\n사용한 행: 997 / 997\nB 52.4%, A 35.0%, C 12.6%"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": {
+        "labels": [
+         "B",
+         "A",
+         "C"
+        ],
+        "shares": [
+         0.5235707121364093,
+         0.35005015045135396,
+         0.12637913741223675
+        ],
+        "values": null,
+        "colors": [
+         "#1f4e9c",
+         "#c0392b",
+         "#2e8b57"
+        ]
+       },
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 3,
+       "texts": [
+        "B",
+        "A",
+        "C",
+        "52.4%",
+        "35.0%",
+        "12.6%"
+       ],
+       "x": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.5403708236388134,
+        "max": 1.5403738028001412,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.083589517023766,
+        "max": 1.08358998131138,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [
+      "B",
+      "A",
+      "C",
+      "52.4%",
+      "35.0%",
+      "12.6%"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-mpl/S005_r2/out/t1/pie_등급_A_B_C.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.38992857933044434,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [
+     "pie: slices ['B', 'A', 'C'], want ['불합격(C)', '합격(A·B)']"
+    ],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 1,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 3.342
+  }
+ ]
+}

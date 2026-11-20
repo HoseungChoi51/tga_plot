@@ -1,0 +1,35 @@
+We need answer user's request: corrected JSON spec only. Need analyze issue. User wants two files overlaid in one plot and legend shows Lot A, Lot B. plotkit error unknown path echarts.legend.data. Allowed legend properties include show, left... textStyle, not data. Need produce corrected JSON. We need understand plotkit spec. They want combine two files. Need legend names per series? The guide says series list: 0 = y1 line, 1 = y2 line; with combine, one y1 line per sheet, then one y2 line per sheet. For two files? combine true maybe each file? Could set series names via echarts series. But error was only legend.data. We can remove legend.data. Need maybe set legend names via series names. But if y2 series also get names? In TGA preset there are y1 and y2 lines. With combine true, series order: one y1 line per sheet, then one y2 line per sheet. For two files, likely series: 0 y1 Lot A, 1 y1 Lot B, 2 y2 Lot A, 3 y2 Lot B. We want legend only Lot A, Lot B? But if series names all Lot A/B, legend may show four entries? Maybe legend data not allowed. We can set series names for y1 lines only? Need consider plotkit legend behavior. The guide: legend (`where`, `show`, `size`), `<axis>.legend` (name shown). Hmm axis legend name shown? Maybe for y1/y2 series names? For multiple sheets maybe `<axis>.legend`? Actually table says `<axis>.legend` (name shown). For combine, maybe y1.legend and y2.legend? But user wants Lot A, Lot B. Maybe can use `y1.legend`? No per sheet? Need infer.
+
+The request: "두 파일을 한 그림에 겹쳐 그리고 범례에는 Lot A, Lot B라고 써줘" (Overlay two files in one plot and write Lot A, Lot B in legend). We need spec. We tried combine true and echarts series names plus legend.data invalid. Need correct. Could set `series` names only for first two y1 series and perhaps y2 series names? But if y2 series also named Lot A/B, legend may duplicate? In ECharts legend data defaults to series names; if duplicate names, maybe legend deduplicates? If series 0 and 2 both "Lot A", legend might show one entry? But if same name for two series, legend toggles both? Actually ECharts legend uses series name; if multiple series same name, legend item controls all series with that name. That might be desired: Lot A toggles both weight and derivative for Lot A? But user likely wants legend for each file, perhaps both y1/y2 lines for same lot share name. But if series 0 y1 A named Lot A, series 2 y2 A named Lot A, series 1 y1 B named Lot B, series 3 y2 B named Lot B. Then legend data would have Lot A and Lot B (dedup). But if plotkit's legend maybe uses series names? We can set all series names accordingly: [{name:"Lot A"},{name:"Lot B"},{name:"Lot A"},{name:"Lot B"}]. But maybe y2 lines should have names like "Lot A DTG"? User only wants Lot A, Lot B. Could set y2 series names empty? If empty, legend may show blanks or not? In ECharts, series with no name may not show in legend? But if not set, default may be sheet names or column names. Need maybe set y2 series names to ""? But ECharts legend might ignore empty? Not sure. But allowed series properties include name? In guide allowed in series: lineStyle, itemStyle, areaStyle, symbol, symbolSize, showSymbol, smooth, label, markArea/markLine/markPoint. It did not explicitly allow `name`? But our previous attempt used name and error only about legend.data, not series name, so name likely allowed or ignored? It didn't error on series names. Maybe plotkit allows series name. Need output corrected spec. Could remove legend.data. But will legend show Lot A/B? If series names set as above, yes. Need maybe include `legend: true`? The default TGA preset probably shows legend? Maybe yes. But user asks legend; we can include `"legend": {"show": true}`. In previous spec included show. Could be okay.
+
+Alternative: use `<axis>.legend`? There is `y1.legend` name shown. But for two files combine, perhaps each sheet's y1 line name can be set via `y1.legend`? That would apply to all y1 lines? Not per file. Maybe `sheets` list with legend names? Not in guide. Could use `echarts.series` names.
+
+Need ensure file names exactly as inspect: cnt_lot_A.csv, cnt_lot_B.txt. Is `file` allowed list? We used list and no error about file. Good.
+
+Need produce JSON only. Need maybe not include `echarts.legend` because default legend show. But user wants legend; if default hidden? TGA preset maybe legend shown? Not sure. The guide default TGA preset draws lines and annotations; legend maybe shown by default? It lists legend key. To be safe include `"legend": {"show": true}`. But if default legend names are sheet names, series names override. Could include `legend: {"show": true}`.
+
+Potential issue: With combine true and two files, series order? The guide: with combine, one y1 line per sheet, then one y2 line per sheet. For two files each one sheet. So series 0 y1 file1, 1 y1 file2, 2 y2 file1, 3 y2 file2. We set names accordingly. But if y2 lines also named Lot A/B, legend dedup? ECharts legend data automatically collects unique series names. If duplicate series names, legend item may represent both. But if series 0 and 2 same name, legend item toggles both. Is that acceptable? It will show Lot A, Lot B only. If plotkit's legend maybe generated from series names and not dedup? It may pass series names to legend.data? But error says legend.data not allowed. If plotkit auto legend maybe uses series names. If duplicates, likely dedup by ECharts. Good.
+
+But maybe setting y2 series names to Lot A/B will make legend entries for y2 lines with same names, but if line styles differ? Legend item symbol maybe default from series. If y1 and y2 same name, legend may show only one symbol (maybe from first series). Good.
+
+Could set y2 series names to empty string to avoid legend? But if empty, ECharts may still include? Better same names.
+
+Need maybe include `"legend": {"show": true}`. Could include `"combine": true`. Need maybe no `output`.
+
+Let's craft final:
+```json
+{
+  "file": ["cnt_lot_A.csv", "cnt_lot_B.txt"],
+  "combine": true,
+  "legend": {"show": true},
+  "echarts": {
+    "series": [
+      {"name": "Lot A"},
+      {"name": "Lot B"},
+      {"name": "Lot A"},
+      {"name": "Lot B"}
+    ]
+  }
+}
+```
+Need only JSON block? User says corrected JSON spec only. We can output one json block. Ensure no extra text. final.

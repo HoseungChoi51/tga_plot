@@ -1,0 +1,47 @@
+{
+ "file": "data/tga_batches.xlsx",
+ "sheets": "R2-260616-1",
+ "preset": "none",
+ "x": {
+  "col": "B"
+ },
+ "y1": {
+  "col": "C",
+  "label": "Weight (%)",
+  "color": "black",
+  "width": 1.5,
+  "legend": "TG"
+ },
+ "y2": {
+  "col": "D",
+  "label": "DTG (%/°C)",
+  "color": "blue",
+  "width": 1.5,
+  "legend": "DTG",
+  "linestyle": "solid"
+ },
+ "title": {
+  "text": "TGA: R2-260616-1",
+  "size": 14
+ },
+ "grid": true,
+ "font_size": 12,
+ "size": [
+  8,
+  6
+ ],
+ "data_code": "\ni_all = np.argmax(y2)\nmask_range = (x >= 450) & (x <= 800)\nif np.any(mask_range):\n    i_peak = np.where(mask_range)[0][np.argmax(y2[mask_range])]\nelse:\n    i_peak = i_all\n\n# Tangent at peak\nslope = np.gradient(y1, x)[i_peak]\ny_peak = y1[i_peak]\nx_peak = x[i_peak]\n\n# Baseline is horizontal line at weight at 500 C\nidx_500 = np.argmin(np.abs(x - 500))\nbase_y = y1[idx_500]\n\n# Onset calculation:\n# Equation of tangent: y = slope * (x - x_peak) + y_peak\n# Intersection with base_y: base_y = slope * (x_onset - x_peak) + y_peak\n# x_onset = x_peak + (base_y - y_peak) / slope\nif abs(slope) > 1e-9:\n    x_onset = x_peak + (base_y - y_peak) / slope\nelse:\n    x_onset = x_peak\n\nmarks.append({\n    'type': 'vline', \n    'x': float(x_onset), \n    'text': f'Onset: {x_onset:.1f} °C',\n    'color': 'red',\n    'linestyle': 'dashed'\n})\n\n# Optional: Draw the baseline segment for visualization if needed, but vline marks the onset.\n",
+ "asks": [
+  {
+   "ask": "R2-260616-1 시트 TG 곡선",
+   "how": "key"
+  },
+  {
+   "ask": "extrapolated onset 온도 계산 및 표시",
+   "how": "code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/S017_r3/out/t1"
+ }
+}

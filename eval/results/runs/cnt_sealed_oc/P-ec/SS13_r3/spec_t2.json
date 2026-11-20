@@ -1,0 +1,25 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "scatter",
+ "x": "체류시간 (s)",
+ "y": "CNT수율 (g/g-cat)",
+ "asks": [
+  {
+   "ask": "Scatter 체류시간 vs CNT수율",
+   "how": "key"
+  },
+  {
+   "ask": "all runs",
+   "how": "default"
+  },
+  {
+   "ask": "Color by catalyst lot group: old = FC-2602…FC-2605, new = FC-2606…FC-2608",
+   "how": "data_code"
+  }
+ ],
+ "data_code": "df['lot_group'] = df['촉매로트'].apply(lambda x: 'old' if x in ['FC-2602', 'FC-2603', 'FC-2604', 'FC-2605'] else 'new')",
+ "by": "lot_group",
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/SS13_r3/out/t2"
+ }
+}

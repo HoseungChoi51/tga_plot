@@ -1,0 +1,21 @@
+```json
+{
+  "file": "xrd.csv",
+  "preset": "none",
+  "x": {
+    "col": "A"
+  },
+  "y1": {
+    "col": "B"
+  },
+  "y2": false,
+  "annotate": {
+    "peak": {
+      "on": "y1",
+      "count": 5,
+      "kind": "max",
+      "text": "{x:.1f}°"
+    }
+  }
+}
+```

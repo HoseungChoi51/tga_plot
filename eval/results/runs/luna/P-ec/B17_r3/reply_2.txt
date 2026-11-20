@@ -1,0 +1,3 @@
+```json
+{"file":"polymers.xlsx","combine":true,"echarts":{"series":[{"lineStyle":{"offset":0}},{"lineStyle":{"offset":20}},{"lineStyle":{"offset":40}}]}}
+```

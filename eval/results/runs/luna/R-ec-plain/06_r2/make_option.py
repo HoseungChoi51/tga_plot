@@ -1,0 +1,129 @@
+import json
+import re
+import numpy as np
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+def clean_number(value):
+    try:
+        number = float(value)
+        return number if np.isfinite(number) else None
+    except (TypeError, ValueError):
+        return None
+
+def get_column(df, keyword):
+    for column in df.columns:
+        if keyword.lower() in str(column).lower():
+            return column
+    return None
+
+figures = []
+sheets = pd.read_excel(DATA_FILE, sheet_name=None)
+
+for index, (sheet_name, df) in enumerate(sheets.items(), start=1):
+    temp_col = get_column(df, "Temperature")
+    weight_col = get_column(df, "Weight")
+    derivative_col = get_column(df, "D.W")
+
+    if temp_col is None or weight_col is None:
+        continue
+
+    temperature = pd.to_numeric(df[temp_col], errors="coerce")
+    weight = pd.to_numeric(df[weight_col], errors="coerce")
+
+    weight_data = [
+        [clean_number(x), clean_number(y)]
+        for x, y in zip(temperature, weight)
+        if clean_number(x) is not None and clean_number(y) is not None
+    ]
+
+    series = [
+        {
+            "name": "Weight",
+            "type": "line",
+            "data": weight_data,
+            "showSymbol": False,
+            "lineStyle": {"width": 2, "color": "#2563eb"},
+            "yAxisIndex": 0,
+            "z": 2,
+        }
+    ]
+
+    y_axes = [
+        {
+            "type": "value",
+            "name": "Weight (%)",
+            "position": "left",
+            "min": 0,
+            "max": 105,
+            "axisLine": {"show": True},
+            "axisTick": {"show": True},
+            "splitLine": {"show": True, "lineStyle": {"color": "#d9dee7", "type": "dashed"}},
+        }
+    ]
+
+    if derivative_col is not None:
+        derivative = pd.to_numeric(df[derivative_col], errors="coerce")
+        derivative_data = [
+            [clean_number(x), clean_number(y)]
+            for x, y in zip(temperature, derivative)
+            if clean_number(x) is not None and clean_number(y) is not None
+        ]
+        if derivative_data:
+            series.append({
+                "name": "Derivative",
+                "type": "line",
+                "data": derivative_data,
+                "showSymbol": False,
+                "lineStyle": {"width": 1.8, "color": "#dc2626"},
+                "yAxisIndex": 1,
+                "z": 3,
+            })
+            y_axes.append({
+                "type": "value",
+                "name": "D.W (%/°C)",
+                "position": "right",
+                "axisLine": {"show": True},
+                "axisTick": {"show": True},
+                "splitLine": {"show": False},
+            })
+
+    option = {
+        "animation": False,
+        "title": {
+            "text": str(sheet_name),
+            "left": "center",
+            "top": 12,
+            "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 16, "fontWeight": "normal"},
+        },
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {"type": "cross"},
+        },
+        "grid": {"left": 78, "right": 82 if len(y_axes) > 1 else 34, "top": 62, "bottom": 65},
+        "xAxis": {
+            "type": "value",
+            "name": "Temperature (°C)",
+            "nameLocation": "middle",
+            "nameGap": 38,
+            "min": 30,
+            "max": float(np.nanmax(temperature)),
+            "axisLine": {"show": True},
+            "axisTick": {"show": True},
+            "splitLine": {"show": True, "lineStyle": {"color": "#d9dee7", "type": "dashed"}},
+        },
+        "yAxis": y_axes,
+        "series": series,
+    }
+
+    figures.append({
+        "name": f"tga_{index}",
+        "option": option,
+        "width": 800,
+        "height": 520,
+        "dpi": 300,
+        "formats": ["png"],
+    })
+
+print(json.dumps({"figures": figures}, ensure_ascii=False, allow_nan=False))

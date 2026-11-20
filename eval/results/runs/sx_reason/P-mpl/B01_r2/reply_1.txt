@@ -1,0 +1,6 @@
+```json
+{
+  "file": "caox.csv",
+  "code": "ax2 and ax2.patch.set_alpha(0); ax1.axvspan(120, 250, color='skyblue', alpha=0.15); ax1.axvspan(430, 580, color='orange', alpha=0.15); ax1.axvspan(640, 830, color='green', alpha=0.15); ax1.text(185, 0.95, 'H2O', transform=ax1.get_xaxis_transform(), ha='center', va='bottom'); ax1.text(505, 0.95, 'CO', transform=ax1.get_xaxis_transform(), ha='center', va='bottom'); ax1.text(735, 0.95, 'CO2', transform=ax1.get_xaxis_transform(), ha='center', va='bottom')"
+}
+```

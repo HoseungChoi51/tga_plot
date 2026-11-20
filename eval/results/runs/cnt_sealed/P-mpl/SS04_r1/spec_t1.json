@@ -1,0 +1,24 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "pie",
+ "x": "반응기",
+ "y": {
+  "col": "생산속도 (g/h)",
+  "agg": "sum"
+ },
+ "data_code": "df['총생산량'] = df['생산속도 (g/h)'] * df['가동시간 (h)']",
+ "asks": [
+  {
+   "ask": "반응기별 총 생산량 비중 파이차트",
+   "how": "key"
+  },
+  {
+   "ask": "생산량은 생산속도×가동시간",
+   "how": "data_code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-mpl/SS04_r1/out/t1"
+ }
+}

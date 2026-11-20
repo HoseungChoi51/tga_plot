@@ -1,0 +1,191 @@
+{
+ "arm": "P-hyb",
+ "item": "S030",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "등급 C 판정 런들의 불합격 사유 비율을 파이로 보여 주세요. 사유는 '잔류금속 > 5.0 wt%만', 'IG/ID < 2.2만', '둘 다' 세 가지로 나눠 주세요.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"pie\",\n  \"filter\": [\"등급 == C\"],\n  \"data_code\": \"import numpy as np\\ncond_metal = df['잔류금속 (wt%)'] > 5.0\\ncond_raman = df['IG/ID'] < 2.2\\ncase_both = cond_metal & cond_raman\\ncase_metal_only = cond_metal & ~cond_raman\\ncase_raman_only = ~cond_metal & cond_raman\\ndf['불합격사유'] = '기타'\\ndf.loc[case_metal_only, '불합격사유'] = '잔류금속 > 5.0 wt%만'\\ndf.loc[case_raman_only, '불합격사유'] = 'IG/ID < 2.2만'\\ndf.loc[case_both, '불합격사유'] = '둘 다'\",\n  \"x\": \"불합격사유\",\n  \"y\": \"count\",\n  \"asks\": [\n    {\n      \"ask\": \"등급 C 판정 런들 필터링\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"불합격 사유 분류 (잔류금속만, IG/ID만, 둘 다)\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"비율 파이 차트\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 5.122,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 18088,
+     "output_chars": 751,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "pie",
+    "filter": [
+     "등급 == C"
+    ],
+    "data_code": "import numpy as np\ncond_metal = df['잔류금속 (wt%)'] > 5.0\ncond_raman = df['IG/ID'] < 2.2\ncase_both = cond_metal & cond_raman\ncase_metal_only = cond_metal & ~cond_raman\ncase_raman_only = ~cond_metal & cond_raman\ndf['불합격사유'] = '기타'\ndf.loc[case_metal_only, '불합격사유'] = '잔류금속 > 5.0 wt%만'\ndf.loc[case_raman_only, '불합격사유'] = 'IG/ID < 2.2만'\ndf.loc[case_both, '불합격사유'] = '둘 다'",
+    "x": "불합격사유",
+    "y": "count",
+    "asks": [
+     {
+      "ask": "등급 C 판정 런들 필터링",
+      "how": "key"
+     },
+     {
+      "ask": "불합격 사유 분류 (잔류금속만, IG/ID만, 둘 다)",
+      "how": "data_code"
+     },
+     {
+      "ask": "비율 파이 차트",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": true,
+    "engine": "echarts",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S030_r1/out/t1/pie_불합격사유.png"
+    ],
+    "chart": "pie",
+    "rows_used": 126,
+    "rows_total": 997,
+    "values": {
+     "slices": {
+      "IG/ID < 2.2만": 54.0,
+      "잔류금속 > 5.0 wt%만": 47.0,
+      "둘 다": 25.0
+     },
+     "shares": {
+      "IG/ID < 2.2만": 0.4286,
+      "잔류금속 > 5.0 wt%만": 0.373,
+      "둘 다": 0.1984
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "원 그래프를 저장했습니다: pie_불합격사유.png\n사용한 행: 126 / 997\nIG/ID < 2.2만 42.9%, 잔류금속 > 5.0 wt%만 37.3%, 둘 다 19.8%"
+   },
+   "facts": [
+    {
+     "engine": "echarts",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": 300,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": {
+        "labels": [
+         "IG/ID < 2.2만",
+         "잔류금속 > 5.0 wt%만",
+         "둘 다"
+        ],
+        "shares": [
+         0.42857142857142855,
+         0.373015873015873,
+         0.1984126984126984
+        ],
+        "values": [
+         54.0,
+         47.0,
+         25.0
+        ],
+        "colors": [
+         "#1f4e9c",
+         "#c0392b",
+         "#2e8b57"
+        ]
+       },
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [
+        "IG/ID < 2.2만\n42.9%",
+        "잔류금속 > 5.0 wt%만\n37.3%",
+        "둘 다\n19.8%"
+       ],
+       "x": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": null,
+        "max": null,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": null,
+        "max": null,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       }
+      }
+     ],
+     "texts": [
+      "IG/ID < 2.2만\n42.9%",
+      "잔류금속 > 5.0 wt%만\n37.3%",
+      "둘 다\n19.8%"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S030_r1/out/t1/pie_불합격사유.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.8109779357910156,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 6.017
+  }
+ ]
+}

@@ -1,0 +1,43 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "line",
+ "x": {
+  "col": "bin_mid",
+  "label": "체류시간 (s)"
+ },
+ "y": {
+  "col": "CNT수율_mean",
+  "agg": "mean"
+ },
+ "by": "lot_group",
+ "asks": [
+  {
+   "ask": "Scatter 체류시간 vs CNT수율",
+   "how": "superseded"
+  },
+  {
+   "ask": "all runs",
+   "how": "superseded"
+  },
+  {
+   "ask": "Color by catalyst lot group: old = FC-2602…FC-2605, new = FC-2606…FC-2608",
+   "how": "key"
+  },
+  {
+   "ask": "bin 체류시간 into 0.25 s bins (2.5–6.75 s, left-closed), plot mean CNT수율 per bin vs bin midpoint",
+   "how": "data_code"
+  },
+  {
+   "ask": "one line per lot group",
+   "how": "key"
+  },
+  {
+   "ask": "Drop bins with n < 10",
+   "how": "data_code"
+  }
+ ],
+ "data_code": "import numpy as np\nimport pandas as pd\n\n# 1. Define lot groups\ndf['lot_group'] = df['촉매로트'].apply(lambda x: 'old' if x in ['FC-2602', 'FC-2603', 'FC-2604', 'FC-2605'] else 'new')\n\n# 2. Bin 체류시간 (left-closed, 0.25 width)\nbins = np.arange(2.5, 6.75 + 0.25, 0.25)\ndf['bin_idx'] = pd.cut(df['체류시간 (s)'], bins=bins, right=False, include_lowest=True).cat.codes\n\n# Calculate midpoints based on bin index and start value\n# Midpoint for bin i is Start + i*Width + Width/2\ndf['bin_mid'] = 2.5 + df['bin_idx'] * 0.25 + 0.125\n\n# Filter out rows where the value was outside the range (code -1)\ndf_valid = df[df['bin_idx'] >= 0].copy()\n\n# 3. Group by lot_group and bin_mid, calculate mean and count\ngrouped = df_valid.groupby(['lot_group', 'bin_mid']).agg(\n    CNT수율_mean=('CNT수율 (g/g-cat)', 'mean'),\n    n=('CNT수율 (g/g-cat)', 'count')\n).reset_index()\n\n# 4. Drop bins with n < 10\nresult_df = grouped[grouped['n'] >= 10]\n\n# 5. Replace df with the aggregated result\n# The chart expects 'bin_mid' for x and 'CNT수율_mean' for y (with agg='mean' effectively doing nothing or averaging identical values)\ndf = result_df",
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/SS13_r3/out/t3"
+ }
+}

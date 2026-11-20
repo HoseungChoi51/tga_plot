@@ -1,0 +1,648 @@
+{
+ "arm": "R-mpl",
+ "item": "SS10",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "신입 연구원",
+ "type": "session",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "TEM 직경 데이터로 시료별 평균 직경을 막대그래프로 보고 싶어요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# Set font for Korean text\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory\nOUT_DIR = \"out\"\nif not os.path.exists(OUT_DIR):\n    os.makedirs(OUT_DIR)\n\n# Read the data file\nfile_path = \"data/diameters.csv\"\ndf = pd.read_csv(file_path, encoding='utf-8')\n\n# Calculate mean diameter per sample (A 시료)\nmean_diameter = df.groupby('A 시료')['직경(nm)'].mean().reset_index()\n\n# Sort by sample name for consistent ordering if needed, or keep original order\n# Assuming we want to plot them in the order they appear or sorted alphabetically\nmean_diameter = mean_diameter.sort_values(by='A 시료')\n\n# Create the bar plot\nplt.figure(figsize=(10, 6))\nbars = plt.bar(mean_diameter['A 시료'], mean_diameter['직경(nm)'], color='skyblue', edgecolor='black')\n\n# Add labels and title\nplt.title('시료별 평균 직경 (TEM Diameter)', fontsize=14)\nplt.xlabel('시료 (Sample)', fontsize=12)\nplt.ylabel('평균 직경 (nm)', fontsize=12)\nplt.xticks(rotation=45, ha='right')\nplt.grid(axis='y', linestyle='--', alpha=0.7)\n\n# Add value labels on top of bars\nfor bar in bars:\n    height = bar.get_height()\n    plt.text(bar.get_x() + bar.get_width()/2., height,\n             f'{height:.2f}',\n             ha='center', va='bottom', fontsize=9)\n\n# Save the figure\noutput_path = os.path.join(OUT_DIR, 'mean_diameter_by_sample.png')\nplt.tight_layout()\nplt.savefig(output_path, dpi=300)\nplt.close()\n```",
+     "llm_s": 6.702,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 2407,
+     "output_chars": 1433,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# Set font for Korean text\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory\nOUT_DIR = \"out\"\nif not os.path.exists(OUT_DIR):\n    os.makedirs(OUT_DIR)\n\n# Read the data file\nfile_path = \"data/diameters.csv\"\ndf = pd.read_csv(file_path, encoding='utf-8')\n\n# The column name in the preview was 'A 시료', but sometimes CSV headers might have extra spaces or different naming.\n# Let's check the actual columns to be safe and identify the sample column.\n# Based on the error, 'A 시료' was not found. It might be just '시료' or have a prefix issue.\n# Looking at the preview: A 시료 [텍스트 6종...]. \n# Often in these datasets, the column header might simply be '시료' or the first column.\n# Let's assume the first column is the sample identifier based on typical structure if exact match fails,\n# but strictly following the prompt's hint that headers are read \"as they are\", it's possible there's a BOM or space.\n# However, a more robust way is to find the column containing the TEM IDs (TEM-01 etc).\n\nsample_col = None\nfor col in df.columns:\n    # Check if this column contains the expected sample values\n    if df[col].astype(str).str.contains('TEM').any():\n        sample_col = col\n        break\n\n# If still not found, try stripping whitespace from column names and matching\nif sample_col is None:\n    df.columns = df.columns.str.strip()\n    # Try common variations\n    candidates = ['A 시료', '시료', 'Sample']\n    for c in candidates:\n        if c in df.columns:\n            sample_col = c\n            break\n    \n# Fallback to first column if logic above fails (risky but prevents crash)\nif sample_col is None:\n    sample_col = df.columns[0]\n\n# Calculate mean diameter per sample\nmean_diameter = df.groupby(sample_col)['직경(nm)'].mean().reset_index()\n\n# Sort by sample name for consistent ordering\nmean_diameter = mean_diameter.sort_values(by=sample_col)\n\n# Create the bar plot\nplt.figure(figsize=(10, 6))\nbars = plt.bar(mean_diameter[sample_col], mean_diameter['직경(nm)'], color='skyblue', edgecolor='black')\n\n# Add labels and title\nplt.title('시료별 평균 직경 (TEM Diameter)', fontsize=14)\nplt.xlabel('시료 (Sample)', fontsize=12)\nplt.ylabel('평균 직경 (nm)', fontsize=12)\nplt.xticks(rotation=45, ha='right')\nplt.grid(axis='y', linestyle='--', alpha=0.7)\n\n# Add value labels on top of bars\nfor bar in bars:\n    height = bar.get_height()\n    plt.text(bar.get_x() + bar.get_width()/2., height,\n             f'{height:.2f}',\n             ha='center', va='bottom', fontsize=9)\n\n# Save the figure\noutput_path = os.path.join(OUT_DIR, 'mean_diameter_by_sample.png')\nplt.tight_layout()\nplt.savefig(output_path, dpi=300)\nplt.close()\n```",
+     "llm_s": 12.557,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 4947,
+     "output_chars": 2691,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# Set font for Korean text\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory\nOUT_DIR = \"out\"\nif not os.path.exists(OUT_DIR):\n    os.makedirs(OUT_DIR)\n\n# Read the data file\nfile_path = \"data/diameters.csv\"\ndf = pd.read_csv(file_path, encoding='utf-8')\n\n# The column name in the preview was 'A 시료', but sometimes CSV headers might have extra spaces or different naming.\n# Let's check the actual columns to be safe and identify the sample column.\n# Based on the error, 'A 시료' was not found. It might be just '시료' or have a prefix issue.\n# Looking at the preview: A 시료 [텍스트 6종...]. \n# Often in these datasets, the column header might simply be '시료' or the first column.\n# Let's assume the first column is the sample identifier based on typical structure if exact match fails,\n# but strictly following the prompt's hint that headers are read \"as they are\", it's possible there's a BOM or space.\n# However, a more robust way is to find the column containing the TEM IDs (TEM-01 etc).\n\nsample_col = None\nfor col in df.columns:\n    # Check if this column contains the expected sample values\n    if df[col].astype(str).str.contains('TEM').any():\n        sample_col = col\n        break\n\n# If still not found, try stripping whitespace from column names and matching\nif sample_col is None:\n    df.columns = df.columns.str.strip()\n    # Try common variations\n    candidates = ['A 시료', '시료', 'Sample']\n    for c in candidates:\n        if c in df.columns:\n            sample_col = c\n            break\n    \n# Fallback to first column if logic above fails (risky but prevents crash)\nif sample_col is None:\n    sample_col = df.columns[0]\n\n# Calculate mean diameter per sample\nmean_diameter = df.groupby(sample_col)['직경(nm)'].mean().reset_index()\n\n# Sort by sample name for consistent ordering\nmean_diameter = mean_diameter.sort_values(by=sample_col)\n\n# Create the bar plot\nplt.figure(figsize=(10, 6))\nbars = plt.bar(mean_diameter[sample_col], mean_diameter['직경(nm)'], color='skyblue', edgecolor='black')\n\n# Add labels and title\nplt.title('시료별 평균 직경 (TEM Diameter)', fontsize=14)\nplt.xlabel('시료 (Sample)', fontsize=12)\nplt.ylabel('평균 직경 (nm)', fontsize=12)\nplt.xticks(rotation=45, ha='right')\nplt.grid(axis='y', linestyle='--', alpha=0.7)\n\n# Add value labels on top of bars\nfor bar in bars:\n    height = bar.get_height()\n    plt.text(bar.get_x() + bar.get_width()/2., height,\n             f'{height:.2f}',\n             ha='center', va='bottom', fontsize=9)\n\n# Save the figure\noutput_path = os.path.join(OUT_DIR, 'mean_diameter_by_sample.png')\nplt.tight_layout()\nplt.savefig(output_path, dpi=300)\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "시료별 평균 직경 (TEM Diameter)",
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "",
+         "orient": "v",
+         "cats": [
+          "TEM-01",
+          "TEM-02",
+          "TEM-03",
+          "TEM-04",
+          "TEM-05",
+          "TEM-06"
+         ],
+         "values": [
+          9.386111111111113,
+          11.743181818181819,
+          9.7375,
+          9.8548,
+          10.3135,
+          12.268275862068966
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 6,
+       "texts": [
+        "9.39",
+        "11.74",
+        "9.74",
+        "9.85",
+        "10.31",
+        "12.27"
+       ],
+       "x": {
+        "label": "시료 (Sample)",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0,
+         5.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "TEM-01",
+         "TEM-02",
+         "TEM-03",
+         "TEM-04",
+         "TEM-05",
+         "TEM-06"
+        ],
+        "min": -0.69,
+        "max": 5.6899999999999995,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "TEM-01",
+         "TEM-02",
+         "TEM-03",
+         "TEM-04",
+         "TEM-05",
+         "TEM-06"
+        ],
+        "rotate": 45.0
+       },
+       "y": {
+        "label": "평균 직경 (nm)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         2.0,
+         4.0,
+         6.0,
+         8.0,
+         10.0,
+         12.0
+        ],
+        "step": 2.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 12.881689655172416,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "2",
+         "4",
+         "6",
+         "8",
+         "10",
+         "12",
+         "14"
+        ],
+        "rotate": 0.0
+       },
+       "title": "시료별 평균 직경 (TEM Diameter)"
+      }
+     ],
+     "texts": [
+      "9.39",
+      "11.74",
+      "9.74",
+      "9.85",
+      "10.31",
+      "12.27"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t1/mean_diameter_by_sample.png",
+       "format": "png",
+       "px": [
+        3000,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.4534330368041992,
+   "check": {
+    "kind_expected": "bar",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 20.039
+  },
+  {
+   "turn": 2,
+   "text": "혹시 오차막대로 표준편차도 넣어 주실 수 있나요?",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Set font for Korean text\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory\nOUT_DIR = \"out\"\nif not os.path.exists(OUT_DIR):\n    os.makedirs(OUT_DIR)\n\n# Read the data file\nfile_path = \"data/diameters.csv\"\ndf = pd.read_csv(file_path, encoding='utf-8')\n\n# Robustly identify the sample column (contains 'TEM' values)\nsample_col = None\nfor col in df.columns:\n    if df[col].astype(str).str.contains('TEM').any():\n        sample_col = col\n        break\n\n# Fallback logic if strict search fails\nif sample_col is None:\n    df.columns = df.columns.str.strip()\n    candidates = ['A 시료', '시료', 'Sample']\n    for c in candidates:\n        if c in df.columns:\n            sample_col = c\n            break\nif sample_col is None:\n    sample_col = df.columns[0]\n\n# Identify diameter column\ndiam_col = None\nfor col in df.columns:\n    if '직경' in col or 'diameter' in col.lower():\n        diam_col = col\n        break\nif diam_col is None:\n    # Assume numeric column that isn't index or other categorical info\n    num_cols = df.select_dtypes(include=[np.number]).columns.tolist()\n    if num_cols:\n        diam_col = num_cols[0]\n\n# Calculate mean and standard deviation per sample\ngrouped = df.groupby(sample_col)[diam_col].agg(['mean', 'std']).reset_index()\ngrouped = grouped.sort_values(by=sample_col)\n\n# Prepare data for plotting\nlabels = grouped[sample_col].values\nmeans = grouped['mean'].values\nstds = grouped['std'].values  # This will be used for error bars\n\n# Create the bar plot with error bars\nplt.figure(figsize=(10, 6))\nbars = plt.bar(labels, means, yerr=stds, capsize=5, color='skyblue', edgecolor='black', alpha=0.7, ecolor='red')\n\n# Add labels and title\nplt.title('시료별 평균 직경 및 표준편차 (TEM Diameter)', fontsize=14)\nplt.xlabel('시료 (Sample)', fontsize=12)\nplt.ylabel('평균 직경 (nm)', fontsize=12)\nplt.xticks(rotation=45, ha='right')\nplt.grid(axis='y', linestyle='--', alpha=0.7)\n\n# Add value labels on top of bars (Mean ± Std)\nfor i, bar in enumerate(bars):\n    height = bar.get_height()\n    std = stds[i]\n    # Position text above the error bar cap\n    text_y = height + std\n    plt.text(bar.get_x() + bar.get_width()/2., text_y,\n             f'{height:.2f}±{std:.2f}',\n             ha='center', va='bottom', fontsize=9)\n\n# Save the figure\noutput_path = os.path.join(OUT_DIR, 'mean_diameter_by_sample_with_std.png')\nplt.tight_layout()\nplt.savefig(output_path, dpi=300)\nplt.close()\n```",
+     "llm_s": 10.59,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 7921,
+     "output_chars": 2490,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Set font for Korean text\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory\nOUT_DIR = \"out\"\nif not os.path.exists(OUT_DIR):\n    os.makedirs(OUT_DIR)\n\n# Read the data file\nfile_path = \"data/diameters.csv\"\ndf = pd.read_csv(file_path, encoding='utf-8')\n\n# Robustly identify the sample column (contains 'TEM' values)\nsample_col = None\nfor col in df.columns:\n    if df[col].astype(str).str.contains('TEM').any():\n        sample_col = col\n        break\n\n# Fallback logic if strict search fails\nif sample_col is None:\n    df.columns = df.columns.str.strip()\n    candidates = ['A 시료', '시료', 'Sample']\n    for c in candidates:\n        if c in df.columns:\n            sample_col = c\n            break\nif sample_col is None:\n    sample_col = df.columns[0]\n\n# Identify diameter column\ndiam_col = None\nfor col in df.columns:\n    if '직경' in col or 'diameter' in col.lower():\n        diam_col = col\n        break\nif diam_col is None:\n    # Assume numeric column that isn't index or other categorical info\n    num_cols = df.select_dtypes(include=[np.number]).columns.tolist()\n    if num_cols:\n        diam_col = num_cols[0]\n\n# Calculate mean and standard deviation per sample\ngrouped = df.groupby(sample_col)[diam_col].agg(['mean', 'std']).reset_index()\ngrouped = grouped.sort_values(by=sample_col)\n\n# Prepare data for plotting\nlabels = grouped[sample_col].values\nmeans = grouped['mean'].values\nstds = grouped['std'].values  # This will be used for error bars\n\n# Create the bar plot with error bars\nplt.figure(figsize=(10, 6))\nbars = plt.bar(labels, means, yerr=stds, capsize=5, color='skyblue', edgecolor='black', alpha=0.7, ecolor='red')\n\n# Add labels and title\nplt.title('시료별 평균 직경 및 표준편차 (TEM Diameter)', fontsize=14)\nplt.xlabel('시료 (Sample)', fontsize=12)\nplt.ylabel('평균 직경 (nm)', fontsize=12)\nplt.xticks(rotation=45, ha='right')\nplt.grid(axis='y', linestyle='--', alpha=0.7)\n\n# Add value labels on top of bars (Mean ± Std)\nfor i, bar in enumerate(bars):\n    height = bar.get_height()\n    std = stds[i]\n    # Position text above the error bar cap\n    text_y = height + std\n    plt.text(bar.get_x() + bar.get_width()/2., text_y,\n             f'{height:.2f}±{std:.2f}',\n             ha='center', va='bottom', fontsize=9)\n\n# Save the figure\noutput_path = os.path.join(OUT_DIR, 'mean_diameter_by_sample_with_std.png')\nplt.tight_layout()\nplt.savefig(output_path, dpi=300)\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "시료별 평균 직경 및 표준편차 (TEM Diameter)",
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "",
+         "orient": "v",
+         "cats": [
+          "TEM-01",
+          "TEM-02",
+          "TEM-03",
+          "TEM-04",
+          "TEM-05",
+          "TEM-06"
+         ],
+         "values": [
+          9.386111111111113,
+          11.743181818181819,
+          9.7375,
+          9.8548,
+          10.3135,
+          12.268275862068966
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [
+        "9.39±2.60",
+        "11.74±3.28",
+        "9.74±2.56",
+        "9.85±2.75",
+        "10.31±3.16",
+        "12.27±3.49"
+       ],
+       "x": {
+        "label": "시료 (Sample)",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0,
+         5.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "TEM-01",
+         "TEM-02",
+         "TEM-03",
+         "TEM-04",
+         "TEM-05",
+         "TEM-06"
+        ],
+        "min": -0.69,
+        "max": 5.6899999999999995,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "TEM-01",
+         "TEM-02",
+         "TEM-03",
+         "TEM-04",
+         "TEM-05",
+         "TEM-06"
+        ],
+        "rotate": 45.0
+       },
+       "y": {
+        "label": "평균 직경 (nm)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         2.0,
+         4.0,
+         6.0,
+         8.0,
+         10.0,
+         12.0,
+         14.0,
+         16.0
+        ],
+        "step": 2.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 16.547875350198193,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "2",
+         "4",
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16",
+         "18"
+        ],
+        "rotate": 0.0
+       },
+       "title": "시료별 평균 직경 및 표준편차 (TEM Diameter)"
+      }
+     ],
+     "texts": [
+      "9.39±2.60",
+      "11.74±3.28",
+      "9.74±2.56",
+      "9.85±2.75",
+      "10.31±3.16",
+      "12.27±3.49"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t2/mean_diameter_by_sample_with_std.png",
+       "format": "png",
+       "px": [
+        3000,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.4899883270263672,
+   "check": {
+    "kind_expected": "bar",
+    "failed": [],
+    "unchecked": [
+     "error_bars={'TEM-01': 2.595, 'TEM-02': 3.284, 'TEM-03': 2.561, 'TEM-04': 2.746, 'TEM-05': 3.157, 'TEM-06': 3.492}"
+    ],
+    "n_checks": 3,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 11.081
+  },
+  {
+   "turn": 3,
+   "text": "시료 이름 대신 '반응기 / 촉매로트'로 라벨을 바꿔 주실 수 있을까요? 예를 들면 'R1 / FC-2604'처럼요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Set font for Korean text\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory\nOUT_DIR = \"out\"\nif not os.path.exists(OUT_DIR):\n    os.makedirs(OUT_DIR)\n\n# Read the data file\nfile_path = \"data/diameters.csv\"\ndf = pd.read_csv(file_path, encoding='utf-8')\n\n# Robustly identify columns based on content or header names\n# Sample column (contains TEM IDs) - needed for grouping if we want per-sample stats, \n# but user asked to change labels to 'Reactor / Catalyst Lot'.\n# This implies we should group by Reactor and Catalyst Lot instead of just Sample.\n# However, usually diameter varies by sample within a run. Let's assume the user wants\n# mean/std of diameters grouped by [Reactor, Catalyst Lot].\n\nreactor_col = None\ncatalyst_col = None\ndiam_col = None\n\nfor col in df.columns:\n    col_str = str(col)\n    if '반응기' in col_str or 'reactor' in col_str.lower():\n        reactor_col = col\n    elif '촉매로트' in col_str or 'lot' in col_str.lower() or 'catalyst' in col_str.lower():\n        catalyst_col = col\n    elif '직경' in col_str or 'diameter' in col_str.lower():\n        diam_col = col\n\n# Fallbacks if strict matching fails\nif reactor_col is None:\n    # Look for R1-R4 pattern\n    for col in df.columns:\n        if df[col].astype(str).str.contains('R[1-4]').any():\n            reactor_col = col\n            break\n            \nif catalyst_col is None:\n    # Look for FC pattern\n    for col in df.columns:\n        if df[col].astype(str).str.contains('FC').any():\n            catalyst_col = col\n            break\n\nif diam_col is None:\n    num_cols = df.select_dtypes(include=[np.number]).columns.tolist()\n    if num_cols:\n        diam_col = num_cols[0]\n\nif not all([reactor_col, catalyst_col, diam_col]):\n    raise ValueError(\"Could not identify required columns for Reactor, Catalyst Lot, or Diameter.\")\n\n# Create a combined label column\ndf['Label'] = df[reactor_col].astype(str) + ' / ' + df[catalyst_col].astype(str)\n\n# Calculate mean and standard deviation per Label\ngrouped = df.groupby('Label')[diam_col].agg(['mean', 'std']).reset_index()\ngrouped = grouped.sort_values(by='Label')\n\n# Prepare data for plotting\nlabels = grouped['Label'].values\nmeans = grouped['mean'].values\nstds = grouped['std'].values\n\n# Create the bar plot with error bars\nplt.figure(figsize=(12, 7)) # Wider figure for potentially more labels\nbars = plt.bar(labels, means, yerr=stds, capsize=5, color='skyblue', edgecolor='black', alpha=0.7, ecolor='red')\n\n# Add labels and title\nplt.title('반응기/촉매로트별 평균 직경 및 표준편차', fontsize=14)\nplt.xlabel('반응기 / 촉매로트', fontsize=12)\nplt.ylabel('평균 직경 (nm)', fontsize=12)\nplt.xticks(rotation=45, ha='right')\nplt.grid(axis='y', linestyle='--', alpha=0.7)\n\n# Add value labels on top of bars (Mean ± Std)\nfor i, bar in enumerate(bars):\n    height = bar.get_height()\n    std = stds[i]\n    # Position text above the error bar cap\n    text_y = height + std\n    plt.text(bar.get_x() + bar.get_width()/2., text_y,\n             f'{height:.2f}±{std:.2f}',\n             ha='center', va='bottom', fontsize=9)\n\n# Save the figure\noutput_path = os.path.join(OUT_DIR, 'mean_diameter_by_reactor_lot.png')\nplt.tight_layout()\nplt.savefig(output_path, dpi=300)\nplt.close()\n```",
+     "llm_s": 13.088,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 10743,
+     "output_chars": 3272,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Set font for Korean text\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory\nOUT_DIR = \"out\"\nif not os.path.exists(OUT_DIR):\n    os.makedirs(OUT_DIR)\n\n# Read the data file\nfile_path = \"data/diameters.csv\"\ndf = pd.read_csv(file_path, encoding='utf-8')\n\n# Robustly identify columns based on content or header names\n# Sample column (contains TEM IDs) - needed for grouping if we want per-sample stats, \n# but user asked to change labels to 'Reactor / Catalyst Lot'.\n# This implies we should group by Reactor and Catalyst Lot instead of just Sample.\n# However, usually diameter varies by sample within a run. Let's assume the user wants\n# mean/std of diameters grouped by [Reactor, Catalyst Lot].\n\nreactor_col = None\ncatalyst_col = None\ndiam_col = None\n\nfor col in df.columns:\n    col_str = str(col)\n    if '반응기' in col_str or 'reactor' in col_str.lower():\n        reactor_col = col\n    elif '촉매로트' in col_str or 'lot' in col_str.lower() or 'catalyst' in col_str.lower():\n        catalyst_col = col\n    elif '직경' in col_str or 'diameter' in col_str.lower():\n        diam_col = col\n\n# Fallbacks if strict matching fails\nif reactor_col is None:\n    # Look for R1-R4 pattern\n    for col in df.columns:\n        if df[col].astype(str).str.contains('R[1-4]').any():\n            reactor_col = col\n            break\n            \nif catalyst_col is None:\n    # Look for FC pattern\n    for col in df.columns:\n        if df[col].astype(str).str.contains('FC').any():\n            catalyst_col = col\n            break\n\nif diam_col is None:\n    num_cols = df.select_dtypes(include=[np.number]).columns.tolist()\n    if num_cols:\n        diam_col = num_cols[0]\n\nif not all([reactor_col, catalyst_col, diam_col]):\n    raise ValueError(\"Could not identify required columns for Reactor, Catalyst Lot, or Diameter.\")\n\n# Create a combined label column\ndf['Label'] = df[reactor_col].astype(str) + ' / ' + df[catalyst_col].astype(str)\n\n# Calculate mean and standard deviation per Label\ngrouped = df.groupby('Label')[diam_col].agg(['mean', 'std']).reset_index()\ngrouped = grouped.sort_values(by='Label')\n\n# Prepare data for plotting\nlabels = grouped['Label'].values\nmeans = grouped['mean'].values\nstds = grouped['std'].values\n\n# Create the bar plot with error bars\nplt.figure(figsize=(12, 7)) # Wider figure for potentially more labels\nbars = plt.bar(labels, means, yerr=stds, capsize=5, color='skyblue', edgecolor='black', alpha=0.7, ecolor='red')\n\n# Add labels and title\nplt.title('반응기/촉매로트별 평균 직경 및 표준편차', fontsize=14)\nplt.xlabel('반응기 / 촉매로트', fontsize=12)\nplt.ylabel('평균 직경 (nm)', fontsize=12)\nplt.xticks(rotation=45, ha='right')\nplt.grid(axis='y', linestyle='--', alpha=0.7)\n\n# Add value labels on top of bars (Mean ± Std)\nfor i, bar in enumerate(bars):\n    height = bar.get_height()\n    std = stds[i]\n    # Position text above the error bar cap\n    text_y = height + std\n    plt.text(bar.get_x() + bar.get_width()/2., text_y,\n             f'{height:.2f}±{std:.2f}',\n             ha='center', va='bottom', fontsize=9)\n\n# Save the figure\noutput_path = os.path.join(OUT_DIR, 'mean_diameter_by_reactor_lot.png')\nplt.tight_layout()\nplt.savefig(output_path, dpi=300)\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      12.0,
+      7.0
+     ],
+     "dpi": null,
+     "title": "반응기/촉매로트별 평균 직경 및 표준편차",
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "",
+         "orient": "v",
+         "cats": [
+          "R1 / FC-2604",
+          "R1 / FC-2607",
+          "R2 / FC-2605",
+          "R3 / FC-2604",
+          "R4 / FC-2604",
+          "R4 / FC-2607"
+         ],
+         "values": [
+          9.386111111111113,
+          11.743181818181819,
+          9.7375,
+          9.8548,
+          10.3135,
+          12.268275862068966
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [
+        "9.39±2.60",
+        "11.74±3.28",
+        "9.74±2.56",
+        "9.85±2.75",
+        "10.31±3.16",
+        "12.27±3.49"
+       ],
+       "x": {
+        "label": "반응기 / 촉매로트",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0,
+         5.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "R1 / FC-2604",
+         "R1 / FC-2607",
+         "R2 / FC-2605",
+         "R3 / FC-2604",
+         "R4 / FC-2604",
+         "R4 / FC-2607"
+        ],
+        "min": -0.69,
+        "max": 5.6899999999999995,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "R1 / FC-2604",
+         "R1 / FC-2607",
+         "R2 / FC-2605",
+         "R3 / FC-2604",
+         "R4 / FC-2604",
+         "R4 / FC-2607"
+        ],
+        "rotate": 45.0
+       },
+       "y": {
+        "label": "평균 직경 (nm)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         2.0,
+         4.0,
+         6.0,
+         8.0,
+         10.0,
+         12.0,
+         14.0,
+         16.0
+        ],
+        "step": 2.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 16.547875350198193,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "2",
+         "4",
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16",
+         "18"
+        ],
+        "rotate": 0.0
+       },
+       "title": "반응기/촉매로트별 평균 직경 및 표준편차"
+      }
+     ],
+     "texts": [
+      "9.39±2.60",
+      "11.74±3.28",
+      "9.74±2.56",
+      "9.85±2.75",
+      "10.31±3.16",
+      "12.27±3.49"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t3/mean_diameter_by_reactor_lot.png",
+       "format": "png",
+       "px": [
+        3600,
+        2100
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.4607067108154297,
+   "check": {
+    "kind_expected": "bar",
+    "failed": [],
+    "unchecked": [
+     "error_bars={'R1 / FC-2604': 2.595, 'R1 / FC-2607': 3.284, 'R2 / FC-2605': 2.561, 'R3 / FC-2604': 2.746, 'R4 / FC-2604': 3.157, 'R4 / FC-2607': 3.492}"
+    ],
+    "n_checks": 3,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 13.549
+  }
+ ]
+}

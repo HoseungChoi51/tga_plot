@@ -1,0 +1,203 @@
+{
+ "arm": "R-mpl",
+ "item": "S056",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "데이터 분석가",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "Histogram of downtime 정지시간(분) on a log-x axis with log-spaced bin edges 5, 10, 20, 50, 100, 200, 500, 1000.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/downtime.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"정지이력\")\n\n# 정지시간(분) 추출 및 결측치/비수치 제거\ndowntime_minutes = pd.to_numeric(df['정지시간(분)'], errors='coerce').dropna()\n\n# 히스토그램 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# 로그 스케일 빈 경계 정의\nbins = [5, 10, 20, 50, 100, 200, 500, 1000]\n\n# x축을 로그 스케일로 하기 위해 log-transformed 데이터 사용 또는 set_xscale 사용\n# matplotlib의 hist는 bins가 직접 적용되므로, set_xscale('log')를 사용하는 것이 더 명확함\nax.hist(downtime_minutes, bins=bins, edgecolor='black', color='steelblue', alpha=0.7)\n\nax.set_xscale('log')\nax.set_xlabel('정지시간 (분)', fontsize=12)\nax.set_ylabel('빈도 (Count)', fontsize=12)\nax.set_title('CNT 생산 공정 정지시간 분포 (로그 스케일)', fontsize=14)\n\n# 그리드 추가 (x축은 로그 스케일이므로 minor grid 포함 시 가독성 향상 가능하나 기본 major만 켜짐)\nax.grid(True, which='major', linestyle='--', alpha=0.5)\nax.grid(True, which='minor', axis='x', linestyle=':', alpha=0.3) # 로그 스케일의 마이너스 그리드 추가로 세밀한 눈금 확인 용이\n\n# save figure\nsave_path = os.path.join(OUT_DIR, \"downtime_histogram_log.png\")\nplt.savefig(save_path, dpi=300, bbox_inches='tight')\nplt.close(fig)\n```",
+     "llm_s": 7.805,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 2913,
+     "output_chars": 1298,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/downtime.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"정지이력\")\n\n# 정지시간(분) 추출 및 결측치/비수치 제거\ndowntime_minutes = pd.to_numeric(df['정지시간(분)'], errors='coerce').dropna()\n\n# 히스토그램 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# 로그 스케일 빈 경계 정의\nbins = [5, 10, 20, 50, 100, 200, 500, 1000]\n\n# x축을 로그 스케일로 하기 위해 log-transformed 데이터 사용 또는 set_xscale 사용\n# matplotlib의 hist는 bins가 직접 적용되므로, set_xscale('log')를 사용하는 것이 더 명확함\nax.hist(downtime_minutes, bins=bins, edgecolor='black', color='steelblue', alpha=0.7)\n\nax.set_xscale('log')\nax.set_xlabel('정지시간 (분)', fontsize=12)\nax.set_ylabel('빈도 (Count)', fontsize=12)\nax.set_title('CNT 생산 공정 정지시간 분포 (로그 스케일)', fontsize=14)\n\n# 그리드 추가 (x축은 로그 스케일이므로 minor grid 포함 시 가독성 향상 가능하나 기본 major만 켜짐)\nax.grid(True, which='major', linestyle='--', alpha=0.5)\nax.grid(True, which='minor', axis='x', linestyle=':', alpha=0.3) # 로그 스케일의 마이너스 그리드 추가로 세밀한 눈금 확인 용이\n\n# save figure\nsave_path = os.path.join(OUT_DIR, \"downtime_histogram_log.png\")\nplt.savefig(save_path, dpi=300, bbox_inches='tight')\nplt.close(fig)\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "CNT 생산 공정 정지시간 분포 (로그 스케일)",
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "",
+         "orient": "v",
+         "cats": [
+          "$\\mathdefault{10^{1}}$",
+          "$\\mathdefault{10^{1}}$",
+          "35",
+          "$\\mathdefault{10^{2}}$",
+          "$\\mathdefault{10^{2}}$",
+          "350",
+          "$\\mathdefault{10^{3}}$"
+         ],
+         "values": [
+          5.0,
+          21.0,
+          99.0,
+          100.0,
+          43.0,
+          25.0,
+          1.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#4682b4",
+          "#4682b4",
+          "#4682b4",
+          "#4682b4",
+          "#4682b4",
+          "#4682b4",
+          "#4682b4"
+         ],
+         "centers": [
+          7.5,
+          15.0,
+          35.0,
+          75.0,
+          150.0,
+          350.0,
+          750.0
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "정지시간 (분)",
+        "type": "category",
+        "ticks": [
+         10.0,
+         100.0,
+         1000.0
+        ],
+        "step": 495.0,
+        "categories": [
+         "$\\mathdefault{10^{0}}$",
+         "$\\mathdefault{10^{1}}$",
+         "$\\mathdefault{10^{2}}$",
+         "$\\mathdefault{10^{3}}$",
+         "$\\mathdefault{10^{4}}$"
+        ],
+        "min": 3.836352495054628,
+        "max": 1303.3213205630648,
+        "log": true,
+        "inverted": false,
+        "tick_labels": [
+         "$\\mathdefault{10^{0}}$",
+         "$\\mathdefault{10^{1}}$",
+         "$\\mathdefault{10^{2}}$",
+         "$\\mathdefault{10^{3}}$",
+         "$\\mathdefault{10^{4}}$"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "빈도 (Count)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         20.0,
+         40.0,
+         60.0,
+         80.0,
+         100.0
+        ],
+        "step": 20.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 105.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "20",
+         "40",
+         "60",
+         "80",
+         "100",
+         "120"
+        ],
+        "rotate": 0.0
+       },
+       "title": "CNT 생산 공정 정지시간 분포 (로그 스케일)"
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t1/downtime_histogram_log.png",
+       "format": "png",
+       "px": [
+        2553,
+        1665
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.6473078727722168,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [
+     "kind: drawn ['bar'], want histogram",
+     "histogram _: bins/counts differ (edges differ)"
+    ],
+    "unchecked": [
+     "xscale=log"
+    ],
+    "n_checks": 3,
+    "n_failed": 2,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 8.453
+  }
+ ]
+}

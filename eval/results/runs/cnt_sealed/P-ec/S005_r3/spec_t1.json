@@ -1,0 +1,29 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "pie",
+ "x": "등급 (A/B/C)",
+ "title": {
+  "text": "CNT 등급별 분포 (불량 비율)",
+  "size": 16
+ },
+ "values": "percent",
+ "colors": [
+  "green",
+  "orange",
+  "red"
+ ],
+ "legend": "outside right",
+ "asks": [
+  {
+   "ask": "불량 비율 한 장",
+   "how": "key"
+  },
+  {
+   "ask": "임원 보고용 (제목, 색상 강조)",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-ec/S005_r3/out/t1"
+ }
+}

@@ -1,0 +1,11 @@
+```json
+{
+ "file": "cnt_batches.xlsx",
+ "sheets": "Raw",
+ "code": "ax1.axhline(50, color='gray', linestyle='--'); ax1.text(0.98, 0.95, '공기, 10 °C/min', transform=ax1.transAxes, ha='right', va='top')",
+ "asks": [
+  {"ask": "무게 50% 가로 보조선", "how": "code"},
+  {"ask": "오른쪽 위 메모", "how": "code"}
+ ]
+}
+```

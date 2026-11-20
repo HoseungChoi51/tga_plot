@@ -1,0 +1,62 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheets": "주간요약",
+ "chart": "bar",
+ "x": "주차",
+ "y": {
+  "label": "생산량 (kg)"
+ },
+ "colors": [
+  "blue",
+  "blue",
+  "blue",
+  "blue",
+  "blue",
+  "blue",
+  "blue",
+  "blue",
+  "blue",
+  "blue",
+  "blue",
+  "blue",
+  "blue",
+  "orange",
+  "orange",
+  "orange",
+  "orange",
+  "orange",
+  "orange",
+  "orange",
+  "orange",
+  "orange",
+  "orange",
+  "orange",
+  "orange",
+  "orange"
+ ],
+ "legend": "none",
+ "ref": [
+  {
+   "y": 15.6,
+   "text": "1~13주 평균"
+  },
+  {
+   "y": 16.8,
+   "text": "14~26주 평균"
+  }
+ ],
+ "title": "주간 생산량 추이 (3~8월)",
+ "asks": [
+  {
+   "ask": "제목 변경",
+   "how": "key"
+  },
+  {
+   "ask": "y축 이름 변경",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/SS01_r3/out/t4"
+ }
+}

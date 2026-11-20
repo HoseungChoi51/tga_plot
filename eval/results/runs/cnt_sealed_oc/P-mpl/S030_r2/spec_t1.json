@@ -1,0 +1,28 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "pie",
+ "data_code": "import numpy as np\ncond_metal = df['잔류금속 (wt%)'] > 5.0\ncond_raman = df['IG/ID'] < 2.2\nc_mask = df['등급 (A/B/C)'] == 'C'\ndf.loc[c_mask & cond_metal & ~cond_raman, '사유'] = '잔류금속만'\ndf.loc[c_mask & ~cond_metal & cond_raman, '사유'] = 'IG/ID만'\ndf.loc[c_mask & cond_metal & cond_raman, '사유'] = '둘 다'",
+ "filter": [
+  "등급 (A/B/C) == C",
+  "사유 in [잔류금속만, IG/ID만, 둘 다]"
+ ],
+ "x": "사유",
+ "asks": [
+  {
+   "ask": "등급 C 판정 런들 필터링",
+   "how": "key"
+  },
+  {
+   "ask": "불합격 사유 분류 (잔류금속만, IG/ID만, 둘 다)",
+   "how": "data_code"
+  },
+  {
+   "ask": "비율 파이차트",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S030_r2/out/t1"
+ }
+}

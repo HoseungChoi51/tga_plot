@@ -1,0 +1,9 @@
+```json
+{
+  "file": "polymers.xlsx",
+  "sheets": ["PE", "PVC", "PET"],
+  "combine": true,
+  "y2": false,
+  "code": "offsets = {'PE': 0, 'PVC': 20, 'PET': 40}\nlines = [l for l in ax1.lines if l.get_label() in offsets]\nif not lines:\n    lines = ax1.lines[:3]\nfor i, line in enumerate(lines):\n    off = offsets.get(line.get_label(), i * 20)\n    if line.get_gid() != 'pk_offset':\n        line.set_ydata(line.get_ydata() + off)\n        line.set_gid('pk_offset')\nax1.relim(); ax1.autoscale_view()"
+}
+```

@@ -1,0 +1,43 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "bar",
+ "x": {
+  "col": "반응기"
+ },
+ "y": {
+  "col": "CNT수율 (g/g-cat)",
+  "agg": "mean"
+ },
+ "by": "month_group",
+ "filter": [
+  "일자 between 2026-03-01 and 2026-08-31"
+ ],
+ "data_code": "import pandas as pd\ndf['month_group'] = df['일자'].dt.month.map({3: '3월', 8: '8월'})\ndf = df[df['month_group'].notna()]",
+ "title": {
+  "text": "반응기별 월간 평균 수율 비교 (3월 vs 8월)",
+  "size": 14
+ },
+ "legend": {
+  "where": "upper right",
+  "show": true
+ },
+ "values": true,
+ "asks": [
+  {
+   "ask": "반응기별 평균 수율 막대",
+   "how": "key"
+  },
+  {
+   "ask": "3월과 8월 나란히 비교 (묶은 막대)",
+   "how": "key"
+  },
+  {
+   "ask": "데이터 필터링 (3월, 8월만)",
+   "how": "data_code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-mpl/S010_r2/out/t1"
+ }
+}

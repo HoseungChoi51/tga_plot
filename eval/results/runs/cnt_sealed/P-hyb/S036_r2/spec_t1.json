@@ -1,0 +1,23 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "scatter",
+ "x": {
+  "col": "외기습도 (%)",
+  "label": "외기습도 (%)"
+ },
+ "y": {
+  "col": "CNT수율 (g/g-cat)",
+  "agg": "mean",
+  "label": "평균 CNT수율 (g/g-cat)"
+ },
+ "trend": true,
+ "asks": [
+  {
+   "ask": "습도와 품질(수율) 관계 분석",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-hyb/S036_r2/out/t1"
+ }
+}

@@ -1,0 +1,17 @@
+{
+ "file": "data/tga_batches.xlsx",
+ "sheets": [
+  "R1-260326-1",
+  "R1-260716-1"
+ ],
+ "combine": true,
+ "asks": [
+  {
+   "ask": "두 시트 TG 곡선 overlay",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_b/P-ec/D004_r1/out/t1"
+ }
+}

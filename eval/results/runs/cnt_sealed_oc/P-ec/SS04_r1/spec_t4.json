@@ -1,0 +1,24 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "line",
+ "x": "주차",
+ "y": {
+  "col": "생산량(kg)",
+  "agg": "sum"
+ },
+ "by": "반응기",
+ "filter": [
+  "반응기 == R3"
+ ],
+ "data_code": "df['생산량(kg)'] = df['생산속도 (g/h)'] * df['가동시간 (h)'] / 1000",
+ "asks": [
+  {
+   "ask": "R3만 남기고 나머지는 지우기",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/SS04_r1/out/t4"
+ }
+}

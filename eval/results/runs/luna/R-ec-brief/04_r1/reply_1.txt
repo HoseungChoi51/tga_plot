@@ -1,0 +1,156 @@
+```python
+import json
+import os
+import re
+import sys
+
+import numpy as np
+import pandas as pd
+
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+SHEET_NAME = "1006R1-V normal"
+
+def read_sheet(path, sheet_name):
+    df = pd.read_excel(path, sheet_name=sheet_name)
+    df.columns = [str(c).strip() for c in df.columns]
+    return df
+
+def find_column(df, candidates, fallback_index):
+    for col in df.columns:
+        if any(token.lower() in str(col).lower() for token in candidates):
+            return col
+    return df.columns[fallback_index]
+
+df = read_sheet(DATA_FILE, SHEET_NAME)
+x_col = find_column(df, ["temperature", "temp"], 1)
+weight_col = find_column(df, ["weight", "mass"], 2)
+dtg_col = find_column(df, ["d.w", "dtg", "derivative"], 3)
+
+for col in (x_col, weight_col, dtg_col):
+    df[col] = pd.to_numeric(df[col], errors="coerce")
+df = df.dropna(subset=[x_col, weight_col, dtg_col]).sort_values(x_col)
+
+x = df[x_col].to_numpy(dtype=float)
+weight = df[weight_col].to_numpy(dtype=float)
+dtg = df[dtg_col].to_numpy(dtype=float)
+
+residue_index = int(np.argmin(np.abs(x - 800.0)))
+residue_x = float(x[residue_index])
+residue_y = float(weight[residue_index])
+peak_mask = x > 150.0
+if np.any(peak_mask):
+    peak_index = int(np.flatnonzero(peak_mask)[np.argmax(-dtg[peak_mask])])
+    peak_x = float(x[peak_index])
+    peak_y = float(-dtg[peak_index])
+else:
+    peak_index = int(np.argmax(-dtg))
+    peak_x = float(x[peak_index])
+    peak_y = float(-dtg[peak_index])
+
+option = {
+    "animation": False,
+    "title": {
+        "text": "CNT 산화 거동",
+        "left": "center",
+        "top": 12,
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR",
+            "fontSize": 18,
+            "fontWeight": "normal",
+            "color": "#000080",
+        },
+    },
+    "tooltip": {"trigger": "axis"},
+    "legend": {
+        "data": ["Weight (%)", "-DTG (%/°C)"],
+        "left": 68,
+        "top": "middle",
+        "orient": "vertical",
+    },
+    "grid": {"left": 72, "right": 72, "top": 66, "bottom": 62},
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 38,
+        "axisLine": {"show": True},
+        "axisTick": {"show": True},
+        "axisLabel": {"show": True},
+        "splitLine": {"show": False},
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Weight (%)",
+            "nameLocation": "middle",
+            "nameGap": 48,
+            "min": 0,
+            "max": 105,
+            "axisLine": {"show": True, "lineStyle": {"color": "#1f4e9c"}},
+            "axisLabel": {"color": "#1f4e9c"},
+            "splitLine": {"show": True, "lineStyle": {"color": "#e5e5e5"}},
+        },
+        {
+            "type": "value",
+            "name": "-DTG (%/°C)",
+            "nameLocation": "middle",
+            "nameGap": 50,
+            "min": 0,
+            "axisLine": {"show": True, "lineStyle": {"color": "#c0392b"}},
+            "axisLabel": {"color": "#c0392b"},
+            "splitLine": {"show": False},
+        },
+    ],
+    "series": [
+        {
+            "name": "Weight (%)",
+            "type": "line",
+            "showSymbol": False,
+            "lineStyle": {"width": 2, "color": "#1f4e9c"},
+            "data": [[float(a), float(b)] for a, b in zip(x, weight)],
+            "markPoint": {
+                "symbol": "circle",
+                "symbolSize": 9,
+                "itemStyle": {"color": "#1f4e9c"},
+                "label": {
+                    "show": True,
+                    "formatter": f"Residue {residue_y:.1f}%",
+                    "position": "right",
+                },
+                "data": [{"coord": [residue_x, residue_y]}],
+            },
+        },
+        {
+            "name": "-DTG (%/°C)",
+            "type": "line",
+            "yAxisIndex": 1,
+            "showSymbol": False,
+            "lineStyle": {"width": 2, "color": "#c0392b"},
+            "data": [[float(a), float(-b)] for a, b in zip(x, dtg)],
+            "markPoint": {
+                "symbol": "circle",
+                "symbolSize": 9,
+                "itemStyle": {"color": "#c0392b"},
+                "label": {
+                    "show": True,
+                    "formatter": f"{peak_x:.0f} °C",
+                    "position": "top",
+                },
+                "data": [{"coord": [peak_x, peak_y]}],
+            },
+        },
+    ],
+}
+
+print(json.dumps({
+    "figures": [{
+        "name": "1006R1-V_normal",
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"],
+    }]
+}, ensure_ascii=False, allow_nan=False))
+```

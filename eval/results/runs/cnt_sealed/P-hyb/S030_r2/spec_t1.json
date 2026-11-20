@@ -1,0 +1,28 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "pie",
+ "x": "불합격사유",
+ "y": "count",
+ "filter": [
+  "등급 == C"
+ ],
+ "data_code": "import numpy as np\nmetal_fail = df['잔류금속 (wt%)'] > 5.0\nig_id_fail = df['IG/ID'] < 2.2\ndf['불합격사유'] = np.where(metal_fail & ig_id_fail, '둘 다', np.where(metal_fail, '잔류금속 > 5.0 wt%만', np.where(ig_id_fail, 'IG/ID < 2.2만', '기타')))\ndf = df[df['불합격사유'] != '기타']",
+ "asks": [
+  {
+   "ask": "등급 C 판정 런들 필터링",
+   "how": "key"
+  },
+  {
+   "ask": "불합격 사유 분류 (잔류금속>5.0, IG/ID<2.2, 둘 다)",
+   "how": "data_code"
+  },
+  {
+   "ask": "파이 차트로 비율 표시",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-hyb/S030_r2/out/t1"
+ }
+}

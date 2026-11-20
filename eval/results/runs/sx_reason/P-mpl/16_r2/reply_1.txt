@@ -1,0 +1,7 @@
+```json
+{
+  "file": "TGA.xlsx",
+  "sheets": "1006R1-V normal",
+  "y2": false
+}
+```

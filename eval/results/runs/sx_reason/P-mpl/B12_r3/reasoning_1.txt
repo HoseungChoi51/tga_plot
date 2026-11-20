@@ -1,0 +1,15 @@
+We need answer user's request in test mode: produce JSON spec only inside ```json block, nothing else. Need analyze request and inspect result.
+
+User request: "Please plot the weight curve only (no DTG), x range 100 to 900, and label the residue at 900 °C"
+
+We have file caox.csv. It's TGA data with tga_guess x B Temperature, y1 C Weight, y2 D Deriv Weight. Need plot weight curve only no DTG: y2 false. x range 100 to 900: x min 100 max 900. Label residue at 900 °C: annotate residue x 900. Since user mentions residue label, include annotate.residue. Default TGA preset okay. Need only requested keys. File exactly caox.csv. Maybe y2 false. x min max. annotate residue true? "label the residue at 900 °C" means residue at x=900. Could use {"annotate": {"residue": {"x": 900}}}. Since no other changes. Also no DTG: "y2": false. Should we set y2 false and also x min/max. JSON:
+{
+  "file": "caox.csv",
+  "x": {"min": 100, "max": 900},
+  "y2": false,
+  "annotate": {"residue": {"x": 900}}
+}
+
+Check if TGA preset with y2 false still works? likely. Need no extra. Could residue text default. Good.
+
+Need final only json block. Ensure no other text.

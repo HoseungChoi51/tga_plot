@@ -1,0 +1,36 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "scatter",
+ "x": {
+  "col": "외기습도 (%)",
+  "label": "Exterior Humidity (%)"
+ },
+ "y": {
+  "col": "잔류금속 (wt%)",
+  "label": "Residual Metal (wt%)"
+ },
+ "data_code": "df['월'] = pd.to_datetime(df['일자']).dt.month.astype(str) + 'M'",
+ "by": "월",
+ "asks": [
+  {
+   "ask": "Scatter plot",
+   "how": "key"
+  },
+  {
+   "ask": "X: 외기습도, Y: 잔류금속",
+   "how": "key"
+  },
+  {
+   "ask": "All runs",
+   "how": "default_filter_none"
+  },
+  {
+   "ask": "Colored by calendar month (3-8)",
+   "how": "data_code+by"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S049_r2/out/t1"
+ }
+}

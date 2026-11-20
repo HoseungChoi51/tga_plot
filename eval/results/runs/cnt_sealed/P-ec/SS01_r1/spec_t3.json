@@ -1,0 +1,44 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheets": "주간요약",
+ "chart": "bar",
+ "x": "주차",
+ "y": "총생산량(kg)",
+ "data_code": "df['구분'] = df['주차'].apply(lambda x: '14주 이후' if x >= 14 else '13주 이전')",
+ "by": "구분",
+ "ref": [
+  {
+   "y": {
+    "col": "총생산량(kg)",
+    "agg": "mean",
+    "filter": [
+     "주차 <= 13"
+    ]
+   },
+   "text": "1~13주 평균"
+  },
+  {
+   "y": {
+    "col": "총생산량(kg)",
+    "agg": "mean",
+    "filter": [
+     "주차 >= 14"
+    ]
+   },
+   "text": "14~26주 평균"
+  }
+ ],
+ "asks": [
+  {
+   "ask": "1~13주 평균 가로선",
+   "how": "key"
+  },
+  {
+   "ask": "14~26주 평균 가로선",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-ec/SS01_r1/out/t3"
+ }
+}

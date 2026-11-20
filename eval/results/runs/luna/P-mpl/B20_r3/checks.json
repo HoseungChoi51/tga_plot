@@ -1,0 +1,1 @@
+[{"check": "only", "cat": "data", "ok": true, "why": "", "spec": {"only": {"axis": "y1", "ranges": [[4.975, 100.01]]}, "cat": "data"}}, {"check": "axis", "cat": "ask", "ok": false, "why": "fig 0: x.minor is 0, want True", "spec": {"axis": {"which": "x", "minor": true}}}]

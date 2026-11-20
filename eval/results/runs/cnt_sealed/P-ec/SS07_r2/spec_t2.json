@@ -1,0 +1,40 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "histogram",
+ "x": "잔류금속 (wt%)",
+ "bins": {
+  "width": 0.25,
+  "min": 1.75,
+  "max": 6.5
+ },
+ "by": "반응기군",
+ "data_code": "df['반응기군'] = df['반응기'].apply(lambda x: 'R4' if x == 'R4' else 'R1-R3')",
+ "echarts": {
+  "series": [
+   {
+    "itemStyle": {
+     "opacity": 0.5
+    }
+   },
+   {
+    "itemStyle": {
+     "opacity": 0.5
+    }
+   }
+  ]
+ },
+ "asks": [
+  {
+   "ask": "R4와 R1-R3로 나눔",
+   "how": "key"
+  },
+  {
+   "ask": "반투명 겹침",
+   "how": "echarts"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-ec/SS07_r2/out/t2"
+ }
+}

@@ -1,0 +1,45 @@
+id,a_ok,b_ok,prefer,a_defects,b_defects
+P45,no,yes,B,ugly-ticks ticks-under-bars,
+P46,yes,no,A,,ugly-ticks ticks-under-bars cramped
+P47,yes,yes,A,,
+P48,yes,yes,B,thin-colorbar,
+P49,no,no,tie,overlap unreadable,overlap unreadable
+P50,yes,yes,A,,cramped
+P51,no,no,tie,overlap unreadable wasted-space,overlap unreadable
+P52,yes,yes,A,,cramped
+P53,no,no,B,overlap unreadable cramped too-small,overlap unreadable
+P54,yes,yes,B,small-xticks,squashed-cells
+P55,yes,yes,A,,wasted-space
+P56,yes,no,A,,wasted-space small-pie
+P57,yes,yes,A,,wasted-space
+P58,no,yes,B,wasted-space small-pie,
+P59,yes,yes,B,wasted-space,
+P60,yes,no,A,,wasted-space small-pie label-touches-pie
+P61,yes,yes,A,,ugly-ticks
+P62,yes,yes,B,small-text,
+P63,no,yes,B,cramped overlap,
+P64,yes,yes,A,,small-text
+P65,yes,no,A,,cramped overlap
+P66,yes,yes,A,small-annotations,small-text small-annotations
+P67,yes,yes,B,sparse-cbar-ticks wasted-space,
+P68,yes,yes,B,sparse-cbar-ticks thin-colorbar small-text,
+P69,no,no,B,clipped missing-label overlap cluttered,clipped overlap cluttered
+P70,yes,no,A,leader-lines-bundled,cramped label-touches-line leader-lines-bundled
+P71,no,no,A,overlap label-covers-data,overlap label-covers-data
+P72,yes,yes,A,thin-lines,thin-lines
+P73,no,no,tie,overlap label-covers-data,overlap label-covers-data
+P74,yes,yes,A,thin-lines,thin-lines tight-right-edge
+P75,yes,yes,B,label-gap,
+P76,yes,yes,B,small-text,
+P77,yes,yes,tie,wasted-space,wasted-space
+P78,yes,yes,B,small-text small-legend,small-legend
+P79,yes,yes,B,wasted-space,
+P80,yes,no,A,,wasted-space small-pie
+P81,no,yes,B,clipped,ugly-ticks
+P82,yes,no,A,thin-lines small-markers,clipped tiny-markers thin-lines
+P83,no,yes,B,cramped ugly-ticks mixed-date-format,ugly-ticks
+P84,no,yes,B,ugly-ticks mixed-date-format corner-crowding,corner-crowding thin-lines
+P85,yes,yes,A,missing-date,cramped corner-crowding
+P86,yes,yes,B,corner-crowding thin-lines missing-date,corner-crowding thin-lines
+P87,yes,no,A,,ugly-ticks ticks-under-bars bar-covers-axis
+P88,yes,no,A,,ugly-ticks ticks-under-bars bar-covers-axis small-text

@@ -1,0 +1,3 @@
+We need answer user's request. Need produce JSON spec only in ```json block. Need analyze in Korean? User Korean. Need use plotkit guide. Request: "450 °C에 세로 보조선 넣고 '산화 시작'이라고 써줘". Need include file TGA.xlsx. Default TGA preset. Add annotate new name vline with type vline, x 450, text "산화 시작". No other changes. Need ensure JSON valid. Could be:
+{"file": "TGA.xlsx", "annotate": {"vline1": {"type": "vline", "x": 450, "text": "산화 시작"}}}
+Need only json block. No extra. Ensure not include code.

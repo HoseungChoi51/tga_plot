@@ -1,0 +1,374 @@
+{
+ "arm": "P-hyb",
+ "item": "S027",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "TEM 직경 데이터 6개 시료 전부 합쳐서 히스토그램 그려 주세요. bin 폭 0.5 nm, 4–28 nm. 평균과 중앙값 위치에 세로선 넣어 주세요.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/diameters.csv\",\n  \"chart\": \"histogram\",\n  \"x\": \"직경(nm)\",\n  \"bins\": {\n    \"width\": 0.5,\n    \"min\": 4,\n    \"max\": 28\n  },\n  \"code\": \"import numpy as np; d = data['values'] if 'values' in data else None; \\n# Calculate stats from raw data is not directly possible in code block easily without df access here, but we can use the plotted bins or assume standard matplotlib usage.\\n# Actually, for histogram, 'data' usually contains the aggregated counts and bin edges. To get mean/median of original data, we might need to rely on the fact that we can't easily re-calculate from just bins in this specific sandbox context unless 'df' was passed or we approximate.\\n# However, the prompt says 'data' (the drawn numbers). For a histogram, this is likely counts and edges.\\n# Let's try to calculate mean/median from the original column if accessible via some global or just use the approximation from bins? No, better to check if I can pass data_code to compute stats and store them? No, data_code modifies df.\\n# Wait, the 'code' block runs AFTER drawing. It has `fig`, `ax`, `plt`, `np`, `data`.\\n# If I cannot access the raw dataframe in `code`, I should have computed the mean/median in `data_code` and stored them somewhere accessible? Or maybe I can just plot vertical lines at calculated positions if I knew them.\\n# Since I don't know the exact values, I will use `data_code` to add columns with the global mean/median repeated, then... no, that doesn't help plotting vertical lines on a histogram easily via keys.\\n# The best way in this system for static reference lines on a histogram where the value depends on the whole dataset is often tricky if `ref` only takes static numbers.\\n# But wait, `ref` supports `{\"y\": \"mean\"}` for bar charts. Does it support x-axis mean for histograms? The table says `ref`: [{\"y\": ...}, {\"x\": ...}].\\n# Let's assume `ref` with `{\"x\": \"mean\"}` works for histograms too, or I must use `code`.\\n# In `code`, I don't have the raw data. \\n# Strategy: Use `data_code` to calculate mean and median and print them? No output capture.\\n# Alternative: The `code` block description says `data` are the drawn numbers. For a histogram, this is typically `(counts, bin_edges)`.\\n# I will attempt to use `ref` with `{\"x\": \"mean\"}` and `{\"x\": \"median\"}`. If that fails, I'd need `code`. Given the strict JSON output, I'll bet on `ref` supporting statistical references on the x-axis for histograms, or fallback to calculating them in `data_code` and injecting them into a dummy column? No.\\n# Actually, looking at previous examples, `ref` is powerful. Let's try `ref` first. If `ref` doesn't support \\\"mean\\\" for x in histogram, I would need to know the number.\\n# Let's look at the `code` example again. It uses hardcoded numbers.\\n# Is there a way to get the mean in `code`? No raw data.\\n# I will use `data_code` to create a constant column `mean_val` and `median_val`? No, that's per row.\\n# Okay, I will assume `ref` supports `{\\\"x\\\": \\\"mean\\\"}` and `{\\\"x\\\": \\\"median\\\"}`. This is a common feature in high-level plotting libs like seaborn/matplotlib wrappers.\\n\\n# Correction: If `ref` does not support string \\\"mean\\\" for x-axis in histograms, I am stuck without knowing the number.\\n# However, often `data` in the code block for a histogram might be structured such that I can reconstruct the mean? Unlikely.\\n# Let's try providing the `ref` list. If the system interprets \\\"mean\\\" correctly, great.\\n\\n# Another option: The user asked for lines. I will put them in `ref`.\",\n  \"ref\": [\n    {\n      \"x\": \"mean\",\n      \"text\": \"Mean\"\n    },\n    {\n      \"x\": \"median\",\n      \"text\": \"Median\"\n    }\n  ],\n  \"asks\": [\n    {\n      \"ask\": \"6개 시료 전부 합쳐서 히스토그램\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"bin 폭 0.5 nm, 4–28 nm\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"평균과 중앙값 위치에 세로선\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 53.872,
+     "prompt_tokens": 5504,
+     "output_tokens": 1087,
+     "cached_tokens": 5497,
+     "prompt_n": 7,
+     "prefill_ms": 87.883103,
+     "decode_ms": 51257.621086000014,
+     "finish": "stop"
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/diameters.csv\",\n  \"chart\": \"histogram\",\n  \"x\": \"직경(nm)\",\n  \"bins\": {\n    \"width\": 0.5,\n    \"min\": 4,\n    \"max\": 28\n  },\n  \"code\": \"import numpy as np\\n# We need the raw data to calculate mean and median for vertical lines.\\n# The 'code' block has access to 'df' if we use data_code? No, code runs after drawing.\\n# However, usually in these systems, if 'ref' doesn't support dynamic stats on x-axis for histograms,\\n# we might need to compute them in data_code and store them in a way accessible to code?\\n# Actually, looking at the docs: 'code' names: fig, ax, plt, np, data (the drawn numbers).\\n# It does NOT list df. But often 'df' is available or we can re-read? No, sandboxed.\\n# Let's try using 'ref' with \\\"mean\\\" and \\\"median\\\" first. If that fails, I'll switch to code.\\n# Wait, the previous error was JSON syntax. Let's fix the JSON first.\\n# The 'code' field in the previous attempt had newlines which broke JSON if not escaped properly or just bad formatting.\\n# I will remove the complex code logic and rely on 'ref' if possible, or simple code.\\n# Since I cannot guarantee 'ref' supports \\\"mean\\\" for x-axis in histogram (docs say ref y for bar/line),\\n# I will use data_code to add columns with the global mean/median, then... no, that doesn't help plotting lines.\\n# Let's assume the system allows calculating stats in `code` by accessing the underlying dataframe via some trick or that `ref` works.\\n# Given the constraint, I will provide a clean JSON. If `ref` with \\\"mean\\\" isn't supported for histogram x-axis,\\n# I might have to guess the values or leave it out? No, user asked for it.\\n# Let's try `ref` with `x: \\\"mean\\\"`. Many libraries support this.\\n# If not, I will use `code` but I need the values. \\n# Alternative: Use `data_code` to print stats? No output.\\n# I will stick to `ref` as it is the standard key for reference lines.\",\n  \"ref\": [\n    {\n      \"x\": \"mean\",\n      \"text\": \"Mean\"\n    },\n    {\n      \"x\": \"median\",\n      \"text\": \"Median\"\n    }\n  ],\n  \"asks\": [\n    {\n      \"ask\": \"6개 시료 전부 합쳐서 히스토그램\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"bin 폭 0.5 nm, 4–28 nm\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"평균과 중앙값 위치에 세로선\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 27.878,
+     "prompt_tokens": 6656,
+     "output_tokens": 689,
+     "cached_tokens": 6591,
+     "prompt_n": 65,
+     "prefill_ms": 297.47917,
+     "decode_ms": 25694.40974300002,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": "data/diameters.csv",
+    "chart": "histogram",
+    "x": "직경(nm)",
+    "bins": {
+     "width": 0.5,
+     "min": 4,
+     "max": 28
+    },
+    "code": "import numpy as np\n# We need the raw data to calculate mean and median for vertical lines.\n# The 'code' block has access to 'df' if we use data_code? No, code runs after drawing.\n# However, usually in these systems, if 'ref' doesn't support dynamic stats on x-axis for histograms,\n# we might need to compute them in data_code and store them in a way accessible to code?\n# Actually, looking at the docs: 'code' names: fig, ax, plt, np, data (the drawn numbers).\n# It does NOT list df. But often 'df' is available or we can re-read? No, sandboxed.\n# Let's try using 'ref' with \"mean\" and \"median\" first. If that fails, I'll switch to code.\n# Wait, the previous error was JSON syntax. Let's fix the JSON first.\n# The 'code' field in the previous attempt had newlines which broke JSON if not escaped properly or just bad formatting.\n# I will remove the complex code logic and rely on 'ref' if possible, or simple code.\n# Since I cannot guarantee 'ref' supports \"mean\" for x-axis in histogram (docs say ref y for bar/line),\n# I will use data_code to add columns with the global mean/median, then... no, that doesn't help plotting lines.\n# Let's assume the system allows calculating stats in `code` by accessing the underlying dataframe via some trick or that `ref` works.\n# Given the constraint, I will provide a clean JSON. If `ref` with \"mean\" isn't supported for histogram x-axis,\n# I might have to guess the values or leave it out? No, user asked for it.\n# Let's try `ref` with `x: \"mean\"`. Many libraries support this.\n# If not, I will use `code` but I need the values. \n# Alternative: Use `data_code` to print stats? No output.\n# I will stick to `ref` as it is the standard key for reference lines.",
+    "ref": [
+     {
+      "x": "mean",
+      "text": "Mean"
+     },
+     {
+      "x": "median",
+      "text": "Median"
+     }
+    ],
+    "asks": [
+     {
+      "ask": "6개 시료 전부 합쳐서 히스토그램",
+      "how": "key"
+     },
+     {
+      "ask": "bin 폭 0.5 nm, 4–28 nm",
+      "how": "key"
+     },
+     {
+      "ask": "평균과 중앙값 위치에 세로선",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-hyb/S027_r3/out/t1/histogram_직경_nm.png"
+    ],
+    "chart": "histogram",
+    "rows_used": 1300,
+    "rows_total": 1300,
+    "values": {
+     "bins": 48,
+     "series": {
+      "직경(nm)": {
+       "n": 1300,
+       "mean": 10.704
+      }
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "히스토그램 그래프를 저장했습니다: histogram_직경_nm.png\n사용한 행: 1300 / 1300\n직경(nm): 1300개, 평균 10.7\n기준선: Mean\n기준선: Median"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [
+        {
+         "name": "",
+         "edges": [
+          4.0,
+          4.5,
+          5.0,
+          5.5,
+          6.0,
+          6.5,
+          7.0,
+          7.5,
+          8.0,
+          8.5,
+          9.0,
+          9.5,
+          10.0,
+          10.5,
+          11.0,
+          11.5,
+          12.0,
+          12.5,
+          13.0,
+          13.5,
+          14.0,
+          14.5,
+          15.0,
+          15.5,
+          16.0,
+          16.5,
+          17.0,
+          17.5,
+          18.0,
+          18.5,
+          19.0,
+          19.5,
+          20.0,
+          20.5,
+          21.0,
+          21.5,
+          22.0,
+          22.5,
+          23.0,
+          23.5,
+          24.0,
+          24.5,
+          25.0,
+          25.5,
+          26.0,
+          26.5,
+          27.0,
+          27.5,
+          28.0
+         ],
+         "counts": [
+          1.0,
+          3.0,
+          11.0,
+          21.0,
+          36.0,
+          60.0,
+          56.0,
+          59.0,
+          85.0,
+          90.0,
+          92.0,
+          80.0,
+          91.0,
+          91.0,
+          74.0,
+          68.0,
+          52.0,
+          62.0,
+          41.0,
+          29.0,
+          36.0,
+          22.0,
+          33.0,
+          12.0,
+          26.0,
+          11.0,
+          14.0,
+          10.0,
+          8.0,
+          3.0,
+          6.0,
+          1.0,
+          2.0,
+          2.0,
+          2.0,
+          1.0,
+          2.0,
+          1.0,
+          2.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          2.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#1f4e9c"
+        }
+       ],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [
+        10.704,
+        10.2
+       ],
+       "value_labels": 0,
+       "texts": [
+        "Mean",
+        "Median"
+       ],
+       "x": {
+        "label": "직경(nm)",
+        "type": "value",
+        "ticks": [
+         5.0,
+         10.0,
+         15.0,
+         20.0,
+         25.0
+        ],
+        "step": 5.0,
+        "categories": null,
+        "min": 2.8,
+        "max": 29.2,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "5",
+         "10",
+         "15",
+         "20",
+         "25"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "count",
+        "type": "value",
+        "ticks": [
+         0.0,
+         20.0,
+         40.0,
+         60.0,
+         80.0,
+         100.0
+        ],
+        "step": 20.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 100.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "-20",
+         "0",
+         "20",
+         "40",
+         "60",
+         "80",
+         "100",
+         "120"
+        ],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [
+      "Mean",
+      "Median"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-hyb/S027_r3/out/t1/histogram_직경_nm.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.31104469299316406,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [],
+    "unchecked": [
+     "ref_line=10.704",
+     "ref_line=10.2"
+    ],
+    "n_checks": 4,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 82.13
+  }
+ ]
+}

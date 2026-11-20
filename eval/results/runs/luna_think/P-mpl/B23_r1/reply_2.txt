@@ -1,0 +1,3 @@
+```json
+{"file":"cnt_batches.xlsx","combine":true,"sheets":"all","x":{"col":"B"},"y1":{"col":"C"},"code":"colors = ['black', 'blue', 'red']\nfor i, color in enumerate(colors):\n    ax1.lines[i].set_color(color)\n    if ax2 is not None and i < len(ax2.lines):\n        ax2.lines[i].set_color(color)"} 
+```

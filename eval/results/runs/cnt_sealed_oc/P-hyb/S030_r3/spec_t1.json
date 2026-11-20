@@ -1,0 +1,15 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "pie",
+ "data_code": "import numpy as np\nmask_c = df['등급 (A/B/C)'] == 'C'\nsub = df[mask_c].copy()\ndef get_reason(row):\n    high_metal = row['잔류금속 (wt%)'] > 5.0\n    low_ig_id = row['IG/ID'] < 2.2\n    if high_metal and low_ig_id:\n        return '둘 다'\n    elif high_metal:\n        return '잔류금속 > 5.0 wt%만'\n    elif low_ig_id:\n        return 'IG/ID < 2.2만'\n    else:\n        return '기타'\nsub['사유'] = sub.apply(get_reason, axis=1)\ndf = sub[sub['사유'] != '기타']",
+ "x": "사유",
+ "asks": [
+  {
+   "ask": "등급 C 판정 런들의 불합격 사유 비율 파이",
+   "how": "code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S030_r3/out/t1"
+ }
+}

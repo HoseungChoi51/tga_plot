@@ -1,0 +1,164 @@
+import json
+import os
+import numpy as np
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+
+df = pd.read_excel(DATA_FILE, sheet_name=1)
+df.columns = [str(c).strip() for c in df.columns]
+
+temperature_col = next(c for c in df.columns if "temperature" in c.lower())
+weight_col = next(c for c in df.columns if "weight" in c.lower() and "deriv" not in c.lower())
+dtg_col = next(c for c in df.columns if "deriv" in c.lower())
+
+data = df[[temperature_col, weight_col, dtg_col]].apply(pd.to_numeric, errors="coerce").dropna()
+temperature = data[temperature_col].to_numpy(dtype=float)
+weight = data[weight_col].to_numpy(dtype=float)
+dtg = data[dtg_col].to_numpy(dtype=float)
+
+def nearest_index(values, target):
+    return int(np.nanargmin(np.abs(values - target)))
+
+markers = []
+for target in (300, 600):
+    i = nearest_index(temperature, target)
+    markers.append({
+        "name": f"{target} °C: {weight[i]:.1f}%",
+        "coord": [float(temperature[i]), float(weight[i])],
+        "value": f"{weight[i]:.1f}%",
+        "symbol": "circle",
+        "symbolSize": 9,
+        "itemStyle": {"color": "#1f4e9c"},
+        "label": {
+            "show": True,
+            "formatter": f"{target} °C: {weight[i]:.1f}%",
+            "position": "top",
+            "color": "#1f4e9c",
+            "fontSize": 12
+        }
+    })
+
+peak_candidates = np.where(temperature > 150)[0]
+peak_index = int(peak_candidates[np.argmax(-dtg[peak_candidates])])
+peak_temp = float(temperature[peak_index])
+
+residue_index = nearest_index(temperature, 800)
+residue_value = float(weight[residue_index])
+
+option = {
+    "title": {
+        "text": "PVC",
+        "left": "center",
+        "textStyle": {"fontFamily": "Noto Sans CJK KR"}
+    },
+    "animation": False,
+    "tooltip": {"trigger": "axis"},
+    "legend": {
+        "data": ["Weight (%)", "DTG (-Derivative Weight)"],
+        "left": "center",
+        "bottom": 8
+    },
+    "grid": {"left": 72, "right": 72, "top": 65, "bottom": 65},
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 38,
+        "min": float(np.nanmin(temperature)),
+        "max": float(np.nanmax(temperature)),
+        "axisLine": {"show": True},
+        "axisTick": {"show": True},
+        "axisLabel": {"show": True},
+        "splitLine": {"show": True, "lineStyle": {"color": "#e5e5e5"}}
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Weight (%)",
+            "nameLocation": "middle",
+            "nameGap": 52,
+            "min": 0,
+            "max": 105,
+            "axisLine": {"show": True, "lineStyle": {"color": "#1f4e9c"}},
+            "axisLabel": {"color": "#1f4e9c"},
+            "splitLine": {"show": True, "lineStyle": {"color": "#e5e5e5"}}
+        },
+        {
+            "type": "value",
+            "name": "DTG (-Derivative Weight)",
+            "nameLocation": "middle",
+            "nameGap": 55,
+            "inverse": False,
+            "axisLine": {"show": True, "lineStyle": {"color": "#c0392b"}},
+            "axisLabel": {"color": "#c0392b"},
+            "splitLine": {"show": False}
+        }
+    ],
+    "series": [
+        {
+            "name": "Weight (%)",
+            "type": "line",
+            "yAxisIndex": 0,
+            "showSymbol": False,
+            "data": [[float(x), float(y)] for x, y in zip(temperature, weight)],
+            "lineStyle": {"color": "#1f4e9c", "width": 2},
+            "itemStyle": {"color": "#1f4e9c"},
+            "markPoint": {
+                "data": markers + [
+                    {
+                        "name": f"Residue {residue_value:.1f}%",
+                        "coord": [float(temperature[residue_index]), residue_value],
+                        "symbol": "circle",
+                        "symbolSize": 8,
+                        "itemStyle": {"color": "#1f4e9c"},
+                        "label": {
+                            "show": True,
+                            "formatter": f"Residue {residue_value:.1f}%",
+                            "position": "right",
+                            "color": "#1f4e9c",
+                            "fontSize": 11
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "DTG (-Derivative Weight)",
+            "type": "line",
+            "yAxisIndex": 1,
+            "showSymbol": False,
+            "data": [[float(x), float(-y)] for x, y in zip(temperature, dtg)],
+            "lineStyle": {"color": "#c0392b", "width": 1.6},
+            "itemStyle": {"color": "#c0392b"},
+            "markPoint": {
+                "data": [{
+                    "name": f"{peak_temp:.0f} °C",
+                    "coord": [peak_temp, float(-dtg[peak_index])],
+                    "symbol": "circle",
+                    "symbolSize": 8,
+                    "itemStyle": {"color": "#c0392b"},
+                    "label": {
+                        "show": True,
+                        "formatter": f"{peak_temp:.0f} °C",
+                        "position": "top",
+                        "color": "#c0392b",
+                        "fontSize": 11
+                    }
+                }]
+            }
+        }
+    ]
+}
+
+result = {
+    "figures": [{
+        "name": "PVC",
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"]
+    }]
+}
+print(json.dumps(result, ensure_ascii=False, allow_nan=False))

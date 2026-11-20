@@ -1,0 +1,43 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "histogram",
+ "x": {
+  "col": "산화개시온도 (°C)",
+  "bins": {
+   "width": 5,
+   "min": 535,
+   "max": 610
+  }
+ },
+ "by": {
+  "col": "반응기",
+  "groups": [
+   [
+    "R4"
+   ],
+   [
+    "R1",
+    "R2",
+    "R3"
+   ]
+  ]
+ },
+ "asks": [
+  {
+   "ask": "산화개시온도 분포 히스토그램",
+   "how": "key"
+  },
+  {
+   "ask": "R4와 나머지 그룹 분리",
+   "how": "code"
+  },
+  {
+   "ask": "bin 5°C 간격, 535-610",
+   "how": "key"
+  }
+ ],
+ "code": "import pandas as pd\n# Re-group data for plotting: map R1,R2,R3 to 'Others' and R4 to 'R4'\ndf = plt.get_current_fig_manager().canvas.figure.axes[0].get_ylabel() # just checking context\n# Actually, we need to modify the data before histogram calculation in plotkit if possible, but here we are in post-draw.\n# Wait, the instruction says 'code' is run after drawing. Data modification must be in 'data_code'.\n# Let's use data_code instead.",
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S028_r2/out/t1"
+ }
+}

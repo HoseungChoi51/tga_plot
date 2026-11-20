@@ -1,0 +1,101 @@
+import json
+import math
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+
+df = pd.read_excel(DATA_FILE, sheet_name="PE")
+df.columns = [str(c).strip() for c in df.columns]
+
+x_col = next(c for c in df.columns if "Temperature" in c)
+y1_col = next(c for c in df.columns if "Weight (%)" in c and "Deriv" not in c)
+y2_col = next(c for c in df.columns if "Deriv" in c)
+
+def pairs(x, y):
+    out = []
+    for xv, yv in zip(pd.to_numeric(df[x_col], errors="coerce"),
+                      pd.to_numeric(df[y], errors="coerce")):
+        if pd.notna(xv) and pd.notna(yv) and math.isfinite(float(xv)) and math.isfinite(float(yv)):
+            out.append([float(xv), float(yv)])
+    return out
+
+option = {
+    "animation": False,
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {"type": "cross"}
+    },
+    "legend": {
+        "data": [y1_col, y2_col],
+        "top": 8
+    },
+    "grid": {
+        "left": 72,
+        "right": 76,
+        "top": 52,
+        "bottom": 66
+    },
+    "xAxis": {
+        "type": "value",
+        "name": x_col,
+        "nameLocation": "middle",
+        "nameGap": 38,
+        "min": 100,
+        "max": 700,
+        "interval": 100,
+        "axisLine": {"lineStyle": {"color": "#555"}},
+        "axisLabel": {"color": "#333"},
+        "splitLine": {"show": True, "lineStyle": {"color": "#e5e5e5"}}
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": y1_col,
+            "nameLocation": "middle",
+            "nameGap": 48,
+            "axisLine": {"show": True, "lineStyle": {"color": "#d62728"}},
+            "axisLabel": {"color": "#d62728"},
+            "splitLine": {"show": True, "lineStyle": {"color": "#e5e5e5"}}
+        },
+        {
+            "type": "value",
+            "name": y2_col,
+            "nameLocation": "middle",
+            "nameGap": 52,
+            "axisLine": {"show": True, "lineStyle": {"color": "#1f77b4"}},
+            "axisLabel": {"color": "#1f77b4"},
+            "splitLine": {"show": False}
+        }
+    ],
+    "series": [
+        {
+            "name": y1_col,
+            "type": "line",
+            "yAxisIndex": 0,
+            "showSymbol": False,
+            "data": pairs(x_col, y1_col),
+            "lineStyle": {"color": "#d62728", "width": 3},
+            "itemStyle": {"color": "#d62728"}
+        },
+        {
+            "name": y2_col,
+            "type": "line",
+            "yAxisIndex": 1,
+            "showSymbol": False,
+            "data": pairs(x_col, y2_col),
+            "lineStyle": {"color": "#1f77b4", "width": 1.5},
+            "itemStyle": {"color": "#1f77b4"}
+        }
+    ]
+}
+
+print(json.dumps({
+    "figures": [{
+        "name": "PE",
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"]
+    }]
+}, ensure_ascii=False, allow_nan=False))

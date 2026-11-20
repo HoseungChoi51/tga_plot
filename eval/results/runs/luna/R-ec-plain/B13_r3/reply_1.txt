@@ -1,0 +1,143 @@
+```python
+import json
+import re
+import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+from scipy.signal import find_peaks, savgol_filter
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+
+
+def clean_number(value):
+    try:
+        result = float(value)
+        return result if np.isfinite(result) else np.nan
+    except (TypeError, ValueError):
+        return np.nan
+
+
+def main():
+    path = Path(DATA_FILE)
+    df = pd.read_excel(path, sheet_name="PVC")
+    df.columns = [str(c).strip() for c in df.columns]
+
+    def find_column(pattern):
+        for column in df.columns:
+            if re.search(pattern, column, re.IGNORECASE):
+                return column
+        raise ValueError(f"Required column not found: {pattern}")
+
+    xcol = find_column(r"Temperature")
+    weight_col = find_column(r"Weight\s*\(")
+
+    x = np.array([clean_number(v) for v in df[xcol]], dtype=float)
+    weight = np.array([clean_number(v) for v in df[weight_col]], dtype=float)
+    valid = np.isfinite(x) & np.isfinite(weight)
+    x, weight = x[valid], weight[valid]
+
+    order = np.argsort(x)
+    x, weight = x[order], weight[order]
+
+    # Smooth the mass curve modestly, then locate its two strongest downward
+    # transitions using the magnitude of the negative temperature derivative.
+    window = min(41, len(weight) if len(weight) % 2 else len(weight) - 1)
+    window = max(5, window)
+    if window % 2 == 0:
+        window -= 1
+    smooth = savgol_filter(weight, window_length=window, polyorder=3)
+    derivative = np.gradient(smooth, x)
+    prominence = max(float(np.nanmax(-derivative)) * 0.06, 1e-9)
+    peaks, _ = find_peaks(-derivative, prominence=prominence, distance=max(1, len(x) // 12))
+
+    if len(peaks) < 2:
+        peaks = np.argsort(-derivative)[:2]
+    else:
+        peaks = peaks[np.argsort(derivative[peaks])[:2]]
+
+    # Refine each marker to the local steepest point and present in temperature order.
+    marks = sorted(
+        [{"temperature": float(x[i]), "weight": float(weight[i])} for i in peaks],
+        key=lambda point: point["temperature"],
+    )
+
+    series = [
+        {
+            "name": "Weight",
+            "type": "line",
+            "showSymbol": False,
+            "smooth": False,
+            "lineStyle": {"width": 2.5, "color": "#2563eb"},
+            "data": [[round(float(a), 4), round(float(b), 4)] for a, b in zip(x, weight)],
+            "markPoint": {
+                "symbol": "pin",
+                "symbolSize": 54,
+                "itemStyle": {"color": "#dc2626"},
+                "label": {
+                    "show": True,
+                    "color": "#ffffff",
+                    "fontSize": 11,
+                    "formatter": "{b}",
+                },
+                "data": [
+                    {
+                        "name": f"{p['temperature']:.1f} °C",
+                        "coord": [round(p["temperature"], 4), round(p["weight"], 4)],
+                        "value": f"{p['temperature']:.1f} °C",
+                    }
+                    for p in marks
+                ],
+            },
+        }
+    ]
+
+    option = {
+        "animation": False,
+        "textStyle": {"fontFamily": "Noto Sans CJK KR, sans-serif"},
+        "title": {
+            "text": "PVC 열중량 분석",
+            "subtext": "무게 감소가 가장 급격한 두 지점의 온도 표시",
+            "left": "center",
+        },
+        "tooltip": {"trigger": "axis", "axisPointer": {"type": "cross"}},
+        "grid": {"left": 78, "right": 30, "top": 82, "bottom": 68},
+        "xAxis": {
+            "type": "value",
+            "name": "Temperature (°C)",
+            "nameLocation": "middle",
+            "nameGap": 40,
+            "min": float(np.nanmin(x)),
+            "max": float(np.nanmax(x)),
+            "axisLine": {"lineStyle": {"color": "#64748b"}},
+            "splitLine": {"lineStyle": {"color": "#e5e7eb"}},
+        },
+        "yAxis": {
+            "type": "value",
+            "name": "Weight (%)",
+            "nameLocation": "middle",
+            "nameGap": 52,
+            "min": 0,
+            "max": 105,
+            "axisLine": {"lineStyle": {"color": "#64748b"}},
+            "splitLine": {"lineStyle": {"color": "#e5e7eb"}},
+        },
+        "series": series,
+    }
+
+    print(json.dumps({
+        "figures": [{
+            "name": "pvc_weight_transitions",
+            "option": option,
+            "width": 900,
+            "height": 560,
+            "dpi": 300,
+            "formats": ["png"],
+        }]
+    }, ensure_ascii=False, allow_nan=False))
+
+
+if __name__ == "__main__":
+    main()
+```

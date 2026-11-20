@@ -1,0 +1,44 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "line",
+ "x": {
+  "col": "체류시간 (s)",
+  "bins": {
+   "width": 0.25,
+   "min": 2.5,
+   "max": 6.75
+  }
+ },
+ "y": {
+  "col": "CNT수율 (g/g-cat)",
+  "agg": "mean"
+ },
+ "by": "촉매로트군",
+ "data_code": "import pandas as pd\nimport numpy as np\n\ndf['촉매로트군'] = df['촉매로트'].apply(lambda x: 'old' if x in ['FC-2602', 'FC-2603', 'FC-2604', 'FC-2605'] else 'new')\nedges = np.arange(2.5, 6.75 + 0.25, 0.25)\ndf['bin_idx'] = pd.cut(df['체류시간 (s)'], bins=edges, right=False, labels=False)\ncounts = df.groupby(['촉매로트군', 'bin_idx']).size().reset_index(name='n')\ndf = df.merge(counts, on=['촉매로트군', 'bin_idx'])\ndf = df[df['n'] >= 10]",
+ "code": "import numpy as np\nfor i, line in enumerate(ax.get_lines()):\n    x_data = line.get_xdata()\n    y_data = line.get_ydata()\n    if len(x_data) > 0:\n        max_idx = np.argmax(y_data)\n        ax.plot(x_data[max_idx], y_data[max_idx], 'o', color=line.get_color(), markersize=8)\n        ax.annotate(f'{x_data[max_idx]:.2f}', xy=(x_data[max_idx], y_data[max_idx]), xytext=(0, 10), textcoords='offset points', ha='center', fontsize=9)",
+ "asks": [
+  {
+   "ask": "체류시간 0.25 s 구간별 평균 CNT수율",
+   "how": "key"
+  },
+  {
+   "ask": "구간 중앙값 x축",
+   "how": "default"
+  },
+  {
+   "ask": "로트군별 선",
+   "how": "key"
+  },
+  {
+   "ask": "n < 10 구간 제외",
+   "how": "data_code"
+  },
+  {
+   "ask": "각 선의 최고 평균 구간에 표시 및 x값 라벨",
+   "how": "code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-mpl/SS13_r3/out/t4"
+ }
+}

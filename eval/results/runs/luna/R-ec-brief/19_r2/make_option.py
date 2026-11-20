@@ -1,0 +1,212 @@
+import json
+import re
+import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+TEXT_COLOR = "#808080"
+TEXT_SIZE = 13
+
+
+def clean_name(value):
+    name = re.sub(r'[\\/:*?"<>|]+', "_", str(value)).strip()
+    return name or "plot"
+
+
+def json_number(value):
+    value = float(value)
+    return value if np.isfinite(value) else None
+
+
+def main():
+    path = Path(DATA_FILE)
+    workbook = pd.ExcelFile(path)
+    figures = []
+
+    for sheet_name in workbook.sheet_names:
+        df = pd.read_excel(path, sheet_name=sheet_name)
+        if df.empty:
+            continue
+
+        normalized = {str(col).strip().lower(): col for col in df.columns}
+
+        def find_column(tokens, fallback_index):
+            for key, original in normalized.items():
+                if any(token in key for token in tokens):
+                    return original
+            return df.columns[fallback_index] if len(df.columns) > fallback_index else None
+
+        x_col = find_column(("temperature", "temp", "온도"), 1)
+        weight_col = find_column(("weight", "mass", "중량", "무게"), 2)
+        dtg_col = find_column(("d.w", "dtg", "derivative", "미분"), 3)
+
+        if x_col is None or weight_col is None or dtg_col is None:
+            continue
+
+        data = pd.DataFrame({
+            "x": pd.to_numeric(df[x_col], errors="coerce"),
+            "weight": pd.to_numeric(df[weight_col], errors="coerce"),
+            "dtg": pd.to_numeric(df[dtg_col], errors="coerce"),
+        }).dropna()
+
+        if data.empty:
+            continue
+
+        data = data.sort_values("x")
+        x_values = data["x"].to_numpy(dtype=float)
+        weights = data["weight"].to_numpy(dtype=float)
+        dtg = data["dtg"].to_numpy(dtype=float)
+
+        residue_idx = int(np.argmin(np.abs(x_values - 800)))
+        residue_x = float(x_values[residue_idx])
+        residue_y = float(weights[residue_idx])
+
+        peak_mask = x_values > 150
+        if np.any(peak_mask):
+            candidate_indices = np.flatnonzero(peak_mask)
+            peak_idx = int(candidate_indices[np.argmax(-dtg[peak_mask])])
+            peak_x = float(x_values[peak_idx])
+            peak_y = float(-dtg[peak_idx])
+            peak_label = f"{peak_x:.0f} °C"
+        else:
+            peak_x = None
+            peak_y = None
+            peak_label = ""
+
+        x_min, x_max = float(np.min(x_values)), float(np.max(x_values))
+        weight_min, weight_max = float(np.min(weights)), float(np.max(weights))
+        dtg_positive = -dtg
+        dtg_min, dtg_max = float(np.min(dtg_positive)), float(np.max(dtg_positive))
+
+        option = {
+            "animation": False,
+            "title": {
+                "text": str(sheet_name),
+                "left": "center",
+                "textStyle": {"color": TEXT_COLOR, "fontSize": TEXT_SIZE},
+            },
+            "textStyle": {"color": TEXT_COLOR, "fontSize": TEXT_SIZE},
+            "legend": {
+                "data": ["Weight", "DTG"],
+                "left": "left",
+                "top": "middle",
+                "orient": "vertical",
+                "textStyle": {"color": TEXT_COLOR, "fontSize": TEXT_SIZE},
+            },
+            "grid": {"left": 105, "right": 90, "top": 75, "bottom": 70},
+            "tooltip": {"trigger": "axis"},
+            "xAxis": {
+                "type": "value",
+                "name": str(x_col),
+                "nameLocation": "middle",
+                "nameGap": 42,
+                "min": x_min,
+                "max": x_max,
+                "axisLabel": {"color": TEXT_COLOR, "fontSize": TEXT_SIZE},
+                "axisLine": {"lineStyle": {"color": TEXT_COLOR}},
+                "axisTick": {"show": True, "lineStyle": {"color": TEXT_COLOR}},
+                "nameTextStyle": {"color": TEXT_COLOR, "fontSize": TEXT_SIZE},
+                "splitLine": {"show": True, "lineStyle": {"color": "#e5e5e5"}},
+            },
+            "yAxis": [
+                {
+                    "type": "value",
+                    "name": str(weight_col),
+                    "nameLocation": "middle",
+                    "nameGap": 55,
+                    "min": weight_min,
+                    "max": weight_max,
+                    "axisLabel": {"color": TEXT_COLOR, "fontSize": TEXT_SIZE},
+                    "axisLine": {"show": True, "lineStyle": {"color": TEXT_COLOR}},
+                    "axisTick": {"show": True, "lineStyle": {"color": TEXT_COLOR}},
+                    "nameTextStyle": {"color": TEXT_COLOR, "fontSize": TEXT_SIZE},
+                    "splitLine": {"show": True, "lineStyle": {"color": "#e5e5e5"}},
+                },
+                {
+                    "type": "value",
+                    "name": str(dtg_col),
+                    "nameLocation": "middle",
+                    "nameGap": 55,
+                    "min": dtg_min,
+                    "max": dtg_max,
+                    "axisLabel": {"color": TEXT_COLOR, "fontSize": TEXT_SIZE},
+                    "axisLine": {"show": True, "lineStyle": {"color": TEXT_COLOR}},
+                    "axisTick": {"show": True, "lineStyle": {"color": TEXT_COLOR}},
+                    "nameTextStyle": {"color": TEXT_COLOR, "fontSize": TEXT_SIZE},
+                    "splitLine": {"show": False},
+                },
+            ],
+            "series": [
+                {
+                    "name": "Weight",
+                    "type": "line",
+                    "yAxisIndex": 0,
+                    "showSymbol": False,
+                    "lineStyle": {"color": "#1f4e9c", "width": 2},
+                    "data": [
+                        [json_number(x), json_number(y)]
+                        for x, y in zip(x_values, weights)
+                    ],
+                    "markPoint": {
+                        "symbol": "circle",
+                        "symbolSize": 9,
+                        "itemStyle": {"color": "#1f4e9c"},
+                        "label": {
+                            "show": True,
+                            "formatter": f"Residue {residue_y:.1f}%",
+                            "color": TEXT_COLOR,
+                            "fontSize": TEXT_SIZE,
+                            "position": "top",
+                        },
+                        "data": [{"coord": [residue_x, residue_y]}],
+                    },
+                },
+                {
+                    "name": "DTG",
+                    "type": "line",
+                    "yAxisIndex": 1,
+                    "showSymbol": False,
+                    "lineStyle": {"color": "#c0392b", "width": 2},
+                    "data": [
+                        [json_number(x), json_number(y)]
+                        for x, y in zip(x_values, dtg_positive)
+                    ],
+                    "markPoint": {
+                        "symbol": "circle",
+                        "symbolSize": 9,
+                        "itemStyle": {"color": "#c0392b"},
+                        "label": {
+                            "show": True,
+                            "formatter": peak_label,
+                            "color": TEXT_COLOR,
+                            "fontSize": TEXT_SIZE,
+                            "position": "top",
+                        },
+                        "data": (
+                            [{"coord": [peak_x, peak_y]}]
+                            if peak_x is not None
+                            else []
+                        ),
+                    },
+                },
+            ],
+        }
+
+        figures.append({
+            "name": clean_name(sheet_name),
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"],
+        })
+
+    print(json.dumps({"figures": figures}, ensure_ascii=False, allow_nan=False))
+
+
+if __name__ == "__main__":
+    main()

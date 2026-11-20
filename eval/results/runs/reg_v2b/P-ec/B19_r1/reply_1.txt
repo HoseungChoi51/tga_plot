@@ -1,0 +1,11 @@
+```json
+{
+ "file": "polymers.xlsx",
+ "sheets": "PVC",
+ "data_code": "import numpy as np\ny_start = np.interp(200, x, y1)\ny_end = np.interp(400, x, y1)\ndelta_m = y_start - y_end\nmarks.append({'type': 'text', 'x': 300, 'y': float((y_start + y_end) / 2), 'text': f'Δm(200–400 °C) = {delta_m:.1f}%'})",
+ "asks": [
+  {"ask": "PVC 시트", "how": "key"},
+  {"ask": "200~400 °C 질량 감소량 계산 및 표시", "how": "data_code"}
+ ]
+}
+```

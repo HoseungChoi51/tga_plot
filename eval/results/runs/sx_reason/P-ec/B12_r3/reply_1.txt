@@ -1,0 +1,15 @@
+```json
+{
+  "file": "caox.csv",
+  "y2": false,
+  "x": {
+    "min": 100,
+    "max": 900
+  },
+  "annotate": {
+    "residue": {
+      "x": 900
+    }
+  }
+}
+```

@@ -1,0 +1,671 @@
+{
+ "arm": "P-ec",
+ "item": "SS07",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "session",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "런로그 잔류금속(wt%) 히스토그램 부탁합니다. bin 0.25 wt% 간격, 1.75–6.5 범위로요.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"histogram\",\n  \"x\": \"잔류금속 (wt%)\",\n  \"bins\": {\n    \"width\": 0.25,\n    \"min\": 1.75,\n    \"max\": 6.5\n  },\n  \"asks\": [\n    {\n      \"ask\": \"잔류금속 히스토그램\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"bin 0.25 간격\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"범위 1.75–6.5\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 3.877,
+     "prompt_tokens": 6337,
+     "output_tokens": 189,
+     "cached_tokens": 6289,
+     "prompt_n": 48,
+     "prefill_ms": 251.59211599999998,
+     "decode_ms": 3311.509908999999,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "histogram",
+    "x": "잔류금속 (wt%)",
+    "bins": {
+     "width": 0.25,
+     "min": 1.75,
+     "max": 6.5
+    },
+    "asks": [
+     {
+      "ask": "잔류금속 히스토그램",
+      "how": "key"
+     },
+     {
+      "ask": "bin 0.25 간격",
+      "how": "key"
+     },
+     {
+      "ask": "범위 1.75–6.5",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": true,
+    "engine": "echarts",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-ec/SS07_r1/out/t1/histogram_잔류금속_wt.png"
+    ],
+    "chart": "histogram",
+    "rows_used": 997,
+    "rows_total": 997,
+    "values": {
+     "bins": 19,
+     "series": {
+      "잔류금속 (wt%)": {
+       "n": 997,
+       "mean": 3.7318956870611832
+      }
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "히스토그램 그래프를 저장했습니다: histogram_잔류금속_wt.png\n사용한 행: 997 / 997\n잔류금속 (wt%): 997개, 평균 3.732"
+   },
+   "facts": [
+    {
+     "engine": "echarts",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": 300,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [
+        {
+         "name": "잔류금속 (wt%)",
+         "edges": [
+          1.75,
+          2.0,
+          2.25,
+          2.5,
+          2.75,
+          3.0,
+          3.25,
+          3.5,
+          3.75,
+          4.0,
+          4.25,
+          4.5,
+          4.75,
+          5.0,
+          5.25,
+          5.5,
+          5.75,
+          6.0,
+          6.25,
+          6.5
+         ],
+         "counts": [
+          2.0,
+          4.0,
+          25.0,
+          52.0,
+          98.0,
+          142.0,
+          153.0,
+          90.0,
+          76.0,
+          76.0,
+          76.0,
+          81.0,
+          45.0,
+          31.0,
+          20.0,
+          11.0,
+          7.0,
+          6.0,
+          2.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#1f4e9c"
+        }
+       ],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "잔류금속 (wt%)",
+        "type": "value",
+        "ticks": [
+         2.0,
+         3.0,
+         4.0,
+         5.0,
+         6.0
+        ],
+        "step": 1.0,
+        "categories": null,
+        "min": 1.75,
+        "max": 6.5,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "count",
+        "type": "value",
+        "ticks": [
+         0.0,
+         50.0,
+         100.0,
+         150.0,
+         200.0
+        ],
+        "step": 50.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 200.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       }
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-ec/SS07_r1/out/t1/histogram_잔류금속_wt.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5926871299743652,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 4.543
+  },
+  {
+   "turn": 2,
+   "text": "R4하고 나머지(R1–R3)로 나눠서 반투명하게 겹쳐 주세요.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"histogram\",\n  \"x\": \"잔류금속 (wt%)\",\n  \"bins\": {\n    \"width\": 0.25,\n    \"min\": 1.75,\n    \"max\": 6.5\n  },\n  \"by\": \"반응기군\",\n  \"data_code\": \"df['반응기군'] = df['반응기'].apply(lambda x: 'R4' if x == 'R4' else 'R1-R3')\",\n  \"echarts\": {\n    \"series\": [\n      {\n        \"itemStyle\": {\n          \"opacity\": 0.5\n        }\n      },\n      {\n        \"itemStyle\": {\n          \"opacity\": 0.5\n        }\n      }\n    ]\n  },\n  \"asks\": [\n    {\n      \"ask\": \"R4와 R1-R3로 구분\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"반투명 겹침\",\n      \"how\": \"echarts\"\n    }\n  ]\n}\n```",
+     "llm_s": 5.814,
+     "prompt_tokens": 6570,
+     "output_tokens": 282,
+     "cached_tokens": 6526,
+     "prompt_n": 44,
+     "prefill_ms": 274.711882,
+     "decode_ms": 5258.281182999998,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "histogram",
+    "x": "잔류금속 (wt%)",
+    "bins": {
+     "width": 0.25,
+     "min": 1.75,
+     "max": 6.5
+    },
+    "by": "반응기군",
+    "data_code": "df['반응기군'] = df['반응기'].apply(lambda x: 'R4' if x == 'R4' else 'R1-R3')",
+    "echarts": {
+     "series": [
+      {
+       "itemStyle": {
+        "opacity": 0.5
+       }
+      },
+      {
+       "itemStyle": {
+        "opacity": 0.5
+       }
+      }
+     ]
+    },
+    "asks": [
+     {
+      "ask": "R4와 R1-R3로 구분",
+      "how": "key"
+     },
+     {
+      "ask": "반투명 겹침",
+      "how": "echarts"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": true,
+    "engine": "echarts",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-ec/SS07_r1/out/t2/histogram_잔류금속_wt.png"
+    ],
+    "chart": "histogram",
+    "rows_used": 997,
+    "rows_total": 997,
+    "values": {
+     "bins": 19,
+     "series": {
+      "R1-R3": {
+       "n": 746,
+       "mean": 3.4006166219839136
+      },
+      "R4": {
+       "n": 251,
+       "mean": 4.716494023904382
+      }
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "히스토그램 그래프를 저장했습니다: histogram_잔류금속_wt.png\n사용한 행: 997 / 997\nR1-R3: 746개, 평균 3.401\nR4: 251개, 평균 4.716"
+   },
+   "facts": [
+    {
+     "engine": "echarts",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": 300,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [
+        {
+         "name": "R1-R3",
+         "edges": [
+          1.75,
+          2.0,
+          2.25,
+          2.5,
+          2.75,
+          3.0,
+          3.25,
+          3.5,
+          3.75,
+          4.0,
+          4.25,
+          4.5,
+          4.75,
+          5.0,
+          5.25,
+          5.5,
+          5.75,
+          6.0,
+          6.25,
+          6.5
+         ],
+         "counts": [
+          2.0,
+          4.0,
+          25.0,
+          52.0,
+          98.0,
+          142.0,
+          152.0,
+          86.0,
+          57.0,
+          52.0,
+          29.0,
+          28.0,
+          11.0,
+          4.0,
+          4.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#1f4e9c"
+        },
+        {
+         "name": "R4",
+         "edges": [
+          1.75,
+          2.0,
+          2.25,
+          2.5,
+          2.75,
+          3.0,
+          3.25,
+          3.5,
+          3.75,
+          4.0,
+          4.25,
+          4.5,
+          4.75,
+          5.0,
+          5.25,
+          5.5,
+          5.75,
+          6.0,
+          6.25,
+          6.5
+         ],
+         "counts": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          4.0,
+          19.0,
+          24.0,
+          47.0,
+          53.0,
+          34.0,
+          27.0,
+          16.0,
+          11.0,
+          7.0,
+          6.0,
+          2.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#c0392b"
+        }
+       ],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "잔류금속 (wt%)",
+        "type": "value",
+        "ticks": [
+         2.0,
+         3.0,
+         4.0,
+         5.0,
+         6.0
+        ],
+        "step": 1.0,
+        "categories": null,
+        "min": 1.75,
+        "max": 6.5,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "count",
+        "type": "value",
+        "ticks": [
+         0.0,
+         50.0,
+         100.0,
+         150.0,
+         200.0
+        ],
+        "step": 50.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 200.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       }
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "반응기군",
+       "R1-R3",
+       "R4"
+      ],
+      "inside": true,
+      "where": "upper right"
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-ec/SS07_r1/out/t2/histogram_잔류금속_wt.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.7254629135131836,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [],
+    "unchecked": [
+     "alpha=< 1 (semi-transparent overlay)"
+    ],
+    "n_checks": 3,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 6.612
+  },
+  {
+   "turn": 3,
+   "text": "규격 상한 5.0 wt%에 세로 점선 넣고, y축을 개수 대신 밀도(density)로 바꿔 주세요.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"histogram\",\n  \"x\": \"잔류금속 (wt%)\",\n  \"bins\": {\n    \"width\": 0.25,\n    \"min\": 1.75,\n    \"max\": 6.5\n  },\n  \"by\": \"반응기군\",\n  \"density\": true,\n  \"echarts\": {\n    \"series\": [\n      {\n        \"itemStyle\": {\n          \"opacity\": 0.5\n        }\n      },\n      {\n        \"itemStyle\": {\n          \"opacity\": 0.5\n        }\n      }\n    ]\n  },\n  \"ref\": [\n    {\n      \"x\": 5.0,\n      \"text\": \"규격 상한 5.0\"\n    }\n  ],\n  \"asks\": [\n    {\n      \"ask\": \"규격 상한 5.0 세로 점선\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"y축 밀도(density)\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 6.298,
+     "prompt_tokens": 6906,
+     "output_tokens": 287,
+     "cached_tokens": 6852,
+     "prompt_n": 54,
+     "prefill_ms": 296.571346,
+     "decode_ms": 5592.209867,
+     "finish": "stop"
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"histogram\",\n  \"x\": \"잔류금속 (wt%)\",\n  \"bins\": {\n    \"width\": 0.25,\n    \"min\": 1.75,\n    \"max\": 6.5\n  },\n  \"by\": \"반응기군\",\n  \"density\": true,\n  \"ref\": [\n    {\n      \"x\": 5.0,\n      \"text\": \"규격 상한 5.0\"\n    }\n  ],\n  \"echarts\": {\n    \"series\": [\n      {\n        \"itemStyle\": {\n          \"opacity\": 0.5\n        }\n      },\n      {\n        \"itemStyle\": {\n          \"opacity\": 0.5\n        }\n      }\n    ]\n  },\n  \"asks\": [\n    {\n      \"ask\": \"R4와 R1-R3로 구분\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"bin 0.25 간격\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"범위 1.75–6.5\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"규격 상한 5.0 세로 점선\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"y축 밀도(density)\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"반투명 겹침\",\n      \"how\": \"echarts\"\n    }\n  ]\n}\n```",
+     "llm_s": 9.223,
+     "prompt_tokens": 7425,
+     "output_tokens": 406,
+     "cached_tokens": 7193,
+     "prompt_n": 232,
+     "prefill_ms": 467.245229,
+     "decode_ms": 7981.550191999998,
+     "finish": "stop"
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"histogram\",\n  \"x\": \"잔류금속 (wt%)\",\n  \"bins\": {\n    \"width\": 0.25,\n    \"min\": 1.75,\n    \"max\": 6.5\n  },\n  \"by\": \"반응기군\",\n  \"density\": true,\n  \"ref\": [\n    {\n      \"x\": 5.0,\n      \"text\": \"규격 상한 5.0\"\n    }\n  ],\n  \"echarts\": {\n    \"series\": [\n      {\n        \"itemStyle\": {\n          \"opacity\": 0.5\n        }\n      },\n      {\n        \"itemStyle\": {\n          \"opacity\": 0.5\n        }\n      }\n    ]\n  },\n  \"asks\": [\n    {\n      \"ask\": \"R4와 R1-R3로 구분\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"bin 0.25 간격\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"범위 1.75–6.5\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"규격 상한 5.0 세로 점선\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"y축 밀도(density)\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"반투명 겹침\",\n      \"how\": \"echarts\"\n    }\n  ]\n}\n```",
+     "llm_s": 8.75,
+     "prompt_tokens": 8063,
+     "output_tokens": 406,
+     "cached_tokens": 7831,
+     "prompt_n": 232,
+     "prefill_ms": 477.921524,
+     "decode_ms": 7536.110828999999,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "histogram",
+    "x": "잔류금속 (wt%)",
+    "bins": {
+     "width": 0.25,
+     "min": 1.75,
+     "max": 6.5
+    },
+    "by": "반응기군",
+    "density": true,
+    "ref": [
+     {
+      "x": 5.0,
+      "text": "규격 상한 5.0"
+     }
+    ],
+    "echarts": {
+     "series": [
+      {
+       "itemStyle": {
+        "opacity": 0.5
+       }
+      },
+      {
+       "itemStyle": {
+        "opacity": 0.5
+       }
+      }
+     ]
+    },
+    "asks": [
+     {
+      "ask": "R4와 R1-R3로 구분",
+      "how": "key"
+     },
+     {
+      "ask": "bin 0.25 간격",
+      "how": "key"
+     },
+     {
+      "ask": "범위 1.75–6.5",
+      "how": "key"
+     },
+     {
+      "ask": "규격 상한 5.0 세로 점선",
+      "how": "key"
+     },
+     {
+      "ask": "y축 밀도(density)",
+      "how": "key"
+     },
+     {
+      "ask": "반투명 겹침",
+      "how": "echarts"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": false,
+    "error": "by: no column matches \"반응기군\" (closest: 반응기)",
+    "hint": "columns: A \"런ID\", B \"일자 (yyyy-mm-dd)\", C \"주차\", D \"근무조\", E \"반응기\", F \"촉매로트\", G \"작업자\", H \"1존온도 (°C)\", I \"2존온도 (°C)\", J \"3존온도 (°C)\", K \"C2H4유량 (sccm)\", L \"H2유량 (sccm)\", M \"H2/C2H4비\", N \"체류시간 (s)\", O \"외기습도 (%)\", P \"가동시간 (h)\", Q \"CNT수율 (g/g-cat)\", R \"생산속도 (g/h)\", S \"잔류금속 (wt%)\", T \"산화개시온도 (°C)\", U \"IG/ID\", V \"등급 (A/B/C)\""
+   },
+   "facts": [],
+   "draw_s": 0.28046464920043945,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [
+     "run: no plot (by: no column matches \"반응기군\" (closest: 반응기))"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 25.356
+  }
+ ]
+}

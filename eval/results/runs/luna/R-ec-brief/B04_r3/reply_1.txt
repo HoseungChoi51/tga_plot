@@ -1,0 +1,106 @@
+```python
+import json
+import os
+import numpy as np
+import pandas as pd
+from scipy.signal import find_peaks
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/xrd.csv"
+
+df = pd.read_csv(DATA_FILE)
+if df.shape[1] < 2:
+    raise ValueError("XRD 데이터에 2Theta와 Intensity 열이 필요합니다.")
+
+x = pd.to_numeric(df.iloc[:, 0], errors="coerce").to_numpy()
+y = pd.to_numeric(df.iloc[:, 1], errors="coerce").to_numpy()
+valid = np.isfinite(x) & np.isfinite(y)
+x, y = x[valid], y[valid]
+
+order = np.argsort(x)
+x, y = x[order], y[order]
+
+# Identify the five strongest local maxima, enforcing separation to avoid
+# labeling multiple adjacent samples from the same diffraction peak.
+distance = max(1, len(y) // 500)
+peaks, _ = find_peaks(y, distance=distance)
+if len(peaks) < 5:
+    peaks = np.arange(len(y))
+
+strongest = peaks[np.argsort(y[peaks])[-5:]]
+strongest = strongest[np.argsort(x[strongest])]
+
+peak_points = [[float(x[i]), float(y[i])] for i in strongest]
+peak_labels = [f"{x[i]:.2f}°" for i in strongest]
+
+option = {
+    "animation": False,
+    "textStyle": {"fontFamily": "Noto Sans CJK KR"},
+    "title": {
+        "text": "XRD 패턴",
+        "left": "center",
+        "textStyle": {"fontSize": 16}
+    },
+    "tooltip": {"trigger": "axis"},
+    "grid": {"left": 72, "right": 28, "top": 58, "bottom": 68},
+    "xAxis": {
+        "type": "value",
+        "name": "2θ (deg)",
+        "nameLocation": "middle",
+        "nameGap": 38,
+        "min": float(np.min(x)),
+        "max": float(np.max(x)),
+        "axisLine": {"show": True},
+        "axisTick": {"show": True},
+        "axisLabel": {"color": "#333"},
+        "splitLine": {"show": False}
+    },
+    "yAxis": {
+        "type": "value",
+        "name": "Intensity (counts)",
+        "nameLocation": "middle",
+        "nameGap": 52,
+        "min": 0,
+        "axisLine": {"show": True},
+        "axisTick": {"show": True},
+        "axisLabel": {"color": "#333"},
+        "splitLine": {"show": True, "lineStyle": {"color": "#e5e5e5"}}
+    },
+    "series": [
+        {
+            "name": "Intensity",
+            "type": "line",
+            "data": [[float(a), float(b)] for a, b in zip(x, y)],
+            "showSymbol": False,
+            "symbol": "none",
+            "lineStyle": {"color": "#1f4e9c", "width": 1.5},
+            "markPoint": {
+                "symbol": "circle",
+                "symbolSize": 9,
+                "itemStyle": {"color": "#c0392b", "borderColor": "#ffffff", "borderWidth": 1},
+                "label": {
+                    "show": True,
+                    "position": "top",
+                    "formatter": "{b}",
+                    "fontSize": 11,
+                    "color": "#9b2c21"
+                },
+                "data": [
+                    {"name": label, "coord": point}
+                    for label, point in zip(peak_labels, peak_points)
+                ]
+            }
+        }
+    ]
+}
+
+print(json.dumps({
+    "figures": [{
+        "name": "xrd_pattern",
+        "option": option,
+        "width": 900,
+        "height": 560,
+        "dpi": 300,
+        "formats": ["png"]
+    }]
+}, ensure_ascii=False, allow_nan=False))
+```

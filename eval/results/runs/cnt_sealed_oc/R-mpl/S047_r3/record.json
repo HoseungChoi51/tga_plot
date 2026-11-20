@@ -1,0 +1,78 @@
+{
+ "arm": "R-mpl",
+ "item": "S047",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "데이터 분석가",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "Cumulative production (kg) per 반응기 over 일자 — per-run production = 생산속도 × 가동시간 / 1000. One line per reactor, daily resolution.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# Configuration\nOUT_DIR = \"out\"\nDATA_FILE = \"data/run_log.xlsx\"\nSHEET_NAME = \"런로그\"\n\n# Ensure output directory exists\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Set font for Korean text support\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False  # To display minus signs correctly\n\ndef load_and_process_data():\n    \"\"\"\n    Loads the run log data, calculates daily production per reactor,\n    and computes cumulative production.\n    \"\"\"\n    # Read Excel file\n    df = pd.read_excel(DATA_FILE, sheet_name=SHEET_NAME)\n    \n    # Ensure '일자' is datetime type\n    df['일자'] = pd.to_datetime(df['일자'])\n    \n    # Calculate production per run in kg\n    # Formula: 생산속도 (g/h) * 가동시간 (h) / 1000 = Production (kg)\n    df['생산량_kg'] = (df['생산속도 (g/h)'] * df['가동시간 (h)']) / 1000\n    \n    # Group by Date and Reactor to sum up production for that day per reactor\n    # This handles multiple runs on the same day for the same reactor\n    daily_prod = df.groupby(['일자', '반응기'])['생산량_kg'].sum().reset_index()\n    \n    # Pivot table to have one column per reactor for easier plotting\n    # Index: Date, Columns: Reactor, Values: Daily Production\n    pivot_df = daily_prod.pivot(index='일자', columns='반응기', values='생산량_kg')\n    \n    # Fill NaN with 0 because if a reactor didn't produce on a specific day, its contribution is 0\n    pivot_df = pivot_df.fillna(0)\n    \n    # Sort index to ensure chronological order\n    pivot_df = pivot_df.sort_index()\n    \n    # Calculate Cumulative Sum for each reactor\n    cumulative_df = pivot_df.cumsum()\n    \n    return cumulative_df\n\ndef plot_cumulative_production(cumulative_df):\n    \"\"\"\n    Plots the cumulative production per reactor over time.\n    \"\"\"\n    fig, ax = plt.subplots(figsize=(12, 7))\n    \n    # Define colors for consistency if needed, but default matplotlib cycle is usually fine.\n    # Let's explicitly set markers/lines for clarity if there are few reactors.\n    reactors = cumulative_df.columns.tolist()\n    \n    for reactor in reactors:\n        ax.plot(cumulative_df.index, cumulative_df[reactor], label=f'{reactor}', linewidth=2)\n    \n    # Formatting\n    ax.set_title('Cumulative Production per Reactor (Daily Resolution)', fontsize=14)\n    ax.set_xlabel('Date', fontsize=12)\n    ax.set_ylabel('Cumulative Production (kg)', fontsize=12)\n    ax.legend(title='Reactor', loc='upper left')\n    ax.grid(True, linestyle='--', alpha=0.6)\n    \n    # Format x-axis dates nicely\n    fig.autofmt_xdate(rotation=45)\n    \n    # Save plot\n    output_path = os.path.join(OUT_DIR, \"cumulative_production_per_reactor.png\")\n    plt.tight_layout()\n    plt.savefig(output_path, dpi=300)\n    print(f\"Plot saved to {output_path}\")\n    \n    plt.close(fig)\n\nif __name__ == \"__main__\":\n    try:\n        # Process Data\n        cum_prod_data = load_and_process_data()\n        \n        # Plot\n        plot_cumulative_production(cum_prod_data)\n        \n    except Exception as e:\n        print(f\"An error occurred: {e}\")\n        import traceback\n        traceback.print_exc()\n```",
+     "llm_s": 13.673,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 3791,
+     "output_chars": 3100,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# Configuration\nOUT_DIR = \"out\"\nDATA_FILE = \"data/run_log.xlsx\"\nSHEET_NAME = \"런로그\"\n\n# Ensure output directory exists\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Set font for Korean text support\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False  # To display minus signs correctly\n\ndef load_and_process_data():\n    \"\"\"\n    Loads the run log data, calculates daily production per reactor,\n    and computes cumulative production.\n    \"\"\"\n    # Read Excel file\n    df = pd.read_excel(DATA_FILE, sheet_name=SHEET_NAME)\n    \n    # Ensure '일자' is datetime type\n    df['일자'] = pd.to_datetime(df['일자'])\n    \n    # Calculate production per run in kg\n    # Formula: 생산속도 (g/h) * 가동시간 (h) / 1000 = Production (kg)\n    df['생산량_kg'] = (df['생산속도 (g/h)'] * df['가동시간 (h)']) / 1000\n    \n    # Group by Date and Reactor to sum up production for that day per reactor\n    # This handles multiple runs on the same day for the same reactor\n    daily_prod = df.groupby(['일자', '반응기'])['생산량_kg'].sum().reset_index()\n    \n    # Pivot table to have one column per reactor for easier plotting\n    # Index: Date, Columns: Reactor, Values: Daily Production\n    pivot_df = daily_prod.pivot(index='일자', columns='반응기', values='생산량_kg')\n    \n    # Fill NaN with 0 because if a reactor didn't produce on a specific day, its contribution is 0\n    pivot_df = pivot_df.fillna(0)\n    \n    # Sort index to ensure chronological order\n    pivot_df = pivot_df.sort_index()\n    \n    # Reindex to cover all dates from min to max to ensure continuous cumulative sum\n    full_range = pd.date_range(start=pivot_df.index.min(), end=pivot_df.index.max())\n    pivot_df = pivot_df.reindex(full_range).fillna(0)\n    \n    # Calculate Cumulative Sum for each reactor\n    cumulative_df = pivot_df.cumsum()\n    \n    return cumulative_df\n\ndef plot_cumulative_production(cumulative_df):\n    \"\"\"\n    Plots the cumulative production per reactor over time.\n    \"\"\"\n    fig, ax = plt.subplots(figsize=(12, 7))\n    \n    reactors = cumulative_df.columns.tolist()\n    \n    for reactor in reactors:\n        ax.plot(cumulative_df.index, cumulative_df[reactor], label=f'{reactor}', linewidth=2)\n    \n    # Formatting\n    ax.set_title('Cumulative Production per Reactor (Daily Resolution)', fontsize=14)\n    ax.set_xlabel('Date', fontsize=12)\n    ax.set_ylabel('Cumulative Production (kg)', fontsize=12)\n    ax.legend(title='Reactor', loc='upper left')\n    ax.grid(True, linestyle='--', alpha=0.6)\n    \n    # Format x-axis dates nicely\n    fig.autofmt_xdate(rotation=45)\n    \n    # Save plot\n    output_path = os.path.join(OUT_DIR, \"cumulative_production_per_reactor.png\")\n    plt.tight_layout()\n    plt.savefig(output_path, dpi=300)\n    print(f\"Plot saved to {output_path}\")\n    \n    plt.close(fig)\n\nif __name__ == \"__main__\":\n    try:\n        # Process Data\n        cum_prod_data = load_and_process_data()\n        \n        # Plot\n        plot_cumulative_production(cum_prod_data)\n        \n    except Exception as e:\n        print(f\"An error occurred: {e}\")\n        import traceback\n        traceback.print_exc()\n```",
+     "llm_s": 13.477,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 7366,
+     "output_chars": 3156,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\nimport traceback\n\n# Configuration\nOUT_DIR = \"out\"\nDATA_FILE = \"data/run_log.xlsx\"\nSHEET_NAME = \"런로그\"\n\ndef main():\n    try:\n        # Ensure output directory exists\n        if not os.path.exists(OUT_DIR):\n            os.makedirs(OUT_DIR)\n        \n        # Set font for Korean text support\n        # Note: If 'Noto Sans CJK KR' is not found by matplotlib, it might fall back or error.\n        # We ensure the rcParams are set before plotting.\n        plt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n        plt.rcParams[\"axes.unicode_minus\"] = False\n\n        # Read Excel file\n        df = pd.read_excel(DATA_FILE, sheet_name=SHEET_NAME)\n        \n        # Debug print to confirm data loading\n        print(f\"Data loaded. Shape: {df.shape}\")\n        print(df.head())\n        \n        # Ensure '일자' is datetime type\n        # The column name in preview is 'B 일자 (yyyy-mm-dd)', so we look for a column containing '일자'\n        date_col = [c for c in df.columns if '일자' in str(c)][0]\n        df[date_col] = pd.to_datetime(df[date_col])\n        \n        # Identify columns based on preview patterns\n        reactor_col = [c for c in df.columns if '반응기' in str(c)][0]\n        prod_rate_col = [c for c in df.columns if '생산속도' in str(c)][0]\n        run_time_col = [c for c in df.columns if '가동시간' in str(c)][0]\n        \n        # Calculate production per run in kg\n        # Formula: 생산속도 (g/h) * 가동시간 (h) / 1000 = Production (kg)\n        df['생산량_kg'] = (df[prod_rate_col] * df[run_time_col]) / 1000\n        \n        # Group by Date and Reactor to sum up production for that day per reactor\n        daily_prod = df.groupby([date_col, reactor_col])['생산량_kg'].sum().reset_index()\n        \n        # Pivot table to have one column per reactor for easier plotting\n        pivot_df = daily_prod.pivot(index=date_col, columns=reactor_col, values='생산량_kg')\n        \n        # Fill NaN with 0 because if a reactor didn't produce on a specific day, its contribution is 0\n        pivot_df = pivot_df.fillna(0)\n        \n        # Sort index to ensure chronological order\n        pivot_df = pivot_df.sort_index()\n        \n        # Reindex to cover all dates from min to max to ensure continuous cumulative sum\n        full_range = pd.date_range(start=pivot_df.index.min(), end=pivot_df.index.max())\n        pivot_df = pivot_df.reindex(full_range).fillna(0)\n        \n        # Calculate Cumulative Sum for each reactor\n        cumulative_df = pivot_df.cumsum()\n        \n        # Plotting\n        fig, ax = plt.subplots(figsize=(12, 7))\n        \n        reactors = cumulative_df.columns.tolist()\n        \n        for reactor in reactors:\n            ax.plot(cumulative_df.index, cumulative_df[reactor], label=f'{reactor}', linewidth=2)\n        \n        # Formatting\n        ax.set_title('Cumulative Production per Reactor (Daily Resolution)', fontsize=14)\n        ax.set_xlabel('Date', fontsize=12)\n        ax.set_ylabel('Cumulative Production (kg)', fontsize=12)\n        ax.legend(title='Reactor', loc='upper left')\n        ax.grid(True, linestyle='--', alpha=0.6)\n        \n        # Format x-axis dates nicely\n        fig.autofmt_xdate(rotation=45)\n        \n        # Save plot\n        output_path = os.path.join(OUT_DIR, \"cumulative_production_per_reactor.png\")\n        plt.tight_layout()\n        plt.savefig(output_path, dpi=300)\n        print(f\"Plot successfully saved to {output_path}\")\n        \n        plt.close(fig)\n        \n    except Exception as e:\n        print(\"An error occurred:\")\n        traceback.print_exc()\n\nif __name__ == \"__main__\":\n    main()\n```",
+     "llm_s": 15.363,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 10853,
+     "output_chars": 3621,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport os\nimport traceback\n\n# Configuration\nOUT_DIR = \"out\"\nDATA_FILE = \"data/run_log.xlsx\"\nSHEET_NAME = \"런로그\"\n\ndef main():\n    try:\n        # Ensure output directory exists\n        if not os.path.exists(OUT_DIR):\n            os.makedirs(OUT_DIR)\n        \n        # Set font for Korean text support\n        # Note: If 'Noto Sans CJK KR' is not found by matplotlib, it might fall back or error.\n        # We ensure the rcParams are set before plotting.\n        plt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n        plt.rcParams[\"axes.unicode_minus\"] = False\n\n        # Read Excel file\n        df = pd.read_excel(DATA_FILE, sheet_name=SHEET_NAME)\n        \n        # Debug print to confirm data loading\n        print(f\"Data loaded. Shape: {df.shape}\")\n        print(df.head())\n        \n        # Ensure '일자' is datetime type\n        # The column name in preview is 'B 일자 (yyyy-mm-dd)', so we look for a column containing '일자'\n        date_col = [c for c in df.columns if '일자' in str(c)][0]\n        df[date_col] = pd.to_datetime(df[date_col])\n        \n        # Identify columns based on preview patterns\n        reactor_col = [c for c in df.columns if '반응기' in str(c)][0]\n        prod_rate_col = [c for c in df.columns if '생산속도' in str(c)][0]\n        run_time_col = [c for c in df.columns if '가동시간' in str(c)][0]\n        \n        # Calculate production per run in kg\n        # Formula: 생산속도 (g/h) * 가동시간 (h) / 1000 = Production (kg)\n        df['생산량_kg'] = (df[prod_rate_col] * df[run_time_col]) / 1000\n        \n        # Group by Date and Reactor to sum up production for that day per reactor\n        daily_prod = df.groupby([date_col, reactor_col])['생산량_kg'].sum().reset_index()\n        \n        # Pivot table to have one column per reactor for easier plotting\n        pivot_df = daily_prod.pivot(index=date_col, columns=reactor_col, values='생산량_kg')\n        \n        # Fill NaN with 0 because if a reactor didn't produce on a specific day, its contribution is 0\n        pivot_df = pivot_df.fillna(0)\n        \n        # Sort index to ensure chronological order\n        pivot_df = pivot_df.sort_index()\n        \n        # Reindex to cover all dates from min to max to ensure continuous cumulative sum\n        full_range = pd.date_range(start=pivot_df.index.min(), end=pivot_df.index.max())\n        pivot_df = pivot_df.reindex(full_range).fillna(0)\n        \n        # Calculate Cumulative Sum for each reactor\n        cumulative_df = pivot_df.cumsum()\n        \n        # Plotting\n        fig, ax = plt.subplots(figsize=(12, 7))\n        \n        reactors = cumulative_df.columns.tolist()\n        \n        for reactor in reactors:\n            ax.plot(cumulative_df.index, cumulative_df[reactor], label=f'{reactor}', linewidth=2)\n        \n        # Formatting\n        ax.set_title('Cumulative Production per Reactor (Daily Resolution)', fontsize=14)\n        ax.set_xlabel('Date', fontsize=12)\n        ax.set_ylabel('Cumulative Production (kg)', fontsize=12)\n        ax.legend(title='Reactor', loc='upper left')\n        ax.grid(True, linestyle='--', alpha=0.6)\n        \n        # Format x-axis dates nicely\n        fig.autofmt_xdate(rotation=45)\n        \n        # Save plot\n        output_path = os.path.join(OUT_DIR, \"cumulative_production_per_reactor.png\")\n        plt.tight_layout()\n        plt.savefig(output_path, dpi=300)\n        print(f\"Plot successfully saved to {output_path}\")\n        \n        plt.close(fig)\n        \n    except Exception as e:\n        print(\"An error occurred:\")\n        traceback.print_exc()\n\nif __name__ == \"__main__\":\n    main()\n",
+   "engine": null,
+   "result": {
+    "ok": false,
+    "error": "The script ran but saved no figure into OUT_DIR.",
+    "hint": ""
+   },
+   "facts": [],
+   "draw_s": 0.4125552177429199,
+   "check": {
+    "kind_expected": "line",
+    "failed": [
+     "run: no plot (The script ran but saved no figure into OUT_DIR.)"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 43.653
+  }
+ ]
+}

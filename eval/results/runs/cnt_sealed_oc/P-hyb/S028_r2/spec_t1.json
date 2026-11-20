@@ -1,0 +1,30 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "histogram",
+ "x": {
+  "col": "산화개시온도 (°C)",
+  "bins": {
+   "width": 5,
+   "min": 535,
+   "max": 610
+  }
+ },
+ "by": "반응기",
+ "asks": [
+  {
+   "ask": "산화개시온도 분포 히스토그램",
+   "how": "key"
+  },
+  {
+   "ask": "R4와 나머지(R1–3) 두 그룹으로 나눠서 겹친",
+   "how": "unsupported"
+  },
+  {
+   "ask": "bin은 5 °C 간격, 535–610 °C",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S028_r2/out/t1"
+ }
+}

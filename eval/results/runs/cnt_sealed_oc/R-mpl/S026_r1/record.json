@@ -1,0 +1,276 @@
+{
+ "arm": "R-mpl",
+ "item": "S026",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "반응기별 등급 A/B/C 구성비(%)를 묶은 막대로 보여 주세요. 반응기마다 합이 100%가 되게요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Load data\nfile_path = \"data/run_log.xlsx\"\ndf_runs = pd.read_excel(file_path, sheet_name='런로그')\n\n# Filter valid reactors and grades\nvalid_reactors = ['R1', 'R2', 'R3', 'R4']\nvalid_grades = ['A', 'B', 'C']\n\n# Clean data: keep only rows with valid reactor and grade\ndf_clean = df_runs[df_runs['반응기'].isin(valid_reactors) & df_runs['등급'].isin(valid_grades)].copy()\n\n# Calculate counts per reactor and grade\ncounts = df_clean.groupby(['반응기', '등급']).size().unstack(fill_value=0)\n\n# Reorder columns to ensure A, B, C order\ngrade_order = ['A', 'B', 'C']\nif all(g in counts.columns for g in grade_order):\n    counts = counts[grade_order]\n\n# Calculate percentages (row-wise normalization to sum to 100%)\ntotal_counts = counts.sum(axis=1)\npercentages = counts.div(total_counts, axis=0) * 100\n\n# Prepare data for plotting\nreactors = percentages.index.tolist()\nx_pos = range(len(reactors))\nwidth = 0.6  # Width of the bars\n\n# Colors for grades\ncolors = {'A': '#2ecc71', 'B': '#f1c40f', 'C': '#e74c3c'}\n\nfig, ax = plt.subplots(figsize=(8, 6))\n\n# Plot stacked bar chart\nbottom = [0] * len(reactors)\nfor grade in grade_order:\n    if grade in percentages.columns:\n        values = percentages[grade].values\n        ax.bar(x_pos, values, width, bottom=bottom, label=f'등급 {grade}', color=colors[grade])\n        \n        # Add percentage text on top of each segment\n        for i, v in enumerate(values):\n            if v > 5:  # Only add text if segment is large enough\n                y_text = bottom[i] + v / 2\n                ax.text(x_pos[i], y_text, f'{v:.1f}%', ha='center', va='center', fontsize=9, color='black')\n        \n        bottom += values\n\n# Customize plot\nax.set_xticks(x_pos)\nax.set_xticklabels(reactors)\nax.set_ylabel('구성비 (%)')\nax.set_title('반응기별 등급(A/B/C) 구성비')\nax.set_ylim(0, 100)\nax.legend(title='등급', loc='upper left', bbox_to_anchor=(1, 1))\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\n# Tight layout to prevent label cutoff\nplt.tight_layout()\n\n# Save figure\noutput_file = os.path.join(OUT_DIR, \"reactor_grade_composition.png\")\nplt.savefig(output_file, dpi=300)\nplt.close()\n```",
+     "llm_s": 10.081,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 3755,
+     "output_chars": 2349,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Load data\nfile_path = \"data/run_log.xlsx\"\ndf_runs = pd.read_excel(file_path, sheet_name='런로그')\n\n# Filter valid reactors and grades\nvalid_reactors = ['R1', 'R2', 'R3', 'R4']\nvalid_grades = ['A', 'B', 'C']\n\n# Clean data: keep only rows with valid reactor and grade\ndf_clean = df_runs[df_runs['반응기'].isin(valid_reactors) & df_runs['등급'].isin(valid_grades)].copy()\n\n# Calculate counts per reactor and grade\ncounts = df_clean.groupby(['반응기', '등급']).size().unstack(fill_value=0)\n\n# Reorder columns to ensure A, B, C order\ngrade_order = ['A', 'B', 'C']\nif all(g in counts.columns for g in grade_order):\n    counts = counts[grade_order]\n\n# Calculate percentages (row-wise normalization to sum to 100%)\ntotal_counts = counts.sum(axis=1)\npercentages = counts.div(total_counts, axis=0) * 100\n\n# Prepare data for plotting\nreactors = percentages.index.tolist()\nx_pos = range(len(reactors))\nwidth = 0.6  # Width of the bars\n\n# Colors for grades\ncolors = {'A': '#2ecc71', 'B': '#f1c40f', 'C': '#e74c3c'}\n\nfig, ax = plt.subplots(figsize=(8, 6))\n\n# Plot stacked bar chart\nbottom = [0] * len(reactors)\nfor grade in grade_order:\n    if grade in percentages.columns:\n        values = percentages[grade].values\n        ax.bar(x_pos, values, width, bottom=bottom, label=f'등급 {grade}', color=colors[grade])\n        \n        # Add percentage text on top of each segment\n        for i, v in enumerate(values):\n            if v > 5:  # Only add text if segment is large enough\n                y_text = bottom[i] + v / 2\n                ax.text(x_pos[i], y_text, f'{v:.1f}%', ha='center', va='center', fontsize=9, color='black')\n        \n        bottom += values\n\n# Customize plot\nax.set_xticks(x_pos)\nax.set_xticklabels(reactors)\nax.set_ylabel('구성비 (%)')\nax.set_title('반응기별 등급(A/B/C) 구성비')\nax.set_ylim(0, 100)\nax.legend(title='등급', loc='upper left', bbox_to_anchor=(1, 1))\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\n# Tight layout to prevent label cutoff\nplt.tight_layout()\n\n# Save figure\noutput_file = os.path.join(OUT_DIR, \"reactor_grade_composition.png\")\nplt.savefig(output_file, dpi=300)\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      8.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "반응기별 등급(A/B/C) 구성비",
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "등급 A",
+         "orient": "v",
+         "cats": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          54.980079681274894,
+          31.6,
+          53.46938775510204,
+          0.398406374501992
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#2ecc71",
+          "#2ecc71",
+          "#2ecc71",
+          "#2ecc71"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0
+         ]
+        },
+        {
+         "name": "등급 B",
+         "orient": "v",
+         "cats": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          42.231075697211146,
+          50.4,
+          45.714285714285715,
+          70.91633466135457
+         ],
+         "bottoms": [
+          54.980079681274894,
+          31.6,
+          53.46938775510204,
+          0.398406374501992
+         ],
+         "colors": [
+          "#f1c40f",
+          "#f1c40f",
+          "#f1c40f",
+          "#f1c40f"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0
+         ]
+        },
+        {
+         "name": "등급 C",
+         "orient": "v",
+         "cats": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          2.7888446215139453,
+          18.0,
+          0.816326530612244,
+          28.68525896414343
+         ],
+         "bottoms": [
+          97.21115537848604,
+          82.0,
+          99.18367346938776,
+          71.31474103585657
+         ],
+         "colors": [
+          "#e74c3c",
+          "#e74c3c",
+          "#e74c3c",
+          "#e74c3c"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 9,
+       "texts": [
+        "55.0%",
+        "31.6%",
+        "53.5%",
+        "42.2%",
+        "50.4%",
+        "45.7%",
+        "70.9%",
+        "18.0%",
+        "28.7%"
+       ],
+       "x": {
+        "label": "",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "R1",
+         "R2",
+         "R3",
+         "R4"
+        ],
+        "min": -0.48,
+        "max": 3.4800000000000004,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "R1",
+         "R2",
+         "R3",
+         "R4"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "구성비 (%)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         20.0,
+         40.0,
+         60.0,
+         80.0,
+         100.0
+        ],
+        "step": 20.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 100.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "20",
+         "40",
+         "60",
+         "80",
+         "100"
+        ],
+        "rotate": 0.0
+       },
+       "title": "반응기별 등급(A/B/C) 구성비"
+      }
+     ],
+     "texts": [
+      "55.0%",
+      "31.6%",
+      "53.5%",
+      "42.2%",
+      "50.4%",
+      "45.7%",
+      "70.9%",
+      "18.0%",
+      "28.7%"
+     ],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "등급 A",
+       "등급 B",
+       "등급 C"
+      ],
+      "inside": false,
+      "where": "outside"
+     },
+     "files": [
+      {
+       "path": "out/t1/reactor_grade_composition.png",
+       "format": "png",
+       "px": [
+        2400,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5553364753723145,
+   "check": {
+    "kind_expected": "grouped_bar",
+    "failed": [
+     "kind: drawn ['bar', 'stacked_bar'], want grouped_bar",
+     "kind: bars are stacked, want side by side"
+    ],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 2,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 10.637
+  }
+ ]
+}

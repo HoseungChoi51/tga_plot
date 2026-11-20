@@ -1,0 +1,34 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "bar",
+ "x": {
+  "col": "일자",
+  "period": "month"
+ },
+ "y": "count",
+ "by": "반응기",
+ "filter": [
+  "원인 == 노즐 막힘"
+ ],
+ "asks": [
+  {
+   "ask": "월별 집계",
+   "how": "key"
+  },
+  {
+   "ask": "노즐막힘 필터",
+   "how": "key"
+  },
+  {
+   "ask": "반응기별 그룹핑",
+   "how": "key"
+  },
+  {
+   "ask": "막대 차트",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_b/P-ec/D018_r2/out/t1"
+ }
+}

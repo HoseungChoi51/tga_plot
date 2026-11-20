@@ -1,0 +1,28 @@
+{
+ "file": "data/diameters.csv",
+ "chart": "histogram",
+ "x": {
+  "col": "직경(nm)",
+  "bins": 20
+ },
+ "filter": [
+  "시료 == TEM-03"
+ ],
+ "asks": [
+  {
+   "ask": "TEM-03 시료만 필터링",
+   "how": "key"
+  },
+  {
+   "ask": "직경 분포 (히스토그램)",
+   "how": "key"
+  },
+  {
+   "ask": "구간 자동 설정",
+   "how": "default"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S042_r2/out/t1"
+ }
+}

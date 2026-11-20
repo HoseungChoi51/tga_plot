@@ -1,0 +1,17 @@
+```json
+{
+ "file": "cnt_batches.xlsx",
+ "sheets": "Annealed",
+ "colors": "mono",
+ "font_size": 8,
+ "size": [3.5, 2.6],
+ "dpi": 600,
+ "asks": [
+  {"ask": "Annealed 시트", "how": "key"},
+  {"ask": "흑백", "how": "key"},
+  {"ask": "글자 크기 8", "how": "key"},
+  {"ask": "크기 3.5x2.6 인치", "how": "key"},
+  {"ask": "600 dpi", "how": "key"}
+ ]
+}
+```

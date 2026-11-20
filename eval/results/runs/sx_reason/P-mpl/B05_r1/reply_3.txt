@@ -1,0 +1,9 @@
+{
+  "file": ["cnt_lot_A.csv", "cnt_lot_B.txt"],
+  "combine": true,
+  "legend": {
+    "show": true,
+    "where": "best"
+  },
+  "code": "lines = [l for l in ax1.lines + (ax2.lines if ax2 else []) if l.get_label() != '_nolegend_' and 'esidue' not in l.get_label() and 'eak' not in l.get_label()]; [l.set_label('Lot A' if 'A' in l.get_label() else ('Lot B' if 'B' in l.get_label() else ('Lot A' if i % 2 == 0 else 'Lot B'))) for i, l in enumerate(lines)]; uniq = {l.get_label(): l for l in lines}; ax1.legend(list(uniq.values()), list(uniq.keys()), loc='best')"
+}

@@ -1,0 +1,26 @@
+```json
+{
+  "file": "polymers.xlsx",
+  "sheets": "PVC",
+  "annotate": {
+    "mass_loss_band": {
+      "type": "band",
+      "x_min": 200,
+      "x_max": 400,
+      "color": "lightgray",
+      "alpha": 0.15,
+      "text": "질량 감소 구간"
+    },
+    "weight_200": {
+      "type": "value_at_x",
+      "on": "y1",
+      "x": 200,
+      "method": "interp",
+      "text": "200 °C: {y:.1f}%"
+    },
+    "weight_400": {
+      "type": "value_at_x",
+      "on": "y1",
+      "x": 400,
+      "method": "interp",
+      "text": "400 °C

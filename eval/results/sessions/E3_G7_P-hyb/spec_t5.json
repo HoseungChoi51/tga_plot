@@ -1,0 +1,16 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "scatter",
+ "x": "H2/C2H4비",
+ "y": "IG/ID",
+ "asks": [
+  {
+   "ask": "IG/ID와 H2/C2H4비 관계 산점도",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/sessions/E3_G7_P-hyb/out/t5"
+ }
+}

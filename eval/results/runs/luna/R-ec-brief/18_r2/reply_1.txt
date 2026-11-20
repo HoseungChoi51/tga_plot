@@ -1,0 +1,193 @@
+```python
+import json
+import os
+import sys
+
+import numpy as np
+import pandas as pd
+
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+def clean_name(value):
+    return str(value).strip()
+
+def find_column(columns, terms):
+    for index, name in enumerate(columns):
+        text = clean_name(name).lower()
+        if any(term.lower() in text for term in terms):
+            return index
+    return None
+
+def numeric_column(frame, index):
+    return pd.to_numeric(frame.iloc[:, index], errors="coerce").to_numpy(dtype=float)
+
+def finite_pairs(x, y):
+    mask = np.isfinite(x) & np.isfinite(y)
+    return x[mask], y[mask]
+
+def create_option(sheet_name, x, weight, dtg):
+    xw, weight = finite_pairs(x, weight)
+    xd, dtg = finite_pairs(x, dtg)
+
+    weight_data = [[float(a), float(b)] for a, b in zip(xw, weight)]
+    dtg_data = [[float(a), float(-b)] for a, b in zip(xd, dtg)]
+
+    residue_point = None
+    if len(xw):
+        idx = int(np.argmin(np.abs(xw - 800.0)))
+        residue_point = [float(xw[idx]), float(weight[idx])]
+
+    peak_point = None
+    if len(xd):
+        mask = xd > 150.0
+        if np.any(mask):
+            peak_indices = np.flatnonzero(mask)
+            idx = int(peak_indices[np.argmax(-dtg[mask])])
+            peak_point = [float(xd[idx]), float(-dtg[idx])]
+
+    series = [
+        {
+            "name": "Weight",
+            "type": "line",
+            "showSymbol": False,
+            "yAxisIndex": 0,
+            "data": weight_data,
+            "lineStyle": {"color": "#1f4e9c", "width": 2},
+            "itemStyle": {"color": "#1f4e9c"},
+        },
+        {
+            "name": "DTG",
+            "type": "line",
+            "showSymbol": False,
+            "yAxisIndex": 1,
+            "data": dtg_data,
+            "lineStyle": {"color": "#c0392b", "width": 2},
+            "itemStyle": {"color": "#c0392b"},
+        },
+    ]
+
+    if residue_point is not None:
+        series[0]["markPoint"] = {
+            "symbol": "circle",
+            "symbolSize": 9,
+            "itemStyle": {"color": "#1f4e9c"},
+            "label": {
+                "show": True,
+                "formatter": f"Residue {residue_point[1]:.1f}%",
+                "position": "top",
+                "color": "#1f4e9c",
+            },
+            "data": [{"coord": residue_point}],
+        }
+
+    if peak_point is not None:
+        series[1]["markPoint"] = {
+            "symbol": "circle",
+            "symbolSize": 9,
+            "itemStyle": {"color": "#c0392b"},
+            "label": {
+                "show": True,
+                "formatter": f"{peak_point[0]:.0f} °C",
+                "position": "top",
+                "color": "#c0392b",
+            },
+            "data": [{"coord": peak_point}],
+        }
+
+    if len(xw):
+        xmin, xmax = float(np.min(xw)), float(np.max(xw))
+    else:
+        xmin, xmax = 0.0, 900.0
+
+    return {
+        "title": {
+            "text": sheet_name,
+            "left": "center",
+            "textStyle": {"fontFamily": "Noto Sans CJK KR"},
+        },
+        "tooltip": {"trigger": "axis"},
+        "legend": {"data": ["Weight", "DTG"], "left": "center"},
+        "grid": {"left": 72, "right": 72, "top": 72, "bottom": 64},
+        "xAxis": {
+            "type": "value",
+            "name": "Temperature (°C)",
+            "min": xmin,
+            "max": xmax,
+            "interval": 100,
+            "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+            "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+        },
+        "yAxis": [
+            {
+                "type": "value",
+                "name": "Weight (%)",
+                "position": "left",
+                "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+                "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+                "splitLine": {"show": True, "lineStyle": {"color": "#dddddd"}},
+            },
+            {
+                "type": "value",
+                "name": "-DTG (%/°C)",
+                "position": "right",
+                "min": -0.05,
+                "max": 1.2,
+                "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+                "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+                "splitLine": {"show": False},
+            },
+        ],
+        "series": series,
+    }
+
+def main():
+    path = DATA_FILE
+    if not os.path.exists(path):
+        raise FileNotFoundError(path)
+
+    workbook = pd.ExcelFile(path)
+    figures = []
+
+    for sheet_name in workbook.sheet_names:
+        frame = pd.read_excel(path, sheet_name=sheet_name)
+        if frame.empty or len(frame.columns) < 3:
+            continue
+
+        columns = list(frame.columns)
+        x_idx = find_column(columns, ["temperature", "temp"])
+        weight_idx = find_column(columns, ["weight"])
+        dtg_idx = find_column(columns, ["d.w", "dtg", "derivative"])
+
+        if x_idx is None:
+            x_idx = 1 if len(columns) > 1 else 0
+        if weight_idx is None:
+            weight_idx = 2 if len(columns) > 2 else 1
+        if dtg_idx is None:
+            dtg_idx = 3 if len(columns) > 3 else None
+        if dtg_idx is None:
+            continue
+
+        x = numeric_column(frame, x_idx)
+        weight = numeric_column(frame, weight_idx)
+        dtg = numeric_column(frame, dtg_idx)
+
+        option = create_option(clean_name(sheet_name), x, weight, dtg)
+        safe_name = "".join(
+            ch if ch.isalnum() or ch in "-_." else "_"
+            for ch in clean_name(sheet_name)
+        )
+        figures.append({
+            "name": safe_name or f"plot{len(figures) + 1}",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"],
+        })
+
+    print(json.dumps({"figures": figures}, ensure_ascii=False, allow_nan=False))
+
+if __name__ == "__main__":
+    main()
+```

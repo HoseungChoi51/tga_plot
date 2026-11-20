@@ -1,0 +1,150 @@
+import json
+import os
+
+import numpy as np
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+sheet_name = "1006R1-V normal"
+df = pd.read_excel(DATA_FILE, sheet_name=sheet_name)
+
+def find_column(candidates, fallback):
+    for col in df.columns:
+        if any(term in str(col).lower() for term in candidates):
+            return col
+    return df.columns[fallback]
+
+x_col = find_column(["temperature"], 1)
+weight_col = find_column(["weight"], 2)
+dtg_col = find_column(["d.w", "deriv", "dtg"], 3)
+
+data = df[[x_col, weight_col, dtg_col]].apply(pd.to_numeric, errors="coerce").dropna()
+x = data[x_col].to_numpy(dtype=float)
+weight = data[weight_col].to_numpy(dtype=float)
+dtg = data[dtg_col].to_numpy(dtype=float)
+
+# The requested Y2 maximum is shown as the highest upward-pointing DTG peak,
+# i.e. the maximum of -DTG above 150 °C.
+peak_candidates = np.flatnonzero(x > 150)
+peak_index = peak_candidates[np.argmax(-dtg[peak_candidates])]
+peak_x = float(x[peak_index])
+peak_y = float(-dtg[peak_index])
+
+residue_index = int(np.argmin(np.abs(x - 800)))
+residue_x = float(x[residue_index])
+residue_y = float(weight[residue_index])
+
+option = {
+    "animation": False,
+    "title": {
+        "text": sheet_name,
+        "left": "center",
+        "textStyle": {"fontFamily": "Noto Sans CJK KR"}
+    },
+    "tooltip": {"trigger": "axis"},
+    "legend": {"data": ["Weight(%)", "Deriv.Weight"], "left": "center"},
+    "grid": {"left": 78, "right": 78, "top": 75, "bottom": 70},
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "min": 0,
+        "max": 900,
+        "interval": 200,
+        "nameLocation": "middle",
+        "nameGap": 38,
+        "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+        "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+        "splitLine": {"show": False}
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Weight (%)",
+            "min": 0,
+            "max": 100,
+            "interval": 20,
+            "nameLocation": "middle",
+            "nameGap": 55,
+            "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+            "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+            "splitLine": {"show": True, "lineStyle": {"color": "#e5e5e5"}}
+        },
+        {
+            "type": "value",
+            "name": "Deriv.Weight (-DTG, %/°C)",
+            "min": 0,
+            "max": 1.2,
+            "interval": 0.2,
+            "nameLocation": "middle",
+            "nameGap": 55,
+            "position": "right",
+            "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+            "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+            "splitLine": {"show": False}
+        }
+    ],
+    "series": [
+        {
+            "name": "Weight(%)",
+            "type": "line",
+            "showSymbol": False,
+            "yAxisIndex": 0,
+            "data": [[float(a), float(b)] for a, b in zip(x, weight)],
+            "lineStyle": {"color": "#1f4e9c", "width": 2},
+            "itemStyle": {"color": "#1f4e9c"},
+            "markPoint": {
+                "symbol": "circle",
+                "symbolSize": 9,
+                "data": [
+                    {
+                        "coord": [residue_x, residue_y],
+                        "name": f"Residue {residue_y:.1f}%",
+                        "label": {
+                            "show": True,
+                            "formatter": f"Residue {residue_y:.1f}%",
+                            "position": "right",
+                            "fontFamily": "Noto Sans CJK KR"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Deriv.Weight",
+            "type": "line",
+            "showSymbol": False,
+            "yAxisIndex": 1,
+            "data": [[float(a), float(-b)] for a, b in zip(x, dtg)],
+            "lineStyle": {"color": "#c0392b", "width": 2},
+            "itemStyle": {"color": "#c0392b"},
+            "markPoint": {
+                "symbol": "circle",
+                "symbolSize": 9,
+                "data": [
+                    {
+                        "coord": [peak_x, peak_y],
+                        "name": f"Max {peak_y:.3f} at {peak_x:.0f} °C",
+                        "label": {
+                            "show": True,
+                            "formatter": f"Max {peak_y:.3f} at {peak_x:.0f} °C",
+                            "position": "top",
+                            "fontFamily": "Noto Sans CJK KR"
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
+
+print(json.dumps({
+    "figures": [{
+        "name": "1006R1-V_normal",
+        "option": option,
+        "width": 1000,
+        "height": 650,
+        "dpi": 300,
+        "formats": ["png"]
+    }]
+}, ensure_ascii=False, allow_nan=False))

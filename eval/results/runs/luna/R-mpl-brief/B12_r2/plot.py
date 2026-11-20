@@ -1,0 +1,65 @@
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/caox.csv"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/B12_r2/out"
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+
+def read_data(path):
+    suffix = Path(path).suffix.lower()
+    if suffix in {".xlsx", ".xls"}:
+        return pd.read_excel(path)
+    if suffix == ".csv":
+        return pd.read_csv(path)
+    return pd.read_csv(path, sep=None, engine="python")
+
+df = read_data(DATA_FILE)
+df.columns = [str(c).strip() for c in df.columns]
+
+# Use the temperature and weight columns by name, with positional fallback.
+x_col = next((c for c in df.columns if "temperature" in c.lower()), df.columns[1])
+y_col = next((c for c in df.columns if "weight" in c.lower() and "deriv" not in c.lower()), df.columns[2])
+
+x = pd.to_numeric(df[x_col], errors="coerce").to_numpy()
+weight = pd.to_numeric(df[y_col], errors="coerce").to_numpy()
+valid = np.isfinite(x) & np.isfinite(weight)
+x, weight = x[valid], weight[valid]
+
+if x.size == 0:
+    raise ValueError("No valid temperature and weight data found.")
+
+# Label the measured point nearest 900 °C.
+residue_idx = int(np.argmin(np.abs(x - 900)))
+residue_temp = x[residue_idx]
+residue_weight = weight[residue_idx]
+
+out_dir = Path(OUT_DIR)
+out_dir.mkdir(parents=True, exist_ok=True)
+
+fig, ax = plt.subplots(figsize=(8, 5))
+ax.plot(x, weight, color="#1f4e9c", linewidth=1.8, label="Weight")
+ax.set_xlim(100, 900)
+ax.set_xlabel("Temperature (°C)")
+ax.set_ylabel("Weight (%)")
+ax.set_title("caox")
+ax.grid(True, alpha=0.3)
+
+ax.scatter([residue_temp], [residue_weight], color="#1f4e9c", edgecolor="white", zorder=3)
+ax.annotate(
+    f"Residue {residue_weight:.1f}%",
+    xy=(residue_temp, residue_weight),
+    xytext=(-10, 12),
+    textcoords="offset points",
+    ha="right",
+    fontsize=9,
+)
+
+fig.tight_layout()
+fig.savefig(out_dir / "caox_weight.png", dpi=300, bbox_inches="tight")
+plt.close(fig)

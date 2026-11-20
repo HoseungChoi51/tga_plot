@@ -1,0 +1,22 @@
+{
+ "file": "data/r2_zone_temps.csv",
+ "chart": "line",
+ "x": "시각",
+ "y": {
+  "col": "deviation"
+ },
+ "data_code": "df['deviation'] = df['2존(°C)'] - df['2존 SP(°C)']",
+ "asks": [
+  {
+   "ask": "2존 온도에서 SP를 뺀 값 그래프",
+   "how": "data_code + key"
+  },
+  {
+   "ask": "제일 많이 벗어난 시점 표시",
+   "how": "unsupported"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S032_r2/out/t1"
+ }
+}

@@ -1,0 +1,33 @@
+{
+ "file": [
+  "data/downtime.xlsx",
+  "data/run_log.xlsx"
+ ],
+ "chart": "scatter",
+ "x": "정지시간(h)",
+ "y": "총생산량(kg)",
+ "title": {
+  "text": "주차별 정지시간과 총생산량 상관관계",
+  "size": 14
+ },
+ "legend": "none",
+ "grid": true,
+ "sheets": [
+  "정지이력",
+  "주간요약"
+ ],
+ "data_code": "import pandas as pd\n\n# Identify Downtime rows (has '정지시간(분)') and Weekly Summary rows (has '총생산량(kg)' or similar unique col)\n# Since column names might vary slightly or be merged, we look for non-null patterns.\ndt_mask = df['정지시간(분)'].notnull()\nwl_mask = df['총생산량(kg)'].notnull() if '총생산량(kg)' in df.columns else df['주차'].notnull() & df['런수'].notnull()\n\ndf_dt = df[dt_mask].copy()\ndf_wl = df[wl_mask].copy()\n\n# Ensure dates are datetime\ndf_dt['일자'] = pd.to_datetime(df_dt['일자'])\n\n# Calculate Week Number based on start date 2026-03-02 being Week 1\nstart_date = pd.to_datetime('2026-03-02')\ndf_dt['주차'] = ((df_dt['일자'] - start_date).dt.days // 7) + 1\n\n# Filter valid weeks (1-26) and aggregate downtime by week\ndt_valid = df_dt[df_dt['주차'].between(1, 26)]\ndt_weekly = dt_valid.groupby('주차')['정지시간(분)'].sum().reset_index()\ndt_weekly['정지시간(h)'] = dt_weekly['정지시간(분)'] / 60.0\n\n# Clean up weekly summary data\n# The '주간요약' sheet has '주차', '총생산량(kg)'\nif '주차' not in df_wl.columns:\n    # Fallback if structure is unexpected, though preview says it exists\n    pass\nelse:\n    df_wl_clean = df_wl[['주차', '총생산량(kg)']].dropna(subset=['주차', '총생산량(kg)'])\n    df_wl_clean['주차'] = df_wl_clean['주차'].astype(int)\n    \n    # Merge\n    merged = df_wl_clean.merge(dt_weekly[['주차', '정지시간(h)']], on='주차', how='inner')\n    df = merged\n",
+ "asks": [
+  {
+   "ask": "주차별 총 정지시간과 총생산량 산점도",
+   "how": "key"
+  },
+  {
+   "ask": "파일 간 데이터 병합 및 단위 변환",
+   "how": "data_code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S014_r1/out/t1"
+ }
+}

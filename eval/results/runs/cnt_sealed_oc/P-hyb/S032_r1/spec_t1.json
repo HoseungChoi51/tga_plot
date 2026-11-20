@@ -1,0 +1,30 @@
+{
+ "file": "data/r2_zone_temps.csv",
+ "chart": "line",
+ "x": "시각",
+ "y": {
+  "col": "dev_2zone",
+  "label": "2존 편차 (°C)"
+ },
+ "data_code": "df['dev_2zone'] = df['2존(°C)'] - df['2존 SP(°C)']; max_idx = df['dev_2zone'].abs().idxmax(); max_val = df.loc[max_idx, 'dev_2zone']; max_time = df.loc[max_idx, '시각']; import datetime; t_str = str(max_time); title_text = f'최대 편차: {max_val:+.1f} °C @ {t_str}'",
+ "title": {
+  "text": "R2 반응기 2존 온도 설정값 편차 추이"
+ },
+ "asks": [
+  {
+   "ask": "2존 온도와 SP의 차이(time series)",
+   "how": "data_code"
+  },
+  {
+   "ask": "시간에 따른 그래프",
+   "how": "key"
+  },
+  {
+   "ask": "제일 많이 벗어난 시점 확인",
+   "how": "data_code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S032_r1/out/t1"
+ }
+}

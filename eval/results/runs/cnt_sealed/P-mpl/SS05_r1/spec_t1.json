@@ -1,0 +1,13 @@
+{
+ "file": "data/tga_batches.xlsx",
+ "sheets": "R3-260428-1",
+ "asks": [
+  {
+   "ask": "TG 곡선",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-mpl/SS05_r1/out/t1"
+ }
+}

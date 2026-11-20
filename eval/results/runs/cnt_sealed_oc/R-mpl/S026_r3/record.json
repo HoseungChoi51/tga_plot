@@ -1,0 +1,294 @@
+{
+ "arm": "R-mpl",
+ "item": "S026",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "반응기별 등급 A/B/C 구성비(%)를 묶은 막대로 보여 주세요. 반응기마다 합이 100%가 되게요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\ndf_runs = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# 반응기별 등급별 개수 세기\ngrade_counts = df_runs.groupby(['반응기', '등급 (A/B/C)']).size().unstack(fill_value=0)\n\n# 각 반응기마다 합이 100%가 되도록 비율 계산 (%)\ngrade_percent = grade_counts.div(grade_counts.sum(axis=1), axis=0) * 100\n\n# 정렬: 반응기 순서대로 (R1, R2, R3, R4)\nreactor_order = ['R1', 'R2', 'R3', 'R4']\ngrade_percent = grade_percent.reindex(reactor_order)\n\n# 등급 순서 고정 (A, B, C)\ngrade_order = ['A', 'B', 'C']\ngrade_percent = grade_percent[grade_order]\n\n# 막대 그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\nbar_width = 0.8\nx = np.arange(len(grade_percent.index))\n\n# 누적 막대가 아니라 묶인(bar group) 막대로 요청함\nn_grades = len(grade_order)\nbar_width_group = bar_width / n_grades\n\ncolors = ['#2ecc71', '#f1c40f', '#e74c3c'] # A(초록), B(노랑), C(빨강) 등 구분을 위해\n\nfor i, grade in enumerate(grade_order):\n    offset = (i - (n_grades - 1) / 2) * bar_width_group\n    bars = ax.bar(x + offset, grade_percent[grade], width=bar_width_group, label=f'등급 {grade}', color=colors[i])\n    \n    # 값 텍스트 추가\n    for bar in bars:\n        height = bar.get_height()\n        if height > 0:\n            ax.text(bar.get_x() + bar.get_width()/2., height + 1,\n                    f'{height:.1f}%',\n                    ha='center', va='bottom', fontsize=9)\n\nax.set_xlabel('반응기')\nax.set_ylabel('구성비 (%)')\nax.set_title('반응기별 CNT 품질 등급 구성비')\nax.set_xticks(x)\nax.set_xticklabels(grade_percent.index)\nax.legend(title='품질 등급', loc='upper right')\nax.grid(axis='y', linestyle='--', alpha=0.7)\nax.set_ylim(0, 105) # 여백 확보\n\nplt.tight_layout()\n\noutput_path = os.path.join(OUT_DIR, \"reactor_grade_distribution.png\")\nplt.savefig(output_path, dpi=300)\nplt.close()\n\nprint(f\"Plot saved to {output_path}\")\n```",
+     "llm_s": 11.587,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 3755,
+     "output_chars": 1961,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\ndf_runs = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# 열 이름 확인 및 정리 (공백 제거 등)\n# 오류 메시지에 따르면 '등급 (A/B/C)'로 접근했으나 KeyError가 발생했습니다.\n# 실제 컬럼명이 다르거나 공백이 있을 수 있으므로, 컬럼명을 명확히 합니다.\n# 미리보기에서는 V 등급 (A/B/C) 로 표시되었지만, pandas에서 읽을 때 앞뒤 공백이나 특수문자 처리에 따라 다를 수 있습니다.\n# 가장 안전한 방법은 컬럼명을 strip() 하여 비교하거나, 포함 여부를 체크하는 것입니다.\n\n# 컬럼명 목록에서 '등급'을 포함하는 컬럼 찾기\ngrade_col = None\nfor col in df_runs.columns:\n    if '등급' in str(col):\n        grade_col = col\n        break\n\nif grade_col is None:\n    # 만약 못 찾으면 미리보기에 나온 그대로 사용해보지만, 이번엔 이미 실패했으므로 다른 가능성 검토\n    # 미리보기 텍스트를 신뢰하면 '등급 (A/B/C)'여야 함. \n    # 하지만 엑셀 파일의 헤더가 조금 다르게 파싱되었을 가능성이 높음.\n    # 예를 들어 '등급' 만 있거나, 띄어쓰기가 다르면?\n    # 일단 디버깅용 출력은 생략하고, 가장 유력한 후보인 '등급' 관련 컬럼을 재시도합니다.\n    raise ValueError(\"등급 컬럼을 찾을 수 없습니다.\")\n\nreactor_col = '반응기' # 미리보기 E 반응기\n\n# 반응기별 등급별 개수 세기\ntry:\n    grade_counts = df_runs.groupby([reactor_col, grade_col]).size().unstack(fill_value=0)\nexcept Exception as e:\n    print(f\"Groupby error with column '{grade_col}': {e}\")\n    # 혹시 컬럼명에 보이지 않는 문자가 있을까봐 리스트로 변환 후 매칭 시도\n    unique_grades = df_runs[grade_col].unique()\n    print(f\"Unique grades found: {unique_grades}\")\n    raise e\n\n# 각 반응기마다 합이 100%가 되도록 비율 계산 (%)\ngrade_percent = grade_counts.div(grade_counts.sum(axis=1), axis=0) * 100\n\n# 정렬: 반응기 순서대로 (R1, R2, R3, R4)\nreactor_order = ['R1', 'R2', 'R3', 'R4']\n# 존재하지 않는 반응기는 제외하고 인덱스 재설정\nvalid_reactors = [r for r in reactor_order if r in grade_percent.index]\ngrade_percent = grade_percent.reindex(valid_reactors)\n\n# 등급 순서 고정 (A, B, C) - 실제 데이터에 있는 값만 사용\navailable_grades = [g for g in ['A', 'B', 'C'] if g in grade_percent.columns]\ngrade_percent = grade_percent[available_grades]\n\n# 막대 그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\nbar_width = 0.8\nx = np.arange(len(grade_percent.index))\n\n# 묶인(bar group) 막대로 요청함\nn_grades = len(available_grades)\nif n_grades == 0:\n    raise ValueError(\"No valid grades found in data.\")\n\nbar_width_group = bar_width / n_grades\n\ncolors = ['#2ecc71', '#f1c40f', '#e74c3c'] # A(초록), B(노랑), C(빨강) 등 구분을 위해\n# 색상 가용성 체크\ncolor_map = {'A': '#2ecc71', 'B': '#f1c40f', 'C': '#e74c3c'}\n\nfor i, grade in enumerate(available_grades):\n    offset = (i - (n_grades - 1) / 2) * bar_width_group\n    color = color_map.get(grade, 'gray')\n    bars = ax.bar(x + offset, grade_percent[grade], width=bar_width_group, label=f'등급 {grade}', color=color)\n    \n    # 값 텍스트 추가\n    for bar in bars:\n        height = bar.get_height()\n        if height > 0:\n            ax.text(bar.get_x() + bar.get_width()/2., height + 1,\n                    f'{height:.1f}%',\n                    ha='center', va='bottom', fontsize=9)\n\nax.set_xlabel('반응기')\nax.set_ylabel('구성비 (%)')\nax.set_title('반응기별 CNT 품질 등급 구성비')\nax.set_xticks(x)\nax.set_xticklabels(grade_percent.index)\nax.legend(title='품질 등급', loc='upper right')\nax.grid(axis='y', linestyle='--', alpha=0.7)\nax.set_ylim(0, 105) # 여백 확보\n\nplt.tight_layout()\n\noutput_path = os.path.join(OUT_DIR, \"reactor_grade_distribution.png\")\nplt.savefig(output_path, dpi=300)\nplt.close()\n\nprint(f\"Plot saved to {output_path}\")\n```",
+     "llm_s": 22.342,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 7063,
+     "output_chars": 3291,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\ndf_runs = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# 열 이름 확인 및 정리 (공백 제거 등)\n# 오류 메시지에 따르면 '등급 (A/B/C)'로 접근했으나 KeyError가 발생했습니다.\n# 실제 컬럼명이 다르거나 공백이 있을 수 있으므로, 컬럼명을 명확히 합니다.\n# 미리보기에서는 V 등급 (A/B/C) 로 표시되었지만, pandas에서 읽을 때 앞뒤 공백이나 특수문자 처리에 따라 다를 수 있습니다.\n# 가장 안전한 방법은 컬럼명을 strip() 하여 비교하거나, 포함 여부를 체크하는 것입니다.\n\n# 컬럼명 목록에서 '등급'을 포함하는 컬럼 찾기\ngrade_col = None\nfor col in df_runs.columns:\n    if '등급' in str(col):\n        grade_col = col\n        break\n\nif grade_col is None:\n    # 만약 못 찾으면 미리보기에 나온 그대로 사용해보지만, 이번엔 이미 실패했으므로 다른 가능성 검토\n    # 미리보기 텍스트를 신뢰하면 '등급 (A/B/C)'여야 함. \n    # 하지만 엑셀 파일의 헤더가 조금 다르게 파싱되었을 가능성이 높음.\n    # 예를 들어 '등급' 만 있거나, 띄어쓰기가 다르면?\n    # 일단 디버깅용 출력은 생략하고, 가장 유력한 후보인 '등급' 관련 컬럼을 재시도합니다.\n    raise ValueError(\"등급 컬럼을 찾을 수 없습니다.\")\n\nreactor_col = '반응기' # 미리보기 E 반응기\n\n# 반응기별 등급별 개수 세기\ntry:\n    grade_counts = df_runs.groupby([reactor_col, grade_col]).size().unstack(fill_value=0)\nexcept Exception as e:\n    print(f\"Groupby error with column '{grade_col}': {e}\")\n    # 혹시 컬럼명에 보이지 않는 문자가 있을까봐 리스트로 변환 후 매칭 시도\n    unique_grades = df_runs[grade_col].unique()\n    print(f\"Unique grades found: {unique_grades}\")\n    raise e\n\n# 각 반응기마다 합이 100%가 되도록 비율 계산 (%)\ngrade_percent = grade_counts.div(grade_counts.sum(axis=1), axis=0) * 100\n\n# 정렬: 반응기 순서대로 (R1, R2, R3, R4)\nreactor_order = ['R1', 'R2', 'R3', 'R4']\n# 존재하지 않는 반응기는 제외하고 인덱스 재설정\nvalid_reactors = [r for r in reactor_order if r in grade_percent.index]\ngrade_percent = grade_percent.reindex(valid_reactors)\n\n# 등급 순서 고정 (A, B, C) - 실제 데이터에 있는 값만 사용\navailable_grades = [g for g in ['A', 'B', 'C'] if g in grade_percent.columns]\ngrade_percent = grade_percent[available_grades]\n\n# 막대 그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\nbar_width = 0.8\nx = np.arange(len(grade_percent.index))\n\n# 묶인(bar group) 막대로 요청함\nn_grades = len(available_grades)\nif n_grades == 0:\n    raise ValueError(\"No valid grades found in data.\")\n\nbar_width_group = bar_width / n_grades\n\ncolors = ['#2ecc71', '#f1c40f', '#e74c3c'] # A(초록), B(노랑), C(빨강) 등 구분을 위해\n# 색상 가용성 체크\ncolor_map = {'A': '#2ecc71', 'B': '#f1c40f', 'C': '#e74c3c'}\n\nfor i, grade in enumerate(available_grades):\n    offset = (i - (n_grades - 1) / 2) * bar_width_group\n    color = color_map.get(grade, 'gray')\n    bars = ax.bar(x + offset, grade_percent[grade], width=bar_width_group, label=f'등급 {grade}', color=color)\n    \n    # 값 텍스트 추가\n    for bar in bars:\n        height = bar.get_height()\n        if height > 0:\n            ax.text(bar.get_x() + bar.get_width()/2., height + 1,\n                    f'{height:.1f}%',\n                    ha='center', va='bottom', fontsize=9)\n\nax.set_xlabel('반응기')\nax.set_ylabel('구성비 (%)')\nax.set_title('반응기별 CNT 품질 등급 구성비')\nax.set_xticks(x)\nax.set_xticklabels(grade_percent.index)\nax.legend(title='품질 등급', loc='upper right')\nax.grid(axis='y', linestyle='--', alpha=0.7)\nax.set_ylim(0, 105) # 여백 확보\n\nplt.tight_layout()\n\noutput_path = os.path.join(OUT_DIR, \"reactor_grade_distribution.png\")\nplt.savefig(output_path, dpi=300)\nplt.close()\n\nprint(f\"Plot saved to {output_path}\")\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "반응기별 CNT 품질 등급 구성비",
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "등급 A",
+         "orient": "v",
+         "cats": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          54.980079681274894,
+          31.6,
+          53.46938775510204,
+          0.398406374501992
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#2ecc71",
+          "#2ecc71",
+          "#2ecc71",
+          "#2ecc71"
+         ],
+         "centers": [
+          -0.2666666666666667,
+          0.7333333333333334,
+          1.7333333333333334,
+          2.7333333333333334
+         ]
+        },
+        {
+         "name": "등급 B",
+         "orient": "v",
+         "cats": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          42.23107569721115,
+          50.4,
+          45.714285714285715,
+          70.91633466135458
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#f1c40f",
+          "#f1c40f",
+          "#f1c40f",
+          "#f1c40f"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0
+         ]
+        },
+        {
+         "name": "등급 C",
+         "orient": "v",
+         "cats": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          2.788844621513944,
+          18.0,
+          0.8163265306122449,
+          28.68525896414343
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#e74c3c",
+          "#e74c3c",
+          "#e74c3c",
+          "#e74c3c"
+         ],
+         "centers": [
+          0.26666666666666666,
+          1.2666666666666666,
+          2.2666666666666666,
+          3.2666666666666666
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 12,
+       "texts": [
+        "55.0%",
+        "31.6%",
+        "53.5%",
+        "0.4%",
+        "42.2%",
+        "50.4%",
+        "45.7%",
+        "70.9%",
+        "2.8%",
+        "18.0%",
+        "0.8%",
+        "28.7%"
+       ],
+       "x": {
+        "label": "반응기",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "R1",
+         "R2",
+         "R3",
+         "R4"
+        ],
+        "min": -0.5900000000000001,
+        "max": 3.59,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "R1",
+         "R2",
+         "R3",
+         "R4"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "구성비 (%)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         20.0,
+         40.0,
+         60.0,
+         80.0,
+         100.0
+        ],
+        "step": 20.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 105.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "20",
+         "40",
+         "60",
+         "80",
+         "100",
+         "120"
+        ],
+        "rotate": 0.0
+       },
+       "title": "반응기별 CNT 품질 등급 구성비"
+      }
+     ],
+     "texts": [
+      "55.0%",
+      "31.6%",
+      "53.5%",
+      "0.4%",
+      "42.2%",
+      "50.4%",
+      "45.7%",
+      "70.9%",
+      "2.8%",
+      "18.0%",
+      "0.8%",
+      "28.7%"
+     ],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "등급 A",
+       "등급 B",
+       "등급 C"
+      ],
+      "inside": true,
+      "where": "upper right"
+     },
+     "files": [
+      {
+       "path": "out/t1/reactor_grade_distribution.png",
+       "format": "png",
+       "px": [
+        3000,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5470216274261475,
+   "check": {
+    "kind_expected": "grouped_bar",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 34.864
+  }
+ ]
+}

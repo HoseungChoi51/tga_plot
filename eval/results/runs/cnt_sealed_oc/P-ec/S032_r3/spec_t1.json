@@ -1,0 +1,29 @@
+{
+ "file": "data/r2_zone_temps.csv",
+ "chart": "line",
+ "x": {
+  "col": "시각",
+  "label": "Time"
+ },
+ "y": {
+  "col": "deviation",
+  "label": "Zone 2 Deviation (°C)"
+ },
+ "data_code": "df['deviation'] = df['2존(°C)'] - df['2존 SP(°C)']",
+ "title": {
+  "text": "R2 Zone 2 Temperature Deviation from Setpoint"
+ },
+ "asks": [
+  {
+   "ask": "2존 온도에서 SP를 뺀 값 그래프",
+   "how": "key"
+  },
+  {
+   "ask": "제일 많이 벗어난 시점 표시",
+   "how": "unsupported"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/S032_r3/out/t1"
+ }
+}

@@ -1,0 +1,88 @@
+import json
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/extra_columns.xlsx"
+
+df = pd.read_excel(DATA_FILE, sheet_name="CNT-01")
+df = df[["Temperature (°C)", "Weight (%)", "Heat Flow (W/g)"]].apply(
+    pd.to_numeric, errors="coerce"
+).dropna()
+
+temperature = df["Temperature (°C)"].tolist()
+weight = df["Weight (%)"].tolist()
+heat_flow = df["Heat Flow (W/g)"].tolist()
+
+option = {
+    "animation": False,
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {"type": "cross"},
+    },
+    "legend": {
+        "data": ["Weight (%)", "Heat Flow (W/g)"],
+        "top": 8,
+    },
+    "grid": {"left": 78, "right": 82, "top": 55, "bottom": 65},
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 38,
+        "axisLine": {"lineStyle": {"color": "#555"}},
+        "splitLine": {"show": False},
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Weight (%)",
+            "nameLocation": "middle",
+            "nameGap": 55,
+            "axisLine": {"show": True, "lineStyle": {"color": "#2878B5"}},
+            "axisLabel": {"color": "#2878B5"},
+            "splitLine": {"lineStyle": {"color": "#e5e5e5"}},
+        },
+        {
+            "type": "value",
+            "name": "Heat flow (W/g)",
+            "nameLocation": "middle",
+            "nameGap": 58,
+            "position": "right",
+            "axisLine": {"show": True, "lineStyle": {"color": "#D9534F"}},
+            "axisLabel": {"color": "#D9534F"},
+            "splitLine": {"show": False},
+        },
+    ],
+    "series": [
+        {
+            "name": "Weight (%)",
+            "type": "line",
+            "data": [[x, y] for x, y in zip(temperature, weight)],
+            "yAxisIndex": 0,
+            "showSymbol": False,
+            "lineStyle": {"width": 2, "color": "#2878B5"},
+        },
+        {
+            "name": "Heat Flow (W/g)",
+            "type": "line",
+            "data": [[x, y] for x, y in zip(temperature, heat_flow)],
+            "yAxisIndex": 1,
+            "showSymbol": False,
+            "lineStyle": {"width": 2, "color": "#D9534F"},
+        },
+    ],
+}
+
+result = {
+    "figures": [
+        {
+            "name": "tga_heat_flow",
+            "option": option,
+            "width": 800,
+            "height": 560,
+            "dpi": 300,
+            "formats": ["png"],
+        }
+    ]
+}
+
+print(json.dumps(result, ensure_ascii=False, allow_nan=False))

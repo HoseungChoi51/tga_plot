@@ -1,0 +1,75 @@
+```python
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import pandas as pd
+
+
+DATA_FILES = [
+    "/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_A.csv",
+    "/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_B.txt",
+]
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/B05_r3/out"
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+
+def read_data(path):
+    path = Path(path)
+    if path.suffix.lower() == ".csv":
+        df = pd.read_csv(path)
+    else:
+        # Tab-delimited text is common for instrument exports; fall back to
+        # whitespace-delimited if the file does not contain tabs.
+        try:
+            df = pd.read_csv(path, sep="\t")
+            if df.shape[1] == 1:
+                df = pd.read_csv(path, sep=r"\s+", engine="python")
+        except Exception:
+            df = pd.read_csv(path, sep=r"\s+", engine="python")
+
+    df.columns = [str(c).strip() for c in df.columns]
+    return df
+
+
+def find_column(df, required_text):
+    for column in df.columns:
+        if required_text.lower() in column.lower():
+            return column
+    raise ValueError(f"Could not find a column containing {required_text!r}")
+
+
+datasets = []
+for path, label in zip(DATA_FILES, ["Lot A", "Lot B"]):
+    data = read_data(path)
+    temperature_col = find_column(data, "Temperature")
+    weight_col = find_column(data, "Weight (%)")
+    data[temperature_col] = pd.to_numeric(data[temperature_col], errors="coerce")
+    data[weight_col] = pd.to_numeric(data[weight_col], errors="coerce")
+    data = data.dropna(subset=[temperature_col, weight_col])
+    datasets.append((label, data, temperature_col, weight_col))
+
+fig, ax = plt.subplots(figsize=(8, 5.5), constrained_layout=True)
+
+for label, data, temperature_col, weight_col in datasets:
+    ax.plot(
+        data[temperature_col],
+        data[weight_col],
+        linewidth=1.8,
+        label=label,
+    )
+
+ax.set_xlabel("Temperature (°C)")
+ax.set_ylabel("Weight (%)")
+ax.set_title("TGA Comparison")
+ax.grid(True, alpha=0.3)
+ax.legend()
+
+out_dir = Path(OUT_DIR)
+out_dir.mkdir(parents=True, exist_ok=True)
+fig.savefig(out_dir / "tga_lot_comparison.png", dpi=300, bbox_inches="tight")
+plt.close(fig)
+```

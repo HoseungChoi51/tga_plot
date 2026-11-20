@@ -1,0 +1,29 @@
+{
+ "file": "data/r2_zone_temps.csv",
+ "chart": "line",
+ "x": "시각",
+ "y": {
+  "col": "deviation",
+  "label": "2존 온도 - SP (°C)",
+  "agg": "mean"
+ },
+ "data_code": "df['deviation'] = df['2존(°C)'] - df['2존 SP(°C)']",
+ "code": "import numpy as np; import pandas as pd; # Re-calculate deviation to find max in code context since df is not available here\n# However, 'data' variable contains the plotted series. \n# Assuming x is datetime and y is deviation.\nx_vals = data.get('x')\ny_vals = data.get('y')\nif x_vals is not None and y_vals is not None:\n    # Find index of absolute maximum deviation\n    abs_dev = np.abs(y_vals)\n    idx_max = np.argmax(abs_dev)\n    max_x = x_vals[idx_max]\n    max_y = y_vals[idx_max]\n    ax.annotate(f'Max Dev: {max_y:.1f} °C\\n{max_x}', xy=(max_x, max_y), xytext=(max_x, max_y + 5), arrowprops=dict(arrowstyle='->', color='red'), ha='center', va='bottom', color='red')",
+ "asks": [
+  {
+   "ask": "2존 온도와 SP의 차이 계산 및 그래프",
+   "how": "data_code"
+  },
+  {
+   "ask": "시간에 따른 추이 (Line chart)",
+   "how": "key"
+  },
+  {
+   "ask": "최대 편차 시점 표시",
+   "how": "code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-mpl/S032_r2/out/t1"
+ }
+}

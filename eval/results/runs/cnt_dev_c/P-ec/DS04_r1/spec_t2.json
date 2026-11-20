@@ -1,0 +1,19 @@
+{
+ "file": "data/r2_zone_temps.csv",
+ "chart": "line",
+ "x": {
+  "col": "시각",
+  "min": "2026-06-17 20:00",
+  "max": "2026-06-17 22:00"
+ },
+ "y": "2존(°C)",
+ "asks": [
+  {
+   "ask": "저녁 8시부터 10시까지 확대",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_c/P-ec/DS04_r1/out/t2"
+ }
+}

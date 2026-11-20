@@ -1,0 +1,101 @@
+{
+ "arm": "P-mpl",
+ "item": "D002",
+ "repeat": 1,
+ "split": "dev",
+ "persona": "공정 엔지니어",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "r2_zone_temps.csv 2존 PV 하루치 트렌드에 2존 SP 겹치고, 2존 PV 10분 이동평균(10 s 샘플이니까 60포인트) 라인도 추가.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/r2_zone_temps.csv\",\n  \"chart\": \"line\",\n  \"x\": \"시각\",\n  \"y\": [\n    {\"col\": \"2존(°C)\", \"label\": \"2존 PV\"},\n    {\"col\": \"2존 SP(°C)\", \"label\": \"2존 SP\"}\n  ],\n  \"smooth\": {\n    \"window\": 60,\n    \"raw\": true\n  },\n  \"asks\": [\n    {\"ask\": \"2존 PV 하루치 트렌드\", \"how\": \"key\"},\n    {\"ask\": \"2존 SP 겹치기\", \"how\": \"key\"},\n    {\"ask\": \"2존 PV 10분 이동평균 (60포인트)\", \"how\": \"key\"}\n  ]\n}\n```",
+     "llm_s": 3.877,
+     "prompt_tokens": 5090,
+     "output_tokens": 188,
+     "cached_tokens": 5083,
+     "prompt_n": 7,
+     "prefill_ms": 86.339276,
+     "decode_ms": 3677.884687,
+     "finish": "stop"
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/r2_zone_temps.csv\",\n  \"chart\": \"line\",\n  \"x\": \"시각\",\n  \"y\": [\n    {\"col\": \"C\", \"label\": \"2존 PV\"},\n    {\"col\": \"E\", \"label\": \"2존 SP\"}\n  ],\n  \"smooth\": {\n    \"window\": 60,\n    \"raw\": true\n  },\n  \"asks\": [\n    {\"ask\": \"2존 PV 하루치 트렌드\", \"how\": \"key\"},\n    {\"ask\": \"2존 SP 겹치기\", \"how\": \"key\"},\n    {\"ask\": \"2존 PV 10분 이동평균 (60포인트)\", \"how\": \"key\"}\n  ]\n}\n```",
+     "llm_s": 3.258,
+     "prompt_tokens": 5372,
+     "output_tokens": 179,
+     "cached_tokens": 5278,
+     "prompt_n": 94,
+     "prefill_ms": 341.900142,
+     "decode_ms": 2543.4065699999996,
+     "finish": "stop"
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/r2_zone_temps.csv\",\n  \"chart\": \"line\",\n  \"x\": \"시각\",\n  \"y\": [\n    {\"col\": \"2존\", \"label\": \"2존 PV\"},\n    {\"col\": \"2존 SP\", \"label\": \"2존 SP\"}\n  ],\n  \"smooth\": {\n    \"window\": 60,\n    \"raw\": true\n  },\n  \"asks\": [\n    {\"ask\": \"2존 PV 하루치 트렌드\", \"how\": \"key\"},\n    {\"ask\": \"2존 SP 겹치기\", \"how\": \"key\"},\n    {\"ask\": \"2존 PV 10분 이동평균 (60포인트)\", \"how\": \"key\"}\n  ]\n}\n```",
+     "llm_s": 4.397,
+     "prompt_tokens": 5641,
+     "output_tokens": 182,
+     "cached_tokens": 5551,
+     "prompt_n": 90,
+     "prefill_ms": 349.981533,
+     "decode_ms": 3124.1987510000004,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": "data/r2_zone_temps.csv",
+    "chart": "line",
+    "x": "시각",
+    "y": [
+     {
+      "col": "2존",
+      "label": "2존 PV"
+     },
+     {
+      "col": "2존 SP",
+      "label": "2존 SP"
+     }
+    ],
+    "smooth": {
+     "window": 60,
+     "raw": true
+    },
+    "asks": [
+     {
+      "ask": "2존 PV 하루치 트렌드",
+      "how": "key"
+     },
+     {
+      "ask": "2존 SP 겹치기",
+      "how": "key"
+     },
+     {
+      "ask": "2존 PV 10분 이동평균 (60포인트)",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": false,
+    "error": "y: no column matches \"{'col': '2존', 'label': '2존 PV'}\"",
+    "hint": "columns: A \"시각\", B \"1존(°C)\", C \"2존(°C)\", D \"3존(°C)\", E \"2존 SP(°C)\""
+   },
+   "facts": [],
+   "draw_s": 0.2869865894317627,
+   "check": {
+    "kind_expected": "line",
+    "failed": [
+     "run: no plot (y: no column matches \"{'col': '2존', 'label': '2존 PV'}\")"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 12.832
+  }
+ ]
+}

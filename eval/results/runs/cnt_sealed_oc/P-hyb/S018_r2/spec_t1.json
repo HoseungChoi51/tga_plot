@@ -1,0 +1,29 @@
+{
+ "file": "data/tga_batches.xlsx",
+ "sheets": [
+  "R1-260326-1",
+  "R1-260716-1"
+ ],
+ "combine": true,
+ "title": "TGA Comparison: R1 Batches",
+ "y1": {
+  "label": "Weight (%)"
+ },
+ "x": {
+  "label": "Temperature (°C)"
+ },
+ "asks": [
+  {
+   "ask": "R1-260326-1과 R1-260716-1 TG 곡선 비교 그래프",
+   "how": "key"
+  },
+  {
+   "ask": "각 배치 200–450 °C 구간 질량 변화량(W200 − W450, wt%)을 계산해서 범례 라벨에 같이 넣어 주세요.",
+   "how": "code"
+  }
+ ],
+ "code": "import numpy as np\nhandles, labels = ax1.get_legend_handles_labels()\nnew_labels = []\nfor line, label in zip(handles, labels):\n    x_data = line.get_xdata()\n    y_data = line.get_ydata()\n    if len(x_data) == 0:\n        new_labels.append(label)\n        continue\n    sort_idx = np.argsort(x_data)\n    x_sorted = x_data[sort_idx]\n    y_sorted = y_data[sort_idx]\n    w_200 = np.interp(200, x_sorted, y_sorted)\n    w_450 = np.interp(450, x_sorted, y_sorted)\n    delta_w = w_200 - w_450\n    new_labels.append(f\"{label} (ΔW: {delta_w:.2f} wt%)\")\nax1.legend(handles, new_labels)",
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S018_r2/out/t1"
+ }
+}

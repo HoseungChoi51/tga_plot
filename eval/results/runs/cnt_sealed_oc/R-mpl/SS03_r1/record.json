@@ -1,0 +1,971 @@
+{
+ "arm": "R-mpl",
+ "item": "SS03",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "생산팀장",
+ "type": "session",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "반응기별 합격률(A·B 등급 비율, %)을 막대로 그려 주세요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read data from Excel file\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Filter rows where grade is 'A' or 'B' (passing grades)\n# Calculate total runs per reactor and passing runs per reactor\ntotal_runs_per_reactor = df.groupby('반응기').size()\npassing_runs_per_reactor = df[df['등급'].isin(['A', 'B'])].groupby('반응기').size()\n\n# Reindex to ensure all reactors are present even if some have no passing runs (though unlikely in this context)\npassing_runs_per_reactor = passing_runs_per_reactor.reindex(total_runs_per_reactor.index, fill_value=0)\n\n# Calculate pass rate (%)\npass_rate_percentage = (passing_runs_per_reactor / total_runs_per_reactor) * 100\n\n# Prepare data for plotting\nreactors = pass_rate_percentage.index.tolist()\nrates = pass_rate_percentage.values.tolist()\n\n# Create bar plot\nfig, ax = plt.subplots(figsize=(8, 6))\nbars = ax.bar(reactors, rates, color='steelblue', edgecolor='black')\n\n# Add labels and title\nax.set_xlabel('반응기')\nax.set_ylabel('합격률 (%)')\nax.set_title('반응기별 합격률 (A·B 등급 비율)')\nax.set_ylim(0, 100) # Pass rate is percentage, max 100\n\n# Add value labels on top of each bar\nfor bar, rate in zip(bars, rates):\n    height = bar.get_height()\n    ax.text(bar.get_x() + bar.get_width()/2., height + 1,\n            f'{rate:.1f}%',\n            ha='center', va='bottom', fontsize=10)\n\n# Adjust layout to prevent clipping\nplt.tight_layout()\n\n# Save the figure\noutput_file = os.path.join(OUT_DIR, \"reactor_pass_rate.png\")\nplt.savefig(output_file, dpi=300)\nplt.close()\n```",
+     "llm_s": 7.218,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 3713,
+     "output_chars": 1741,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read data from Excel file\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Filter rows where grade is 'A' or 'B' (passing grades)\n# Calculate total runs per reactor and passing runs per reactor\ntotal_runs_per_reactor = df.groupby('반응기').size()\npassing_runs_per_reactor = df[df['등급'].isin(['A', 'B'])].groupby('반응기').size()\n\n# Reindex to ensure all reactors are present even if some have no passing runs (though unlikely in this context)\npassing_runs_per_reactor = passing_runs_per_reactor.reindex(total_runs_per_reactor.index, fill_value=0)\n\n# Calculate pass rate (%)\npass_rate_percentage = (passing_runs_per_reactor / total_runs_per_reactor) * 100\n\n# Prepare data for plotting\nreactors = pass_rate_percentage.index.tolist()\nrates = pass_rate_percentage.values.tolist()\n\n# Create bar plot\nfig, ax = plt.subplots(figsize=(8, 6))\nbars = ax.bar(reactors, rates, color='steelblue', edgecolor='black')\n\n# Add labels and title\nax.set_xlabel('반응기')\nax.set_ylabel('합격률 (%)')\nax.set_title('반응기별 합격률 (A·B 등급 비율)')\nax.set_ylim(0, 100) # Pass rate is percentage, max 100\n\n# Add value labels on top of each bar\nfor bar, rate in zip(bars, rates):\n    height = bar.get_height()\n    ax.text(bar.get_x() + bar.get_width()/2., height + 1,\n            f'{rate:.1f}%',\n            ha='center', va='bottom', fontsize=10)\n\n# Adjust layout to prevent clipping\nplt.tight_layout()\n\n# Save the figure\noutput_file = os.path.join(OUT_DIR, \"reactor_pass_rate.png\")\nplt.savefig(output_file, dpi=300)\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      8.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "반응기별 합격률 (A·B 등급 비율)",
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "",
+         "orient": "v",
+         "cats": [
+          "-",
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          0.0,
+          97.21115537848605,
+          82.0,
+          99.18367346938776,
+          71.31474103585657
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#4682b4",
+          "#4682b4",
+          "#4682b4",
+          "#4682b4",
+          "#4682b4"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 5,
+       "texts": [
+        "0.0%",
+        "97.2%",
+        "82.0%",
+        "99.2%",
+        "71.3%"
+       ],
+       "x": {
+        "label": "반응기",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "-",
+         "R1",
+         "R2",
+         "R3",
+         "R4"
+        ],
+        "min": -0.6400000000000001,
+        "max": 4.640000000000001,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "-",
+         "R1",
+         "R2",
+         "R3",
+         "R4"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "합격률 (%)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         20.0,
+         40.0,
+         60.0,
+         80.0,
+         100.0
+        ],
+        "step": 20.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 100.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "20",
+         "40",
+         "60",
+         "80",
+         "100"
+        ],
+        "rotate": 0.0
+       },
+       "title": "반응기별 합격률 (A·B 등급 비율)"
+      }
+     ],
+     "texts": [
+      "0.0%",
+      "97.2%",
+      "82.0%",
+      "99.2%",
+      "71.3%"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t1/reactor_pass_rate.png",
+       "format": "png",
+       "px": [
+        2400,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5279843807220459,
+   "check": {
+    "kind_expected": "bar",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 7.747
+  },
+  {
+   "turn": 2,
+   "text": "월별로 나눠서 반응기별 묶은 막대로 바꿔 주세요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read data from Excel file\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Extract month from date column for grouping\n# Assuming '일자' is a datetime or can be converted to datetime\ndf['일자'] = pd.to_datetime(df['일자'])\ndf['월'] = df['일자'].dt.month.astype(str) + '월'\n\n# Filter rows where grade is 'A' or 'B' (passing grades)\ndf['is_pass'] = df['등급'].isin(['A', 'B'])\n\n# Calculate total runs and passing runs per reactor per month\ngrouped_data = df.groupby(['월', '반응기']).agg(\n    total_runs=('is_pass', 'size'),\n    passing_runs=('is_pass', 'sum')\n).reset_index()\n\n# Calculate pass rate (%)\ngrouped_data['pass_rate'] = (grouped_data['passing_runs'] / grouped_data['total_runs']) * 100\n\n# Pivot the data to have reactors as columns and months as index for plotting\npivot_df = grouped_data.pivot(index='월', columns='반응기', values='pass_rate')\n\n# Sort the pivot table by month numerically if needed (since we converted to string like '3월')\n# To ensure correct order, let's create a helper sort key based on original numeric month\nsort_key = [int(m.replace('월', '')) for m in pivot_df.index]\npivot_df = pivot_df.iloc[np.argsort(sort_key)]\n\n# Prepare data for grouped bar chart\nmonths = pivot_df.index.tolist()\nreactors = pivot_df.columns.tolist() # Should be R1, R2, R3, R4 sorted naturally or by appearance\n\n# Define positions for bars\nx = np.arange(len(months))  # label locations\nwidth = 0.2  # width of each bar\n\nfig, ax = plt.subplots(figsize=(12, 7))\n\n# Plot bars for each reactor\ncolors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']\nfor i, reactor in enumerate(reactors):\n    rates = pivot_df[reactor].values\n    rects = ax.bar(x + i * width - width * len(reactors)/2 + width/2, rates, \n                   width, label=reactor, color=colors[i % len(colors)], edgecolor='black')\n    \n    # Add value labels on top of each bar\n    for rect, val in zip(rects, rates):\n        height = rect.get_height()\n        ax.text(rect.get_x() + rect.get_width()/2., height + 1,\n                f'{val:.1f}', ha='center', va='bottom', fontsize=8)\n\n# Add some text for labelling the axes with titles, etc.\nax.set_xlabel('월')\nax.set_ylabel('합격률 (%)')\nax.set_title('월별 반응기별 합격률')\nax.set_xticks(x)\nax.set_xticklabels(months)\nax.legend(title='반응기', bbox_to_anchor=(1.05, 1), loc='upper left')\nax.set_ylim(0, 105) # Give some headroom for labels\n\nplt.tight_layout()\n\n# Save the figure\noutput_file = os.path.join(OUT_DIR, \"monthly_reactor_pass_rate_grouped.png\")\nplt.savefig(output_file, dpi=300)\nplt.close()\n```",
+     "llm_s": 13.665,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 5851,
+     "output_chars": 2763,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read data from Excel file\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Extract month from date column for grouping\n# The preview indicated the format is 'yyyy-mm-dd' but the error suggests it might be read as a string literal or mixed.\n# We try to convert to datetime, handling errors by ignoring them (setting NaT).\n# Then we extract the month. If conversion fails entirely, we might need to parse manually, \n# but usually pd.to_datetime with dayfirst=False works for ISO strings.\n# Given the error \"Unknown datetime string format... yyyy-mm-dd\", it implies some cells might literally contain that string or are malformed.\n# Let's force conversion with errors='coerce' and drop invalid dates if necessary, though run logs should have valid dates.\ndf['일자'] = pd.to_datetime(df['일자'], errors='coerce')\n\n# Filter out rows where date parsing failed (if any)\nvalid_df = df.dropna(subset=['일자']).copy()\n\n# Create month label\nvalid_df['월_숫자'] = valid_df['일자'].dt.month\nvalid_df['월'] = valid_df['월_숫자'].astype(str) + '월'\n\n# Filter rows where grade is 'A' or 'B' (passing grades)\nvalid_df['is_pass'] = valid_df['등급'].isin(['A', 'B'])\n\n# Calculate total runs and passing runs per reactor per month\ngrouped_data = valid_df.groupby(['월_숫자', '반응기']).agg(\n    total_runs=('is_pass', 'size'),\n    passing_runs=('is_pass', 'sum')\n).reset_index()\n\n# Calculate pass rate (%)\ngrouped_data['pass_rate'] = (grouped_data['passing_runs'] / grouped_data['total_runs']) * 100\n\n# Pivot the data to have reactors as columns and months as index for plotting\npivot_df = grouped_data.pivot(index='월_숫자', columns='반응기', values='pass_rate')\n\n# Sort by month number just in case\npivot_df = pivot_df.sort_index()\n\n# Prepare labels for x-axis\nmonths_labels = [f\"{int(m)}월\" for m in pivot_df.index]\n\n# Prepare data for grouped bar chart\nreactors = pivot_df.columns.tolist() # Should be R1, R2, R3, R4 sorted naturally or by appearance\n\n# Define positions for bars\nx = np.arange(len(pivot_df))  # label locations\nwidth = 0.2  # width of each bar\n\nfig, ax = plt.subplots(figsize=(12, 7))\n\n# Plot bars for each reactor\ncolors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']\nfor i, reactor in enumerate(reactors):\n    rates = pivot_df[reactor].values\n    rects = ax.bar(x + i * width - width * len(reactors)/2 + width/2, rates, \n                   width, label=reactor, color=colors[i % len(colors)], edgecolor='black')\n    \n    # Add value labels on top of each bar\n    for rect, val in zip(rects, rates):\n        height = rect.get_height()\n        if not np.isnan(height):\n            ax.text(rect.get_x() + rect.get_width()/2., height + 1,\n                    f'{height:.1f}', ha='center', va='bottom', fontsize=8)\n\n# Add some text for labelling the axes with titles, etc.\nax.set_xlabel('월')\nax.set_ylabel('합격률 (%)')\nax.set_title('월별 반응기별 합격률')\nax.set_xticks(x)\nax.set_xticklabels(months_labels)\nax.legend(title='반응기', bbox_to_anchor=(1.05, 1), loc='upper left')\nax.set_ylim(0, 105) # Give some headroom for labels\n\nplt.tight_layout()\n\n# Save the figure\noutput_file = os.path.join(OUT_DIR, \"monthly_reactor_pass_rate_grouped.png\")\nplt.savefig(output_file, dpi=300)\nplt.close()\n```",
+     "llm_s": 14.352,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 10003,
+     "output_chars": 3422,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read data from Excel file\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Extract month from date column for grouping\n# The preview indicated the format is 'yyyy-mm-dd' but the error suggests it might be read as a string literal or mixed.\n# We try to convert to datetime, handling errors by ignoring them (setting NaT).\n# Then we extract the month. If conversion fails entirely, we might need to parse manually, \n# but usually pd.to_datetime with dayfirst=False works for ISO strings.\n# Given the error \"Unknown datetime string format... yyyy-mm-dd\", it implies some cells might literally contain that string or are malformed.\n# Let's force conversion with errors='coerce' and drop invalid dates if necessary, though run logs should have valid dates.\ndf['일자'] = pd.to_datetime(df['일자'], errors='coerce')\n\n# Filter out rows where date parsing failed (if any)\nvalid_df = df.dropna(subset=['일자']).copy()\n\n# Create month label\nvalid_df['월_숫자'] = valid_df['일자'].dt.month\nvalid_df['월'] = valid_df['월_숫자'].astype(str) + '월'\n\n# Filter rows where grade is 'A' or 'B' (passing grades)\nvalid_df['is_pass'] = valid_df['등급'].isin(['A', 'B'])\n\n# Calculate total runs and passing runs per reactor per month\ngrouped_data = valid_df.groupby(['월_숫자', '반응기']).agg(\n    total_runs=('is_pass', 'size'),\n    passing_runs=('is_pass', 'sum')\n).reset_index()\n\n# Calculate pass rate (%)\ngrouped_data['pass_rate'] = (grouped_data['passing_runs'] / grouped_data['total_runs']) * 100\n\n# Pivot the data to have reactors as columns and months as index for plotting\npivot_df = grouped_data.pivot(index='월_숫자', columns='반응기', values='pass_rate')\n\n# Sort by month number just in case\npivot_df = pivot_df.sort_index()\n\n# Prepare labels for x-axis\nmonths_labels = [f\"{int(m)}월\" for m in pivot_df.index]\n\n# Prepare data for grouped bar chart\nreactors = pivot_df.columns.tolist() # Should be R1, R2, R3, R4 sorted naturally or by appearance\n\n# Define positions for bars\nx = np.arange(len(pivot_df))  # label locations\nwidth = 0.2  # width of each bar\n\nfig, ax = plt.subplots(figsize=(12, 7))\n\n# Plot bars for each reactor\ncolors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']\nfor i, reactor in enumerate(reactors):\n    rates = pivot_df[reactor].values\n    rects = ax.bar(x + i * width - width * len(reactors)/2 + width/2, rates, \n                   width, label=reactor, color=colors[i % len(colors)], edgecolor='black')\n    \n    # Add value labels on top of each bar\n    for rect, val in zip(rects, rates):\n        height = rect.get_height()\n        if not np.isnan(height):\n            ax.text(rect.get_x() + rect.get_width()/2., height + 1,\n                    f'{height:.1f}', ha='center', va='bottom', fontsize=8)\n\n# Add some text for labelling the axes with titles, etc.\nax.set_xlabel('월')\nax.set_ylabel('합격률 (%)')\nax.set_title('월별 반응기별 합격률')\nax.set_xticks(x)\nax.set_xticklabels(months_labels)\nax.legend(title='반응기', bbox_to_anchor=(1.05, 1), loc='upper left')\nax.set_ylim(0, 105) # Give some headroom for labels\n\nplt.tight_layout()\n\n# Save the figure\noutput_file = os.path.join(OUT_DIR, \"monthly_reactor_pass_rate_grouped.png\")\nplt.savefig(output_file, dpi=300)\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      12.0,
+      7.0
+     ],
+     "dpi": null,
+     "title": "월별 반응기별 합격률",
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "R1",
+         "orient": "v",
+         "cats": [
+          "3월",
+          "4월",
+          "5월",
+          "6월",
+          "7월",
+          "8월"
+         ],
+         "values": [
+          100.0,
+          100.0,
+          100.0,
+          97.61904761904762,
+          90.9090909090909,
+          95.45454545454545
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#1f77b4",
+          "#1f77b4",
+          "#1f77b4",
+          "#1f77b4",
+          "#1f77b4",
+          "#1f77b4"
+         ],
+         "centers": [
+          -0.30000000000000004,
+          0.7,
+          1.7000000000000002,
+          2.7,
+          3.7,
+          4.699999999999999
+         ]
+        },
+        {
+         "name": "R2",
+         "orient": "v",
+         "cats": [
+          "3월",
+          "4월",
+          "5월",
+          "6월",
+          "7월",
+          "8월"
+         ],
+         "values": [
+          92.6829268292683,
+          87.5,
+          79.06976744186046,
+          82.92682926829268,
+          74.4186046511628,
+          76.19047619047619
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#ff7f0e",
+          "#ff7f0e",
+          "#ff7f0e",
+          "#ff7f0e",
+          "#ff7f0e",
+          "#ff7f0e"
+         ],
+         "centers": [
+          -0.1,
+          0.8999999999999999,
+          1.9000000000000004,
+          2.9000000000000004,
+          3.9000000000000004,
+          4.8999999999999995
+         ]
+        },
+        {
+         "name": "R3",
+         "orient": "v",
+         "cats": [
+          "3월",
+          "4월",
+          "5월",
+          "6월",
+          "7월",
+          "8월"
+         ],
+         "values": [
+          100.0,
+          97.5,
+          100.0,
+          100.0,
+          100.0,
+          97.61904761904762
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#2ca02c",
+          "#2ca02c",
+          "#2ca02c",
+          "#2ca02c",
+          "#2ca02c",
+          "#2ca02c"
+         ],
+         "centers": [
+          0.1,
+          1.0999999999999999,
+          2.1,
+          3.1,
+          4.1,
+          5.1
+         ]
+        },
+        {
+         "name": "R4",
+         "orient": "v",
+         "cats": [
+          "3월",
+          "4월",
+          "5월",
+          "6월",
+          "7월",
+          "8월"
+         ],
+         "values": [
+          95.0,
+          82.5,
+          86.04651162790698,
+          53.48837209302325,
+          51.21951219512195,
+          61.36363636363637
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#d62728",
+          "#d62728",
+          "#d62728",
+          "#d62728",
+          "#d62728",
+          "#d62728"
+         ],
+         "centers": [
+          0.30000000000000004,
+          1.3000000000000003,
+          2.3000000000000003,
+          3.3000000000000003,
+          4.299999999999999,
+          5.299999999999999
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 24,
+       "texts": [
+        "100.0",
+        "100.0",
+        "100.0",
+        "97.6",
+        "90.9",
+        "95.5",
+        "92.7",
+        "87.5",
+        "79.1",
+        "82.9",
+        "74.4",
+        "76.2",
+        "100.0",
+        "97.5",
+        "100.0",
+        "100.0",
+        "100.0",
+        "97.6",
+        "95.0",
+        "82.5",
+        "86.0",
+        "53.5",
+        "51.2",
+        "61.4"
+       ],
+       "x": {
+        "label": "월",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0,
+         5.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "3월",
+         "4월",
+         "5월",
+         "6월",
+         "7월",
+         "8월"
+        ],
+        "min": -0.69,
+        "max": 5.6899999999999995,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "3월",
+         "4월",
+         "5월",
+         "6월",
+         "7월",
+         "8월"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "합격률 (%)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         20.0,
+         40.0,
+         60.0,
+         80.0,
+         100.0
+        ],
+        "step": 20.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 105.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "20",
+         "40",
+         "60",
+         "80",
+         "100",
+         "120"
+        ],
+        "rotate": 0.0
+       },
+       "title": "월별 반응기별 합격률"
+      }
+     ],
+     "texts": [
+      "100.0",
+      "100.0",
+      "100.0",
+      "97.6",
+      "90.9",
+      "95.5",
+      "92.7",
+      "87.5",
+      "79.1",
+      "82.9",
+      "74.4",
+      "76.2",
+      "100.0",
+      "97.5",
+      "100.0",
+      "100.0",
+      "100.0",
+      "97.6",
+      "95.0",
+      "82.5",
+      "86.0",
+      "53.5",
+      "51.2",
+      "61.4"
+     ],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "R1",
+       "R2",
+       "R3",
+       "R4"
+      ],
+      "inside": false,
+      "where": "outside"
+     },
+     "files": [
+      {
+       "path": "out/t2/monthly_reactor_pass_rate_grouped.png",
+       "format": "png",
+       "px": [
+        3600,
+        2100
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.6612026691436768,
+   "check": {
+    "kind_expected": "grouped_bar",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 29.138
+  },
+  {
+   "turn": 3,
+   "text": "y축 범위는 40~100으로 하고 목표 90%에 점선 넣어 주세요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read data from Excel file\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Extract month from date column for grouping\n# Use errors='coerce' to handle potential parsing issues seen in previous turn\ndf['일자'] = pd.to_datetime(df['일자'], errors='coerce')\n\n# Filter out rows where date parsing failed\nvalid_df = df.dropna(subset=['일자']).copy()\n\n# Create month label (numeric and string for sorting/display)\nvalid_df['월_숫자'] = valid_df['일자'].dt.month\nvalid_df['월'] = valid_df['월_숫자'].astype(str) + '월'\n\n# Filter rows where grade is 'A' or 'B' (passing grades)\nvalid_df['is_pass'] = valid_df['등급'].isin(['A', 'B'])\n\n# Calculate total runs and passing runs per reactor per month\ngrouped_data = valid_df.groupby(['월_숫자', '반응기']).agg(\n    total_runs=('is_pass', 'size'),\n    passing_runs=('is_pass', 'sum')\n).reset_index()\n\n# Calculate pass rate (%)\ngrouped_data['pass_rate'] = (grouped_data['passing_runs'] / grouped_data['total_runs']) * 100\n\n# Pivot the data to have reactors as columns and months as index for plotting\npivot_df = grouped_data.pivot(index='월_숫자', columns='반응기', values='pass_rate')\n\n# Sort by month number just in case\npivot_df = pivot_df.sort_index()\n\n# Prepare labels for x-axis\nmonths_labels = [f\"{int(m)}월\" for m in pivot_df.index]\n\n# Prepare data for grouped bar chart\nreactors = pivot_df.columns.tolist() \n\n# Define positions for bars\nx = np.arange(len(pivot_df))  # label locations\nwidth = 0.2  # width of each bar\n\nfig, ax = plt.subplots(figsize=(12, 7))\n\n# Plot bars for each reactor\ncolors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']\nfor i, reactor in enumerate(reactors):\n    rates = pivot_df[reactor].values\n    rects = ax.bar(x + i * width - width * len(reactors)/2 + width/2, rates, \n                   width, label=reactor, color=colors[i % len(colors)], edgecolor='black')\n    \n    # Add value labels on top of each bar\n    for rect, val in zip(rects, rates):\n        height = rect.get_height()\n        if not np.isnan(height):\n            ax.text(rect.get_x() + rect.get_width()/2., height + 1,\n                    f'{height:.1f}', ha='center', va='bottom', fontsize=8)\n\n# Add some text for labelling the axes with titles, etc.\nax.set_xlabel('월')\nax.set_ylabel('합격률 (%)')\nax.set_title('월별 반응기별 합격률')\nax.set_xticks(x)\nax.set_xticklabels(months_labels)\nax.legend(title='반응기', bbox_to_anchor=(1.05, 1), loc='upper left')\n\n# Update Y-axis range to 40~100\nax.set_ylim(40, 100)\n\n# Add target line at 90%\nax.axhline(y=90, color='red', linestyle='--', linewidth=1.5, label='목표 (90%)')\n\n# Ensure legend includes the target line\nhandles, labels = ax.get_legend_handles_labels()\nif handles:\n    ax.legend(handles=handles, title='반응기', bbox_to_anchor=(1.05, 1), loc='upper left')\n\nplt.tight_layout()\n\n# Save the figure\noutput_file = os.path.join(OUT_DIR, \"monthly_reactor_pass_rate_grouped.png\")\nplt.savefig(output_file, dpi=300)\nplt.close()\n```",
+     "llm_s": 14.431,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 13766,
+     "output_chars": 3138,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read data from Excel file\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Extract month from date column for grouping\n# Use errors='coerce' to handle potential parsing issues seen in previous turn\ndf['일자'] = pd.to_datetime(df['일자'], errors='coerce')\n\n# Filter out rows where date parsing failed\nvalid_df = df.dropna(subset=['일자']).copy()\n\n# Create month label (numeric and string for sorting/display)\nvalid_df['월_숫자'] = valid_df['일자'].dt.month\nvalid_df['월'] = valid_df['월_숫자'].astype(str) + '월'\n\n# Filter rows where grade is 'A' or 'B' (passing grades)\nvalid_df['is_pass'] = valid_df['등급'].isin(['A', 'B'])\n\n# Calculate total runs and passing runs per reactor per month\ngrouped_data = valid_df.groupby(['월_숫자', '반응기']).agg(\n    total_runs=('is_pass', 'size'),\n    passing_runs=('is_pass', 'sum')\n).reset_index()\n\n# Calculate pass rate (%)\ngrouped_data['pass_rate'] = (grouped_data['passing_runs'] / grouped_data['total_runs']) * 100\n\n# Pivot the data to have reactors as columns and months as index for plotting\npivot_df = grouped_data.pivot(index='월_숫자', columns='반응기', values='pass_rate')\n\n# Sort by month number just in case\npivot_df = pivot_df.sort_index()\n\n# Prepare labels for x-axis\nmonths_labels = [f\"{int(m)}월\" for m in pivot_df.index]\n\n# Prepare data for grouped bar chart\nreactors = pivot_df.columns.tolist() \n\n# Define positions for bars\nx = np.arange(len(pivot_df))  # label locations\nwidth = 0.2  # width of each bar\n\nfig, ax = plt.subplots(figsize=(12, 7))\n\n# Plot bars for each reactor\ncolors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']\nfor i, reactor in enumerate(reactors):\n    rates = pivot_df[reactor].values\n    rects = ax.bar(x + i * width - width * len(reactors)/2 + width/2, rates, \n                   width, label=reactor, color=colors[i % len(colors)], edgecolor='black')\n    \n    # Add value labels on top of each bar\n    for rect, val in zip(rects, rates):\n        height = rect.get_height()\n        if not np.isnan(height):\n            ax.text(rect.get_x() + rect.get_width()/2., height + 1,\n                    f'{height:.1f}', ha='center', va='bottom', fontsize=8)\n\n# Add some text for labelling the axes with titles, etc.\nax.set_xlabel('월')\nax.set_ylabel('합격률 (%)')\nax.set_title('월별 반응기별 합격률')\nax.set_xticks(x)\nax.set_xticklabels(months_labels)\nax.legend(title='반응기', bbox_to_anchor=(1.05, 1), loc='upper left')\n\n# Update Y-axis range to 40~100\nax.set_ylim(40, 100)\n\n# Add target line at 90%\nax.axhline(y=90, color='red', linestyle='--', linewidth=1.5, label='목표 (90%)')\n\n# Ensure legend includes the target line\nhandles, labels = ax.get_legend_handles_labels()\nif handles:\n    ax.legend(handles=handles, title='반응기', bbox_to_anchor=(1.05, 1), loc='upper left')\n\nplt.tight_layout()\n\n# Save the figure\noutput_file = os.path.join(OUT_DIR, \"monthly_reactor_pass_rate_grouped.png\")\nplt.savefig(output_file, dpi=300)\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      12.0,
+      7.0
+     ],
+     "dpi": null,
+     "title": "월별 반응기별 합격률",
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "R1",
+         "orient": "v",
+         "cats": [
+          "3월",
+          "4월",
+          "5월",
+          "6월",
+          "7월",
+          "8월"
+         ],
+         "values": [
+          100.0,
+          100.0,
+          100.0,
+          97.61904761904762,
+          90.9090909090909,
+          95.45454545454545
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#1f77b4",
+          "#1f77b4",
+          "#1f77b4",
+          "#1f77b4",
+          "#1f77b4",
+          "#1f77b4"
+         ],
+         "centers": [
+          -0.30000000000000004,
+          0.7,
+          1.7000000000000002,
+          2.7,
+          3.7,
+          4.699999999999999
+         ]
+        },
+        {
+         "name": "R2",
+         "orient": "v",
+         "cats": [
+          "3월",
+          "4월",
+          "5월",
+          "6월",
+          "7월",
+          "8월"
+         ],
+         "values": [
+          92.6829268292683,
+          87.5,
+          79.06976744186046,
+          82.92682926829268,
+          74.4186046511628,
+          76.19047619047619
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#ff7f0e",
+          "#ff7f0e",
+          "#ff7f0e",
+          "#ff7f0e",
+          "#ff7f0e",
+          "#ff7f0e"
+         ],
+         "centers": [
+          -0.1,
+          0.8999999999999999,
+          1.9000000000000004,
+          2.9000000000000004,
+          3.9000000000000004,
+          4.8999999999999995
+         ]
+        },
+        {
+         "name": "R3",
+         "orient": "v",
+         "cats": [
+          "3월",
+          "4월",
+          "5월",
+          "6월",
+          "7월",
+          "8월"
+         ],
+         "values": [
+          100.0,
+          97.5,
+          100.0,
+          100.0,
+          100.0,
+          97.61904761904762
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#2ca02c",
+          "#2ca02c",
+          "#2ca02c",
+          "#2ca02c",
+          "#2ca02c",
+          "#2ca02c"
+         ],
+         "centers": [
+          0.1,
+          1.0999999999999999,
+          2.1,
+          3.1,
+          4.1,
+          5.1
+         ]
+        },
+        {
+         "name": "R4",
+         "orient": "v",
+         "cats": [
+          "3월",
+          "4월",
+          "5월",
+          "6월",
+          "7월",
+          "8월"
+         ],
+         "values": [
+          95.0,
+          82.5,
+          86.04651162790698,
+          53.48837209302325,
+          51.21951219512195,
+          61.36363636363637
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#d62728",
+          "#d62728",
+          "#d62728",
+          "#d62728",
+          "#d62728",
+          "#d62728"
+         ],
+         "centers": [
+          0.30000000000000004,
+          1.3000000000000003,
+          2.3000000000000003,
+          3.3000000000000003,
+          4.299999999999999,
+          5.299999999999999
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [
+        90.0
+       ],
+       "vlines": [],
+       "value_labels": 24,
+       "texts": [
+        "100.0",
+        "100.0",
+        "100.0",
+        "97.6",
+        "90.9",
+        "95.5",
+        "92.7",
+        "87.5",
+        "79.1",
+        "82.9",
+        "74.4",
+        "76.2",
+        "100.0",
+        "97.5",
+        "100.0",
+        "100.0",
+        "100.0",
+        "97.6",
+        "95.0",
+        "82.5",
+        "86.0",
+        "53.5",
+        "51.2",
+        "61.4"
+       ],
+       "x": {
+        "label": "월",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0,
+         5.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "3월",
+         "4월",
+         "5월",
+         "6월",
+         "7월",
+         "8월"
+        ],
+        "min": -0.69,
+        "max": 5.6899999999999995,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "3월",
+         "4월",
+         "5월",
+         "6월",
+         "7월",
+         "8월"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "합격률 (%)",
+        "type": "value",
+        "ticks": [
+         40.0,
+         50.0,
+         60.0,
+         70.0,
+         80.0,
+         90.0,
+         100.0
+        ],
+        "step": 10.0,
+        "categories": null,
+        "min": 40.0,
+        "max": 100.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "40",
+         "50",
+         "60",
+         "70",
+         "80",
+         "90",
+         "100"
+        ],
+        "rotate": 0.0
+       },
+       "title": "월별 반응기별 합격률"
+      }
+     ],
+     "texts": [
+      "100.0",
+      "100.0",
+      "100.0",
+      "97.6",
+      "90.9",
+      "95.5",
+      "92.7",
+      "87.5",
+      "79.1",
+      "82.9",
+      "74.4",
+      "76.2",
+      "100.0",
+      "97.5",
+      "100.0",
+      "100.0",
+      "100.0",
+      "97.6",
+      "95.0",
+      "82.5",
+      "86.0",
+      "53.5",
+      "51.2",
+      "61.4"
+     ],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "목표 (90%)",
+       "R1",
+       "R2",
+       "R3",
+       "R4"
+      ],
+      "inside": false,
+      "where": "outside"
+     },
+     "files": [
+      {
+       "path": "out/t3/monthly_reactor_pass_rate_grouped.png",
+       "format": "png",
+       "px": [
+        3600,
+        2100
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.6774272918701172,
+   "check": {
+    "kind_expected": "grouped_bar",
+    "failed": [],
+    "unchecked": [
+     "ref_line=90"
+    ],
+    "n_checks": 4,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 15.11
+  }
+ ]
+}

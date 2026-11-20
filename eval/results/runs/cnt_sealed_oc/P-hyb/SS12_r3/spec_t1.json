@@ -1,0 +1,23 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "bar",
+ "x": "원인",
+ "y": {
+  "col": "정지시간(분)",
+  "agg": "sum"
+ },
+ "sort": "desc",
+ "asks": [
+  {
+   "ask": "Bar chart: total downtime minutes by 원인",
+   "how": "key"
+  },
+  {
+   "ask": "sorted desc",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/SS12_r3/out/t1"
+ }
+}

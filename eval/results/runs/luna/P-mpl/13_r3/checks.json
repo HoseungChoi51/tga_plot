@@ -1,0 +1,1 @@
+[{"check": "series", "cat": "data", "ok": true, "why": "", "spec": {"series": {"axis": "y1", "y_range": [0.81573, 10.231]}, "cat": "data"}}, {"check": "axis", "cat": "ask", "ok": true, "why": "", "spec": {"axis": {"which": "y1", "label": "Weight (mg)"}}}]

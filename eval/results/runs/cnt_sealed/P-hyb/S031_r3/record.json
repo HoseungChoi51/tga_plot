@@ -1,0 +1,234 @@
+{
+ "arm": "P-hyb",
+ "item": "S031",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "신입 연구원",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "안녕하세요, 이번 달에 입사한 신입 연구원입니다. 선배님이 run_log.xlsx 파일을 주시면서 요즘 공정이 어떻게 돌아가는지 감을 잡아 보라고 하셨는데요, 혹시 수율이 기간에 따라 어떻게 변해 왔는지 그래프로 볼 수 있을까요? 어떤 그래프가 좋은지 잘 몰라서 추천해 주시면 감사하겠습니다.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"chart\": \"line\",\n  \"x\": {\n    \"col\": \"일자\",\n    \"period\": \"week\"\n  },\n  \"y\": {\n    \"col\": \"CNT수율 (g/g-cat)\",\n    \"agg\": \"mean\"\n  },\n  \"title\": \"주별 평균 CNT 수율 추이\",\n  \"asks\": [\n    {\n      \"ask\": \"수율 기간별 변화 그래프\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 3.312,
+     "prompt_tokens": 6315,
+     "output_tokens": 135,
+     "cached_tokens": 6308,
+     "prompt_n": 7,
+     "prefill_ms": 86.116732,
+     "decode_ms": 3167.0123160000003,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "chart": "line",
+    "x": {
+     "col": "일자",
+     "period": "week"
+    },
+    "y": {
+     "col": "CNT수율 (g/g-cat)",
+     "agg": "mean"
+    },
+    "title": "주별 평균 CNT 수율 추이",
+    "asks": [
+     {
+      "ask": "수율 기간별 변화 그래프",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": true,
+    "engine": "echarts",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-hyb/S031_r3/out/t1/line_CNT수율_g_g_cat.png"
+    ],
+    "chart": "line",
+    "rows_used": 997,
+    "rows_total": 997,
+    "values": {
+     "series": {
+      "CNT수율 (g/g-cat)": {
+       "n": 26,
+       "min": 22.5841,
+       "max": 28.0569
+      }
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "선 그래프를 저장했습니다: line_CNT수율_g_g_cat.png\n사용한 행: 997 / 997\nCNT수율 (g/g-cat): 26점, 22.58 ~ 28.06"
+   },
+   "facts": [
+    {
+     "engine": "echarts",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": 300,
+     "title": "주별 평균 CNT 수율 추이",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [
+        {
+         "name": "CNT수율 (g/g-cat)",
+         "n": 26,
+         "x": [
+          1772409600000,
+          1773014400000,
+          1773619200000,
+          1774224000000,
+          1774828800000,
+          1775433600000,
+          1776038400000,
+          1776643200000,
+          1777248000000,
+          1777852800000,
+          1778457600000,
+          1779062400000,
+          1779667200000,
+          1780272000000,
+          1780876800000,
+          1781481600000,
+          1782086400000,
+          1782691200000,
+          1783296000000,
+          1783900800000,
+          1784505600000,
+          1785110400000,
+          1785715200000,
+          1786320000000,
+          1786924800000,
+          1787529600000
+         ],
+         "y": [
+          27.334594594594595,
+          28.056923076923077,
+          27.945675675675677,
+          27.54578947368421,
+          26.965263157894732,
+          27.700270270270273,
+          27.275263157894738,
+          27.317027027027024,
+          27.730540540540538,
+          27.854594594594598,
+          28.01846153846154,
+          27.799459459459456,
+          27.164736842105263,
+          25.841842105263158,
+          24.11405405405405,
+          23.061463414634147,
+          23.15105263157895,
+          23.709285714285716,
+          23.39921052631579,
+          23.483947368421052,
+          23.752631578947362,
+          24.259,
+          22.61951219512195,
+          22.871052631578944,
+          22.584102564102565,
+          22.979000000000003
+         ],
+         "color": "#1f4e9c",
+         "style": "solid"
+        }
+       ],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "일자 (yyyy-mm-dd)",
+        "type": "time",
+        "ticks": [
+         1772409600000.0,
+         1775001600000.0,
+         1777593600000.0,
+         1780272000000.0,
+         1782864000000.0,
+         1785542400000.0,
+         1787529600000.0
+        ],
+        "step": 2635200000.0,
+        "categories": null,
+        "min": 1772409600000.0,
+        "max": 1787529600000.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "CNT수율 (g/g-cat) (mean)",
+        "type": "value",
+        "ticks": [
+         22.0,
+         23.0,
+         24.0,
+         25.0,
+         26.0,
+         27.0,
+         28.0,
+         29.0
+        ],
+        "step": 1.0,
+        "categories": null,
+        "min": 22.0,
+        "max": 29.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       }
+      }
+     ],
+     "texts": [
+      "주별 평균 CNT 수율 추이"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-hyb/S031_r3/out/t1/line_CNT수율_g_g_cat.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5866847038269043,
+   "check": {
+    "kind_expected": "line",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [
+     "series CNT수율: same values in order on another x scale"
+    ],
+    "figure": 0
+   },
+   "turn_s": 3.975
+  }
+ ]
+}

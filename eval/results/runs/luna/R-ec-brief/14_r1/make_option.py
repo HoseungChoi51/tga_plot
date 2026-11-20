@@ -1,0 +1,185 @@
+import json
+import os
+import re
+
+import numpy as np
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/korean_excel.csv"
+
+
+def read_csv_robust(path):
+    # Korean Excel CSV files are commonly encoded as CP949 or EUC-KR.
+    for encoding in ("utf-8-sig", "cp949", "euc-kr", "latin1"):
+        try:
+            return pd.read_csv(path, encoding=encoding)
+        except UnicodeDecodeError:
+            continue
+    return pd.read_csv(path, encoding="latin1")
+
+
+def main():
+    df = read_csv_robust(DATA_FILE).dropna(how="all")
+    if df.empty or len(df.columns) < 4:
+        raise ValueError("The input file does not contain the expected TGA columns.")
+
+    def find_column(pattern, fallback):
+        for col in df.columns:
+            if re.search(pattern, str(col), re.IGNORECASE):
+                return col
+        return df.columns[min(fallback, len(df.columns) - 1)]
+
+    x_col = find_column(r"온도|temp", 1)
+    weight_col = find_column(r"무게|weight", 2)
+    dtg_col = find_column(r"미분|dtg|derivative", 3)
+
+    x_series = pd.to_numeric(df[x_col], errors="coerce")
+    weight_series = pd.to_numeric(df[weight_col], errors="coerce")
+    dtg_series = pd.to_numeric(df[dtg_col], errors="coerce")
+    valid = x_series.notna() & weight_series.notna() & dtg_series.notna()
+
+    x = x_series[valid].to_numpy(dtype=float)
+    weight = weight_series[valid].to_numpy(dtype=float)
+    dtg = dtg_series[valid].to_numpy(dtype=float)
+    if len(x) == 0:
+        raise ValueError("No valid numeric TGA data found.")
+
+    residue_index = int(np.argmin(np.abs(x - 800.0)))
+    peak_candidates = np.flatnonzero(x > 150.0)
+    peak_index = (
+        int(peak_candidates[np.argmax(-dtg[peak_candidates])])
+        if len(peak_candidates)
+        else int(np.argmax(-dtg))
+    )
+
+    def number(value):
+        value = float(value)
+        return value if np.isfinite(value) else None
+
+    option = {
+        "animation": False,
+        "title": {
+            "text": os.path.splitext(os.path.basename(DATA_FILE))[0],
+            "left": "center",
+            "textStyle": {"fontFamily": "Noto Sans CJK KR"},
+        },
+        "tooltip": {"trigger": "axis"},
+        "legend": {
+            "data": ["무게(%)", "-미분무게(%/°C)"],
+            "left": 20,
+            "top": "middle",
+            "textStyle": {"fontFamily": "Noto Sans CJK KR"},
+        },
+        "grid": {"left": 85, "right": 85, "top": 65, "bottom": 65},
+        "xAxis": {
+            "type": "value",
+            "name": str(x_col),
+            "nameLocation": "middle",
+            "nameGap": 38,
+            "axisLine": {"show": True},
+            "axisTick": {"show": True},
+            "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+        },
+        "yAxis": [
+            {
+                "type": "value",
+                "name": str(weight_col),
+                "nameLocation": "middle",
+                "nameGap": 55,
+                "axisLine": {
+                    "show": True,
+                    "lineStyle": {"color": "#1f4e9c"},
+                },
+                "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+                "splitLine": {
+                    "show": True,
+                    "lineStyle": {"color": "#dddddd"},
+                },
+            },
+            {
+                "type": "value",
+                "name": "-미분무게(%/°C)",
+                "nameLocation": "middle",
+                "nameGap": 55,
+                "axisLine": {
+                    "show": True,
+                    "lineStyle": {"color": "#c0392b"},
+                },
+                "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+                "splitLine": {"show": False},
+            },
+        ],
+        "series": [
+            {
+                "name": "무게(%)",
+                "type": "line",
+                "showSymbol": False,
+                "data": [[number(a), number(b)] for a, b in zip(x, weight)],
+                "lineStyle": {"width": 2, "color": "#1f4e9c"},
+                "itemStyle": {"color": "#1f4e9c"},
+                "markPoint": {
+                    "symbol": "circle",
+                    "symbolSize": 9,
+                    "label": {
+                        "show": True,
+                        "formatter": f"Residue {weight[residue_index]:.1f}%",
+                        "position": "top",
+                        "fontFamily": "Noto Sans CJK KR",
+                    },
+                    "data": [
+                        {
+                            "coord": [
+                                number(x[residue_index]),
+                                number(weight[residue_index]),
+                            ]
+                        }
+                    ],
+                },
+            },
+            {
+                "name": "-미분무게(%/°C)",
+                "type": "line",
+                "yAxisIndex": 1,
+                "showSymbol": False,
+                "data": [[number(a), number(-b)] for a, b in zip(x, dtg)],
+                "lineStyle": {"width": 2, "color": "#c0392b"},
+                "itemStyle": {"color": "#c0392b"},
+                "markPoint": {
+                    "symbol": "circle",
+                    "symbolSize": 9,
+                    "label": {
+                        "show": True,
+                        "formatter": f"{x[peak_index]:.0f} °C",
+                        "position": "top",
+                        "fontFamily": "Noto Sans CJK KR",
+                    },
+                    "data": [
+                        {
+                            "coord": [
+                                number(x[peak_index]),
+                                number(-dtg[peak_index]),
+                            ]
+                        }
+                    ],
+                },
+            },
+        ],
+    }
+
+    result = {
+        "figures": [
+            {
+                "name": "korean_excel",
+                "option": option,
+                "width": 614,
+                "height": 442,
+                "dpi": 300,
+                "formats": ["pdf", "png"],
+            }
+        ]
+    }
+    print(json.dumps(result, ensure_ascii=False, allow_nan=False))
+
+
+if __name__ == "__main__":
+    main()

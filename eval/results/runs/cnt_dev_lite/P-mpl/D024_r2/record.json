@@ -1,0 +1,259 @@
+{
+ "arm": "P-mpl",
+ "item": "D024",
+ "repeat": 2,
+ "split": "dev",
+ "persona": "공정 엔지니어",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "DOE heatmap: 행 2존온도, 열 H2/C2H4비, 값은 수율 3반복 평균.",
+   "calls": [
+    {
+     "reply": "```json\n{\"file\": \"data/doe_temp_h2.csv\", \"chart\": \"heatmap\", \"x\": \"H2/C2H4비\", \"y\": \"2존온도(°C)\", \"z\": {\"col\": \"수율(g/g-cat)\", \"agg\": \"mean\"}}\n```",
+     "llm_s": 2.504,
+     "prompt_tokens": 4912,
+     "output_tokens": 66,
+     "cached_tokens": 4873,
+     "prompt_n": 39,
+     "prefill_ms": 258.773006,
+     "decode_ms": 1286.2137,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": "data/doe_temp_h2.csv",
+    "chart": "heatmap",
+    "x": "H2/C2H4비",
+    "y": "2존온도(°C)",
+    "z": {
+     "col": "수율(g/g-cat)",
+     "agg": "mean"
+    }
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_lite/P-mpl/D024_r2/out/t1/heatmap_2존온도_C.png"
+    ],
+    "chart": "heatmap",
+    "rows_used": 90,
+    "rows_total": 90,
+    "values": {
+     "rows": [
+      "1100",
+      "1125",
+      "1150",
+      "1175",
+      "1200"
+     ],
+     "cols": [
+      "6",
+      "8",
+      "10",
+      "12",
+      "14",
+      "16"
+     ],
+     "max": {
+      "row": "1150",
+      "col": "10",
+      "value": 32.1333
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "히트맵 그래프를 저장했습니다: heatmap_2존온도_C.png\n사용한 행: 90 / 90\n가장 큰 값: 1150 / 10 = 32.13"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": {
+        "rows": [
+         "1100",
+         "1125",
+         "1150",
+         "1175",
+         "1200"
+        ],
+        "cols": [
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16"
+        ],
+        "z": [
+         [
+          22.08666666666667,
+          26.576666666666664,
+          27.376666666666665,
+          27.126666666666665,
+          24.14,
+          17.05
+         ],
+         [
+          25.336666666666662,
+          29.05333333333333,
+          30.536666666666665,
+          29.81,
+          26.25,
+          20.763333333333332
+         ],
+         [
+          27.25333333333333,
+          30.606666666666666,
+          32.13333333333333,
+          29.49333333333333,
+          26.53,
+          21.653333333333336
+         ],
+         [
+          25.55,
+          29.5,
+          30.633333333333336,
+          29.266666666666666,
+          24.960000000000004,
+          19.186666666666664
+         ],
+         [
+          22.736666666666665,
+          26.55333333333333,
+          26.623333333333335,
+          26.253333333333334,
+          20.766666666666666,
+          15.6
+         ]
+        ],
+        "colorbar": true,
+        "values_shown": false,
+        "cmap": "viridis",
+        "clim": [
+         15.6,
+         32.13333333333333
+        ]
+       },
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "H2/C2H4비",
+        "type": "category",
+        "ticks": [
+         0.5,
+         1.5,
+         2.5,
+         3.5,
+         4.5,
+         5.5
+        ],
+        "step": 1.0,
+        "categories": [
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16"
+        ],
+        "min": 0.0,
+        "max": 6.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "2존온도(°C)",
+        "type": "category",
+        "ticks": [
+         0.5,
+         1.5,
+         2.5,
+         3.5,
+         4.5
+        ],
+        "step": 1.0,
+        "categories": [
+         "1100",
+         "1125",
+         "1150",
+         "1175",
+         "1200"
+        ],
+        "min": 0.0,
+        "max": 5.0,
+        "log": false,
+        "inverted": true,
+        "tick_labels": [
+         "1100",
+         "1125",
+         "1150",
+         "1175",
+         "1200"
+        ],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_lite/P-mpl/D024_r2/out/t1/heatmap_2존온도_C.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.3519256114959717,
+   "check": {
+    "kind_expected": "heatmap",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 2.924
+  }
+ ]
+}

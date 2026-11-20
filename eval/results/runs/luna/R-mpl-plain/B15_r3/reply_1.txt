@@ -1,0 +1,44 @@
+We need provide script. Plot three sheets overlapping likely TGA weight vs temp. Korean request overlay three sheets, legend outside right. Use pandas Excel. Need perhaps all sheets weight curves. labels sheet. styling. save. Handle columns names. Set Korean font. Complete script only.```python
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import pandas as pd
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/B15_r3/out")
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+fig, ax = plt.subplots(figsize=(9, 5.5))
+
+for sheet_name in ("PE", "PVC", "PET"):
+    data = pd.read_excel(DATA_FILE, sheet_name=sheet_name)
+    data.columns = [str(column).strip() for column in data.columns]
+
+    temperature_col = next(
+        column for column in data.columns if "Temperature" in column
+    )
+    weight_col = next(
+        column for column in data.columns if "Weight" in column and "Deriv" not in column
+    )
+
+    temperature = pd.to_numeric(data[temperature_col], errors="coerce")
+    weight = pd.to_numeric(data[weight_col], errors="coerce")
+    valid = temperature.notna() & weight.notna()
+
+    ax.plot(temperature[valid], weight[valid], linewidth=1.8, label=sheet_name)
+
+ax.set_xlabel("Temperature (°C)")
+ax.set_ylabel("Weight (%)")
+ax.set_title("세 시트 TGA 곡선 비교")
+ax.grid(True, linestyle="--", alpha=0.35)
+ax.legend(title="시료", loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=False)
+
+fig.tight_layout()
+fig.savefig(OUT_DIR / "polymers_overlay.png", dpi=300, bbox_inches="tight")
+plt.close(fig)
+```

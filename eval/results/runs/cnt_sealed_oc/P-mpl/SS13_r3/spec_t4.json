@@ -1,0 +1,50 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "line",
+ "x": {
+  "col": "체류시간 (s)",
+  "bins": {
+   "width": 0.25,
+   "min": 2.5,
+   "max": 6.75
+  },
+  "label": "Bin Midpoint"
+ },
+ "y": {
+  "col": "CNT수율 (g/g-cat)",
+  "agg": "mean"
+ },
+ "by": "촉매로트_그룹",
+ "data_code": "df['촉매로트_그룹'] = df['촉매로트'].apply(lambda x: 'old' if x in ['FC-2602', 'FC-2603', 'FC-2604', 'FC-2605'] else 'new')\ndf['bin_idx'] = pd.cut(df['체류시간 (s)'], bins=[i/4 for i in range(10, 28)], labels=False)\ngrp_df = df.groupby(['촉매로트_그룹', 'bin_idx']).agg(cnt=('CNT수율 (g/g-cat)', 'size'), mean_y=('CNT수율 (g/g-cat)', 'mean')).reset_index()\nvalid_grp = grp_df[grp_df['cnt'] >= 10]\ndrop_bins = set(grp_df[grp_df['cnt'] < 10]['bin_idx'])\ndf = df[~df['bin_idx'].isin(drop_bins)]\nmarks = []\nfor g in valid_grp['촉매로트_그룹'].unique():\n    sub = valid_grp[valid_grp['촉매로트_그룹'] == g]\n    idx_max = sub['mean_y'].idxmax()\n    mid_x = 2.5 + (sub.loc[idx_max, 'bin_idx'] + 0.5) * 0.25\n    marks.append({'type': 'text', 'x': float(mid_x), 'y': float(sub.loc[idx_max, 'mean_y']), 'text': f'{mid_x:.2f}', 'ha': 'center'})\nif not hasattr(marks, 'append'): pass # dummy check",
+ "code": "import matplotlib.pyplot as plt\n# Re-calculate max points from drawn data if possible, but easier to use marks passed via data_code context or re-compute here.\n# Since 'code' runs after drawing and doesn't have direct access to the intermediate binned dataframe easily without re-grouping,\n# we rely on the fact that plotkit usually exposes `data` in charts. \n# However, the prompt says: Names: charts: fig, ax, plt, np, data (the drawn numbers).\n# 'data' structure depends on engine. For line chart with groups, it might be complex.\n# Safer approach: The user asked to mark highest mean per line. \n# In the previous turn, we filtered bins < 10 using data_code. We can calculate peaks in data_code and store them, but annotate keys are for curves mostly.\n# Let's try using 'code' with the 'data' object if available, or simply re-computing based on the logic used in data_code isn't directly accessible in code block scope variables other than fig/ax/data.\n# Actually, the simplest robust way for this specific request \"Mark ... and label\" is often done via annotations if supported, but for Charts, we use 'code'.\n# I will assume 'data' contains the aggregated series or I can reconstruct the peak location from the plotted lines' y-values.\n# Let's iterate through lines in the axis.\nlines = [l for l in ax.get_lines() if l.get_label() != '_child0']\nfor line in lines:\n    x_data = line.get_xdata()\n    y_data = line.get_ydata()\n    if len(x_data) > 0:\n        max_idx = np.argmax(y_data)\n        mx = x_data[max_idx]\n        my = y_data[max_idx]\n        ax.plot(mx, my, 'o', color=line.get_color(), markersize=8, zorder=5)\n        ax.text(mx, my, f'{mx:.2f}', verticalalignment='bottom', horizontalalignment='center', fontsize=9, color='black')",
+ "asks": [
+  {
+   "ask": "Scatter 체류시간 vs CNT수율, all runs",
+   "how": "key"
+  },
+  {
+   "ask": "Color by catalyst lot group (old/new)",
+   "how": "code"
+  },
+  {
+   "ask": "Bin 체류시간 0.25s intervals (2.5-6.75), mean CNT수율 per bin",
+   "how": "key"
+  },
+  {
+   "ask": "Plot vs bin midpoint, one line per group",
+   "how": "key"
+  },
+  {
+   "ask": "Drop bins with n < 10",
+   "how": "code"
+  },
+  {
+   "ask": "Mark highest mean per line and label x value",
+   "how": "code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS13_r3/out/t4"
+ }
+}

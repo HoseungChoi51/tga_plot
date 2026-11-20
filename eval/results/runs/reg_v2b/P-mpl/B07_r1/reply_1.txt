@@ -1,0 +1,23 @@
+```json
+{
+ "file": "polymers.xlsx",
+ "sheets": "PVC",
+ "annotate": {
+  "w300": {
+   "type": "value_at_x",
+   "x": 300,
+   "text": "300 °C: {y:.1f}%"
+  },
+  "w600": {
+   "type": "value_at_x",
+   "x": 600,
+   "text": "600 °C: {y:.1f}%"
+  }
+ },
+ "asks": [
+  {"ask": "두 번째 시트(PVC)만", "how": "key"},
+  {"ask": "300 °C 무게 표시", "how": "key"},
+  {"ask": "600 °C 무게 표시", "how": "key"}
+ ]
+}
+```

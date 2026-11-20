@@ -1,0 +1,7 @@
+```json
+{
+  "file": "TGA.xlsx",
+  "size": [8, 5],
+  "dpi": 600
+}
+```

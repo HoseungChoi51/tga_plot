@@ -1,0 +1,20 @@
+{
+ "file": "data/doe_temp_h2.csv",
+ "chart": "heatmap",
+ "x": "2존온도(°C)",
+ "y": "H2/C2H4비",
+ "z": {
+  "col": "수율(g/g-cat)",
+  "agg": "mean"
+ },
+ "values": "{:.1f}",
+ "asks": [
+  {
+   "ask": "칸 안에 숫자 표시 (소수점 한 자리)",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS11_r1/out/t4"
+ }
+}

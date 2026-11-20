@@ -1,0 +1,1 @@
+We need answer user's request in test mode: provide JSON spec only in ```json block. Need analyze. User: "전체 글자 색깔 회색, 글자 크기 13". From guide: 전체 글자 색깔 = text_color, 글자 크기 전체 = font_size. Need use file from inspect TGA.xlsx. No other keys. So {"file":"TGA.xlsx","text_color":"gray","font_size":13}. Need Korean color 회색 maps gray. Need ensure only JSON block and nothing else. Final.

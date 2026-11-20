@@ -1,0 +1,21 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "line",
+ "x": {
+  "col": "주차"
+ },
+ "y": {
+  "col": "잔류금속 (wt%)",
+  "agg": "mean"
+ },
+ "by": "반응기",
+ "asks": [
+  {
+   "ask": "주차별 잔류금속 추이, 반응기별 색 분리 선그래프",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/sessions/E3_G4_P-ec/out/t11"
+ }
+}

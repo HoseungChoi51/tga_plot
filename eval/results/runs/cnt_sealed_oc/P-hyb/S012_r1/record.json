@@ -1,0 +1,215 @@
+{
+ "arm": "P-hyb",
+ "item": "S012",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "생산팀장",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "작업자별 평균 수율을 가로막대로, 높은 순으로 상위 5명만 보여 주세요.",
+   "calls": [
+    {
+     "reply": "```json\n{\"file\": \"data/run_log.xlsx\", \"chart\": \"hbar\", \"x\": \"작업자\", \"y\": {\"col\": \"CNT수율 (g/g-cat)\", \"agg\": \"mean\"}, \"sort\": \"desc\", \"top\": 5, \"asks\": [{\"ask\": \"작업자별 평균 수율\", \"how\": \"key\"}, {\"ask\": \"가로막대\", \"how\": \"key\"}, {\"ask\": \"높은 순 상위 5명\", \"how\": \"key\"}]}\n```",
+     "llm_s": 3.231,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 18005,
+     "output_chars": 259,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "chart": "hbar",
+    "x": "작업자",
+    "y": {
+     "col": "CNT수율 (g/g-cat)",
+     "agg": "mean"
+    },
+    "sort": "desc",
+    "top": 5,
+    "asks": [
+     {
+      "ask": "작업자별 평균 수율",
+      "how": "key"
+     },
+     {
+      "ask": "가로막대",
+      "how": "key"
+     },
+     {
+      "ask": "높은 순 상위 5명",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": true,
+    "engine": "echarts",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S012_r1/out/t1/hbar_CNT수율_g_g_cat.png"
+    ],
+    "chart": "hbar",
+    "rows_used": 997,
+    "rows_total": 997,
+    "values": {
+     "categories": [
+      "김도현",
+      "최유진",
+      "한수빈",
+      "강하늘",
+      "이서준"
+     ],
+     "series": {
+      "CNT수율 (g/g-cat)": [
+       26.2136,
+       25.846,
+       25.7253,
+       25.3251,
+       25.2979
+      ]
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "가로 막대 그래프를 저장했습니다: hbar_CNT수율_g_g_cat.png\n사용한 행: 997 / 997\nCNT수율 (g/g-cat): 김도현 26.2, 최유진 25.8, 한수빈 25.7, 강하늘 25.3, 이서준 25.3"
+   },
+   "facts": [
+    {
+     "engine": "echarts",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": 300,
+     "title": null,
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "CNT수율 (g/g-cat)",
+         "orient": "h",
+         "cats": [
+          "김도현",
+          "최유진",
+          "한수빈",
+          "강하늘",
+          "이서준"
+         ],
+         "values": [
+          26.2135652173913,
+          25.845967741935482,
+          25.725294117647067,
+          25.3251376146789,
+          25.297867647058826
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c"
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "CNT수율 (g/g-cat) (mean)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         5.0,
+         10.0,
+         15.0,
+         20.0,
+         25.0,
+         30.0
+        ],
+        "step": 5.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 30.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "작업자",
+        "type": "category",
+        "ticks": [],
+        "step": null,
+        "categories": [
+         "김도현",
+         "최유진",
+         "한수빈",
+         "강하늘",
+         "이서준"
+        ],
+        "min": 0.0,
+        "max": 4.0,
+        "log": false,
+        "inverted": true,
+        "tick_labels": null,
+        "rotate": 0.0
+       }
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S012_r1/out/t1/hbar_CNT수율_g_g_cat.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5949666500091553,
+   "check": {
+    "kind_expected": "hbar",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 3.902
+  }
+ ]
+}

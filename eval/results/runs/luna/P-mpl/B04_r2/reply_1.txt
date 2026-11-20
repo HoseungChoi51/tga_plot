@@ -1,0 +1,3 @@
+```json
+{"file":"xrd.csv","preset":"none","x":{"col":"A"},"y1":{"col":"B"},"y2":false,"annotate":{"peak":{"count":5}}}
+```

@@ -1,0 +1,7 @@
+```json
+{
+  "file": "polymers.xlsx",
+  "sheets": "PVC",
+  "code": "idx=np.argsort(x); xs=x[idx]; ys=y1[idx]; w200=float(np.interp(200,xs,ys)); w400=float(np.interp(400,xs,ys)); loss=w200-w400; ax1.text(0.5,0.85,f'Mass loss 200-400 C: {loss:.1f}%',transform=ax1.transAxes,ha='center',fontsize=9,bbox=dict(boxstyle='round',fc='white',alpha=0.8))"
+}
+```

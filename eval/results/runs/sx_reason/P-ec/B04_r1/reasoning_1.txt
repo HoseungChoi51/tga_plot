@@ -1,0 +1,19 @@
+We need answer user in Korean? Actually test mode: Do step 2 only: reply with JSON spec inside one ```json block, nothing else. Need produce spec for request: "XRD 패턴 그려주고 강한 피크 5개의 2θ 값을 표시해줘. 오른쪽 축은 필요 없어"
+
+Need infer from inspect: file xrd.csv, not TGA. Need preset none, x col A, y1 col B. Need peak annotation count 5? Strong peaks 5: peak annotation on y1? Default TGA peak on y2, but for non-TGA preset none, annotations? Need include annotate.peak with count 5, on y1? The guide says peak options count, kind max/min, x_min... It says peak label shows temperature, for y value text. For XRD, peak should annotate y1? Since no y2. Need set y2 false. Need maybe text "{x:.1f}°"? Request: 2θ values. Use text maybe "{x:.1f}°" or "{x:.0f} °"? The default peak text maybe "{x:.0f} °C". For XRD, should show 2θ values. Could set annotate.peak: {"on":"y1", "count":5, "kind":"max", "text":"{x:.1f}°"} maybe. Need no y2: "y2": false. Need x label? Maybe not, default? For preset none, x label maybe from header? Need only what asked. But to draw XRD pattern, need x/y1 col. Strong peaks 5: peak annotation. Right axis not needed: y2 false.
+
+Need consider if peak annotation requires on y1? Since y2 false, if default peak on y2 maybe invalid? We should set on y1. The guide: default TGA preset has residue on y1, peak on y2. For other data use preset none and give x.col y1.col. If using annotate.peak, likely default type peak on y2? Need specify on y1. The request says 강한 피크 5개의 2θ 값 표시. So peak on y1 (Intensity). Text maybe "{x:.1f}". Units? "2θ" maybe text: "{x:.1f}°". Could include "2θ {x:.1f}"? It says 2θ values. Could text: "{x:.1f}°". Need not overdo.
+
+Spec:
+{
+ "file": "xrd.csv",
+ "preset": "none",
+ "x": {"col": "A"},
+ "y1": {"col": "B"},
+ "y2": false,
+ "annotate": {"peak": {"on": "y1", "count": 5, "kind": "max", "text": "{x:.1f}°"}}
+}
+
+Need ensure no extra. Maybe title? no.
+
+Need output only json block. Ensure no comments.

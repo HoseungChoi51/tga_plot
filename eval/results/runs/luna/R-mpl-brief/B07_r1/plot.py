@@ -1,0 +1,124 @@
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/B07_r1/out"
+
+# Korean font and plot defaults
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+out_dir = Path(OUT_DIR)
+out_dir.mkdir(parents=True, exist_ok=True)
+
+# The second worksheet is PVC. Use the standard TGA columns:
+# temperature (B), weight (C), and derivative weight (D).
+df = pd.read_excel(DATA_FILE, sheet_name=1)
+temperature = pd.to_numeric(df.iloc[:, 1], errors="coerce")
+weight = pd.to_numeric(df.iloc[:, 2], errors="coerce")
+dtg = pd.to_numeric(df.iloc[:, 3], errors="coerce")
+
+valid = temperature.notna() & weight.notna() & dtg.notna()
+temperature = temperature[valid].to_numpy()
+weight = weight[valid].to_numpy()
+dtg = dtg[valid].to_numpy()
+
+fig, ax1 = plt.subplots(figsize=(9, 6))
+ax2 = ax1.twinx()
+
+weight_line, = ax1.plot(
+    temperature, weight, color="#1f4e9c", linewidth=2, label="Weight (%)"
+)
+dtg_line, = ax2.plot(
+    temperature, -dtg, color="#c0392b", linewidth=1.8, label="-DTG (%/°C)"
+)
+
+ax1.set_title("PVC")
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)", color="#1f4e9c")
+ax2.set_ylabel("-DTG (%/°C)", color="#c0392b")
+ax1.tick_params(axis="y", labelcolor="#1f4e9c")
+ax2.tick_params(axis="y", labelcolor="#c0392b")
+ax1.grid(True, alpha=0.25)
+
+# Mark and label weight at 300 °C and 600 °C using the nearest measured points.
+for target_temp in (300, 600):
+    idx = int(np.argmin(np.abs(temperature - target_temp)))
+    measured_temp = temperature[idx]
+    measured_weight = weight[idx]
+    ax1.scatter(
+        measured_temp,
+        measured_weight,
+        color="#1f4e9c",
+        edgecolor="white",
+        linewidth=0.8,
+        s=55,
+        zorder=5,
+    )
+    ax1.annotate(
+        f"{target_temp} °C: {measured_weight:.1f}%",
+        xy=(measured_temp, measured_weight),
+        xytext=(8, 10 if target_temp == 300 else -20),
+        textcoords="offset points",
+        color="#1f4e9c",
+        fontsize=10,
+        bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="#1f4e9c", alpha=0.9),
+    )
+
+# Standard residue annotation: weight at the measured point nearest 800 °C.
+residue_idx = int(np.argmin(np.abs(temperature - 800)))
+ax1.scatter(
+    temperature[residue_idx],
+    weight[residue_idx],
+    color="#1f4e9c",
+    edgecolor="white",
+    linewidth=0.8,
+    s=55,
+    zorder=5,
+)
+ax1.annotate(
+    f"Residue {weight[residue_idx]:.1f}%",
+    xy=(temperature[residue_idx], weight[residue_idx]),
+    xytext=(8, 8),
+    textcoords="offset points",
+    color="#1f4e9c",
+    fontsize=10,
+    bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="#1f4e9c", alpha=0.9),
+)
+
+# Standard DTG peak annotation: highest positive -DTG peak above 150 °C.
+peak_candidates = np.flatnonzero(temperature > 150)
+if peak_candidates.size:
+    peak_idx = peak_candidates[np.argmax(-dtg[peak_candidates])]
+    ax2.scatter(
+        temperature[peak_idx],
+        -dtg[peak_idx],
+        color="#c0392b",
+        edgecolor="white",
+        linewidth=0.8,
+        s=55,
+        zorder=5,
+    )
+    ax2.annotate(
+        f"{temperature[peak_idx]:.0f} °C",
+        xy=(temperature[peak_idx], -dtg[peak_idx]),
+        xytext=(8, 8),
+        textcoords="offset points",
+        color="#c0392b",
+        fontsize=10,
+        bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="#c0392b", alpha=0.9),
+    )
+
+ax1.legend(
+    [weight_line, dtg_line],
+    [weight_line.get_label(), dtg_line.get_label()],
+    loc="center left",
+    frameon=True,
+)
+
+fig.tight_layout()
+fig.savefig(out_dir / "PVC.png", dpi=300, bbox_inches="tight")
+plt.close(fig)

@@ -1,0 +1,28 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "heatmap",
+ "corr": [
+  "1존온도 (°C)",
+  "2존온도 (°C)",
+  "3존온도 (°C)",
+  "C2H4유량 (sccm)",
+  "H2유량 (sccm)",
+  "H2/C2H4비",
+  "체류시간 (s)",
+  "외기습도 (%)",
+  "CNT수율 (g/g-cat)",
+  "잔류금속 (wt%)",
+  "산화개시온도 (°C)",
+  "IG/ID"
+ ],
+ "cmap": "RdBu_r",
+ "asks": [
+  {
+   "ask": "-1~1 고정 (colorbar 범위)",
+   "how": "unsupported"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_lite/P-mpl/D027_r2/out/t1"
+ }
+}

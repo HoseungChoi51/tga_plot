@@ -1,0 +1,140 @@
+import json
+import re
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+
+def clean_number(value):
+    try:
+        number = float(value)
+        return number if np.isfinite(number) else None
+    except (TypeError, ValueError):
+        return None
+
+
+def main():
+    workbook = pd.ExcelFile(DATA_FILE)
+    figures = []
+
+    for sheet_name in workbook.sheet_names:
+        df = pd.read_excel(DATA_FILE, sheet_name=sheet_name)
+        df.columns = [str(column).strip() for column in df.columns]
+
+        temperature_col = next(
+            (column for column in df.columns if "temperature" in column.lower()),
+            None,
+        )
+        weight_col = next(
+            (column for column in df.columns if "weight" in column.lower()),
+            None,
+        )
+        derivative_col = next(
+            (column for column in df.columns if "d.w" in column.lower() or "dw" in column.lower()),
+            None,
+        )
+        if not all((temperature_col, weight_col, derivative_col)):
+            continue
+
+        data = df[[temperature_col, weight_col, derivative_col]].copy()
+        for column in data.columns:
+            data[column] = pd.to_numeric(data[column], errors="coerce")
+        data = data.dropna()
+
+        temperature = [clean_number(v) for v in data[temperature_col]]
+        weight = [clean_number(v) for v in data[weight_col]]
+        derivative = [clean_number(v) for v in data[derivative_col]]
+
+        option = {
+            "animation": False,
+            "backgroundColor": "#ffffff",
+            "title": {
+                "text": sheet_name,
+                "left": "center",
+                "top": 12,
+                "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 17},
+            },
+            "tooltip": {
+                "trigger": "axis",
+                "axisPointer": {"type": "cross"},
+            },
+            "legend": {
+                "top": 42,
+                "data": ["Weight(%)", "D.W(%/C)"],
+                "textStyle": {"fontFamily": "Noto Sans CJK KR"},
+            },
+            "grid": {"left": 78, "right": 82, "top": 88, "bottom": 68},
+            "xAxis": {
+                "type": "value",
+                "name": "Temperature (°C)",
+                "nameLocation": "middle",
+                "nameGap": 38,
+                "min": 0,
+                "max": 900,
+                "interval": 100,
+                "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+                "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+            },
+            "yAxis": [
+                {
+                    "type": "value",
+                    "name": "Weight (%)",
+                    "nameLocation": "middle",
+                    "nameGap": 55,
+                    "min": 0,
+                    "max": 105,
+                    "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+                    "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+                },
+                {
+                    "type": "value",
+                    "name": "D.W (%/°C)",
+                    "nameLocation": "middle",
+                    "nameGap": 55,
+                    "min": -0.05,
+                    "max": 1.2,
+                    "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+                    "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+                },
+            ],
+            "series": [
+                {
+                    "name": "Weight(%)",
+                    "type": "line",
+                    "showSymbol": False,
+                    "yAxisIndex": 0,
+                    "lineStyle": {"width": 2, "color": "#2563eb"},
+                    "data": [[x, y] for x, y in zip(temperature, weight)],
+                },
+                {
+                    "name": "D.W(%/C)",
+                    "type": "line",
+                    "showSymbol": False,
+                    "yAxisIndex": 1,
+                    "lineStyle": {"width": 2, "color": "#dc2626"},
+                    "data": [[x, y] for x, y in zip(temperature, derivative)],
+                },
+            ],
+        }
+
+        safe_name = re.sub(r"[^A-Za-z0-9_-]+", "_", sheet_name).strip("_") or "plot"
+        figures.append(
+            {
+                "name": safe_name,
+                "option": option,
+                "width": 900,
+                "height": 560,
+                "dpi": 300,
+                "formats": ["png"],
+            }
+        )
+
+    print(json.dumps({"figures": figures}, ensure_ascii=False, allow_nan=False))
+
+
+if __name__ == "__main__":
+    main()

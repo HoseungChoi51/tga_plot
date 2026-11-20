@@ -1,0 +1,102 @@
+import json
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx"
+
+df = pd.read_excel(DATA_FILE, sheet_name="Acid-washed")
+df.columns = [str(c).strip() for c in df.columns]
+
+x_col = next(c for c in df.columns if "Temperature" in c)
+weight_col = next(c for c in df.columns if "Weight" in c and "Deriv" not in c)
+deriv_col = next(c for c in df.columns if "Deriv" in c)
+
+data_weight = [
+    [float(x), float(y)]
+    for x, y in zip(df[x_col], df[weight_col])
+    if pd.notna(x) and pd.notna(y)
+]
+data_deriv = [
+    [float(x), float(y)]
+    for x, y in zip(df[x_col], df[deriv_col])
+    if pd.notna(x) and pd.notna(y)
+]
+
+option = {
+    "animation": False,
+    "title": {
+        "text": "Acid-washed TGA",
+        "left": "center",
+        "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 16},
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {"type": "cross"},
+    },
+    "legend": {"data": ["Weight (%)", "Deriv. Weight (%/°C)"], "top": 32},
+    "grid": {"left": 78, "right": 78, "top": 82, "bottom": 65},
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 38,
+        "min": 30,
+        "max": 900,
+        "minorTick": {"show": True, "splitNumber": 5, "length": 3},
+        "minorSplitLine": {"show": False},
+        "axisTick": {"show": True},
+        "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+        "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+        "splitLine": {"show": True, "lineStyle": {"color": "#e5e5e5"}},
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Weight (%)",
+            "position": "left",
+            "min": 0,
+            "max": 105,
+            "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+            "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+            "splitLine": {"show": True, "lineStyle": {"color": "#e5e5e5"}},
+        },
+        {
+            "type": "value",
+            "name": "Deriv. Weight (%/°C)",
+            "position": "right",
+            "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+            "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+            "splitLine": {"show": False},
+        },
+    ],
+    "series": [
+        {
+            "name": "Weight (%)",
+            "type": "line",
+            "xAxisIndex": 0,
+            "yAxisIndex": 0,
+            "data": data_weight,
+            "showSymbol": False,
+            "lineStyle": {"width": 2, "color": "#2878b5"},
+        },
+        {
+            "name": "Deriv. Weight (%/°C)",
+            "type": "line",
+            "xAxisIndex": 0,
+            "yAxisIndex": 1,
+            "data": data_deriv,
+            "showSymbol": False,
+            "lineStyle": {"width": 1.8, "color": "#d9534f"},
+        },
+    ],
+}
+
+print(json.dumps({
+    "figures": [{
+        "name": "acid_washed_tga",
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"],
+    }]
+}, ensure_ascii=False, allow_nan=False))

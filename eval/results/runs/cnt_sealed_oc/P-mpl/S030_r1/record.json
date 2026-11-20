@@ -1,0 +1,187 @@
+{
+ "arm": "P-mpl",
+ "item": "S030",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "등급 C 판정 런들의 불합격 사유 비율을 파이로 보여 주세요. 사유는 '잔류금속 > 5.0 wt%만', 'IG/ID < 2.2만', '둘 다' 세 가지로 나눠 주세요.",
+   "calls": [
+    {
+     "reply": "To create the requested pie chart showing the reasons for failure among Grade C runs, we need to perform a custom data transformation. The standard `chart` spec with simple filters cannot compute the mutual exclusivity or overlap logic (\"both\") directly from two independent conditions in a single step without intermediate calculation columns.\n\nTherefore, I will use `data_code` to:\n1. Filter for runs where `등급` is 'C'.\n2. Create boolean flags for each condition: `잔류금속 > 5.0` and `IG/ID < 2.2`.\n3. Combine these into a single categorical column representing the three specific groups requested: \"둘 다\" (Both), \"잔류금속 > 5.0 wt%만\" (Only Metal), and \"IG/ID < 2.2만\" (Only IG/ID). Note: Runs that are Grade C but meet neither criteria would technically fall outside the user's requested categories, but usually Grade C implies a failure due to one of these specs in this context. If there are \"Other\" failures, they won't be plotted unless added. Based on the prompt, we only plot these three. I will exclude any C-grade runs that don't fit these buckets to strictly follow the \"divided into these three\" instruction, or map them to \"기타\" if needed. However, the prompt says \"divide into... these three\", implying these are the categories of interest. I will assume all C-grade runs fall into one of these or are negligible. To be safe, I will filter out those not matching either criterion before plotting, or just plot the counts of these three specific derived categories.\n\nSteps in `data_code`:\n- Select rows where `등급` == 'C'.\n- Check `잔류금속` > 5.0 -> `is_metal_fail`.\n- Check `IG/ID` < 2.2 -> `is_raman_fail`.\n- Create `reason` column:\n  - If both True: \"둘 다\"\n  - If metal True and raman False: \"잔류금속 > 5.0 wt%만\"\n  - If metal False and raman True: \"IG/ID < 2.2만\"\n  - If both False: Drop these rows (as they don't fit the requested breakdown categories).\n- Then use `chart: \"pie\"` with `x` as the new `reason` column and `y` as count (or just x labels for a frequency pie).\n\n```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"pie\",\n  \"data_code\": \"df_c = df[df['등급'] == 'C'].copy()\\ndf_c['fail_metal'] = df_c['잔류금속 (wt%)'] > 5.0\\ndf_c['fail_raman'] = df_c['IG/ID'] < 2.2\\n\\ndef get_reason(row):\\n    if row['fail_metal'] and row['fail_raman']:\\n        return '둘 다'\\n    elif row['fail_metal']:\\n        return '잔류금속 > 5.0 wt%만'\\n    elif row['fail_raman']:\\n        return 'IG/ID < 2.2만'\\n    else:\\n        return None\\n\\ndf_c['사유'] = df_c.apply(get_reason, axis=1)\\ndf = df_c.dropna(subset=['사유']).copy()\",\n  \"x\": \"사유\",\n  \"title\": \"등급 C 판정 런들의 불합격 사유 비율\",\n  \"asks\": [\n    {\n      \"ask\": \"데이터 필터링 및 분류 (C등급, 잔류금속/IG-ID 조건)\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"파이 차트 생성\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 14.743,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 18088,
+     "output_chars": 2743,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "pie",
+    "data_code": "df_c = df[df['등급'] == 'C'].copy()\ndf_c['fail_metal'] = df_c['잔류금속 (wt%)'] > 5.0\ndf_c['fail_raman'] = df_c['IG/ID'] < 2.2\n\ndef get_reason(row):\n    if row['fail_metal'] and row['fail_raman']:\n        return '둘 다'\n    elif row['fail_metal']:\n        return '잔류금속 > 5.0 wt%만'\n    elif row['fail_raman']:\n        return 'IG/ID < 2.2만'\n    else:\n        return None\n\ndf_c['사유'] = df_c.apply(get_reason, axis=1)\ndf = df_c.dropna(subset=['사유']).copy()",
+    "x": "사유",
+    "title": "등급 C 판정 런들의 불합격 사유 비율",
+    "asks": [
+     {
+      "ask": "데이터 필터링 및 분류 (C등급, 잔류금속/IG-ID 조건)",
+      "how": "data_code"
+     },
+     {
+      "ask": "파이 차트 생성",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S030_r1/out/t1/pie_사유.png"
+    ],
+    "chart": "pie",
+    "rows_used": 126,
+    "rows_total": 126,
+    "values": {
+     "slices": {
+      "IG/ID < 2.2만": 54.0,
+      "잔류금속 > 5.0 wt%만": 47.0,
+      "둘 다": 25.0
+     },
+     "shares": {
+      "IG/ID < 2.2만": 0.4286,
+      "잔류금속 > 5.0 wt%만": 0.373,
+      "둘 다": 0.1984
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "원 그래프를 저장했습니다: pie_사유.png\n사용한 행: 126 / 126\nIG/ID < 2.2만 42.9%, 잔류금속 > 5.0 wt%만 37.3%, 둘 다 19.8%"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": "등급 C 판정 런들의 불합격 사유 비율",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": {
+        "labels": [
+         "IG/ID < 2.2만",
+         "잔류금속 > 5.0 wt%만",
+         "둘 다"
+        ],
+        "shares": [
+         0.42857142857142855,
+         0.3730158730158731,
+         0.19841269841269837
+        ],
+        "values": null,
+        "colors": [
+         "#1f4e9c",
+         "#c0392b",
+         "#2e8b57"
+        ]
+       },
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 3,
+       "texts": [
+        "IG/ID < 2.2만",
+        "잔류금속 > 5.0 wt%만",
+        "둘 다",
+        "42.9%",
+        "37.3%",
+        "19.8%"
+       ],
+       "x": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.6532971425770653,
+        "max": 1.653293900200101,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.0999980791932755,
+        "max": 1.0999999085330132,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "title": "등급 C 판정 런들의 불합격 사유 비율"
+      }
+     ],
+     "texts": [
+      "IG/ID < 2.2만",
+      "잔류금속 > 5.0 wt%만",
+      "둘 다",
+      "42.9%",
+      "37.3%",
+      "19.8%"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S030_r1/out/t1/pie_사유.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5613830089569092,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 15.418
+  }
+ ]
+}

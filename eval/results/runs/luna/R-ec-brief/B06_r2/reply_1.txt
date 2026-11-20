@@ -1,0 +1,133 @@
+```python
+import json
+import re
+import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/isothermal.txt"
+
+
+def read_data(path):
+    suffix = Path(path).suffix.lower()
+    if suffix in (".xlsx", ".xls"):
+        return pd.read_excel(path)
+    if suffix == ".csv":
+        return pd.read_csv(path)
+    try:
+        return pd.read_csv(path, sep=None, engine="python", comment="#")
+    except Exception:
+        return pd.read_csv(path, delim_whitespace=True, comment="#")
+
+
+df = read_data(DATA_FILE)
+df.columns = [str(c).strip() for c in df.columns]
+
+def find_column(pattern, fallback):
+    for col in df.columns:
+        if re.search(pattern, col, re.IGNORECASE):
+            return col
+    return df.columns[fallback]
+
+time_col = find_column(r"time|시간", 0)
+temp_col = find_column(r"temperature|temp|온도", 1)
+weight_col = find_column(r"weight|mass|무게|중량", 2)
+
+for col in (time_col, temp_col, weight_col):
+    df[col] = pd.to_numeric(df[col], errors="coerce")
+
+data = df[[time_col, temp_col, weight_col]].dropna()
+time = data[time_col].to_numpy(dtype=float)
+temp = data[temp_col].to_numpy(dtype=float)
+weight = data[weight_col].to_numpy(dtype=float)
+
+target_time = 140.0
+idx = int(np.argmin(np.abs(time - target_time)))
+actual_time = float(time[idx])
+weight_at_target = float(weight[idx])
+
+option = {
+    "animation": False,
+    "title": {
+        "text": Path(DATA_FILE).stem,
+        "left": "center",
+        "textStyle": {"fontFamily": "Noto Sans CJK KR"},
+    },
+    "textStyle": {"fontFamily": "Noto Sans CJK KR"},
+    "tooltip": {"trigger": "axis"},
+    "legend": {"data": ["무게", "온도"], "left": "center", "top": 36},
+    "grid": {"left": 75, "right": 75, "top": 85, "bottom": 65},
+    "xAxis": {
+        "type": "value",
+        "name": "시간 (분)",
+        "nameLocation": "middle",
+        "nameGap": 38,
+        "min": float(np.nanmin(time)),
+        "max": float(np.nanmax(time)),
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "무게 (%)",
+            "nameLocation": "middle",
+            "nameGap": 52,
+            "scale": True,
+        },
+        {
+            "type": "value",
+            "name": "온도 (°C)",
+            "nameLocation": "middle",
+            "nameGap": 52,
+            "position": "right",
+            "scale": True,
+        },
+    ],
+    "series": [
+        {
+            "name": "무게",
+            "type": "line",
+            "showSymbol": False,
+            "yAxisIndex": 0,
+            "data": [[float(x), float(y)] for x, y in zip(time, weight)],
+            "lineStyle": {"color": "#1f4e9c", "width": 2},
+            "markPoint": {
+                "symbol": "circle",
+                "symbolSize": 9,
+                "data": [
+                    {
+                        "coord": [actual_time, weight_at_target],
+                        "name": f"{weight_at_target:.1f}%",
+                        "label": {
+                            "show": True,
+                            "formatter": f"{weight_at_target:.1f}%",
+                            "position": "top",
+                        },
+                    }
+                ],
+            },
+        },
+        {
+            "name": "온도",
+            "type": "line",
+            "showSymbol": False,
+            "yAxisIndex": 1,
+            "data": [[float(x), float(y)] for x, y in zip(time, temp)],
+            "lineStyle": {"color": "#c0392b", "width": 2},
+        },
+    ],
+}
+
+print(json.dumps({
+    "figures": [{
+        "name": "isothermal",
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"],
+    }]
+}, ensure_ascii=False, allow_nan=False))
+```

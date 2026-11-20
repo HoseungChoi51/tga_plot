@@ -1,0 +1,110 @@
+{
+ "arm": "P-mpl",
+ "item": "S047",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "데이터 분석가",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "Cumulative production (kg) per 반응기 over 일자 — per-run production = 생산속도 × 가동시간 / 1000. One line per reactor, daily resolution.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"line\",\n  \"data_code\": \"df['생산량_kg'] = df['생산속도 (g/h)'] * df['가동시간 (h)'] / 1000; df = df.sort_values('일자').groupby(['반응기', '일자'], as_index=False)['생산량_kg'].sum(); df['누적생산량_kg'] = df.groupby('반응기')['생산량_kg'].cumsum()\",\n  \"x\": {\"col\": \"일자\"},\n  \"y\": {\"col\": \"누적생산량_kg\", \"label\": \"Cumulative Production (kg)\"},\n  \"by\": \"반응기\",\n  \"title\": \"Cumulative production per reactor\",\n  \"asks\": [\n    {\"ask\": \"Cumulative production (kg) per 반응기 over 일자\", \"how\": \"key\"},\n    {\"ask\": \"per-run production = 생산속도 × 가동시간 / 1000\", \"how\": \"data_code\"},\n    {\"ask\": \"One line per reactor\", \"how\": \"key\"},\n    {\"ask\": \"daily resolution\", \"how\": \"data_code\"}\n  ]\n}\n```",
+     "llm_s": 6.757,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 18063,
+     "output_chars": 714,
+     "attempts": 1
+    },
+    {
+     "reply": "The error occurs because `groupby(['반응기', '일자'])` fails when the column name in the DataFrame might be strictly defined or the sorting/grouping logic is causing an index issue with the date column before grouping. A more robust way to calculate daily totals per reactor and then cumulative sums is to use a pivot table or explicit aggregation without relying on the order of operations that caused the KeyError.\n\nHere is the corrected spec. I have simplified the `data_code` to first compute the daily production per reactor, then compute the cumulative sum per reactor, ensuring the columns exist and are correctly named.\n\n```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"line\",\n  \"data_code\": \"df['생산량_kg'] = df['생산속도 (g/h)'] * df['가동시간 (h)'] / 1000; daily = df.groupby(['반응기', '일자'], as_index=False)['생산량_kg'].sum(); daily = daily.sort_values('일자'); daily['누적생산량_kg'] = daily.groupby('반응기')['생산량_kg'].cumsum(); df = daily\",\n  \"x\": {\"col\": \"일자\"},\n  \"y\": {\"col\": \"누적생산량_kg\", \"label\": \"Cumulative Production (kg)\"},\n  \"by\": \"반응기\",\n  \"title\": \"Cumulative production per reactor\",\n  \"asks\": [\n    {\"ask\": \"Cumulative production (kg) per 반응기 over 일자\", \"how\": \"key\"},\n    {\"ask\": \"per-run production = 생산속도 × 가동시간 / 1000\", \"how\": \"data_code\"},\n    {\"ask\": \"One line per reactor\", \"how\": \"key\"},\n    {\"ask\": \"daily resolution\", \"how\": \"data_code\"}\n  ]\n}\n```",
+     "llm_s": 7.997,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 19330,
+     "output_chars": 1374,
+     "attempts": 1
+    },
+    {
+     "reply": "The error `KeyError: '일자'` persists likely because the column name in the DataFrame `df` might have trailing spaces, or the sorting/grouping operation on a datetime column inside `data_code` is causing issues when plotkit subsequently tries to filter/sort by that same column for the chart rendering.\n\nA safer approach in `plotkit`'s `data_code` sandbox is to:\n1. Ensure the date column exists and is correctly identified (using `pd.to_datetime` explicitly).\n2. Calculate the daily sums per reactor using `pivot_table` or `groupby` but be very careful with column names.\n3. Since `chart: \"line\"` with `x: {\"col\": \"일자\"}` expects the original data structure or a specific aggregated structure, it is often more robust to let PlotKit handle the aggregation if possible, BUT PlotKit's standard `agg` keys don't support \"cumulative sum of a calculated field\". So we must do it in `data_code`.\n\nThe most common reason for this specific KeyError in these environments is that the column name provided in the preview (`B 일자 (yyyy-mm-dd)`) actually maps to `'일자'` in the dataframe, but sometimes hidden whitespace exists. Let's strip columns first. Also, grouping by a datetime column can sometimes fail if not sorted globally before cumulative calculation.\n\nLet's try a cleaner `data_code` that normalizes column names just in case, and ensures the final dataframe has exactly the columns PlotKit expects (`일자`, `반응기`, `누적생산량_kg`).\n\n```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"line\",\n  \"data_code\": \"df.columns = df.columns.str.strip(); df['일자'] = pd.to_datetime(df['일자']); df['생산량_kg'] = df['생산속도 (g/h)'] * df['가동시간 (h)'] / 1000; daily = df.groupby(['일자', '반응기'], as_index=False)['생산량_kg'].sum(); daily = daily.sort_values('일자'); daily['누적생산량_kg'] = daily.groupby('반응기')['생산량_kg'].cumsum(); df = daily[['일자', '반응기', '누적생산량_kg']]\",\n  \"x\": {\"col\": \"일자\"},\n  \"y\": {\"col\": \"누적생산량_kg\", \"label\": \"Cumulative Production (kg)\"},\n  \"by\": \"반응기\",\n  \"title\": \"Cumulative production per reactor\",\n  \"asks\": [\n    {\"ask\": \"Cumulative production (kg) per 반응기 over 일자\", \"how\": \"key\"},\n    {\"ask\": \"per-run production = 생산속도 × 가동시간 / 1000\", \"how\": \"data_code\"},\n    {\"ask\": \"One line per reactor\", \"how\": \"key\"},\n    {\"ask\": \"daily resolution\", \"how\": \"data_code\"}\n  ]\n}\n```",
+     "llm_s": 12.491,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 21125,
+     "output_chars": 2276,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "line",
+    "data_code": "df.columns = df.columns.str.strip(); df['일자'] = pd.to_datetime(df['일자']); df['생산량_kg'] = df['생산속도 (g/h)'] * df['가동시간 (h)'] / 1000; daily = df.groupby(['일자', '반응기'], as_index=False)['생산량_kg'].sum(); daily = daily.sort_values('일자'); daily['누적생산량_kg'] = daily.groupby('반응기')['생산량_kg'].cumsum(); df = daily[['일자', '반응기', '누적생산량_kg']]",
+    "x": {
+     "col": "일자"
+    },
+    "y": {
+     "col": "누적생산량_kg",
+     "label": "Cumulative Production (kg)"
+    },
+    "by": "반응기",
+    "title": "Cumulative production per reactor",
+    "asks": [
+     {
+      "ask": "Cumulative production (kg) per 반응기 over 일자",
+      "how": "key"
+     },
+     {
+      "ask": "per-run production = 생산속도 × 가동시간 / 1000",
+      "how": "data_code"
+     },
+     {
+      "ask": "One line per reactor",
+      "how": "key"
+     },
+     {
+      "ask": "daily resolution",
+      "how": "data_code"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": false,
+    "error": "data_code failed: KeyError: '일자'",
+    "hint": "names: df (pandas DataFrame of the table), pd, np; leave the result in df"
+   },
+   "facts": [],
+   "draw_s": 0.43587207794189453,
+   "check": {
+    "kind_expected": "line",
+    "failed": [
+     "run: no plot (data_code failed: KeyError: '일자')"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 28.791
+  }
+ ]
+}

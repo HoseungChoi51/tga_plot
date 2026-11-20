@@ -1,0 +1,23 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "bar",
+ "x": "반응기",
+ "y": {
+  "col": "등급",
+  "agg": "count"
+ },
+ "filter": [
+  "등급 in [A, B]"
+ ],
+ "values": true,
+ "asks": [
+  {
+   "ask": "반응기별 합격률(A·B 등급 비율) 막대",
+   "how": "code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/SS03_r1/out/t1"
+ }
+}

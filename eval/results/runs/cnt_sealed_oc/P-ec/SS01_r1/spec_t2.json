@@ -1,0 +1,20 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheets": "주간요약",
+ "chart": "bar",
+ "x": "주차",
+ "y": {
+  "col": "총생산량(kg)",
+  "agg": "mean"
+ },
+ "asks": [
+  {
+   "ask": "14주차부터 색 구분",
+   "how": "code"
+  }
+ ],
+ "data_code": "import numpy as np\n\n# Create a colors list based on the order of categories in x (which are sorted or original df order)\n# In plotkit, for bar charts, the 'colors' list applies to each category in the order they appear on the axis.\n# We need to determine the order. Usually it's numeric sort for integer/float columns like 주차.\nx_vals = df['주차'].unique()\nif pd.api.types.is_numeric_dtype(df['주차']):\n    x_order = sorted(x_vals)\nelse:\n    x_order = list(pd.Categorical(df['주차']).categories)\n\n# Assign colors: first N weeks one color, rest another\n# Let's use blue for < 14 and orange for >= 14\ncolors = []\nfor val in x_order:\n    if val >= 14:\n        colors.append('orange')\n    else:\n        colors.append('blue')\n",
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/SS01_r1/out/t2"
+ }
+}

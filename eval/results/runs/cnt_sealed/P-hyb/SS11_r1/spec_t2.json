@@ -1,0 +1,23 @@
+{
+ "file": "data/doe_temp_h2.csv",
+ "chart": "line",
+ "x": "2존온도(°C)",
+ "y": {
+  "col": "수율(g/g-cat)",
+  "agg": "mean"
+ },
+ "by": "H2/C2H4비",
+ "asks": [
+  {
+   "ask": "온도에 따른 수율 변화 확인",
+   "how": "key"
+  },
+  {
+   "ask": "H2 비율별 선 분리",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-hyb/SS11_r1/out/t2"
+ }
+}

@@ -1,0 +1,111 @@
+{
+ "arm": "P-hyb",
+ "item": "S014",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "생산팀장",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "주차별 총 정지시간과 주차별 총생산량이 관계가 있는지 산점도로 볼 수 있을까요? 정지시간은 downtime 파일에서 시간 단위로, 생산량은 런로그 주간요약 시트 기준으로 해 주세요. 주차는 3월 2일(월)이 1주차예요.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"data_code\": \"import pandas as pd\\n# Load data\\ntry:\\n    dt = df[0] # Assuming plotkit passes list of dfs if multiple files, or we access by name if supported. \\n               # The prompt says 'Python on the pandas DataFrame df'. If multiple files, behavior varies.\\n               # Usually in these tasks, if I specify one file it's df. If two, maybe df is a dict?\\n               # Let's assume standard single df context first. But user asked for 2 files.\\n               # Spec rule: \\\"Several files: a list\\\". \\n               # If I put [\\\"file1\\\", \\\"file2\\\"], what does 'df' look like in data_code?\\n               # Often it's a dictionary {'sheet_name': df} or similar, or just the first one.\\n               # Safer approach: Use the 'asks' to drive the main chart from one file, and use code/data_code to merge? \\n               # No, 'chart' key expects columns from 'file'.\\n               # Strategy: Use run_log.xlsx (Weekly Summary) as the primary file for the scatter plot because it has '주차' and '총생산량'.\\n               # Then use data_code to read the downtime file, aggregate it, and merge it into the current df.\\n    \\n    # In many sandbox environments, you can't easily open external files in data_code unless path is relative to working dir.\\n    # However, plotkit usually injects all loaded data. Let's try to construct the merged dataframe manually using the provided structure.\\n    # Since I cannot guarantee `pd.read_excel` works with relative paths in the sandbox, I will rely on the fact that PlotKit might provide a way to join.\\n    # Actually, looking at previous examples, 'data_code' modifies 'df'. \\n    # If I select TWO files in 'file', does 'df' become a multi-index or a dict? \\n    # Let's stick to ONE file in 'file' parameter (run_log.xlsx, sheet 주간요약) which has 주차 and 생산량.\\n    # And in data_code, I will attempt to load the downtime file. If the environment restricts IO, this fails.\\n    # Alternative: Can I pass both files? Yes. \\\"file\\\": [\\\"data/run_log.xlsx\\\", \\\"data/downtime.xlsx\\\"]\\n    # If so, how to reference them? Usually via index or name. \\n    # Let's assume the simpler case: The user wants a relationship between two aggregated metrics.\\n    # Metric 1: Weekly Total Downtime (Hours). Source: downtime.xlsx.\\n    # Metric 2: Weekly Total Production (kg). Source: run_log.xlsx -> 주간요약.\\n    # Join Key: 주차 (Week Number).\\n    \\n    # Step 1: Prepare Downtime Data\\n    # We need to group downtime by week. The downtime file doesn't have '주차', it has '일자'.\\n    # We must calculate the week number from '일자'. Reference: 2026-03-02 is Week 1.\\n    \\n    # Note: If 'file' contains multiple entries, 'df' in data_code might be tricky. \\n    # A common pattern in these tools is that 'data_code' runs on the PRIMARY dataset defined in 'file'.\\n    # If I define 'file': 'data/run_log.xlsx', I only get run_log. \\n    # I will try to read the downtime file within data_code. \\n    # Path assumption: Relative to root. 'data/downtime.xlsx'.\\n    \\n    import datetime\\n    \\n    # Load downtime\\n    try:\\n        df_dt = pd.read_excel('data/downtime.xlsx', sheet_name='정지이력')\\n    except:\\n        # Fallback if path issue, though unlikely in sandboxed eval context usually providing local files\\n        df_dt = pd.DataFrame() \\n\\n    if not df_dt.empty:\\n        # Convert date to datetime\\n        df_dt['일자'] = pd.to_datetime(df_dt['일자'])\\n        \\n        # Calculate Week Number based on 2026-03-02 being Week 1\\n        ref_date = datetime.datetime(2026, 3, 2)\\n        # Difference in days // 7 + 1\\n        df_dt['diff_days'] = (df_dt['일자'] - ref_date).dt.days\\n        df_dt['주차_calc'] = (df_dt['diff_days'] // 7) + 1\\n        \\n        # Aggregate total downtime per week\\n        weekly_downtime_min = df_dt.groupby('주차_calc')['정지시간(분)'].sum().reset_index()\\n        weekly_downtime_min.columns = ['주차', '총정지시간_분']\\n        weekly_downtime_min['총정지시간_시간'] = weekly_downtime_min['총정지시간_분'] / 60.0\\n        \\n        # Merge with current df (which is assumed to be run_log '주간요약' based on file selection)\\n        # Ensure column types match for merge\\n        if '주차' in df.columns:\\n            df['주차'] = df['주차'].astype(int)\\n            weekly_downtime_min['주차'] = weekly_downtime_min['주차'].astype(int)\\n            \\n            # Left merge to keep all weeks from production log\\n            df = df.merge(weekly_downtime_min[['주차', '총정지시간_시간']], on='주차', how='left')\\n            df['총정지시간_시간'] = df['총정지시간_시간'].fillna(0)\\n        else:\\n            # If current df doesn't have '주차', maybe it's raw runs? User said use '주간요약' sheet.\\n            pass\\n\\n\",\n  \"file\": \"data/run_log.xlsx\",\n  \"sheets\": \"주간요약\",\n  \"chart\": \"scatter\",\n  \"x\": \"총정지시간_시간\",\n  \"y\": {\"col\": \"총생산량(kg)\", \"label\": \"총생산량 (kg)\"},\n  \"title\": {\n    \"text\": \"주차별 총 정지시간과 총생산량의 관계\",\n    \"size\": 14\n  },\n  \"legend\": \"none\",\n  \"grid\": true,\n  \"asks\": [\n    {\n      \"ask\": \"주차별 총 정지시간과 총생산량 산점도\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"정지시간 시간 단위 변환 및 데이터 병합\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"3월 2일 기준 주차 계산\",\n      \"how\": \"data_code\"\n    }\n  ]\n}\n```",
+     "llm_s": 27.534,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 18940,
+     "output_chars": 5136,
+     "attempts": 1
+    },
+    {
+     "reply": "```json\n{\n  \"data_code\": \"import pandas as pd\\nimport datetime\\n\\n# Load downtime data separately\\ntry:\\n    df_dt = pd.read_excel('data/downtime.xlsx', sheet_name='정지이력')\\nexcept Exception as e:\\n    df_dt = pd.DataFrame()\\n\\nif not df_dt.empty:\\n    # Convert date column to datetime\\n    df_dt['일자'] = pd.to_datetime(df_dt['일자'])\\n    \\n    # Calculate Week Number based on 2026-03-02 being Week 1\\n    ref_date = datetime.datetime(2026, 3, 2)\\n    df_dt['diff_days'] = (df_dt['일자'] - ref_date).dt.days\\n    df_dt['주차_calc'] = (df_dt['diff_days'] // 7) + 1\\n    \\n    # Aggregate total downtime per week in minutes, then convert to hours\\n    weekly_downtime_min = df_dt.groupby('주차_calc')['정지시간(분)'].sum().reset_index()\\n    weekly_downtime_min.columns = ['주차', '총정지시간_분']\\n    weekly_downtime_min['총정지시간_시간'] = weekly_downtime_min['총정지시간_분'] / 60.0\\n    \\n    # Ensure the main dataframe (df) is from the correct sheet/file if needed, \\n    # but here we assume df is already loaded with '주간요약' sheet containing '주차'\\n    \\n    if '주차' in df.columns:\\n        # Merge calculated downtime into the current df\\n        # Make sure keys are int for merging\\n        df['주차'] = df['주차'].astype(int)\\n        weekly_downtime_min['주차'] = weekly_downtime_min['주차'].astype(int)\\n        \\n        # Left merge to keep all weeks from production summary\\n        df = df.merge(weekly_downtime_min[['주차', '총정지시간_시간']], on='주차', how='left')\\n        df['총정지시간_시간'] = df['총정지시간_시간'].fillna(0)\\n\",\n  \"file\": \"data/run_log.xlsx\",\n  \"sheets\": \"주간요약\",\n  \"chart\": \"scatter\",\n  \"x\": {\"col\": \"총정지시간_시간\", \"label\": \"총 정지시간 (h)\"},\n  \"y\": {\"col\": \"총생산량(kg)\", \"label\": \"총생산량 (kg)\"},\n  \"title\": {\n    \"text\": \"주차별 총 정지시간과 총생산량의 관계\",\n    \"size\": 14\n  },\n  \"legend\": \"none\",\n  \"grid\": true,\n  \"asks\": [\n    {\n      \"ask\": \"주차별 총 정지시간과 총생산량 산점도\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"정지시간 시간 단위 변환 및 데이터 병합\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"3월 2일 기준 주차 계산\",\n      \"how\": \"data_code\"\n    }\n  ]\n}\n```",
+     "llm_s": 10.403,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 25048,
+     "output_chars": 2003,
+     "attempts": 1
+    },
+    {
+     "reply": "```json\n{\n  \"data_code\": \"import pandas as pd\\nimport datetime\\n\\n# Load downtime data separately\\ntry:\\n    df_dt = pd.read_excel('data/downtime.xlsx', sheet_name='정지이력')\\nexcept Exception as e:\\n    df_dt = pd.DataFrame()\\n\\nif not df_dt.empty:\\n    # Convert date column to datetime\\n    df_dt['일자'] = pd.to_datetime(df_dt['일자'])\\n    \\n    # Calculate Week Number based on 2026-03-02 being Week 1\\n    ref_date = datetime.datetime(2026, 3, 2)\\n    df_dt['diff_days'] = (df_dt['일자'] - ref_date).dt.days\\n    df_dt['주차_calc'] = (df_dt['diff_days'] // 7) + 1\\n    \\n    # Aggregate total downtime per week in minutes, then convert to hours\\n    weekly_downtime_min = df_dt.groupby('주차_calc')['정지시간(분)'].sum().reset_index()\\n    weekly_downtime_min.columns = ['주차', '총정지시간_분']\\n    weekly_downtime_min['총정지시간_시간'] = weekly_downtime_min['총정지시간_분'] / 60.0\\n    \\n    # Merge calculated downtime into the current df (which is 주간요약 sheet)\\n    if '주차' in df.columns:\\n        # Ensure keys are int for merging\\n        df['주차'] = df['주차'].astype(int)\\n        weekly_downtime_min['주차'] = weekly_downtime_min['주차'].astype(int)\\n        \\n        # Left merge to keep all weeks from production summary\\n        # We use suffixes to avoid collision if columns overlap, though unlikely here\\n        df = df.merge(weekly_downtime_min[['주차', '총정지시간_시간']], on='주차', how='left')\\n        df['총정지시간_시간'] = df['총정지시간_시간'].fillna(0)\\n\",\n  \"file\": \"data/run_log.xlsx\",\n  \"sheets\": \"주간요약\",\n  \"chart\": \"scatter\",\n  \"x\": {\"col\": \"총정지시간_시간\", \"label\": \"총 정지시간 (h)\"},\n  \"y\": {\"col\": \"총생산량(kg)\", \"label\": \"총생산량 (kg)\"},\n  \"title\": {\n    \"text\": \"주차별 총 정지시간과 총생산량의 관계\",\n    \"size\": 14\n  },\n  \"legend\": \"none\",\n  \"grid\": true,\n  \"asks\": [\n    {\n      \"ask\": \"주차별 총 정지시간과 총생산량 산점도\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"정지시간 시간 단위 변환 및 데이터 병합\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"3월 2일 기준 주차 계산\",\n      \"how\": \"data_code\"\n    }\n  ]\n}\n```",
+     "llm_s": 10.385,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 27806,
+     "output_chars": 1937,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "data_code": "import pandas as pd\nimport datetime\n\n# Load downtime data separately\ntry:\n    df_dt = pd.read_excel('data/downtime.xlsx', sheet_name='정지이력')\nexcept Exception as e:\n    df_dt = pd.DataFrame()\n\nif not df_dt.empty:\n    # Convert date column to datetime\n    df_dt['일자'] = pd.to_datetime(df_dt['일자'])\n    \n    # Calculate Week Number based on 2026-03-02 being Week 1\n    ref_date = datetime.datetime(2026, 3, 2)\n    df_dt['diff_days'] = (df_dt['일자'] - ref_date).dt.days\n    df_dt['주차_calc'] = (df_dt['diff_days'] // 7) + 1\n    \n    # Aggregate total downtime per week in minutes, then convert to hours\n    weekly_downtime_min = df_dt.groupby('주차_calc')['정지시간(분)'].sum().reset_index()\n    weekly_downtime_min.columns = ['주차', '총정지시간_분']\n    weekly_downtime_min['총정지시간_시간'] = weekly_downtime_min['총정지시간_분'] / 60.0\n    \n    # Merge calculated downtime into the current df (which is 주간요약 sheet)\n    if '주차' in df.columns:\n        # Ensure keys are int for merging\n        df['주차'] = df['주차'].astype(int)\n        weekly_downtime_min['주차'] = weekly_downtime_min['주차'].astype(int)\n        \n        # Left merge to keep all weeks from production summary\n        # We use suffixes to avoid collision if columns overlap, though unlikely here\n        df = df.merge(weekly_downtime_min[['주차', '총정지시간_시간']], on='주차', how='left')\n        df['총정지시간_시간'] = df['총정지시간_시간'].fillna(0)\n",
+    "file": "data/run_log.xlsx",
+    "sheets": "주간요약",
+    "chart": "scatter",
+    "x": {
+     "col": "총정지시간_시간",
+     "label": "총 정지시간 (h)"
+    },
+    "y": {
+     "col": "총생산량(kg)",
+     "label": "총생산량 (kg)"
+    },
+    "title": {
+     "text": "주차별 총 정지시간과 총생산량의 관계",
+     "size": 14
+    },
+    "legend": "none",
+    "grid": true,
+    "asks": [
+     {
+      "ask": "주차별 총 정지시간과 총생산량 산점도",
+      "how": "key"
+     },
+     {
+      "ask": "정지시간 시간 단위 변환 및 데이터 병합",
+      "how": "data_code"
+     },
+     {
+      "ask": "3월 2일 기준 주차 계산",
+      "how": "data_code"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": false,
+    "error": "x: no column matches \"총정지시간_시간\"",
+    "hint": "columns: A \"주차\", B \"시작일\", C \"런수\", D \"평균수율(g/g-cat)\", E \"평균잔류금속(wt%)\", F \"합격률(%)\", G \"총생산량(kg)\""
+   },
+   "facts": [],
+   "draw_s": 0.479982852935791,
+   "check": {
+    "kind_expected": "scatter",
+    "failed": [
+     "run: no plot (x: no column matches \"총정지시간_시간\")"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 49.908
+  }
+ ]
+}

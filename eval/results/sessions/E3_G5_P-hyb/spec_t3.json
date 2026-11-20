@@ -1,0 +1,25 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "line",
+ "x": {
+  "col": "체류시간 (s)",
+  "bins": {
+   "width": 0.5
+  }
+ },
+ "y": {
+  "col": "CNT수율 (g/g-cat)",
+  "agg": "mean"
+ },
+ "by": "반응기",
+ "asks": [
+  {
+   "ask": "반응기별 체류시간 구간 평균 수율 선 그래프",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/sessions/E3_G5_P-hyb/out/t3"
+ }
+}

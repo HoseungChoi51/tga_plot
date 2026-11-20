@@ -1,0 +1,19 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "bar",
+ "x": "반응기",
+ "y": {
+  "col": "생산량_kg",
+  "agg": "sum"
+ },
+ "data_code": "df['생산량_kg'] = df['생산속도 (g/h)'] * df['가동시간 (h)'] / 1000",
+ "asks": [
+  {
+   "ask": "막대로 변경",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-mpl/SS04_r2/out/t2"
+ }
+}

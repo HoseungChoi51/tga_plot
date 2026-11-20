@@ -1,0 +1,8 @@
+We need answer user in Korean? Actually test mode: reply with JSON spec only inside one json block, nothing else. Need analyze request.
+
+User: "PET 시트, 제목은 'PET 열분해', 범례는 왼쪽 아래, 격자 켜고, 잔류량은 소수 둘째 자리까지"
+Need produce spec.json for plotkit. File polymers.xlsx. Sheets PET. title text 'PET 열분해'. legend lower left. grid true. residue text with second decimal. Since TGA default preset, include annotate residue with text "Residue {y:.2f}%"? User says 잔류량은 소수 둘째 자리까지. According guide: "피크 표시는 빼줘" etc. For residue text, example: "잔류량 표시는 소수점 둘째 자리까지" -> {"annotate": {"residue": {"text": "Residue {y:.2f}%"}}}. Need include sheets: "PET". Should we include x/y1/y2? Defaults from tga_guess. No. Need only asked. Ensure legend position: "lower left" or "왼쪽 아래"? Allowed English positions. Use "lower left". grid true. title object. annotate residue text. JSON only.
+
+Double-check: "잔류량은 소수 둘째 자리까지" mentions residue display, so include annotate.residue. Default residue x=800, text maybe default; change text. Good.
+
+No other keys. File exact "polymers.xlsx".

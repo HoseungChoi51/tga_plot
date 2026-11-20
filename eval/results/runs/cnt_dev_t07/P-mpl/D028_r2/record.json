@@ -1,0 +1,195 @@
+{
+ "arm": "P-mpl",
+ "item": "D028",
+ "repeat": 2,
+ "split": "dev",
+ "persona": "라인 작업자",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "정지원인 비율 파이로",
+   "calls": [
+    {
+     "reply": "```json\n{\"file\": \"data/downtime.xlsx\", \"chart\": \"pie\", \"x\": \"원인\", \"asks\": [{\"ask\": \"정지원인 비율 파이\", \"how\": \"key\"}]}\n```",
+     "llm_s": 2.138,
+     "prompt_tokens": 5296,
+     "output_tokens": 48,
+     "cached_tokens": 4699,
+     "prompt_n": 597,
+     "prefill_ms": 855.832109,
+     "decode_ms": 899.3147660000001,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": "data/downtime.xlsx",
+    "chart": "pie",
+    "x": "원인",
+    "asks": [
+     {
+      "ask": "정지원인 비율 파이",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_t07/P-mpl/D028_r2/out/t1/pie_원인.png"
+    ],
+    "chart": "pie",
+    "rows_used": 294,
+    "rows_total": 294,
+    "values": {
+     "slices": {
+      "노즐 막힘": 84.0,
+      "기타": 70.0,
+      "촉매 공급 이상": 68.0,
+      "히터 고장": 44.0,
+      "전력": 28.0
+     },
+     "shares": {
+      "노즐 막힘": 0.2857,
+      "기타": 0.2381,
+      "촉매 공급 이상": 0.2313,
+      "히터 고장": 0.1497,
+      "전력": 0.0952
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "원 그래프를 저장했습니다: pie_원인.png\n사용한 행: 294 / 294\n노즐 막힘 28.6%, 기타 23.8%, 촉매 공급 이상 23.1%, 히터 고장 15.0%, 전력 9.5%"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": {
+        "labels": [
+         "노즐 막힘",
+         "기타",
+         "촉매 공급 이상",
+         "히터 고장",
+         "전력"
+        ],
+        "shares": [
+         0.28571428571428575,
+         0.2380952380952381,
+         0.23129251700680276,
+         0.14965986394557818,
+         0.09523809523809523
+        ],
+        "values": null,
+        "colors": [
+         "#1f4e9c",
+         "#c0392b",
+         "#2e8b57",
+         "#d4881c",
+         "#7b3fa0"
+        ]
+       },
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 5,
+       "texts": [
+        "노즐 막힘",
+        "기타",
+        "촉매 공급 이상",
+        "히터 고장",
+        "전력",
+        "28.6%",
+        "23.8%",
+        "23.1%",
+        "15.0%",
+        "9.5%"
+       ],
+       "x": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.5403687948362257,
+        "max": 1.5403678763659956,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.0835841366856096,
+        "max": 1.083589765461587,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [
+      "노즐 막힘",
+      "기타",
+      "촉매 공급 이상",
+      "히터 고장",
+      "전력",
+      "28.6%",
+      "23.8%",
+      "23.1%",
+      "15.0%",
+      "9.5%"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_t07/P-mpl/D028_r2/out/t1/pie_원인.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.33098936080932617,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 2.541
+  }
+ ]
+}

@@ -1,0 +1,27 @@
+{
+ "file": "data/raman/*.csv",
+ "combine": true,
+ "preset": "none",
+ "x": {
+  "col": "A",
+  "min": 1200,
+  "max": 1700
+ },
+ "y1": {
+  "col": "B"
+ },
+ "data_code": "mask = (x >= 1550) & (x <= 1620)\nif np.any(mask):\n    y1 = y1 / np.max(y1[mask])\nelse:\n    y1 = y1 / np.max(y1)",
+ "asks": [
+  {
+   "ask": "1200–1700 cm⁻¹ 구간만 표시",
+   "how": "key"
+  },
+  {
+   "ask": "G 밴드 최대값 기준 정규화",
+   "how": "data_code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-ec/SS06_r1/out/t2"
+ }
+}

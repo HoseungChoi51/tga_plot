@@ -1,0 +1,15 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "line",
+ "x": {
+  "col": "일자",
+  "period": "month"
+ },
+ "y": "count",
+ "filter": [
+  "원인 == 노즐 막힘"
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_lite/P-mpl/DS03_r1/out/t4"
+ }
+}

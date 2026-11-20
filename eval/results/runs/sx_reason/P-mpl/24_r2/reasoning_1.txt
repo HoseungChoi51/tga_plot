@@ -1,0 +1,4 @@
+We need answer user's request in test mode: only JSON spec inside ```json block and nothing else. Need analyze. User Korean: "Heat Flow를 y2축으로 그려주고 y2축 라벨은 'Heat flow (W/g)', 피크 표시는 빼줘"
+Inspect file extra_columns.xlsx sheet CNT-01. tga_guess y2 G Deriv Weight. User asks Heat Flow to y2 axis. Heat Flow column F. y2 label 'Heat flow (W/g)'. 피크 표시 빼줘 => annotate peak false. Need include file exactly. Since TGA preset default, only specify y2 col F and label, annotate peak false. Should we also include x? No. y1 default E. Need maybe y2: {"col": "F", "label": "Heat flow (W/g)"}. Does changing y2 col affect peak annotation? They ask remove peak. Good.
+Potential issue: y2 axis label part name #4 y2.label, data column #열. Need not set y2 false. Need maybe y2: {"col": "F", "label": "Heat flow (W/g)"}. If Heat Flow is F. Could also use header part "Heat Flow"? But col letter safer from inspect. Use F.
+Need output only JSON block. Ensure no extra text.

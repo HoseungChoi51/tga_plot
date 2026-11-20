@@ -1,0 +1,38 @@
+{
+ "file": "data/diameters.csv",
+ "chart": "histogram",
+ "x": "직경(nm)",
+ "bins": {
+  "width": 0.5,
+  "min": 4,
+  "max": 28
+ },
+ "code": "import numpy as np\n# We need the raw data to calculate mean and median for vertical lines.\n# The 'code' block has access to 'df' if we use data_code? No, code runs after drawing.\n# However, usually in these systems, if 'ref' doesn't support dynamic stats on x-axis for histograms,\n# we might need to compute them in data_code and store them in a way accessible to code?\n# Actually, looking at the docs: 'code' names: fig, ax, plt, np, data (the drawn numbers).\n# It does NOT list df. But often 'df' is available or we can re-read? No, sandboxed.\n# Let's try using 'ref' with \"mean\" and \"median\" first. If that fails, I'll switch to code.\n# Wait, the previous error was JSON syntax. Let's fix the JSON first.\n# The 'code' field in the previous attempt had newlines which broke JSON if not escaped properly or just bad formatting.\n# I will remove the complex code logic and rely on 'ref' if possible, or simple code.\n# Since I cannot guarantee 'ref' supports \"mean\" for x-axis in histogram (docs say ref y for bar/line),\n# I will use data_code to add columns with the global mean/median, then... no, that doesn't help plotting lines.\n# Let's assume the system allows calculating stats in `code` by accessing the underlying dataframe via some trick or that `ref` works.\n# Given the constraint, I will provide a clean JSON. If `ref` with \"mean\" isn't supported for histogram x-axis,\n# I might have to guess the values or leave it out? No, user asked for it.\n# Let's try `ref` with `x: \"mean\"`. Many libraries support this.\n# If not, I will use `code` but I need the values. \n# Alternative: Use `data_code` to print stats? No output.\n# I will stick to `ref` as it is the standard key for reference lines.",
+ "ref": [
+  {
+   "x": "mean",
+   "text": "Mean"
+  },
+  {
+   "x": "median",
+   "text": "Median"
+  }
+ ],
+ "asks": [
+  {
+   "ask": "6개 시료 전부 합쳐서 히스토그램",
+   "how": "key"
+  },
+  {
+   "ask": "bin 폭 0.5 nm, 4–28 nm",
+   "how": "key"
+  },
+  {
+   "ask": "평균과 중앙값 위치에 세로선",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-hyb/S027_r3/out/t1"
+ }
+}

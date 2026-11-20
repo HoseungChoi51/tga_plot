@@ -1,0 +1,203 @@
+We need script JSON option, overlay sheets. TGA standard labels two always. Need combined plot with weight and neg DTG, three series each perhaps legend exterior right. Echarts axis multi. labels residue and peak for each sheet annotations markers, custom series. Ensure accurate load excel. output one figure name. Need script in block only.```python
+import json
+import os
+import re
+
+import numpy as np
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+
+COLORS = ["#1f4e9c", "#c0392b", "#2e8b57"]
+DTG_COLORS = ["#6f91c8", "#e07a70", "#71b88a"]
+
+
+def clean_number(value):
+    if pd.isna(value):
+        return None
+    value = float(value)
+    return value if np.isfinite(value) else None
+
+
+def main():
+    excel = pd.ExcelFile(DATA_FILE)
+    series = []
+    annotation_series = []
+    legend_data = []
+
+    for index, sheet_name in enumerate(excel.sheet_names):
+        df = pd.read_excel(DATA_FILE, sheet_name=sheet_name)
+        if df.shape[1] < 4:
+            continue
+
+        # The workbook preview identifies B=temperature, C=weight, D=derivative weight.
+        temp = pd.to_numeric(df.iloc[:, 1], errors="coerce")
+        weight = pd.to_numeric(df.iloc[:, 2], errors="coerce")
+        dtg = pd.to_numeric(df.iloc[:, 3], errors="coerce")
+        valid = temp.notna() & weight.notna() & dtg.notna()
+        temp = temp[valid].to_numpy(dtype=float)
+        weight = weight[valid].to_numpy(dtype=float)
+        dtg = dtg[valid].to_numpy(dtype=float)
+        if len(temp) == 0:
+            continue
+
+        order = np.argsort(temp)
+        temp, weight, dtg = temp[order], weight[order], dtg[order]
+        name = str(sheet_name)
+        color = COLORS[index % len(COLORS)]
+        dtg_color = DTG_COLORS[index % len(DTG_COLORS)]
+        legend_data.extend([f"{name} Weight", f"{name} DTG"])
+
+        series.append({
+            "name": f"{name} Weight",
+            "type": "line",
+            "xAxisIndex": 0,
+            "yAxisIndex": 0,
+            "showSymbol": False,
+            "symbol": "none",
+            "connectNulls": False,
+            "lineStyle": {"width": 2, "color": color},
+            "itemStyle": {"color": color},
+            "data": [[clean_number(x), clean_number(y)] for x, y in zip(temp, weight)],
+        })
+        series.append({
+            "name": f"{name} DTG",
+            "type": "line",
+            "xAxisIndex": 0,
+            "yAxisIndex": 1,
+            "showSymbol": False,
+            "symbol": "none",
+            "connectNulls": False,
+            "lineStyle": {"width": 1.8, "color": dtg_color},
+            "itemStyle": {"color": dtg_color},
+            "data": [[clean_number(x), clean_number(-y)] for x, y in zip(temp, dtg)],
+        })
+
+        # Residue: measured weight at temperature nearest 800 °C.
+        residue_idx = int(np.argmin(np.abs(temp - 800.0)))
+        residue_x = float(temp[residue_idx])
+        residue_y = float(weight[residue_idx])
+        annotation_series.append({
+            "name": f"{name} Residue",
+            "type": "scatter",
+            "xAxisIndex": 0,
+            "yAxisIndex": 0,
+            "symbol": "circle",
+            "symbolSize": 9,
+            "itemStyle": {"color": color, "borderColor": "#ffffff", "borderWidth": 1},
+            "label": {
+                "show": True,
+                "formatter": f"{name} Residue {residue_y:.1f}%",
+                "position": "right",
+                "fontSize": 11,
+                "color": color,
+                "backgroundColor": "rgba(255,255,255,0.8)",
+                "padding": [2, 4],
+            },
+            "data": [[clean_number(residue_x), clean_number(residue_y)]],
+            "tooltip": {"show": False},
+            "z": 5,
+        })
+
+        # The usual TGA peak is the largest upward (-DTG) peak above 150 °C.
+        eligible = np.where(temp > 150.0)[0]
+        peak_idx = int(eligible[np.argmax(-dtg[eligible])]) if len(eligible) else int(np.argmax(-dtg))
+        peak_x = float(temp[peak_idx])
+        peak_y = float(-dtg[peak_idx])
+        annotation_series.append({
+            "name": f"{name} Peak",
+            "type": "scatter",
+            "xAxisIndex": 0,
+            "yAxisIndex": 1,
+            "symbol": "diamond",
+            "symbolSize": 10,
+            "itemStyle": {"color": dtg_color, "borderColor": "#ffffff", "borderWidth": 1},
+            "label": {
+                "show": True,
+                "formatter": f"{name} {peak_x:.0f} °C",
+                "position": "top",
+                "fontSize": 11,
+                "color": dtg_color,
+                "backgroundColor": "rgba(255,255,255,0.8)",
+                "padding": [2, 4],
+            },
+            "data": [[clean_number(peak_x), clean_number(peak_y)]],
+            "tooltip": {"show": False},
+            "z": 6,
+        })
+
+    all_series = series + annotation_series
+    option = {
+        "animation": False,
+        "title": {
+            "text": "TGA — PE, PVC, PET",
+            "left": "center",
+            "top": 8,
+            "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 16, "fontWeight": "normal"},
+        },
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {"type": "cross"},
+        },
+        "legend": {
+            "data": legend_data,
+            "orient": "vertical",
+            "right": 12,
+            "top": "middle",
+            "align": "left",
+            "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 11},
+        },
+        "grid": {"left": 68, "right": 165, "top": 58, "bottom": 58, "containLabel": False},
+        "xAxis": {
+            "type": "value",
+            "name": "Temperature (°C)",
+            "nameLocation": "middle",
+            "nameGap": 34,
+            "axisLine": {"show": True},
+            "axisTick": {"show": True},
+            "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+            "splitLine": {"show": False},
+        },
+        "yAxis": [
+            {
+                "type": "value",
+                "name": "Weight (%)",
+                "nameLocation": "middle",
+                "nameGap": 48,
+                "axisLine": {"show": True, "lineStyle": {"color": "#1f4e9c"}},
+                "axisTick": {"show": True},
+                "axisLabel": {"fontFamily": "Noto Sans CJK KR", "color": "#1f4e9c"},
+                "nameTextStyle": {"color": "#1f4e9c"},
+                "splitLine": {"show": True, "lineStyle": {"color": "#e6e6e6"}},
+            },
+            {
+                "type": "value",
+                "name": "-DTG (%/°C)",
+                "nameLocation": "middle",
+                "nameGap": 48,
+                "axisLine": {"show": True, "lineStyle": {"color": "#c0392b"}},
+                "axisTick": {"show": True},
+                "axisLabel": {"fontFamily": "Noto Sans CJK KR", "color": "#c0392b"},
+                "nameTextStyle": {"color": "#c0392b"},
+                "splitLine": {"show": False},
+            },
+        ],
+        "series": all_series,
+    }
+
+    result = {
+        "figures": [{
+            "name": "polymers_overlay",
+            "option": option,
+            "width": 820,
+            "height": 500,
+            "dpi": 300,
+            "formats": ["png"],
+        }]
+    }
+    print(json.dumps(result, ensure_ascii=False, allow_nan=False))
+
+
+if __name__ == "__main__":
+    main()
+```

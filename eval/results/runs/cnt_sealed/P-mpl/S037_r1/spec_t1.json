@@ -1,0 +1,15 @@
+{
+ "file": "data/L3_MES_export_202607.csv",
+ "chart": "scatter",
+ "x": "가동시간(h)",
+ "y": "CNT수율(g/g-cat)",
+ "asks": [
+  {
+   "ask": "가동시간과 수율 관계 산점도",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-mpl/S037_r1/out/t1"
+ }
+}

@@ -1,0 +1,223 @@
+{
+ "arm": "P-mpl",
+ "item": "S045",
+ "repeat": 2,
+ "split": "sealed",
+ "persona": "신입 연구원",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "작업자분들이 여러 명이시던데 각자 런을 몇 번씩 맡으셨는지 비율로 보고 싶어요. 원그래프로 부탁드립니다.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"pie\",\n  \"x\": \"작업자\",\n  \"asks\": [\n    {\n      \"ask\": \"작업자별 런 수 비율 원그래프\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 2.806,
+     "prompt_tokens": 6274,
+     "output_tokens": 86,
+     "cached_tokens": 6233,
+     "prompt_n": 41,
+     "prefill_ms": 255.382323,
+     "decode_ms": 2132.736515,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "pie",
+    "x": "작업자",
+    "asks": [
+     {
+      "ask": "작업자별 런 수 비율 원그래프",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-mpl/S045_r2/out/t1/pie_작업자.png"
+    ],
+    "chart": "pie",
+    "rows_used": 997,
+    "rows_total": 997,
+    "values": {
+     "slices": {
+      "이서준": 136.0,
+      "정민호": 135.0,
+      "박지훈": 130.0,
+      "윤재원": 129.0,
+      "최유진": 124.0,
+      "한수빈": 119.0,
+      "김도현": 115.0,
+      "강하늘": 109.0
+     },
+     "shares": {
+      "이서준": 0.1364,
+      "정민호": 0.1354,
+      "박지훈": 0.1304,
+      "윤재원": 0.1294,
+      "최유진": 0.1244,
+      "한수빈": 0.1194,
+      "김도현": 0.1153,
+      "강하늘": 0.1093
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "원 그래프를 저장했습니다: pie_작업자.png\n사용한 행: 997 / 997\n이서준 13.6%, 정민호 13.5%, 박지훈 13.0%, 윤재원 12.9%, 최유진 12.4%, 한수빈 11.9%, 김도현 11.5%, 강하늘 10.9%"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": {
+        "labels": [
+         "이서준",
+         "정민호",
+         "박지훈",
+         "윤재원",
+         "최유진",
+         "한수빈",
+         "김도현",
+         "강하늘"
+        ],
+        "shares": [
+         0.1364092276830491,
+         0.13540621865596789,
+         0.13039117352056168,
+         0.12938816449348042,
+         0.12437311935807419,
+         0.11935807422266798,
+         0.11534603811434306,
+         0.10932798395185568
+        ],
+        "values": null,
+        "colors": [
+         "#1f4e9c",
+         "#c0392b",
+         "#2e8b57",
+         "#d4881c",
+         "#7b3fa0",
+         "#17a2b8",
+         "#8c564b",
+         "#e377c2"
+        ]
+       },
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 8,
+       "texts": [
+        "이서준",
+        "정민호",
+        "박지훈",
+        "윤재원",
+        "최유진",
+        "한수빈",
+        "김도현",
+        "강하늘",
+        "13.6%",
+        "13.5%",
+        "13.0%",
+        "12.9%",
+        "12.4%",
+        "11.9%",
+        "11.5%",
+        "10.9%"
+       ],
+       "x": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.5403723283933424,
+        "max": 1.5403721620414998,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.0758266843059645,
+        "max": 1.0758272368865711,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [
+      "이서준",
+      "정민호",
+      "박지훈",
+      "윤재원",
+      "최유진",
+      "한수빈",
+      "김도현",
+      "강하늘",
+      "13.6%",
+      "13.5%",
+      "13.0%",
+      "12.9%",
+      "12.4%",
+      "11.9%",
+      "11.5%",
+      "10.9%"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-mpl/S045_r2/out/t1/pie_작업자.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.391465425491333,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 3.274
+  }
+ ]
+}

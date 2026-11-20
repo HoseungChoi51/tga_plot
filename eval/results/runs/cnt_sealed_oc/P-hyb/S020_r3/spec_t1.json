@@ -1,0 +1,54 @@
+{
+ "file": [
+  "data/raman/R1-260326-1.csv",
+  "data/raman/R2-260616-1.csv",
+  "data/raman/R4-260721-1.csv"
+ ],
+ "preset": "none",
+ "x": {
+  "col": "A",
+  "min": 1000,
+  "max": 2000,
+  "label": "Raman Shift (cm⁻¹)"
+ },
+ "y1": {
+  "col": "B",
+  "legend": "",
+  "width": 1.5
+ },
+ "y2": false,
+ "combine": true,
+ "names": [
+  "R1-260326-1",
+  "R2-260616-1",
+  "R4-260721-1"
+ ],
+ "data_code": "\n# Baseline subtraction\n# Points for baseline definition\nx_l = 1100.0\nx_r = 1800.0\ntol = 10.0\n\n# Create masks for the averaging regions\nmask_l = (x >= x_l - tol) & (x <= x_l + tol)\nmask_r = (x >= x_r - tol) & (x <= x_r + tol)\n\n# Calculate mean intensity in these regions\nif mask_l.any() and mask_r.any():\n    y_base_l = np.mean(y1[mask_l])\n    y_base_r = np.mean(y1[mask_r])\nelse:\n    # Fallback if data doesn't cover the range exactly\n    y_base_l = np.interp(x_l, x, y1)\n    y_base_r = np.interp(x_r, x, y1)\n\n# Construct linear baseline array matching x shape\nbaseline = y_base_l + (y_base_r - y_base_l) * (x - x_l) / (x_r - x_l)\n\n# Subtract baseline\ny_bl = y1 - baseline\n\n# Normalize by G-band peak max in 1550-1620 cm^-1\nmask_g = (x >= 1550) & (x <= 1620)\nif mask_g.any():\n    g_max = np.max(y_bl[mask_g])\n    if g_max != 0:\n        y_norm = y_bl / g_max\n    else:\n        y_norm = y_bl\nelse:\n    # If no G band found, normalize by global max or leave as is? \n    # User asked specifically for G band normalization.\n    y_norm = y_bl\n\ny1 = y_norm\n",
+ "title": {
+  "text": "G-band Normalized Raman Spectra (Baseline Corrected)",
+  "size": 12
+ },
+ "grid": true,
+ "legend": "best",
+ "asks": [
+  {
+   "ask": "세 개 파일 overlay",
+   "how": "key"
+  },
+  {
+   "ask": "직선 베이스라인 빼기",
+   "how": "data_code"
+  },
+  {
+   "ask": "G 밴드 최대값으로 정규화",
+   "how": "data_code"
+  },
+  {
+   "ask": "1000–2000 cm⁻¹ 구간 표시",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S020_r3/out/t1"
+ }
+}

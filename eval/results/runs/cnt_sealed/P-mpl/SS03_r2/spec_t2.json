@@ -1,0 +1,30 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "bar",
+ "x": {
+  "col": "일자",
+  "period": "month"
+ },
+ "y": {
+  "col": "등급",
+  "agg": "count"
+ },
+ "by": "반응기",
+ "filter": [
+  "등급 in [A, B]"
+ ],
+ "asks": [
+  {
+   "ask": "월별로 나눠서 반응기별 묶은 막대",
+   "how": "key"
+  },
+  {
+   "ask": "합격률(A·B 등급 비율, %)",
+   "how": "unsupported"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-mpl/SS03_r2/out/t2"
+ }
+}

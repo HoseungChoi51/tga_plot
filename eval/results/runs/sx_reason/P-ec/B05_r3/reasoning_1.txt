@@ -1,0 +1,60 @@
+We need answer user's request in test mode: only JSON spec inside json block, nothing else. Need analyze. User Korean: "두 파일을 한 그림에 겹쳐 그리고 범례에는 Lot A, Lot B라고 써줘" Means overlay two files in one plot and legend labels Lot A, Lot B. We have two files: cnt_lot_A.csv and cnt_lot_B.txt. Need produce spec JSON. Need consider plotkit spec supports file single? All keys? The guide examples have "file": one file. User asks two files one plot. Does plotkit support multiple files? The guide doesn't explicitly mention multiple files key. It mentions sheets combine for multiple sheets in one plot. But two files? Could use "files"? Need infer from plotkit? We cannot run. Need produce best spec. Need not edit plotkit. Need use inspect file names exactly. Need perhaps use "files": ["cnt_lot_A.csv", "cnt_lot_B.txt"]? But guide only says "file". Need maybe use "combine": true and multiple files? The spec likely accepts "file" as string or list? Need think. plotkit.py tool likely can take file. The guide says "file" in examples. "겹쳐 그리기 (여러 시트를 한 그림에) combine" only sheets. But user asks two files. Could there be support for "files"? The test likely expects a spec with "files": ["cnt_lot_A.csv", "cnt_lot_B.txt"], "combine": true, and y1.legend names? Need set legend names per file. How to label series per file? In spec, `<axis>.legend` (name shown) for y1/y2. But if two files, need per-file legend names. Maybe use "legend": {"names": ["Lot A", "Lot B"]}? Need know plotkit schema. We don't have. Could use "echarts": {"series": [{"name": "Lot A"}, {"name": "Lot B"}]}? But with TGA preset, series 0 = y1 line, 1 = y2 line for one file. With multiple files maybe series order? Could be y1 for each file then y2 for each? Guide says for combine: one y1 line per sheet, then one y2 line per sheet. For multiple files maybe analogous? But if user only wants legend Lot A, Lot B, maybe they only want weight curves? They didn't specify y2. TGA default includes y1 and y2. If overlay two files, there will be 4 lines: A weight, A DTG, B weight, B DTG. Legend with Lot A, Lot B might be ambiguous. Could set y1.legend? If per file, maybe use "series" in echarts to set names. But allowed series list: 0=y1 line, 1=y2 line; with combine, one y1 line per sheet, then one y2 line per sheet. For two files maybe one y1 line per file, then y2 line per file? Then series names: 0 Lot A, 2 Lot B? But y2 lines also need names? If legend only Lot A, Lot B perhaps y2 lines should not appear or have same names? Could set y2 false? User didn't ask to remove DTG. But if two files overlaid and legend only Lot A, Lot B, maybe they want only one curve per file? TGA default draws both. If y2 remains, legend might show "Weight (%)" and "Deriv. Weight" for each file, not Lot A/B. Need decide.
+
+The instruction: "Write a JSON spec that contains ONLY what the user asked for. Everything else has defaults." User asked two files one plot, legend labels Lot A, Lot B. So include multiple files, combine, legend names. 
+[...]
+ B"]}, "series": [{"name": "Lot A"}, {"name": "Lot B"}]}` and `"y2": false`. This is simplest and likely valid. But adding y2 false. Let's decide final based on rule "Only what user asked". Do not set y2 false. Use echarts to set legend names. Use file list. Use series names for y1 lines only or all four? The user asked legend write Lot A/B, not hide y2. If we set only y1 names and legend data two, y2 lines are plotted but not in legend. That might be okay but derivative lines unlabeled. If we set all four grouped, legend entries Lot A/B control both weight and derivative. That better represents files. Use four names. But if ECharts legend with duplicate names, it may show one entry per name. Good.
+
+Need maybe set `"legend": {"show": true}` in echarts? If legend.data only two, show default. Could include `"show": true` to ensure. It's not a default? It is default. But user asked legend, so okay. However "Leave out every key the user did not mention. Do not repeat default values." But legend mentioned, show true is default. Omit.
+
+Could include `"legend": {"data": ["Lot A", "Lot B"], "selected": {"Lot A": true, "Lot B": true}}` no.
+
+Final JSON:
+{
+  "file": ["cnt_lot_A.csv", "cnt_lot_B.txt"],
+  "combine": true,
+  "echarts": {
+    "legend": {"data": ["Lot A", "Lot B"]},
+    "series": [
+      {"name": "Lot A"},
+      {"name": "Lot B"},
+      {"name": "Lot A"},
+      {"name": "Lot B"}
+    ]
+  }
+}
+
+But if plotkit validates series names unique? It may not. If it checks legend data matches series names, duplicates okay? If not, maybe error. Could set y2 series names to "Lot A (DTG)" and "Lot B (DTG)" and legend data only Lot A/B? Then legend only y1. But user wanted Lot A/B. Hmm.
+
+Maybe use `"series": [{"name": "Lot A"}, {"name": "Lot B"}, {"name": "Lot A DTG"}, {"name": "Lot B DTG"}]` and legend data ["Lot A","Lot B"]? Then y2 hidden. But not asked.
+
+If plotkit's legend data override only controls legend entries, series with names not in data hidden. Good.
+
+Could set y2 series names to empty string? Not good.
+
+Maybe use `"series": [{"name": "Lot A"}, {"name": "Lot B"}, {}, {}]` to leave y2 default hidden. This avoids duplicate names. If legend data only Lot A/B, y2 hidden. This might be safest if duplicate names problematic. But if plotkit default legend data is generated from series names, overriding data with only two may cause y2 not shown. Good. If actual series length 4, extra `{}` no changes. If actual length 2, extra empty series may be added? If we include two `{}` and actual length 2, ECharts may add two empty series? How does plotkit merge? It might merge list element-wise and ignore extra if not? Unknown. To avoid extra empty series, use only two series entries. If actual length 4, it sets first two names, leaves rest. That's fine. So use only two series entries. This assumes first two are y1 lines. Guide says yes. Good. Then no duplicate names, no extra series. Legend data two. y2 hidden. This is probably best.
+
+But if actual series length 2 (maybe multi-file combine only y1), good. If actual series order per file, first two are y1 A and y2 A, bad. But guide says y1 per sheet. Use that.
+
+Thus final:
+{
+  "file": ["cnt_lot_A.csv", "cnt_lot_B.txt"],
+  "combine": true,
+  "echarts": {
+    "legend": {"data": ["Lot A", "Lot B"]},
+    "series": [{"name": "Lot A"}, {"name": "Lot B"}]
+  }
+}
+
+Could top-level `"legend": {"show": true}`? No.
+
+Need ensure JSON only. Final in ```json block. No other text.
+
+Double-check Korean request: "범례에는 Lot A, Lot B라고 써줘" Could mean legend labels should be exactly Lot A and Lot B. Our legend data and series names do that for y1. Good.
+
+If plotkit expects `"files"`, fail. Could we choose `"files"` instead? Let's revisit. The guide's "Use the file name exactly as shown in the inspect result." If multiple, maybe still `"file"` key. In JSON, arrays can be values. The examples all use `"file"`. I think use `"file"`.
+
+Could include `"sheet"`? No.
+
+Need maybe set `"output"`? No.
+
+Final. Ensure no comments.

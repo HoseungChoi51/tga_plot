@@ -1,0 +1,19 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "hbar",
+ "x": "촉매로트",
+ "y": "count",
+ "asks": [
+  {
+   "ask": "로트별 런 수",
+   "how": "key"
+  },
+  {
+   "ask": "가로 막대",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-hyb/S041_r3/out/t1"
+ }
+}

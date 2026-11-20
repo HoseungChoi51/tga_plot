@@ -1,0 +1,94 @@
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/06_r1/out")
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+
+def find_column(columns, keywords):
+    for col in columns:
+        name = str(col).strip().lower()
+        if any(keyword in name for keyword in keywords):
+            return col
+    return None
+
+
+def safe_filename(name):
+    return "".join(char if char.isalnum() or char in "._-" else "_" for char in str(name))
+
+
+sheets = pd.read_excel(DATA_FILE, sheet_name=None)
+
+for sheet_name, df in sheets.items():
+    df = df.dropna(how="all")
+    x_col = find_column(df.columns, ("temperature", "temp", "온도"))
+    weight_col = find_column(df.columns, ("weight", "mass", "중량", "무게"))
+    dtg_col = find_column(df.columns, ("d.w", "dtg", "derivative", "미분"))
+
+    if x_col is None or weight_col is None or dtg_col is None:
+        numeric_cols = [col for col in df.columns if pd.to_numeric(df[col], errors="coerce").notna().any()]
+        if len(numeric_cols) < 3:
+            continue
+        x_col, weight_col, dtg_col = numeric_cols[1:4]
+
+    x = pd.to_numeric(df[x_col], errors="coerce")
+    weight = pd.to_numeric(df[weight_col], errors="coerce")
+    dtg = pd.to_numeric(df[dtg_col], errors="coerce")
+    valid = x.notna() & weight.notna() & dtg.notna()
+    x, weight, dtg = x[valid], weight[valid], dtg[valid]
+
+    if x.empty:
+        continue
+
+    fig, ax1 = plt.subplots(figsize=(10, 6))
+    ax1.plot(x, weight, color="#1f4e9c", label="Weight")
+    ax1.set_xlabel("Temperature (°C)")
+    ax1.set_ylabel("Weight (%)", color="#1f4e9c")
+    ax1.tick_params(axis="y", labelcolor="#1f4e9c")
+    ax1.grid(True, alpha=0.35)
+
+    ax2 = ax1.twinx()
+    ax2.plot(x, -dtg, color="#c0392b", label="DTG")
+    ax2.set_ylabel("-DTG (%/°C)", color="#c0392b")
+    ax2.tick_params(axis="y", labelcolor="#c0392b")
+
+    # 잔류량: 800 °C에 가장 가까운 측정값
+    residue_idx = (x - 800).abs().idxmin()
+    residue_x = float(x.loc[residue_idx])
+    residue_y = float(weight.loc[residue_idx])
+    ax1.plot(residue_x, residue_y, marker="o", color="#1f4e9c", markersize=5)
+    ax1.annotate(
+        f"Residue {residue_y:.1f}%",
+        (residue_x, residue_y),
+        xytext=(8, 10),
+        textcoords="offset points",
+        color="#1f4e9c",
+    )
+
+    # 150 °C 초과 구간에서 가장 높은 -DTG 피크
+    peak_region = x > 150
+    if peak_region.any():
+        peak_idx = (-dtg[peak_region]).idxmax()
+        peak_x = float(x.loc[peak_idx])
+        peak_y = float(-dtg.loc[peak_idx])
+        ax2.plot(peak_x, peak_y, marker="o", color="#c0392b", markersize=5)
+        ax2.annotate(
+            f"{peak_x:.0f} °C",
+            (peak_x, peak_y),
+            xytext=(8, 10),
+            textcoords="offset points",
+            color="#c0392b",
+        )
+
+    ax1.set_title(str(sheet_name))
+    # 요청에 따라 범례는 표시하지 않고 격자만 켭니다.
+    fig.tight_layout()
+    fig.savefig(OUT_DIR / f"{safe_filename(sheet_name)}.png", dpi=300, bbox_inches="tight")
+    plt.close(fig)

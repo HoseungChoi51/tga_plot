@@ -1,0 +1,31 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "bar",
+ "x": "촉매로트",
+ "y": "count",
+ "by": "등급",
+ "stack": true,
+ "values": "percent",
+ "sort": [
+  "FC-2602",
+  "FC-2603",
+  "FC-2604",
+  "FC-2605",
+  "FC-2606",
+  "FC-2607",
+  "FC-2608"
+ ],
+ "asks": [
+  {
+   "ask": "100% stacked bar of 등급 share per 촉매로트",
+   "how": "key"
+  },
+  {
+   "ask": "lots in chronological order",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S055_r2/out/t1"
+ }
+}

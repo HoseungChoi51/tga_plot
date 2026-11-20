@@ -1,0 +1,11 @@
+```json
+{
+ "file": "polymers.xlsx",
+ "sheets": "PVC",
+ "data_code": "import numpy as np\n# Find the two steepest drops (most negative derivative)\n# We look for local minima in y2 (DTG) which correspond to max weight loss rates\n# Or simply find the points where the slope of Weight (%) is most negative.\n# Using gradient on x, y1 is robust.\nslope = np.gradient(y1, x)\n# Exclude edges to avoid boundary artifacts\nvalid_idx = slice(5, -5)\nslope_valid = slope[valid_idx]\nx_valid = x[valid_idx]\ny1_valid = y1[valid_idx]\n\n# Sort by slope (ascending, so most negative first)\norder = np.argsort(slope_valid)\ntop_indices = order[:2] # Get indices of the 2 steepest drops\n\n# Map back to original array indices\norig_indices = [i + 5 for i in top_indices]\n\nfor idx in orig_indices:\n    temp = float(x[idx])\n    marks.append({\n        'type': 'vline',\n        'x': temp,\n        'text': f'{temp:.0f} °C'\n    })",
+ "asks": [
+  {"ask": "PVC 시트", "how": "key"},
+  {"ask": "무게가 확 꺾이는 데 두 군데 온도 표시", "how": "data_code"}
+ ]
+}
+```

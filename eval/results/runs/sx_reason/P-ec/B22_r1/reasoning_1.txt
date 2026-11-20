@@ -1,0 +1,43 @@
+We need answer user's request with JSON spec only, inside json block. Need analyze. User Korean: "Raw 시트를 150 °C 무게를 100%로 다시 계산해서(건조 기준) 그려줘" Means plot Raw sheet with weight normalized to 100% at 150°C (dry basis). Need produce spec for plotkit. Need see if there is a key for recalculating/normalizing? Guide has keys: file, sheets, x/y1/y2 col, labels, ticks, ranges, colors, legend, annotations, grid, combine, output, echarts. No explicit normalization key. Need maybe use echarts? But cannot put data. Need perhaps use series transform? ECharts has transform? Not allowed? Allowed echarts keys: title, legend, grid, xAxis, yAxis, series, graphic, textStyle, backgroundColor. In series can set lineStyle etc, label, markArea/Line/Point. No transform/filter? Not allowed? Could use series data? Never put plotted data in echarts. So cannot normalize data with provided keys. But maybe plotkit supports a key? Need infer from guide only. There is no "normalization" or "dry basis". Could maybe use y1 min/max? No, changing scale not recalculation. Could use y1 axis transform? ECharts yAxis has maybe axisLabel formatter but not data. Not allowed? Could set yAxis.min/max? No. Need maybe use extra ECharts settings if no key fits. But allowed echarts doesn't include transform/filter. Could use series[0].markLine? No. The request asks to recalculate weight to 100% at 150°C. We can't do that with spec. But test mode expects likely a spec maybe with y1? Let's think if there is hidden plotkit key? The guide says all keys run schema. But only listed. Maybe "y1" has "scale"? No. Could use "echarts" with series transform? It says allowed: series (list: 0 = y1 line...). In a series you may set lineStyle, itemStyle, areaStyle, symbol, symbolSize, showSymbol, smooth, label, and markArea/markLine/markPoint. It doesn't explicitly forbid other series properties? It says allowed: ... In a series you may set [list]. So probably only those. Could use "echarts": {"yAxis": [{"axisLabel": {"formatter": ...}}]}? Not allowed? yAxis allowed but maybe only certain properties? It doesn't say only properties, but likely checks paths allowed. Could use yAxis.axisLabel.formatter to display normalized values? But data remains original; plot line not normalized. Not acceptable.
+
+Maybe plotkit has a built-in "normalize" or "baseline" key not in guide? But we must only use guide. Could maybe use annotation? no.
+
+Need answer maybe spec with sheets Raw and say cannot? But user asked JSON spec only. In test mode: "Do step 2 only: reply with the JSON spec for the user's request, inside one ```json block, and nothing else." So even if impossible, likely need produce best spec? But if no key covers request, rules: "If no key covers the request, put a few ECharts settings in "echarts" (see Extra ECharts settings)." So we should try ECharts. Need find an ECharts option that can transform series data to normalize? ECharts has series.transform? In ECharts, dataset transform? But series? ECharts 5 suppo
+[...]
+"`. Use `left: "center", top: 10` to avoid right. Good.
+
+Could use English to avoid font issues: "Dry basis normalization to 150 C = 100% is not supported". But user Korean; guide says users Korean, but spec text can be English. If font not Malgun, Korean may render as boxes. We set textStyle fontFamily Malgun Gothic. But ECharts graphic style may not inherit textStyle? It might. Could set `style.fontFamily`? Not sure. ECharts text style has `fontFamily`? Yes style.fontFamily maybe. Could set `style: {"text": "...", "fontFamily": "Malgun Gothic", "fontSize": 12, "fill": "red"}`. Allowed? graphic style properties maybe. Could be okay.
+
+But if plotkit validation restricts graphic elements to only `type`, `left`, `top`, `style` and style maybe `text`, `fill`, `fontSize`. `fontFamily` maybe okay. Could avoid Korean: English text no font issue. But user Korean; note in English okay? Could use English to be safe. "Dry basis (150 C = 100%) normalization not supported". Use ASCII. Then no font needed. But the guide uses Korean; maybe okay.
+
+Maybe final note in English:
+```
+"style": {"text": "Dry basis normalization (150 C = 100%) is not supported", "fontSize": 12, "fill": "red"}
+```
+This avoids Korean font. But user may prefer Korean. However plotkit may not have Korean font; but ECharts in browser may render Unicode if system font. Could be okay.
+
+Could use `title.subtext` in English simpler:
+```
+"echarts": {"title": {"subtext": "Dry basis normalization (150 C = 100%) is not supported", "subtextStyle": {"color": "red"}}}
+```
+But title component may need `text`? subtext alone maybe okay? It may not show if text empty? ECharts title can have subtext only? Maybe. Graphic safer.
+
+Need maybe include `sheets`: "Raw". Keep default TGA preset. Good.
+
+But is adding note "not supported" in plot acceptable? The user asked to plot; plot will show note. Fine.
+
+Alternative: Use `echarts` `series[0].label` to show a note? no.
+
+Let's consider if plotkit might reject `echarts.graphic` because `graphic` allowed only text, line, rect but maybe expects an array, not object. If it validates `graphic` as list? The guide: "graphic (only `text`, `line`, `rect`)". It might mean `echarts.graphic` is a list of graphic elements, each with type. In ECharts, `graphic` can be an object or array. To be safe, use array? Example from ECharts: `graphic: [{ type: 'text', left: 'center', top: 10, style: { text: '...' } }]`. If plotkit expects array, object with elements might fail. Which is more likely? The guide says "graphic (only text, line, rect)" not "graphic.elements". Could be they expect `echarts.graphic` as a list. Let's use array of elements, simpler:
+```
+"echarts": {
+  "graphic": [
+    {"type": "text", "left": "center", "top": 10, "style": {"text": "...", "fontSize": 12, "fill": "red"}}
+  ]
+}
+```
+ECharts accepts array? I think yes: graphic option can be an object or array. If not, maybe object with elements is more standard. Hmm. ECharts docs: `graphic` is an object, with `elements`. But you can also use `graphic` as an array of objects? I recall using `graphic: [{ type: 'text', ... }]` works? In ECharts, graphic option can be a single object or an array of objects, each is a graphic element. Actually the component option is `graphic`, and it can be an object or array. Example: `graphic: { elements: [...] }` and `graphic: [{...}]` maybe both. To maximize, use object with elements because documented. But if validator expects type only at top-level? Not know.
+
+Maybe avoid graphic and use `title` which is definitely allowed object. Could set `echarts.title` with `text` and `subtext`. But user didn't ask title. Could set `title: {"text": "Raw", "subtext": "Dry basis normalization not supported"}`. But title key may override default title? Default title maybe none. This adds a title, not requested. But note. Graphic less intrusive? Both.
+
+Could use `series[0].markLine` with label note, allowed and no graphic format issues. Add a horizontal line at y=100 with label

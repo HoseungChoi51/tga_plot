@@ -1,0 +1,8 @@
+```json
+{
+  "file": "polymers.xlsx",
+  "sheets": "PE",
+  "x": {"label": "Temperature (K)"},
+  "code": "import re\nfor a in (ax1, ax2):\n    if a is not None:\n        for line in a.get_lines():\n            line.set_xdata(x + 273.15)\nfor t in ax1.texts + (ax2.texts if ax2 is not None else []):\n    p = t.get_position()\n    t.set_position((p[0] + 273.15, p[1]))\n    t.set_text(re.sub(r'(-?\\d+(?:\\.\\d+)?)\\s*°C', lambda m: f'{float(m.group(1)) + 273.15:.0f} K', t.get_text()))\nax1.relim()\nax1.autoscale_view(scalex=True, scaley=False)\nif ax2 is not None:\n    ax2.relim()\n    ax2.autoscale_view(scalex=True, scaley=False)"
+}
+```

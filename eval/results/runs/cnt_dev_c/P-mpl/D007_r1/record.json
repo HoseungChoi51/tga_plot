@@ -1,0 +1,241 @@
+{
+ "arm": "P-mpl",
+ "item": "D007",
+ "repeat": 1,
+ "split": "dev",
+ "persona": "공정 엔지니어",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "주간요약 시트 합격률(%) 주차별 꺾은선.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheets\": \"주간요약\",\n  \"chart\": \"line\",\n  \"x\": \"주차\",\n  \"y\": \"합격률(%)\",\n  \"asks\": [\n    {\n      \"ask\": \"주간요약 시트\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"합격률(%) 주차별 꺾은선\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 4.808,
+     "prompt_tokens": 6259,
+     "output_tokens": 125,
+     "cached_tokens": 5052,
+     "prompt_n": 1207,
+     "prefill_ms": 1061.90365,
+     "decode_ms": 2166.989615,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheets": "주간요약",
+    "chart": "line",
+    "x": "주차",
+    "y": "합격률(%)",
+    "asks": [
+     {
+      "ask": "주간요약 시트",
+      "how": "key"
+     },
+     {
+      "ask": "합격률(%) 주차별 꺾은선",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_c/P-mpl/D007_r1/out/t1/line_합격률.png"
+    ],
+    "chart": "line",
+    "rows_used": 26,
+    "rows_total": 26,
+    "values": {
+     "series": {
+      "합격률(%)": {
+       "n": 26,
+       "min": 63.2,
+       "max": 100.0
+      }
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "선 그래프를 저장했습니다: line_합격률.png\n사용한 행: 26 / 26\n합격률(%): 26점, 63.2 ~ 100"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [
+        {
+         "name": "합격률(%)",
+         "n": 26,
+         "x": [
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0,
+          7.0,
+          8.0,
+          9.0,
+          10.0,
+          11.0,
+          12.0,
+          13.0,
+          14.0,
+          15.0,
+          16.0,
+          17.0,
+          18.0,
+          19.0,
+          20.0,
+          21.0,
+          22.0,
+          23.0,
+          24.0,
+          25.0,
+          26.0
+         ],
+         "y": [
+          94.6,
+          97.4,
+          100.0,
+          94.7,
+          89.5,
+          97.3,
+          89.5,
+          97.3,
+          89.2,
+          97.3,
+          94.9,
+          83.8,
+          86.8,
+          97.4,
+          86.5,
+          90.2,
+          63.2,
+          81.0,
+          71.1,
+          78.9,
+          89.5,
+          77.5,
+          87.8,
+          92.1,
+          69.2,
+          77.5
+         ],
+         "color": "#1f4e9c",
+         "style": "-",
+         "width": 1.8
+        }
+       ],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "주차",
+        "type": "value",
+        "ticks": [
+         5.0,
+         10.0,
+         15.0,
+         20.0,
+         25.0
+        ],
+        "step": 5.0,
+        "categories": null,
+        "min": 1.0,
+        "max": 26.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "5",
+         "10",
+         "15",
+         "20",
+         "25"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "합격률(%)",
+        "type": "value",
+        "ticks": [
+         60.0,
+         70.0,
+         80.0,
+         90.0,
+         100.0,
+         110.0
+        ],
+        "step": 10.0,
+        "categories": null,
+        "min": 60.0,
+        "max": 110.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "50",
+         "60",
+         "70",
+         "80",
+         "90",
+         "100",
+         "110",
+         "120"
+        ],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_c/P-mpl/D007_r1/out/t1/line_합격률.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.38606786727905273,
+   "check": {
+    "kind_expected": "line",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 5.27
+  }
+ ]
+}

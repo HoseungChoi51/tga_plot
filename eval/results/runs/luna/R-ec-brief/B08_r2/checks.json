@@ -1,0 +1,1 @@
+[{"check": "only", "cat": "data", "ok": true, "why": "", "spec": {"only": {"axis": "y1", "ranges": [[14.968, 100.01]]}, "cat": "data"}}, {"check": "hline", "cat": "ask", "ok": true, "why": "", "spec": {"hline": {"y": 50, "axis": "y1"}}}, {"check": "text_contains", "cat": "ask", "ok": true, "why": "", "spec": {"text_contains": "공기, 10 °C/min"}}]

@@ -1,0 +1,37 @@
+{
+ "file": [
+  "data/downtime.xlsx",
+  "data/run_log.xlsx"
+ ],
+ "chart": "scatter",
+ "x": {
+  "col": "총정지시간_h",
+  "label": "주차별 총 정지시간 (h)"
+ },
+ "y": {
+  "col": "총생산량_kg",
+  "label": "주차별 총생산량 (kg)"
+ },
+ "data_code": "import pandas as pd\nimport numpy as np\n\n# Start date for week calculation: 2026-03-02 is Week 1\nstart_date = pd.Timestamp('2026-03-02')\n\n# --- 1. Process Downtime Data ---\n# Identify rows from the downtime file by checking for '정지시간(분)' column\nmask_dt = df['정지시간(분)'].notna()\ndf_dt = df[mask_dt].copy()\n\nif not df_dt.empty:\n    # Ensure '일자' is datetime\n    if '일자' in df_dt.columns:\n        dt_col_name = '일자'\n    elif '일자 (yyyy-mm-dd)' in df_dt.columns:\n        # Fallback if name differs, though preview showed 'A 일자' in downtime sheet\n        dt_col_name = '일자 (yyyy-mm-dd)'\n    else:\n        raise ValueError(\"Date column not found in downtime subset\")\n        \n    df_dt[dt_col_name] = pd.to_datetime(df_dt[dt_col_name])\n    \n    # Calculate week number based on start date\n    days_diff = (df_dt[dt_col_name] - start_date).dt.days\n    df_dt['주차_calc'] = (days_diff // 7) + 1\n    \n    # Aggregate total downtime minutes per week and convert to hours\n    dt_agg = df_dt.groupby('주차_calc')['정지시간(분)'].sum().reset_index()\n    dt_agg.rename(columns={'정지시간(분)': '총정지시간_min'}, inplace=True)\n    dt_agg['총정지시간_h'] = dt_agg['총정지시간_min'] / 60.0\nelse:\n    dt_agg = pd.DataFrame(columns=['주차_calc', '총정지시간_h'])\n\n# --- 2. Process Production Data ---\n# The weekly summary sheet columns are not directly present in the concatenated df.\n# We need to reconstruct the weekly production from the run log details or check if summary exists.\n# Preview shows '주간요약' sheet has '총생산량(kg)'. However, the error list shows only Run Log columns.\n# If the summary sheet wasn't loaded into `df`, we must calculate it from the run log if possible,\n# OR assume the user meant to use the run log data to aggregate production.\n# Looking at the Run Log columns: There is no direct 'Total Production' column per run.\n# There is 'CNT수율 (g/g-cat)' and potentially catalyst info? No catalyst amount in Run Log preview.\n# Wait, the prompt said \"생산량은 런로그 주간요약 시트 기준으로\". \n# The error message lists columns like 'CNT수율', '생산속도'. It does NOT list '총생산량(kg)'.\n# This implies the '주간요약' sheet was either not included in the `df` concatenation or its columns were dropped/merged differently.\n# However, usually `file` list includes all sheets. Let's look closer at the error columns.\n# Columns listed: ... '등급 (A/B/C)'. Missing: '시작일', '런수', '평균수율(g/g-cat)', '합격률(%)', '총생산량(kg)'.\n# It seems ONLY the '런로그' sheet and 'downtime' sheet were merged into `df`.\n# The '주간요약' sheet might have been skipped or requires explicit selection?\n# BUT, I cannot change the `file` key easily to select a specific sheet if the tool merges them all blindly.\n# Alternative: Calculate Total Production from Run Log?\n# Total Production = Sum(CNT수율 * Catalyst Amount)? Catalyst amount is not in Run Log.\n# Total Production = Sum(생산속도 * 가동시간)? \n# Yes, `생산속도 (g/h)` and `가동시간 (h)` are available. \n# So we can derive Weekly Total Production from the Run Log detail sheet.\n\nmask_runlog = df['런ID'].notna() # Rows from run_log\nif mask_runlog.any():\n    df_run = df[mask_runlog].copy()\n    \n    # Determine date column for run log\n    if '일자 (yyyy-mm-dd)' in df_run.columns:\n        date_col = '일자 (yyyy-mm-dd)'\n    elif '일자' in df_run.columns:\n        date_col = '일자'\n    else:\n        # Try finding any datetime-like column that isn't time-only\n        candidates = [c for c in df_run.columns if '일자' in str(c) or 'date' in str(c).lower()]\n        if candidates:\n            date_col = candidates[0]\n        else:\n            raise ValueError(\"Date column not found in run log\")\n            \n    df_run[date_col] = pd.to_datetime(df_run[date_col])\n    days_diff_run = (df_run[date_col] - start_date).dt.days\n    df_run['주차_calc'] = (days_diff_run // 7) + 1\n    \n    # Calculate Production per run = Speed * Time\n    # Ensure numeric types\n    prod_speed = pd.to_numeric(df_run['생산속도 (g/h)'], errors='coerce')\n    op_time = pd.to_numeric(df_run['가동시간 (h)'], errors='coerce')\n    \n    df_run['run_production_g'] = prod_speed * op_time\n    \n    # Aggregate weekly production\n    prod_agg_raw = df_run.groupby('주차_calc')['run_production_g'].sum().reset_index()\n    prod_agg_raw.rename(columns={'run_production_g': '총생산량_g'}, inplace=True)\n    prod_agg_raw['총생산량_kg'] = prod_agg_raw['총생산량_g'] / 1000.0\n    \n    # Drop intermediate column if needed, but keeping for merge logic consistency\n    final_prod = prod_agg_raw[['주차_calc', '총생산량_kg']]\nelse:\n    final_prod = pd.DataFrame(columns=['주차_calc', '총생산량_kg'])\n\n# --- 3. Merge ---\n# Merge downtime aggregation and production aggregation by week\nfinal_df = dt_agg.merge(final_prod, on='주차_calc', how='inner')\n\n# Update df with the result for plotting\ndf = final_df",
+ "asks": [
+  {
+   "ask": "산점도",
+   "how": "key"
+  },
+  {
+   "ask": "주차별 총 정지시간 (h)",
+   "how": "code"
+  },
+  {
+   "ask": "주차별 총생산량 (kg) 계산 (런로그 상세 데이터 기반)",
+   "how": "code"
+  },
+  {
+   "ask": "3월 2일 기산 주차 매칭 및 병합",
+   "how": "code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S014_r2/out/t1"
+ }
+}

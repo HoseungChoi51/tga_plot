@@ -1,0 +1,903 @@
+{
+ "arm": "R-mpl",
+ "item": "SS15",
+ "repeat": 2,
+ "split": "sealed",
+ "persona": "데이터 분석가",
+ "type": "session",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "Histogram of CNT수율, 30 bins.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory and ensure it exists\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the data file\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Extract CNT yield data\nyield_data = df['CNT수율 (g/g-cat)'].dropna()\n\n# Create histogram with 30 bins\nplt.figure(figsize=(10, 6))\nplt.hist(yield_data, bins=30, edgecolor='black', color='steelblue')\n\n# Add labels and title\nplt.title('CNT 수율 분포 (Histogram of CNT Yield)', fontsize=14)\nplt.xlabel('CNT 수율 (g/g-cat)', fontsize=12)\nplt.ylabel('빈도 (Frequency)', fontsize=12)\n\n# Save the plot\noutput_file = os.path.join(OUT_DIR, \"cnt_yield_histogram.png\")\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\nplt.close()\n```",
+     "llm_s": 5.204,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 3669,
+     "output_chars": 862,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory and ensure it exists\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the data file\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Find the column name for CNT yield. The header might have slight variations or whitespace issues.\n# We search for a column that contains 'CNT' and '수율'\nyield_col = None\nfor col in df.columns:\n    if isinstance(col, str) and 'CNT' in col and '수율' in col:\n        yield_col = col\n        break\n\nif yield_col is None:\n    # Fallback: try to find by position if known (Column Q is index 16 in 0-based if A=0)\n    # But safer to raise an error or print columns for debug if strictly needed.\n    # Let's try matching just '수율' as a last resort among numeric columns\n    for col in df.columns:\n        if isinstance(col, str) and '수율' in col:\n            yield_col = col\n            break\n\n# Extract CNT yield data\nif yield_col is not None:\n    yield_data = df[yield_col].dropna()\nelse:\n    # If still not found, use the preview info: Column Q is CNT수율. \n    # Index Q is 16 (A=0, B=1... P=15, Q=16).\n    # However, reading with pandas usually keeps headers. Let's assume standard read failed due to exact string match.\n    # Re-reading logic check: The preview says 'Q CNT수율 (g/g-cat)'. \n    # Sometimes openpyxl reads units row? No, preview says Sheet '런로그' has headers.\n    # Let's try accessing by index if name fails, but usually name mismatch is the issue.\n    # I will print available columns to be safe in case of hidden characters, but since I must return code:\n    # Strategy: Clean column names by stripping whitespace and replacing potential non-breaking spaces if necessary, \n    # but simpler: just use the first column containing '수율'.\n    \n    # If the loop above failed, let's force select based on the known structure from preview description if possible.\n    # But the previous failure was KeyError. This implies the string 'CNT수율 (g/g-cat)' didn't match exactly.\n    # Common issues: Unicode differences, extra spaces.\n    \n    # Let's try a more robust selection:\n    cols = df.columns.tolist()\n    target_idx = -1\n    for i, c in enumerate(cols):\n        if 'CNT' in c and '수율' in c:\n            target_idx = i\n            break\n    \n    if target_idx != -1:\n        yield_data = df.iloc[:, target_idx].dropna()\n    else:\n        # Last resort: look for any column with '수율'\n        for i, c in enumerate(cols):\n            if '수율' in c:\n                yield_data = df.iloc[:, i].dropna()\n                break\n\n# Create histogram with 30 bins\nplt.figure(figsize=(10, 6))\nplt.hist(yield_data, bins=30, edgecolor='black', color='steelblue')\n\n# Add labels and title\nplt.title('CNT 수율 분포 (Histogram of CNT Yield)', fontsize=14)\nplt.xlabel('CNT 수율 (g/g-cat)', fontsize=12)\nplt.ylabel('빈도 (Frequency)', fontsize=12)\n\n# Save the plot\noutput_file = os.path.join(OUT_DIR, \"cnt_yield_histogram.png\")\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\nplt.close()\n```",
+     "llm_s": 19.264,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 5997,
+     "output_chars": 3122,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory and ensure it exists\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the data file\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Find the column name for CNT yield. The header might have slight variations or whitespace issues.\nyield_col = None\nfor col in df.columns:\n    if isinstance(col, str) and 'CNT' in col and '수율' in col:\n        yield_col = col\n        break\n\nif yield_col is None:\n    # Fallback to just '수율'\n    for col in df.columns:\n        if isinstance(col, str) and '수율' in col:\n            yield_col = col\n            break\n\n# Extract CNT yield data\nif yield_col is not None:\n    # Ensure the data is numeric. Sometimes Excel cells contain strings or empty values that become NaN or objects.\n    # astype(float) will convert string numbers to float and fail on non-numeric strings (which become NaN).\n    try:\n        yield_data = pd.to_numeric(df[yield_col], errors='coerce').dropna()\n    except Exception:\n        yield_data = df[yield_col].dropna().astype(float)\nelse:\n    # If column still not found, try by index (Q is index 16, assuming A=0)\n    # But let's print columns to debug if needed, though we must return code.\n    # Using a safe fallback based on typical structure if names are totally weird.\n    if len(df.columns) > 16:\n         yield_data = pd.to_numeric(df.iloc[:, 16], errors='coerce').dropna()\n    else:\n         raise ValueError(\"Could not find CNT Yield column\")\n\n# Create histogram with 30 bins\nplt.figure(figsize=(10, 6))\nplt.hist(yield_data, bins=30, edgecolor='black', color='steelblue')\n\n# Add labels and title\nplt.title('CNT 수율 분포 (Histogram of CNT Yield)', fontsize=14)\nplt.xlabel('CNT 수율 (g/g-cat)', fontsize=12)\nplt.ylabel('빈도 (Frequency)', fontsize=12)\n\n# Save the plot\noutput_file = os.path.join(OUT_DIR, \"cnt_yield_histogram.png\")\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\nplt.close()\n```",
+     "llm_s": 10.235,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 10650,
+     "output_chars": 2069,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory and ensure it exists\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the data file\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Find the column name for CNT yield. The header might have slight variations or whitespace issues.\nyield_col = None\nfor col in df.columns:\n    if isinstance(col, str) and 'CNT' in col and '수율' in col:\n        yield_col = col\n        break\n\nif yield_col is None:\n    # Fallback to just '수율'\n    for col in df.columns:\n        if isinstance(col, str) and '수율' in col:\n            yield_col = col\n            break\n\n# Extract CNT yield data\nif yield_col is not None:\n    # Ensure the data is numeric. Sometimes Excel cells contain strings or empty values that become NaN or objects.\n    # astype(float) will convert string numbers to float and fail on non-numeric strings (which become NaN).\n    try:\n        yield_data = pd.to_numeric(df[yield_col], errors='coerce').dropna()\n    except Exception:\n        yield_data = df[yield_col].dropna().astype(float)\nelse:\n    # If column still not found, try by index (Q is index 16, assuming A=0)\n    # But let's print columns to debug if needed, though we must return code.\n    # Using a safe fallback based on typical structure if names are totally weird.\n    if len(df.columns) > 16:\n         yield_data = pd.to_numeric(df.iloc[:, 16], errors='coerce').dropna()\n    else:\n         raise ValueError(\"Could not find CNT Yield column\")\n\n# Create histogram with 30 bins\nplt.figure(figsize=(10, 6))\nplt.hist(yield_data, bins=30, edgecolor='black', color='steelblue')\n\n# Add labels and title\nplt.title('CNT 수율 분포 (Histogram of CNT Yield)', fontsize=14)\nplt.xlabel('CNT 수율 (g/g-cat)', fontsize=12)\nplt.ylabel('빈도 (Frequency)', fontsize=12)\n\n# Save the plot\noutput_file = os.path.join(OUT_DIR, \"cnt_yield_histogram.png\")\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "CNT 수율 분포 (Histogram of CNT Yield)",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [
+        {
+         "name": "",
+         "edges": [
+          12.69,
+          13.431666666666665,
+          14.173333333333332,
+          14.915,
+          15.656666666666666,
+          16.398333333333333,
+          17.14,
+          17.881666666666668,
+          18.623333333333335,
+          19.365000000000002,
+          20.106666666666666,
+          20.848333333333333,
+          21.59,
+          22.33166666666667,
+          23.07333333333333,
+          23.814999999999998,
+          24.556666666666665,
+          25.298333333333332,
+          26.04,
+          26.781666666666666,
+          27.523333333333333,
+          28.265,
+          29.006666666666668,
+          29.748333333333335,
+          30.490000000000002,
+          31.23166666666667,
+          31.973333333333333,
+          32.715,
+          33.45666666666666,
+          34.19833333333332,
+          34.93999999999999
+         ],
+         "counts": [
+          1.0,
+          1.0,
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          9.0,
+          9.0,
+          14.0,
+          20.0,
+          29.0,
+          43.0,
+          45.0,
+          48.0,
+          68.0,
+          64.0,
+          91.0,
+          91.0,
+          90.0,
+          69.0,
+          74.0,
+          81.0,
+          57.0,
+          41.0,
+          23.0,
+          15.0,
+          4.0,
+          2.0,
+          1.0,
+          1.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#4682b4"
+        }
+       ],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "CNT 수율 (g/g-cat)",
+        "type": "value",
+        "ticks": [
+         15.0,
+         20.0,
+         25.0,
+         30.0,
+         35.0
+        ],
+        "step": 5.0,
+        "categories": null,
+        "min": 11.5775,
+        "max": 36.05249999999999,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "10",
+         "15",
+         "20",
+         "25",
+         "30",
+         "35",
+         "40"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "빈도 (Frequency)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         20.0,
+         40.0,
+         60.0,
+         80.0
+        ],
+        "step": 20.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 95.55,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "20",
+         "40",
+         "60",
+         "80",
+         "100"
+        ],
+        "rotate": 0.0
+       },
+       "title": "CNT 수율 분포 (Histogram of CNT Yield)"
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t1/cnt_yield_histogram.png",
+       "format": "png",
+       "px": [
+        2532,
+        1666
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.523444414138794,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 36.05
+  },
+  {
+   "turn": 2,
+   "text": "Overlay two periods — 주차 1–13 vs 14–26 — with shared bin edges, 1 g/g-cat wide from 12 to 36.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\nimport numpy as np\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory and ensure it exists\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the data file\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Robustly find the CNT yield column\nyield_col = None\nfor col in df.columns:\n    if isinstance(col, str) and 'CNT' in col and '수율' in col:\n        yield_col = col\n        break\n\nif yield_col is None:\n    for col in df.columns:\n        if isinstance(col, str) and '수율' in col:\n            yield_col = col\n            break\n\n# Convert to numeric, dropping non-numeric/NaN\ndf['CNT_Yield'] = pd.to_numeric(df[yield_col], errors='coerce')\n\n# Define bins: 1 g/g-cat wide from 12 to 36\nbin_edges = np.arange(12, 37, 1)\n\n# Filter periods\nperiod1_mask = (df['주차'] >= 1) & (df['주차'] <= 13)\nperiod2_mask = (df['주차'] >= 14) & (df['주차'] <= 26)\n\ndata_period1 = df.loc[period1_mask, 'CNT_Yield'].dropna()\ndata_period2 = df.loc[period2_mask, 'CNT_Yield'].dropna()\n\n# Create histogram\nplt.figure(figsize=(10, 6))\nplt.hist(data_period1, bins=bin_edges, alpha=0.5, label='주차 1–13', color='skyblue', edgecolor='black')\nplt.hist(data_period2, bins=bin_edges, alpha=0.5, label='주차 14–26', color='salmon', edgecolor='black')\n\n# Add labels and title\nplt.title('CNT 수율 분포 비교 (주차 1–13 vs 14–26)', fontsize=14)\nplt.xlabel('CNT 수율 (g/g-cat)', fontsize=12)\nplt.ylabel('빈도 (Frequency)', fontsize=12)\nplt.legend()\n\n# Save the plot\noutput_file = os.path.join(OUT_DIR, \"cnt_yield_histogram_periods.png\")\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\nplt.close()\n```",
+     "llm_s": 8.13,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 12992,
+     "output_chars": 1703,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\nimport numpy as np\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory and ensure it exists\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the data file\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Robustly find the CNT yield column\nyield_col = None\nfor col in df.columns:\n    if isinstance(col, str) and 'CNT' in col and '수율' in col:\n        yield_col = col\n        break\n\nif yield_col is None:\n    for col in df.columns:\n        if isinstance(col, str) and '수율' in col:\n            yield_col = col\n            break\n\n# Convert to numeric, dropping non-numeric/NaN\ndf['CNT_Yield'] = pd.to_numeric(df[yield_col], errors='coerce')\n\n# Find the week column and convert to numeric to avoid string comparison issues\nweek_col = None\nfor col in df.columns:\n    if isinstance(col, str) and ('주차' in col or 'Week' in col):\n        week_col = col\n        break\n\nif week_col is None:\n    # Fallback based on preview description (Column C is 주차)\n    # Index A=0, B=1, C=2. So index 2.\n    week_col = df.columns[2]\n\n# Ensure the week column is numeric\ndf['WeekNum'] = pd.to_numeric(df[week_col], errors='coerce')\n\n# Define bins: 1 g/g-cat wide from 12 to 36\nbin_edges = np.arange(12, 37, 1)\n\n# Filter periods using numeric week column\nperiod1_mask = (df['WeekNum'] >= 1) & (df['WeekNum'] <= 13)\nperiod2_mask = (df['WeekNum'] >= 14) & (df['WeekNum'] <= 26)\n\ndata_period1 = df.loc[period1_mask, 'CNT_Yield'].dropna()\ndata_period2 = df.loc[period2_mask, 'CNT_Yield'].dropna()\n\n# Create histogram\nplt.figure(figsize=(10, 6))\nplt.hist(data_period1, bins=bin_edges, alpha=0.5, label='주차 1–13', color='skyblue', edgecolor='black')\nplt.hist(data_period2, bins=bin_edges, alpha=0.5, label='주차 14–26', color='salmon', edgecolor='black')\n\n# Add labels and title\nplt.title('CNT 수율 분포 비교 (주차 1–13 vs 14–26)', fontsize=14)\nplt.xlabel('CNT 수율 (g/g-cat)', fontsize=12)\nplt.ylabel('빈도 (Frequency)', fontsize=12)\nplt.legend()\n\n# Save the plot\noutput_file = os.path.join(OUT_DIR, \"cnt_yield_histogram_periods.png\")\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\nplt.close()\n```",
+     "llm_s": 8.505,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 16429,
+     "output_chars": 2219,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport os\nimport numpy as np\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory and ensure it exists\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the data file\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Robustly find the CNT yield column\nyield_col = None\nfor col in df.columns:\n    if isinstance(col, str) and 'CNT' in col and '수율' in col:\n        yield_col = col\n        break\n\nif yield_col is None:\n    for col in df.columns:\n        if isinstance(col, str) and '수율' in col:\n            yield_col = col\n            break\n\n# Convert to numeric, dropping non-numeric/NaN\ndf['CNT_Yield'] = pd.to_numeric(df[yield_col], errors='coerce')\n\n# Find the week column and convert to numeric to avoid string comparison issues\nweek_col = None\nfor col in df.columns:\n    if isinstance(col, str) and ('주차' in col or 'Week' in col):\n        week_col = col\n        break\n\nif week_col is None:\n    # Fallback based on preview description (Column C is 주차)\n    # Index A=0, B=1, C=2. So index 2.\n    week_col = df.columns[2]\n\n# Ensure the week column is numeric\ndf['WeekNum'] = pd.to_numeric(df[week_col], errors='coerce')\n\n# Define bins: 1 g/g-cat wide from 12 to 36\nbin_edges = np.arange(12, 37, 1)\n\n# Filter periods using numeric week column\nperiod1_mask = (df['WeekNum'] >= 1) & (df['WeekNum'] <= 13)\nperiod2_mask = (df['WeekNum'] >= 14) & (df['WeekNum'] <= 26)\n\ndata_period1 = df.loc[period1_mask, 'CNT_Yield'].dropna()\ndata_period2 = df.loc[period2_mask, 'CNT_Yield'].dropna()\n\n# Create histogram\nplt.figure(figsize=(10, 6))\nplt.hist(data_period1, bins=bin_edges, alpha=0.5, label='주차 1–13', color='skyblue', edgecolor='black')\nplt.hist(data_period2, bins=bin_edges, alpha=0.5, label='주차 14–26', color='salmon', edgecolor='black')\n\n# Add labels and title\nplt.title('CNT 수율 분포 비교 (주차 1–13 vs 14–26)', fontsize=14)\nplt.xlabel('CNT 수율 (g/g-cat)', fontsize=12)\nplt.ylabel('빈도 (Frequency)', fontsize=12)\nplt.legend()\n\n# Save the plot\noutput_file = os.path.join(OUT_DIR, \"cnt_yield_histogram_periods.png\")\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "CNT 수율 분포 비교 (주차 1–13 vs 14–26)",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [
+        {
+         "name": "",
+         "edges": [
+          12.0,
+          13.0,
+          14.0,
+          15.0,
+          16.0,
+          17.0,
+          18.0,
+          19.0,
+          20.0,
+          21.0,
+          22.0,
+          23.0,
+          24.0,
+          25.0,
+          26.0,
+          27.0,
+          28.0,
+          29.0,
+          30.0,
+          31.0,
+          32.0,
+          33.0,
+          34.0,
+          35.0,
+          36.0
+         ],
+         "counts": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          4.0,
+          6.0,
+          14.0,
+          38.0,
+          54.0,
+          74.0,
+          78.0,
+          89.0,
+          66.0,
+          34.0,
+          24.0,
+          3.0,
+          2.0,
+          2.0,
+          0.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#87ceeb"
+        },
+        {
+         "name": "",
+         "edges": [
+          12.0,
+          13.0,
+          14.0,
+          15.0,
+          16.0,
+          17.0,
+          18.0,
+          19.0,
+          20.0,
+          21.0,
+          22.0,
+          23.0,
+          24.0,
+          25.0,
+          26.0,
+          27.0,
+          28.0,
+          29.0,
+          30.0,
+          31.0,
+          32.0,
+          33.0,
+          34.0,
+          35.0,
+          36.0
+         ],
+         "counts": [
+          1.0,
+          1.0,
+          0.0,
+          1.0,
+          5.0,
+          9.0,
+          17.0,
+          21.0,
+          45.0,
+          53.0,
+          57.0,
+          74.0,
+          70.0,
+          60.0,
+          43.0,
+          23.0,
+          15.0,
+          6.0,
+          4.0,
+          2.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#fa8072"
+        }
+       ],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "CNT 수율 (g/g-cat)",
+        "type": "value",
+        "ticks": [
+         15.0,
+         20.0,
+         25.0,
+         30.0,
+         35.0
+        ],
+        "step": 5.0,
+        "categories": null,
+        "min": 10.8,
+        "max": 37.2,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "10",
+         "15",
+         "20",
+         "25",
+         "30",
+         "35",
+         "40"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "빈도 (Frequency)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         20.0,
+         40.0,
+         60.0,
+         80.0
+        ],
+        "step": 20.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 93.45,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "20",
+         "40",
+         "60",
+         "80",
+         "100"
+        ],
+        "rotate": 0.0
+       },
+       "title": "CNT 수율 분포 비교 (주차 1–13 vs 14–26)"
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "주차 1–13",
+       "주차 14–26"
+      ],
+      "inside": true,
+      "where": "upper right"
+     },
+     "files": [
+      {
+       "path": "out/t2/cnt_yield_histogram_periods.png",
+       "format": "png",
+       "px": [
+        2532,
+        1666
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5580861568450928,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 17.611
+  },
+  {
+   "turn": 3,
+   "text": "Add a vertical line at each period's median.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\nimport numpy as np\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory and ensure it exists\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the data file\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Robustly find the CNT yield column\nyield_col = None\nfor col in df.columns:\n    if isinstance(col, str) and 'CNT' in col and '수율' in col:\n        yield_col = col\n        break\n\nif yield_col is None:\n    for col in df.columns:\n        if isinstance(col, str) and '수율' in col:\n            yield_col = col\n            break\n\n# Convert to numeric, dropping non-numeric/NaN\ndf['CNT_Yield'] = pd.to_numeric(df[yield_col], errors='coerce')\n\n# Find the week column and convert to numeric to avoid string comparison issues\nweek_col = None\nfor col in df.columns:\n    if isinstance(col, str) and ('주차' in col or 'Week' in col):\n        week_col = col\n        break\n\nif week_col is None:\n    # Fallback based on preview description (Column C is 주차)\n    # Index A=0, B=1, C=2. So index 2.\n    week_col = df.columns[2]\n\n# Ensure the week column is numeric\ndf['WeekNum'] = pd.to_numeric(df[week_col], errors='coerce')\n\n# Define bins: 1 g/g-cat wide from 12 to 36\nbin_edges = np.arange(12, 37, 1)\n\n# Filter periods using numeric week column\nperiod1_mask = (df['WeekNum'] >= 1) & (df['WeekNum'] <= 13)\nperiod2_mask = (df['WeekNum'] >= 14) & (df['WeekNum'] <= 26)\n\ndata_period1 = df.loc[period1_mask, 'CNT_Yield'].dropna()\ndata_period2 = df.loc[period2_mask, 'CNT_Yield'].dropna()\n\n# Calculate medians\nmedian1 = data_period1.median() if not data_period1.empty else 0\nmedian2 = data_period2.median() if not data_period2.empty else 0\n\n# Create histogram\nplt.figure(figsize=(10, 6))\nplt.hist(data_period1, bins=bin_edges, alpha=0.5, label=f'주차 1–13 (중앙값: {median1:.2f})', color='skyblue', edgecolor='black')\nplt.hist(data_period2, bins=bin_edges, alpha=0.5, label=f'주차 14–26 (중앙값: {median2:.2f})', color='salmon', edgecolor='black')\n\n# Add vertical lines at medians\nplt.axvline(median1, color='darkblue', linestyle='--', linewidth=2, label=f'주차 1–13 중앙값 ({median1:.2f})')\nplt.axvline(median2, color='darkred', linestyle='--', linewidth=2, label=f'주차 14–26 중앙값 ({median2:.2f})')\n\n# Add labels and title\nplt.title('CNT 수율 분포 비교 (주차 1–13 vs 14–26)', fontsize=14)\nplt.xlabel('CNT 수율 (g/g-cat)', fontsize=12)\nplt.ylabel('빈도 (Frequency)', fontsize=12)\nplt.legend()\n\n# Save the plot\noutput_file = os.path.join(OUT_DIR, \"cnt_yield_histogram_periods_median.png\")\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\nplt.close()\n```",
+     "llm_s": 14.055,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 18899,
+     "output_chars": 2666,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport os\nimport numpy as np\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory and ensure it exists\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the data file\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Robustly find the CNT yield column\nyield_col = None\nfor col in df.columns:\n    if isinstance(col, str) and 'CNT' in col and '수율' in col:\n        yield_col = col\n        break\n\nif yield_col is None:\n    for col in df.columns:\n        if isinstance(col, str) and '수율' in col:\n            yield_col = col\n            break\n\n# Convert to numeric, dropping non-numeric/NaN\ndf['CNT_Yield'] = pd.to_numeric(df[yield_col], errors='coerce')\n\n# Find the week column and convert to numeric to avoid string comparison issues\nweek_col = None\nfor col in df.columns:\n    if isinstance(col, str) and ('주차' in col or 'Week' in col):\n        week_col = col\n        break\n\nif week_col is None:\n    # Fallback based on preview description (Column C is 주차)\n    # Index A=0, B=1, C=2. So index 2.\n    week_col = df.columns[2]\n\n# Ensure the week column is numeric\ndf['WeekNum'] = pd.to_numeric(df[week_col], errors='coerce')\n\n# Define bins: 1 g/g-cat wide from 12 to 36\nbin_edges = np.arange(12, 37, 1)\n\n# Filter periods using numeric week column\nperiod1_mask = (df['WeekNum'] >= 1) & (df['WeekNum'] <= 13)\nperiod2_mask = (df['WeekNum'] >= 14) & (df['WeekNum'] <= 26)\n\ndata_period1 = df.loc[period1_mask, 'CNT_Yield'].dropna()\ndata_period2 = df.loc[period2_mask, 'CNT_Yield'].dropna()\n\n# Calculate medians\nmedian1 = data_period1.median() if not data_period1.empty else 0\nmedian2 = data_period2.median() if not data_period2.empty else 0\n\n# Create histogram\nplt.figure(figsize=(10, 6))\nplt.hist(data_period1, bins=bin_edges, alpha=0.5, label=f'주차 1–13 (중앙값: {median1:.2f})', color='skyblue', edgecolor='black')\nplt.hist(data_period2, bins=bin_edges, alpha=0.5, label=f'주차 14–26 (중앙값: {median2:.2f})', color='salmon', edgecolor='black')\n\n# Add vertical lines at medians\nplt.axvline(median1, color='darkblue', linestyle='--', linewidth=2, label=f'주차 1–13 중앙값 ({median1:.2f})')\nplt.axvline(median2, color='darkred', linestyle='--', linewidth=2, label=f'주차 14–26 중앙값 ({median2:.2f})')\n\n# Add labels and title\nplt.title('CNT 수율 분포 비교 (주차 1–13 vs 14–26)', fontsize=14)\nplt.xlabel('CNT 수율 (g/g-cat)', fontsize=12)\nplt.ylabel('빈도 (Frequency)', fontsize=12)\nplt.legend()\n\n# Save the plot\noutput_file = os.path.join(OUT_DIR, \"cnt_yield_histogram_periods_median.png\")\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "CNT 수율 분포 비교 (주차 1–13 vs 14–26)",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [
+        {
+         "name": "",
+         "edges": [
+          12.0,
+          13.0,
+          14.0,
+          15.0,
+          16.0,
+          17.0,
+          18.0,
+          19.0,
+          20.0,
+          21.0,
+          22.0,
+          23.0,
+          24.0,
+          25.0,
+          26.0,
+          27.0,
+          28.0,
+          29.0,
+          30.0,
+          31.0,
+          32.0,
+          33.0,
+          34.0,
+          35.0,
+          36.0
+         ],
+         "counts": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          4.0,
+          6.0,
+          14.0,
+          38.0,
+          54.0,
+          74.0,
+          78.0,
+          89.0,
+          66.0,
+          34.0,
+          24.0,
+          3.0,
+          2.0,
+          2.0,
+          0.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#87ceeb"
+        },
+        {
+         "name": "",
+         "edges": [
+          12.0,
+          13.0,
+          14.0,
+          15.0,
+          16.0,
+          17.0,
+          18.0,
+          19.0,
+          20.0,
+          21.0,
+          22.0,
+          23.0,
+          24.0,
+          25.0,
+          26.0,
+          27.0,
+          28.0,
+          29.0,
+          30.0,
+          31.0,
+          32.0,
+          33.0,
+          34.0,
+          35.0,
+          36.0
+         ],
+         "counts": [
+          1.0,
+          1.0,
+          0.0,
+          1.0,
+          5.0,
+          9.0,
+          17.0,
+          21.0,
+          45.0,
+          53.0,
+          57.0,
+          74.0,
+          70.0,
+          60.0,
+          43.0,
+          23.0,
+          15.0,
+          6.0,
+          4.0,
+          2.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#fa8072"
+        }
+       ],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [
+        27.64,
+        23.630000000000003
+       ],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "CNT 수율 (g/g-cat)",
+        "type": "value",
+        "ticks": [
+         15.0,
+         20.0,
+         25.0,
+         30.0,
+         35.0
+        ],
+        "step": 5.0,
+        "categories": null,
+        "min": 10.8,
+        "max": 37.2,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "10",
+         "15",
+         "20",
+         "25",
+         "30",
+         "35",
+         "40"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "빈도 (Frequency)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         20.0,
+         40.0,
+         60.0,
+         80.0
+        ],
+        "step": 20.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 93.45,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "20",
+         "40",
+         "60",
+         "80",
+         "100"
+        ],
+        "rotate": 0.0
+       },
+       "title": "CNT 수율 분포 비교 (주차 1–13 vs 14–26)"
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "주차 1–13 (중앙값: 27.64)",
+       "주차 14–26 (중앙값: 23.63)",
+       "주차 1–13 중앙값 (27.64)",
+       "주차 14–26 중앙값 (23.63)"
+      ],
+      "inside": true,
+      "where": "upper right"
+     },
+     "files": [
+      {
+       "path": "out/t3/cnt_yield_histogram_periods_median.png",
+       "format": "png",
+       "px": [
+        2532,
+        1666
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5030055046081543,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [],
+    "unchecked": [
+     "ref_lines={'14–26주': 23.63, '1–13주': 27.64}"
+    ],
+    "n_checks": 3,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 14.558
+  }
+ ]
+}

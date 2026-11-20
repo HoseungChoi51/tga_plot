@@ -1,0 +1,78 @@
+{
+ "arm": "R-mpl",
+ "item": "S051",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "데이터 분석가",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "Filter to 주차 14–26 and 반응기 ∈ {R1, R2}; scatter 체류시간 vs CNT수율 with marker size ∝ 가동시간.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 폰트 설정 (한글 지원)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# 필터링: 주차 14~26, 반응기 R1 또는 R2\nfiltered_df = df[\n    (df[\"주차\"] >= 14) & \n    (df[\"주차\"] <= 26) & \n    (df[\"반응기\"].isin([\"R1\", \"R2\"]))\n].copy()\n\n# 빈도 계산 (필요시 결측치 제거)\nfiltered_df = filtered_df.dropna(subset=[\"체류시간 (s)\", \"CNT수율 (g/g-cat)\", \"가동시간 (h)\"])\n\n# 플롯 생성\nfig, ax = plt.subplots(figsize=(10, 7))\n\n# 산점도: x=체류시간, y=CNT수율, size ∝ 가동시간\n# marker size 스케일 조정: 가동시간 값이 너무 작으면 눈에 안 보이므로 곱셈 계수 적용\nsize_factor = 15 \nscatter = ax.scatter(\n    filtered_df[\"체류시간 (s)\"],\n    filtered_df[\"CNT수율 (g/g-cat)\"],\n    s=filtered_df[\"가동시간 (h)\"] * size_factor,\n    c=filtered_df[\"반응기\"].map({\"R1\": \"#d62728\", \"R2\": \"#1f77b4\"}), # 색상으로 반응기 구분 (선택 사항이지만 명확성을 위해)\n    alpha=0.6,\n    edgecolors='w',\n    linewidth=0.5\n)\n\n# 레이어 추가 및 라벨링\nax.set_xlabel(\"체류시간 (s)\")\nax.set_ylabel(\"CNT수율 (g/g-cat)\")\nax.set_title(\"주차 14–26, 반응기 R1/R2의 체류시간 vs CNT수율 산점도\\n(마커 크기 ∝ 가동시간)\")\n\n# 범례: 반응기 색상 범례 추가\nfrom matplotlib.patches import Patch\nlegend_elements = [\n    Patch(facecolor='#d62728', label='R1'),\n    Patch(facecolor='#1f77b4', label='R2')\n]\nax.legend(handles=legend_elements, title=\"반응기\", loc=\"best\")\n\n# 가동시간 크기에 대한 참고 정보 추가 (텍스트로)\nmin_time = filtered_df[\"가동시간 (h)\"].min()\nmax_time = filtered_df[\"가동시간 (h)\"].max()\nmid_time = (min_time + max_time) / 2\n\n# 예시 마커를 위한 임시 축 좌표 영역 밖이나 내부에 그리기보다는 텍스트로 설명하는 것이 깔끔함\ninfo_text = f\"마커 크기 범위: {min_time:.1f} ~ {max_time:.1f} h\"\nax.text(0.95, 0.05, info_text, transform=ax.transAxes, fontsize=9, verticalalignment='bottom', horizontalalignment='right')\n\n# 격자\nax.grid(True, linestyle=\"--\", alpha=0.5)\n\n# 저장\noutput_filename = \"scatter_residence_time_vs_yield_R1R2.png\"\noutput_path = os.path.join(OUT_DIR, output_filename)\nplt.tight_layout()\nplt.savefig(output_path, dpi=300)\nplt.close()\n\nprint(f\"Plots saved to {output_path}\")\n```",
+     "llm_s": 9.838,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 3758,
+     "output_chars": 2078,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 폰트 설정 (한글 지원)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# 주차 열을 숫자로 변환 (문자열로 읽혔을 경우 대비)\n# '주차' 컬럼이 문자열일 수 있으므로 정수로 강제 변환\ntry:\n    df[\"주차\"] = pd.to_numeric(df[\"주차\"], errors='coerce')\nexcept Exception:\n    pass\n\n# 필터링: 주차 14~26, 반응기 R1 또는 R2\n# 조건 만족하는 행만 추출\nfiltered_df = df[\n    (df[\"주차\"] >= 14) & \n    (df[\"주차\"] <= 26) & \n    (df[\"반응기\"].isin([\"R1\", \"R2\"]))\n].copy()\n\n# 빈도 계산 (필요시 결측치 제거)\nfiltered_df = filtered_df.dropna(subset=[\"체류시간 (s)\", \"CNT수율 (g/g-cat)\", \"가동시간 (h)\"])\n\n# 플롯 생성\nfig, ax = plt.subplots(figsize=(10, 7))\n\n# 산점도: x=체류시간, y=CNT수율, size ∝ 가동시간\n# marker size 스케일 조정: 가동시간 값이 너무 작으면 눈에 안 보이므로 곱셈 계수 적용\nsize_factor = 15 \nscatter = ax.scatter(\n    filtered_df[\"체류시간 (s)\"],\n    filtered_df[\"CNT수율 (g/g-cat)\"],\n    s=filtered_df[\"가동시간 (h)\"] * size_factor,\n    c=filtered_df[\"반응기\"].map({\"R1\": \"#d62728\", \"R2\": \"#1f77b4\"}), # 색상으로 반응기 구분\n    alpha=0.6,\n    edgecolors='w',\n    linewidth=0.5\n)\n\n# 레이어 추가 및 라벨링\nax.set_xlabel(\"체류시간 (s)\")\nax.set_ylabel(\"CNT수율 (g/g-cat)\")\nax.set_title(\"주차 14–26, 반응기 R1/R2의 체류시간 vs CNT수율 산점도\\n(마커 크기 ∝ 가동시간)\")\n\n# 범례: 반응기 색상 범례 추가\nfrom matplotlib.patches import Patch\nlegend_elements = [\n    Patch(facecolor='#d62728', label='R1'),\n    Patch(facecolor='#1f77b4', label='R2')\n]\nax.legend(handles=legend_elements, title=\"반응기\", loc=\"best\")\n\n# 가동시간 크기에 대한 참고 정보 추가 (텍스트로)\nif not filtered_df.empty:\n    min_time = filtered_df[\"가동시간 (h)\"].min()\n    max_time = filtered_df[\"가동시간 (h)\"].max()\n    info_text = f\"마커 크기 범위: {min_time:.1f} ~ {max_time:.1f} h\"\n    ax.text(0.95, 0.05, info_text, transform=ax.transAxes, fontsize=9, verticalalignment='bottom', horizontalalignment='right')\n\n# 격자\nax.grid(True, linestyle=\"--\", alpha=0.5)\n\n# 저장\noutput_filename = \"scatter_residence_time_vs_yield_R1R2.png\"\noutput_path = os.path.join(OUT_DIR, output_filename)\nplt.tight_layout()\nplt.savefig(output_path, dpi=300)\nplt.close()\n\nprint(f\"Plots saved to {output_path}\")\n```",
+     "llm_s": 10.17,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 8211,
+     "output_chars": 2178,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 폰트 설정 (한글 지원)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# 열 이름 정리: 공백이나 특수문자로 인한 매칭 오류 방지\n# 미리보기에 따르면 정확한 열 이름은 다음과 같습니다:\n# N 체류시간 (s), Q CNT수율 (g/g-cat), P 가동시간 (h)\n# 하지만 Excel에서 읽을 때 줄바꿈 문자(\\n)나 불필요한 공백이 포함될 수 있으므로\n# 안전하게 처리합니다.\n\ndef clean_column_names(cols):\n    return [col.replace('\\n', ' ').strip() for col in cols]\n\ndf.columns = clean_column_names(df.columns)\n\n# 주차 열을 숫자로 변환 (문자열로 읽혔을 경우 대비)\ntry:\n    df[\"주차\"] = pd.to_numeric(df[\"주차\"], errors='coerce')\nexcept Exception:\n    pass\n\n# 필터링: 주차 14~26, 반응기 R1 또는 R2\nfiltered_df = df[\n    (df[\"주차\"] >= 14) & \n    (df[\"주차\"] <= 26) & \n    (df[\"반응기\"].isin([\"R1\", \"R2\"]))\n].copy()\n\n# 필요한 컬럼 확인 및 결측치 제거\n# 열 이름이 정확히 일치하는지 확인\ncols_to_check = [\"체류시간 (s)\", \"CNT수율 (g/g-cat)\", \"가동시간 (h)\"]\nmissing_cols = [c for c in cols_to_check if c not in filtered_df.columns]\n\nif missing_cols:\n    raise ValueError(f\"Missing columns after cleaning: {missing_cols}. Available: {list(filtered_df.columns)}\")\n\nfiltered_df = filtered_df.dropna(subset=cols_to_check)\n\n# 플롯 생성\nfig, ax = plt.subplots(figsize=(10, 7))\n\n# 산점도: x=체류시간, y=CNT수율, size ∝ 가동시간\nsize_factor = 15 \nscatter = ax.scatter(\n    filtered_df[\"체류시간 (s)\"],\n    filtered_df[\"CNT수율 (g/g-cat)\"],\n    s=filtered_df[\"가동시간 (h)\"] * size_factor,\n    c=filtered_df[\"반응기\"].map({\"R1\": \"#d62728\", \"R2\": \"#1f77b4\"}), # 색상으로 반응기 구분\n    alpha=0.6,\n    edgecolors='w',\n    linewidth=0.5\n)\n\n# 레이어 추가 및 라벨링\nax.set_xlabel(\"체류시간 (s)\")\nax.set_ylabel(\"CNT수율 (g/g-cat)\")\nax.set_title(\"주차 14–26, 반응기 R1/R2의 체류시간 vs CNT수율 산점도\\n(마커 크기 ∝ 가동시간)\")\n\n# 범례: 반응기 색상 범례 추가\nfrom matplotlib.patches import Patch\nlegend_elements = [\n    Patch(facecolor='#d62728', label='R1'),\n    Patch(facecolor='#1f77b4', label='R2')\n]\nax.legend(handles=legend_elements, title=\"반응기\", loc=\"best\")\n\n# 가동시간 크기에 대한 참고 정보 추가 (텍스트로)\nif not filtered_df.empty:\n    min_time = filtered_df[\"가동시간 (h)\"].min()\n    max_time = filtered_df[\"가동시간 (h)\"].max()\n    info_text = f\"마커 크기 범위: {min_time:.1f} ~ {max_time:.1f} h\"\n    ax.text(0.95, 0.05, info_text, transform=ax.transAxes, fontsize=9, verticalalignment='bottom', horizontalalignment='right')\n\n# 격자\nax.grid(True, linestyle=\"--\", alpha=0.5)\n\n# 저장\noutput_filename = \"scatter_residence_time_vs_yield_R1R2.png\"\noutput_path = os.path.join(OUT_DIR, output_filename)\nplt.tight_layout()\nplt.savefig(output_path, dpi=300)\nplt.close()\n\nprint(f\"Plots saved to {output_path}\")\n```",
+     "llm_s": 12.399,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 12128,
+     "output_chars": 2641,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 폰트 설정 (한글 지원)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# 열 이름 정리: 공백이나 특수문자로 인한 매칭 오류 방지\n# 미리보기에 따르면 정확한 열 이름은 다음과 같습니다:\n# N 체류시간 (s), Q CNT수율 (g/g-cat), P 가동시간 (h)\n# 하지만 Excel에서 읽을 때 줄바꿈 문자(\\n)나 불필요한 공백이 포함될 수 있으므로\n# 안전하게 처리합니다.\n\ndef clean_column_names(cols):\n    return [col.replace('\\n', ' ').strip() for col in cols]\n\ndf.columns = clean_column_names(df.columns)\n\n# 주차 열을 숫자로 변환 (문자열로 읽혔을 경우 대비)\ntry:\n    df[\"주차\"] = pd.to_numeric(df[\"주차\"], errors='coerce')\nexcept Exception:\n    pass\n\n# 필터링: 주차 14~26, 반응기 R1 또는 R2\nfiltered_df = df[\n    (df[\"주차\"] >= 14) & \n    (df[\"주차\"] <= 26) & \n    (df[\"반응기\"].isin([\"R1\", \"R2\"]))\n].copy()\n\n# 필요한 컬럼 확인 및 결측치 제거\n# 열 이름이 정확히 일치하는지 확인\ncols_to_check = [\"체류시간 (s)\", \"CNT수율 (g/g-cat)\", \"가동시간 (h)\"]\nmissing_cols = [c for c in cols_to_check if c not in filtered_df.columns]\n\nif missing_cols:\n    raise ValueError(f\"Missing columns after cleaning: {missing_cols}. Available: {list(filtered_df.columns)}\")\n\nfiltered_df = filtered_df.dropna(subset=cols_to_check)\n\n# 플롯 생성\nfig, ax = plt.subplots(figsize=(10, 7))\n\n# 산점도: x=체류시간, y=CNT수율, size ∝ 가동시간\nsize_factor = 15 \nscatter = ax.scatter(\n    filtered_df[\"체류시간 (s)\"],\n    filtered_df[\"CNT수율 (g/g-cat)\"],\n    s=filtered_df[\"가동시간 (h)\"] * size_factor,\n    c=filtered_df[\"반응기\"].map({\"R1\": \"#d62728\", \"R2\": \"#1f77b4\"}), # 색상으로 반응기 구분\n    alpha=0.6,\n    edgecolors='w',\n    linewidth=0.5\n)\n\n# 레이어 추가 및 라벨링\nax.set_xlabel(\"체류시간 (s)\")\nax.set_ylabel(\"CNT수율 (g/g-cat)\")\nax.set_title(\"주차 14–26, 반응기 R1/R2의 체류시간 vs CNT수율 산점도\\n(마커 크기 ∝ 가동시간)\")\n\n# 범례: 반응기 색상 범례 추가\nfrom matplotlib.patches import Patch\nlegend_elements = [\n    Patch(facecolor='#d62728', label='R1'),\n    Patch(facecolor='#1f77b4', label='R2')\n]\nax.legend(handles=legend_elements, title=\"반응기\", loc=\"best\")\n\n# 가동시간 크기에 대한 참고 정보 추가 (텍스트로)\nif not filtered_df.empty:\n    min_time = filtered_df[\"가동시간 (h)\"].min()\n    max_time = filtered_df[\"가동시간 (h)\"].max()\n    info_text = f\"마커 크기 범위: {min_time:.1f} ~ {max_time:.1f} h\"\n    ax.text(0.95, 0.05, info_text, transform=ax.transAxes, fontsize=9, verticalalignment='bottom', horizontalalignment='right')\n\n# 격자\nax.grid(True, linestyle=\"--\", alpha=0.5)\n\n# 저장\noutput_filename = \"scatter_residence_time_vs_yield_R1R2.png\"\noutput_path = os.path.join(OUT_DIR, output_filename)\nplt.tight_layout()\nplt.savefig(output_path, dpi=300)\nplt.close()\n\nprint(f\"Plots saved to {output_path}\")\n",
+   "engine": null,
+   "result": {
+    "ok": false,
+    "error": "The script failed (exit 1):\nTraceback (most recent call last):\n  File \"/home/chs/Work/tga_plot/eval/_chart_runner.py\", line 16, in <module>\n    runpy.run_path(script, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/R-mpl/S051_r1/plot_t1.py\", line 48, in <module>\n    raise ValueError(f\"Missing columns after cleaning: {missing_cols}. Available: {list(filtered_df.columns)}\")\nValueError: Missing columns after cleaning: ['체류시간 (s)', 'CNT수율 (g/g-cat)', '가동시간 (h)']. Available: ['런ID', '일자', '주차', '근무조', '반응기', '촉매로트', '작업자', '1존온도', '2존온도', '3존온도', 'C2H4유량', 'H2유량', 'H2/C2H4비', '체류시간', '외기습도', '가동시간', 'CNT수율', '생산속도', '잔류금속', '산화개시온도', 'IG/ID', '등급']",
+    "hint": ""
+   },
+   "facts": [],
+   "draw_s": 0.34749317169189453,
+   "check": {
+    "kind_expected": "scatter",
+    "failed": [
+     "run: no plot (The script failed (exit 1):\nTraceback (most recent call last):\n  File \"/home/chs/Work/tga_plot/eval/_chart_runner.py\", line 16, in <module>\n    runpy.)"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 33.552
+  }
+ ]
+}

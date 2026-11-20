@@ -1,0 +1,7 @@
+We need answer user's request. Need produce JSON spec only in json block. Need analyze in same language as user's request? User Korean. We need think in Korean? Probably. Need ensure final only JSON block.
+
+Request: "그림 크기 가로 8 세로 5, 해상도 600으로". Need spec file TGA.xlsx. Only size and dpi. Defaults TGA. No other keys. size [8,5], dpi 600. Need maybe file. Use exact file name TGA.xlsx. Final:
+```json
+{"file": "TGA.xlsx", "size": [8, 5], "dpi": 600}
+```
+Ensure nothing else.

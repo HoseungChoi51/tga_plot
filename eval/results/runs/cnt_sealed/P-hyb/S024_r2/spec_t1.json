@@ -1,0 +1,42 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "scatter",
+ "x": {
+  "col": "TGA_Fe_wt%",
+  "label": "TGA 잔류 Fe (wt%)"
+ },
+ "y": {
+  "col": "잔류금속 (wt%)",
+  "label": "런로그 잔류금속 (wt%)"
+ },
+ "ref": [
+  {
+   "type": "line",
+   "slope": 1,
+   "intercept": 0,
+   "text": "y = x"
+  }
+ ],
+ "data_code": "import pandas as pd\nimport numpy as np\n\n# Load TGA data manually since it's not in the main df\n# Assuming the file path is accessible relative to the script execution context\ntry:\n    tga_file = 'data/tga_batches.xlsx'\n    xl_tga = pd.ExcelFile(tga_file)\n    sheets = xl_tga.sheet_names\n    \n    results = []\n    for sheet in sheets:\n        df_tga = pd.read_excel(tga_file, sheet_name=sheet)\n        temp_col = '온도 (°C)'\n        weight_col = '중량 (%)'\n        # Find index closest to 800 C\n        idx_800 = (df_tga[temp_col] - 800).abs().idxmin()\n        residue_pct = df_tga.loc[idx_800, weight_col]\n        fe_equiv = residue_pct * 0.699\n        results.append({'런ID': sheet, 'TGA_Fe_wt%': fe_equiv})\n        \n    tga_df = pd.DataFrame(results)\n    \n    # Merge with the existing run log dataframe (df)\n    df = df.merge(tga_df, on='런ID', how='inner')\nexcept Exception as e:\n    # If loading fails, we might need to handle it differently, but usually paths are correct here\n    raise e",
+ "asks": [
+  {
+   "ask": "TGA 10개 배치 각각 800 °C 잔량(wt%)을 Fe로 환산(Fe₂O₃ → Fe, ×0.699)",
+   "how": "data_code"
+  },
+  {
+   "ask": "런로그 잔류금속(wt%)과 비교하는 산점도",
+   "how": "key"
+  },
+  {
+   "ask": "시트 이름이 런ID",
+   "how": "data_code"
+  },
+  {
+   "ask": "y = x 기준선",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-hyb/S024_r2/out/t1"
+ }
+}

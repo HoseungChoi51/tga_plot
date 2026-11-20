@@ -1,0 +1,80 @@
+```python
+from pathlib import Path
+import csv
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/tests/inputs/instrument_export.txt")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/23_r1/out")
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+# Instrument text exports may contain metadata before the numeric data.
+# Find the first line with at least four numeric fields, then read the data from there.
+lines = DATA_FILE.read_text(encoding="utf-8", errors="replace").splitlines()
+start = 0
+for i, line in enumerate(lines):
+    fields = next(csv.reader([line], delimiter=None, skipinitialspace=True))
+    if len(fields) >= 4:
+        numeric = 0
+        for field in fields[:4]:
+            try:
+                float(field.strip().replace(",", "."))
+                numeric += 1
+            except ValueError:
+                pass
+        if numeric >= 3:
+            start = i
+            break
+
+rows = []
+for line in lines[start:]:
+    fields = next(csv.reader([line], delimiter=None, skipinitialspace=True))
+    if len(fields) < 4:
+        continue
+    values = []
+    for field in fields[:4]:
+        try:
+            values.append(float(field.strip().replace(",", ".")))
+        except ValueError:
+            values.append(np.nan)
+    if np.isfinite(values).sum() >= 3:
+        rows.append(values)
+
+data = pd.DataFrame(rows, columns=["Time", "Temperature", "Mass", "Derivative"]).dropna(
+    subset=["Temperature", "Mass"]
+)
+if data.empty:
+    raise ValueError(f"No usable numeric data found in {DATA_FILE}")
+
+temperature = data["Temperature"].to_numpy()
+mass = data["Mass"].to_numpy()
+derivative = data["Derivative"].to_numpy()
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+fig, ax = plt.subplots(figsize=(9, 6))
+ax.plot(temperature, mass, color="tab:blue", linewidth=1.8, label="Mass")
+ax.set_xlabel("Temperature (°C)")
+ax.set_ylabel("Mass (%)")
+ax.set_xlim(np.nanmin(temperature), np.nanmax(temperature))
+ax.grid(True, alpha=0.25)
+
+# Residue is the final measured mass value; show it using the requested wording.
+residue = mass[-1]
+ax.text(
+    0.97,
+    0.95,
+    f"Residue: {residue:.2f}%",
+    transform=ax.transAxes,
+    ha="right",
+    va="top",
+    fontsize=12,
+    bbox=dict(boxstyle="round,pad=0.35", facecolor="white", edgecolor="0.7", alpha=0.9),
+)
+
+fig.tight_layout()
+fig.savefig(OUT_DIR / "tga_plot.png", dpi=300, bbox_inches="tight")
+plt.close(fig)
+```

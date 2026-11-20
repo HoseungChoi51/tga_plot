@@ -1,0 +1,87 @@
+import json
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx"
+
+df = pd.read_excel(DATA_FILE, sheet_name="Raw")
+temperature = pd.to_numeric(df["Temperature (°C)"], errors="coerce")
+weight = pd.to_numeric(df["Weight (%)"], errors="coerce")
+derivative = pd.to_numeric(df["Deriv. Weight (%/°C)"], errors="coerce")
+
+data = [
+    [float(x), float(y), float(d)]
+    for x, y, d in zip(temperature, weight, derivative)
+    if pd.notna(x) and pd.notna(y) and pd.notna(d)
+]
+
+option = {
+    "animation": False,
+    "title": {
+        "text": "Raw",
+        "left": "center",
+        "textStyle": {"fontFamily": "Noto Sans CJK KR"}
+    },
+    "tooltip": {"trigger": "axis"},
+    "legend": {"data": ["Weight", "Derivative weight"], "top": 30},
+    "grid": {"left": 75, "right": 75, "top": 85, "bottom": 70},
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 38,
+        "min": 30,
+        "max": 900,
+        "inverse": True,
+        "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+        "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"}
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Weight (%)",
+            "nameLocation": "middle",
+            "nameGap": 48,
+            "min": 0,
+            "max": 105,
+            "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+            "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"}
+        },
+        {
+            "type": "value",
+            "name": "Derivative weight (%/°C)",
+            "nameLocation": "middle",
+            "nameGap": 55,
+            "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+            "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"}
+        }
+    ],
+    "series": [
+        {
+            "name": "Weight",
+            "type": "line",
+            "showSymbol": False,
+            "yAxisIndex": 0,
+            "data": [[row[0], row[1]] for row in data],
+            "lineStyle": {"width": 2, "color": "#1f77b4"}
+        },
+        {
+            "name": "Derivative weight",
+            "type": "line",
+            "showSymbol": False,
+            "yAxisIndex": 1,
+            "data": [[row[0], row[2]] for row in data],
+            "lineStyle": {"width": 1.5, "color": "#d62728"}
+        }
+    ]
+}
+
+print(json.dumps({
+    "figures": [{
+        "name": "raw_reversed_temperature",
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"]
+    }]
+}, ensure_ascii=False, allow_nan=False))

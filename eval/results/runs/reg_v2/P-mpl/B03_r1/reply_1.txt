@@ -1,0 +1,27 @@
+```json
+{
+ "file": "rheology.csv",
+ "preset": "none",
+ "x": {
+  "col": "A",
+  "label": "Angular frequency (rad/s)",
+  "log": true
+ },
+ "y1": {
+  "col": "B",
+  "label": "Storage modulus G' (Pa)",
+  "log": true
+ },
+ "y2": {
+  "col": "C",
+  "label": "Loss modulus G'' (Pa)",
+  "log": true
+ },
+ "asks": [
+  {"ask": "주파수에 따른 G'(왼쪽)와 G''(오른쪽)", "how": "key"},
+  {"ask": "x축 로그 스케일", "how": "key"},
+  {"ask": "y1 축 로그 스케일", "how": "key"},
+  {"ask": "y2 축 로그 스케일", "how": "key"}
+ ]
+}
+```

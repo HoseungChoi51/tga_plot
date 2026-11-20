@@ -1,0 +1,26 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "line",
+ "x": {
+  "col": "일자 (yyyy-mm-dd)"
+ },
+ "y": {
+  "col": "외기습도 (%)",
+  "agg": "mean"
+ },
+ "by": "반응기",
+ "asks": [
+  {
+   "ask": "일자별 외기습도 추이 선그래프",
+   "how": "key"
+  },
+  {
+   "ask": "반응기별 구분",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/sessions/E3_G1_P-ec/out/t6"
+ }
+}

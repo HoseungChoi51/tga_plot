@@ -1,0 +1,260 @@
+{
+ "arm": "P-ec",
+ "item": "D022",
+ "repeat": 1,
+ "split": "dev",
+ "persona": "공정 엔지니어",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "diameters.csv에서 TEM-01, TEM-02만 직경(nm) histogram overlay, bin 1 nm 간격 3~28 nm.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/diameters.csv\",\n  \"chart\": \"histogram\",\n  \"x\": \"직경(nm)\",\n  \"bins\": {\n    \"width\": 1,\n    \"min\": 3,\n    \"max\": 28\n  },\n  \"filter\": [\n    \"시료 in [TEM-01, TEM-02]\"\n  ],\n  \"asks\": [\n    {\n      \"ask\": \"TEM-01, TEM-02만 필터링\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"직경 histogram overlay\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"bin 1 nm 간격 3~28 nm\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 6.558,
+     "prompt_tokens": 5550,
+     "output_tokens": 199,
+     "cached_tokens": 5052,
+     "prompt_n": 498,
+     "prefill_ms": 664.028987,
+     "decode_ms": 4132.616311,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": "data/diameters.csv",
+    "chart": "histogram",
+    "x": "직경(nm)",
+    "bins": {
+     "width": 1,
+     "min": 3,
+     "max": 28
+    },
+    "filter": [
+     "시료 in [TEM-01, TEM-02]"
+    ],
+    "asks": [
+     {
+      "ask": "TEM-01, TEM-02만 필터링",
+      "how": "key"
+     },
+     {
+      "ask": "직경 histogram overlay",
+      "how": "key"
+     },
+     {
+      "ask": "bin 1 nm 간격 3~28 nm",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": true,
+    "engine": "echarts",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_c/P-ec/D022_r1/out/t1/histogram_직경_nm.png"
+    ],
+    "chart": "histogram",
+    "rows_used": 400,
+    "rows_total": 1300,
+    "values": {
+     "bins": 25,
+     "series": {
+      "직경(nm)": {
+       "n": 400,
+       "mean": 10.6825
+      }
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "히스토그램 그래프를 저장했습니다: histogram_직경_nm.png\n사용한 행: 400 / 1300\n직경(nm): 400개, 평균 10.68"
+   },
+   "facts": [
+    {
+     "engine": "echarts",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": 300,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [
+        {
+         "name": "직경(nm)",
+         "edges": [
+          3.0,
+          4.0,
+          5.0,
+          6.0,
+          7.0,
+          8.0,
+          9.0,
+          10.0,
+          11.0,
+          12.0,
+          13.0,
+          14.0,
+          15.0,
+          16.0,
+          17.0,
+          18.0,
+          19.0,
+          20.0,
+          21.0,
+          22.0,
+          23.0,
+          24.0,
+          25.0,
+          26.0,
+          27.0,
+          28.0
+         ],
+         "counts": [
+          0.0,
+          0.0,
+          10.0,
+          34.0,
+          33.0,
+          47.0,
+          56.0,
+          64.0,
+          41.0,
+          39.0,
+          13.0,
+          22.0,
+          16.0,
+          10.0,
+          6.0,
+          1.0,
+          2.0,
+          1.0,
+          2.0,
+          1.0,
+          0.0,
+          0.0,
+          2.0,
+          0.0,
+          0.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#1f4e9c"
+        }
+       ],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "직경(nm)",
+        "type": "value",
+        "ticks": [
+         5.0,
+         10.0,
+         15.0,
+         20.0,
+         25.0
+        ],
+        "step": 5.0,
+        "categories": null,
+        "min": 3.0,
+        "max": 28.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "count",
+        "type": "value",
+        "ticks": [
+         0.0,
+         20.0,
+         40.0,
+         60.0,
+         80.0
+        ],
+        "step": 20.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 80.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       }
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_c/P-ec/D022_r1/out/t1/histogram_직경_nm.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5240726470947266,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [
+     "histogram TEM-01: bins/counts differ",
+     "histogram TEM-02: bins/counts differ"
+    ],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 2,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 7.15
+  }
+ ]
+}

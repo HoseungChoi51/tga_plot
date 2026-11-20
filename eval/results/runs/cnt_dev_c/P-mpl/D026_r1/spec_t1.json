@@ -1,0 +1,44 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "heatmap",
+ "x": {
+  "col": "시작시각",
+  "label": "시간대"
+ },
+ "y": {
+  "col": "일자",
+  "period": "day",
+  "label": "요일",
+  "order": [
+   "월",
+   "화",
+   "수",
+   "목",
+   "금",
+   "토",
+   "일"
+  ]
+ },
+ "z": {
+  "agg": "count",
+  "label": "정지 건수"
+ },
+ "values": true,
+ "asks": [
+  {
+   "ask": "요일별 정지 빈도",
+   "how": "key"
+  },
+  {
+   "ask": "시간대별 정지 빈도",
+   "how": "key"
+  },
+  {
+   "ask": "히트맵",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_c/P-mpl/D026_r1/out/t1"
+ }
+}

@@ -1,0 +1,232 @@
+{
+ "arm": "P-ec",
+ "item": "S053",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "데이터 분석가",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "Top 10 longest downtime events by 정지시간(분) as a bar chart, sorted desc, tick labels '반응기 / 원인 / 일자'.",
+   "calls": [
+    {
+     "reply": "```json\n{\"file\": \"data/downtime.xlsx\", \"chart\": \"bar\", \"x\": {\"col\": [\"반응기\", \"원인\", \"일자\"], \"label\": \"반응기 / 원인 / 일자\"}, \"y\": {\"col\": \"정지시간(분)\", \"agg\": \"sum\"}, \"sort\": \"desc\", \"top\": 10, \"asks\": [{\"ask\": \"Top 10 longest downtime events by 정지시간(분)\", \"how\": \"key\"}, {\"ask\": \"as a bar chart\", \"how\": \"key\"}, {\"ask\": \"sorted desc\", \"how\": \"key\"}, {\"ask\": \"tick labels '반응기 / 원인 / 일자'\", \"how\": \"key\"}]}\n```",
+     "llm_s": 3.914,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 17398,
+     "output_chars": 396,
+     "attempts": 1
+    },
+    {
+     "reply": "```json\n{\"file\": \"data/downtime.xlsx\", \"chart\": \"bar\", \"x\": {\"col\": \"반응기\", \"label\": \"반응기 / 원인 / 일자\"}, \"y\": {\"col\": \"정지시간(분)\", \"agg\": \"sum\"}, \"sort\": \"desc\", \"top\": 10, \"asks\": [{\"ask\": \"Top 10 longest downtime events by 정지시간(분)\", \"how\": \"key\"}, {\"ask\": \"as a bar chart\", \"how\": \"key\"}, {\"ask\": \"sorted desc\", \"how\": \"key\"}, {\"ask\": \"tick labels '반응기 / 원인 / 일자'\", \"how\": \"unsupported\"}]}\n```",
+     "llm_s": 3.021,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 18335,
+     "output_chars": 390,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/downtime.xlsx",
+    "chart": "bar",
+    "x": {
+     "col": "반응기",
+     "label": "반응기 / 원인 / 일자"
+    },
+    "y": {
+     "col": "정지시간(분)",
+     "agg": "sum"
+    },
+    "sort": "desc",
+    "top": 10,
+    "asks": [
+     {
+      "ask": "Top 10 longest downtime events by 정지시간(분)",
+      "how": "key"
+     },
+     {
+      "ask": "as a bar chart",
+      "how": "key"
+     },
+     {
+      "ask": "sorted desc",
+      "how": "key"
+     },
+     {
+      "ask": "tick labels '반응기 / 원인 / 일자'",
+      "how": "unsupported"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": true,
+    "engine": "echarts",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/S053_r1/out/t1/bar_정지시간_분.png"
+    ],
+    "chart": "bar",
+    "rows_used": 294,
+    "rows_total": 294,
+    "values": {
+     "categories": [
+      "R4",
+      "R2",
+      "R1",
+      "R3"
+     ],
+     "series": {
+      "정지시간(분)": [
+       6671.0,
+       6551.0,
+       6367.0,
+       6190.0
+      ]
+     }
+    },
+    "warnings": [],
+    "not_done": [
+     "tick labels '반응기 / 원인 / 일자'"
+    ],
+    "summary": "막대 그래프를 저장했습니다: bar_정지시간_분.png\n사용한 행: 294 / 294\n정지시간(분): R4 6.67e+03, R2 6.55e+03, R1 6.37e+03, R3 6.19e+03\n처리하지 못한 요청: tick labels '반응기 / 원인 / 일자'"
+   },
+   "facts": [
+    {
+     "engine": "echarts",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": 300,
+     "title": null,
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "정지시간(분)",
+         "orient": "v",
+         "cats": [
+          "R4",
+          "R2",
+          "R1",
+          "R3"
+         ],
+         "values": [
+          6671.0,
+          6551.0,
+          6367.0,
+          6190.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c"
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "반응기 / 원인 / 일자",
+        "type": "category",
+        "ticks": [],
+        "step": null,
+        "categories": [
+         "R4",
+         "R2",
+         "R1",
+         "R3"
+        ],
+        "min": 0.0,
+        "max": 3.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "정지시간(분) (sum)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         2000.0,
+         4000.0,
+         6000.0,
+         8000.0
+        ],
+        "step": 2000.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 8000.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       }
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/S053_r1/out/t1/bar_정지시간_분.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5152413845062256,
+   "check": {
+    "kind_expected": "bar",
+    "failed": [
+     "values: categories not drawn: ['R3 / 히터 고장 / 2026-07-30', 'R1 / 히터 고장 / 2026-07-16', 'R4 / 기타 / 2026-04-22', 'R4 / 히터 고장 / 2026-05-06', 'R4 / 히터 고장 / 2026-05-13', 'R2 / 히터 고장 / 2026-04-08'] (drawn: ['R4', 'R2', 'R1', 'R3'])",
+     "values: extra categories drawn: ['R4', 'R2', 'R1', 'R3']"
+    ],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 2,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 7.836
+  }
+ ]
+}

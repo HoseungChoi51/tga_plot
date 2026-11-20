@@ -1,0 +1,19 @@
+{
+ "file": "data/diameters.csv",
+ "chart": "bar",
+ "x": "시료",
+ "y": {
+  "col": "직경(nm)",
+  "agg": "mean"
+ },
+ "error": "std",
+ "asks": [
+  {
+   "ask": "표준편차 오차막대",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/SS10_r1/out/t2"
+ }
+}

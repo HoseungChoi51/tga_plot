@@ -1,0 +1,11 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "bar",
+ "x": "반응기",
+ "y": "count",
+ "by": "등급 (A/B/C)",
+ "stack": true,
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_lite/P-mpl/D020_r1/out/t1"
+ }
+}

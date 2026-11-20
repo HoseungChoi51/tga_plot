@@ -1,0 +1,286 @@
+{
+ "arm": "P-ec",
+ "item": "S025",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "raman 폴더 8개 파일 각각 I_G/I_D를 계산해서 막대그래프로, 높은 순으로 정렬해 주세요. 베이스라인 보정 없이 피크 높이비로요: I_G는 1550–1620 cm⁻¹ 최대값, I_D는 1300–1400 cm⁻¹ 최대값입니다.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"asks\": [\n    {\n      \"ask\": \"raman 폴더 8개 파일 각각 I_G/I_D 계산\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"베이스라인 보정 없이 피크 높이비 (1550-1620 max, 1300-1400 max)\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"막대그래프로\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"높은 순으로 정렬\",\n      \"how\": \"key\"\n    }\n  ],\n  \"chart\": \"bar\",\n  \"x\": \"Sample\",\n  \"y\": \"Ratio\",\n  \"sort\": \"desc\",\n  \"values\": true,\n  \"title\": \"I_G/I_D Ratio by Sample\",\n  \"data_code\": \"import pandas as pd\\nimport numpy as np\\n\\ndf_list = []\\n# Assuming plotkit passes all files. We iterate through the loaded data context.\\n# In standard plotkit usage with multiple files for aggregation, we often need to construct the summary df manually in data_code if not pre-loaded as a single table.\\n# However, since 'file' isn't set to a single pattern here but implied by the request, and data_code runs on `df`,\\n# usually `df` contains all rows from all files stacked or we need to access global variables.\\n# Given the preview lists separate files, and no 'file' key is strictly defined in the prompt's JSON structure yet,\\n# I will assume the user wants us to specify the file glob and then process it.\\n# Wait, the spec format allows \\\"file\\\" to be a list or pattern.\\n# Let's define the file pattern first.\\n\\n# Re-evaluating: The prompt says 'Reply with ONE JSON spec'.\\n# If I put \\\"file\\\": \\\"data/raman/*.csv\\\", plotkit loads them.\\n# For Curves, it combines them if 'combine' is true.\\n# But this is a CHART of calculated metrics per file.\\n# So we need a way to calculate a metric PER FILE and then make a bar chart.\\n# The 'data_code' sandbox usually operates on the DataFrame 'df'.\\n# If multiple files are loaded into one 'df' with an extra column indicating source file/sheet, that would be ideal.\\n# Often, when multiple files are passed, plotkit might stack them. \\n# Let's assume 'df' has columns A (Shift), B (Intensity) and potentially a column identifying the file/sheet like 'sheet' or 'source'.\\n# If 'source' isn't automatic, I can use 'sheet' which corresponds to filename in these CSVs.\\n\\n# Strategy:\\n# 1. Set file pattern.\\n# 2. Use data_code to group by sheet/source, calculate IG, ID, Ratio.\\n# 3. Output a new DataFrame 'summary_df' or modify 'df' to be the summary.\\n# Actually, for charts, data_code modifies 'df'. Then the chart plots 'df'.\\n\\n# Let's try modifying df directly.\\n# Step 1: Identify grouping column. Usually 'sheet' or similar exists in multi-file loads.\\n# Based on common behavior: 'sheet' name is often available.\\ngroup_col = 'sheet'\\nif group_col not in df.columns:\\n    # Fallback if column name differs\\n    group_col = df.columns[0] # Risky\\n\\nresults = []\\nfor name, group in df.groupby(group_col):\\n    x = group['Raman Shift (cm-1)'].values\\n    y = group['Intensity (a.u.)'].values\\n    \\n    # Define masks\\n    mask_g = (x >= 1550) & (x <= 1620)\\n    mask_d = (x >= 1300) & (x <= 1400)\\n    \\n    if len(y[mask_g]) > 0 and len(y[mask_d]) > 0:\\n        ig = np.max(y[mask_g])\\n        id_val = np.max(y[mask_d])\\n        ratio = ig / id_val if id_val != 0 else np.nan\\n    else:\\n        ratio = np.nan\n        \n    results.append({'Sample': name, 'Ratio': ratio})\n\nnew_df = pd.DataFrame(results)\\ndf = new_df\\n\",\n  \"file\": \"data/raman/*.csv\"\n}\n```",
+     "llm_s": 19.978,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 17994,
+     "output_chars": 3287,
+     "attempts": 1
+    },
+    {
+     "reply": "```json\n{\n  \"asks\": [\n    {\n      \"ask\": \"raman 폴더 8개 파일 각각 I_G/I_D 계산\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"베이스라인 보정 없이 피크 높이비 (1550-1620 max, 1300-1400 max)\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"막대그래프로\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"높은 순으로 정렬\",\n      \"how\": \"key\"\n    }\n  ],\n  \"chart\": \"bar\",\n  \"x\": \"Sample\",\n  \"y\": \"Ratio\",\n  \"sort\": \"desc\",\n  \"values\": true,\n  \"title\": \"I_G/I_D Ratio by Sample\",\n  \"file\": \"data/raman/*.csv\",\n  \"data_code\": \"import pandas as pd\\nimport numpy as np\\n\\n# Group by sheet name to process each file individually\\nresults = []\\nfor name, group in df.groupby('sheet'):\\n    x = group['Raman Shift (cm-1)'].values\\n    y = group['Intensity (a.u.)'].values\\n    \\n    # Masks for peak regions\\n    mask_g = (x >= 1550) & (x <= 1620)\\n    mask_d = (x >= 1300) & (x <= 1400)\\n    \\n    if len(y[mask_g]) > 0 and len(y[mask_d]) > 0:\\n        ig = np.max(y[mask_g])\\n        id_val = np.max(y[mask_d])\\n        ratio = ig / id_val if id_val != 0 else np.nan\\n    else:\\n        ratio = np.nan\\n        \\n    results.append({'Sample': name, 'Ratio': ratio})\\n\\n# Replace the original DataFrame with the summary table\\ndf = pd.DataFrame(results)\"\n}\n```",
+     "llm_s": 7.148,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 21871,
+     "output_chars": 1226,
+     "attempts": 1
+    },
+    {
+     "reply": "```json\n{\n  \"asks\": [\n    {\n      \"ask\": \"raman 폴더 8개 파일 각각 I_G/I_D 계산\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"베이스라인 보정 없이 피크 높이비 (1550-1620 max, 1300-1400 max)\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"막대그래프로\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"높은 순으로 정렬\",\n      \"how\": \"key\"\n    }\n  ],\n  \"chart\": \"bar\",\n  \"x\": \"Sample\",\n  \"y\": \"Ratio\",\n  \"sort\": \"desc\",\n  \"values\": true,\n  \"title\": \"I_G/I_D Ratio by Sample\",\n  \"file\": \"data/raman/*.csv\",\n  \"data_code\": \"import pandas as pd\\nimport numpy as np\\nimport os\\n\\n# When multiple files are loaded into a single DataFrame via glob,\\n# we need to identify which rows belong to which file.\\n# Usually, plotkit adds a column like 'source', 'file', or 'sheet'.\\n# If not present, we can infer from the data structure if it's concatenated with an index reset.\\n# However, since we don't have a grouping column guaranteed, let's check for common ones.\\n\\n# Strategy: Check if there is a column indicating the source file/sheet.\\ncandidate_cols = ['source', 'file', 'filename', 'sheet', '시트', '파일']\\ngroup_col = None\\nfor c in candidate_cols:\\n    if c in df.columns:\\n        group_col = c\\n        break\\n\\nif group_col is None:\\n    # Fallback: If no explicit column exists, assume the DataFrame is ordered by file.\\n    # This is risky. But often in these sandboxes, if you load multiple CSVs, they might be\\n    # stacked. Without a key, we cannot separate them reliably unless we use the index range\\n    # if each file has exactly the same number of rows (1560).\\n    n_rows_per_file = 1560\\n    n_files = len(df) // n_rows_per_file\\n    \\n    results = []\\n    for i in range(n_files):\\n        start = i * n_rows_per_file\\n        end = start + n_rows_per_file\\n        subset = df.iloc[start:end]\\n        \\n        x = subset['Raman Shift (cm-1)'].values\\n        y = subset['Intensity (a.u.)'].values\\n        \\n        mask_g = (x >= 1550) & (x <= 1620)\\n        mask_d = (x >= 1300) & (x <= 1400)\\n        \\n        if len(y[mask_g]) > 0 and len(y[mask_d]) > 0:\\n            ig = np.max(y[mask_g])\\n            id_val = np.max(y[mask_d])\\n            ratio = ig / id_val if id_val != 0 else np.nan\\n        else:\\n            ratio = np.nan\\n            \\n        # We need a label. Since we lost the filename, we use index or generic name.\\n        # In a real scenario, one would expect a column. Let's try to extract filename from context if possible.\\n        # If that fails, we use placeholder names based on order.\\n        label = f\\\"File_{i+1}\\\"\\n        results.append({'Sample': label, 'Ratio': ratio})\\nelse:\\n    results = []\\n    for name, group in df.groupby(group_col):\\n        x = group['Raman Shift (cm-1)'].values\\n        y = group['Intensity (a.u.)'].values\\n        \\n        mask_g = (x >= 1550) & (x <= 1620)\\n        mask_d = (x >= 1300) & (x <= 1400)\\n        \\n        if len(y[mask_g]) > 0 and len(y[mask_d]) > 0:\\n            ig = np.max(y[mask_g])\\n            id_val = np.max(y[mask_d])\\n            ratio = ig / id_val if id_val != 0 else np.nan\\n        else:\\n            ratio = np.nan\\n            \\n        # Clean up label (remove extension if present)\\n        label_str = str(name)\\n        if '.' in label_str:\\n            label_str = label_str.rsplit('.', 1)[0]\\n        \\n        results.append({'Sample': label_str, 'Ratio': ratio})\\n\\ndf = pd.DataFrame(results)\"\n}\n```",
+     "llm_s": 14.326,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 23483,
+     "output_chars": 3408,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "asks": [
+     {
+      "ask": "raman 폴더 8개 파일 각각 I_G/I_D 계산",
+      "how": "data_code"
+     },
+     {
+      "ask": "베이스라인 보정 없이 피크 높이비 (1550-1620 max, 1300-1400 max)",
+      "how": "data_code"
+     },
+     {
+      "ask": "막대그래프로",
+      "how": "key"
+     },
+     {
+      "ask": "높은 순으로 정렬",
+      "how": "key"
+     }
+    ],
+    "chart": "bar",
+    "x": "Sample",
+    "y": "Ratio",
+    "sort": "desc",
+    "values": true,
+    "title": "I_G/I_D Ratio by Sample",
+    "file": "data/raman/*.csv",
+    "data_code": "import pandas as pd\nimport numpy as np\nimport os\n\n# When multiple files are loaded into a single DataFrame via glob,\n# we need to identify which rows belong to which file.\n# Usually, plotkit adds a column like 'source', 'file', or 'sheet'.\n# If not present, we can infer from the data structure if it's concatenated with an index reset.\n# However, since we don't have a grouping column guaranteed, let's check for common ones.\n\n# Strategy: Check if there is a column indicating the source file/sheet.\ncandidate_cols = ['source', 'file', 'filename', 'sheet', '시트', '파일']\ngroup_col = None\nfor c in candidate_cols:\n    if c in df.columns:\n        group_col = c\n        break\n\nif group_col is None:\n    # Fallback: If no explicit column exists, assume the DataFrame is ordered by file.\n    # This is risky. But often in these sandboxes, if you load multiple CSVs, they might be\n    # stacked. Without a key, we cannot separate them reliably unless we use the index range\n    # if each file has exactly the same number of rows (1560).\n    n_rows_per_file = 1560\n    n_files = len(df) // n_rows_per_file\n    \n    results = []\n    for i in range(n_files):\n        start = i * n_rows_per_file\n        end = start + n_rows_per_file\n        subset = df.iloc[start:end]\n        \n        x = subset['Raman Shift (cm-1)'].values\n        y = subset['Intensity (a.u.)'].values\n        \n        mask_g = (x >= 1550) & (x <= 1620)\n        mask_d = (x >= 1300) & (x <= 1400)\n        \n        if len(y[mask_g]) > 0 and len(y[mask_d]) > 0:\n            ig = np.max(y[mask_g])\n            id_val = np.max(y[mask_d])\n            ratio = ig / id_val if id_val != 0 else np.nan\n        else:\n            ratio = np.nan\n            \n        # We need a label. Since we lost the filename, we use index or generic name.\n        # In a real scenario, one would expect a column. Let's try to extract filename from context if possible.\n        # If that fails, we use placeholder names based on order.\n        label = f\"File_{i+1}\"\n        results.append({'Sample': label, 'Ratio': ratio})\nelse:\n    results = []\n    for name, group in df.groupby(group_col):\n        x = group['Raman Shift (cm-1)'].values\n        y = group['Intensity (a.u.)'].values\n        \n        mask_g = (x >= 1550) & (x <= 1620)\n        mask_d = (x >= 1300) & (x <= 1400)\n        \n        if len(y[mask_g]) > 0 and len(y[mask_d]) > 0:\n            ig = np.max(y[mask_g])\n            id_val = np.max(y[mask_d])\n            ratio = ig / id_val if id_val != 0 else np.nan\n        else:\n            ratio = np.nan\n            \n        # Clean up label (remove extension if present)\n        label_str = str(name)\n        if '.' in label_str:\n            label_str = label_str.rsplit('.', 1)[0]\n        \n        results.append({'Sample': label_str, 'Ratio': ratio})\n\ndf = pd.DataFrame(results)"
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": true,
+    "engine": "echarts",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/S025_r1/out/t1/bar_Ratio.png"
+    ],
+    "chart": "bar",
+    "rows_used": 8,
+    "rows_total": 8,
+    "values": {
+     "categories": [
+      "R2-260617-1",
+      "R1-260326-1",
+      "R1-260716-1",
+      "R1-260711-1",
+      "R2-260616-1",
+      "R3-260810-2",
+      "R4-260407-1",
+      "R4-260721-1"
+     ],
+     "series": {
+      "Ratio": [
+       2.3726,
+       2.2392,
+       2.1754,
+       2.1321,
+       2.0822,
+       2.0242,
+       1.9225,
+       1.8228
+      ]
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "막대 그래프를 저장했습니다: bar_Ratio.png\n사용한 행: 8 / 8\nRatio: R2-260617-1 2.37, R1-260326-1 2.24, R1-260716-1 2.18, R1-260711-1 2.13, R2-260616-1 2.08, R3-260810-2 2.02, R4-260407-1 1.92, R4-260721-1 1.82"
+   },
+   "facts": [
+    {
+     "engine": "echarts",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": 300,
+     "title": "I_G/I_D Ratio by Sample",
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "Ratio",
+         "orient": "v",
+         "cats": [
+          "R2-260617-1",
+          "R1-260326-1",
+          "R1-260716-1",
+          "R1-260711-1",
+          "R2-260616-1",
+          "R3-260810-2",
+          "R4-260407-1",
+          "R4-260721-1"
+         ],
+         "values": [
+          2.372622388525101,
+          2.239154210718192,
+          2.1754147970364186,
+          2.1321364757934145,
+          2.082213343019736,
+          2.0241622976977434,
+          1.9225493476078956,
+          1.822779357284397
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c"
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 8,
+       "texts": [
+        "2.37",
+        "2.24",
+        "2.18",
+        "2.13",
+        "2.08",
+        "2.02",
+        "1.92",
+        "1.82"
+       ],
+       "x": {
+        "label": "Sample",
+        "type": "category",
+        "ticks": [],
+        "step": null,
+        "categories": [
+         "R2-260617-1",
+         "R1-260326-1",
+         "R1-260716-1",
+         "R1-260711-1",
+         "R2-260616-1",
+         "R3-260810-2",
+         "R4-260407-1",
+         "R4-260721-1"
+        ],
+        "min": 0.0,
+        "max": 7.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 45.0
+       },
+       "y": {
+        "label": "Ratio",
+        "type": "value",
+        "ticks": [
+         0.0,
+         0.5,
+         1.0,
+         1.5,
+         2.0,
+         2.5,
+         3.0
+        ],
+        "step": 0.5,
+        "categories": null,
+        "min": 0.0,
+        "max": 3.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       }
+      }
+     ],
+     "texts": [
+      "2.37",
+      "2.24",
+      "2.18",
+      "2.13",
+      "2.08",
+      "2.02",
+      "1.92",
+      "1.82",
+      "I_G/I_D Ratio by Sample"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/S025_r1/out/t1/bar_Ratio.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.7288239002227783,
+   "check": {
+    "kind_expected": "bar",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 42.778
+  }
+ ]
+}

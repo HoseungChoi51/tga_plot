@@ -1,0 +1,32 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "histogram",
+ "x": "CNT수율 (g/g-cat)",
+ "bins": {
+  "width": 1,
+  "min": 12,
+  "max": 36
+ },
+ "by": {
+  "col": "주차",
+  "code": "df['기간'] = df['주차'].apply(lambda w: '주차 1-13' if w <= 13 else '주차 14-26')"
+ },
+ "asks": [
+  {
+   "ask": "Histogram of CNT수율",
+   "how": "key"
+  },
+  {
+   "ask": "Overlay two periods (주차 1-13 vs 14-26)",
+   "how": "code"
+  },
+  {
+   "ask": "Shared bin edges, 1 g/g-cat wide from 12 to 36",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS15_r2/out/t2"
+ }
+}

@@ -1,0 +1,188 @@
+```python
+import json
+import os
+import re
+import sys
+
+import numpy as np
+import pandas as pd
+
+DATA_FILES = [
+    "/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_A.csv",
+    "/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_B.txt",
+]
+
+
+def read_table(path):
+    ext = os.path.splitext(path)[1].lower()
+    if ext == ".csv":
+        return pd.read_csv(path)
+    if ext in (".xls", ".xlsx"):
+        return pd.read_excel(path)
+    # Text exports are commonly tab- or comma-delimited.
+    try:
+        return pd.read_csv(path, sep=None, engine="python")
+    except Exception:
+        return pd.read_csv(path, delim_whitespace=True)
+
+
+def find_column(df, pattern, fallback):
+    for col in df.columns:
+        if re.search(pattern, str(col), re.IGNORECASE):
+            return col
+    return df.columns[fallback]
+
+
+datasets = []
+for path, label in zip(DATA_FILES, ["Lot A", "Lot B"]):
+    df = read_table(path)
+    xcol = find_column(df, r"temperature", 1)
+    ycol = find_column(df, r"weight\s*\(%\)", 2)
+    dcol = find_column(df, r"deriv", 3)
+
+    x = pd.to_numeric(df[xcol], errors="coerce").to_numpy(dtype=float)
+    weight = pd.to_numeric(df[ycol], errors="coerce").to_numpy(dtype=float)
+    dtg = pd.to_numeric(df[dcol], errors="coerce").to_numpy(dtype=float)
+    valid = np.isfinite(x) & np.isfinite(weight) & np.isfinite(dtg)
+    x, weight, dtg = x[valid], weight[valid], dtg[valid]
+
+    residue_idx = int(np.argmin(np.abs(x - 800)))
+    peak_candidates = np.flatnonzero(x > 150)
+    peak_idx = int(peak_candidates[np.argmax(-dtg[peak_candidates])]) if len(peak_candidates) else None
+
+    datasets.append({
+        "label": label,
+        "x": x,
+        "weight": weight,
+        "dtg": -dtg,
+        "residue_idx": residue_idx,
+        "peak_idx": peak_idx,
+    })
+
+
+colors = ["#1f4e9c", "#27ae60"]
+series = []
+for item, color in zip(datasets, colors):
+    series.append({
+        "name": item["label"],
+        "type": "line",
+        "yAxisIndex": 0,
+        "showSymbol": False,
+        "lineStyle": {"width": 2, "color": color},
+        "itemStyle": {"color": color},
+        "data": [[float(x), float(y)] for x, y in zip(item["x"], item["weight"])],
+    })
+    series.append({
+        "name": item["label"] + " DTG",
+        "type": "line",
+        "yAxisIndex": 1,
+        "showSymbol": False,
+        "lineStyle": {"width": 1.8, "color": "#c0392b" if item["label"] == "Lot A" else "#e67e22"},
+        "itemStyle": {"color": "#c0392b" if item["label"] == "Lot A" else "#e67e22"},
+        "data": [[float(x), float(y)] for x, y in zip(item["x"], item["dtg"])],
+    })
+
+    ri = item["residue_idx"]
+    series.append({
+        "name": item["label"] + " residue marker",
+        "type": "scatter",
+        "yAxisIndex": 0,
+        "symbolSize": 9,
+        "itemStyle": {"color": color, "borderColor": "#ffffff", "borderWidth": 1},
+        "data": [{
+            "value": [float(item["x"][ri]), float(item["weight"][ri])],
+            "label": {
+                "show": True,
+                "formatter": f'Residue {item["weight"][ri]:.1f}%',
+                "position": "top",
+                "fontSize": 11,
+                "color": color,
+            },
+        }],
+        "tooltip": {"show": False},
+    })
+
+    pi = item["peak_idx"]
+    if pi is not None:
+        series.append({
+            "name": item["label"] + " peak marker",
+            "type": "scatter",
+            "yAxisIndex": 1,
+            "symbolSize": 9,
+            "itemStyle": {"color": "#c0392b" if item["label"] == "Lot A" else "#e67e22"},
+            "data": [{
+                "value": [float(item["x"][pi]), float(item["dtg"][pi])],
+                "label": {
+                    "show": True,
+                    "formatter": f'{item["x"][pi]:.0f} °C',
+                    "position": "top",
+                    "fontSize": 11,
+                    "color": "#c0392b" if item["label"] == "Lot A" else "#e67e22",
+                },
+            }],
+            "tooltip": {"show": False},
+        })
+
+option = {
+    "animation": False,
+    "title": {
+        "text": "TGA Comparison",
+        "left": "center",
+        "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 16},
+    },
+    "tooltip": {"trigger": "axis"},
+    "legend": {
+        "data": ["Lot A", "Lot B"],
+        "left": "center",
+        "bottom": 4,
+        "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 11},
+    },
+    "grid": {"left": 68, "right": 68, "top": 58, "bottom": 66},
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 34,
+        "axisLine": {"show": True},
+        "axisTick": {"show": True},
+        "axisLabel": {"show": True, "fontFamily": "Noto Sans CJK KR"},
+        "splitLine": {"show": False},
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Weight (%)",
+            "nameLocation": "middle",
+            "nameGap": 48,
+            "min": 0,
+            "max": 105,
+            "axisLine": {"show": True},
+            "axisTick": {"show": True},
+            "axisLabel": {"show": True, "fontFamily": "Noto Sans CJK KR"},
+            "splitLine": {"show": True, "lineStyle": {"color": "#dddddd"}},
+        },
+        {
+            "type": "value",
+            "name": "-DTG (%/°C)",
+            "nameLocation": "middle",
+            "nameGap": 48,
+            "axisLine": {"show": True},
+            "axisTick": {"show": True},
+            "axisLabel": {"show": True, "fontFamily": "Noto Sans CJK KR"},
+            "splitLine": {"show": False},
+        },
+    ],
+    "series": series,
+}
+
+print(json.dumps({
+    "figures": [{
+        "name": "tga_lot_comparison",
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"],
+    }]
+}, ensure_ascii=False, allow_nan=False))
+```

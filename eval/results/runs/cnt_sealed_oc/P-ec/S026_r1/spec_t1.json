@@ -1,0 +1,41 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "bar",
+ "x": "반응기",
+ "y": "count",
+ "by": "등급",
+ "stack": true,
+ "title": "반응기별 등급 구성비 (%)",
+ "asks": [
+  {
+   "ask": "반응기별 등급 A/B/C 구성비(%) 묶은 막대 (합 100%)",
+   "how": "echarts"
+  }
+ ],
+ "echarts": {
+  "series": [
+   {
+    "label": {
+     "show": true,
+     "formatter": "{d}%"
+    }
+   },
+   {
+    "label": {
+     "show": true,
+     "formatter": "{d}%"
+    }
+   },
+   {
+    "label": {
+     "show": true,
+     "formatter": "{d}%"
+    }
+   }
+  ]
+ },
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/S026_r1/out/t1"
+ }
+}

@@ -1,0 +1,234 @@
+{
+ "arm": "P-mpl",
+ "item": "S002",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "생산팀장",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "반응기별 총 설비 정지시간을 가로막대로 보여 주세요. 많은 순으로 위에서부터 놓고, 제일 많은 반응기만 빨간색, 나머지는 회색으로 해 주세요.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/downtime.xlsx\",\n  \"chart\": \"hbar\",\n  \"x\": \"반응기\",\n  \"y\": {\n    \"col\": \"정지시간(분)\",\n    \"agg\": \"sum\"\n  },\n  \"sort\": \"desc\",\n  \"highlight\": \"R3\",\n  \"colors\": {\n    \"R3\": \"red\"\n  },\n  \"asks\": [\n    {\n      \"ask\": \"반응기별 총 정지시간 가로막대\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"많은 순으로 정렬\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"최고 반응기만 빨강, 나머지는 회색\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 6.778,
+     "prompt_tokens": 5684,
+     "output_tokens": 203,
+     "cached_tokens": 5052,
+     "prompt_n": 632,
+     "prefill_ms": 909.350736,
+     "decode_ms": 5456.415503,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": "data/downtime.xlsx",
+    "chart": "hbar",
+    "x": "반응기",
+    "y": {
+     "col": "정지시간(분)",
+     "agg": "sum"
+    },
+    "sort": "desc",
+    "highlight": "R3",
+    "colors": {
+     "R3": "red"
+    },
+    "asks": [
+     {
+      "ask": "반응기별 총 정지시간 가로막대",
+      "how": "key"
+     },
+     {
+      "ask": "많은 순으로 정렬",
+      "how": "key"
+     },
+     {
+      "ask": "최고 반응기만 빨강, 나머지는 회색",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-mpl/S002_r1/out/t1/hbar_정지시간_분.png"
+    ],
+    "chart": "hbar",
+    "rows_used": 294,
+    "rows_total": 294,
+    "values": {
+     "categories": [
+      "R4",
+      "R2",
+      "R1",
+      "R3"
+     ],
+     "series": {
+      "정지시간(분)": [
+       6671.0,
+       6551.0,
+       6367.0,
+       6190.0
+      ]
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "가로 막대 그래프를 저장했습니다: hbar_정지시간_분.png\n사용한 행: 294 / 294\n정지시간(분): R4 6.67e+03, R2 6.55e+03, R1 6.37e+03, R3 6.19e+03"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": null,
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "정지시간(분)",
+         "orient": "h",
+         "cats": [
+          "R4",
+          "R2",
+          "R1",
+          "R3"
+         ],
+         "values": [
+          6671.0,
+          6551.0,
+          6367.0,
+          6190.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#c8c8c8",
+          "#c8c8c8",
+          "#c8c8c8",
+          "#c0392b"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "정지시간(분) (sum)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         2000.0,
+         4000.0,
+         6000.0,
+         8000.0
+        ],
+        "step": 2000.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 8000.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "-2000",
+         "0",
+         "2000",
+         "4000",
+         "6000",
+         "8000",
+         "10000"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "반응기",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "R4",
+         "R2",
+         "R1",
+         "R3"
+        ],
+        "min": -0.5900000000000001,
+        "max": 3.5900000000000003,
+        "log": false,
+        "inverted": true,
+        "tick_labels": [
+         "R4",
+         "R2",
+         "R1",
+         "R3"
+        ],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-mpl/S002_r1/out/t1/hbar_정지시간_분.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.3346536159515381,
+   "check": {
+    "kind_expected": "hbar",
+    "failed": [],
+    "unchecked": [
+     "highlight=R4",
+     "order=largest at top"
+    ],
+    "n_checks": 4,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 7.213
+  }
+ ]
+}

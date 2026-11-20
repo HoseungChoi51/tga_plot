@@ -1,0 +1,36 @@
+{
+ "file": [
+  "data/tga_batches.xlsx",
+  "data/run_log.xlsx"
+ ],
+ "chart": "scatter",
+ "x": {
+  "col": "TGA_Fe_Wt%",
+  "label": "TGA 잔류량 (Fe 환산, wt%)"
+ },
+ "y": {
+  "col": "잔류금속 (wt%)",
+  "label": "런로그 잔류금속 (wt%)"
+ },
+ "ref": [
+  {
+   "type": "y=x",
+   "label": "y = x"
+  }
+ ],
+ "title": "TGA 잔류량(Fe 환산) vs 런로그 잔류금속",
+ "asks": [
+  {
+   "ask": "TGA 10개 배치 각각 800 °C 잔량을 Fe로 환산하여 런로그와 비교하는 산점도",
+   "how": "code"
+  },
+  {
+   "ask": "y=x 기준선",
+   "how": "key"
+  }
+ ],
+ "data_code": "import pandas as pd\nimport numpy as np\n\n# Load TGA sheets\ntga_file = 'data/tga_batches.xlsx'\nxls_tga = pd.ExcelFile(tga_file)\nresidues = []\nrun_ids = []\nfor sheet in xls_tga.sheet_names:\n    df_tga = pd.read_excel(xls_tga, sheet_name=sheet)\n    # Col B is Temperature, Col C is Weight %\n    temp = df_tga.iloc[:, 1]\n    weight = df_tga.iloc[:, 2]\n    # Interpolate to find weight at 800 C\n    w_800 = np.interp(800, temp.values, weight.values)\n    # Convert Fe2O3 to Fe (multiply by 0.699)\n    fe_equiv = w_800 * 0.699\n    residues.append(fe_equiv)\n    run_ids.append(sheet)\n\n# Create a DataFrame for the merged result\nmerged_df = pd.DataFrame({'RunID': run_ids, 'TGA_Fe_Wt%': residues})\n\n# Load Run Log from the existing 'df' context which is likely the main run log sheet\n# The preview says 'run_log.xlsx' has sheet '런로그'. \n# If 'df' passed to data_code is already the content of run_log.xlsx (sheet '런로그'), we use it directly.\n# If 'df' is empty or wrong, we load it again. Usually data_code receives the primary file's dataframe.\n# Given the multi-file input, let's assume 'df' corresponds to the first file or needs loading.\n# Safe approach: Reload run log if necessary, but typically plotkit passes the joined/primary df.\n# Let's try to access the columns from the current 'df' variable provided by plotkit.\n\nif '런ID' not in df.columns and '잔류금속 (wt%)' not in df.columns:\n    run_file = 'data/run_log.xlsx'\n    df_run = pd.read_excel(run_file, sheet_name='런로그')\nelse:\n    df_run = df[['런ID', '잔류금속 (wt%)']].copy()\n\nmatched_runs = df_run.rename(columns={'런ID': 'RunID'})\nfinal_df = merged_df.merge(matched_runs, on='RunID', how='inner')\n\ndf = final_df",
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S024_r2/out/t1"
+ }
+}

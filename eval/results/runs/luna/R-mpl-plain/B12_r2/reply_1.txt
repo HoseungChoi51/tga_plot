@@ -1,0 +1,56 @@
+```python
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/caox.csv"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/B12_r2/out"
+
+def main():
+    out_dir = Path(OUT_DIR)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    df = pd.read_csv(DATA_FILE)
+    temperature_col = "Temperature (°C)"
+    weight_col = "Weight (%)"
+
+    temperature = pd.to_numeric(df[temperature_col], errors="coerce")
+    weight = pd.to_numeric(df[weight_col], errors="coerce")
+    valid = temperature.notna() & weight.notna()
+    temperature = temperature[valid]
+    weight = weight[valid]
+
+    # Use the measurement nearest to 900 °C for the residue annotation.
+    residue_idx = (temperature - 900).abs().idxmin()
+    residue_temp = float(temperature.loc[residue_idx])
+    residue = float(weight.loc[residue_idx])
+
+    fig, ax = plt.subplots(figsize=(8, 5.5))
+    ax.plot(temperature, weight, color="#1f77b4", linewidth=1.8)
+
+    ax.set_xlim(100, 900)
+    ax.set_xlabel("Temperature (°C)")
+    ax.set_ylabel("Weight (%)")
+    ax.set_title("Weight vs. Temperature")
+    ax.grid(True, linestyle="--", linewidth=0.6, alpha=0.5)
+
+    ax.scatter([residue_temp], [residue], color="#d62728", zorder=3)
+    ax.annotate(
+        f"Residue at 900 °C: {residue:.2f}%",
+        xy=(residue_temp, residue),
+        xytext=(-10, 14),
+        textcoords="offset points",
+        ha="right",
+        va="bottom",
+        color="#d62728",
+        arrowprops={"arrowstyle": "->", "color": "#d62728", "linewidth": 1},
+    )
+
+    fig.tight_layout()
+    fig.savefig(out_dir / "weight_curve_residue_900C.png", dpi=300, bbox_inches="tight")
+    plt.close(fig)
+
+if __name__ == "__main__":
+    main()
+```

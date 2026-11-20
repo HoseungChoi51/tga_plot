@@ -1,0 +1,21 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "line",
+ "x": {
+  "col": "일자",
+  "period": "day"
+ },
+ "y": {
+  "col": "외기습도 (%)",
+  "agg": "mean"
+ },
+ "asks": [
+  {
+   "ask": "날짜별 외기습도 추이 (하루 여러 런 -> 평균)",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS09_r3/out/t1"
+ }
+}

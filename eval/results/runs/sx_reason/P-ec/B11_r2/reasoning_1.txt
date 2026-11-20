@@ -1,0 +1,18 @@
+We need answer user's request in Korean? But test mode: reply with JSON spec only inside one json block, nothing else. Need analyze request.
+
+User: "PET 시트, 제목은 'PET 열분해', 범례는 왼쪽 아래, 격자 켜고, 잔류량은 소수 둘째 자리까지"
+Data file polymers.xlsx. Sheets PE, PVC, PET. Request PET sheet. Title 'PET 열분해'. Legend left bottom. Grid on. Residue to two decimal places. TGA default preset. Need include sheets: "PET". title text. legend: "lower left". grid true. annotate residue text with two decimals. Default residue at 800? They mention 잔류량은 소수 둘째 자리까지, so include annotate.residue with text. Maybe {"annotate": {"residue": {"text": "Residue {y:.2f}%"}}}. Should we include x? default 800, no need. Output? none. File exact polymers.xlsx.
+
+Need ensure JSON only. Could include:
+{
+ "file": "polymers.xlsx",
+ "sheets": "PET",
+ "title": {"text": "PET 열분해"},
+ "legend": "lower left",
+ "grid": true,
+ "annotate": {"residue": {"text": "Residue {y:.2f}%"}}
+}
+
+Check rules: If user mentions 잔류량 표시 at all include annotate.residue. Yes. "소수 둘째 자리까지" text. Could use "Residue {y:.2f}%" default text? The guide example uses Residue {y:.2f}%. Good.
+
+No extra. Need final only json block. Ensure no comments.

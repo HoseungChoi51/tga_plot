@@ -1,0 +1,21 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "bar",
+ "x": "반응기",
+ "y": {
+  "col": "잔류금속 (wt%)",
+  "agg": "mean"
+ },
+ "by": "습도 구간",
+ "asks": [
+  {
+   "ask": "Grouped bar: mean 잔류금속 by 반응기, grouped by 외기습도 band (<60, 60–75, ≥75 %)",
+   "how": "key"
+  }
+ ],
+ "data_code": "import pandas as pd\n\ndef get_band(val):\n    if val < 60:\n        return '<60'\n    elif val < 75:\n        return '60-75'\n    else:\n        return '>=75'\n\ndf['습도 구간'] = df['외기습도 (%)'].apply(get_band)\n# Ensure category order for legend/grouping consistency\ncat_order = ['<60', '60-75', '>=75']\ndf['습도 구간'] = pd.Categorical(df['습도 구간'], categories=cat_order, ordered=True)",
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/S054_r1/out/t1"
+ }
+}

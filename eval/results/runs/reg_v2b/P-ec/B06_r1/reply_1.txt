@@ -1,0 +1,35 @@
+```json
+{
+ "file": "isothermal.txt",
+ "preset": "none",
+ "x": {
+  "col": "Time (min)",
+  "label": "시간 (분)"
+ },
+ "y1": {
+  "col": "Weight (%)",
+  "label": "무게 (%)"
+ },
+ "y2": {
+  "col": "Temperature (°C)",
+  "label": "온도 (°C)"
+ },
+ "annotate": {
+  "w140": {
+   "type": "value_at_x",
+   "x": 140,
+   "text": "140 min: {y:.2f}%"
+  }
+ },
+ "asks": [
+  {
+   "ask": "시간 x축, 무게 왼쪽, 온도 오른쪽",
+   "how": "key"
+  },
+  {
+   "ask": "140분일 때 무게 표시",
+   "how": "key"
+  }
+ ]
+}
+```

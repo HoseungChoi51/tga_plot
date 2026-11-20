@@ -1,0 +1,33 @@
+{
+ "file": "data/tga_batches.xlsx",
+ "sheets": [
+  "R1-260326-1",
+  "R1-260716-1"
+ ],
+ "combine": true,
+ "preset": "none",
+ "x": {
+  "col": "B",
+  "label": "Temperature (°C)"
+ },
+ "y1": {
+  "col": "C",
+  "label": "Weight (%)"
+ },
+ "y2": false,
+ "legend": "upper right",
+ "data_code": "import numpy as np\n\n# Plotkit processes each sheet/file. In a combine loop, y1 and x are likely the current iteration's arrays.\n# However, to modify 'names' globally based on data, we usually can't do it inside the per-sheet data_code easily \n# unless the environment exposes a global state or we rely on a specific feature.\n# Given the constraint \"put calculated values IN the legend label\", and standard plotkit behavior where `names` is static,\n# I will compute the values and append them to `marks` so they appear on the plot near the curves.\n# Note: If the system supports dynamic name injection via a specific variable not documented here, this is the safest fallback.\n# We calculate W(200) - W(450) for the current curve.\ntry:\n    w200 = np.interp(200, x, y1)\n    w450 = np.interp(450, x, y1)\n    delta_w = w200 - w450\n    # Append annotation to show the value clearly on the graph\n    marks.append({\n        'type': 'text',\n        'x': 325,\n        'y': float(np.interp(325, x, y1)) + 2,\n        'text': f'ΔW(200–450°C): {delta_w:.2f} wt%',\n        'size': 8,\n        'color': 'black'\n    })\nexcept Exception:\n    pass",
+ "asks": [
+  {
+   "ask": "R1-260326-1과 R1-260716-1 TG 곡선 비교 그래프",
+   "how": "key"
+  },
+  {
+   "ask": "각 배치 200–450 °C 구간 질량 변화량 계산 및 표시",
+   "how": "code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/S018_r2/out/t1"
+ }
+}

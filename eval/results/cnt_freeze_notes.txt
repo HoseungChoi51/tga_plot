@@ -1,0 +1,3 @@
+2026-11-20 15:55 eval/cnt_check.py changed after the freeze: check_bar crashed (None * float) when a drawn bar had no value;
+  now such a bar counts as a wrong value. Only P-ec SS01 r1-r3 crashed on it; those 3 runs were re-run on strixhalo.
+  The layer files (plotkit, chartkit, sandbox, echartkit, prompts) are unchanged: sha256sum -c cnt_freeze.sha256 fails only on cnt_check.py.

@@ -1,0 +1,137 @@
+```python
+import json
+import numpy as np
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx"
+
+df = pd.read_excel(DATA_FILE, sheet_name="Raw")
+df.columns = [str(c).strip() for c in df.columns]
+
+temperature = pd.to_numeric(df["Temperature (°C)"], errors="coerce").to_numpy(dtype=float)
+weight = pd.to_numeric(df["Weight (%)"], errors="coerce").to_numpy(dtype=float)
+dtg = pd.to_numeric(df["Deriv. Weight (%/°C)"], errors="coerce").to_numpy(dtype=float)
+
+valid = np.isfinite(temperature) & np.isfinite(weight) & np.isfinite(dtg)
+temperature, weight, dtg = temperature[valid], weight[valid], dtg[valid]
+
+dry_idx = int(np.nanargmin(np.abs(temperature - 150.0)))
+dry_weight = weight[dry_idx]
+if not np.isfinite(dry_weight) or dry_weight == 0:
+    raise ValueError("150 °C 부근의 무게를 기준으로 정규화할 수 없습니다.")
+
+normalized_weight = weight / dry_weight * 100.0
+
+residue_idx = int(np.nanargmin(np.abs(temperature - 800.0)))
+peak_candidates = np.flatnonzero(temperature > 150.0)
+peak_idx = int(peak_candidates[np.argmax(-dtg[peak_candidates])]) if peak_candidates.size else int(np.nanargmax(-dtg))
+
+temp = temperature.tolist()
+weight_data = normalized_weight.tolist()
+dtg_data = (-dtg).tolist()
+
+option = {
+    "animation": False,
+    "title": {
+        "text": "Raw",
+        "left": "center",
+        "textStyle": {"fontFamily": "Noto Sans CJK KR"}
+    },
+    "tooltip": {"trigger": "axis", "axisPointer": {"type": "cross"}},
+    "legend": {"data": ["Weight (dry basis)", "DTG"], "left": "center", "bottom": 8},
+    "grid": {"left": 72, "right": 72, "top": 64, "bottom": 72},
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 36,
+        "min": float(np.nanmin(temperature)),
+        "max": float(np.nanmax(temperature)),
+        "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+        "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"}
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Weight (%)",
+            "nameLocation": "middle",
+            "nameGap": 48,
+            "min": 0,
+            "max": 110,
+            "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+            "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"}
+        },
+        {
+            "type": "value",
+            "name": "DTG (-%/°C)",
+            "nameLocation": "middle",
+            "nameGap": 48,
+            "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+            "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"}
+        }
+    ],
+    "series": [
+        {
+            "name": "Weight (dry basis)",
+            "type": "line",
+            "showSymbol": False,
+            "yAxisIndex": 0,
+            "data": [[x, y] for x, y in zip(temp, weight_data)],
+            "lineStyle": {"color": "#1f4e9c", "width": 2},
+            "markPoint": {
+                "symbol": "circle",
+                "symbolSize": 9,
+                "itemStyle": {"color": "#1f4e9c"},
+                "label": {
+                    "show": True,
+                    "formatter": f"Residue {normalized_weight[residue_idx]:.1f}%",
+                    "position": "top",
+                    "fontFamily": "Noto Sans CJK KR"
+                },
+                "data": [{
+                    "coord": [
+                        float(temperature[residue_idx]),
+                        float(normalized_weight[residue_idx])
+                    ]
+                }]
+            }
+        },
+        {
+            "name": "DTG",
+            "type": "line",
+            "showSymbol": False,
+            "yAxisIndex": 1,
+            "data": [[x, y] for x, y in zip(temp, dtg_data)],
+            "lineStyle": {"color": "#c0392b", "width": 2},
+            "markPoint": {
+                "symbol": "circle",
+                "symbolSize": 9,
+                "itemStyle": {"color": "#c0392b"},
+                "label": {
+                    "show": True,
+                    "formatter": f"{temperature[peak_idx]:.0f} °C",
+                    "position": "top",
+                    "fontFamily": "Noto Sans CJK KR"
+                },
+                "data": [{
+                    "coord": [
+                        float(temperature[peak_idx]),
+                        float(-dtg[peak_idx])
+                    ]
+                }]
+            }
+        }
+    ]
+}
+
+print(json.dumps({
+    "figures": [{
+        "name": "Raw",
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"]
+    }]
+}, ensure_ascii=False, allow_nan=False))
+```

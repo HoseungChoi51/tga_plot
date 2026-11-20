@@ -1,0 +1,383 @@
+{
+ "sealed_oc": {
+  "arms": {
+   "P-ec": {
+    "turns": 348,
+    "graded": 348,
+    "pass": 64.9,
+    "ci": [
+     55.8,
+     73.6
+    ],
+    "by_kind": {
+     "bar": [
+      82.4,
+      51
+     ],
+     "grouped_bar": [
+      72.2,
+      18
+     ],
+     "hbar": [
+      100.0,
+      9
+     ],
+     "heatmap": [
+      83.3,
+      36
+     ],
+     "histogram": [
+      66.7,
+      33
+     ],
+     "line": [
+      53.8,
+      93
+     ],
+     "pie": [
+      86.7,
+      30
+     ],
+     "scatter": [
+      46.7,
+      60
+     ],
+     "stacked_bar": [
+      33.3,
+      18
+     ]
+    },
+    "by_type": {
+     "session t1": [
+      82.2,
+      45
+     ],
+     "session t2+": [
+      66.7,
+      123
+     ],
+     "single": [
+      59.4,
+      180
+     ]
+    },
+    "by_repeat": {
+     "1": 67.2,
+     "2": 64.7,
+     "3": 62.9
+    },
+    "no_plot": 2.6,
+    "silent": 27.9,
+    "flagged_unsupported": 6.6,
+    "drawing_hatch": 0.0,
+    "data_code": 28.4,
+    "routes": {
+     "keys": 69.8,
+     "data_code": 27.6,
+     "echarts": 1.7,
+     "data_code+echarts": 0.9
+    },
+    "retry_turns": 18.7,
+    "turn_s": [
+     4.9,
+     15.2
+    ],
+    "llm_s": [
+     4.2,
+     13.7
+    ],
+    "output_tokens_p50": 0.0
+   },
+   "P-hyb": {
+    "turns": 348,
+    "graded": 348,
+    "pass": 63.5,
+    "ci": [
+     53.8,
+     72.3
+    ],
+    "by_kind": {
+     "bar": [
+      78.4,
+      51
+     ],
+     "grouped_bar": [
+      44.4,
+      18
+     ],
+     "hbar": [
+      100.0,
+      9
+     ],
+     "heatmap": [
+      80.6,
+      36
+     ],
+     "histogram": [
+      72.7,
+      33
+     ],
+     "line": [
+      53.8,
+      93
+     ],
+     "pie": [
+      90.0,
+      30
+     ],
+     "scatter": [
+      46.7,
+      60
+     ],
+     "stacked_bar": [
+      33.3,
+      18
+     ]
+    },
+    "by_type": {
+     "session t1": [
+      86.7,
+      45
+     ],
+     "session t2+": [
+      64.2,
+      123
+     ],
+     "single": [
+      57.2,
+      180
+     ]
+    },
+    "by_repeat": {
+     "1": 64.7,
+     "2": 59.5,
+     "3": 66.4
+    },
+    "no_plot": 4.9,
+    "silent": 28.4,
+    "flagged_unsupported": 5.5,
+    "drawing_hatch": 8.9,
+    "data_code": 26.4,
+    "routes": {
+     "keys": 66.7,
+     "data_code": 24.4,
+     "code": 6.9,
+     "data_code+code": 2.0
+    },
+    "retry_turns": 20.1,
+    "turn_s": [
+     5.0,
+     16.4
+    ],
+    "llm_s": [
+     4.2,
+     14.9
+    ],
+    "output_tokens_p50": 0.0
+   },
+   "P-mpl": {
+    "turns": 348,
+    "graded": 348,
+    "pass": 64.9,
+    "ci": [
+     55.4,
+     74.4
+    ],
+    "by_kind": {
+     "bar": [
+      76.5,
+      51
+     ],
+     "grouped_bar": [
+      44.4,
+      18
+     ],
+     "hbar": [
+      100.0,
+      9
+     ],
+     "heatmap": [
+      83.3,
+      36
+     ],
+     "histogram": [
+      63.6,
+      33
+     ],
+     "line": [
+      53.8,
+      93
+     ],
+     "pie": [
+      90.0,
+      30
+     ],
+     "scatter": [
+      60.0,
+      60
+     ],
+     "stacked_bar": [
+      33.3,
+      18
+     ]
+    },
+    "by_type": {
+     "session t1": [
+      82.2,
+      45
+     ],
+     "session t2+": [
+      61.8,
+      123
+     ],
+     "single": [
+      62.8,
+      180
+     ]
+    },
+    "by_repeat": {
+     "1": 68.1,
+     "2": 64.7,
+     "3": 62.1
+    },
+    "no_plot": 3.2,
+    "silent": 30.2,
+    "flagged_unsupported": 2.9,
+    "drawing_hatch": 8.9,
+    "data_code": 27.9,
+    "routes": {
+     "keys": 65.5,
+     "data_code": 25.6,
+     "code": 6.6,
+     "data_code+code": 2.3
+    },
+    "retry_turns": 18.1,
+    "turn_s": [
+     4.8,
+     15.8
+    ],
+    "llm_s": [
+     4.2,
+     14.8
+    ],
+    "output_tokens_p50": 0.0
+   },
+   "R-mpl": {
+    "turns": 348,
+    "graded": 348,
+    "pass": 69.0,
+    "ci": [
+     60.1,
+     77.4
+    ],
+    "by_kind": {
+     "bar": [
+      78.4,
+      51
+     ],
+     "grouped_bar": [
+      66.7,
+      18
+     ],
+     "hbar": [
+      77.8,
+      9
+     ],
+     "heatmap": [
+      77.8,
+      36
+     ],
+     "histogram": [
+      81.8,
+      33
+     ],
+     "line": [
+      62.4,
+      93
+     ],
+     "pie": [
+      73.3,
+      30
+     ],
+     "scatter": [
+      65.0,
+      60
+     ],
+     "stacked_bar": [
+      38.9,
+      18
+     ]
+    },
+    "by_type": {
+     "session t1": [
+      86.7,
+      45
+     ],
+     "session t2+": [
+      70.7,
+      123
+     ],
+     "single": [
+      63.3,
+      180
+     ]
+    },
+    "by_repeat": {
+     "1": 67.2,
+     "2": 69.0,
+     "3": 70.7
+    },
+    "no_plot": 7.5,
+    "silent": 23.6,
+    "flagged_unsupported": 0.0,
+    "drawing_hatch": 0.0,
+    "data_code": 0.0,
+    "routes": {
+     "script": 100.0
+    },
+    "retry_turns": 41.7,
+    "turn_s": [
+     15.9,
+     41.2
+    ],
+    "llm_s": [
+     15.2,
+     40.1
+    ],
+    "output_tokens_p50": 0.0
+   }
+  },
+  "paired": {
+   "P-ec - P-mpl": [
+    0.0,
+    -4.7,
+    5.1
+   ],
+   "P-ec - P-hyb": [
+    1.4,
+    -2.0,
+    5.2
+   ],
+   "P-hyb - P-mpl": [
+    -1.4,
+    -6.3,
+    3.7
+   ],
+   "P-mpl - R-mpl": [
+    -4.0,
+    -12.0,
+    4.0
+   ],
+   "P-ec - R-mpl": [
+    -4.0,
+    -12.1,
+    3.8
+   ],
+   "P-hyb - R-mpl": [
+    -5.5,
+    -14.2,
+    3.1
+   ]
+  }
+ }
+}
