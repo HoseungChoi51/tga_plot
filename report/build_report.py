@@ -1,7 +1,9 @@
-"""Build the evaluation report page (report/index.html + report/img/) from eval/results/.
+"""Build the evaluation report page from eval/results/.
 
-    python report/build_report.py
+    python report/build_report.py               Qwen (batch_sx): report/index.html + report/img/
+    python report/build_report.py --run luna    GPT-6 Luna (batch_luna), with Luna against Qwen: report/luna/
 """
+import argparse
 import csv
 import html
 import json
@@ -18,7 +20,7 @@ RES = ROOT / "eval" / "results"
 OUT = ROOT / "report"
 IMG = OUT / "img"
 
-MAIN = "sx"                  # the main batch: eval/results/batch_sx.csv
+MAIN = "sx"                  # the main batch: eval/results/batch_<MAIN>.csv (set by --run)
 ARMS = ["P-mpl", "P-ec", "R-mpl-brief", "R-ec-brief", "R-mpl-plain", "R-ec-plain"]
 ARM_NAME = {"P-mpl": "Protocol · matplotlib", "P-ec": "Protocol · ECharts",
             "R-mpl-brief": "Raw code + brief · matplotlib", "R-ec-brief": "Raw code + brief · ECharts",
@@ -27,10 +29,32 @@ FAMILY = {"P": "var(--s1)", "R-brief": "var(--s2)", "R-plain": "var(--s3)"}
 GROUPS = [("A", "Set A · the 24 rehearsed requests"), ("in", "Set B · in scope, not rehearsed (7)"),
           ("messy", "Set B · unusual wording (6)"), ("out", "Set B · no spec key exists (11)")]
 GROUP_SHORT = {"A": "Set A", "in": "B · in scope", "messy": "B · wording", "out": "B · no key"}
-MODEL = "Qwen3.8 Flash Next (Q4, thinking off) on a Strix Halo box"
-MODEL_LONG = ("The model is Qwen3.8 Flash Next, a UD-Q4_K_XL GGUF with multi-token prediction, served by llama.cpp on a "
-              "Strix Halo machine with two parallel slots. Thinking was switched off for every arm "
-              "(chat_template_kwargs.enable_thinking = false), as run_agent.py recommends for Qwen.")
+PROFILES = {                 # what differs between the models' pages; prose is in TEXTS and EXAMPLES_BY
+    "sx": {"model": "Qwen3.8 Flash Next (Q4, thinking off) on a Strix Halo box", "short": "Qwen",
+           "model_long": "The model is Qwen3.8 Flash Next, a UD-Q4_K_XL GGUF with multi-token prediction, served by llama.cpp on a "
+                         "Strix Halo machine with two parallel slots. Thinking was switched off for every arm "
+                         "(chat_template_kwargs.enable_thinking = false), as run_agent.py recommends for Qwen.",
+           "title": "plotkit protocol evaluation", "out": "", "pi": "pi.csv", "temp": "at temperature 0.7",
+           "budget": "the same 16k-token budget",
+           "times": "Times include waiting for one of the server's two slots (three runs at a time) and depend on prompt "
+                    "caching, so they compare arms only roughly; output tokens are the steadier measure of the model's work.",
+           "think_title": "With thinking on", "think_off": "thinking off", "think_on": "thinking on", "other": None,
+           "reason": "sx_reason", "reason_on": "thinking on (temperature 0.6)"},
+    "luna": {"model": "GPT-6 Luna (reasoning effort none) through Pi", "short": "Luna",
+             "model_long": "The model is GPT-6 Luna on the centinels proxy, called through the Pi CLI with no tools (Pi holds the "
+                           "key). Reasoning effort was none, the lowest the model accepts (minimal is refused); every call reported "
+                           "0 reasoning tokens. Pi sends no temperature, so the model ran at its default, and no token cap below "
+                           "the model's own. The proxy's input filter refused 278 of the 622 raw-code calls at least once (842 "
+                           "refusals in all), and 3 of 299 protocol calls. A refused prompt never reaches the model, so it was sent "
+                           "again unchanged until it went through.",
+             "title": "plotkit Luna evaluation", "out": "luna", "pi": "pi_luna.csv", "temp": "at the model's default temperature",
+             "budget": "no token cap below the model's own",
+             "times": "Times include starting Pi for every model call (about 2 s), the proxy, and resending prompts its filter "
+                      "refused; eight runs went at a time, so they compare arms only roughly.",
+             "think_title": "With low reasoning effort", "think_off": "effort none", "think_on": "effort low", "other": "sx",
+             "reason": "luna_reason", "reason_on": "effort medium"},
+}
+P = PROFILES[MAIN]
 esc = html.escape
 
 
@@ -168,7 +192,7 @@ def consistency_chart(rows):
             x0 += w
     parts.append(f'<text x="{left}" y="{H - 4}" class="tick">0</text><text x="{W - right}" y="{H - 4}" class="tick" text-anchor="end">48 requests</text></svg></div>')
     return ('<figure class="fig wide"><figcaption class="cap-top">Requests by how many of the 3 repeats passed</figcaption>'
-            + "".join(parts) + "<figcaption>Each request ran 3 times per arm at temperature 0.7. A request that passes in every repeat "
+            + "".join(parts) + f"<figcaption>Each request ran 3 times per arm {P['temp']}. A request that passes in every repeat "
             "is one a user can rely on; one that passes 1 or 2 times out of 3 is a coin toss.</figcaption></figure>")
 
 
@@ -215,7 +239,7 @@ def load():
     D = {}
     D["runs"] = read_csv(RES / f"batch_{MAIN}.csv")
     D["think"] = read_csv(RES / f"batch_{MAIN}_think.csv")
-    D["pi"] = read_csv(RES / "pi.csv")
+    D["pi"] = read_csv(RES / P["pi"])
     D["cov"] = read_csv(RES / "coverage.csv")
     D["par"] = read_csv(RES / "parity.csv")
     D["lat"] = read_csv(RES / "latency.csv")
@@ -227,6 +251,22 @@ def load():
     D["t0ab"] = read_csv(RES / "batch_t0_aborted.csv")
     D["safety"] = json.loads((RES / "safety.json").read_text(encoding="utf-8")) if (RES / "safety.json").exists() else {}
     D["parsum"] = json.loads((RES / "parity_summary.json").read_text()) if (RES / "parity_summary.json").exists() else {}
+    o = P["other"]
+    if o:                                       # the model this one is compared with
+        D["o_runs"] = read_csv(RES / f"batch_{o}.csv")
+        D["o_think"] = read_csv(RES / f"batch_{o}_think.csv")
+        D["o_pi"] = read_csv(RES / PROFILES[o]["pi"])
+        D["o_review"] = read_csv(RES / f"review_{o}.csv")
+    D["engines"] = []                           # (model, setting, rows) for the protocol arms with and without reasoning
+    for k in ([o] if o else []) + [MAIN]:
+        pr = PROFILES[k]
+        D["engines"].append((pr["short"], pr["think_off"], [r for r in read_csv(RES / f"batch_{k}.csv") if r["arm"].startswith("P-")]))
+        on = read_csv(RES / f"batch_{pr['reason']}.csv")
+        n_full = 2 * len({r["request"] for r in D["runs"]})      # a repeat counts once both arms ran every request
+        full = {rp for rp in {r["repeat"] for r in on} if sum(r["repeat"] == rp for r in on) == n_full}
+        on = [r for r in on if r["repeat"] in full]
+        if on:
+            D["engines"].append((pr["short"], pr["reason_on"], on))
     return D
 
 
@@ -344,9 +384,11 @@ def think_section(D):
                     f"<td class='num'>{med([r['output_tokens'] for r in f], '{:,.0f}')}</td><td class='num'>{med([r['output_tokens'] for r in o], '{:,.0f}')}</td>"
                     f"<td class='num'>{med(r['seconds'] for r in f)} s</td><td class='num'>{med(r['seconds'] for r in o)} s</td>"
                     f"<td class='num'>{sum(hit_cap(r) for r in o)}</td><td class='num'>{sum(r['ok_run'] == '0' for r in o)}</td></tr>")
-    return ("<div class='tw'><table><tr><th>arm</th><th class='num'>pass, thinking off</th><th class='num'>pass, thinking on</th>"
-            "<th class='num'>output tokens off</th><th class='num'>output tokens on</th><th class='num'>time off</th><th class='num'>time on</th>"
-            "<th class='num'>runs that hit the 16k cap (on)</th><th class='num'>no plot (on)</th></tr>" + "".join(rows) + "</table></div>")
+    off_, on_ = P["think_off"], P["think_on"]
+    return (f"<div class='tw'><table><tr><th>arm</th><th class='num'>pass, {off_}</th><th class='num'>pass, {on_}</th>"
+            f"<th class='num'>output tokens, {off_}</th><th class='num'>output tokens, {on_}</th><th class='num'>time, {off_}</th>"
+            f"<th class='num'>time, {on_}</th><th class='num'>runs that hit the token cap ({on_})</th><th class='num'>no plot ({on_})</th></tr>"
+            + "".join(rows) + "</table></div>")
 
 
 def pi_section(D):
@@ -435,6 +477,289 @@ def outscope_rows(D, reqtext):
         body.append(f"<tr><td>{esc(q)}</td><td lang='ko' class='small reqtext'>{esc(reqtext.get(q, '')[:110])}</td>{''.join(cells)}</tr>")
     head = "<tr><th>request</th><th>text</th>" + "".join(f"<th class='num'>{esc(ARM_NAME[a].replace(' · ', ' '))}</th>" for a in ARMS) + "</tr>"
     return f"<div class='tw'><table class='heat'>{head}{''.join(body)}</table></div>"
+
+
+def dumbbell_chart(title, rows, a_name, b_name):
+    """One row per arm: the compared model's pass rate (hollow dot) and this model's (filled dot)."""
+    W, left, right, top, rowh = 520, 196, 92, 22, 26
+    H = top + rowh * len(rows) + 20
+    x = lambda v: left + v * (W - left - right)  # noqa: E731
+    parts = [f'<svg viewBox="0 0 {W} {H}" role="img" aria-label="{esc(title)}" class="chart">']
+    for t in (0, .25, .5, .75, 1):
+        parts.append(f'<line x1="{x(t):.1f}" x2="{x(t):.1f}" y1="{top - 6}" y2="{H - 14}" class="grid"/>'
+                     f'<text x="{x(t):.1f}" y="{H - 2}" class="tick" text-anchor="middle">{int(t * 100)}%</text>')
+    for i, r in enumerate(rows):
+        y = top + i * rowh + 9
+        c = FAMILY[fam(r["arm"])]
+        parts.append(
+            f'<g><title>{esc(ARM_NAME[r["arm"]])}: {a_name} {r["ka"]}/{r["na"]} ({pct(r["a"])}), {b_name} {r["kb"]}/{r["nb"]} ({pct(r["b"])})</title>'
+            f'<rect x="0" y="{y - 13}" width="{W}" height="{rowh}" fill="transparent"/>'
+            f'<text x="{left - 8}" y="{y + 4}" class="lab" text-anchor="end">{esc(ARM_NAME[r["arm"]])}</text>'
+            f'<line x1="{x(r["a"]):.1f}" x2="{x(r["b"]):.1f}" y1="{y}" y2="{y}" stroke="{c}" stroke-width="2"/>'
+            f'<circle cx="{x(r["a"]):.1f}" cy="{y}" r="5" fill="var(--panel)" stroke="{c}" stroke-width="2"/>'
+            f'<circle cx="{x(r["b"]):.1f}" cy="{y}" r="5.5" fill="{c}" stroke="var(--panel)" stroke-width="2"/>'
+            f'<text x="{W - right + 10}" y="{y + 4}" class="val">{pct(r["a"])} → {pct(r["b"])}</text></g>')
+    parts.append('</svg>')
+    return f'<figure class="fig"><figcaption class="cap-top">{esc(title)}</figcaption>{"".join(parts)}</figure>'
+
+
+def model_rows(a_rows, b_rows, pred=lambda r: True):
+    out = []
+    for arm in ARMS:
+        ra = [r for r in a_rows if r["arm"] == arm and pred(r)]
+        rb = [r for r in b_rows if r["arm"] == arm and pred(r)]
+        if ra and rb:
+            ka, kb = sum(r["pass_all"] == "1" for r in ra), sum(r["pass_all"] == "1" for r in rb)
+            out.append({"arm": arm, "ka": ka, "na": len(ra), "a": ka / len(ra), "kb": kb, "nb": len(rb), "b": kb / len(rb)})
+    return out
+
+
+def paired_models(a_rows, b_rows, arm):
+    """Per request, this model's share of passing repeats against the other's; a sign test over the requests that differ."""
+    pa, pb = per_request(a_rows, arm), per_request(b_rows, arm)
+    common = sorted(set(pa) & set(pb))
+    ra = {q: pa[q][0] / pa[q][1] for q in common}
+    rb = {q: pb[q][0] / pb[q][1] for q in common}
+    b_better = [q for q in common if rb[q] > ra[q]]
+    a_better = [q for q in common if ra[q] > rb[q]]
+    diff = st.mean(rb[q] - ra[q] for q in common) if common else 0
+    return len(common), b_better, a_better, sign_test(len(b_better), len(a_better)), diff
+
+
+def silent_drops(rows):
+    """Protocol runs on the no-key requests: (runs, keys only, keys-only failures, of those with no error shown, hatch runs, hatch passes)."""
+    pr = [r for r in rows if r["group"] == "out" and r["arm"].startswith("P-")]
+    keys = [r for r in pr if r["route"] == "keys"]
+    kf = [r for r in keys if r["pass_all"] != "1"]
+    hatch = [r for r in pr if r["route"] in ("code", "echarts")]
+    return (len(pr), len(keys), len(kf), sum(r["model_calls"] == "1" for r in kf), len(hatch),
+            sum(r["pass_all"] == "1" for r in hatch))
+
+
+B_GROUPS = [("all requests", lambda r: True), ("Set A", lambda r: r["group"] == "A"),
+            ("Set B · key exists", lambda r: r["group"] in ("in", "messy")), ("Set B · no key", lambda r: r["group"] == "out")]
+
+
+def compare_section(D):
+    """This model against the other one, arm by arm, on the same requests and checks."""
+    a, b = PROFILES[P["other"]]["short"], P["short"]
+    A, B = D["o_runs"], D["runs"]
+    s = [f"<div class='legend'><span>○ {esc(a)}</span><span>● {esc(b)}</span><span>colour = arm family · share of runs that passed every check</span></div>"]
+    charts = [dumbbell_chart(f"All requests · {a} → {b}", model_rows(A, B), a, b)]
+    for g, label in GROUPS:
+        charts.append(dumbbell_chart(label, model_rows(A, B, lambda r, g=g: r["group"] == g), a, b))
+    s.append(f'<div class="grid2">{"".join(charts)}</div>')
+    rows = []
+    for arm in ARMS:
+        n, bb, ab, pv, diff = paired_models(A, B, arm)
+        ra, rb = [r for r in A if r["arm"] == arm], [r for r in B if r["arm"] == arm]
+        if not (ra and rb):
+            continue
+        rows.append(f"<tr><td><span class='sw' style='background:{FAMILY[fam(arm)]}'></span>{esc(ARM_NAME[arm])}</td>"
+                    f"<td class='num'>{pct(sum(r['pass_all'] == '1' for r in ra) / len(ra))}</td><td class='num'>{pct(sum(r['pass_all'] == '1' for r in rb) / len(rb))}</td>"
+                    f"<td class='num'>{100 * diff:+.0f} pts</td><td class='num'>{len(bb)}</td><td class='num'>{len(ab)}</td><td class='num'>{pv:.2g}</td>"
+                    f"<td class='num'>{med((r['output_tokens'] for r in ra), '{:,.0f}')}</td><td class='num'>{med((r['output_tokens'] for r in rb), '{:,.0f}')}</td>"
+                    f"<td class='num'>{med(r['seconds'] for r in ra)} s</td><td class='num'>{med(r['seconds'] for r in rb)} s</td></tr>")
+    s.append(f"<h3>Arm by arm</h3><p>Same requests, same checks, {a} first. “Better on” counts the requests where one model passed more of "
+             "its repeats; the sign test ignores ties.</p>"
+             f"<div class='tw'><table><tr><th>arm</th><th class='num'>pass, {esc(a)}</th><th class='num'>pass, {esc(b)}</th><th class='num'>difference</th>"
+             f"<th class='num'>{esc(b)} better on</th><th class='num'>{esc(a)} better on</th><th class='num'>sign test p</th>"
+             f"<th class='num'>output tokens, {esc(a)}</th><th class='num'>output tokens, {esc(b)}</th><th class='num'>time, {esc(a)}</th><th class='num'>time, {esc(b)}</th></tr>"
+             + "".join(rows) + "</table></div>")
+    edge = []
+    for pa_, ra_ in (("P-mpl", "R-mpl-brief"), ("P-ec", "R-ec-brief")):
+        for label, pred in B_GROUPS:
+            cells = []
+            for rows_ in (A, B):
+                n, oa, ob, pv, diff = paired([r for r in rows_ if pred(r)], pa_, ra_)
+                cells.append(f"<td class='num'>{100 * diff:+.0f} pts</td><td class='num'>{len(oa)} / {len(ob)}</td><td class='num'>{pv:.2g}</td>")
+            edge.append(f"<tr><td>{esc(ARM_NAME[pa_])} vs {esc(ARM_NAME[ra_])}</td><td>{esc(label)}</td>{''.join(cells)}</tr>")
+    s.append(f"<h3>Does the protocol's edge hold on {esc(b)}?</h3><p>The protocol against raw code with the brief, on each model. "
+             "“Requests” counts the requests where the protocol passed more repeats / where raw code did.</p>"
+             f"<div class='tw'><table><tr><th>pair</th><th>requests</th><th class='num'>{esc(a)}: difference</th><th class='num'>{esc(a)}: requests</th>"
+             f"<th class='num'>{esc(a)}: p</th><th class='num'>{esc(b)}: difference</th><th class='num'>{esc(b)}: requests</th><th class='num'>{esc(b)}: p</th></tr>"
+             + "".join(edge) + "</table></div>")
+    sd = [(m, silent_drops(rows_)) for m, rows_ in ((a, A), (b, B))]
+    s.append("<h3>The no-key requests</h3><div class='tw'><table class='narrow'><tr><th>model</th><th class='num'>protocol runs</th>"
+             "<th class='num'>keys only</th><th class='num'>keys only, failed</th><th class='num'>… with no error shown</th>"
+             "<th class='num'>took a hatch</th><th class='num'>hatch runs passed</th></tr>"
+             + "".join(f"<tr><td>{esc(m)}</td><td class='num'>{t[0]}</td><td class='num'>{t[1]}</td><td class='num'>{t[2]}</td><td class='num'>{t[3]}</td>"
+                       f"<td class='num'>{t[4]}</td><td class='num'>{t[5]}</td></tr>" for m, t in sd) + "</table></div>")
+    extra = []
+    if D["review"] and D["o_review"]:
+        yes = lambda rv, arm: sum(r["arm"] == arm and r["verdict"].strip() == "yes" for r in rv)  # noqa: E731
+        n_ = lambda rv, arm: sum(r["arm"] == arm for r in rv)  # noqa: E731
+        extra.append(("blind review: usable as-is (yes)", {arm: (f"{yes(D['o_review'], arm)}/{n_(D['o_review'], arm)}",
+                                                                   f"{yes(D['review'], arm)}/{n_(D['review'], arm)}") for arm in ARMS}))
+    if D["pi"] and D["o_pi"]:
+        pp = lambda rows_, arm: [r for r in rows_ if r["arm"] == arm]  # noqa: E731
+        extra.append(("Pi agent sessions: passed", {arm: (f"{sum(r['pass_all'] == '1' for r in pp(D['o_pi'], arm))}/{len(pp(D['o_pi'], arm))}",
+                                                          f"{sum(r['pass_all'] == '1' for r in pp(D['pi'], arm))}/{len(pp(D['pi'], arm))}")
+                                                    for arm in ARMS if pp(D["pi"], arm)}))
+    if D["think"] and D["o_think"]:
+        def th(rows_, on, arm):
+            reqs = {r["request"] for r in on}
+            f = [r for r in rows_ if r["arm"] == arm and r["request"] in reqs]
+            o = [r for r in on if r["arm"] == arm]
+            return f"{pct(sum(r['pass_all'] == '1' for r in f) / max(1, len(f)))} → {pct(sum(r['pass_all'] == '1' for r in o) / max(1, len(o)))}"
+        extra.append((f"more thinking ({esc(a)}: {PROFILES[P['other']]['think_on']}; {esc(b)}: {P['think_on']}), same 12 requests",
+                      {arm: (th(A, D["o_think"], arm), th(B, D["think"], arm)) for arm in ARMS if any(r["arm"] == arm for r in D["think"])}))
+    for title, cells in extra:
+        s.append(f"<h3>{title[0].upper() + title[1:]}</h3><div class='tw'><table class='narrow'><tr><th>arm</th><th class='num'>{esc(a)}</th><th class='num'>{esc(b)}</th></tr>"
+                 + "".join(f"<tr><td><span class='sw' style='background:{FAMILY[fam(arm)]}'></span>{esc(ARM_NAME[arm])}</td><td class='num'>{x}</td><td class='num'>{y}</td></tr>"
+                           for arm, (x, y) in cells.items()) + "</table></div>")
+    return "".join(s)
+
+
+def compare_card(D):
+    """A fourth answer card on a page that compares two models."""
+    if not (P["other"] and D.get("o_runs")):
+        return ""
+    a, b = PROFILES[P["other"]]["short"], P["short"]
+    A, B = D["o_runs"], D["runs"]
+    rate = lambda rows: sum(r["pass_all"] == "1" for r in rows) / len(rows)  # noqa: E731
+    edge = lambda rows: " / ".join(f"{100 * paired(rows, p_, r_)[4]:+.0f}" for p_, r_ in (("P-mpl", "R-mpl-brief"), ("P-ec", "R-ec-brief")))  # noqa: E731
+    return (f'<div class="ans"><h3>4 · {esc(b)} against {esc(a)}</h3><p class="big">{esc(b)} passed {pct(rate(B))} of all runs, '
+            f'{esc(a)} {pct(rate(A))}. The protocol against raw code + brief: {edge(B)} pts on {esc(b)}, {edge(A)} on {esc(a)} '
+            f'(matplotlib / ECharts).</p><p>{TEXT["compare_card"]}</p></div>')
+
+
+class Pending(dict):
+    def __missing__(self, key):             # a model with no complete reasoning repeat yet
+        return "(pending)"
+
+
+def engine_numbers(D):
+    """Per model, the reasoning-on figures the engine prose quotes: {Qwen_m}, {Luna_reps}, {Qwen_better}, ..."""
+    out = {}
+    for model, setting, rr in D["engines"]:
+        if setting not in (PROFILES[k]["reason_on"] for k in PROFILES):
+            continue
+        rate = lambda arm, pred=lambda r: True: [r["pass_all"] == "1" for r in rr if r["arm"] == arm and pred(r)]  # noqa: E731
+        m, e = rate("P-mpl"), rate("P-ec")
+        n, om, oe, pv, diff = paired(rr, "P-ec", "P-mpl")
+        out[f"{model}_m"], out[f"{model}_e"] = pct(sum(m) / len(m)), pct(sum(e) / len(e))
+        out[f"{model}_reps"] = len({r["repeat"] for r in rr})
+        out[f"{model}_better"] = f"matplotlib was better on {len(oe)} requests and ECharts on {len(om)} (p = {pv:.2g})"
+        nk = lambda arm: rate(arm, lambda r: r["group"] == "out")  # noqa: E731
+        out[f"{model}_out"] = f"{sum(nk('P-mpl'))} of {len(nk('P-mpl'))} against {sum(nk('P-ec'))} of {len(nk('P-ec'))}"
+        ky = lambda arm: rate(arm, lambda r: r["group"] != "out")  # noqa: E731
+        out[f"{model}_key"] = f"{pct(sum(ky('P-mpl')) / len(ky('P-mpl')))} and {pct(sum(ky('P-ec')) / len(ky('P-ec')))}"
+        out[f"{model}_tok"] = med((r["output_tokens"] for r in rr), "{:,.0f}")
+        out[f"{model}_time"] = med(r["seconds"] for r in rr)
+    short = [m for m in ("Qwen", "Luna") if out.get(f"{m}_reps", 3) < 3]
+    n_word = {1: "only the first repeat", 2: "the first two repeats"}
+    out["pending"] = (" ".join(f"{m} with thinking is slow on the no-key requests (up to 40 minutes a run), so its rows hold "
+                               f"{n_word[out[f'{m}_reps']]} so far; this page will be updated when the rest are in." for m in short))
+    return out
+
+
+def engine_card(D):
+    """A fifth answer card: the two engines through the protocol, with reasoning on."""
+    on = [(m, s_, rr) for m, s_, rr in D["engines"] if s_ in (PROFILES[k]["reason_on"] for k in PROFILES)]
+    if not on:
+        return ""
+    rate = lambda rr, arm: sum(r["pass_all"] == "1" for r in rr if r["arm"] == arm) / max(1, sum(r["arm"] == arm for r in rr))  # noqa: E731
+    parts = [f"{esc(m)}, {esc(s_.split(' (')[0])}: {pct(rate(rr, 'P-mpl'))} vs {pct(rate(rr, 'P-ec'))}" for m, s_, rr in on]
+    return (f'<div class="ans"><h3>5 · matplotlib or ECharts, with reasoning on?</h3><p class="big">Through the protocol, '
+            f'matplotlib vs ECharts: {"; ".join(parts)}.</p><p>{TEXT["engine_card"].format_map(Pending(engine_numbers(D)))}</p></div>')
+
+
+def engine_chart(title, rows):
+    """One row per model and setting: protocol + matplotlib (hollow dot) and protocol + ECharts (filled dot)."""
+    W, left, right, top, rowh = 520, 196, 92, 22, 26
+    H = top + rowh * len(rows) + 20
+    x = lambda v: left + v * (W - left - right)  # noqa: E731
+    parts = [f'<svg viewBox="0 0 {W} {H}" role="img" aria-label="{esc(title)}" class="chart">']
+    for t in (0, .25, .5, .75, 1):
+        parts.append(f'<line x1="{x(t):.1f}" x2="{x(t):.1f}" y1="{top - 6}" y2="{H - 14}" class="grid"/>'
+                     f'<text x="{x(t):.1f}" y="{H - 2}" class="tick" text-anchor="middle">{int(t * 100)}%</text>')
+    for i, r in enumerate(rows):
+        y = top + i * rowh + 9
+        parts.append(
+            f'<g><title>{esc(r["label"])}: matplotlib {r["km"]}/{r["nm"]} ({pct(r["m"])}), ECharts {r["ke"]}/{r["ne"]} ({pct(r["e"])})</title>'
+            f'<rect x="0" y="{y - 13}" width="{W}" height="{rowh}" fill="transparent"/>'
+            f'<text x="{left - 8}" y="{y + 4}" class="lab" text-anchor="end">{esc(r["label"])}</text>'
+            f'<line x1="{x(r["m"]):.1f}" x2="{x(r["e"]):.1f}" y1="{y}" y2="{y}" stroke="var(--s1)" stroke-width="2"/>'
+            f'<circle cx="{x(r["m"]):.1f}" cy="{y}" r="5" fill="var(--panel)" stroke="var(--s1)" stroke-width="2"/>'
+            f'<circle cx="{x(r["e"]):.1f}" cy="{y}" r="5.5" fill="var(--s1)" stroke="var(--panel)" stroke-width="2"/>'
+            f'<text x="{W - right + 10}" y="{y + 4}" class="val">{pct(r["m"])} · {pct(r["e"])}</text></g>')
+    parts.append('</svg>')
+    return f'<figure class="fig"><figcaption class="cap-top">{esc(title)}</figcaption>{"".join(parts)}</figure>'
+
+
+def engine_rows(D, pred=lambda r: True):
+    out = []
+    for model, setting, rows in D["engines"]:
+        m = [r for r in rows if r["arm"] == "P-mpl" and pred(r)]
+        e = [r for r in rows if r["arm"] == "P-ec" and pred(r)]
+        if m and e:
+            km, ke = sum(r["pass_all"] == "1" for r in m), sum(r["pass_all"] == "1" for r in e)
+            out.append({"label": f"{model} · {setting.split(' (')[0]}", "km": km, "nm": len(m), "m": km / len(m), "ke": ke, "ne": len(e), "e": ke / len(e)})
+    return out
+
+
+def engine_section(D):
+    """matplotlib against ECharts through the protocol, for each model with and without reasoning."""
+    if not any(set_ in (PROFILES[k]["reason_on"] for k in PROFILES) for _, set_, _ in D["engines"]):
+        return ""
+    s = ["<div class='legend'><span>○ protocol · matplotlib</span><span>● protocol · ECharts</span><span>share of runs that passed every check</span></div>"]
+    charts = [engine_chart(label, engine_rows(D, pred)) for label, pred in B_GROUPS]
+    s.append(f'<div class="grid2">{"".join(charts)}</div>')
+    rows = []
+    for model, setting, rr in D["engines"]:
+        n, om, oe, pv, diff = paired(rr, "P-ec", "P-mpl")
+        reps = max(int(r["repeat"]) for r in rr)
+        f = lambda arm, k: sum(r[k] == "1" for r in rr if r["arm"] == arm) / max(1, sum(r["arm"] == arm for r in rr))  # noqa: E731
+        tk = lambda arm: med((r["output_tokens"] for r in rr if r["arm"] == arm), "{:,.0f}")  # noqa: E731
+        tm = lambda arm: med(r["seconds"] for r in rr if r["arm"] == arm)  # noqa: E731
+        rows.append(f"<tr><td>{esc(model)}</td><td>{esc(setting)}</td><td class='num'>{reps}</td><td class='num'>{pct(f('P-mpl', 'pass_all'))}</td>"
+                    f"<td class='num'>{pct(f('P-ec', 'pass_all'))}</td><td class='num'>{100 * diff:+.0f} pts</td><td class='num'>{len(om)} / {len(oe)}</td>"
+                    f"<td class='num'>{pv:.2g}</td><td class='num'>{tk('P-mpl')} / {tk('P-ec')}</td><td class='num'>{tm('P-mpl')} / {tm('P-ec')} s</td></tr>")
+    s.append("<h3>Engine against engine</h3><p>Same requests and checks; “requests” counts the requests where ECharts passed more repeats / "
+             "where matplotlib did, and the sign test ignores ties.</p>"
+             "<div class='tw'><table><tr><th>model</th><th>setting</th><th class='num'>repeats</th><th class='num'>pass, matplotlib</th>"
+             "<th class='num'>pass, ECharts</th><th class='num'>ECharts − matplotlib</th><th class='num'>requests</th><th class='num'>sign test p</th>"
+             "<th class='num'>median output tokens (mpl / EC)</th><th class='num'>median time (mpl / EC)</th></tr>" + "".join(rows) + "</table></div>")
+    hat = []
+    for model, setting, rr in D["engines"]:
+        cells = []
+        for arm in ("P-mpl", "P-ec"):
+            out = [r for r in rr if r["arm"] == arm and r["group"] == "out"]
+            hatch = [r for r in out if r["route"] in ("code", "echarts")]
+            keys_fail = [r for r in out if r["route"] == "keys" and r["pass_all"] != "1"]
+            cells.append(f"<td class='num'>{sum(r['pass_all'] == '1' for r in out)}/{len(out)}</td><td class='num'>{len(hatch)} ({sum(r['pass_all'] == '1' for r in hatch)} passed)</td>"
+                         f"<td class='num'>{len(keys_fail)}</td>")
+        hat.append(f"<tr><td>{esc(model)}</td><td>{esc(setting)}</td>{''.join(cells)}</tr>")
+    s.append("<h3>The no-key requests, by engine</h3><p>Where no key exists, matplotlib's hatch is any Python on the figure; ECharts' is a "
+             "checked JSON patch that cannot compute new values.</p><div class='tw'><table><tr><th>model</th><th>setting</th>"
+             "<th class='num'>matplotlib: passed</th><th class='num'>matplotlib: took the hatch</th><th class='num'>matplotlib: keys only, failed</th>"
+             "<th class='num'>ECharts: passed</th><th class='num'>ECharts: took the patch</th><th class='num'>ECharts: keys only, failed</th></tr>"
+             + "".join(hat) + "</table></div>")
+    gain = []
+    for k in PROFILES:
+        pr = PROFILES[k]
+        off = next((rr for m, st_, rr in D["engines"] if m == pr["short"] and st_ == pr["think_off"]), None)
+        on = next((rr for m, st_, rr in D["engines"] if m == pr["short"] and st_ == pr["reason_on"]), None)
+        if not (off and on):
+            continue
+        for arm in ("P-mpl", "P-ec"):
+            n, ob, oa, pv, diff = paired_models(off, on, arm)
+            gain.append(f"<tr><td>{esc(pr['short'])}</td><td>{esc(ARM_NAME[arm])}</td><td class='num'>{100 * diff:+.0f} pts</td>"
+                        f"<td class='num'>{len(ob)} / {len(oa)}</td><td class='num'>{pv:.2g}</td></tr>")
+    if gain:
+        s.append("<h3>What reasoning changed</h3><p>Reasoning on against off, per request; “requests” counts the requests that passed more "
+                 "repeats with reasoning / without.</p><div class='tw'><table class='narrow'><tr><th>model</th><th>arm</th>"
+                 "<th class='num'>difference</th><th class='num'>requests</th><th class='num'>sign test p</th></tr>" + "".join(gain) + "</table></div>")
+    return "".join(s)
+
+
+def prompt_sizes(rows):
+    """Median first prompt (runs with a single model call), protocol arms vs raw-code arms."""
+    m = {arm: st.median([int(r["prompt_tokens"]) for r in rows if r["arm"] == arm and r["model_calls"] == "1"] or [0]) for arm in ARMS}
+    rnd = lambda v: f"{round(v, -2):,.0f}"  # noqa: E731
+    raw = [m[a] for a in ARMS if a.startswith("R-")]
+    return rnd(st.mean([m["P-mpl"], m["P-ec"]])), rnd(min(raw)), rnd(max(raw))
 
 
 # Prose written after reading the results (draft until the runs finish); HTML allowed.
@@ -564,6 +889,166 @@ python report/build_report.py                  # this page</pre>
 the figure facts and the checks, so any number on this page can be traced to the runs behind it.</p>""",
 }
 
+TEXT["compare"] = TEXT["compare_card"] = TEXT["engines"] = TEXT["engine_card"] = ""
+TEXT["help_lead"] = "Where a key covers the ask, yes; where none does, it hurts."
+
+# GPT-6 Luna: the model-independent parts (back ends, mapping) are shared with the Qwen page.
+EXAMPLES_LUNA = [
+    ("B22", """Dry basis: no key, so the protocol needs the hatch. On matplotlib Luna wrote <code>y1 = y1 / y1[…] * 100</code> in all
+three repeats. The code runs after drawing, so reassigning <code>y1</code> changed nothing, and plotkit raised no error. With
+medium reasoning effort it rescaled the drawn line instead (<code>ax1.lines[0].set_ydata</code>) and passed every time. ECharts has
+no route and kept to keys. All four raw-code arms passed in every repeat."""),
+    ("B10", """Unusual wording: “흑백” (black and white) for a journal figure. Both protocol arms kept plotkit's default blue and red
+in every repeat, though line colours are a key. Raw ECharts code drew it in black every time; raw matplotlib did too, but missed the
+pixel size the checker expects from 3.5 × 2.6 in at 600 dpi."""),
+    ("B16", """Two panels sharing x: no key. Luna took matplotlib's hatch in two of three repeats and built the second panel itself;
+the third kept to keys. ECharts' patch allows one grid, so all three ECharts runs drew a single panel. Raw code passed everywhere."""),
+]
+TEXT_LUNA = {**TEXT,
+             "help_lead": "Not on this model, except where it was rehearsed.",
+             "help": """Luna writes good plotting code on its own, so the protocol's lead is left only on the requests it was written for.
+On Set A every protocol run passed, against 85% and 82% for raw code with the brief. On the 13 Set B requests a key covers, the arms
+are level: 79% and 82% for the protocol, 77% and 74% for raw code + brief. On the 11 no key covers, the protocol passed 27% and 21% of
+runs and raw code 85% and 82%. The protocol is still far cheaper: a median of about 40 output tokens per run instead of 1,000–1,500,
+and 2–3 s instead of 21–36 s. Its plots were also the ones blind reviewers most often called usable as-is (29 and 27 of 48).""",
+             "review": """The first repeat of every request was also judged by eye, as on the Qwen page: one sheet per request with its six
+plots shuffled and labelled A–F, graded by two fresh Claude sessions with the same instructions, 24 sheets each, without the key or any
+scores. Again one grader was stricter (47 vs 78 yes). The protocol's plots were the ones most often usable as-is: 29 and 27 of 48,
+against 15 and 5 for raw code with the brief and 23 and 26 for raw code alone. On Set A, 22 of 24 protocol plots on each engine were a
+yes; the stricter grader marked the other two partial for overlapping labels. On Set B it was 7 and 5 of 24, and every no was a missing
+or wrong ask (Lot B, offset, the second panel, mass loss, onset, dry basis, kelvin, sample colours). Raw code with the brief lost mostly on overlap: the brief asks for
+residue and peak labels, and Luna's scripts put them over each other or over the curves. Without the brief the scripts drew fewer
+labels and the reviewers, who judged against the request text alone, passed more of them; the checker, which expects the lab's labels,
+did not. Raw ECharts code also drew legend swatches in colours that did not match the lines (11 plots).""",
+             "cover": """On the 11 Set B requests no key covers, 36 of the 66 protocol runs ended with keys only, and all 36 failed; in 34
+the model never saw an error. Runs that took a hatch passed 16 of 30. matplotlib's hatch also failed in a new way: in 7 of 20 runs
+Luna's code reassigned <code>x</code> or <code>y1</code>, as if it ran before drawing. It runs after, so the plot came out unchanged,
+again with no error (B17, B22, B24). As an agent in Pi, Luna was more candid than Qwen: it told the user when an ask was not done.""",
+             "outscope": """Raw code solved most of these on Luna: the legend outside, two panels, offset, mass loss, normalising and kelvin
+passed in all or nearly all repeats with the brief. The protocol passed the axis flip on both engines, the minor ticks (all three
+ECharts runs, two matplotlib runs) and two of three panel and offset runs on matplotlib, and little else. Where the ECharts patch
+cannot reach, Luna kept to keys. The onset (B18) was hard for every arm, as on Qwen; the one
+protocol run that drew an onset put it at 976 °C, against 605 °C. B05 failed nearly everywhere because only Lot A was drawn: the
+protocol specs named only Lot A's file, and raw code could not read Lot B's semicolons and decimal commas (one ECharts run did).""",
+             "think": """The four main arms on the same 12 requests as Qwen's thinking check, once each, with reasoning effort low. Luna
+reasoned briefly: a median of 54 reasoning tokens per call, and none at all on 22 of 54 calls. Little changed. The protocol arms passed
+10 and 8 of 12, against 26 and 27 of 36 with effort none on the same requests; raw code with the brief passed 10 and 8 of 12, against 31
+and 27 of 36. Unlike Qwen, no reply came near a limit and raw code did not get worse. Medium effort on all 48 requests, for the two
+protocol arms, is in <a href="#engines">matplotlib against ECharts</a> below.""",
+             "pi": """Luna as a coding agent in Pi, on the same 12 requests and three arms as Qwen, once each, with reasoning effort none
+(every session log shows 0 reasoning tokens). Sessions were short: a median of 13 s and 3 tool calls on the protocol, 29 s and 5 calls
+on raw code. They passed 9, 10 and 9 of 12, close to Qwen's 9, 11 and 10. Luna was more candid about what it could not do. On B15 both
+protocol agents told the user the legend was still inside the plot, and on B18 the ECharts agent said plotkit cannot compute an onset;
+Qwen's agents had reported asks like these as done. The matplotlib agent computed the B18 onset itself (604.6 °C, against 605 °C ± 8).
+Two fails are the scorer's. On B21 the matplotlib agent hit the unknown-key error for <code>x.flip</code> and drew the flip correctly
+through the <code>code</code> hatch from Python, but left the failing <code>spec.json</code> behind, and the scorer re-runs that file.
+On B18 raw code found 603.8 °C, but the checker reads its drawn tangent as extra data. The raw-code agent on request 23, a follow-up
+that changes the residue label, found no earlier script in its clean folder and asked the user for one.""",
+             "compare": """Same 48 requests, same checks and retries; the sampling differences are listed under Limits. Luna is the
+stronger coder. Raw code passed 10 to 23 points more often than on Qwen, most of all raw ECharts with the brief (80% against 57%;
+Luna better on 22 requests, Qwen on none), and Luna's scripts drew something in all but 2 of 576 raw-code runs, against 23 for Qwen.
+Through the protocol the two models land in the same place, 78% and 77% against 81% and 78%. The spec takes the drawing out of the
+model's hands, so a weaker model gains and a stronger one has little left to gain. Qwen was a little ahead on the protocol's
+matplotlib arm (better on 8 requests, Luna on 2; p = 0.11), almost all of it on no-key requests where Luna's hatch code reassigned
+data already drawn (B17, B22, B24) or it kept to keys (B19, B23). Both models dropped no-key asks without a word in batch mode, Luna
+more often (34 runs against 26).""",
+             "engines": """<p>Once the model reasons, does the engine matter? To keep the runs short, only the two protocol arms were
+rerun. They get the same spec and the same Python core and differ only in the engine, so the comparison is clean. All 48 requests ran
+3 times each: Luna at medium reasoning effort, its usual level, and Qwen with thinking on, at temperature 0.6 and the same
+16,000-token cap. The two ran at the same time, each on its own server. {pending}</p>
+<p>With reasoning off the two engines tie on both models, within 3 points. With reasoning on, matplotlib pulls ahead. On Luna it
+passed {Luna_m} of runs and ECharts {Luna_e}; {Luna_better}. On Qwen it was {Qwen_m} against {Qwen_e}; {Qwen_better}. The gap lies in
+the 11 requests no key covers. Where a key covers the ask, the engines stay level with reasoning ({Luna_key} on Luna, {Qwen_key} on
+Qwen). Where none does, matplotlib passed {Luna_out} runs on Luna, and {Qwen_out} on Qwen.</p>
+<p>The reason is the hatch. With reasoning, Luna took matplotlib's <code>code</code> in 30 of 33 no-key runs and passed 28. It
+rescaled and offset the drawn lines, built the second panel, and computed the onset and the mass loss, and it no longer reassigned
+<code>x</code> or <code>y1</code>. On ECharts it took the patch in 16 runs and passed 9, all on the minor ticks, the axis flip and
+the sample colours; its patches for the legend outside (B15) left the legend inside. For onset, mass loss, dry basis, kelvin, a
+second panel and offsets the patch has no route, because it cannot compute or add data, so Luna kept to keys and failed. Reasoning
+cost Luna little: a median of 31 reasoning tokens per call (none on 81 of 299), {Luna_tok} output tokens per run against about 40 without,
+and {Luna_time} s per run.</p>
+<p>Qwen showed the same split. It took matplotlib's hatch in 31 of 33 no-key runs and passed 25. On ECharts it spent its thinking
+trying to make the patch do what it cannot. On B16 and B17 in every repeat, and on B22 once, it wrote 37,000–46,000 tokens over its
+three tries, ran into the 16,000-token cap at least once and never produced a spec plotkit would draw; on B18, B19 and B24 it settled
+for keys every time. Its thinking is far longer than Luna's: a median of {Qwen_tok} output tokens and {Qwen_time} s per run.</p>""",
+             "engine_card": """With reasoning off the engines tie on both models. With it on, the model uses matplotlib's
+<code>code</code> hatch to compute and reshape data where no key exists; the ECharts patch cannot, so ECharts falls behind on exactly
+those requests. Where a key covers the ask, the engines stay level.""",
+             "compare_card": """Luna writes much better raw code than Qwen, so on Luna the protocol no longer wins overall. Through the
+protocol the two models score about the same; on a strong model the protocol's gain is cost and steadiness, not pass rate.""",
+             "recs": """<ol>
+<li><b>Stop the silent drop.</b> It is the protocol's main loss on both models, and larger on Luna: 34 of 66 no-key runs drew a clean
+plot without the ask and saw no error. Add the rule and the list of asks that need the hatch to <code>AGENT.md</code>, as the Qwen
+report proposes.</li>
+<li><b>Let <code>code</code> change the data, or say that it cannot.</b> Luna's first instinct was to rewrite <code>x</code> and
+<code>y1</code>, which does nothing after drawing. Either run a data step before drawing (rescale, offset, unit change), or redraw from
+<code>x</code>, <code>y1</code>, <code>y2</code> when the code changes them, or at least return an error when it does.</li>
+<li><b>Put the computed asks in the Python core.</b> Onset, mass loss between two temperatures, dry-basis normalising, kelvin,
+offsets and two panels. With reasoning on, these are the whole gap between the engines: the ECharts patch cannot compute or add data,
+so a key is the only way ECharts can draw them.</li>
+<li><b>Turn reasoning on for the protocol on Luna.</b> Medium effort raised matplotlib from 78% to 94% of runs for about 50 more output
+tokens and no extra time; Luna then used the hatch for nearly every no-key request and used it correctly.</li>
+<li><b>Prefer matplotlib when the model reasons.</b> With reasoning off the engines tie; with it on, matplotlib's unrestricted hatch is
+worth 13 points on Luna. ECharts is the right engine only where its look or interactivity is the point, and then the missing keys
+above matter more.</li>
+<li><b>On a strong model, route by request.</b> Where a key covers the ask the protocol is perfect on Set A at about 40 output tokens;
+where none does, raw code with the brief passed 85%. A protocol that hands no-key asks to raw code, or to the hatch with reasoning on,
+gets both.</li>
+<li><b>Read “흑백” (black and white) as a colour ask.</b> Both protocol engines ignored it in all six B10 runs. Add a
+<code>mono</code> style or one example to <code>AGENT.md</code>.</li>
+<li><b>Score Pi sessions on what the agent last drew</b>, not only on <code>spec.json</code>: one Luna agent drew the right plot
+from Python and left a stale spec behind.</li>
+</ol>""",
+             "limits": """<ul>
+<li><b>Two models, each at its lowest thinking setting.</b> GPT-6 Luna ran with reasoning effort none; Qwen3.8 Flash Next (4-bit) with
+thinking off. Reasoning was turned on for all 48 requests on the two protocol arms only (Luna at medium effort, Qwen with thinking);
+the raw-code arms got more thinking on 12 requests only, once each.</li>
+<li><b>Not the same sampling.</b> Qwen ran at temperature 0.7 with a 16,000-token cap per reply. Luna ran at its default temperature
+with no cap below its own, because Pi sends neither. Luna's calls also went through Pi, which adds a line with the run folder to the
+system prompt.</li>
+<li><b>A filtering proxy.</b> The centinels proxy refused about 45% of raw-code calls at least once, and runs whose retries ran out
+were run again from the start. Refused prompts never reached the model, so this changes the times, not what the model saw; but a
+deployment behind the same proxy would see these refusals on raw code and almost never on the protocol.</li>
+<li><b>The protocol's author wrote Set A.</b> AGENT.md was written against these 24 requests, so Set A is close to a best case
+for the protocol arms. Set B was written afterwards on new data, and is the fairer test.</li>
+<li><b>Made-up data.</b> Set B's files come from the gallery generator. They are clean and look like real runs, but real exports
+are messier than most of them.</li>
+<li><b>Batch mode, not an agent.</b> The batch gives every arm one reply and up to two retries with the error. A real agent
+can inspect files, run code and look again; the Pi sessions show that case for 12 requests on three arms only.</li>
+<li><b>The checker decides “pass”.</b> It reads facts from what was drawn and was validated on 233 known runs, but its expectations
+encode one reading of each request. Where a request allows several readings, the checks accept any of them (any_of);
+the blind visual review is the cross-check.</li>
+<li><b>Graded by a model.</b> Each model's first repeat was graded by two fresh Claude sessions with the same instructions, not by
+the lab's users. Graders differ in strictness, so compare the two models' review counts with care; within one model every sheet
+holds all six arms.</li>
+</ul>""",
+             "repro": """<p>The scripts are in the <code>eval/protocol-study</code> branch of <code>tga_plot</code>, under <code>eval/</code>; this page's CSVs are
+<code>eval/results/batch_luna.csv</code>, <code>batch_luna_think.csv</code>, <code>pi_luna.csv</code>, <code>review_luna.csv</code>, and for the engine comparison <code>batch_luna_reason.csv</code> and <code>batch_sx_reason.csv</code>. Pi holds the
+centinels key, so the batch calls the model through Pi. For <code>--thinking off</code> to send reasoning effort none, the
+<code>gpt-6-luna</code> entry in <code>~/.pi/agent/models.json</code> needs <code>"reasoning": true</code> and
+<code>"thinkingLevelMap": {"off": "none"}</code>.</p>
+<pre># the main batch: 48 requests x 6 arms x 3 repeats (resumes from the CSV)
+python eval/run_batch.py --name luna --pi-model centinels/gpt-6-luna --pi-thinking off \\
+    --model gpt-6-luna --repeat 3 --workers 8
+
+# low reasoning effort, 12 requests x 4 arms
+python eval/run_batch.py --name luna_think --pi-model centinels/gpt-6-luna --pi-thinking low --model gpt-6-luna \\
+    --only 02,09,12,20,23,B02,B06,B11,B15,B18,B21,B23 --arms P-mpl,P-ec,R-mpl-brief,R-ec-brief --workers 6
+
+python eval/pi_runs.py --name luna --pi-model centinels/gpt-6-luna --thinking off --workers 4
+python eval/review_sheets.py --run luna        # blind sheets; grade, then --unblind
+
+# matplotlib against ECharts with reasoning on: the protocol arms, 48 requests x 3 repeats, both models in parallel
+python eval/run_batch.py --name luna_reason --pi-model centinels/gpt-6-luna --pi-thinking medium --model gpt-6-luna \\
+    --arms P-mpl,P-ec --repeat 3 --workers 4
+EVAL_API_KEY_FILE=... python eval/run_batch.py --name sx_reason --base-url http://strixhalo:8084/v1 \\
+    --model qwen3.8-flash-next --temperature 0.6 --arms P-mpl,P-ec --repeat 3 --workers 3
+python report/build_report.py --run luna       # this page (report/luna/)</pre>
+<p>Run records (<code>eval/results/runs/luna/&lt;arm&gt;/&lt;request&gt;_r&lt;repeat&gt;/</code>) keep every model reply, the final spec or script
+and the checks, so any number on this page can be traced to the runs behind it.</p>"""}
+TEXTS = {"sx": TEXT, "luna": TEXT_LUNA}
+EXAMPLES_BY = {"sx": EXAMPLES, "luna": EXAMPLES_LUNA}
+
 
 MAPPING = [
     ("file, sheets, x/y1/y2.col", "reader: Excel/CSV/TXT, header and units rows, column letters or names", "data arrays", "series.data"),
@@ -678,16 +1163,16 @@ def build():
     necp = sum(r["echarts"] == "partial" for r in cov)
     necn = sum(r["echarts"] == "none" for r in cov)
     psum = D["parsum"]
-    s.append(f"""<header><p class="meta">plotkit evaluation · {esc(MODEL)} · {len(reqs)} requests × {len(ARMS)} arms × {n_rep} repeats = {n_runs} runs at temperature 0.7 · scored on what was drawn</p>
+    s.append(f"""<header><p class="meta">plotkit evaluation · {esc(P['model'])} · {len(reqs)} requests × {len(ARMS)} arms × {n_rep} repeats = {n_runs} runs {P['temp']} · scored on what was drawn</p>
 <h1>Does the plotkit spec protocol help an LLM make plots?</h1>
 <p class="lede">The same model got the same requests and the same data preview six ways: with the protocol (spec → plotkit) on matplotlib or ECharts, or writing plotting code itself, with and without a short TGA brief. Every plot was scored by one checker on the figure it actually drew.</p></header>""")
     s.append(f"""<section class="answers">
-<div class="ans"><h3>1 · Does it help?</h3><p class="big">Where a key covers the ask, yes; where none does, it hurts. Overall {pct(pm['rate'])} vs {pct(rbm['rate'])} of runs fully right on matplotlib (raw code + brief), {pct(pe['rate'])} vs {pct(rbe['rate'])} on ECharts.</p>
+<div class="ans"><h3>1 · Does it help?</h3><p class="big">{TEXT['help_lead']} Overall {pct(pm['rate'])} vs {pct(rbm['rate'])} of runs fully right on matplotlib (raw code + brief), {pct(pe['rate'])} vs {pct(rbe['rate'])} on ECharts.</p>
 <p>{TEXT['help']}</p></div>
 <div class="ans"><h3>2 · Does it cover reasonable variety?</h3><p class="big">{nkey} of {len(cov)} plausible wishes have a key on both engines; the matplotlib <code>code</code> hatch reaches {ncode} more, the ECharts patch {nec} (+{necp} partly).</p>
 <p>{TEXT['cover']}</p></div>
 <div class="ans"><h3>3 · How does it connect to the libraries?</h3><p class="big">One spec, one Python core, two thin drawing back ends; {psum.get('specs', 0) - psum.get('specs_with_differences', 0)} of {psum.get('specs', 0)} test specs draw the same on both.</p>
-<p>{TEXT['backend']}</p></div></section>""")
+<p>{TEXT['backend']}</p></div>{compare_card(D)}{engine_card(D) if P["other"] else ""}</section>""")
 
     # ---------- setup
     val = D["val"]
@@ -697,8 +1182,8 @@ def build():
 <tr><td><span class="sw" style="background:var(--s1)"></span>Protocol · matplotlib / ECharts</td><td><code>AGENT.md</code> / <code>AGENT_ECHARTS.md</code> (glossary, rules, examples)</td><td>a JSON spec</td><td>plotkit, either engine</td></tr>
 <tr><td><span class="sw" style="background:var(--s2)"></span>Raw code + brief</td><td>a short prompt + a TGA brief: what residue and DTG peak mean, the house defaults, the Korean part names (no spec)</td><td>a Python script</td><td>the script (matplotlib) or the printed ECharts option (ECharts 6.1 SSR)</td></tr>
 <tr><td><span class="sw" style="background:var(--s3)"></span>Raw code</td><td>the short prompt only</td><td>a Python script</td><td>as above</td></tr></table></div>
-<p>All six arms got the same data preview (sheets, columns, ranges), the same 16k-token budget and up to two retries with the error they caused: plotkit's <code>error</code> + <code>hint</code>, or the script's traceback. Scripts ran in a sandbox (bubblewrap: no network, read-only system).</p>
-<p><b>Model and runs.</b> {esc(MODEL_LONG)} Every request ran {n_rep} times per arm at temperature 0.7, so each arm has {n_rep * len(reqs)} runs. Pass rates below count runs; their 95% intervals come from resampling whole requests, because the repeats of one request are not independent.</p>
+<p>All six arms got the same data preview (sheets, columns, ranges), {P['budget']} and up to two retries with the error they caused: plotkit's <code>error</code> + <code>hint</code>, or the script's traceback. Scripts ran in a sandbox (bubblewrap: no network, read-only system).</p>
+<p><b>Model and runs.</b> {esc(P['model_long'])} Every request ran {n_rep} times per arm {P['temp']}, so each arm has {n_rep * len(reqs)} runs. Pass rates below count runs; their 95% intervals come from resampling whole requests, because the repeats of one request are not independent.</p>
 <p><b>Requests.</b> Set A is the 24 Korean test requests the protocol was written for. Set B is 24 new ones on new made-up data (polymers, calcium oxalate with heat flow, CNT batches, an isothermal hold, XRD, rheology): 7 that a key covers but no example shows, 6 in unusual wording, and 11 that no key covers.</p>
 <p><b>Scoring.</b> A figure-facts extractor reads what was actually drawn (matplotlib figure objects; the final ECharts option plus the axis extents and texts ECharts computed) and one checker tests each request's facts: the right data, what was asked, and the lab's conventions (residue and peak labels) where the request leaves them implicit. Before the runs, the checker agreed with the old spec-based scorer on {agree}/{len(val)} known-good and deliberately-wrong runs, and every Set B expectation was met by a hand-written answer wherever a route exists.</p>""")
 
@@ -711,10 +1196,9 @@ def build():
         if any(r["n"] for r in rows):
             charts.append(bars_chart(label, rows))
     s.append(f'<div class="grid2">{"".join(charts)}</div>')
+    psz, rlo, rhi = prompt_sizes(t0)
     s.append(f"<h3>All {len(reqs)} requests, {n_rep} repeats</h3>" + arm_table(t0)
-             + "<p class='small'>Times include waiting for one of the server's two slots (three runs at a time) and depend on prompt "
-             "caching, so they compare arms only roughly; output tokens are the steadier measure of the model's work. A protocol spec "
-             "comes with a prompt of about 5,000 tokens (the glossary), raw code with 1,200–1,800.</p>")
+             + f"<p class='small'>{P['times']} A protocol run's first prompt is about {psz} tokens (the glossary), raw code's {rlo}–{rhi}.</p>")
     s.append("<h3>Repeat to repeat</h3>" + consistency_chart(t0))
     s.append(f"<details><summary>Every request on every arm (passes out of {n_rep})</summary>{heat_table(t0, reqtext)}</details>")
     pairs = [("P-mpl", "R-mpl-brief"), ("P-ec", "R-ec-brief"), ("P-mpl", "R-mpl-plain"), ("P-ec", "R-ec-plain"),
@@ -741,11 +1225,18 @@ def build():
         for rid, note in EXAMPLES:
             s.append(f"<h4>{esc(rid)} · <span lang='ko'>{esc(reqtext.get(rid, '')[:160])}</span></h4><p>{note}</p>{example_figs(D, rid)}")
     if D["think"]:
-        s.append(f"<h3>With thinking on</h3><p>{TEXT['think']}</p>{think_section(D)}")
+        s.append(f"<h3>{P['think_title']}</h3><p>{TEXT['think']}</p>{think_section(D)}")
     if D["pi"]:
         s.append(f"<h3>In a real agent session (Pi)</h3><p>{TEXT['pi']}</p>{pi_section(D)}")
     if D["review"]:
         s.append(f"<h3>Blind visual review</h3><p>{TEXT['review']}</p>{review_section(D)}")
+
+    if P["other"] and D["o_runs"]:
+        a = PROFILES[P["other"]]["short"]
+        s.append(f'<h2 id="compare">{esc(P["short"])} against {esc(a)}</h2><p>{TEXT["compare"]}</p>{compare_section(D)}')
+    es = engine_section(D)
+    if es:
+        s.append(f'<h2 id="engines">matplotlib against ECharts, with reasoning on</h2>{TEXT["engines"].format_map(Pending(engine_numbers(D)))}{es}')
 
     # ---------- Q2 coverage
     s.append('<h2 id="variety">2 · Does it cover reasonable variety?</h2>')
@@ -800,7 +1291,7 @@ def build():
     s.append(f"<h2 id='recs'>Recommendations</h2>{TEXT['recs']}")
     s.append(f"<h2 id='repro'>Reproduce</h2>{TEXT['repro']}")
     # the artifact host wraps this in its own <!doctype html><head><body> skeleton
-    page = (f'<title>plotkit protocol evaluation</title><meta name="claude:viewport-fit-sides" content="cover">'
+    page = (f'<title>{P["title"]}</title><meta name="claude:viewport-fit-sides" content="cover">'
             f'<link rel="preconnect" href="https://fonts.googleapis.com">'
             f'<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">'
             f'<style>{CSS}</style><main lang="en">{"".join(s)}</main>')
@@ -808,6 +1299,13 @@ def build():
 
 
 if __name__ == "__main__":
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--run", default="sx", choices=sorted(PROFILES))
+    MAIN = ap.parse_args().run
+    P = PROFILES[MAIN]
+    TEXT, EXAMPLES = TEXTS[MAIN], EXAMPLES_BY[MAIN]
+    OUT = ROOT / "report" / P["out"]
+    IMG = OUT / "img"
     page, D = build()
     (OUT / "index.html").write_text(page, encoding="utf-8")
-    print("wrote report/index.html", len(page), "bytes")
+    print(f"wrote {(OUT / 'index.html').relative_to(ROOT)}", len(page), "bytes")

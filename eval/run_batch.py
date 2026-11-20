@@ -89,11 +89,21 @@ def main():
     ap.add_argument("--base-url", default="https://centinels.ml2-alpha.com/v1")
     ap.add_argument("--model", default="odin")
     ap.add_argument("--no-think", action="store_true", help="chat_template_kwargs.enable_thinking=false for every arm")
+    ap.add_argument("--reasoning-effort", help="reasoning_effort for every call (OpenAI-style models), e.g. none, minimal, low")
+    ap.add_argument("--pi-model", help="call the model through the Pi CLI instead, e.g. centinels/gpt-6-luna (Pi holds the key)")
+    ap.add_argument("--pi-thinking", default="off", help="Pi thinking level with --pi-model")
+    ap.add_argument("--prompt-dir", help="layer-v2 prompts for the protocol arms, e.g. prompts/v2")
     a = ap.parse_args()
+    if a.prompt_dir:                       # read by arms.system_prompt in every worker process
+        os.environ["EVAL_PROMPT_DIR"] = str((ROOT / a.prompt_dir) if not Path(a.prompt_dir).is_absolute() else a.prompt_dir)
     key = os.environ.get("EVAL_API_KEY", "")
     if not key and os.environ.get("EVAL_API_KEY_FILE"):
         key = Path(os.path.expanduser(os.environ["EVAL_API_KEY_FILE"])).read_text().strip()
     extra = {"chat_template_kwargs": {"enable_thinking": False}} if a.no_think else {}
+    if a.reasoning_effort:
+        extra["reasoning_effort"] = a.reasoning_effort
+    if a.pi_model:
+        extra = {"pi": {"model": a.pi_model, "thinking": a.pi_thinking}}
     E = json.loads((HERE / "expected_facts.json").read_text(encoding="utf-8"))
     only = set(a.only.split(",")) if a.only else None
     reqs = [r for r in requests() if r["set"] in a.sets.split(",") and (not only or r["id"] in only)]

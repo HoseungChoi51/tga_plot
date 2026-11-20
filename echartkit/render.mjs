@@ -36,7 +36,7 @@ export function renderSvg(fig) {
   const chart = echarts.init(null, null, { renderer: "svg", ssr: true, width: L.W, height: L.H });
   try {
     chart.setOption(option);
-    const toPixel = a => chart.convertToPixel({ xAxisIndex: 0, yAxisIndex: a.axis === "y2" ? 1 : 0 }, [a.x, a.y]);
+    const toPixel = a => chart.convertToPixel({ xAxisIndex: L.split && a.axis === "y2" ? 1 : 0, yAxisIndex: a.axis === "y2" ? 1 : 0 }, [a.x, a.y]);
     let legendBox = null;
     if (fig.legend.show && !(fig.echarts && fig.echarts.legend)) {
       let where = fig.legend.where;

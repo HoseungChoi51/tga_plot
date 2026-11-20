@@ -2,6 +2,7 @@
 
     python eval/pi_runs.py                     12 requests x 3 arms -> eval/results/pi.csv
     python eval/pi_runs.py --only 02,B15 --arms P-ec
+    python eval/pi_runs.py --name luna --pi-model centinels/gpt-6-luna --thinking off
 
 Each session runs in a fresh workspace that holds only what the arm needs (no tests, answers or results):
   P-mpl / P-ec   plotkit.py, plotkit_echarts.py, echartkit/, guide/, AGENT*.md, the data file(s)
@@ -131,28 +132,32 @@ PI_THINKING = "off"
 
 def one(arm, req, E, timeout):
     ws = WS_ROOT / arm / req["id"]
-    build_ws(arm, req, ws)
-    env = {**os.environ, "PATH": f"{ws / 'bin'}:{os.environ.get('PATH', '')}"}
-    if arm == "P-ec":
-        env["PLOTKIT_ENGINE"] = "echarts"
     msg = "파일: " + ", ".join(str(Path(f).relative_to(ROOT)) for f in req["files"]) + "\n" + req["text"]
     cmd = ["pi", "-p", "--model", PI_MODEL, "--thinking", PI_THINKING, "--no-session", "--mode", "json", "--no-extensions",
            "--no-skills", "--no-context-files", "--no-prompt-templates", "--no-mcp",
            "--append-system-prompt", prompt_for(arm), msg]
-    t0 = time.time()
-    with open(ws / "session.jsonl", "w") as out, open(ws / "stderr.txt", "w") as err:
-        try:
-            rc = subprocess.run(cmd, cwd=ws, env=env, stdin=subprocess.DEVNULL, stdout=out, stderr=err,
-                                timeout=timeout).returncode
-        except subprocess.TimeoutExpired:
-            rc = "timeout"
-    secs = round(time.time() - t0, 1)
+    for refused in range(arms.PI_REFUSAL_RETRIES + 1):   # a session the proxy's filter refused starts again from scratch
+        build_ws(arm, req, ws)
+        env = {**os.environ, "PATH": f"{ws / 'bin'}:{os.environ.get('PATH', '')}"}
+        if arm == "P-ec":
+            env["PLOTKIT_ENGINE"] = "echarts"
+        t0 = time.time()
+        with open(ws / "session.jsonl", "w") as out, open(ws / "stderr.txt", "w") as err:
+            try:
+                rc = subprocess.run(cmd, cwd=ws, env=env, stdin=subprocess.DEVNULL, stdout=out, stderr=err,
+                                    timeout=timeout).returncode
+            except subprocess.TimeoutExpired:
+                rc = "timeout"
+        secs = round(time.time() - t0, 1)
+        if arms.PI_REFUSED not in (ws / "session.jsonl").read_text(encoding="utf-8", errors="replace"):
+            break
+        time.sleep(min(3 * (refused + 1), 15))
     log = summarize_log(ws / "session.jsonl")
     with SCORE_LOCK:
         ok_run, figs, note = score_ws(arm, req, ws, E)
         ok, res = check.run_checks(figs, E[req["id"]]) if ok_run else (False, [])
     cats = lambda cs: all(r["ok"] for r in res if r["cat"] in cs)  # noqa: E731
-    return {"arm": arm, "request": req["id"], "set": req["set"], "group": req["group"], "rc": rc, "seconds": secs,
+    return {"arm": arm, "request": req["id"], "set": req["set"], "group": req["group"], "rc": rc, "refused": refused, "seconds": secs,
             "ok_run": int(ok_run), "pass_all": int(ok), "pass_ask": int(ok_run and cats(("data", "ask"))),
             "tool_calls": log["tool_calls"], "plot_runs": sum(("plot" in b) for b in log["bash"]),
             "input_tokens": log["usage"]["input"], "output_tokens": log["usage"]["output"], "note": note,
@@ -169,12 +174,15 @@ def main():
     ap.add_argument("--timeout", type=int, default=3600)
     ap.add_argument("--pi-model", default=PI_MODEL)
     ap.add_argument("--thinking", default=PI_THINKING)
+    ap.add_argument("--name", default="", help="another model's sessions: results/pi_<name>.csv, workspaces in pi_ws/<name>/")
     a = ap.parse_args()
     globals()["PI_MODEL"], globals()["PI_THINKING"] = a.pi_model, a.thinking
+    if a.name:
+        globals()["WS_ROOT"] = WS_ROOT / a.name
     E = json.loads((HERE / "expected_facts.json").read_text(encoding="utf-8"))
     ids = a.only.split(",") if a.only else PI_REQUESTS
     reqs = [r for r in requests() if r["id"] in ids]
-    out = HERE / "results" / "pi.csv"
+    out = HERE / "results" / (f"pi_{a.name}.csv" if a.name else "pi.csv")
     done = set()
     if out.exists():
         done = {(r["arm"], r["request"]) for r in csv.DictReader(open(out, encoding="utf-8"))}

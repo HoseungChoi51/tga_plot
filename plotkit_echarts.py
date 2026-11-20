@@ -252,7 +252,8 @@ def _annotations(spec, axes_on, j, colors, results, stack, combine_color, text_a
     out = []
     tc = spec["text_color"]
     base = spec["font_size"]
-    for name, a in spec["annotate"].items():
+    yoff = j.get("yoff", 0.0)
+    for name, a in list(spec["annotate"].items()) + list(j.get("marks", {}).items()):
         t = a["type"]
         on = a.get("on", "y1")
         sheet = j["sheet"]
@@ -279,11 +280,12 @@ def _annotations(spec, axes_on, j, colors, results, stack, combine_color, text_a
             unit = pk._unit(j["cols"][on]["name"]) if on in j["cols"] else None
             if a.get("_preset_text") and unit and not pk._same_unit(unit, "%"):
                 text = text.replace("{y:.1f}%", "{y:.3g} " + unit)
-            label = pk._fmt(text, xu, yv, "y")
+            shown = yv - (yoff if on == "y1" else 0.0)          # offset curves keep their real values
+            label = pk._fmt(text, xu, shown, "y")
             out.append({"kind": "value", "name": name, "axis": ax, "x": _clean(xu), "y": _clean(yv), "text": label,
                         "color": _hex(col), "text_color": _hex(tcol), "size": fs, "stack": stack})
             results.append({"name": name, "sheet": sheet, "x_requested": a["x"], "x_used": round(xu, 3),
-                            "value": round(yv, 4), "text": label})
+                            "value": round(shown, 4), "text": label})
         elif t == "peak":
             kind = a.get("kind", "max")
             peaks = pk.find_peaks_xy(data["x"], data[on], a.get("count", 1), kind,
@@ -313,6 +315,10 @@ def _annotations(spec, axes_on, j, colors, results, stack, combine_color, text_a
                             "fill": _rgba(c, a.get("alpha", 0.15)), "text": a.get("text") or "",
                             "text_color": _hex(a.get("color") or (tc if text_all else "gray")), "size": fs})
             results.append({"name": name, "sheet": sheet, "x_min": a["x_min"], "x_max": a["x_max"]})
+        elif t == "text" and a.get("x") is not None and a.get("y") is not None:
+            out.append({"kind": "text_at", "name": name, "axis": ax, "x": _clean(a["x"]), "y": _clean(a["y"]),
+                        "text": a.get("text", ""), "color": _hex(a.get("color") or tc), "size": fs})
+            results.append({"name": name, "sheet": sheet, "text": a.get("text", ""), "x": a["x"], "y": a["y"]})
         elif t == "text":
             if stack == 0:
                 out.append({"kind": "text", "name": name, "where": a.get("where", "upper right"),
@@ -333,16 +339,16 @@ def resolve(spec, jobs):
         texts = [title] + [spec[r].get("label") or "" for r in ("x", "y1", "y2")] + \
                 [j["sheet"] for j in group] + [c["name"] for j in group for c in j["cols"].values()] + \
                 [a.get("text") or "" for a in spec["annotate"].values()] + \
-                [json.dumps(spec["echarts"] or {}, ensure_ascii=False)]
+                [json.dumps(spec["echarts"] or {}, ensure_ascii=False)] + [str(n) for n in spec.get("names") or []] + \
+                [str(a.get("text") or "") for j in group for a in j.get("marks", {}).values()]
         family, _ = _font_family(spec, texts)
         has_y2 = all("y2" in j["data"] for j in group)
         n = len(group)
         series, legend_names, legend_extra = [], [], []
+        split = bool(spec.get("panels")) and all("y2" in j["data"] for j in group)
         for k, j in enumerate(group):
-            c1 = pk.COMBINE_COLORS[k % len(pk.COMBINE_COLORS)] if spec["combine"] else spec["y1"]["color"]
-            c2 = c1 if spec["combine"] else spec["y2"]["color"]
+            c1, c2, lab1 = pk.series_style(spec, j, k)
             j["colors"] = {"y1": c1, "y2": c2}
-            lab1 = j["sheet"] if spec["combine"] else (spec["y1"].get("legend") or pk._labels(spec, "y1", j["cols"]["y1"]))
             series.append({"axis": "y1", "name": lab1, "sheet": j["sheet"], "color": _hex(c1),
                            "width": spec["y1"].get("width", 1.5), "linestyle": spec["y1"].get("linestyle", "solid"),
                            "style": spec["y1"].get("style", "line"),
@@ -353,12 +359,12 @@ def resolve(spec, jobs):
                 lab2 = None if spec["combine"] else (spec["y2"].get("legend") or pk._labels(spec, "y2", j["cols"]["y2"]))
                 series.append({"axis": "y2", "name": lab2 or f"{j['sheet']} (y2)", "sheet": j["sheet"],
                                "color": _hex(j["colors"]["y2"]), "width": spec["y2"].get("width", 1.5),
-                               "linestyle": "dashed" if spec["combine"] else spec["y2"].get("linestyle", "solid"),
+                               "linestyle": "dashed" if spec["combine"] and not split else spec["y2"].get("linestyle", "solid"),
                                "style": spec["y2"].get("style", "line"),
                                "points": [[_clean(a), _clean(b)] for a, b in zip(j["data"]["x"], j["data"]["y2"])]})
                 if lab2:
                     legend_names.append(lab2)
-        if spec["combine"] and has_y2:
+        if spec["combine"] and has_y2 and not split:
             legend_extra = [{"name": pk._labels(spec, "y1", first["cols"]["y1"]), "color": "#808080", "linestyle": "solid"},
                             {"name": pk._labels(spec, "y2", first["cols"]["y2"]), "color": "#808080", "linestyle": "dashed"}]
 
@@ -374,7 +380,8 @@ def resolve(spec, jobs):
                     "tick_color": _hex(a.get("tick_color") or text_c),
                     "tick_mark_color": _hex(a.get("tick_color") or line_c or tc),
                     "line_color": _hex(line_c) if line_c else None,
-                    "min": lo, "max": hi, "ticks": ticks, "log": bool(a.get("log"))}
+                    "min": lo, "max": hi, "ticks": ticks, "log": bool(a.get("log")),
+                    "inverse": bool(a.get("invert")), "minor": bool(a.get("minor"))}
         axes = {"x": axis("x", np.concatenate([j["data"]["x"] for j in group]), (0, 0), tight=True),
                 "y1": axis("y1", np.concatenate([j["data"]["y1"] for j in group]), (0.08, 0.12))}
         axes["y2"] = axis("y2", np.concatenate([j["data"]["y2"] for j in group]), (0.12, 0.18)) if has_y2 else None
@@ -397,7 +404,7 @@ def resolve(spec, jobs):
             "series_index": "y1 per sheet, then y2 per sheet" if spec["combine"] else "0 = y1, 1 = y2",
             "legend": {"show": bool(lg["show"]), "where": lg["where"], "size": lg["size"] or spec["font_size"] * SMALL,
                        "names": legend_names, "extra": legend_extra, "color": _hex(tc)},
-            "annotations": anns, "box_peaks": bool(spec["combine"]),
+            "annotations": anns, "box_peaks": bool(spec["combine"]), "panels": "split" if split else None,
             "echarts": spec["echarts"],
         }, ann_results))
     return figs
@@ -437,6 +444,19 @@ def render(figures, timeout=180):
     return reply
 
 
+def live_options(user_spec):
+    """ECharts options for a live chart in the browser (labels tied to the data, zoom, tooltip), one per figure."""
+    spec = pk.normalize_spec(user_spec)
+    jobs, _ = pk.build_jobs(spec)
+    figs = [fig for _, fig, _ in resolve(spec, jobs)]
+    p = subprocess.run([_node(), str(NODE_DIR / "live.mjs")], input=json.dumps({"figures": figs}, ensure_ascii=False).encode("utf-8"),
+                       capture_output=True, timeout=60)
+    reply = json.loads(p.stdout.decode("utf-8").strip().splitlines()[-1])
+    if not reply.get("ok"):
+        raise PlotkitError("live option failed: " + reply.get("error", "?"))
+    return reply["options"]
+
+
 def plot_echarts(user_spec):
     spec = pk.normalize_spec(user_spec)
     if spec["code"]:
@@ -469,4 +489,5 @@ def plot_echarts(user_spec):
             "annotations": ann,
         })
     pk._write_summary(outdir, results)
-    return {"ok": True, "engine": "echarts", "output_dir": str(outdir), "plots": results, "warnings": warnings}
+    return {"ok": True, "engine": "echarts", "output_dir": str(outdir), "plots": results, "warnings": warnings,
+            "not_done": pk.not_done(spec)}

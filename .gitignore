@@ -18,6 +18,15 @@ eval/results/runs/**/out/
 eval/results/runs/**/printed.json
 eval/results/runs/**/dump.json
 eval/results/runs/**/facts.json
+eval/results/runs/**/pi_session.jsonl
+eval/results/runs/**/draw_t*.json
+eval/results/runs/**/facts_t*.json
+eval/results/runs/**/data
+eval/results/sessions/**/out/
+eval/results/sessions/**/data
+eval/results/sessions/**/draw_t*.json
+eval/results/exports/**/*.png
+eval/results/tmp*/
 eval/results/runs/**/*.png
 eval/results/pi_ws/
 eval/results/validate/
@@ -32,3 +41,5 @@ gallery/pages_*.png
 gallery/index.html
 report/index.html
 report/img/
+report/luna/
+report/cnt/
