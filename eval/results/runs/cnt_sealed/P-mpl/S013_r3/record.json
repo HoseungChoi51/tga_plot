@@ -1,0 +1,260 @@
+{
+ "arm": "P-mpl",
+ "item": "S013",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "생산팀장",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "반응기 × 월 합격률(%) 히트맵 하나 만들어 주세요.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"heatmap\",\n  \"x\": {\n    \"col\": \"일자\",\n    \"period\": \"month\"\n  },\n  \"y\": \"반응기\",\n  \"z\": {\n    \"col\": \"등급\",\n    \"agg\": \"count\"\n  },\n  \"asks\": [\n    {\n      \"ask\": \"반응기 × 월 합격률 히트맵\",\n      \"how\": \"unsupported\"\n    }\n  ]\n}\n```",
+     "llm_s": 3.474,
+     "prompt_tokens": 6258,
+     "output_tokens": 136,
+     "cached_tokens": 6233,
+     "prompt_n": 25,
+     "prefill_ms": 242.08788199999998,
+     "decode_ms": 2658.6164050000007,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "heatmap",
+    "x": {
+     "col": "일자",
+     "period": "month"
+    },
+    "y": "반응기",
+    "z": {
+     "col": "등급",
+     "agg": "count"
+    },
+    "asks": [
+     {
+      "ask": "반응기 × 월 합격률 히트맵",
+      "how": "unsupported"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-mpl/S013_r3/out/t1/heatmap_반응기.png"
+    ],
+    "chart": "heatmap",
+    "rows_used": 997,
+    "rows_total": 997,
+    "values": {
+     "rows": [
+      "R1",
+      "R2",
+      "R3",
+      "R4"
+     ],
+     "cols": [
+      "2026-03-01",
+      "2026-04-01",
+      "2026-05-01",
+      "2026-06-01",
+      "2026-07-01",
+      "2026-08-01"
+     ],
+     "max": {
+      "row": "R1",
+      "col": "2026-07-01",
+      "value": 44.0
+     }
+    },
+    "warnings": [],
+    "not_done": [
+     "반응기 × 월 합격률 히트맵"
+    ],
+    "summary": "히트맵 그래프를 저장했습니다: heatmap_반응기.png\n사용한 행: 997 / 997\n가장 큰 값: R1 / 2026-07-01 = 44\n처리하지 못한 요청: 반응기 × 월 합격률 히트맵"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": {
+        "rows": [
+         "R1",
+         "R2",
+         "R3",
+         "R4"
+        ],
+        "cols": [
+         "2026-03-01",
+         "2026-04-01",
+         "2026-05-01",
+         "2026-06-01",
+         "2026-07-01",
+         "2026-08-01"
+        ],
+        "z": [
+         [
+          40.0,
+          41.0,
+          40.0,
+          42.0,
+          44.0,
+          44.0
+         ],
+         [
+          41.0,
+          40.0,
+          43.0,
+          41.0,
+          43.0,
+          42.0
+         ],
+         [
+          41.0,
+          40.0,
+          40.0,
+          40.0,
+          42.0,
+          42.0
+         ],
+         [
+          40.0,
+          40.0,
+          43.0,
+          43.0,
+          41.0,
+          44.0
+         ]
+        ],
+        "colorbar": true,
+        "values_shown": false,
+        "cmap": "viridis",
+        "clim": [
+         40.0,
+         44.0
+        ]
+       },
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "일자 (yyyy-mm-dd)",
+        "type": "category",
+        "ticks": [
+         0.5,
+         1.5,
+         2.5,
+         3.5,
+         4.5,
+         5.5
+        ],
+        "step": 1.0,
+        "categories": [
+         "2026-03-01",
+         "2026-04-01",
+         "2026-05-01",
+         "2026-06-01",
+         "2026-07-01",
+         "2026-08-01"
+        ],
+        "min": 0.0,
+        "max": 6.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "2026-03-01",
+         "2026-04-01",
+         "2026-05-01",
+         "2026-06-01",
+         "2026-07-01",
+         "2026-08-01"
+        ],
+        "rotate": 45.0
+       },
+       "y": {
+        "label": "반응기",
+        "type": "category",
+        "ticks": [
+         0.5,
+         1.5,
+         2.5,
+         3.5
+        ],
+        "step": 1.0,
+        "categories": [
+         "R1",
+         "R2",
+         "R3",
+         "R4"
+        ],
+        "min": 0.0,
+        "max": 4.0,
+        "log": false,
+        "inverted": true,
+        "tick_labels": [
+         "R1",
+         "R2",
+         "R3",
+         "R4"
+        ],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-mpl/S013_r3/out/t1/heatmap_반응기.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.3856961727142334,
+   "check": {
+    "kind_expected": "heatmap",
+    "failed": [
+     "heatmap: 24 of 24 cells off"
+    ],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 1,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 3.949
+  }
+ ]
+}

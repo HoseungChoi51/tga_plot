@@ -1,0 +1,54 @@
+We need answer user's request: produce JSON spec only inside json block, nothing else. Need analyze in same language as user's request? User Korean. Need think. Request: "세 시트 겹쳐 그리고 범례는 그래프 바깥 오른쪽에 둬". Need map: 세 시트 = all three sheets? combine true. Sheets maybe all? If combine true and no sheets specified, likely all sheets? The guide: 겹쳐 그리기 (여러 시트를 한 그림에) combine. "시트 전부 한 그림에" -> combine true. User says 세 시트 (there are three sheets) overlap. Could set sheets: "all" or omit? Since there are exactly three sheets, combine true likely all sheets. But to be explicit maybe "sheets": "all", "combine": true. Legend outside right: legend position? The spec legend can be where, show, size. Legend positions include center right, but "그래프 바깥 오른쪽" means outside right, not inside center right. Does plotkit support outside? The guide only lists positions best, upper right, etc. Need maybe legend: {"where": "outside right"}? But not in allowed list. Need infer? The tool may support legend where as matplotlib loc? Matplotlib legend loc can be 'center right', 'upper right', etc but outside right not standard. Could use code? But if no key covers request, put matplotlib in code. But maybe plotkit legend accepts "outside right"? The guide says legend positions: best, upper right, upper left, lower right, lower left, center left, center right, upper center, lower center, center, none. It doesn't mention outside. User asks outside right. Need implement with code? But rule: If no key covers request, put a few lines of matplotlib in code. Need set combine true and legend outside right. Could use legend: {"show": false}? Then code to create legend outside? But if legend disabled maybe no labels? Need know how plotkit handles combine and legend. Could set legend: {"where": "outside right"} if plotkit supports? But guide only allowed positions. Could use legend: {"where": "center right"}? But not outside. Need satisfy. Maybe use code: ax1.legend(loc='center right', bbox_to_anchor=(1.05, 0.5), borderaxespad=0) but if legend already drawn? Need maybe set legend show false and code create? But code runs after drawing and before saving. Names: fig, ax1, ax2, x, y1, y2, sheet, plt, np. In combine true, there may be multiple lines on ax1/ax2? Need labels? If code creates legend from ax1.get_legend_handles_labels(). But if default legend drawn inside, code can move it: leg = ax1.get_legend(); if leg: leg.set_bbox_to_anchor((1.05, 0.5)); leg.set_loc('center left') maybe. But if ax2 has legend? TGA preset may draw legend? The default likely includes legend? The guide default TGA preset already draws lines and annotations. Does it include legend? It has legend part. Maybe default legend shown? The example "범례 오른쪽 위" -> legend: "upper right". If no legend specified, maybe default legend somewhere. To place outside right, we can use code to adjust existing legend. But code cannot know if legend exists. Could do:
+"code": "leg = ax1.get_legend();\nif leg:\n    leg.set_bbox_to_anch
+[...]
+x_to_anchor=(1.05,0.5))`? no.
+
+Let's think about plotkit's `legend` key. It might accept `where` values and apply via `ax1.legend(loc=where)`. If we set `"legend": {"show": true}`, default where maybe `best`. Code moves. Good.
+
+If code moves existing, no need create. But if show true default legend created. So move-or-create can be simplified to move only, because show true ensures legend. If default legend custom, preserved. If multiple, maybe. Let's use show true + move all. This is simplest and likely enough. Need handle fig legend anchor. Use loop with anchor based on a is fig.
+
+Spec:
+{
+ "file": "polymers.xlsx",
+ "combine": true,
+ "legend": {"show": true},
+ "code": "for a in (ax1, ax2, fig):\n    leg = a.get_legend() if hasattr(a, 'get_legend') else None\n    if leg:\n        if a is fig:\n            leg.set_loc('center right')\n            leg.set_bbox_to_anchor((0.99, 0.5))\n        else:\n            leg.set_loc('center left')\n            leg.set_bbox_to_anchor((1.05, 0.5))\nfig.tight_layout(rect=[0, 0, 0.82, 1])"
+}
+
+If legend is on fig, loc center right anchor 0.99 places right edge at figure right edge, left side in empty area. Good. If axes occupy 0-0.82, legend from ~0.75 to 0.99 maybe overlaps axes? Legend width maybe 0.2, left edge 0.79, slight overlap. Could anchor 1.02 with loc center right extends beyond figure, but bbox_inches tight may include. Hard. Use `fig.tight_layout(rect=[0,0,0.75,1])` and fig legend anchor 1.0? If rect 0.75, axes right 0.75, legend right edge 1.0, width 0.2 left 0.8, no overlap. Use rect [0,0,0.75,1]. For ax legend anchor 1.05 relative axes; axes width 0.75, legend outside axes at 0.7875? Good. Use rect 0.75. But if legend wide, maybe. 0.75 safe. However, if no fig legend, ax legend outside right of axes; axes after tight_layout rect 0.75, legend at axes x=1.05 => figure x=0.75+0.75*0.05? Actually axes width 0.75, anchor 1.05 relative axes = 0.75*1.05 = 0.7875, outside axes by 0.0375 figure. Legend width may extend beyond figure if not tight bbox. But plotkit may save bbox_inches tight. OK.
+
+Maybe use `fig.tight_layout(rect=[0, 0, 0.8, 1])`. Good.
+
+Could avoid fig legend issue by forcing ax1.legend create and remove fig legend. But show true may create fig legend. Hmm.
+
+What does plotkit likely use? For dual axis, it may create legend on ax1 (not fig). So loop moving ax1 works. fig get_legend None. OK.
+
+Maybe final with move only is enough.
+
+Need decide final now. I lean to minimal spec with combine true and code moving legend outside. Include legend show true to ensure. Code moves all existing legends. Use anchor for fig maybe. Let's produce that.
+
+But test mode might expect no code? Could they parse code? no.
+
+Could use `"legend": {"where": "outside right"}` simpler. But guide not. Let's stick code.
+
+Need final JSON only. Ensure code string valid. Let's write:
+```json
+{
+  "file": "polymers.xlsx",
+  "combine": true,
+  "legend": {"show": true},
+  "code": "for a in (ax1, ax2, fig):\n    leg = a.get_legend() if hasattr(a, 'get_legend') else None\n    if leg:\n        if a is fig:\n            leg.set_loc('center right')\n            leg.set_bbox_to_anchor((0.99, 0.5))\n        else:\n            leg.set_loc('center left')\n            leg.set_bbox_to_anchor((1.05, 0.5))\nfig.tight_layout(rect=[0, 0, 0.8, 1])"
+}
+```
+
+Is `fig.tight_layout(rect=[0, 0, 0.8, 1])` after moving fig legend with anchor 0.99 relative figure; tight_layout may move axes but not legend. OK.
+
+Potential issue: If legend is on ax1, after tight_layout rect, anchor relative to ax1 still outside. Good.
+
+If there are no legends? show true should create. If plotkit ignores show true? no.
+
+Could `legend: {"show": true}` with no where cause default legend maybe not created until after code? It says code runs after drawing and before saving. Legend drawn before code. OK.
+
+Need maybe if user asked "범례는 그래프 바깥 오른쪽에 둬" and combine true, legend entries are sheet names. Good.
+
+Let's final. But maybe oververbosity? JSON only. Done.

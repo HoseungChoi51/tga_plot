@@ -1,0 +1,135 @@
+```python
+import pandas as pd
+import json
+
+def main():
+    file_path = "/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx"
+    
+    # Read the 'Raw' sheet
+    df = pd.read_excel(file_path, sheet_name='Raw')
+    
+    # Extract columns based on the preview
+    # Column B: Temperature (°C) -> x-axis
+    # Column C: Weight (%) -> y1-axis (left)
+    # Column D: Deriv. Weight (%/°C) -> y2-axis (right)
+    
+    temp = df['Temperature (°C)'].tolist()
+    weight = df['Weight (%)'].tolist()
+    deriv_weight = df['Deriv. Weight (%/°C)'].tolist()
+    
+    # Prepare series data for ECharts
+    # Series 1: Weight (%) - Line chart on left Y axis
+    series_weight = {
+        "name": "무게 (%)",
+        "type": "line",
+        "data": [[t, w] for t, w in zip(temp, weight)],
+        "yAxisIndex": 0,
+        "showSymbol": False,
+        "lineStyle": {"width": 2},
+        "markLine": {
+            "symbol": ["none", "none"],
+            "label": {
+                "position": "insideStartTop",
+                "formatter": "50%"
+            },
+            "data": [
+                {
+                    "yAxis": 50,
+                    "lineStyle": {
+                        "color": "#999",
+                        "type": "dashed"
+                    }
+                }
+            ]
+        }
+    }
+    
+    # Series 2: Derivative Weight - Line chart on right Y axis
+    series_deriv = {
+        "name": "미분 무게 (%/°C)",
+        "type": "line",
+        "data": [[t, d] for t, d in zip(temp, deriv_weight)],
+        "yAxisIndex": 1,
+        "showSymbol": False,
+        "lineStyle": {"width": 2, "color": "#ff7f0e"},
+        "areaStyle": {"opacity": 0.1}
+    }
+    
+    option = {
+        "backgroundColor": "#ffffff",
+        "title": {
+            "text": "TGA 데이터 (Raw)",
+            "subtext": "공기, 10 °C/min",
+            "right": 20,
+            "top": 20,
+            "textStyle": {
+                "fontSize": 16,
+                "fontWeight": "bold"
+            },
+            "subtextStyle": {
+                "fontSize": 12,
+                "color": "#666"
+            }
+        },
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {
+                "type": "cross"
+            }
+        },
+        "legend": {
+            "data": ["무게 (%)", "미분 무게 (%/°C)"],
+            "top": 60,
+            "left": "center"
+        },
+        "grid": {
+            "left": "8%",
+            "right": "8%",
+            "bottom": "10%",
+            "containLabel": True
+        },
+        "xAxis": {
+            "type": "value",
+            "name": "온도 (°C)",
+            "nameLocation": "middle",
+            "nameGap": 30,
+            "min": 0,
+            "max": 900,
+            "splitLine": {"show": True, "lineStyle": {"type": "dashed", "color": "#eee"}}
+        },
+        "yAxis": [
+            {
+                "type": "value",
+                "name": "무게 (%)",
+                "position": "left",
+                "min": 0,
+                "max": 100,
+                "splitLine": {"show": True, "lineStyle": {"type": "dashed", "color": "#eee"}},
+                "axisLabel": {"formatter": "{value}%"}
+            },
+            {
+                "type": "value",
+                "name": "미분 무게 (%/°C)",
+                "position": "right",
+                "splitLine": {"show": False},
+                "axisLabel": {"formatter": "{value}"}
+            }
+        ],
+        "series": [series_weight, series_deriv]
+    }
+    
+    figure = {
+        "name": "plot1",
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"]
+    }
+    
+    output = {"figures": [figure]}
+    print(json.dumps(output, ensure_ascii=False))
+
+if __name__ == "__main__":
+    main()
+```

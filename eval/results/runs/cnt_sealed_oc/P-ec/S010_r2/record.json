@@ -1,0 +1,293 @@
+{
+ "arm": "P-ec",
+ "item": "S010",
+ "repeat": 2,
+ "split": "sealed",
+ "persona": "생산팀장",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "반응기별로 3월하고 8월 평균 수율을 나란히 비교하는 묶은 막대 만들어 주세요. 보고용입니다.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"bar\",\n  \"x\": \"반응기\",\n  \"y\": {\n    \"col\": \"CNT수율 (g/g-cat)\",\n    \"agg\": \"mean\"\n  },\n  \"by\": \"월\",\n  \"filter\": [\n    \"일자 between 2026-03-01 and 2026-03-31\",\n    \"일자 between 2026-08-01 and 2026-08-31\"\n  ],\n  \"data_code\": \"import pandas as pd\\ndf['월'] = df['일자'].dt.month.astype(str) + '월'\",\n  \"values\": true,\n  \"title\": {\"text\": \"반응기별 3월 vs 8월 평균 수율 비교\"},\n  \"asks\": [\n    {\"ask\": \"반응기별 묶은 막대\", \"how\": \"key\"},\n    {\"ask\": \"3월과 8월 비교 (by 월)\", \"how\": \"key\"},\n    {\"ask\": \"평균 수율\", \"how\": \"key\"},\n    {\"ask\": \"필터 (3월, 8월)\", \"how\": \"key\"},\n    {\"ask\": \"보고용 (제목, 값 표시)\", \"how\": \"key\"}\n  ]\n}\n```",
+     "llm_s": 5.442,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 18242,
+     "output_chars": 653,
+     "attempts": 1
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"bar\",\n  \"x\": \"반응기\",\n  \"y\": {\n    \"col\": \"CNT수율 (g/g-cat)\",\n    \"agg\": \"mean\"\n  },\n  \"by\": \"월\",\n  \"filter\": [\n    \"일자 between 2026-03-01 and 2026-08-31\"\n  ],\n  \"data_code\": \"import pandas as pd\\n# Convert date to month string for grouping\\ndf['월'] = df['일자'].dt.month.astype(str) + '월'\\n# Keep only March (3) and August (8)\\ndf = df[df['월'].isin(['3월', '8월'])]\",\n  \"values\": true,\n  \"title\": {\"text\": \"반응기별 3월 vs 8월 평균 수율 비교\"},\n  \"asks\": [\n    {\"ask\": \"반응기별 묶은 막대\", \"how\": \"key\"},\n    {\"ask\": \"3월과 8월 비교 (by 월)\", \"how\": \"key\"},\n    {\"ask\": \"평균 수율\", \"how\": \"key\"},\n    {\"ask\": \"필터 (3월, 8월)\", \"how\": \"code\"},\n    {\"ask\": \"보고용 (제목, 값 표시)\", \"how\": \"key\"}\n  ]\n}\n```",
+     "llm_s": 4.522,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 19524,
+     "output_chars": 730,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "bar",
+    "x": "반응기",
+    "y": {
+     "col": "CNT수율 (g/g-cat)",
+     "agg": "mean"
+    },
+    "by": "월",
+    "filter": [
+     "일자 between 2026-03-01 and 2026-08-31"
+    ],
+    "data_code": "import pandas as pd\n# Convert date to month string for grouping\ndf['월'] = df['일자'].dt.month.astype(str) + '월'\n# Keep only March (3) and August (8)\ndf = df[df['월'].isin(['3월', '8월'])]",
+    "values": true,
+    "title": {
+     "text": "반응기별 3월 vs 8월 평균 수율 비교"
+    },
+    "asks": [
+     {
+      "ask": "반응기별 묶은 막대",
+      "how": "key"
+     },
+     {
+      "ask": "3월과 8월 비교 (by 월)",
+      "how": "key"
+     },
+     {
+      "ask": "평균 수율",
+      "how": "key"
+     },
+     {
+      "ask": "필터 (3월, 8월)",
+      "how": "code"
+     },
+     {
+      "ask": "보고용 (제목, 값 표시)",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": true,
+    "engine": "echarts",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/S010_r2/out/t1/bar_CNT수율_g_g_cat.png"
+    ],
+    "chart": "bar",
+    "rows_used": 334,
+    "rows_total": 334,
+    "values": {
+     "categories": [
+      "R1",
+      "R2",
+      "R3",
+      "R4"
+     ],
+     "series": {
+      "3월": [
+       27.568,
+       27.3,
+       28.0676,
+       27.8873
+      ],
+      "8월": [
+       23.6064,
+       23.41,
+       20.5719,
+       23.815
+      ]
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "막대 그래프를 저장했습니다: bar_CNT수율_g_g_cat.png\n사용한 행: 334 / 334\n3월: R1 27.6, R2 27.3, R3 28.1, R4 27.9\n8월: R1 23.6, R2 23.4, R3 20.6, R4 23.8"
+   },
+   "facts": [
+    {
+     "engine": "echarts",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": 300,
+     "title": "반응기별 3월 vs 8월 평균 수율 비교",
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "3월",
+         "orient": "v",
+         "cats": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          27.567999999999994,
+          27.299999999999997,
+          28.067560975609762,
+          27.88725
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c"
+         ]
+        },
+        {
+         "name": "8월",
+         "orient": "v",
+         "cats": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          23.606363636363632,
+          23.409999999999997,
+          20.571904761904765,
+          23.814999999999998
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#c0392b",
+          "#c0392b",
+          "#c0392b",
+          "#c0392b"
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 8,
+       "texts": [
+        "27.6",
+        "27.3",
+        "28.1",
+        "27.9",
+        "23.6",
+        "23.4",
+        "20.6",
+        "23.8"
+       ],
+       "x": {
+        "label": "반응기",
+        "type": "category",
+        "ticks": [],
+        "step": null,
+        "categories": [
+         "R1",
+         "R2",
+         "R3",
+         "R4"
+        ],
+        "min": 0.0,
+        "max": 3.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "CNT수율 (g/g-cat) (mean)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         10.0,
+         20.0,
+         30.0,
+         40.0
+        ],
+        "step": 10.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 40.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       }
+      }
+     ],
+     "texts": [
+      "27.6",
+      "27.3",
+      "28.1",
+      "27.9",
+      "23.6",
+      "23.4",
+      "20.6",
+      "23.8",
+      "반응기별 3월 vs 8월 평균 수율 비교"
+     ],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "월",
+       "3월",
+       "8월"
+      ],
+      "inside": true,
+      "where": "upper right"
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/S010_r2/out/t1/bar_CNT수율_g_g_cat.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.7950537204742432,
+   "check": {
+    "kind_expected": "grouped_bar",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 11.468
+  }
+ ]
+}

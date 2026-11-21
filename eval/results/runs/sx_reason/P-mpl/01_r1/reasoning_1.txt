@@ -1,0 +1,1 @@
+We need answer user's request. Need produce final only JSON block. User request: "TGA.xlsx 그래프 그려줘". According guide, default TGA preset. Need spec only what asked. File exactly. So {"file": "TGA.xlsx"}. Ensure no extra.

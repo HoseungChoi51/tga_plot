@@ -1,0 +1,17 @@
+{
+ "file": "data/diameters.csv",
+ "chart": "histogram",
+ "x": "직경(nm)",
+ "by": "시료",
+ "filter": [
+  "시료 in [TEM-01, TEM-02]"
+ ],
+ "bins": {
+  "width": 1,
+  "min": 3,
+  "max": 28
+ },
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_lite/P-mpl/D022_r1/out/t1"
+ }
+}

@@ -1,0 +1,102 @@
+```python
+import json
+import os
+import pandas as pd
+import numpy as np
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/caox.csv"
+
+df = pd.read_csv(DATA_FILE)
+df.columns = [str(c).strip() for c in df.columns]
+
+temperature_col = next(c for c in df.columns if "Temperature" in c)
+weight_col = next(c for c in df.columns if "Weight (%)" in c and "Deriv" not in c)
+
+temperature = pd.to_numeric(df[temperature_col], errors="coerce")
+weight = pd.to_numeric(df[weight_col], errors="coerce")
+valid = temperature.notna() & weight.notna()
+temperature = temperature[valid].to_numpy()
+weight = weight[valid].to_numpy()
+
+data = [[float(x), float(y)] for x, y in zip(temperature, weight)]
+
+regions = [
+    {"start": 120, "end": 250, "label": "H₂O", "color": "rgba(76, 132, 196, 0.16)"},
+    {"start": 430, "end": 580, "label": "CO", "color": "rgba(232, 161, 72, 0.16)"},
+    {"start": 640, "end": 830, "label": "CO₂", "color": "rgba(114, 168, 112, 0.16)"},
+]
+
+series = [
+    {
+        "name": "Weight",
+        "type": "line",
+        "data": data,
+        "showSymbol": False,
+        "lineStyle": {"color": "#333333", "width": 2},
+        "emphasis": {"disabled": True},
+        "markArea": {
+            "silent": True,
+            "label": {
+                "show": True,
+                "position": "top",
+                "color": "#333333",
+                "fontSize": 14,
+                "fontWeight": "bold",
+                "distance": 4,
+            },
+            "data": [
+                [
+                    {
+                        "name": region["label"],
+                        "xAxis": region["start"],
+                        "itemStyle": {"color": region["color"]},
+                    },
+                    {"xAxis": region["end"]},
+                ]
+                for region in regions
+            ],
+        },
+    }
+]
+
+option = {
+    "animation": False,
+    "textStyle": {"fontFamily": "Noto Sans CJK KR"},
+    "tooltip": {"trigger": "axis"},
+    "grid": {"left": 76, "right": 28, "top": 68, "bottom": 64},
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 38,
+        "min": 30,
+        "max": 950,
+        "axisLine": {"lineStyle": {"color": "#555555"}},
+        "axisLabel": {"color": "#444444"},
+        "splitLine": {"show": False},
+    },
+    "yAxis": {
+        "type": "value",
+        "name": "Weight (%)",
+        "nameLocation": "middle",
+        "nameGap": 52,
+        "min": 35,
+        "max": 102,
+        "axisLine": {"lineStyle": {"color": "#555555"}},
+        "axisLabel": {"color": "#444444"},
+        "splitLine": {"lineStyle": {"color": "#e5e5e5"}},
+    },
+    "series": series,
+}
+
+print(json.dumps({
+    "figures": [{
+        "name": "caox_mass_loss",
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"],
+    }]
+}, ensure_ascii=False, allow_nan=False))
+```

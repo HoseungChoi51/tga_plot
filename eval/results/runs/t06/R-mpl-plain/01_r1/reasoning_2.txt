@@ -1,0 +1,91 @@
+We need answer user's request: write Python script inside one python block only. Need analyze in English? User request Korean? Actually user says no ```python block in the reply? Wait initial: "Reply with the complete script inside one ```python block, and nothing else." Then user: "no ```python block in the reply Reply with the corrected complete script only, inside one ```python block." Contradiction? It says no ```python block in the reply then reply inside one ```python block. Likely means previous output had no block? Need final only one python code block. Need script read TGA.xlsx, draw graph, save PNG 300 dpi to OUT_DIR, no show. Korean font Noto Sans CJK KR.
+
+Need robust: Excel with multiple sheets, header row 1 maybe pandas skiprows=1? The preview says header_rows [1], data_start_row 2. In pandas read_excel, header=0 normally reads first row as header. But if there is maybe one header row? They say header_rows: [1] meaning row 1? data_start_row 2. Usually row 1 is header. So read_excel(header=0) should work. But to robust, try header=0, if columns not containing Temperature/Weight use header=1? In Excel row index 0 is first row. If header is second row, use header=1. But preview columns names are good. We can read with header=0.
+
+Need plot TGA: x Temperature, y1 Weight(%), y2 D.W(%/C). Multiple sheets. Could make one figure with subplots or dual axes per sheet? User asks TGA.xlsx graph. Best create figure for each sheet? Or combine all sheets in one figure with subplots? Need save figure file(s). Could save one combined figure with subplots for each sheet, or separate PNG per sheet. "figure file(s)" plural. Maybe create separate PNG for each sheet and a combined? Simpler: for each sheet, create dual-axis plot (Weight left, DTG right) and save PNG named sheet. Also maybe combined? Need avoid too many? Could create one figure per sheet. That's acceptable.
+
+Need handle sheet names with special chars. Sanitize.
+
+Need set Korean font: matplotlib.rcParams['font.family'] = 'Noto Sans CJK KR'. axes.unicode_minus False.
+
+Need read all sheets: pd.read_excel(DATA_FILE, sheet_name=None, header=0). Then for each df. Need find columns by fuzzy names: Temperature, Weight, D.W. Could implement helper find_col(df, keywords). Ensure numeric conversion. Drop NaN. Sort by Temperature.
+
+Plot: fig, ax1 = plt.subplots(figsize=(8,6)); ax1.plot(temp, weight, label='Weight (%)', color='C0'); ax1.set_xlabel('Temperature (°C)'); ax1.set_ylabel('Weight (%)'); ax1.set_ylim(0, 105 maybe). ax2 = ax1.twinx(); ax2.plot(temp, dw, label='DTG (%/°C)', color='C1', linestyle='--'); ax2.set_ylabel('DTG (%/°C)'). For DTG min negative, set ylim maybe min-10%, max+10%. Legend combine: lines1, labels1 = ax1.get_legend_handles_labels(); lines2... combine. Title sheet. Grid. Save.
+
+Need maybe combined figure with all sheets? Since user just asks graph, one combined TGA weight and DTG? Could plot all Weight in one axis and all DTG in another? But dual axes for each sample maybe confu
+[...]
+d dtg_col == weight_col: dtg_col = None
+
+Good.
+
+Potential issue: `find_col` for dtg may return weight column if weight column name includes "rate"? no.
+
+Need maybe remove rows with temp duplicate? sort okay.
+
+Potential issue: Excel may have units in column names with degree symbol; okay.
+
+Potential issue: combined figure with many sheets legend outside? loc best okay.
+
+Potential issue: If sheet name is empty, safe_filename returns sheet.
+
+Need maybe file output names don't conflict with combined? okay.
+
+Let's think about if user expects just one graph not multiple. Multiple okay.
+
+Could the script be considered too complex? Fine.
+
+Need ensure no `plt.show()`.
+
+Let's consider if header row detection fails due to row text lower includes 'temp' in 'temperature' and weight. If header row contains "Time" and "Temperature" and "Weight" and "D.W", row text contains "temperature" and "weight". good. If header row is row 2, returns 1 (0-index). data_start row 2 (1-index) -> raw.iloc[2] first data? Wait if header row 1 in 0-index? Let's map: Excel row 1 is header, row 2 data. raw.iloc[0] is Excel row 1. find_header_row returns 0. df = raw.iloc[1:] -> Excel row 2. Good. If Excel row 1 title, row 2 header, row 3 data. raw.iloc[1] header, df = raw.iloc[2:] -> Excel row 3. Good.
+
+Potential issue: `pd.read_excel(..., header=None)` with sheet with no data? okay.
+
+Potential issue: If there are multiple header rows? okay.
+
+Need maybe use `xl.sheet_names` from ExcelFile, but we also read each sheet individually. Could read all sheets at once? Fine.
+
+Potential issue: openpyxl may not be installed? It is.
+
+Potential issue: Path OUT_DIR may not be writable? assume.
+
+Let's produce final script.
+
+Double-check syntax of generator in x_min:
+`x_min = min(p[0][p[1]].min() for _, _, p in samples)` works because p is tuple (plot_df, temp_col, weight_col, dtg_col). p[0] DataFrame, p[1] column name. Good.
+`weight_min = min(p[0][p[2]].min() for _, _, p in samples)` good.
+`dtg_values = [v for _, _, p in samples if p[3] is not None for v in p[0][p[3]].dropna()]` good.
+
+In individual loop:
+`for i, (_, sheet_name, (plot_df, temp_col, weight_col, dtg_col)) in enumerate(samples):`
+samples elements are (idx, sheet_name, prepared). The first _ is idx. okay.
+
+In combined loop:
+`for i, (_, sheet_name, (plot_df, temp_col, weight_col, dtg_col)) in enumerate(samples):` okay.
+
+Need note: `ax_weight.legend(loc="best", fontsize=9)` if no labels? there are labels. okay.
+
+Need maybe if combined DTG panel no dtg, legend not shown. okay.
+
+Potential issue: `fig.tight_layout()` with suptitle? no.
+
+Potential issue: `ax_weight.set_title("TGA 결과 (Weight & DTG)")` Korean. okay.
+
+Potential issue: `ax_dtg.set_ylabel("DTG (%/°C)")` degree symbol might not render with font? okay. Could use "DTG (%/C)" to avoid. But degree symbol okay. For safety, use "DTG (%/C)"? User column D.W(%/C). Use "DTG (%/C)". Axis "Temperature (C)" maybe no degree. But degree is common. Font supports. Could use ASCII to avoid missing glyph. Use "Temperature (C)" and "DTG (%/C)". But Korean text includes. Let's use degree? Noto supports. Fine.
+
+Need maybe set `plt.rcParams['font.family']` list. Good.
+
+Potential issue: `matplotlib.use("Agg")` before pyplot. good.
+
+Potential issue: If `DATA_FILE` not xlsx? It is. But could support csv? user only xlsx. Could if DATA_FILE ends with .xlsx else read csv. But not necessary. Could implement fallback if ExcelFile fails. But maybe robust:
+try: xl = pd.ExcelFile(DATA_FILE); sheet_names = xl.sheet_names
+except Exception: df = pd.read_csv(DATA_FILE); process one sheet name 'Sheet'. But read_sheet uses ExcelFile? Need adjust. Could keep simple.
+
+Given environment, xlsx.
+
+Let's maybe implement `read_sheet` with `pd.read_excel` only. Good.
+
+Need final answer only code block. Ensure no leading/trailing text.
+
+Double-check user's "no ```python block in the reply" maybe they want no block? But then says inside one block. Could final include triple backticks. Yes.
+
+Let's write final.

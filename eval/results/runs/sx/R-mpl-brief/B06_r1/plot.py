@@ -1,0 +1,84 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/isothermal.txt"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/B06_r1/out"
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# Read data - try different separators and skiprows to handle header issues
+try:
+    # Try tab separated with 1 row skip (header is in row 2 based on preview saying header_rows=[1] which usually means 0-indexed row 1 or 1-indexed row 2?)
+    # Preview says "header_rows": [ 1 ] and "data_start_row": 2. 
+    # In pandas read_csv, skiprows=1 skips the first line. If header is on line 2, we might need to inspect raw content or use header=1.
+    df = pd.read_csv(DATA_FILE, sep='\t', header=None, skiprows=1)
+except Exception:
+    try:
+        df = pd.read_csv(DATA_FILE, sep=r'\s+', header=None, skiprows=1)
+    except Exception:
+        df = pd.read_csv(DATA_FILE, header=None, skiprows=1)
+
+# Since headers were skipped, assign column names manually based on preview order: Time, Temperature, Weight
+df.columns = ['Time', 'Temperature', 'Weight']
+
+# Ensure numeric types
+df['Time'] = pd.to_numeric(df['Time'], errors='coerce')
+df['Temperature'] = pd.to_numeric(df['Temperature'], errors='coerce')
+df['Weight'] = pd.to_numeric(df['Weight'], errors='coerce')
+
+# Drop rows with NaN if any
+df = df.dropna()
+
+time = df['Time']
+temperature = df['Temperature']
+weight = df['Weight']
+
+# Create figure and axis
+fig, ax1 = plt.subplots(figsize=(8, 5))
+
+# Plot Weight on left y-axis
+color1 = '#1f4e9c'
+ax1.set_xlabel('시간 (분)', fontsize=12)
+ax1.set_ylabel('무게 (%)', color=color1, fontsize=12)
+line1 = ax1.plot(time, weight, color=color1, label='무게')
+ax1.tick_params(axis='y', labelcolor=color1)
+
+# Create second y-axis for Temperature
+ax2 = ax1.twinx()
+color2 = '#c0392b'
+ax2.set_ylabel('온도 (°C)', color=color2, fontsize=12)
+line2 = ax2.plot(time, temperature, color=color2, linestyle='--', label='온도')
+ax2.tick_params(axis='y', labelcolor=color2)
+
+# Find weight at 140 minutes
+if not time.empty:
+    diff = abs(time - 140)
+    idx_140 = diff.idxmin()
+    w_140 = weight.iloc[idx_140]
+    t_140 = time.iloc[idx_140]
+    
+    # Mark the point at 140 min
+    ax1.plot(t_140, w_140, 'o', color=color1, markersize=8, zorder=5)
+    ax1.annotate(f'{w_140:.2f}%', xy=(t_140, w_140), xytext=(t_140-10, w_140+2),
+                 arrowprops=dict(facecolor=color1, shrink=0.05, width=1, headwidth=5),
+                 fontsize=10, color=color1, ha='right')
+
+# Title
+plt.title('isothermal', fontsize=14)
+
+# Combine legends
+lines = line1 + line2
+labels = [l.get_label() for l in lines]
+ax1.legend(lines, labels, loc='center left')
+
+plt.tight_layout()
+
+# Save figure
+out_path = os.path.join(OUT_DIR, "isothermal.png")
+plt.savefig(out_path, dpi=300)
+plt.close()

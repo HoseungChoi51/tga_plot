@@ -1,0 +1,148 @@
+import pandas as pd
+import json
+import numpy as np
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+
+# Read the PE sheet from the Excel file
+df_pe = pd.read_excel(DATA_FILE, sheet_name="PE")
+
+# Extract data columns
+x_data = df_pe["Temperature (°C)"].tolist()
+y1_data = df_pe["Weight (%)"].tolist()
+y2_data = df_pe["Deriv. Weight (%/°C)"].tolist()
+
+# Filter data to x-axis range 100-700 for cleaner display if needed, 
+# but ECharts xAxis min/max handles the view. We keep all data points within range or let ECharts clip.
+# Actually, it's better to filter data to avoid rendering issues with huge arrays outside range if performance is a concern,
+# but 871 points is small. Let's just pass all and set axis limits.
+
+# Construct the ECharts option
+option = {
+    "title": {
+        "text": "TGA Analysis: PE",
+        "left": "center",
+        "top": 10,
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR",
+            "fontSize": 16
+        }
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {
+            "type": "cross"
+        }
+    },
+    "legend": {
+        "data": ["Weight (%)", "Deriv. Weight (%/°C)"],
+        "top": 40,
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR"
+        }
+    },
+    "grid": {
+        "left": "10%",
+        "right": "10%",
+        "bottom": "15%",
+        "containLabel": True
+    },
+    "xAxis": [
+        {
+            "name": "Temperature (°C)",
+            "type": "value",
+            "min": 100,
+            "max": 700,
+            "interval": 100,
+            "nameLocation": "middle",
+            "nameGap": 30,
+            "axisLabel": {
+                "formatter": "{value}"
+            },
+            "splitLine": {
+                "show": True,
+                "lineStyle": {
+                    "type": "dashed"
+                }
+            }
+        }
+    ],
+    "yAxis": [
+        {
+            "name": "Weight (%)",
+            "type": "value",
+            "position": "left",
+            "nameLocation": "middle",
+            "nameGap": 40,
+            "axisLabel": {
+                "formatter": "{value}%"
+            },
+            "splitLine": {
+                "show": True
+            }
+        },
+        {
+            "name": "Deriv. Weight (%/°C)",
+            "type": "value",
+            "position": "right",
+            "nameLocation": "middle",
+            "nameGap": 40,
+            "axisLabel": {
+                "formatter": "{value}"
+            },
+            "splitLine": {
+                "show": False
+            }
+        }
+    ],
+    "series": [
+        {
+            "name": "Weight (%)",
+            "type": "line",
+            "smooth": True,
+            "symbol": "none",
+            "xAxisIndex": 0,
+            "yAxisIndex": 0,
+            "data": [[x, y] for x, y in zip(x_data, y1_data)],
+            "lineStyle": {
+                "width": 3,
+                "color": "#FF0000" # Red color as requested
+            },
+            "itemStyle": {
+                "color": "#FF0000"
+            }
+        },
+        {
+            "name": "Deriv. Weight (%/°C)",
+            "type": "line",
+            "smooth": True,
+            "symbol": "none",
+            "xAxisIndex": 0,
+            "yAxisIndex": 1,
+            "data": [[x, y] for x, y in zip(x_data, y2_data)],
+            "lineStyle": {
+                "width": 1.5,
+                "color": "#0000FF" # Blue for contrast
+            },
+            "itemStyle": {
+                "color": "#0000FF"
+            }
+        }
+    ]
+}
+
+# Construct the final JSON output
+output = {
+    "figures": [
+        {
+            "name": "pe_tga_plot",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+    ]
+}
+
+print(json.dumps(output))

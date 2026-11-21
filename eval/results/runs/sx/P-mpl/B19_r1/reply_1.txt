@@ -1,0 +1,3 @@
+```json
+{"file": "polymers.xlsx", "sheets": "PVC", "code": "import numpy as np\nm = (x >= 200) & (x <= 400)\nif m.any():\n    w1 = y1[np.argmin(np.abs(x[m]-200))]\n    w2 = y1[np.argmin(np.abs(x[m]-400))]\n    ax1.annotate(f'ΔW: {w1-w2:.1f}%', xy=(300, (w1+w2)/2), ha='center', fontsize=10, color='red')"}
+```

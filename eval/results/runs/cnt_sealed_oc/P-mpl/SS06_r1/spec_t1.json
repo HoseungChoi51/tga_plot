@@ -1,0 +1,24 @@
+{
+ "file": "data/raman/*.csv",
+ "combine": true,
+ "preset": "none",
+ "x": {
+  "col": "Raman Shift"
+ },
+ "y1": {
+  "col": "Intensity"
+ },
+ "asks": [
+  {
+   "ask": "raman 폴더 스펙트럼 8개 전부",
+   "how": "key"
+  },
+  {
+   "ask": "한 그래프에 겹쳐 주세요",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS06_r1/out/t1"
+ }
+}

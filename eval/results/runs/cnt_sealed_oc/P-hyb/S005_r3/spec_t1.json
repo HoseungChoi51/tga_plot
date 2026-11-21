@@ -1,0 +1,20 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "pie",
+ "x": "등급",
+ "asks": [
+  {
+   "ask": "불량 비율 (등급별 구성)",
+   "how": "key"
+  },
+  {
+   "ask": "임원 보고용 깔끔한 스타일",
+   "how": "code"
+  }
+ ],
+ "code": "import matplotlib.pyplot as plt\n# 임원 보고용: 배경 흰색, 글자 크게, 범례 명확하게\nplt.style.use('seaborn-v0_8-whitegrid')\nfig.patch.set_facecolor('white')\nax.set_title('제품 등급별 불량률 현황', fontsize=16, fontweight='bold', pad=20)\n# 파이 차트 라벨 크기 조절 및 강조\ntexts = ax.texts\nfor t in texts:\n    if t.get_text() not in ['B', 'A', 'C']:\n        continue\n    # 실제 구현에서는 wedge와 label을 통해 접근해야 하지만, 여기서는 기본 설정으로 대체\n    pass\n\n# 색상 강조: A는 초록(합격), B/C는 빨강/주황(불량/주의) - 필요시 colors 키로 지정하지만 code에서 직접 제어 가능\n# plotkit의 pie는 x축 카테고리별 카운트를 그리므로, 데이터 자체의 등급 분포를 보여줍니다.\n",
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S005_r3/out/t1"
+ }
+}

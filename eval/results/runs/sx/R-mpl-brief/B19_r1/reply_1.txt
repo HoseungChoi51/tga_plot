@@ -1,0 +1,125 @@
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/B19_r1/out"
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# Read PVC sheet
+df = pd.read_excel(DATA_FILE, sheet_name='PVC')
+
+# Extract columns based on standard TGA structure from preview
+temp_col = 'Temperature (°C)'
+weight_col = 'Weight (%)'
+dtg_col = 'Deriv. Weight (%/°C)'
+
+temps = df[temp_col].values
+weights = df[weight_col].values
+dtgs = df[dtg_col].values
+
+# Calculate mass loss between 200 and 400 °C
+mask_200 = (temps >= 200 - 5) & (temps <= 200 + 5) # Find point near 200
+mask_400 = (temps >= 400 - 5) & (temps <= 400 + 5) # Find point near 400
+
+if mask_200.any() and mask_400.any():
+    w_200 = weights[mask_200][0]
+    t_200 = temps[mask_200][0]
+    
+    w_400 = weights[mask_400][0]
+    t_400 = temps[mask_400][0]
+    
+    mass_loss = w_200 - w_400
+    
+    # Create figure
+    fig, ax1 = plt.subplots(figsize=(8, 6))
+    
+    # Plot Weight (left y-axis)
+    color_w = '#1f4e9c'
+    ax1.plot(temps, weights, color=color_w, label='Weight (%)', linewidth=2)
+    ax1.set_xlabel('Temperature (°C)', fontsize=12)
+    ax1.set_ylabel('Weight (%)', color=color_w, fontsize=12)
+    ax1.tick_params(axis='y', labelcolor=color_w)
+    ax1.grid(True, linestyle='--', alpha=0.3)
+    
+    # Plot DTG (right y-axis)
+    ax2 = ax1.twinx()
+    color_d = '#c0392b'
+    # Invert DTG so peaks point up
+    ax2.plot(temps, -dtgs, color=color_d, label='DTG (%/°C)', linewidth=2, linestyle='--')
+    ax2.set_ylabel('DTG (%/°C)', color=color_d, fontsize=12)
+    ax2.tick_params(axis='y', labelcolor=color_d)
+    
+    # Mark the points at 200 and 400 °C on the weight curve
+    ax1.scatter([t_200, t_400], [w_200, w_400], color='green', zorder=5, s=50)
+    
+    # Draw vertical lines to help visualize the interval
+    ax1.axvline(x=t_200, color='gray', linestyle=':', alpha=0.7)
+    ax1.axvline(x=t_400, color='gray', linestyle=':', alpha=0.7)
+    
+    # Add annotation for mass loss
+    mid_t = (t_200 + t_400) / 2
+    mid_w = (w_200 + w_400) / 2
+    text_str = f'Mass Loss\n{mass_loss:.2f}%'
+    ax1.annotate(text_str, 
+                 xy=(mid_t, mid_w), 
+                 xytext=(mid_t, mid_w + 15),
+                 arrowprops=dict(facecolor='black', shrink=0.05),
+                 ha='center', va='bottom',
+                 fontsize=11,
+                 bbox=dict(boxstyle="round,pad=0.3", fc="yellow", ec="k", lw=1, alpha=0.8))
+    
+    # Standard TGA labels: Residue and Peak
+    # Residue at ~800°C
+    mask_800 = (temps >= 790) & (temps <= 810)
+    if mask_800.any():
+        idx_res = np.argmin(np.abs(temps - 800))
+        res_val = weights[idx_res]
+        res_temp = temps[idx_res]
+        ax1.scatter([res_temp], [res_val], color='orange', zorder=5, marker='o', edgecolors='k')
+        ax1.text(res_temp, res_val, f'Residue {res_val:.1f}%', 
+                 horizontalalignment='left', verticalalignment='top', 
+                 fontsize=10, color='orange', fontweight='bold')
+        
+    # Peak above 150°C
+    dtg_mask = temps > 150
+    if dtg_mask.any():
+        # Find max of negative DTG (which is min of raw DTG) -> highest peak in inverted plot
+        # We want the temperature where -dtg is maximum among temps > 150
+        dtg_vals_above = dtgs[dtg_mask]
+        temps_above = temps[dtg_mask]
+        idx_peak_local = np.argmin(dtg_vals_above) # Most negative value
+        peak_temp = temps_above[idx_peak_local]
+        peak_dtg_raw = dtg_vals_above[idx_peak_local]
+        
+        # Marker on DTG curve (inverted)
+        ax2.scatter([peak_temp], [-peak_dtg_raw], color='red', zorder=5, marker='^', edgecolors='k')
+        ax2.text(peak_temp, -peak_dtg_raw, f'{peak_temp:.0f} °C', 
+                 horizontalalignment='center', verticalalignment='bottom', 
+                 fontsize=10, color='red', fontweight='bold')
+
+    # Legend
+    lines1, labels1 = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines1 + lines2, labels1 + labels2, loc='center left')
+    
+    # Title
+    ax1.set_title('PVC', fontsize=14)
+    
+    # Adjust layout
+    fig.tight_layout()
+    
+    # Save
+    out_path = os.path.join(OUT_DIR, "PVC_mass_loss.png")
+    plt.savefig(out_path, dpi=300)
+    plt.close()
+else:
+    print("Could not find data points near 200 or 400 °C.")
+```

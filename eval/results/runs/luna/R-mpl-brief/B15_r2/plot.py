@@ -1,0 +1,78 @@
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/B15_r2/out")
+
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+sheets = pd.read_excel(DATA_FILE, sheet_name=None)
+fig, ax1 = plt.subplots(figsize=(10, 6))
+ax2 = ax1.twinx()
+
+weight_colors = ["#1f4e9c", "#2e8b57", "#8e44ad"]
+dtg_colors = ["#c0392b", "#e67e22", "#16a085"]
+
+for i, (sheet_name, df) in enumerate(sheets.items()):
+    df.columns = [str(col).strip() for col in df.columns]
+    temperature = pd.to_numeric(df["Temperature (°C)"], errors="coerce")
+    weight = pd.to_numeric(df["Weight (%)"], errors="coerce")
+    dtg = pd.to_numeric(df["Deriv. Weight (%/°C)"], errors="coerce")
+
+    valid = temperature.notna() & weight.notna() & dtg.notna()
+    temperature = temperature[valid].to_numpy()
+    weight = weight[valid].to_numpy()
+    dtg = dtg[valid].to_numpy()
+    if temperature.size == 0:
+        continue
+
+    weight_color = weight_colors[i % len(weight_colors)]
+    dtg_color = dtg_colors[i % len(dtg_colors)]
+
+    ax1.plot(temperature, weight, color=weight_color, linewidth=1.8,
+             label=f"{sheet_name} Weight")
+    ax2.plot(temperature, -dtg, color=dtg_color, linewidth=1.5,
+             linestyle="--", label=f"{sheet_name} DTG")
+
+    residue_idx = int(np.argmin(np.abs(temperature - 800)))
+    ax1.scatter(temperature[residue_idx], weight[residue_idx], color=weight_color,
+                edgecolor="white", linewidth=0.7, s=36, zorder=5)
+    ax1.annotate(f"Residue {weight[residue_idx]:.1f}%",
+                 (temperature[residue_idx], weight[residue_idx]),
+                 xytext=(5, 7), textcoords="offset points",
+                 color=weight_color, fontsize=8)
+
+    peak_candidates = np.flatnonzero(temperature > 150)
+    if peak_candidates.size:
+        peak_idx = peak_candidates[np.argmax(-dtg[peak_candidates])]
+        ax2.scatter(temperature[peak_idx], -dtg[peak_idx], color=dtg_color,
+                    edgecolor="white", linewidth=0.7, s=36, zorder=5)
+        ax2.annotate(f"{temperature[peak_idx]:.0f} °C",
+                     (temperature[peak_idx], -dtg[peak_idx]),
+                     xytext=(5, 7), textcoords="offset points",
+                     color=dtg_color, fontsize=8)
+
+ax1.set_title("TGA - Overlaid Sheets")
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)", color="#1f4e9c")
+ax2.set_ylabel("-DTG (%/°C)", color="#c0392b")
+ax1.tick_params(axis="y", labelcolor="#1f4e9c")
+ax2.tick_params(axis="y", labelcolor="#c0392b")
+ax1.grid(True, linestyle=":", alpha=0.45)
+
+handles1, labels1 = ax1.get_legend_handles_labels()
+handles2, labels2 = ax2.get_legend_handles_labels()
+ax1.legend(handles1 + handles2, labels1 + labels2,
+           loc="center left", bbox_to_anchor=(1.13, 0.5),
+           frameon=False, fontsize=9)
+
+fig.tight_layout()
+fig.savefig(OUT_DIR / "polymers_overlaid.png", dpi=300, bbox_inches="tight")
+plt.close(fig)

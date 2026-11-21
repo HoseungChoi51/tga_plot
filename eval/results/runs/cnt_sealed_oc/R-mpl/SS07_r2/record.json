@@ -1,0 +1,961 @@
+{
+ "arm": "R-mpl",
+ "item": "SS07",
+ "repeat": 2,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "session",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "런로그 잔류금속(wt%) 히스토그램 부탁합니다. bin 0.25 wt% 간격, 1.75–6.5 범위로요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\nsheet_name = \"런로그\"\ndf = pd.read_excel(file_path, sheet_name=sheet_name)\n\n# 필요 컬럼 추출 및 정제\n# '잔류금속 (wt%)' 컬럼명이 정확히 매칭되는지 확인 필요. 미리보기상에는 'S 잔류금속 (wt%)'로 보임.\ncol_name = '잔류금속 (wt%)'\nif col_name not in df.columns:\n    # 혹시 공백이나 이름이 다를 수 있으므로 대략적으로 찾기\n    candidates = [c for c in df.columns if '잔류금속' in str(c)]\n    if candidates:\n        col_name = candidates[0]\n    else:\n        raise ValueError(\"Column '잔류금속 (wt%)' not found\")\n\nmetal_content = df[col_name].dropna()\n\n# 히스토그램 범위와 빈 설정\nmin_val = 1.75\nmax_val = 6.5\nbin_width = 0.25\nbins = np.arange(min_val, max_val + bin_width, bin_width)\n\n# 플롯 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\nax.hist(metal_content, bins=bins, color='steelblue', edgecolor='black', alpha=0.7)\n\nax.set_xlabel('잔류금속 (wt%)')\nax.set_ylabel('빈도수 (Count)')\nax.set_title('CNT 생산 런별 잔류금속 분포 히스토그램')\n\n# x축 범위 제한\nax.set_xlim(min_val, max_val)\n\n# 그리드 추가\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\n# 저장\noutput_file = os.path.join(OUT_DIR, \"histogram_metal_content.png\")\nplt.tight_layout()\nplt.savefig(output_file, dpi=300)\nplt.close()\n\nprint(f\"Plot saved to {output_file}\")\n```",
+     "llm_s": 8.126,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 3743,
+     "output_chars": 1337,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\nsheet_name = \"런로그\"\ndf = pd.read_excel(file_path, sheet_name=sheet_name)\n\n# 필요 컬럼 추출 및 정제\ncol_name = '잔류금속 (wt%)'\nif col_name not in df.columns:\n    candidates = [c for c in df.columns if '잔류금속' in str(c)]\n    if candidates:\n        col_name = candidates[0]\n    else:\n        raise ValueError(\"Column '잔류금속 (wt%)' not found\")\n\nmetal_content = df[col_name].dropna()\n\n# 히스토그램 범위와 빈 설정\nmin_val = 1.75\nmax_val = 6.5\nbin_width = 0.25\nbins = np.arange(min_val, max_val + bin_width, bin_width)\n\n# 플롯 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\nax.hist(metal_content, bins=bins, color='steelblue', edgecolor='black', alpha=0.7)\n\nax.set_xlabel('잔류금속 (wt%)')\nax.set_ylabel('빈도수 (Count)')\nax.set_title('CNT 생산 런별 잔류금속 분포 히스토그램')\n\n# x축 범위 제한\nax.set_xlim(min_val, max_val)\n\n# 그리드 추가\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\n# 저장\noutput_file = os.path.join(OUT_DIR, \"histogram_metal_content.png\")\nplt.tight_layout()\nplt.savefig(output_file, dpi=300)\nplt.close()\n\nprint(f\"Plot saved to {output_file}\")\n```",
+     "llm_s": 7.824,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 6941,
+     "output_chars": 1235,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\nsheet_name = \"런로그\"\ndf = pd.read_excel(file_path, sheet_name=sheet_name)\n\n# 필요 컬럼 추출 및 정제\ncol_name = '잔류금속 (wt%)'\nif col_name not in df.columns:\n    candidates = [c for c in df.columns if '잔류금속' in str(c)]\n    if candidates:\n        col_name = candidates[0]\n    else:\n        raise ValueError(\"Column '잔류금속 (wt%)' not found\")\n\n# 수치형으로 강제 변환 (문자열이나 다른 타입이 섞여 있을 경우를 대비)\nmetal_content = pd.to_numeric(df[col_name], errors='coerce').dropna()\n\n# 히스토그램 범위와 빈 설정\nmin_val = 1.75\nmax_val = 6.5\nbin_width = 0.25\nbins = np.arange(min_val, max_val + bin_width, bin_width)\n\n# 플롯 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# 히스토그램绘制. \n# 주의: 이전 오류는 데이터에 NaN이나 문자열이 섞여 matplotlib가 category axis로 처리하려고 할 때 발생했습니다.\n# pd.to_numeric(errors='coerce')를 사용하여 숫자가 아닌 값은 NaN으로 만들고 dropna로 제거하여 순수 float array로 전달합니다.\ncounts, bins_out, patches = ax.hist(metal_content.values, bins=bins, color='steelblue', edgecolor='black', alpha=0.7)\n\nax.set_xlabel('잔류금속 (wt%)')\nax.set_ylabel('빈도수 (Count)')\nax.set_title('CNT 생산 런별 잔류금속 분포 히스토그램')\n\n# x축 범위 제한\nax.set_xlim(min_val, max_val)\n\n# y축 눈금 정수로 표시하기 위해 최대 count 확인 후 설정 (선택 사항이지만 깔끔함)\nmax_count = counts.max() if len(counts) > 0 else 0\nif max_count > 0:\n    ax.yaxis.set_major_locator(plt.MaxNLocator(integer=True))\n\n# 그리드 추가\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\n# 저장\noutput_file = os.path.join(OUT_DIR, \"histogram_metal_content.png\")\nplt.tight_layout()\nplt.savefig(output_file, dpi=300)\nplt.close()\n\nprint(f\"Plot saved to {output_file}\")\n```",
+     "llm_s": 12.924,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 9775,
+     "output_chars": 1712,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\nsheet_name = \"런로그\"\ndf = pd.read_excel(file_path, sheet_name=sheet_name)\n\n# 필요 컬럼 추출 및 정제\ncol_name = '잔류금속 (wt%)'\nif col_name not in df.columns:\n    candidates = [c for c in df.columns if '잔류금속' in str(c)]\n    if candidates:\n        col_name = candidates[0]\n    else:\n        raise ValueError(\"Column '잔류금속 (wt%)' not found\")\n\n# 수치형으로 강제 변환 (문자열이나 다른 타입이 섞여 있을 경우를 대비)\nmetal_content = pd.to_numeric(df[col_name], errors='coerce').dropna()\n\n# 히스토그램 범위와 빈 설정\nmin_val = 1.75\nmax_val = 6.5\nbin_width = 0.25\nbins = np.arange(min_val, max_val + bin_width, bin_width)\n\n# 플롯 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# 히스토그램绘制. \n# 주의: 이전 오류는 데이터에 NaN이나 문자열이 섞여 matplotlib가 category axis로 처리하려고 할 때 발생했습니다.\n# pd.to_numeric(errors='coerce')를 사용하여 숫자가 아닌 값은 NaN으로 만들고 dropna로 제거하여 순수 float array로 전달합니다.\ncounts, bins_out, patches = ax.hist(metal_content.values, bins=bins, color='steelblue', edgecolor='black', alpha=0.7)\n\nax.set_xlabel('잔류금속 (wt%)')\nax.set_ylabel('빈도수 (Count)')\nax.set_title('CNT 생산 런별 잔류금속 분포 히스토그램')\n\n# x축 범위 제한\nax.set_xlim(min_val, max_val)\n\n# y축 눈금 정수로 표시하기 위해 최대 count 확인 후 설정 (선택 사항이지만 깔끔함)\nmax_count = counts.max() if len(counts) > 0 else 0\nif max_count > 0:\n    ax.yaxis.set_major_locator(plt.MaxNLocator(integer=True))\n\n# 그리드 추가\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\n# 저장\noutput_file = os.path.join(OUT_DIR, \"histogram_metal_content.png\")\nplt.tight_layout()\nplt.savefig(output_file, dpi=300)\nplt.close()\n\nprint(f\"Plot saved to {output_file}\")\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "CNT 생산 런별 잔류금속 분포 히스토그램",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [
+        {
+         "name": "",
+         "edges": [
+          1.75,
+          2.0,
+          2.25,
+          2.5,
+          2.75,
+          3.0,
+          3.25,
+          3.5,
+          3.75,
+          4.0,
+          4.25,
+          4.5,
+          4.75,
+          5.0,
+          5.25,
+          5.5,
+          5.75,
+          6.0,
+          6.25,
+          6.5
+         ],
+         "counts": [
+          2.0,
+          4.0,
+          25.0,
+          52.0,
+          98.0,
+          142.0,
+          153.0,
+          90.0,
+          76.0,
+          76.0,
+          76.0,
+          81.0,
+          45.0,
+          31.0,
+          20.0,
+          11.0,
+          7.0,
+          6.0,
+          2.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#4682b4"
+        }
+       ],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "잔류금속 (wt%)",
+        "type": "value",
+        "ticks": [
+         2.0,
+         3.0,
+         4.0,
+         5.0,
+         6.0
+        ],
+        "step": 1.0,
+        "categories": null,
+        "min": 1.75,
+        "max": 6.5,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "1",
+         "2",
+         "3",
+         "4",
+         "5",
+         "6",
+         "7"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "빈도수 (Count)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         20.0,
+         40.0,
+         60.0,
+         80.0,
+         100.0,
+         120.0,
+         140.0,
+         160.0
+        ],
+        "step": 20.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 160.65,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "20",
+         "40",
+         "60",
+         "80",
+         "100",
+         "120",
+         "140",
+         "160",
+         "180"
+        ],
+        "rotate": 0.0
+       },
+       "title": "CNT 생산 런별 잔류금속 분포 히스토그램"
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t1/histogram_metal_content.png",
+       "format": "png",
+       "px": [
+        3000,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.48672938346862793,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 30.184
+  },
+  {
+   "turn": 2,
+   "text": "R4하고 나머지(R1–R3)로 나눠서 반투명하게 겹쳐 주세요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\nsheet_name = \"런로그\"\ndf = pd.read_excel(file_path, sheet_name=sheet_name)\n\n# 필요 컬럼 추출 및 정제\ncol_metal = '잔류금속 (wt%)'\nif col_metal not in df.columns:\n    candidates = [c for c in df.columns if '잔류금속' in str(c)]\n    if candidates:\n        col_metal = candidates[0]\n    else:\n        raise ValueError(\"Column '잔류금속 (wt%)' not found\")\n\ncol_reactor = '반응기'\nif col_reactor not in df.columns:\n    candidates = [c for c in df.columns if '반응기' in str(c)]\n    if candidates:\n        col_reactor = candidates[0]\n    else:\n        raise ValueError(\"Column '반응기' not found\")\n\n# 수치형으로 강제 변환 및 NaN 제거\ndf[col_metal] = pd.to_numeric(df[col_metal], errors='coerce')\ndf_valid = df.dropna(subset=[col_metal])\n\n# 그룹 분리\n# R4 데이터\nr4_data = df_valid[df_valid[col_reactor] == 'R4'][col_metal].values\n# 나머지 (R1, R2, R3) 데이터\nothers_data = df_valid[df_valid[col_reactor].isin(['R1', 'R2', 'R3'])][col_metal].values\n\n# 히스토그램 범위와 빈 설정\nmin_val = 1.75\nmax_val = 6.5\nbin_width = 0.25\nbins = np.arange(min_val, max_val + bin_width, bin_width)\n\n# 플롯 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# 겹쳐서 그리기 (반투명)\nax.hist(others_data, bins=bins, color='steelblue', edgecolor='black', alpha=0.5, label='R1-R3 (나머지)')\nax.hist(r4_data, bins=bins, color='orange', edgecolor='black', alpha=0.5, label='R4')\n\nax.set_xlabel('잔류금속 (wt%)')\nax.set_ylabel('빈도수 (Count)')\nax.set_title('CNT 생산 런별 잔류금속 분포 히스토그램 (R4 vs 나머지)')\n\n# x축 범위 제한\nax.set_xlim(min_val, max_val)\n\n# y축 눈금 정수로 표시\ncounts_others, _, _ = ax.hist(others_data, bins=bins) # 이미 그려졌지만 counts 확인용\ncounts_r4, _, _ = ax.hist(r4_data, bins=bins)\nall_counts = np.concatenate((counts_others, counts_r4))\nif len(all_counts) > 0:\n    max_count = all_counts.max()\n    ax.yaxis.set_major_locator(plt.MaxNLocator(integer=True))\n\n# 레전드 추가\nax.legend(loc='upper right')\n\n# 그리드 추가\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\n# 저장\noutput_file = os.path.join(OUT_DIR, \"histogram_metal_content_r4_vs_others.png\")\nplt.tight_layout()\nplt.savefig(output_file, dpi=300)\nplt.close()\n\nprint(f\"Plot saved to {output_file}\")\n```",
+     "llm_s": 14.288,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 12119,
+     "output_chars": 2253,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\nsheet_name = \"런로그\"\ndf = pd.read_excel(file_path, sheet_name=sheet_name)\n\n# 필요 컬럼 추출 및 정제\ncol_metal = '잔류금속 (wt%)'\nif col_metal not in df.columns:\n    candidates = [c for c in df.columns if '잔류금속' in str(c)]\n    if candidates:\n        col_metal = candidates[0]\n    else:\n        raise ValueError(\"Column '잔류금속 (wt%)' not found\")\n\ncol_reactor = '반응기'\nif col_reactor not in df.columns:\n    candidates = [c for c in df.columns if '반응기' in str(c)]\n    if candidates:\n        col_reactor = candidates[0]\n    else:\n        raise ValueError(\"Column '반응기' not found\")\n\n# 수치형으로 강제 변환 및 NaN 제거\ndf[col_metal] = pd.to_numeric(df[col_metal], errors='coerce')\ndf_valid = df.dropna(subset=[col_metal])\n\n# 그룹 분리\n# R4 데이터\nr4_data = df_valid[df_valid[col_reactor] == 'R4'][col_metal].values\n# 나머지 (R1, R2, R3) 데이터\nothers_data = df_valid[df_valid[col_reactor].isin(['R1', 'R2', 'R3'])][col_metal].values\n\n# 히스토그램 범위와 빈 설정\nmin_val = 1.75\nmax_val = 6.5\nbin_width = 0.25\nbins = np.arange(min_val, max_val + bin_width, bin_width)\n\n# 플롯 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# 겹쳐서 그리기 (반투명)\nax.hist(others_data, bins=bins, color='steelblue', edgecolor='black', alpha=0.5, label='R1-R3 (나머지)')\nax.hist(r4_data, bins=bins, color='orange', edgecolor='black', alpha=0.5, label='R4')\n\nax.set_xlabel('잔류금속 (wt%)')\nax.set_ylabel('빈도수 (Count)')\nax.set_title('CNT 생산 런별 잔류금속 분포 히스토그램 (R4 vs 나머지)')\n\n# x축 범위 제한\nax.set_xlim(min_val, max_val)\n\n# y축 눈금 정수로 표시\ncounts_others, _, _ = ax.hist(others_data, bins=bins) # 이미 그려졌지만 counts 확인용\ncounts_r4, _, _ = ax.hist(r4_data, bins=bins)\nall_counts = np.concatenate((counts_others, counts_r4))\nif len(all_counts) > 0:\n    max_count = all_counts.max()\n    ax.yaxis.set_major_locator(plt.MaxNLocator(integer=True))\n\n# 레전드 추가\nax.legend(loc='upper right')\n\n# 그리드 추가\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\n# 저장\noutput_file = os.path.join(OUT_DIR, \"histogram_metal_content_r4_vs_others.png\")\nplt.tight_layout()\nplt.savefig(output_file, dpi=300)\nplt.close()\n\nprint(f\"Plot saved to {output_file}\")\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "CNT 생산 런별 잔류금속 분포 히스토그램 (R4 vs 나머지)",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [
+        {
+         "name": "",
+         "edges": [
+          1.75,
+          2.0,
+          2.25,
+          2.5,
+          2.75,
+          3.0,
+          3.25,
+          3.5,
+          3.75,
+          4.0,
+          4.25,
+          4.5,
+          4.75,
+          5.0,
+          5.25,
+          5.5,
+          5.75,
+          6.0,
+          6.25,
+          6.5
+         ],
+         "counts": [
+          2.0,
+          4.0,
+          25.0,
+          52.0,
+          98.0,
+          142.0,
+          152.0,
+          86.0,
+          57.0,
+          52.0,
+          29.0,
+          28.0,
+          11.0,
+          4.0,
+          4.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#4682b4"
+        },
+        {
+         "name": "",
+         "edges": [
+          1.75,
+          2.0,
+          2.25,
+          2.5,
+          2.75,
+          3.0,
+          3.25,
+          3.5,
+          3.75,
+          4.0,
+          4.25,
+          4.5,
+          4.75,
+          5.0,
+          5.25,
+          5.5,
+          5.75,
+          6.0,
+          6.25,
+          6.5
+         ],
+         "counts": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          4.0,
+          19.0,
+          24.0,
+          47.0,
+          53.0,
+          34.0,
+          27.0,
+          16.0,
+          11.0,
+          7.0,
+          6.0,
+          2.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#ffa500"
+        },
+        {
+         "name": "",
+         "edges": [
+          1.75,
+          2.0,
+          2.25,
+          2.5,
+          2.75,
+          3.0,
+          3.25,
+          3.5,
+          3.75,
+          4.0,
+          4.25,
+          4.5,
+          4.75,
+          5.0,
+          5.25,
+          5.5,
+          5.75,
+          6.0,
+          6.25,
+          6.5
+         ],
+         "counts": [
+          2.0,
+          4.0,
+          25.0,
+          52.0,
+          98.0,
+          142.0,
+          152.0,
+          86.0,
+          57.0,
+          52.0,
+          29.0,
+          28.0,
+          11.0,
+          4.0,
+          4.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#1f77b4"
+        },
+        {
+         "name": "",
+         "edges": [
+          1.75,
+          2.0,
+          2.25,
+          2.5,
+          2.75,
+          3.0,
+          3.25,
+          3.5,
+          3.75,
+          4.0,
+          4.25,
+          4.5,
+          4.75,
+          5.0,
+          5.25,
+          5.5,
+          5.75,
+          6.0,
+          6.25,
+          6.5
+         ],
+         "counts": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          4.0,
+          19.0,
+          24.0,
+          47.0,
+          53.0,
+          34.0,
+          27.0,
+          16.0,
+          11.0,
+          7.0,
+          6.0,
+          2.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#ff7f0e"
+        }
+       ],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "잔류금속 (wt%)",
+        "type": "value",
+        "ticks": [
+         2.0,
+         3.0,
+         4.0,
+         5.0,
+         6.0
+        ],
+        "step": 1.0,
+        "categories": null,
+        "min": 1.75,
+        "max": 6.5,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "1",
+         "2",
+         "3",
+         "4",
+         "5",
+         "6",
+         "7"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "빈도수 (Count)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         20.0,
+         40.0,
+         60.0,
+         80.0,
+         100.0,
+         120.0,
+         140.0
+        ],
+        "step": 20.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 159.6,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "20",
+         "40",
+         "60",
+         "80",
+         "100",
+         "120",
+         "140",
+         "160"
+        ],
+        "rotate": 0.0
+       },
+       "title": "CNT 생산 런별 잔류금속 분포 히스토그램 (R4 vs 나머지)"
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "R1-R3 (나머지)",
+       "R4"
+      ],
+      "inside": true,
+      "where": "upper right"
+     },
+     "files": [
+      {
+       "path": "out/t2/histogram_metal_content_r4_vs_others.png",
+       "format": "png",
+       "px": [
+        3000,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.560732364654541,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [
+     "histogram: 1994 values counted, want 997"
+    ],
+    "unchecked": [
+     "alpha=< 1 (semi-transparent overlay)"
+    ],
+    "n_checks": 3,
+    "n_failed": 1,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 14.849
+  },
+  {
+   "turn": 3,
+   "text": "규격 상한 5.0 wt%에 세로 점선 넣고, y축을 개수 대신 밀도(density)로 바꿔 주세요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\nsheet_name = \"런로그\"\ndf = pd.read_excel(file_path, sheet_name=sheet_name)\n\n# 필요 컬럼 추출 및 정제\ncol_metal = '잔류금속 (wt%)'\nif col_metal not in df.columns:\n    candidates = [c for c in df.columns if '잔류금속' in str(c)]\n    if candidates:\n        col_metal = candidates[0]\n    else:\n        raise ValueError(\"Column '잔류금속 (wt%)' not found\")\n\ncol_reactor = '반응기'\nif col_reactor not in df.columns:\n    candidates = [c for c in df.columns if '반응기' in str(c)]\n    if candidates:\n        col_reactor = candidates[0]\n    else:\n        raise ValueError(\"Column '반응기' not found\")\n\n# 수치형으로 강제 변환 및 NaN 제거\ndf[col_metal] = pd.to_numeric(df[col_metal], errors='coerce')\ndf_valid = df.dropna(subset=[col_metal])\n\n# 그룹 분리\nr4_data = df_valid[df_valid[col_reactor] == 'R4'][col_metal].values\nothers_data = df_valid[df_valid[col_reactor].isin(['R1', 'R2', 'R3'])][col_metal].values\n\n# 히스토그램 범위와 빈 설정\nmin_val = 1.75\nmax_val = 6.5\nbin_width = 0.25\nbins = np.arange(min_val, max_val + bin_width, bin_width)\n\n# 플롯 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# 겹쳐서 그리기 (반투명, density=True로 밀도 표시)\nax.hist(others_data, bins=bins, color='steelblue', edgecolor='black', alpha=0.5, label='R1-R3 (나머지)', density=True)\nax.hist(r4_data, bins=bins, color='orange', edgecolor='black', alpha=0.5, label='R4', density=True)\n\n# 규격 상한선 추가 (5.0 wt%)\nspec_limit = 5.0\nax.axvline(x=spec_limit, color='red', linestyle='--', linewidth=2, label=f'규격 상한 ({spec_limit} wt%)')\n\nax.set_xlabel('잔류금속 (wt%)')\nax.set_ylabel('밀도 (Density)')\nax.set_title('CNT 생산 런별 잔류금속 분포 히스토그램 (R4 vs 나머지, 밀도 기준)')\n\n# x축 범위 제한\nax.set_xlim(min_val, max_val)\n\n# y축 눈금 정수로 표시하지 않음 (밀도는 소수점이므로 기본값 사용 또는 MaxNLocator 조정 가능하지만 밀도 값이 작을 수 있으므로 자동 스케일 유지)\n# ax.yaxis.set_major_locator(plt.MaxNLocator(integer=True)) # 이 줄은 제거하거나 주석 처리해야 함 (밀도이기 때문)\n\n# 레전드 추가\nax.legend(loc='upper right')\n\n# 그리드 추가\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\n# 저장\noutput_file = os.path.join(OUT_DIR, \"histogram_metal_content_r4_vs_others_density.png\")\nplt.tight_layout()\nplt.savefig(output_file, dpi=300)\nplt.close()\n\nprint(f\"Plot saved to {output_file}\")\n```",
+     "llm_s": 11.687,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 14945,
+     "output_chars": 2299,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\nsheet_name = \"런로그\"\ndf = pd.read_excel(file_path, sheet_name=sheet_name)\n\n# 필요 컬럼 추출 및 정제\ncol_metal = '잔류금속 (wt%)'\nif col_metal not in df.columns:\n    candidates = [c for c in df.columns if '잔류금속' in str(c)]\n    if candidates:\n        col_metal = candidates[0]\n    else:\n        raise ValueError(\"Column '잔류금속 (wt%)' not found\")\n\ncol_reactor = '반응기'\nif col_reactor not in df.columns:\n    candidates = [c for c in df.columns if '반응기' in str(c)]\n    if candidates:\n        col_reactor = candidates[0]\n    else:\n        raise ValueError(\"Column '반응기' not found\")\n\n# 수치형으로 강제 변환 및 NaN 제거\ndf[col_metal] = pd.to_numeric(df[col_metal], errors='coerce')\ndf_valid = df.dropna(subset=[col_metal])\n\n# 그룹 분리\nr4_data = df_valid[df_valid[col_reactor] == 'R4'][col_metal].values\nothers_data = df_valid[df_valid[col_reactor].isin(['R1', 'R2', 'R3'])][col_metal].values\n\n# 히스토그램 범위와 빈 설정\nmin_val = 1.75\nmax_val = 6.5\nbin_width = 0.25\nbins = np.arange(min_val, max_val + bin_width, bin_width)\n\n# 플롯 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# 겹쳐서 그리기 (반투명, density=True로 밀도 표시)\nax.hist(others_data, bins=bins, color='steelblue', edgecolor='black', alpha=0.5, label='R1-R3 (나머지)', density=True)\nax.hist(r4_data, bins=bins, color='orange', edgecolor='black', alpha=0.5, label='R4', density=True)\n\n# 규격 상한선 추가 (5.0 wt%)\nspec_limit = 5.0\nax.axvline(x=spec_limit, color='red', linestyle='--', linewidth=2, label=f'규격 상한 ({spec_limit} wt%)')\n\nax.set_xlabel('잔류금속 (wt%)')\nax.set_ylabel('밀도 (Density)')\nax.set_title('CNT 생산 런별 잔류금속 분포 히스토그램 (R4 vs 나머지, 밀도 기준)')\n\n# x축 범위 제한\nax.set_xlim(min_val, max_val)\n\n# y축 눈금 정수로 표시하지 않음 (밀도는 소수점이므로 기본값 사용 또는 MaxNLocator 조정 가능하지만 밀도 값이 작을 수 있으므로 자동 스케일 유지)\n# ax.yaxis.set_major_locator(plt.MaxNLocator(integer=True)) # 이 줄은 제거하거나 주석 처리해야 함 (밀도이기 때문)\n\n# 레전드 추가\nax.legend(loc='upper right')\n\n# 그리드 추가\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\n# 저장\noutput_file = os.path.join(OUT_DIR, \"histogram_metal_content_r4_vs_others_density.png\")\nplt.tight_layout()\nplt.savefig(output_file, dpi=300)\nplt.close()\n\nprint(f\"Plot saved to {output_file}\")\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "CNT 생산 런별 잔류금속 분포 히스토그램 (R4 vs 나머지, 밀도 기준)",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [
+        {
+         "name": "",
+         "edges": [
+          1.75,
+          2.0,
+          2.25,
+          2.5,
+          2.75,
+          3.0,
+          3.25,
+          3.5,
+          3.75,
+          4.0,
+          4.25,
+          4.5,
+          4.75,
+          5.0,
+          5.25,
+          5.5,
+          5.75,
+          6.0,
+          6.25,
+          6.5
+         ],
+         "counts": [
+          0.010723860589812333,
+          0.021447721179624665,
+          0.13404825737265416,
+          0.27882037533512066,
+          0.5254691689008043,
+          0.7613941018766756,
+          0.8150134048257373,
+          0.46112600536193027,
+          0.30563002680965146,
+          0.27882037533512066,
+          0.1554959785522788,
+          0.15013404825737264,
+          0.058981233243967826,
+          0.021447721179624665,
+          0.021447721179624665,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#4682b4"
+        },
+        {
+         "name": "",
+         "edges": [
+          1.75,
+          2.0,
+          2.25,
+          2.5,
+          2.75,
+          3.0,
+          3.25,
+          3.5,
+          3.75,
+          4.0,
+          4.25,
+          4.5,
+          4.75,
+          5.0,
+          5.25,
+          5.5,
+          5.75,
+          6.0,
+          6.25,
+          6.5
+         ],
+         "counts": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.01593625498007968,
+          0.06374501992031872,
+          0.30278884462151395,
+          0.38247011952191234,
+          0.749003984063745,
+          0.8446215139442231,
+          0.5418326693227091,
+          0.4302788844621514,
+          0.2549800796812749,
+          0.1752988047808765,
+          0.11155378486055777,
+          0.09561752988047809,
+          0.03187250996015936
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#ffa500"
+        }
+       ],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [
+        5.0
+       ],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "잔류금속 (wt%)",
+        "type": "value",
+        "ticks": [
+         2.0,
+         3.0,
+         4.0,
+         5.0,
+         6.0
+        ],
+        "step": 1.0,
+        "categories": null,
+        "min": 1.75,
+        "max": 6.5,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "1",
+         "2",
+         "3",
+         "4",
+         "5",
+         "6",
+         "7"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "밀도 (Density)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         0.1,
+         0.2,
+         0.30000000000000004,
+         0.4,
+         0.5,
+         0.6000000000000001,
+         0.7000000000000001,
+         0.8
+        ],
+        "step": 0.1,
+        "categories": null,
+        "min": 0.0,
+        "max": 0.8868525896414343,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0.0",
+         "0.1",
+         "0.2",
+         "0.3",
+         "0.4",
+         "0.5",
+         "0.6",
+         "0.7",
+         "0.8",
+         "0.9"
+        ],
+        "rotate": 0.0
+       },
+       "title": "CNT 생산 런별 잔류금속 분포 히스토그램 (R4 vs 나머지, 밀도 기준)"
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "R1-R3 (나머지)",
+       "R4",
+       "규격 상한 (5.0 wt%)"
+      ],
+      "inside": true,
+      "where": "upper right"
+     },
+     "files": [
+      {
+       "path": "out/t3/histogram_metal_content_r4_vs_others_density.png",
+       "format": "png",
+       "px": [
+        3000,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5086336135864258,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [
+     "histogram: 8 values counted, want 997",
+     "histogram R1–R3: bins/counts differ",
+     "histogram R4: bins/counts differ"
+    ],
+    "unchecked": [
+     "alpha=< 1 (semi-transparent overlay)",
+     "ref_line=5.0"
+    ],
+    "n_checks": 4,
+    "n_failed": 3,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 12.196
+  }
+ ]
+}

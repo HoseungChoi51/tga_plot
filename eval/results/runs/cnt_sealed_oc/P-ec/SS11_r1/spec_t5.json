@@ -1,0 +1,20 @@
+{
+ "file": "data/doe_temp_h2.csv",
+ "chart": "heatmap",
+ "x": "2존온도(°C)",
+ "y": "H2/C2H4비",
+ "z": {
+  "col": "순도(%)",
+  "agg": "mean"
+ },
+ "values": "{:.1f}",
+ "asks": [
+  {
+   "ask": "순도로 동일 설정 히트맵",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/SS11_r1/out/t5"
+ }
+}

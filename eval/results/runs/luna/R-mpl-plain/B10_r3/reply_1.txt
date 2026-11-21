@@ -1,0 +1,84 @@
+```python
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import pandas as pd
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/B10_r3/out")
+
+# Configure publication-ready typography and Korean font support.
+plt.rcParams.update({
+    "font.family": "Noto Sans CJK KR",
+    "font.size": 8,
+    "axes.labelsize": 8,
+    "xtick.labelsize": 8,
+    "ytick.labelsize": 8,
+    "axes.linewidth": 0.8,
+    "xtick.direction": "in",
+    "ytick.direction": "in",
+    "xtick.major.width": 0.8,
+    "ytick.major.width": 0.8,
+    "savefig.dpi": 600,
+})
+
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+data = pd.read_excel(DATA_FILE, sheet_name="Annealed", engine="openpyxl")
+data.columns = [str(column).strip() for column in data.columns]
+
+temperature = pd.to_numeric(data["Temperature (°C)"], errors="coerce")
+weight = pd.to_numeric(data["Weight (%)"], errors="coerce")
+derivative = pd.to_numeric(data["Deriv. Weight (%/°C)"], errors="coerce")
+valid = temperature.notna() & weight.notna() & derivative.notna()
+temperature, weight, derivative = (
+    temperature[valid],
+    weight[valid],
+    derivative[valid],
+)
+
+fig, ax_weight = plt.subplots(figsize=(3.5, 2.6))
+ax_derivative = ax_weight.twinx()
+
+# Black-and-white curves are distinguished by line style.
+ax_weight.plot(
+    temperature,
+    weight,
+    color="black",
+    linestyle="-",
+    linewidth=1.1,
+    label="Weight",
+)
+ax_derivative.plot(
+    temperature,
+    derivative,
+    color="black",
+    linestyle="--",
+    linewidth=1.0,
+    label="Derivative",
+)
+
+ax_weight.set_xlabel("Temperature (°C)")
+ax_weight.set_ylabel("Weight (%)")
+ax_derivative.set_ylabel("Deriv. Weight (%/°C)")
+
+ax_weight.set_xlim(30, 900)
+ax_weight.set_ylim(bottom=0)
+ax_weight.spines["top"].set_visible(False)
+ax_derivative.spines["top"].set_visible(False)
+
+lines = ax_weight.get_lines() + ax_derivative.get_lines()
+ax_weight.legend(
+    lines,
+    [line.get_label() for line in lines],
+    loc="best",
+    frameon=False,
+    fontsize=8,
+)
+
+fig.tight_layout(pad=0.5)
+fig.savefig(OUT_DIR / "annealed_tga.png", dpi=600, bbox_inches="tight")
+plt.close(fig)
+```

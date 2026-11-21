@@ -1,0 +1,2590 @@
+{
+ "arm": "R-mpl",
+ "item": "SS11",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "신입 연구원",
+ "type": "session",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "DOE 파일을 받았는데요, 온도에 따라 수율이 어떻게 달라지는지 보고 싶어요. 어떤 그래프가 좋을지 잘 몰라서 알아서 부탁드려요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the DOE data\nfile_path = \"data/doe_temp_h2.csv\"\ndf = pd.read_csv(file_path)\n\n# Ensure numeric types for plotting and analysis\ndf['2존온도(°C)'] = pd.to_numeric(df['2존온도(°C)'])\ndf['수율(g/g-cat)'] = pd.to_numeric(df['수율(g/g-cat)'])\ndf['H2/C2H4비'] = pd.to_numeric(df['H2/C2H4비'])\n\n# Calculate mean yield per temperature to show the trend clearly\ntemp_groups = df.groupby('2존온도(°C)')['수율(g/g-cat)']\nmean_yields = temp_groups.mean()\nstd_yields = temp_groups.std()\n\n# Create the plot\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# Plot individual data points scattered by H2 ratio for context (optional but helpful in DOE)\n# We will color code by H2 ratio to see if there's interaction, but the main request is Temperature vs Yield.\n# To keep it clean and focused on the user's request \"how yield changes with temperature\", \n# we plot the mean line with error bars, and scatter points underneath.\n\nscatter = ax.scatter(df['2존온도(°C)'], df['수율(g/g-cat)'], \n                     c=df['H2/C2H4비'], cmap='viridis', alpha=0.6, edgecolors='w', linewidth=0.5, label='개별 데이터')\n\n# Plot the mean trend line\nax.plot(mean_yields.index, mean_yields.values, 'r-o', linewidth=2, markersize=8, label='평균 수율')\n\n# Add error bars for standard deviation\nax.errorbar(mean_yields.index, mean_yields.values, yerr=std_yields, fmt='none', ecolor='gray', capsize=5, label='표준편차')\n\n# Labels and Title\nax.set_xlabel('2존 온도 (°C)', fontsize=12)\nax.set_ylabel('수율 (g/g-cat)', fontsize=12)\nax.set_title('DOE 분석: 2존 온도에 따른 CNT 수율 변화', fontsize=14, fontweight='bold')\nax.grid(True, linestyle='--', alpha=0.7)\n\n# Legend\nlegend = ax.legend(loc='best', fontsize=10)\n\n# Color bar for H2 ratio\ncbar = plt.colorbar(scatter, ax=ax)\ncbar.set_label('H2/C2H4 비', fontsize=10)\n\n# Adjust layout\nplt.tight_layout()\n\n# Save figure\noutput_path = os.path.join(OUT_DIR, \"doe_yield_vs_temperature.png\")\nplt.savefig(output_path, dpi=300)\nplt.close()\n```",
+     "llm_s": 13.328,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 2691,
+     "output_chars": 2174,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the DOE data\nfile_path = \"data/doe_temp_h2.csv\"\ndf = pd.read_csv(file_path)\n\n# Ensure numeric types for plotting and analysis\ndf['2존온도(°C)'] = pd.to_numeric(df['2존온도(°C)'])\ndf['수율(g/g-cat)'] = pd.to_numeric(df['수율(g/g-cat)'])\ndf['H2/C2H4비'] = pd.to_numeric(df['H2/C2H4비'])\n\n# Calculate mean yield per temperature to show the trend clearly\ntemp_groups = df.groupby('2존온도(°C)')['수율(g/g-cat)']\nmean_yields = temp_groups.mean()\nstd_yields = temp_groups.std()\n\n# Create the plot\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# Plot individual data points scattered by H2 ratio for context (optional but helpful in DOE)\n# We will color code by H2 ratio to see if there's interaction, but the main request is Temperature vs Yield.\n# To keep it clean and focused on the user's request \"how yield changes with temperature\", \n# we plot the mean line with error bars, and scatter points underneath.\n\nscatter = ax.scatter(df['2존온도(°C)'], df['수율(g/g-cat)'], \n                     c=df['H2/C2H4비'], cmap='viridis', alpha=0.6, edgecolors='w', linewidth=0.5, label='개별 데이터')\n\n# Plot the mean trend line\nax.plot(mean_yields.index, mean_yields.values, 'r-o', linewidth=2, markersize=8, label='평균 수율')\n\n# Add error bars for standard deviation\nax.errorbar(mean_yields.index, mean_yields.values, yerr=std_yields, fmt='none', ecolor='gray', capsize=5, label='표준편차')\n\n# Labels and Title\nax.set_xlabel('2존 온도 (°C)', fontsize=12)\nax.set_ylabel('수율 (g/g-cat)', fontsize=12)\nax.set_title('DOE 분석: 2존 온도에 따른 CNT 수율 변화', fontsize=14, fontweight='bold')\nax.grid(True, linestyle='--', alpha=0.7)\n\n# Legend\nlegend = ax.legend(loc='best', fontsize=10)\n\n# Color bar for H2 ratio\ncbar = plt.colorbar(scatter, ax=ax)\ncbar.set_label('H2/C2H4 비', fontsize=10)\n\n# Adjust layout\nplt.tight_layout()\n\n# Save figure\noutput_path = os.path.join(OUT_DIR, \"doe_yield_vs_temperature.png\")\nplt.savefig(output_path, dpi=300)\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "DOE 분석: 2존 온도에 따른 CNT 수율 변화",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [
+        {
+         "name": "평균 수율",
+         "n": 5,
+         "x": [
+          1100.0,
+          1125.0,
+          1150.0,
+          1175.0,
+          1200.0
+         ],
+         "y": [
+          24.059444444444445,
+          26.958333333333332,
+          27.945,
+          26.51611111111111,
+          23.08888888888889
+         ],
+         "color": "#ff0000",
+         "style": "-",
+         "width": 2.0
+        }
+       ],
+       "points": [
+        {
+         "name": "개별 데이터",
+         "n": 90,
+         "x_range": [
+          1100.0,
+          1200.0
+         ],
+         "y_range": [
+          14.66,
+          32.54
+         ],
+         "color": "#440154",
+         "colors": [
+          "#22a884",
+          "#2a788e",
+          "#414487",
+          "#440154",
+          "#7ad151",
+          "#fde725"
+         ],
+         "x": [
+          1100.0,
+          1100.0,
+          1100.0,
+          1100.0,
+          1100.0,
+          1100.0,
+          1100.0,
+          1100.0,
+          1100.0,
+          1100.0,
+          1100.0,
+          1100.0,
+          1100.0,
+          1100.0,
+          1100.0,
+          1100.0,
+          1100.0,
+          1100.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1200.0,
+          1200.0,
+          1200.0,
+          1200.0,
+          1200.0,
+          1200.0,
+          1200.0,
+          1200.0,
+          1200.0,
+          1200.0,
+          1200.0,
+          1200.0,
+          1200.0,
+          1200.0,
+          1200.0,
+          1200.0,
+          1200.0,
+          1200.0
+         ],
+         "y": [
+          22.34,
+          20.97,
+          22.95,
+          27.02,
+          26.0,
+          26.71,
+          27.47,
+          27.74,
+          26.92,
+          27.15,
+          26.77,
+          27.46,
+          25.1,
+          23.62,
+          23.7,
+          16.4,
+          17.28,
+          17.47,
+          26.16,
+          25.02,
+          24.83,
+          28.27,
+          28.79,
+          30.1,
+          30.27,
+          30.07,
+          31.27,
+          29.99,
+          30.42,
+          29.02,
+          26.79,
+          27.31,
+          24.65,
+          21.71,
+          19.56,
+          21.02,
+          27.32,
+          27.76,
+          26.68,
+          29.89,
+          30.44,
+          31.49,
+          31.76,
+          32.54,
+          32.1,
+          29.36,
+          30.69,
+          28.43,
+          26.55,
+          25.83,
+          27.21,
+          22.52,
+          21.8,
+          20.64,
+          24.83,
+          25.43,
+          26.39,
+          29.22,
+          29.24,
+          30.04,
+          31.8,
+          30.18,
+          29.92,
+          29.01,
+          29.05,
+          29.74,
+          25.8,
+          25.46,
+          23.62,
+          18.97,
+          19.52,
+          19.07,
+          23.17,
+          23.24,
+          21.8,
+          27.64,
+          26.4,
+          25.62,
+          26.31,
+          27.38,
+          26.18,
+          27.28,
+          26.26,
+          25.22,
+          20.33,
+          21.77,
+          20.2,
+          16.24,
+          15.9,
+          14.66
+         ]
+        }
+       ],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "2존 온도 (°C)",
+        "type": "value",
+        "ticks": [
+         1100.0,
+         1120.0,
+         1140.0,
+         1160.0,
+         1180.0,
+         1200.0
+        ],
+        "step": 20.0,
+        "categories": null,
+        "min": 1095.0,
+        "max": 1205.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "1080",
+         "1100",
+         "1120",
+         "1140",
+         "1160",
+         "1180",
+         "1200",
+         "1220"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "수율 (g/g-cat)",
+        "type": "value",
+        "ticks": [
+         15.0,
+         17.5,
+         20.0,
+         22.5,
+         25.0,
+         27.5,
+         30.0,
+         32.5
+        ],
+        "step": 2.5,
+        "categories": null,
+        "min": 13.766,
+        "max": 33.434,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "12.5",
+         "15.0",
+         "17.5",
+         "20.0",
+         "22.5",
+         "25.0",
+         "27.5",
+         "30.0",
+         "32.5",
+         "35.0"
+        ],
+        "rotate": 0.0
+       },
+       "title": "DOE 분석: 2존 온도에 따른 CNT 수율 변화"
+      },
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": {
+        "rows": [
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         null,
+         "16",
+         null,
+         "14",
+         null,
+         "12",
+         null,
+         "10",
+         null,
+         "8",
+         null,
+         "6",
+         null,
+         null,
+         null,
+         null,
+         null,
+         null
+        ],
+        "cols": [
+         null
+        ],
+        "z": [
+         [
+          15.98046875
+         ],
+         [
+          15.94140625
+         ],
+         [
+          15.90234375
+         ],
+         [
+          15.86328125
+         ],
+         [
+          15.82421875
+         ],
+         [
+          15.78515625
+         ],
+         [
+          15.74609375
+         ],
+         [
+          15.70703125
+         ],
+         [
+          15.66796875
+         ],
+         [
+          15.62890625
+         ],
+         [
+          15.58984375
+         ],
+         [
+          15.55078125
+         ],
+         [
+          15.51171875
+         ],
+         [
+          15.47265625
+         ],
+         [
+          15.43359375
+         ],
+         [
+          15.39453125
+         ],
+         [
+          15.35546875
+         ],
+         [
+          15.31640625
+         ],
+         [
+          15.27734375
+         ],
+         [
+          15.23828125
+         ],
+         [
+          15.19921875
+         ],
+         [
+          15.16015625
+         ],
+         [
+          15.12109375
+         ],
+         [
+          15.08203125
+         ],
+         [
+          15.04296875
+         ],
+         [
+          15.00390625
+         ],
+         [
+          14.96484375
+         ],
+         [
+          14.92578125
+         ],
+         [
+          14.88671875
+         ],
+         [
+          14.84765625
+         ],
+         [
+          14.80859375
+         ],
+         [
+          14.76953125
+         ],
+         [
+          14.73046875
+         ],
+         [
+          14.69140625
+         ],
+         [
+          14.65234375
+         ],
+         [
+          14.61328125
+         ],
+         [
+          14.57421875
+         ],
+         [
+          14.53515625
+         ],
+         [
+          14.49609375
+         ],
+         [
+          14.45703125
+         ],
+         [
+          14.41796875
+         ],
+         [
+          14.37890625
+         ],
+         [
+          14.33984375
+         ],
+         [
+          14.30078125
+         ],
+         [
+          14.26171875
+         ],
+         [
+          14.22265625
+         ],
+         [
+          14.18359375
+         ],
+         [
+          14.14453125
+         ],
+         [
+          14.10546875
+         ],
+         [
+          14.06640625
+         ],
+         [
+          14.02734375
+         ],
+         [
+          13.98828125
+         ],
+         [
+          13.94921875
+         ],
+         [
+          13.91015625
+         ],
+         [
+          13.87109375
+         ],
+         [
+          13.83203125
+         ],
+         [
+          13.79296875
+         ],
+         [
+          13.75390625
+         ],
+         [
+          13.71484375
+         ],
+         [
+          13.67578125
+         ],
+         [
+          13.63671875
+         ],
+         [
+          13.59765625
+         ],
+         [
+          13.55859375
+         ],
+         [
+          13.51953125
+         ],
+         [
+          13.48046875
+         ],
+         [
+          13.44140625
+         ],
+         [
+          13.40234375
+         ],
+         [
+          13.36328125
+         ],
+         [
+          13.32421875
+         ],
+         [
+          13.28515625
+         ],
+         [
+          13.24609375
+         ],
+         [
+          13.20703125
+         ],
+         [
+          13.16796875
+         ],
+         [
+          13.12890625
+         ],
+         [
+          13.08984375
+         ],
+         [
+          13.05078125
+         ],
+         [
+          13.01171875
+         ],
+         [
+          12.97265625
+         ],
+         [
+          12.93359375
+         ],
+         [
+          12.89453125
+         ],
+         [
+          12.85546875
+         ],
+         [
+          12.81640625
+         ],
+         [
+          12.77734375
+         ],
+         [
+          12.73828125
+         ],
+         [
+          12.69921875
+         ],
+         [
+          12.66015625
+         ],
+         [
+          12.62109375
+         ],
+         [
+          12.58203125
+         ],
+         [
+          12.54296875
+         ],
+         [
+          12.50390625
+         ],
+         [
+          12.46484375
+         ],
+         [
+          12.42578125
+         ],
+         [
+          12.38671875
+         ],
+         [
+          12.34765625
+         ],
+         [
+          12.30859375
+         ],
+         [
+          12.26953125
+         ],
+         [
+          12.23046875
+         ],
+         [
+          12.19140625
+         ],
+         [
+          12.15234375
+         ],
+         [
+          12.11328125
+         ],
+         [
+          12.07421875
+         ],
+         [
+          12.03515625
+         ],
+         [
+          11.99609375
+         ],
+         [
+          11.95703125
+         ],
+         [
+          11.91796875
+         ],
+         [
+          11.87890625
+         ],
+         [
+          11.83984375
+         ],
+         [
+          11.80078125
+         ],
+         [
+          11.76171875
+         ],
+         [
+          11.72265625
+         ],
+         [
+          11.68359375
+         ],
+         [
+          11.64453125
+         ],
+         [
+          11.60546875
+         ],
+         [
+          11.56640625
+         ],
+         [
+          11.52734375
+         ],
+         [
+          11.48828125
+         ],
+         [
+          11.44921875
+         ],
+         [
+          11.41015625
+         ],
+         [
+          11.37109375
+         ],
+         [
+          11.33203125
+         ],
+         [
+          11.29296875
+         ],
+         [
+          11.25390625
+         ],
+         [
+          11.21484375
+         ],
+         [
+          11.17578125
+         ],
+         [
+          11.13671875
+         ],
+         [
+          11.09765625
+         ],
+         [
+          11.05859375
+         ],
+         [
+          11.01953125
+         ],
+         [
+          10.98046875
+         ],
+         [
+          10.94140625
+         ],
+         [
+          10.90234375
+         ],
+         [
+          10.86328125
+         ],
+         [
+          10.82421875
+         ],
+         [
+          10.78515625
+         ],
+         [
+          10.74609375
+         ],
+         [
+          10.70703125
+         ],
+         [
+          10.66796875
+         ],
+         [
+          10.62890625
+         ],
+         [
+          10.58984375
+         ],
+         [
+          10.55078125
+         ],
+         [
+          10.51171875
+         ],
+         [
+          10.47265625
+         ],
+         [
+          10.43359375
+         ],
+         [
+          10.39453125
+         ],
+         [
+          10.35546875
+         ],
+         [
+          10.31640625
+         ],
+         [
+          10.27734375
+         ],
+         [
+          10.23828125
+         ],
+         [
+          10.19921875
+         ],
+         [
+          10.16015625
+         ],
+         [
+          10.12109375
+         ],
+         [
+          10.08203125
+         ],
+         [
+          10.04296875
+         ],
+         [
+          10.00390625
+         ],
+         [
+          9.96484375
+         ],
+         [
+          9.92578125
+         ],
+         [
+          9.88671875
+         ],
+         [
+          9.84765625
+         ],
+         [
+          9.80859375
+         ],
+         [
+          9.76953125
+         ],
+         [
+          9.73046875
+         ],
+         [
+          9.69140625
+         ],
+         [
+          9.65234375
+         ],
+         [
+          9.61328125
+         ],
+         [
+          9.57421875
+         ],
+         [
+          9.53515625
+         ],
+         [
+          9.49609375
+         ],
+         [
+          9.45703125
+         ],
+         [
+          9.41796875
+         ],
+         [
+          9.37890625
+         ],
+         [
+          9.33984375
+         ],
+         [
+          9.30078125
+         ],
+         [
+          9.26171875
+         ],
+         [
+          9.22265625
+         ],
+         [
+          9.18359375
+         ],
+         [
+          9.14453125
+         ],
+         [
+          9.10546875
+         ],
+         [
+          9.06640625
+         ],
+         [
+          9.02734375
+         ],
+         [
+          8.98828125
+         ],
+         [
+          8.94921875
+         ],
+         [
+          8.91015625
+         ],
+         [
+          8.87109375
+         ],
+         [
+          8.83203125
+         ],
+         [
+          8.79296875
+         ],
+         [
+          8.75390625
+         ],
+         [
+          8.71484375
+         ],
+         [
+          8.67578125
+         ],
+         [
+          8.63671875
+         ],
+         [
+          8.59765625
+         ],
+         [
+          8.55859375
+         ],
+         [
+          8.51953125
+         ],
+         [
+          8.48046875
+         ],
+         [
+          8.44140625
+         ],
+         [
+          8.40234375
+         ],
+         [
+          8.36328125
+         ],
+         [
+          8.32421875
+         ],
+         [
+          8.28515625
+         ],
+         [
+          8.24609375
+         ],
+         [
+          8.20703125
+         ],
+         [
+          8.16796875
+         ],
+         [
+          8.12890625
+         ],
+         [
+          8.08984375
+         ],
+         [
+          8.05078125
+         ],
+         [
+          8.01171875
+         ],
+         [
+          7.97265625
+         ],
+         [
+          7.93359375
+         ],
+         [
+          7.89453125
+         ],
+         [
+          7.85546875
+         ],
+         [
+          7.81640625
+         ],
+         [
+          7.77734375
+         ],
+         [
+          7.73828125
+         ],
+         [
+          7.69921875
+         ],
+         [
+          7.66015625
+         ],
+         [
+          7.62109375
+         ],
+         [
+          7.58203125
+         ],
+         [
+          7.54296875
+         ],
+         [
+          7.50390625
+         ],
+         [
+          7.46484375
+         ],
+         [
+          7.42578125
+         ],
+         [
+          7.38671875
+         ],
+         [
+          7.34765625
+         ],
+         [
+          7.30859375
+         ],
+         [
+          7.26953125
+         ],
+         [
+          7.23046875
+         ],
+         [
+          7.19140625
+         ],
+         [
+          7.15234375
+         ],
+         [
+          7.11328125
+         ],
+         [
+          7.07421875
+         ],
+         [
+          7.03515625
+         ],
+         [
+          6.99609375
+         ],
+         [
+          6.95703125
+         ],
+         [
+          6.91796875
+         ],
+         [
+          6.87890625
+         ],
+         [
+          6.83984375
+         ],
+         [
+          6.80078125
+         ],
+         [
+          6.76171875
+         ],
+         [
+          6.72265625
+         ],
+         [
+          6.68359375
+         ],
+         [
+          6.64453125
+         ],
+         [
+          6.60546875
+         ],
+         [
+          6.56640625
+         ],
+         [
+          6.52734375
+         ],
+         [
+          6.48828125
+         ],
+         [
+          6.44921875
+         ],
+         [
+          6.41015625
+         ],
+         [
+          6.37109375
+         ],
+         [
+          6.33203125
+         ],
+         [
+          6.29296875
+         ],
+         [
+          6.25390625
+         ],
+         [
+          6.21484375
+         ],
+         [
+          6.17578125
+         ],
+         [
+          6.13671875
+         ],
+         [
+          6.09765625
+         ],
+         [
+          6.05859375
+         ],
+         [
+          6.01953125
+         ]
+        ],
+        "colorbar": false,
+        "values_shown": false,
+        "cmap": "viridis",
+        "clim": [
+         6.0,
+         16.0
+        ]
+       },
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "",
+        "type": "category",
+        "ticks": [],
+        "step": null,
+        "categories": [],
+        "min": 0.0,
+        "max": 1.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "H2/C2H4 비",
+        "type": "category",
+        "ticks": [
+         6.0,
+         8.0,
+         10.0,
+         12.0,
+         14.0,
+         16.0
+        ],
+        "step": 2.0,
+        "categories": [
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16"
+        ],
+        "min": 6.0,
+        "max": 16.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16"
+        ],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "개별 데이터",
+       "평균 수율",
+       "표준편차"
+      ],
+      "inside": true,
+      "where": "upper right"
+     },
+     "files": [
+      {
+       "path": "out/t1/doe_yield_vs_temperature.png",
+       "format": "png",
+       "px": [
+        3000,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.45139098167419434,
+   "check": {
+    "kind_expected": "line",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 13.78
+  },
+  {
+   "turn": 2,
+   "text": "H2 비율마다 선을 따로 그려 주실 수 있을까요?",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the DOE data\nfile_path = \"data/doe_temp_h2.csv\"\ndf = pd.read_csv(file_path)\n\n# Ensure numeric types for plotting and analysis\ndf['2존온도(°C)'] = pd.to_numeric(df['2존온도(°C)'])\ndf['수율(g/g-cat)'] = pd.to_numeric(df['수율(g/g-cat)'])\ndf['H2/C2H4비'] = pd.to_numeric(df['H2/C2H4비'])\n\n# Get unique H2 ratios to plot separate lines for each\nh2_ratios = sorted(df['H2/C2H4비'].unique())\n\n# Create the plot\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# Plot mean yield vs temperature for each H2 ratio separately\nfor h2 in h2_ratios:\n    subset = df[df['H2/C2H4비'] == h2]\n    # Group by temperature to calculate mean and std for this specific H2 ratio\n    temp_groups = subset.groupby('2존온도(°C)')['수율(g/g-cat)']\n    mean_yields = temp_groups.mean()\n    std_yields = temp_groups.std()\n    \n    # Plot the line with markers\n    ax.plot(mean_yields.index, mean_yields.values, 'o-', label=f'H2/C2H4 = {int(h2)}', linewidth=2, markersize=6)\n    \n    # Add error bars if standard deviation exists (handle NaNs from single points)\n    if not np.isnan(std_yields).all():\n        ax.errorbar(mean_yields.index, mean_yields.values, yerr=std_yields, fmt='none', ecolor='gray', capsize=5, alpha=0.7)\n\n# Labels and Title\nax.set_xlabel('2존 온도 (°C)', fontsize=12)\nax.set_ylabel('수율 (g/g-cat)', fontsize=12)\nax.set_title('DOE 분석: H2 비율별 온도에 따른 CNT 수율 변화', fontsize=14, fontweight='bold')\nax.grid(True, linestyle='--', alpha=0.7)\n\n# Legend\nax.legend(loc='best', title='H2/C2H4 비', fontsize=10, title_fontsize=10)\n\n# Adjust layout\nplt.tight_layout()\n\n# Save figure\noutput_path = os.path.join(OUT_DIR, \"doe_yield_vs_temperature_by_h2.png\")\nplt.savefig(output_path, dpi=300)\nplt.close()\n```",
+     "llm_s": 12.711,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 5324,
+     "output_chars": 1941,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the DOE data\nfile_path = \"data/doe_temp_h2.csv\"\ndf = pd.read_csv(file_path)\n\n# Ensure numeric types for plotting and analysis\ndf['2존온도(°C)'] = pd.to_numeric(df['2존온도(°C)'])\ndf['수율(g/g-cat)'] = pd.to_numeric(df['수율(g/g-cat)'])\ndf['H2/C2H4비'] = pd.to_numeric(df['H2/C2H4비'])\n\n# Get unique H2 ratios to plot separate lines for each\nh2_ratios = sorted(df['H2/C2H4비'].unique())\n\n# Create the plot\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# Plot mean yield vs temperature for each H2 ratio separately\nfor h2 in h2_ratios:\n    subset = df[df['H2/C2H4비'] == h2]\n    # Group by temperature to calculate mean and std for this specific H2 ratio\n    temp_groups = subset.groupby('2존온도(°C)')['수율(g/g-cat)']\n    mean_yields = temp_groups.mean()\n    std_yields = temp_groups.std()\n    \n    # Plot the line with markers\n    ax.plot(mean_yields.index, mean_yields.values, 'o-', label=f'H2/C2H4 = {int(h2)}', linewidth=2, markersize=6)\n    \n    # Add error bars if standard deviation exists (handle NaNs from single points)\n    if not np.isnan(std_yields).all():\n        ax.errorbar(mean_yields.index, mean_yields.values, yerr=std_yields, fmt='none', ecolor='gray', capsize=5, alpha=0.7)\n\n# Labels and Title\nax.set_xlabel('2존 온도 (°C)', fontsize=12)\nax.set_ylabel('수율 (g/g-cat)', fontsize=12)\nax.set_title('DOE 분석: H2 비율별 온도에 따른 CNT 수율 변화', fontsize=14, fontweight='bold')\nax.grid(True, linestyle='--', alpha=0.7)\n\n# Legend\nax.legend(loc='best', title='H2/C2H4 비', fontsize=10, title_fontsize=10)\n\n# Adjust layout\nplt.tight_layout()\n\n# Save figure\noutput_path = os.path.join(OUT_DIR, \"doe_yield_vs_temperature_by_h2.png\")\nplt.savefig(output_path, dpi=300)\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "DOE 분석: H2 비율별 온도에 따른 CNT 수율 변화",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [
+        {
+         "name": "H2/C2H4 = 6",
+         "n": 5,
+         "x": [
+          1100.0,
+          1125.0,
+          1150.0,
+          1175.0,
+          1200.0
+         ],
+         "y": [
+          22.08666666666667,
+          25.336666666666662,
+          27.25333333333333,
+          25.55,
+          22.736666666666668
+         ],
+         "color": "#1f77b4",
+         "style": "-",
+         "width": 2.0
+        },
+        {
+         "name": "H2/C2H4 = 8",
+         "n": 5,
+         "x": [
+          1100.0,
+          1125.0,
+          1150.0,
+          1175.0,
+          1200.0
+         ],
+         "y": [
+          26.576666666666668,
+          29.05333333333333,
+          30.606666666666666,
+          29.5,
+          26.55333333333333
+         ],
+         "color": "#ff7f0e",
+         "style": "-",
+         "width": 2.0
+        },
+        {
+         "name": "H2/C2H4 = 10",
+         "n": 5,
+         "x": [
+          1100.0,
+          1125.0,
+          1150.0,
+          1175.0,
+          1200.0
+         ],
+         "y": [
+          27.376666666666665,
+          30.536666666666665,
+          32.13333333333333,
+          30.633333333333336,
+          26.623333333333335
+         ],
+         "color": "#2ca02c",
+         "style": "-",
+         "width": 2.0
+        },
+        {
+         "name": "H2/C2H4 = 12",
+         "n": 5,
+         "x": [
+          1100.0,
+          1125.0,
+          1150.0,
+          1175.0,
+          1200.0
+         ],
+         "y": [
+          27.126666666666665,
+          29.81,
+          29.493333333333336,
+          29.266666666666666,
+          26.253333333333334
+         ],
+         "color": "#d62728",
+         "style": "-",
+         "width": 2.0
+        },
+        {
+         "name": "H2/C2H4 = 14",
+         "n": 5,
+         "x": [
+          1100.0,
+          1125.0,
+          1150.0,
+          1175.0,
+          1200.0
+         ],
+         "y": [
+          24.14,
+          26.25,
+          26.53,
+          24.959999999999997,
+          20.766666666666666
+         ],
+         "color": "#9467bd",
+         "style": "-",
+         "width": 2.0
+        },
+        {
+         "name": "H2/C2H4 = 16",
+         "n": 5,
+         "x": [
+          1100.0,
+          1125.0,
+          1150.0,
+          1175.0,
+          1200.0
+         ],
+         "y": [
+          17.05,
+          20.763333333333332,
+          21.653333333333332,
+          19.186666666666667,
+          15.6
+         ],
+         "color": "#8c564b",
+         "style": "-",
+         "width": 2.0
+        }
+       ],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "2존 온도 (°C)",
+        "type": "value",
+        "ticks": [
+         1100.0,
+         1120.0,
+         1140.0,
+         1160.0,
+         1180.0,
+         1200.0
+        ],
+        "step": 20.0,
+        "categories": null,
+        "min": 1095.0,
+        "max": 1205.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "1080",
+         "1100",
+         "1120",
+         "1140",
+         "1160",
+         "1180",
+         "1200",
+         "1220"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "수율 (g/g-cat)",
+        "type": "value",
+        "ticks": [
+         15.0,
+         17.5,
+         20.0,
+         22.5,
+         25.0,
+         27.5,
+         30.0,
+         32.5
+        ],
+        "step": 2.5,
+        "categories": null,
+        "min": 13.880573826274329,
+        "max": 33.41220150830233,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "12.5",
+         "15.0",
+         "17.5",
+         "20.0",
+         "22.5",
+         "25.0",
+         "27.5",
+         "30.0",
+         "32.5",
+         "35.0"
+        ],
+        "rotate": 0.0
+       },
+       "title": "DOE 분석: H2 비율별 온도에 따른 CNT 수율 변화"
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "H2/C2H4 = 6",
+       "H2/C2H4 = 8",
+       "H2/C2H4 = 10",
+       "H2/C2H4 = 12",
+       "H2/C2H4 = 14",
+       "H2/C2H4 = 16"
+      ],
+      "inside": true,
+      "where": "lower center"
+     },
+     "files": [
+      {
+       "path": "out/t2/doe_yield_vs_temperature_by_h2.png",
+       "format": "png",
+       "px": [
+        3000,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5504012107849121,
+   "check": {
+    "kind_expected": "line",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 13.262
+  },
+  {
+   "turn": 3,
+   "text": "선이 많아서 좀 헷갈리네요. 히트맵으로 보면 어떨까요?",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the DOE data\nfile_path = \"data/doe_temp_h2.csv\"\ndf = pd.read_csv(file_path)\n\n# Ensure numeric types for plotting and analysis\ndf['2존온도(°C)'] = pd.to_numeric(df['2존온도(°C)'])\ndf['수율(g/g-cat)'] = pd.to_numeric(df['수율(g/g-cat)'])\ndf['H2/C2H4비'] = pd.to_numeric(df['H2/C2H4비'])\n\n# Pivot table to create heatmap matrix: Rows = H2 Ratio, Columns = Temperature, Values = Mean Yield\npivot_df = df.pivot_table(values='수율(g/g-cat)', index='H2/C2H4비', columns='2존온도(°C)', aggfunc='mean')\n\n# Create the plot\nfig, ax = plt.subplots(figsize=(10, 7))\n\n# Draw heatmap using imshow or pcolormesh (imshow is often easier for categorical axes if handled right, \n# but here we have specific numerical ticks. We'll use imshow with extent or just let matplotlib handle indices and set ticks manually)\n# Since index/columns are sorted numerically in pivot_table usually, we can use them directly.\nim = ax.imshow(pivot_df.values, aspect='auto', cmap='YlOrRd')\n\n# Set x-ticks (Temperature) and y-ticks (H2 Ratio)\nax.set_xticks(np.arange(len(pivot_df.columns)))\nax.set_yticks(np.arange(len(pivot_df.index)))\nax.set_xticklabels([f\"{int(t)}\" for t in pivot_df.columns])\nax.set_yticklabels([f\"{int(h)}\" for h in pivot_df.index])\n\n# Rotate x-axis labels if needed for better readability (though they are short)\nplt.setp(ax.get_xticklabels(), rotation=0, ha=\"center\", rotation_mode=\"anchor\")\n\n# Add text annotations inside each cell showing the mean yield value\nfor i in range(len(pivot_df.index)):\n    for j in range(len(pivot_df.columns)):\n        # Format the number to 2 decimal places\n        text = ax.text(j, i, f\"{pivot_df.iloc[i, j]:.2f}\",\n                       ha=\"center\", va=\"center\", color=\"black\", fontsize=9)\n\n# Labels and Title\nax.set_xlabel('2존 온도 (°C)', fontsize=12)\nax.set_ylabel('H2/C2H4 비', fontsize=12)\nax.set_title('DOE 히트맵: 온도와 H2 비율에 따른 평균 CNT 수율', fontsize=14, fontweight='bold')\n\n# Colorbar\ncbar = ax.figure.colorbar(im, ax=ax)\ncbar.ax.set_ylabel('평균 수율 (g/g-cat)', rotation=-90, va=\"bottom\", fontsize=10)\n\n# Adjust layout\nplt.tight_layout()\n\n# Save figure\noutput_path = os.path.join(OUT_DIR, \"doe_yield_heatmap.png\")\nplt.savefig(output_path, dpi=300)\nplt.close()\n```",
+     "llm_s": 12.251,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 7553,
+     "output_chars": 2452,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the DOE data\nfile_path = \"data/doe_temp_h2.csv\"\ndf = pd.read_csv(file_path)\n\n# Ensure numeric types for plotting and analysis\ndf['2존온도(°C)'] = pd.to_numeric(df['2존온도(°C)'])\ndf['수율(g/g-cat)'] = pd.to_numeric(df['수율(g/g-cat)'])\ndf['H2/C2H4비'] = pd.to_numeric(df['H2/C2H4비'])\n\n# Pivot table to create heatmap matrix: Rows = H2 Ratio, Columns = Temperature, Values = Mean Yield\npivot_df = df.pivot_table(values='수율(g/g-cat)', index='H2/C2H4비', columns='2존온도(°C)', aggfunc='mean')\n\n# Create the plot\nfig, ax = plt.subplots(figsize=(10, 7))\n\n# Draw heatmap using imshow or pcolormesh (imshow is often easier for categorical axes if handled right, \n# but here we have specific numerical ticks. We'll use imshow with extent or just let matplotlib handle indices and set ticks manually)\n# Since index/columns are sorted numerically in pivot_table usually, we can use them directly.\nim = ax.imshow(pivot_df.values, aspect='auto', cmap='YlOrRd')\n\n# Set x-ticks (Temperature) and y-ticks (H2 Ratio)\nax.set_xticks(np.arange(len(pivot_df.columns)))\nax.set_yticks(np.arange(len(pivot_df.index)))\nax.set_xticklabels([f\"{int(t)}\" for t in pivot_df.columns])\nax.set_yticklabels([f\"{int(h)}\" for h in pivot_df.index])\n\n# Rotate x-axis labels if needed for better readability (though they are short)\nplt.setp(ax.get_xticklabels(), rotation=0, ha=\"center\", rotation_mode=\"anchor\")\n\n# Add text annotations inside each cell showing the mean yield value\nfor i in range(len(pivot_df.index)):\n    for j in range(len(pivot_df.columns)):\n        # Format the number to 2 decimal places\n        text = ax.text(j, i, f\"{pivot_df.iloc[i, j]:.2f}\",\n                       ha=\"center\", va=\"center\", color=\"black\", fontsize=9)\n\n# Labels and Title\nax.set_xlabel('2존 온도 (°C)', fontsize=12)\nax.set_ylabel('H2/C2H4 비', fontsize=12)\nax.set_title('DOE 히트맵: 온도와 H2 비율에 따른 평균 CNT 수율', fontsize=14, fontweight='bold')\n\n# Colorbar\ncbar = ax.figure.colorbar(im, ax=ax)\ncbar.ax.set_ylabel('평균 수율 (g/g-cat)', rotation=-90, va=\"bottom\", fontsize=10)\n\n# Adjust layout\nplt.tight_layout()\n\n# Save figure\noutput_path = os.path.join(OUT_DIR, \"doe_yield_heatmap.png\")\nplt.savefig(output_path, dpi=300)\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      7.0
+     ],
+     "dpi": null,
+     "title": "DOE 히트맵: 온도와 H2 비율에 따른 평균 CNT 수율",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": {
+        "rows": [
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16"
+        ],
+        "cols": [
+         "1100",
+         "1125",
+         "1150",
+         "1175",
+         "1200"
+        ],
+        "z": [
+         [
+          22.086666666666662,
+          25.336666666666662,
+          27.253333333333334,
+          25.55,
+          22.736666666666668
+         ],
+         [
+          26.576666666666668,
+          29.05333333333333,
+          30.606666666666666,
+          29.5,
+          26.55333333333333
+         ],
+         [
+          27.376666666666665,
+          30.536666666666665,
+          32.13333333333333,
+          30.633333333333336,
+          26.623333333333335
+         ],
+         [
+          27.126666666666665,
+          29.810000000000002,
+          29.493333333333336,
+          29.266666666666666,
+          26.253333333333334
+         ],
+         [
+          24.14,
+          26.25,
+          26.53,
+          24.959999999999997,
+          20.766666666666666
+         ],
+         [
+          17.05,
+          20.763333333333332,
+          21.653333333333336,
+          19.186666666666667,
+          15.6
+         ]
+        ],
+        "colorbar": true,
+        "values_shown": true,
+        "cmap": "YlOrRd",
+        "clim": [
+         15.6,
+         32.13333333333333
+        ]
+       },
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 30,
+       "texts": [
+        "22.09",
+        "25.34",
+        "27.25",
+        "25.55",
+        "22.74",
+        "26.58",
+        "29.05",
+        "30.61",
+        "29.50",
+        "26.55",
+        "27.38",
+        "30.54",
+        "32.13",
+        "30.63",
+        "26.62",
+        "27.13",
+        "29.81",
+        "29.49",
+        "29.27",
+        "26.25",
+        "24.14",
+        "26.25",
+        "26.53",
+        "24.96",
+        "20.77",
+        "17.05",
+        "20.76",
+        "21.65",
+        "19.19",
+        "15.60"
+       ],
+       "x": {
+        "label": "2존 온도 (°C)",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "1100",
+         "1125",
+         "1150",
+         "1175",
+         "1200"
+        ],
+        "min": -0.5,
+        "max": 4.5,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "1100",
+         "1125",
+         "1150",
+         "1175",
+         "1200"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "H2/C2H4 비",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0,
+         5.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16"
+        ],
+        "min": -0.5,
+        "max": 5.5,
+        "log": false,
+        "inverted": true,
+        "tick_labels": [
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16"
+        ],
+        "rotate": 0.0
+       },
+       "title": "DOE 히트맵: 온도와 H2 비율에 따른 평균 CNT 수율"
+      }
+     ],
+     "texts": [
+      "22.09",
+      "25.34",
+      "27.25",
+      "25.55",
+      "22.74",
+      "26.58",
+      "29.05",
+      "30.61",
+      "29.50",
+      "26.55",
+      "27.38",
+      "30.54",
+      "32.13",
+      "30.63",
+      "26.62",
+      "27.13",
+      "29.81",
+      "29.49",
+      "29.27",
+      "26.25",
+      "24.14",
+      "26.25",
+      "26.53",
+      "24.96",
+      "20.77",
+      "17.05",
+      "20.76",
+      "21.65",
+      "19.19",
+      "15.60"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t3/doe_yield_heatmap.png",
+       "format": "png",
+       "px": [
+        3000,
+        2100
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.6579437255859375,
+   "check": {
+    "kind_expected": "heatmap",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 12.909
+  },
+  {
+   "turn": 4,
+   "text": "칸 안에 숫자도 넣어 주세요. 소수점 한 자리로요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the DOE data\nfile_path = \"data/doe_temp_h2.csv\"\ndf = pd.read_csv(file_path)\n\n# Ensure numeric types for plotting and analysis\ndf['2존온도(°C)'] = pd.to_numeric(df['2존온도(°C)'])\ndf['수율(g/g-cat)'] = pd.to_numeric(df['수율(g/g-cat)'])\ndf['H2/C2H4비'] = pd.to_numeric(df['H2/C2H4비'])\n\n# Pivot table to create heatmap matrix: Rows = H2 Ratio, Columns = Temperature, Values = Mean Yield\npivot_df = df.pivot_table(values='수율(g/g-cat)', index='H2/C2H4비', columns='2존온도(°C)', aggfunc='mean')\n\n# Create the plot\nfig, ax = plt.subplots(figsize=(10, 7))\n\n# Draw heatmap\nim = ax.imshow(pivot_df.values, aspect='auto', cmap='YlOrRd')\n\n# Set x-ticks (Temperature) and y-ticks (H2 Ratio)\nax.set_xticks(np.arange(len(pivot_df.columns)))\nax.set_yticks(np.arange(len(pivot_df.index)))\nax.set_xticklabels([f\"{int(t)}\" for t in pivot_df.columns])\nax.set_yticklabels([f\"{int(h)}\" for h in pivot_df.index])\n\n# Rotate x-axis labels if needed for better readability\nplt.setp(ax.get_xticklabels(), rotation=0, ha=\"center\", rotation_mode=\"anchor\")\n\n# Add text annotations inside each cell showing the mean yield value with 1 decimal place\nfor i in range(len(pivot_df.index)):\n    for j in range(len(pivot_df.columns)):\n        # Format the number to 1 decimal place\n        val = pivot_df.iloc[i, j]\n        text_str = f\"{val:.1f}\"\n        \n        # Choose text color based on background brightness for better contrast\n        # Normalize the value to determine if it's light or dark\n        norm_val = (val - np.nanmin(pivot_df.values)) / (np.nanmax(pivot_df.values) - np.nanmin(pivot_df.values))\n        text_color = \"white\" if norm_val > 0.6 else \"black\"\n        \n        ax.text(j, i, text_str,\n                ha=\"center\", va=\"center\", color=text_color, fontsize=9, fontweight='bold')\n\n# Labels and Title\nax.set_xlabel('2존 온도 (°C)', fontsize=12)\nax.set_ylabel('H2/C2H4 비', fontsize=12)\nax.set_title('DOE 히트맵: 온도와 H2 비율에 따른 평균 CNT 수율', fontsize=14, fontweight='bold')\n\n# Colorbar\ncbar = ax.figure.colorbar(im, ax=ax)\ncbar.ax.set_ylabel('평균 수율 (g/g-cat)', rotation=-90, va=\"bottom\", fontsize=10)\n\n# Adjust layout\nplt.tight_layout()\n\n# Save figure\noutput_path = os.path.join(OUT_DIR, \"doe_yield_heatmap_1dp.png\")\nplt.savefig(output_path, dpi=300)\nplt.close()\n```",
+     "llm_s": 13.917,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 10313,
+     "output_chars": 2520,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the DOE data\nfile_path = \"data/doe_temp_h2.csv\"\ndf = pd.read_csv(file_path)\n\n# Ensure numeric types for plotting and analysis\ndf['2존온도(°C)'] = pd.to_numeric(df['2존온도(°C)'])\ndf['수율(g/g-cat)'] = pd.to_numeric(df['수율(g/g-cat)'])\ndf['H2/C2H4비'] = pd.to_numeric(df['H2/C2H4비'])\n\n# Pivot table to create heatmap matrix: Rows = H2 Ratio, Columns = Temperature, Values = Mean Yield\npivot_df = df.pivot_table(values='수율(g/g-cat)', index='H2/C2H4비', columns='2존온도(°C)', aggfunc='mean')\n\n# Create the plot\nfig, ax = plt.subplots(figsize=(10, 7))\n\n# Draw heatmap\nim = ax.imshow(pivot_df.values, aspect='auto', cmap='YlOrRd')\n\n# Set x-ticks (Temperature) and y-ticks (H2 Ratio)\nax.set_xticks(np.arange(len(pivot_df.columns)))\nax.set_yticks(np.arange(len(pivot_df.index)))\nax.set_xticklabels([f\"{int(t)}\" for t in pivot_df.columns])\nax.set_yticklabels([f\"{int(h)}\" for h in pivot_df.index])\n\n# Rotate x-axis labels if needed for better readability\nplt.setp(ax.get_xticklabels(), rotation=0, ha=\"center\", rotation_mode=\"anchor\")\n\n# Add text annotations inside each cell showing the mean yield value with 1 decimal place\nfor i in range(len(pivot_df.index)):\n    for j in range(len(pivot_df.columns)):\n        # Format the number to 1 decimal place\n        val = pivot_df.iloc[i, j]\n        text_str = f\"{val:.1f}\"\n        \n        # Choose text color based on background brightness for better contrast\n        # Normalize the value to determine if it's light or dark\n        norm_val = (val - np.nanmin(pivot_df.values)) / (np.nanmax(pivot_df.values) - np.nanmin(pivot_df.values))\n        text_color = \"white\" if norm_val > 0.6 else \"black\"\n        \n        ax.text(j, i, text_str,\n                ha=\"center\", va=\"center\", color=text_color, fontsize=9, fontweight='bold')\n\n# Labels and Title\nax.set_xlabel('2존 온도 (°C)', fontsize=12)\nax.set_ylabel('H2/C2H4 비', fontsize=12)\nax.set_title('DOE 히트맵: 온도와 H2 비율에 따른 평균 CNT 수율', fontsize=14, fontweight='bold')\n\n# Colorbar\ncbar = ax.figure.colorbar(im, ax=ax)\ncbar.ax.set_ylabel('평균 수율 (g/g-cat)', rotation=-90, va=\"bottom\", fontsize=10)\n\n# Adjust layout\nplt.tight_layout()\n\n# Save figure\noutput_path = os.path.join(OUT_DIR, \"doe_yield_heatmap_1dp.png\")\nplt.savefig(output_path, dpi=300)\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      7.0
+     ],
+     "dpi": null,
+     "title": "DOE 히트맵: 온도와 H2 비율에 따른 평균 CNT 수율",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": {
+        "rows": [
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16"
+        ],
+        "cols": [
+         "1100",
+         "1125",
+         "1150",
+         "1175",
+         "1200"
+        ],
+        "z": [
+         [
+          22.086666666666662,
+          25.336666666666662,
+          27.253333333333334,
+          25.55,
+          22.736666666666668
+         ],
+         [
+          26.576666666666668,
+          29.05333333333333,
+          30.606666666666666,
+          29.5,
+          26.55333333333333
+         ],
+         [
+          27.376666666666665,
+          30.536666666666665,
+          32.13333333333333,
+          30.633333333333336,
+          26.623333333333335
+         ],
+         [
+          27.126666666666665,
+          29.810000000000002,
+          29.493333333333336,
+          29.266666666666666,
+          26.253333333333334
+         ],
+         [
+          24.14,
+          26.25,
+          26.53,
+          24.959999999999997,
+          20.766666666666666
+         ],
+         [
+          17.05,
+          20.763333333333332,
+          21.653333333333336,
+          19.186666666666667,
+          15.6
+         ]
+        ],
+        "colorbar": true,
+        "values_shown": true,
+        "cmap": "YlOrRd",
+        "clim": [
+         15.6,
+         32.13333333333333
+        ]
+       },
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 30,
+       "texts": [
+        "22.1",
+        "25.3",
+        "27.3",
+        "25.6",
+        "22.7",
+        "26.6",
+        "29.1",
+        "30.6",
+        "29.5",
+        "26.6",
+        "27.4",
+        "30.5",
+        "32.1",
+        "30.6",
+        "26.6",
+        "27.1",
+        "29.8",
+        "29.5",
+        "29.3",
+        "26.3",
+        "24.1",
+        "26.2",
+        "26.5",
+        "25.0",
+        "20.8",
+        "17.1",
+        "20.8",
+        "21.7",
+        "19.2",
+        "15.6"
+       ],
+       "x": {
+        "label": "2존 온도 (°C)",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "1100",
+         "1125",
+         "1150",
+         "1175",
+         "1200"
+        ],
+        "min": -0.5,
+        "max": 4.5,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "1100",
+         "1125",
+         "1150",
+         "1175",
+         "1200"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "H2/C2H4 비",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0,
+         5.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16"
+        ],
+        "min": -0.5,
+        "max": 5.5,
+        "log": false,
+        "inverted": true,
+        "tick_labels": [
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16"
+        ],
+        "rotate": 0.0
+       },
+       "title": "DOE 히트맵: 온도와 H2 비율에 따른 평균 CNT 수율"
+      }
+     ],
+     "texts": [
+      "22.1",
+      "25.3",
+      "27.3",
+      "25.6",
+      "22.7",
+      "26.6",
+      "29.1",
+      "30.6",
+      "29.5",
+      "26.6",
+      "27.4",
+      "30.5",
+      "32.1",
+      "30.6",
+      "26.6",
+      "27.1",
+      "29.8",
+      "29.5",
+      "29.3",
+      "26.3",
+      "24.1",
+      "26.2",
+      "26.5",
+      "25.0",
+      "20.8",
+      "17.1",
+      "20.8",
+      "21.7",
+      "19.2",
+      "15.6"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t4/doe_yield_heatmap_1dp.png",
+       "format": "png",
+       "px": [
+        3000,
+        2100
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5685360431671143,
+   "check": {
+    "kind_expected": "heatmap",
+    "failed": [],
+    "unchecked": [
+     "annotate=True"
+    ],
+    "n_checks": 3,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 14.486
+  },
+  {
+   "turn": 5,
+   "text": "순도로도 똑같이 하나 더 만들어 주실 수 있나요?",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the DOE data\nfile_path = \"data/doe_temp_h2.csv\"\ndf = pd.read_csv(file_path)\n\n# Ensure numeric types for plotting and analysis\ndf['2존온도(°C)'] = pd.to_numeric(df['2존온도(°C)'])\ndf['순도(%)'] = pd.to_numeric(df['순도(%)'])\ndf['H2/C2H4비'] = pd.to_numeric(df['H2/C2H4비'])\n\n# Pivot table to create heatmap matrix: Rows = H2 Ratio, Columns = Temperature, Values = Mean Purity\npivot_df = df.pivot_table(values='순도(%)', index='H2/C2H4비', columns='2존온도(°C)', aggfunc='mean')\n\n# Create the plot\nfig, ax = plt.subplots(figsize=(10, 7))\n\n# Draw heatmap\nim = ax.imshow(pivot_df.values, aspect='auto', cmap='YlOrRd')\n\n# Set x-ticks (Temperature) and y-ticks (H2 Ratio)\nax.set_xticks(np.arange(len(pivot_df.columns)))\nax.set_yticks(np.arange(len(pivot_df.index)))\nax.set_xticklabels([f\"{int(t)}\" for t in pivot_df.columns])\nax.set_yticklabels([f\"{int(h)}\" for h in pivot_df.index])\n\n# Rotate x-axis labels if needed for better readability\nplt.setp(ax.get_xticklabels(), rotation=0, ha=\"center\", rotation_mode=\"anchor\")\n\n# Add text annotations inside each cell showing the mean purity value with 1 decimal place\nfor i in range(len(pivot_df.index)):\n    for j in range(len(pivot_df.columns)):\n        val = pivot_df.iloc[i, j]\n        text_str = f\"{val:.1f}\"\n        \n        # Choose text color based on background brightness for better contrast\n        norm_val = (val - np.nanmin(pivot_df.values)) / (np.nanmax(pivot_df.values) - np.nanmin(pivot_df.values))\n        text_color = \"white\" if norm_val > 0.6 else \"black\"\n        \n        ax.text(j, i, text_str,\n                ha=\"center\", va=\"center\", color=text_color, fontsize=9, fontweight='bold')\n\n# Labels and Title\nax.set_xlabel('2존 온도 (°C)', fontsize=12)\nax.set_ylabel('H2/C2H4 비', fontsize=12)\nax.set_title('DOE 히트맵: 온도와 H2 비율에 따른 평균 CNT 순도 (%)', fontsize=14, fontweight='bold')\n\n# Colorbar\ncbar = ax.figure.colorbar(im, ax=ax)\ncbar.ax.set_ylabel('평균 순도 (%)', rotation=-90, va=\"bottom\", fontsize=10)\n\n# Adjust layout\nplt.tight_layout()\n\n# Save figure\noutput_path = os.path.join(OUT_DIR, \"doe_purity_heatmap_1dp.png\")\nplt.savefig(output_path, dpi=300)\nplt.close()\n```",
+     "llm_s": 11.546,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 13148,
+     "output_chars": 2391,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the DOE data\nfile_path = \"data/doe_temp_h2.csv\"\ndf = pd.read_csv(file_path)\n\n# Ensure numeric types for plotting and analysis\ndf['2존온도(°C)'] = pd.to_numeric(df['2존온도(°C)'])\ndf['순도(%)'] = pd.to_numeric(df['순도(%)'])\ndf['H2/C2H4비'] = pd.to_numeric(df['H2/C2H4비'])\n\n# Pivot table to create heatmap matrix: Rows = H2 Ratio, Columns = Temperature, Values = Mean Purity\npivot_df = df.pivot_table(values='순도(%)', index='H2/C2H4비', columns='2존온도(°C)', aggfunc='mean')\n\n# Create the plot\nfig, ax = plt.subplots(figsize=(10, 7))\n\n# Draw heatmap\nim = ax.imshow(pivot_df.values, aspect='auto', cmap='YlOrRd')\n\n# Set x-ticks (Temperature) and y-ticks (H2 Ratio)\nax.set_xticks(np.arange(len(pivot_df.columns)))\nax.set_yticks(np.arange(len(pivot_df.index)))\nax.set_xticklabels([f\"{int(t)}\" for t in pivot_df.columns])\nax.set_yticklabels([f\"{int(h)}\" for h in pivot_df.index])\n\n# Rotate x-axis labels if needed for better readability\nplt.setp(ax.get_xticklabels(), rotation=0, ha=\"center\", rotation_mode=\"anchor\")\n\n# Add text annotations inside each cell showing the mean purity value with 1 decimal place\nfor i in range(len(pivot_df.index)):\n    for j in range(len(pivot_df.columns)):\n        val = pivot_df.iloc[i, j]\n        text_str = f\"{val:.1f}\"\n        \n        # Choose text color based on background brightness for better contrast\n        norm_val = (val - np.nanmin(pivot_df.values)) / (np.nanmax(pivot_df.values) - np.nanmin(pivot_df.values))\n        text_color = \"white\" if norm_val > 0.6 else \"black\"\n        \n        ax.text(j, i, text_str,\n                ha=\"center\", va=\"center\", color=text_color, fontsize=9, fontweight='bold')\n\n# Labels and Title\nax.set_xlabel('2존 온도 (°C)', fontsize=12)\nax.set_ylabel('H2/C2H4 비', fontsize=12)\nax.set_title('DOE 히트맵: 온도와 H2 비율에 따른 평균 CNT 순도 (%)', fontsize=14, fontweight='bold')\n\n# Colorbar\ncbar = ax.figure.colorbar(im, ax=ax)\ncbar.ax.set_ylabel('평균 순도 (%)', rotation=-90, va=\"bottom\", fontsize=10)\n\n# Adjust layout\nplt.tight_layout()\n\n# Save figure\noutput_path = os.path.join(OUT_DIR, \"doe_purity_heatmap_1dp.png\")\nplt.savefig(output_path, dpi=300)\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      7.0
+     ],
+     "dpi": null,
+     "title": "DOE 히트맵: 온도와 H2 비율에 따른 평균 CNT 순도 (%)",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": {
+        "rows": [
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16"
+        ],
+        "cols": [
+         "1100",
+         "1125",
+         "1150",
+         "1175",
+         "1200"
+        ],
+        "z": [
+         [
+          86.05,
+          89.95,
+          92.27999999999999,
+          92.96999999999998,
+          92.17999999999999
+         ],
+         [
+          88.22333333333334,
+          91.87,
+          94.29666666666667,
+          95.2,
+          94.32333333333334
+         ],
+         [
+          89.10000000000001,
+          93.24333333333334,
+          95.34333333333332,
+          96.14333333333333,
+          95.43666666666667
+         ],
+         [
+          90.13666666666666,
+          93.82333333333334,
+          95.91333333333334,
+          96.71333333333332,
+          95.81333333333333
+         ],
+         [
+          89.36000000000001,
+          93.53666666666668,
+          95.39,
+          96.25,
+          95.51666666666667
+         ],
+         [
+          88.10666666666667,
+          92.05333333333334,
+          94.24666666666667,
+          94.91000000000001,
+          94.44666666666667
+         ]
+        ],
+        "colorbar": true,
+        "values_shown": true,
+        "cmap": "YlOrRd",
+        "clim": [
+         86.05,
+         96.71333333333332
+        ]
+       },
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 30,
+       "texts": [
+        "86.0",
+        "90.0",
+        "92.3",
+        "93.0",
+        "92.2",
+        "88.2",
+        "91.9",
+        "94.3",
+        "95.2",
+        "94.3",
+        "89.1",
+        "93.2",
+        "95.3",
+        "96.1",
+        "95.4",
+        "90.1",
+        "93.8",
+        "95.9",
+        "96.7",
+        "95.8",
+        "89.4",
+        "93.5",
+        "95.4",
+        "96.2",
+        "95.5",
+        "88.1",
+        "92.1",
+        "94.2",
+        "94.9",
+        "94.4"
+       ],
+       "x": {
+        "label": "2존 온도 (°C)",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "1100",
+         "1125",
+         "1150",
+         "1175",
+         "1200"
+        ],
+        "min": -0.5,
+        "max": 4.5,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "1100",
+         "1125",
+         "1150",
+         "1175",
+         "1200"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "H2/C2H4 비",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0,
+         5.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16"
+        ],
+        "min": -0.5,
+        "max": 5.5,
+        "log": false,
+        "inverted": true,
+        "tick_labels": [
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16"
+        ],
+        "rotate": 0.0
+       },
+       "title": "DOE 히트맵: 온도와 H2 비율에 따른 평균 CNT 순도 (%)"
+      }
+     ],
+     "texts": [
+      "86.0",
+      "90.0",
+      "92.3",
+      "93.0",
+      "92.2",
+      "88.2",
+      "91.9",
+      "94.3",
+      "95.2",
+      "94.3",
+      "89.1",
+      "93.2",
+      "95.3",
+      "96.1",
+      "95.4",
+      "90.1",
+      "93.8",
+      "95.9",
+      "96.7",
+      "95.8",
+      "89.4",
+      "93.5",
+      "95.4",
+      "96.2",
+      "95.5",
+      "88.1",
+      "92.1",
+      "94.2",
+      "94.9",
+      "94.4"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t5/doe_purity_heatmap_1dp.png",
+       "format": "png",
+       "px": [
+        3000,
+        2100
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5712106227874756,
+   "check": {
+    "kind_expected": "heatmap",
+    "failed": [],
+    "unchecked": [
+     "annotate=True"
+    ],
+    "n_checks": 3,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 12.118
+  }
+ ]
+}

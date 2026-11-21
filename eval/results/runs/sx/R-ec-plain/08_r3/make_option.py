@@ -1,0 +1,165 @@
+import pandas as pd
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+def main():
+    # Read all sheets from the Excel file
+    xls = pd.ExcelFile(DATA_FILE)
+    
+    figures = []
+    
+    for sheet_name in xls.sheet_names:
+        df = pd.read_excel(xls, sheet_name=sheet_name, header=0)
+        
+        # Extract columns based on the structure provided in preview
+        # Assuming column names are consistent or we can access by position if needed.
+        # Based on preview: B is Temperature, C is Weight(%), D is D.W(%/C)
+        # Let's find them by name to be safe, or use indices if names vary slightly.
+        
+        temp_col = None
+        weight_col = None
+        dwt_col = None
+        
+        for col in df.columns:
+            col_str = str(col).strip()
+            if 'Temperature' in col_str:
+                temp_col = col
+            elif 'Weight(%)' in col_str or col_str == 'Weight':
+                weight_col = col
+            elif 'D.W' in col_str or 'DTG' in col_str:
+                dwt_col = col
+        
+        if not temp_col or not weight_col or not dwt_col:
+            # Fallback to positional if names don't match exactly (based on A,B,C,D -> 1,2,3,4 index)
+            # Column A is Time (index 0), B is Temp (index 1), C is Weight (index 2), D is DW (index 3)
+            cols = list(df.columns)
+            if len(cols) >= 4:
+                temp_col = cols[1]
+                weight_col = cols[2]
+                dwt_col = cols[3]
+            else:
+                continue
+
+        # Prepare data for ECharts
+        # We need lists of [x, y] pairs or separate arrays depending on series type.
+        # For line charts with multiple Y axes, it's often easier to provide data as [[x, y], ...]
+        
+        x_data = df[temp_col].dropna().tolist()
+        y1_data = df[weight_col].dropna().tolist()
+        y2_data = df[dwt_col].dropna().tolist()
+        
+        # Align lengths just in case there were NaNs dropped differently
+        min_len = min(len(x_data), len(y1_data), len(y2_data))
+        x_data = x_data[:min_len]
+        y1_data = y1_data[:min_len]
+        y2_data = y2_data[:min_len]
+        
+        # Create series data objects
+        # Series 1: Weight (%) on left Y axis
+        series_weight = {
+            "name": f"{sheet_name} - 무게",
+            "type": "line",
+            "yAxisIndex": 0,
+            "data": [[float(x), float(y)] for x, y in zip(x_data, y1_data)],
+            "showSymbol": False,
+            "lineStyle": {"width": 2},
+            "itemStyle": {"color": "#5470c6"} # Default blue-ish
+        }
+        
+        # Series 2: DTG (%/C) on right Y axis
+        series_dtg = {
+            "name": f"{sheet_name} - 미분 무게",
+            "type": "line",
+            "yAxisIndex": 1,
+            "data": [[float(x), float(y)] for x, y in zip(x_data, y2_data)],
+            "showSymbol": False,
+            "lineStyle": {"width": 2},
+            "itemStyle": {"color": "#91cc75"} # Default green-ish
+        }
+        
+        option = {
+            "title": {
+                "text": f"TGA 결과: {sheet_name}",
+                "left": "center",
+                "textStyle": {
+                    "fontFamily": "Noto Sans CJK KR",
+                    "fontSize": 16
+                }
+            },
+            "tooltip": {
+                "trigger": "axis",
+                "axisPointer": {
+                    "type": "cross"
+                }
+            },
+            "legend": {
+                "data": [series_weight["name"], series_dtg["name"]],
+                "top": "8%"
+            },
+            "grid": {
+                "left": "10%",
+                "right": "10%",
+                "bottom": "15%",
+                "containLabel": True
+            },
+            "xAxis": {
+                "type": "value",
+                "name": "온도 (°C)",
+                "nameLocation": "middle",
+                "nameGap": 30,
+                "axisLabel": {
+                    "formatter": "{value}"
+                },
+                "splitLine": {
+                    "show": True,
+                    "lineStyle": {
+                        "type": "dashed"
+                    }
+                }
+            },
+            "yAxis": [
+                {
+                    "type": "value",
+                    "name": "무게 (%)",
+                    "position": "left",
+                    "axisLine": {
+                        "onZero": False
+                    },
+                    "splitLine": {
+                        "show": True,
+                        "lineStyle": {
+                            "type": "dashed"
+                        }
+                    }
+                },
+                {
+                    "type": "value",
+                    "name": "미분 무게 (%/°C)",
+                    "position": "right",
+                    "axisLine": {
+                        "onZero": False
+                    },
+                    "splitLine": {
+                        "show": False
+                    }
+                }
+            ],
+            "series": [series_weight, series_dtg]
+        }
+        
+        figure_entry = {
+            "name": f"tga_{sheet_name.replace(' ', '_').replace('-', '_')}",
+            "option": option,
+            "width": 800,
+            "height": 600,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+        figures.append(figure_entry)
+        
+    result = {"figures": figures}
+    print(json.dumps(result, ensure_ascii=False))
+
+if __name__ == "__main__":
+    main()

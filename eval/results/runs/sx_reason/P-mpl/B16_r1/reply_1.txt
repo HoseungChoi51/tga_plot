@@ -1,0 +1,6 @@
+```json
+{
+  "file": "caox.csv",
+  "code": "ax1.set_position([0.125, 0.55, 0.775, 0.3]); ax2.set_position([0.125, 0.15, 0.775, 0.3]); ax2.yaxis.tick_left(); ax2.yaxis.set_label_position('left'); ax2.spines['right'].set_visible(False); ax2.spines['left'].set_visible(True); ax1.tick_params(axis='x', which='both', bottom=False, labelbottom=False); ax2.tick_params(axis='x', which='both', bottom=True, labelbottom=True); ax2.xaxis.set_visible(True); ax2.xaxis.set_label_position('bottom'); ax2.set_xlabel(ax1.get_xlabel() or 'Temperature (°C)'); ax1.set_xlabel('')"
+}
+```

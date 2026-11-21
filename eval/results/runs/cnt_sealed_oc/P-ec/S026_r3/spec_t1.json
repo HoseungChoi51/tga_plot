@@ -1,0 +1,18 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "bar",
+ "x": "반응기",
+ "y": "count",
+ "by": "등급 (A/B/C)",
+ "stack": true,
+ "asks": [
+  {
+   "ask": "반응기별 등급 A/B/C 구성비(%)를 묶은 막대로 보여 주세요. 반응기마다 합이 100%가 되게요.",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/S026_r3/out/t1"
+ }
+}

@@ -1,0 +1,86 @@
+```python
+from pathlib import Path
+import re
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/tests/inputs/instrument_export.txt")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/23_r1/out")
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def parse_numeric_fields(line):
+    """Extract numeric tokens, including scientific notation and decimal commas."""
+    tokens = re.findall(
+        r"[-+]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][-+]?\d+)?",
+        line,
+    )
+    values = []
+    for token in tokens:
+        try:
+            values.append(float(token.replace(",", ".")))
+        except ValueError:
+            continue
+    return values
+
+
+lines = DATA_FILE.read_text(encoding="utf-8-sig", errors="replace").splitlines()
+
+# Skip any instrument metadata until the first row with four numeric columns.
+start = next(
+    (i for i, line in enumerate(lines) if len(parse_numeric_fields(line)) >= 4),
+    None,
+)
+if start is None:
+    raise ValueError(f"No numeric data rows found in {DATA_FILE}")
+
+rows = []
+for line in lines[start:]:
+    values = parse_numeric_fields(line)
+    if len(values) >= 4:
+        rows.append(values[:4])
+
+if not rows:
+    raise ValueError(f"No usable data rows found in {DATA_FILE}")
+
+data = pd.DataFrame(rows, columns=["Time", "Temperature", "Mass", "Derivative"])
+data = data.replace([np.inf, -np.inf], np.nan).dropna(subset=["Temperature", "Mass"])
+if data.empty:
+    raise ValueError(f"No usable temperature/mass values found in {DATA_FILE}")
+
+temperature = data["Temperature"].to_numpy()
+mass = data["Mass"].to_numpy()
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+fig, ax = plt.subplots(figsize=(9, 6))
+ax.plot(temperature, mass, color="tab:blue", linewidth=1.8)
+ax.set_xlabel("Temperature (°C)")
+ax.set_ylabel("Mass (%)")
+ax.set_xlim(np.nanmin(temperature), np.nanmax(temperature))
+ax.grid(True, alpha=0.25)
+
+residue = mass[-1]
+ax.text(
+    0.97,
+    0.95,
+    f"Residue: {residue:.2f}%",
+    transform=ax.transAxes,
+    ha="right",
+    va="top",
+    fontsize=12,
+    bbox={
+        "boxstyle": "round,pad=0.35",
+        "facecolor": "white",
+        "edgecolor": "0.7",
+        "alpha": 0.9,
+    },
+)
+
+fig.tight_layout()
+fig.savefig(OUT_DIR / "tga_plot.png", dpi=300, bbox_inches="tight")
+plt.close(fig)
+```

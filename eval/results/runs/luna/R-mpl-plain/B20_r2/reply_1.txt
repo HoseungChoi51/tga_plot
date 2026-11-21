@@ -1,0 +1,50 @@
+```python
+from pathlib import Path
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.ticker import AutoMinorLocator
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/B20_r2/out")
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+df = pd.read_excel(DATA_FILE, sheet_name="Acid-washed")
+df.columns = [str(col).strip() for col in df.columns]
+
+x_col = next(col for col in df.columns if "Temperature" in col)
+weight_col = next(col for col in df.columns if "Weight" in col and "Deriv" not in col)
+deriv_col = next(col for col in df.columns if "Deriv" in col)
+
+x = pd.to_numeric(df[x_col], errors="coerce")
+weight = pd.to_numeric(df[weight_col], errors="coerce")
+deriv = pd.to_numeric(df[deriv_col], errors="coerce")
+valid = x.notna() & weight.notna() & deriv.notna()
+x, weight, deriv = x[valid], weight[valid], deriv[valid]
+
+fig, ax1 = plt.subplots(figsize=(9, 6))
+ax1.plot(x, weight, color="tab:blue", linewidth=1.8, label="Weight")
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)", color="tab:blue")
+ax1.tick_params(axis="y", labelcolor="tab:blue")
+ax1.set_xlim(x.min(), x.max())
+
+# x축 보조 눈금
+ax1.xaxis.set_minor_locator(AutoMinorLocator(5))
+ax1.tick_params(axis="x", which="major", direction="out", length=6)
+ax1.tick_params(axis="x", which="minor", direction="out", length=3)
+ax1.grid(axis="x", which="major", alpha=0.25)
+
+ax2 = ax1.twinx()
+ax2.plot(x, deriv, color="tab:red", linewidth=1.5, label="Derivative weight")
+ax2.set_ylabel("Deriv. Weight (%/°C)", color="tab:red")
+ax2.tick_params(axis="y", labelcolor="tab:red")
+
+ax1.set_title("Acid-washed TGA")
+fig.tight_layout()
+fig.savefig(OUT_DIR / "acid_washed_tga.png", dpi=300, bbox_inches="tight")
+plt.close(fig)
+```

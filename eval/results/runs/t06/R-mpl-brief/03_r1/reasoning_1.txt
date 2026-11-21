@@ -1,0 +1,107 @@
+We need answer to user in Korean? User asks in Korean. Need produce Python script inside one python block only. Need analyze requirements.
+
+User: "1006R1-V acid 시트만 그려줘. x축 범위 100~800, 피크 표시 2개"
+Translation: Draw only sheet 1006R1-V acid. x-axis range 100~800, peak display 2. Need generate plot standard TGA: x temp, y1 weight %, y2 DTG multiplied by -1. Title sheet name. Legend center left. Residue label at nearest 800 C: "Residue X.X%" marker on curve. Peak label: temperature of highest DTG peak above 150 C, written like "600 °C", marker. But user says 피크 표시 2개: peak display 2. Need interpret as show two DTG peaks? Standard says peak: temperature of highest DTG peak above 150. But user explicitly says 2 peaks. Need draw two labels/markers for peaks? Could mean peak marker count 2, likely top two DTG peaks above 150? Need find peaks in DTG (negative values; multiplied by -1 peaks positive). We can detect local maxima of inverted DTG above 150 and choose top 2 by height? But labels should be temperature like "600 °C" with marker. Need maybe if less than 2, adjust. Need x-axis range 100-800. Only acid sheet. Output file likely PNG 300 dpi. Need robust script.
+
+Need ensure Korean font. Use matplotlib with rcParams font.family maybe 'Noto Sans CJK KR'. Need read Excel with pandas. DATA_FILE variable given? In script use DATA_FILE = "/home/.../TGA.xlsx" and OUT_DIR. Could set from environment? Better include as given.
+
+Need maybe output filename based on sheet name safe: "1006R1-V acid.png" or sanitized. Need ensure directory exists.
+
+Need choose peak detection. DTG column D.W(%/C). Inverted = -DTG. Above 150 C. Need find peaks. Could use scipy.signal.find_peaks with prominence? Need top 2 highest peaks. But if broad or plateau? Need robust. Could smooth? Maybe not. TGA DTG may have noise. We can use find_peaks with prominence maybe 0.05 or dynamic? Need choose top 2. If find_peaks returns many, sort by height and take top 2. But if adjacent peaks? Need maybe group by prominence? Simpler: use scipy.signal.find_peaks with prominence=0.05, height>0. If less than 2, lower threshold gradually. If still less, choose max and second? Could use local maxima via differences. Need ensure labels not overlapping? Could offset.
+
+Need residue at nearest 800 C. But x range 100-800. The 750C sheet max 750, acid max 900. For acid, nearest 800. Use np.argmin(abs(temp-800)). Weight at that. Standard says residue: weight at measured point nearest 800 °C. Need marker on curve. Label format "Residue 8.0%". Need if weight maybe 2.9? Format one decimal? Example "Residue 8.0%". Use f"Residue {val:.1f}%". Peak labels format f"{temp:.0f} °C".
+
+Need y2 line multiplied by -1. Need legend at center left. Labels: x axis "Temperature (°C)", y1 "Weight (%)", y2 "DTG (%/°C) × -1" maybe. Need user didn't ask labels, standard.
+
+Need x-axis range 100 to 800. Should we filter data to 100-800 for plotting? Axis range only, likely set_xlim. But peak detection should above 150 maybe within r
+[...]
+m(y2_min-pad2, y2_max+pad2)
+This ensures visible range. But if standard expects full? User only x range. Could be better. But if residue at 800 visible. OK. If peak outside x range ignored. Good.
+
+However, if we set y2 limits before peak detection? Peak detection independent. We can set after plot before annotations. But if we set y2 limits based on visible data, then padding for labels included. Then remove previous padding? Could do both: compute visible y2 limits with 15% pad. Then no need get_ylim. But if peaks list includes peaks within visible. Good.
+
+Let's implement visible y limits for readability:
+```
+vis_mask = (x >= X_MIN) & (x <= X_MAX)
+if np.any(vis_mask):
+    y1_vis = y1[vis_mask]; y2_vis = inv_dtg[vis_mask]
+    y1_min, y1_max = np.nanmin(y1_vis), np.nanmax(y1_vis)
+    pad1 = max((y1_max-y1_min)*0.08, 0.5)
+    ax1.set_ylim(y1_min-pad1, y1_max+pad1)
+    y2_min, y2_max = np.nanmin(y2_vis), np.nanmax(y2_vis)
+    pad2 = max((y2_max-y2_min)*0.18, 0.01)
+    ax2.set_ylim(y2_min-pad2, y2_max+pad2)
+```
+But if y2_vis all negative? pad works. If y2_vis min/max equal, pad. OK. This may cut off DTG peaks outside x range, fine.
+
+Need ensure residue marker visible if y1 at 800 within visible. OK.
+
+Potential hidden eval may expect y-axis not manually set? Usually OK.
+
+Maybe not set y limits to avoid unexpected. But x range request often implies view 100-800; y auto based on visible is reasonable. Let's include? It adds complexity but robust.
+
+If acid has weight from 100 to 2.97, y1 range. OK.
+
+If y2_vis includes peaks up to 0.8, pad. OK.
+
+Could peak labels above top if pad 18% enough. OK.
+
+Let's incorporate visible y limits after set_xlim and before residue/peak annotations. But if we set y1 ylim, residue label at bottom maybe visible. OK.
+
+Need if x empty? no.
+
+Code order:
+- plot lines
+- set xlim, labels, title, legend
+- set visible y limits
+- residue annotation
+- peak detection/labels
+
+Peak detection uses full arrays. OK.
+
+Potential issue: `vis_mask` used for residue. Good.
+
+Let's write final code with this.
+
+Need check `np.nanmin` on empty? guarded.
+
+Potential issue: if y1_vis min/max NaN? data dropna, finite. OK.
+
+Potential issue: if y2_vis min/max equal, pad max 0.01. OK.
+
+Could y2 label "DTG (%/°C) × -1" with y2 positive. OK.
+
+Need maybe if peaks list has peak value outside y2 visible due to detection full but within x range? It should be within. OK.
+
+Potential issue: If peak detection selects peak at temp within 150-800 but y2 value maybe outside visible y2? No, visible includes all x in 100-800. OK.
+
+Let's final.
+
+One more nuance: `find_peaks` with `prominence=0.0` and `distance=1` may raise ValueError if prominence too small? No. `prominence` must be non-negative. OK.
+
+Could `distance` be numpy int? OK.
+
+Potential issue: In detect_peaks, if `find_peaks` returns `c` and `len(c)>=n`, cand = c. But if later top two by height with min_sep, selected maybe less than n. OK.
+
+Potential issue: If `find_peaks` with high prominence returns >n candidates, but top by height picks two that are actually not the most prominent? OK.
+
+Potential issue: If there are many local maxima due noise, high prominence loop may find only one, then lower. OK.
+
+Could maybe use `prominence` sorting rather than height. But OK.
+
+Let's think if acid sheet has two peaks but one small <0.005. Loop down to 0.0. OK.
+
+Potential issue: If all inv_dtg values negative and local maxima negative, prominence positive. OK.
+
+Potential issue: If `ys` has inf? dropna doesn't remove inf? `pd.to_numeric` keeps inf. `np.isfinite` in mask removes. Good.
+
+Potential issue: `data.dropna(subset=["x","y1","y2"])` doesn't remove inf. But detect mask finite. Plot may have inf? Could cause issues. Add `data = data[np.isfinite(...)]` after to_numeric. Let's do:
+```
+data = data.apply(pd.to_numeric, errors="coerce")
+data = data[np.isfinite(data["x"]) & np.isfinite(data["y1"]) & np.isfinite(data["y2"])]
+```
+Better. Use `dropna` then finite.
+
+Modify:
+```
+data = data.apply(pd.to_numeric

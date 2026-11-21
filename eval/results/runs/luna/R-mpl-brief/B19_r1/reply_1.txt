@@ -1,0 +1,127 @@
+```python
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/B19_r1/out")
+SHEET_NAME = "PVC"
+
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+df = pd.read_excel(DATA_FILE, sheet_name=SHEET_NAME)
+df.columns = [str(col).strip() for col in df.columns]
+
+def find_column(keywords):
+    for col in df.columns:
+        if any(word.lower() in col.lower() for word in keywords):
+            return col
+    raise ValueError(f"필요한 열을 찾을 수 없습니다: {keywords}")
+
+temperature_col = find_column(["temperature", "온도"])
+weight_col = find_column(["weight", "무게", "질량"])
+dtg_col = find_column(["deriv", "dtg", "미분"])
+
+data = df[[temperature_col, weight_col, dtg_col]].apply(pd.to_numeric, errors="coerce").dropna()
+data = data.sort_values(temperature_col)
+
+temperature = data[temperature_col].to_numpy()
+weight = data[weight_col].to_numpy()
+dtg = data[dtg_col].to_numpy()
+
+# 지정 온도에서의 질량은 측정값을 온도 기준으로 선형 보간합니다.
+weight_200 = float(np.interp(200, temperature, weight))
+weight_400 = float(np.interp(400, temperature, weight))
+mass_loss = weight_200 - weight_400
+
+# 표준 TGA 표시: DTG에 -1을 곱해 질량 감소 피크가 위를 향하게 합니다.
+dtg_plot = -dtg
+valid_peak = temperature > 150
+peak_idx = np.flatnonzero(valid_peak)[np.argmax(dtg_plot[valid_peak])]
+peak_temperature = temperature[peak_idx]
+peak_dtg = dtg_plot[peak_idx]
+
+residue_idx = int(np.argmin(np.abs(temperature - 800)))
+residue_temperature = temperature[residue_idx]
+residue_weight = weight[residue_idx]
+
+fig, ax1 = plt.subplots(figsize=(9, 6))
+ax2 = ax1.twinx()
+
+ax1.plot(temperature, weight, color="#1f4e9c", linewidth=2, label="Weight (%)")
+ax2.plot(temperature, dtg_plot, color="#c0392b", linewidth=1.8, label="-DTG (%/°C)")
+
+# 200–400 °C 구간과 그 구간의 질량 감소량을 강조합니다.
+ax1.axvspan(200, 400, color="#f4c542", alpha=0.16, zorder=0)
+ax1.hlines(
+    [weight_200, weight_400], 200, 400,
+    colors="#d28e00", linestyles="--", linewidth=1.2
+)
+ax1.annotate(
+    f"200 °C: {weight_200:.2f}%",
+    xy=(200, weight_200),
+    xytext=(208, weight_200 + 7),
+    color="#8a5c00",
+    arrowprops={"arrowstyle": "->", "color": "#8a5c00"},
+)
+ax1.annotate(
+    f"400 °C: {weight_400:.2f}%",
+    xy=(400, weight_400),
+    xytext=(330, weight_400 - 11),
+    color="#8a5c00",
+    arrowprops={"arrowstyle": "->", "color": "#8a5c00"},
+)
+ax1.text(
+    0.03, 0.06,
+    f"200–400 °C 질량 감소량: {mass_loss:.2f}%",
+    transform=ax1.transAxes,
+    fontsize=11,
+    fontweight="bold",
+    bbox={"boxstyle": "round,pad=0.45", "facecolor": "white", "edgecolor": "#d28e00", "alpha": 0.95},
+)
+
+# 표준 잔류량 및 DTG 피크 표시
+ax1.scatter(
+    residue_temperature, residue_weight,
+    color="#1f4e9c", edgecolor="white", linewidth=0.7, zorder=5
+)
+ax1.annotate(
+    f"Residue {residue_weight:.1f}%",
+    xy=(residue_temperature, residue_weight),
+    xytext=(-85, 18),
+    textcoords="offset points",
+    color="#1f4e9c",
+    arrowprops={"arrowstyle": "->", "color": "#1f4e9c"},
+)
+ax2.scatter(peak_temperature, peak_dtg, color="#c0392b", edgecolor="white", linewidth=0.7, zorder=5)
+ax2.annotate(
+    f"{peak_temperature:.0f} °C",
+    xy=(peak_temperature, peak_dtg),
+    xytext=(8, 10),
+    textcoords="offset points",
+    color="#c0392b",
+    arrowprops={"arrowstyle": "->", "color": "#c0392b"},
+)
+
+ax1.set_title(SHEET_NAME)
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)", color="#1f4e9c")
+ax2.set_ylabel("-DTG (%/°C)", color="#c0392b")
+ax1.tick_params(axis="y", labelcolor="#1f4e9c")
+ax2.tick_params(axis="y", labelcolor="#c0392b")
+ax1.grid(True, alpha=0.25)
+
+handles1, labels1 = ax1.get_legend_handles_labels()
+handles2, labels2 = ax2.get_legend_handles_labels()
+ax1.legend(handles1 + handles2, labels1 + labels2, loc="center left")
+
+fig.tight_layout()
+fig.savefig(OUT_DIR / "PVC_mass_loss_200_400C.png", dpi=300, bbox_inches="tight")
+plt.close(fig)
+```

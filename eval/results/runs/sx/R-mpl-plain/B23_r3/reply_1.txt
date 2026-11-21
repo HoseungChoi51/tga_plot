@@ -1,0 +1,80 @@
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/B23_r3/out"
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# Read the Excel file with all sheets
+xl = pd.ExcelFile(DATA_FILE)
+
+# Define sheet names and colors
+sheets_info = [
+    ("Raw", "black"),
+    ("Acid-washed", "blue"),
+    ("Annealed", "red")
+]
+
+fig, ax1 = plt.subplots(figsize=(10, 6))
+
+for sheet_name, color in sheets_info:
+    df = xl.parse(sheet_name)
+    
+    # Identify columns by name (based on preview)
+    temp_col = None
+    weight_col = None
+    deriv_col = None
+    
+    for col in df.columns:
+        if "Temperature" in str(col):
+            temp_col = col
+        elif "Weight (%)" in str(col) or "Weight(%)" in str(col):
+            weight_col = col
+        elif "Deriv" in str(col):
+            deriv_col = col
+    
+    if temp_col is None or weight_col is None:
+        continue
+        
+    x = df[temp_col]
+    y_weight = df[weight_col]
+    
+    # Plot Weight (%) on primary axis
+    ax1.plot(x, y_weight, label=f"{sheet_name} - Weight", color=color, linestyle='-')
+    
+    # If derivative column exists, plot it on secondary axis
+    if deriv_col is not None:
+        y_deriv = df[deriv_col]
+        ax2 = ax1.twinx()
+        ax2.plot(x, y_deriv, label=f"{sheet_name} - Deriv.", color=color, linestyle='--', alpha=0.7)
+
+# Configure primary axis (Weight %)
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)")
+ax1.set_xlim(0, 950)
+ax1.set_ylim(0, 105)
+
+# Configure secondary axis (Derivative)
+if 'ax2' in locals():
+    ax2.set_ylabel("Deriv. Weight (%/°C)")
+    ax2.set_ylim(-1.5, 0.5)
+
+# Combine legends from both axes
+lines1, labels1 = ax1.get_legend_handles_labels()
+lines2, labels2 = ax2.get_legend_handles_labels() if 'ax2' in locals() else ([], [])
+ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper right', fontsize=8)
+
+plt.title("TGA Curves Comparison")
+plt.tight_layout()
+
+output_path = os.path.join(OUT_DIR, "tga_comparison.png")
+plt.savefig(output_path, dpi=300)
+plt.close()
+```

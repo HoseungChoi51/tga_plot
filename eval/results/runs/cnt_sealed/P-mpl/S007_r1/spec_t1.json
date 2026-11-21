@@ -1,0 +1,23 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "line",
+ "x": {
+  "col": "주차"
+ },
+ "y": {
+  "col": "합격률(%)",
+  "agg": "mean"
+ },
+ "by": "반응기",
+ "asks": [
+  {
+   "ask": "반응기별 주차별 합격률 추이 선그래프",
+   "how": "code"
+  }
+ ],
+ "data_code": "df['합격'] = df['등급'].isin(['A', 'B'])\nweekly = df.groupby(['주차', '반응기']).apply(lambda g: (g['합격'].sum() / len(g)) * 100).reset_index(name='합격률(%)')\ndf = weekly",
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-mpl/S007_r1/out/t1"
+ }
+}

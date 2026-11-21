@@ -1,0 +1,115 @@
+```python
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/19_r2/out"
+
+FONT_SIZE = 13
+TEXT_COLOR = "gray"
+
+plt.rcParams.update({
+    "font.family": "Noto Sans CJK KR",
+    "font.size": FONT_SIZE,
+    "text.color": TEXT_COLOR,
+    "axes.labelcolor": TEXT_COLOR,
+    "axes.titlecolor": TEXT_COLOR,
+    "xtick.color": TEXT_COLOR,
+    "ytick.color": TEXT_COLOR,
+    "legend.labelcolor": TEXT_COLOR,
+})
+
+out_dir = Path(OUT_DIR)
+out_dir.mkdir(parents=True, exist_ok=True)
+
+excel = pd.ExcelFile(DATA_FILE)
+for sheet_name in excel.sheet_names:
+    df = pd.read_excel(excel, sheet_name=sheet_name)
+    if df.shape[1] < 4:
+        continue
+
+    temperature = pd.to_numeric(df.iloc[:, 1], errors="coerce")
+    weight = pd.to_numeric(df.iloc[:, 2], errors="coerce")
+    dtg = pd.to_numeric(df.iloc[:, 3], errors="coerce")
+    valid = temperature.notna() & weight.notna() & dtg.notna()
+    temperature = temperature[valid].to_numpy()
+    weight = weight[valid].to_numpy()
+    dtg = dtg[valid].to_numpy()
+
+    if temperature.size == 0:
+        continue
+
+    fig, ax1 = plt.subplots(figsize=(9, 6))
+    ax2 = ax1.twinx()
+
+    weight_line, = ax1.plot(
+        temperature, weight, color="#1f4e9c", label="Weight (%)", linewidth=1.8
+    )
+    dtg_line, = ax2.plot(
+        temperature, -dtg, color="#c0392b", label="DTG (-D.W, %/°C)", linewidth=1.5
+    )
+
+    ax1.set_title(sheet_name, color=TEXT_COLOR, fontsize=FONT_SIZE)
+    ax1.set_xlabel("Temperature (°C)", color=TEXT_COLOR, fontsize=FONT_SIZE)
+    ax1.set_ylabel("Weight (%)", color=TEXT_COLOR, fontsize=FONT_SIZE)
+    ax2.set_ylabel("-DTG (%/°C)", color=TEXT_COLOR, fontsize=FONT_SIZE)
+
+    residue_idx = int(np.nanargmin(np.abs(temperature - 800)))
+    residue_temp = temperature[residue_idx]
+    residue = weight[residue_idx]
+    ax1.plot(
+        residue_temp, residue, "o", color="#1f4e9c",
+        markersize=6, markeredgecolor="white", markeredgewidth=0.8, zorder=5
+    )
+    ax1.annotate(
+        f"Residue {residue:.1f}%",
+        xy=(residue_temp, residue),
+        xytext=(8, 10),
+        textcoords="offset points",
+        color=TEXT_COLOR,
+        fontsize=FONT_SIZE,
+    )
+
+    peak_candidates = np.flatnonzero(temperature > 150)
+    if peak_candidates.size:
+        peak_idx = peak_candidates[np.nanargmax((-dtg)[peak_candidates])]
+        peak_temp = temperature[peak_idx]
+        peak_value = -dtg[peak_idx]
+        ax2.plot(
+            peak_temp, peak_value, "o", color="#c0392b",
+            markersize=6, markeredgecolor="white", markeredgewidth=0.8, zorder=5
+        )
+        ax2.annotate(
+            f"{peak_temp:.0f} °C",
+            xy=(peak_temp, peak_value),
+            xytext=(8, 10),
+            textcoords="offset points",
+            color=TEXT_COLOR,
+            fontsize=FONT_SIZE,
+        )
+
+    ax1.tick_params(axis="both", colors=TEXT_COLOR, labelsize=FONT_SIZE)
+    ax2.tick_params(axis="y", colors=TEXT_COLOR, labelsize=FONT_SIZE)
+    for spine in (*ax1.spines.values(), *ax2.spines.values()):
+        spine.set_color(TEXT_COLOR)
+
+    ax1.legend(
+        [weight_line, dtg_line],
+        [weight_line.get_label(), dtg_line.get_label()],
+        loc="center left",
+        frameon=False,
+        fontsize=FONT_SIZE,
+    )
+    fig.tight_layout()
+
+    safe_name = "".join(
+        char if char.isalnum() or char in "-_." else "_" for char in sheet_name
+    ).strip("_") or "sheet"
+    fig.savefig(out_dir / f"{safe_name}.png", dpi=300, bbox_inches="tight")
+    plt.close(fig)
+```

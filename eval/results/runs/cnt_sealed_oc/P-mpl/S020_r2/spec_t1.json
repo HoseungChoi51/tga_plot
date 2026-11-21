@@ -1,0 +1,50 @@
+{
+ "file": [
+  "data/raman/R1-260326-1.csv",
+  "data/raman/R2-260616-1.csv",
+  "data/raman/R4-260721-1.csv"
+ ],
+ "combine": true,
+ "names": [
+  "R1",
+  "R2",
+  "R4"
+ ],
+ "x": {
+  "col": "Raman Shift (cm-1)",
+  "min": 1000,
+  "max": 2000,
+  "label": "Raman Shift (cm⁻¹)"
+ },
+ "y1": {
+  "col": "Intensity (a.u.)",
+  "legend": "Normalized Intensity"
+ },
+ "y2": false,
+ "data_code": "import numpy as np\n# Baseline calculation: average intensity in 1100±10 and 1800±10, then linear interpolation\nmask_b1 = (x >= 1090) & (x <= 1110)\nmask_b2 = (x >= 1790) & (x <= 1810)\ny_bl = np.interp(x, x[mask_b1].mean() * np.ones_like(y1[mask_b1]), y1[mask_b1])\ny_bl = np.interp(x, x[mask_b2].mean() * np.ones_like(y1[mask_b2]), y1[mask_b2]) # This is wrong logic for interp\n\n# Correct baseline logic:\nx_base1 = np.mean(x[mask_b1]) if np.any(mask_b1) else 1100\ny_base1 = np.mean(y1[mask_b1]) if np.any(mask_b1) else 0\nx_base2 = np.mean(x[mask_b2]) if np.any(mask_b2) else 1800\ny_base2 = np.mean(y1[mask_b2]) if np.any(mask_b2) else 0\n\nbaseline = np.interp(x, [x_base1, x_base2], [y_base1, y_base2])\ny_sub = y1 - baseline\n\n# Normalization: G band max in 1550-1620 to 1\nmask_g = (x >= 1550) & (x <= 1620)\ng_max = np.max(y_sub[mask_g]) if np.any(mask_g) else 1.0\nif g_max == 0:\n    g_max = 1.0\n\ny_norm = y_sub / g_max\ny1 = y_norm",
+ "title": {
+  "text": "Raman Spectra (Baseline Subtracted & Normalized)",
+  "size": 14
+ },
+ "asks": [
+  {
+   "ask": "세 개 파일 overlay",
+   "how": "key"
+  },
+  {
+   "ask": "직선 베이스라인 제거 (1100, 1800 ±10 평균 기반)",
+   "how": "data_code"
+  },
+  {
+   "ask": "G 밴드(1550-1620) 최대값 기준 정규화",
+   "how": "data_code"
+  },
+  {
+   "ask": "1000-2000 cm-1 구간",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S020_r2/out/t1"
+ }
+}

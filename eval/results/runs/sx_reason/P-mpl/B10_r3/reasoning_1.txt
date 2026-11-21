@@ -1,0 +1,39 @@
+We need answer user's request in test mode: produce JSON spec only inside ```json block, nothing else. Need analyze in English? User request Korean, but analysis can be English? Developer says same language as user's request? User request Korean. Need use Korean in analysis? I need comply: writing analysis in Korean. Let's think.
+
+User: "Annealed 시트 논문에 넣을 거라 흑백으로 해줘. 글자 크기 8, 그림 3.5×2.6 인치, 600 dpi"
+
+Need map to spec. File cnt_batches.xlsx. Sheet Annealed. 흑백: no explicit key? Could use text_color black? But 흑백 likely monochrome: lines black, text black? Need maybe set y1 color black, y2 color black, text_color black, maybe font? There is no monochrome key. Could include code to make all black? Need only what asked. "흑백으로 해줘" could mean black-and-white, maybe set all text and lines black, no colors. Guide has text_color for all text, y1.color, y2.color. Also legend colors? If only text_color black, line colors remain default maybe colored. Need black-and-white plot: set y1.color black, y2.color black, text_color black. Maybe grid? no. If legend has colored lines, if lines black then legend black. Could also set title? no.
+
+글자 크기 8 => font_size: 8 (global). 그림 3.5×2.6 인치 => size [3.5, 2.6]. 600 dpi => dpi 600. sheets: "Annealed".
+
+Need consider TGA data default preset. Good.
+
+Could include "text_color": "black", "y1": {"color": "black"}, "y2": {"color": "black"}. Is that too much? User asked 흑백, yes. Maybe also legend text? text_color covers all text. Need maybe output format? not asked.
+
+Potential issue: "글자 크기 8" might mean font_size 8, not title? yes.
+
+Need JSON only. Ensure no extra text. Use file exactly "cnt_batches.xlsx". 
+
+Could include "font_size": 8, "size": [3.5, 2.6], "dpi": 600.
+
+Need maybe "sheets": "Annealed".
+
+Could black and white also mean grayscale? If black-and-white, maybe text_color "black" and lines black. Good.
+
+Need not include residue because not mentioned.
+
+Final:
+```json
+{
+  "file": "cnt_batches.xlsx",
+  "sheets": "Annealed",
+  "font_size": 8,
+  "size": [3.5, 2.6],
+  "dpi": 600,
+  "text_color": "black",
+  "y1": {"color": "black"},
+  "y2": {"color": "black"}
+}
+```
+
+Need ensure only JSON block. Done.

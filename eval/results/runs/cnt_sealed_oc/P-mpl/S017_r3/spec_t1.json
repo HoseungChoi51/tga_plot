@@ -1,0 +1,18 @@
+{
+ "file": "data/tga_batches.xlsx",
+ "sheets": "R2-260616-1",
+ "asks": [
+  {
+   "ask": "TG 곡선 (TGA 기본 설정)",
+   "how": "key"
+  },
+  {
+   "ask": "extrapolated onset 계산 및 표시 (450-800 DTG max 접선, 500 중량 기준선)",
+   "how": "data_code"
+  }
+ ],
+ "data_code": "import numpy as np\nmask = (x >= 450) & (x <= 800)\ny2_masked = y2[mask]\nx_masked = x[mask]\nif len(y2_masked) > 0:\n    idx_max = np.argmax(y2_masked)\n    x_peak = x_masked[idx_max]\n    y1_peak = np.interp(x_peak, x, y1)\n    # Tangent slope at peak from local gradient of TG curve\n    i_global = np.argmin(np.abs(x - x_peak))\n    grad = np.gradient(y1, x)\n    slope_at_peak = grad[i_global]\n    # Baseline weight at 500 C\n    base_weight = np.interp(500, x, y1)\n    # Onset T: where tangent line intersects baseline\n    # Line eq: y = y1_peak + slope * (x - x_peak)\n    # Base eq: y = base_weight\n    # Solve for x: base_weight = y1_peak + slope * (t_onset - x_peak)\n    if abs(slope_at_peak) > 1e-9:\n        t_onset = x_peak + (base_weight - y1_peak) / slope_at_peak\n        marks.append({'type': 'vline', 'x': float(t_onset), 'text': f'Onset {t_onset:.1f} °C'})\n    else:\n        marks.append({'type': 'text', 'x': 300, 'y': 50, 'text': 'Could not calc onset'})\nelse:\n    marks.append({'type': 'text', 'x': 300, 'y': 50, 'text': 'No data in 450-800 range'})",
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S017_r3/out/t1"
+ }
+}

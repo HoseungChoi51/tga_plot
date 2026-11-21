@@ -1,0 +1,1 @@
+[{"check": "series", "cat": "ask", "ok": true, "why": "", "spec": {"series": {"axis": "y1", "y_range": [15.19563054557268, 101.53093338206331], "tol": 0.01}}}]

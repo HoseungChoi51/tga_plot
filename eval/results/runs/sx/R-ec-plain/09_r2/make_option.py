@@ -1,0 +1,169 @@
+import pandas as pd
+import json
+import numpy as np
+
+def generate_tga_charts(file_path):
+    # Read all sheets from the Excel file
+    xls = pd.ExcelFile(file_path)
+    sheet_names = xls.sheet_names
+    
+    figures = []
+    
+    for sheet_name in sheet_names:
+        df = pd.read_excel(xls, sheet_name=sheet_name)
+        
+        # Identify columns based on standard TGA naming or preview info
+        # Assuming columns are Time, Temperature, Weight(%), D.W(%/C)
+        # We need Temperature (x), Weight(%) (y1), D.W(%/C) (y2)
+        
+        cols = df.columns.tolist()
+        temp_col = None
+        weight_col = None
+        dw_col = None
+        
+        for c in cols:
+            if 'Temperature' in str(c):
+                temp_col = c
+            elif 'Weight' in str(c) and '%' in str(c):
+                weight_col = c
+            elif 'D.W' in str(c) or 'DTG' in str(c) or 'Derivative' in str(c):
+                dw_col = c
+        
+        # Fallback if names don't match exactly but structure is known from preview
+        if temp_col is None and len(cols) >= 2:
+            temp_col = cols[1] # Usually second column after time
+        if weight_col is None and len(cols) >= 3:
+            weight_col = cols[2]
+        if dw_col is None and len(cols) >= 4:
+            dw_col = cols[3]
+            
+        if temp_col is None or weight_col is None:
+            continue
+            
+        # Clean data: drop NaNs
+        df_clean = df[[temp_col, weight_col, dw_col]].dropna()
+        
+        x_data = df_clean[temp_col].tolist()
+        y1_data = df_clean[weight_col].tolist()
+        y2_data = df_clean[dw_col].tolist() if dw_col else []
+        
+        # Prepare series
+        series = [
+            {
+                "name": "Weight (%)",
+                "type": "line",
+                "data": list(zip(x_data, y1_data)),
+                "smooth": True,
+                "showSymbol": False,
+                "lineStyle": {"width": 2},
+                "yAxisIndex": 0
+            }
+        ]
+        
+        if y2_data:
+            series.append({
+                "name": "D.W (%/°C)",
+                "type": "line",
+                "data": list(zip(x_data, y2_data)),
+                "smooth": True,
+                "showSymbol": False,
+                "lineStyle": {"width": 2},
+                "yAxisIndex": 1
+            })
+            
+        option = {
+            "title": {
+                "text": f"TGA - {sheet_name}",
+                "left": "center"
+            },
+            "tooltip": {
+                "trigger": "axis",
+                "axisPointer": {
+                    "type": "cross"
+                }
+            },
+            "legend": {
+                "data": ["Weight (%)"] + (["D.W (%/°C)"] if y2_data else []),
+                "top": 30
+            },
+            "grid": {
+                "left": "8%",
+                "right": "8%",
+                "bottom": "15%",
+                "containLabel": True
+            },
+            "xAxis": {
+                "type": "value",
+                "name": "Temperature (°C)",
+                "nameLocation": "middle",
+                "nameGap": 30,
+                "axisTick": {
+                    "alignWithLabel": False,
+                    "length": 6,
+                    "lineStyle": {
+                        "color": "#333"
+                    }
+                },
+                "axisLabel": {
+                    "fontSize": 9
+                }
+            },
+            "yAxis": [
+                {
+                    "type": "value",
+                    "name": "Weight (%)",
+                    "position": "left",
+                    "axisTick": {
+                        "alignWithLabel": False,
+                        "length": 6,
+                        "lineStyle": {
+                            "color": "#333"
+                        }
+                    },
+                    "axisLabel": {
+                        "fontSize": 9
+                    },
+                    "splitLine": {
+                        "lineStyle": {
+                            "type": "dashed"
+                        }
+                    }
+                },
+                {
+                    "type": "value",
+                    "name": "D.W (%/°C)",
+                    "position": "right",
+                    "axisTick": {
+                        "alignWithLabel": False,
+                        "length": 6,
+                        "lineStyle": {
+                            "color": "#333"
+                        }
+                    },
+                    "axisLabel": {
+                        "fontSize": 9
+                    },
+                    "splitLine": {
+                        "show": False
+                    }
+                }
+            ],
+            "series": series
+        }
+        
+        fig_entry = {
+            "name": f"tga_{sheet_name.replace(' ', '_').replace('-', '_')}",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+        figures.append(fig_entry)
+        
+    return {"figures": figures}
+
+if __name__ == "__main__":
+    DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+    result = generate_tga_charts(DATA_FILE)
+    print(json.dumps(result))

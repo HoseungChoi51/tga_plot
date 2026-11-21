@@ -1,0 +1,172 @@
+```python
+import json
+import re
+import numpy as np
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx"
+
+sheet_name = "Annealed"
+df = pd.read_excel(DATA_FILE, sheet_name=sheet_name)
+
+def find_column(pattern):
+    matches = [col for col in df.columns if re.search(pattern, str(col), re.I)]
+    if not matches:
+        raise ValueError(f"Required column not found: {pattern}")
+    return matches[0]
+
+x_col = find_column(r"temperature")
+weight_col = find_column(r"weight\s*\(")
+dtg_col = find_column(r"deriv")
+
+data = pd.DataFrame({
+    "x": pd.to_numeric(df[x_col], errors="coerce"),
+    "weight": pd.to_numeric(df[weight_col], errors="coerce"),
+    "dtg": pd.to_numeric(df[dtg_col], errors="coerce"),
+}).dropna().sort_values("x")
+
+x = data["x"].to_numpy(dtype=float)
+weight = data["weight"].to_numpy(dtype=float)
+dtg = data["dtg"].to_numpy(dtype=float)
+
+residue_index = int(np.argmin(np.abs(x - 800)))
+residue_x = float(x[residue_index])
+residue_y = float(weight[residue_index])
+
+peak_mask = x > 150
+peak_candidates = np.flatnonzero(peak_mask)
+if len(peak_candidates):
+    peak_index = int(peak_candidates[np.argmax(-dtg[peak_mask])])
+    peak_x = float(x[peak_index])
+    peak_y = float(-dtg[peak_index])
+else:
+    peak_x = None
+    peak_y = None
+
+weight_data = [[float(a), float(b)] for a, b in zip(x, weight)]
+dtg_data = [[float(a), float(-b)] for a, b in zip(x, dtg)]
+
+series = [
+    {
+        "name": "Weight",
+        "type": "line",
+        "yAxisIndex": 0,
+        "data": weight_data,
+        "showSymbol": False,
+        "lineStyle": {"color": "#000000", "width": 1.2, "type": "solid"},
+        "itemStyle": {"color": "#000000"},
+        "markPoint": {
+            "symbol": "circle",
+            "symbolSize": 5,
+            "itemStyle": {"color": "#000000"},
+            "label": {
+                "show": True,
+                "formatter": f"Residue {residue_y:.1f}%",
+                "position": "top",
+                "color": "#000000",
+                "fontSize": 8,
+            },
+            "data": [{"coord": [residue_x, residue_y]}],
+        },
+    },
+    {
+        "name": "DTG",
+        "type": "line",
+        "yAxisIndex": 1,
+        "data": dtg_data,
+        "showSymbol": False,
+        "lineStyle": {"color": "#000000", "width": 1.0, "type": "dashed"},
+        "itemStyle": {"color": "#000000"},
+    },
+]
+
+if peak_x is not None:
+    series[1]["markPoint"] = {
+        "symbol": "circle",
+        "symbolSize": 5,
+        "itemStyle": {"color": "#000000"},
+        "label": {
+            "show": True,
+            "formatter": f"{peak_x:.0f} °C",
+            "position": "top",
+            "color": "#000000",
+            "fontSize": 8,
+        },
+        "data": [{"coord": [peak_x, peak_y]}],
+    }
+
+option = {
+    "backgroundColor": "#ffffff",
+    "animation": False,
+    "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 8, "color": "#000000"},
+    "title": {
+        "text": sheet_name,
+        "left": "center",
+        "top": 3,
+        "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 8, "fontWeight": "normal", "color": "#000000"},
+    },
+    "tooltip": {"show": False},
+    "legend": {
+        "data": ["Weight", "DTG"],
+        "left": "center",
+        "bottom": 2,
+        "itemWidth": 14,
+        "itemHeight": 8,
+        "textStyle": {"fontSize": 8, "color": "#000000"},
+    },
+    "grid": {"left": 42, "right": 42, "top": 25, "bottom": 37, "containLabel": False},
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 21,
+        "min": float(np.nanmin(x)),
+        "max": float(np.nanmax(x)),
+        "axisLine": {"show": True, "lineStyle": {"color": "#000000", "width": 0.8}},
+        "axisTick": {"show": True, "lineStyle": {"color": "#000000", "width": 0.8}, "length": 3},
+        "axisLabel": {"fontSize": 8, "color": "#000000", "margin": 5},
+        "nameTextStyle": {"fontSize": 8, "color": "#000000"},
+        "splitLine": {"show": False},
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Weight (%)",
+            "nameLocation": "middle",
+            "nameGap": 28,
+            "min": 0,
+            "max": 105,
+            "axisLine": {"show": True, "lineStyle": {"color": "#000000", "width": 0.8}},
+            "axisTick": {"show": True, "lineStyle": {"color": "#000000", "width": 0.8}, "length": 3},
+            "axisLabel": {"fontSize": 8, "color": "#000000", "margin": 5},
+            "nameTextStyle": {"fontSize": 8, "color": "#000000"},
+            "splitLine": {"show": False},
+        },
+        {
+            "type": "value",
+            "name": "-DTG (%/°C)",
+            "nameLocation": "middle",
+            "nameGap": 28,
+            "min": 0,
+            "max": max(0.1, float(np.nanmax(-dtg)) * 1.08),
+            "axisLine": {"show": True, "lineStyle": {"color": "#000000", "width": 0.8}},
+            "axisTick": {"show": True, "lineStyle": {"color": "#000000", "width": 0.8}, "length": 3},
+            "axisLabel": {"fontSize": 8, "color": "#000000", "margin": 5},
+            "nameTextStyle": {"fontSize": 8, "color": "#000000"},
+            "splitLine": {"show": False},
+        },
+    ],
+    "series": series,
+}
+
+print(json.dumps({
+    "figures": [{
+        "name": "annealed",
+        "option": option,
+        "width": 336,
+        "height": 250,
+        "dpi": 600,
+        "formats": ["png"],
+    }]
+}, ensure_ascii=False, allow_nan=False))
+```

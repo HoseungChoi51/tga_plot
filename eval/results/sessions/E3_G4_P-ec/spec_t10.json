@@ -1,0 +1,18 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "bar",
+ "x": "반응기",
+ "y": {
+  "col": "잔류금속 (wt%)",
+  "agg": "mean"
+ },
+ "asks": [
+  {
+   "ask": "반응기별 잔류금속 평균 막대그래프",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/sessions/E3_G4_P-ec/out/t10"
+ }
+}

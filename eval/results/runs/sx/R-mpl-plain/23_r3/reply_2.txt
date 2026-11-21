@@ -1,0 +1,78 @@
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+# 파일 경로 설정
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/instrument_export.txt"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/23_r3/out"
+
+# 출력 디렉토리가 없으면 생성
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# 데이터 로드
+# 헤더가 없고 11번째 줄부터 데이터가 시작한다고 하므로 skiprows=10 사용
+# 컬럼 이름이 없으므로 임의로 지정: A(인덱스), B(Temperature), C(Mass %), D(DTG)
+# 인코딩 오류 해결을 위해 encoding='latin-1' 또는 'cp949' 시도. 여기서는 latin-1로 시도하되, 
+# 실제 데이터가 숫자 중심이면 큰 문제 없음. 만약 한글 주석이 섞여있다면 cp949가 나을 수 있음.
+# instrument export 파일은 보통 ASCII 또는 Latin-1 계열이 많음.
+try:
+    df = pd.read_csv(DATA_FILE, sep=r'\s+', header=None, skiprows=10, names=['Index', 'Temperature', 'Mass_Percent', 'DTG'], encoding='utf-8')
+except UnicodeDecodeError:
+    try:
+        df = pd.read_csv(DATA_FILE, sep=r'\s+', header=None, skiprows=10, names=['Index', 'Temperature', 'Mass_Percent', 'DTG'], encoding='cp949')
+    except Exception:
+        df = pd.read_csv(DATA_FILE, sep=r'\s+', header=None, skiprows=10, names=['Index', 'Temperature', 'Mass_Percent', 'DTG'], encoding='latin-1')
+
+# 결측치 처리 및 숫자 변환 (문자로 읽힌 경우 대비)
+for col in ['Temperature', 'Mass_Percent', 'DTG']:
+    if col in df.columns:
+        df[col] = pd.to_numeric(df[col], errors='coerce')
+
+df.dropna(subset=['Temperature', 'Mass_Percent'], inplace=True)
+
+# 그래프 설정
+plt.figure(figsize=(10, 6))
+
+# TGA 곡선 (온도 vs 질량 %)
+ax1 = plt.gca()
+line1, = ax1.plot(df['Temperature'], df['Mass_Percent'], label='TGA (Mass %)', color='blue')
+ax1.set_xlabel('Temperature (°C)')
+ax1.set_ylabel('Mass (%)', color='blue')
+ax1.tick_params(axis='y', labelcolor='blue')
+ax1.grid(True, linestyle='--', alpha=0.5)
+
+# DTG 곡선 (온도 vs DTG) - 오른쪽 Y축 사용
+ax2 = ax1.twinx()
+line2, = ax2.plot(df['Temperature'], df['DTG'], label='DTG', color='red', linestyle='-.')
+ax2.set_ylabel('DTG (%/°C)', color='red')
+ax2.tick_params(axis='y', labelcolor='red')
+
+# 잔류량 계산 및 표시
+# 마지막 데이터 포인트의 질량 백분율을 잔류량으로 가정
+residue_value = df['Mass_Percent'].iloc[-1]
+residue_temp = df['Temperature'].iloc[-1]
+
+# 요청된 형식: 'Residue: {}%'
+label_text = f'Residue: {residue_value:.2f}%'
+
+# 그래프 위에 텍스트로 잔류량 표시
+ax1.annotate(label_text, 
+             xy=(residue_temp, residue_value), 
+             xytext=(residue_temp - 100, residue_value + 10), # 위치 조정
+             arrowprops=dict(facecolor='black', shrink=0.05),
+             fontsize=12,
+             bbox=dict(boxstyle="round,pad=0.3", fc="yellow", ec="k", lw=1, alpha=0.8))
+
+# 제목 및 범례
+plt.title('TGA and DTG Analysis')
+lines = [line1, line2]
+labels = [l.get_label() for l in lines]
+ax1.legend(lines, labels, loc='upper right')
+
+# 저장
+output_path = os.path.join(OUT_DIR, 'tga_plot.png')
+plt.tight_layout()
+plt.savefig(output_path, dpi=300)
+plt.close()
+```

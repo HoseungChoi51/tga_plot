@@ -1,0 +1,67 @@
+```python
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.signal import find_peaks
+
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/xrd.csv"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/B04_r3/out"
+
+# Read the two columns explicitly: 2θ (degrees) and intensity (counts).
+data = pd.read_csv(DATA_FILE)
+if data.shape[1] < 2:
+    raise ValueError("CSV 파일에 2θ와 intensity를 포함한 두 개 이상의 열이 필요합니다.")
+
+theta = pd.to_numeric(data.iloc[:, 0], errors="coerce").to_numpy()
+intensity = pd.to_numeric(data.iloc[:, 1], errors="coerce").to_numpy()
+valid = np.isfinite(theta) & np.isfinite(intensity)
+theta, intensity = theta[valid], intensity[valid]
+
+if theta.size == 0:
+    raise ValueError("유효한 XRD 데이터가 없습니다.")
+
+# Find local maxima and select the five highest-intensity peaks.
+peak_indices, _ = find_peaks(intensity, prominence=0)
+if peak_indices.size == 0:
+    peak_indices = np.array([int(np.argmax(intensity))])
+
+top_indices = peak_indices[np.argsort(intensity[peak_indices])[-5:]]
+top_indices = top_indices[np.argsort(intensity[top_indices])[::-1]]
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.plot(theta, intensity, color="black", linewidth=1.1)
+ax.scatter(theta[top_indices], intensity[top_indices], color="crimson", s=32, zorder=3)
+
+# Label each selected peak with its 2θ value; alternate offsets to reduce overlap.
+for rank, idx in enumerate(top_indices):
+    offset = 10 if rank % 2 == 0 else 22
+    ax.annotate(
+        f"{theta[idx]:.2f}°",
+        xy=(theta[idx], intensity[idx]),
+        xytext=(0, offset),
+        textcoords="offset points",
+        ha="center",
+        va="bottom",
+        fontsize=9,
+        color="crimson",
+        arrowprops=dict(arrowstyle="-", color="crimson", linewidth=0.7),
+    )
+
+ax.set_xlabel(r"2$\theta$ (deg)")
+ax.set_ylabel("Intensity (counts)")
+ax.set_title("XRD Pattern")
+ax.set_xlim(np.nanmin(theta), np.nanmax(theta))
+ax.grid(True, alpha=0.25)
+fig.tight_layout()
+
+out_dir = Path(OUT_DIR)
+out_dir.mkdir(parents=True, exist_ok=True)
+fig.savefig(out_dir / "xrd_pattern.png", dpi=300, bbox_inches="tight")
+plt.close(fig)
+```

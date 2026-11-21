@@ -1,0 +1,107 @@
+{
+ "arm": "P-hyb",
+ "item": "S047",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "데이터 분석가",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "Cumulative production (kg) per 반응기 over 일자 — per-run production = 생산속도 × 가동시간 / 1000. One line per reactor, daily resolution.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheets\": \"런로그\",\n  \"chart\": \"line\",\n  \"x\": {\n    \"col\": \"일자\"\n  },\n  \"y\": \"누적생산량_kg\",\n  \"by\": \"반응기\",\n  \"sort\": \"x\",\n  \"asks\": [\n    {\n      \"ask\": \"Cumulative production (kg) per 반응기 over 일자\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"per-run production = 생산속도 × 가동시간 / 1000\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"One line per reactor\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"daily resolution\",\n      \"how\": \"key\"\n    }\n  ],\n  \"data_code\": \"df['생산량_kg'] = df['생산속도 (g/h)'] * df['가동시간 (h)'] / 1000\\ndf = df.sort_values(['반응기', '일자'])\\ndf['누적생산량_kg'] = df.groupby('반응기')['생산량_kg'].cumsum()\"\n}\n```",
+     "llm_s": 6.532,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 18063,
+     "output_chars": 662,
+     "attempts": 1
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheets\": \"런로그\",\n  \"chart\": \"line\",\n  \"x\": {\n    \"col\": \"일자\"\n  },\n  \"y\": \"누적생산량_kg\",\n  \"by\": \"반응기\",\n  \"sort\": \"x\",\n  \"asks\": [\n    {\n      \"ask\": \"Cumulative production (kg) per 반응기 over 일자\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"per-run production = 생산속도 × 가동시간 / 1000\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"One line per reactor\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"daily resolution\",\n      \"how\": \"key\"\n    }\n  ],\n  \"data_code\": \"df['생산량_kg'] = df['R'] * df['P'] / 1000\\ndf = df.sort_values(['E', 'B'])\\ndf['누적생산량_kg'] = df.groupby('E')['생산량_kg'].cumsum()\\ndf['일자'] = df['B']\\ndf['반응기'] = df['E']\"\n}\n```",
+     "llm_s": 6.389,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 19278,
+     "output_chars": 682,
+     "attempts": 1
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheets\": \"런로그\",\n  \"chart\": \"line\",\n  \"x\": {\n    \"col\": \"일자\"\n  },\n  \"y\": \"누적생산량_kg\",\n  \"by\": \"반응기\",\n  \"sort\": \"x\",\n  \"asks\": [\n    {\n      \"ask\": \"Cumulative production (kg) per 반응기 over 일자\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"per-run production = 생산속도 × 가동시간 / 1000\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"One line per reactor\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"daily resolution\",\n      \"how\": \"key\"\n    }\n  ],\n  \"data_code\": \"df['생산속도'] = df['R 생산속도 (g/h)']\\ndf['가동시간'] = df['P 가동시간 (h)']\\ndf['일자'] = df['B 일자 (yyyy-mm-dd)']\\ndf['반응기'] = df['E 반응기']\\n\\ndf['생산량_kg'] = df['생산속도'] * df['가동시간'] / 1000\\ndf = df.sort_values(['반응기', '일자'])\\ndf['누적생산량_kg'] = df.groupby('반응기')['생산량_kg'].cumsum()\"\n}\n```",
+     "llm_s": 9.345,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 20342,
+     "output_chars": 779,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheets": "런로그",
+    "chart": "line",
+    "x": {
+     "col": "일자"
+    },
+    "y": "누적생산량_kg",
+    "by": "반응기",
+    "sort": "x",
+    "asks": [
+     {
+      "ask": "Cumulative production (kg) per 반응기 over 일자",
+      "how": "key"
+     },
+     {
+      "ask": "per-run production = 생산속도 × 가동시간 / 1000",
+      "how": "data_code"
+     },
+     {
+      "ask": "One line per reactor",
+      "how": "key"
+     },
+     {
+      "ask": "daily resolution",
+      "how": "key"
+     }
+    ],
+    "data_code": "df['생산속도'] = df['R 생산속도 (g/h)']\ndf['가동시간'] = df['P 가동시간 (h)']\ndf['일자'] = df['B 일자 (yyyy-mm-dd)']\ndf['반응기'] = df['E 반응기']\n\ndf['생산량_kg'] = df['생산속도'] * df['가동시간'] / 1000\ndf = df.sort_values(['반응기', '일자'])\ndf['누적생산량_kg'] = df.groupby('반응기')['생산량_kg'].cumsum()"
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": false,
+    "error": "data_code failed: KeyError: 'R 생산속도 (g/h)'",
+    "hint": "names: df (pandas DataFrame of the table), pd, np; leave the result in df"
+   },
+   "facts": [],
+   "draw_s": 0.476320743560791,
+   "check": {
+    "kind_expected": "line",
+    "failed": [
+     "run: no plot (data_code failed: KeyError: 'R 생산속도 (g/h)')"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 23.861
+  }
+ ]
+}

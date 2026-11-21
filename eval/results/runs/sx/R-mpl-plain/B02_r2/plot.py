@@ -1,0 +1,128 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import find_peaks
+
+# 데이터 로드
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/caox.csv"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/B02_r2/out"
+
+df = pd.read_csv(DATA_FILE)
+
+# 열 이름 확인 및 정리
+time_col = "Time (min)"
+temp_col = "Temperature (°C)"
+weight_col = "Weight (%)"
+dtg_col = "Deriv. Weight (%/°C)"
+heatflow_col = "Heat Flow (W/g)"
+
+# 데이터 정렬 (온도 기준)
+df = df.sort_values(by=temp_col).reset_index(drop=True)
+
+# 피크 탐지를 위한 설정
+# 흡열 피크: Heat Flow가 양의 값으로 올라가는 부분 (Endothermic)
+# 발열 피크: Heat Flow가 음의 값으로 내려가는 부분 (Exothermic)
+# 주의: DSC에서 부호 규정은 장비마다 다를 수 있음. 
+# 일반적으로 endothermic은 positive peak, exothermic은 negative peak로 표시되기도 하고 반대이기도 함.
+# 여기서는 일반적인 convention에 따라:
+# - 흡열(Endothermic): Heat Flow가 local maximum (positive direction) -> find_peaks on heatflow
+# - 발열(Exothermic): Heat Flow가 local minimum (negative direction) -> find_peaks on -heatflow
+
+heat_flow = df[heatflow_col].values
+temps = df[temp_col].values
+
+# 노이즈 제거를 위해 간단한 스무딩 적용 가능하나, 일단 원본 사용
+# 피크 파라미터 조정 필요할 수 있음. distance와 prominence로 필터링
+distance = 50  # 최소 간격 (포인트 단위)
+prominence = 0.1  # 최소 두드러짐
+
+# 흡열 피크 (Endothermic peaks): Heat Flow의 local maxima
+peaks_endo_idx, _ = find_peaks(heat_flow, distance=distance, prominence=prominence)
+peaks_endo_temps = temps[peaks_endo_idx]
+peaks_endo_vals = heat_flow[peaks_endo_idx]
+
+# 발열 피크 (Exothermic peaks): Heat Flow의 local minima -> -heat_flow의 local maxima
+peaks_exo_idx, _ = find_peaks(-heat_flow, distance=distance, prominence=prominence)
+peaks_exo_temps = temps[peaks_exo_idx]
+peaks_exo_vals = heat_flow[peaks_exo_idx]
+
+# 요청사항: 흡열 피크 두 개와 발열 피크 하나의 온도 표시
+# 가장 큰(abs(prominence)) 순서로 정렬하여 상위 N개 선택
+
+# 흡열 피크 중 prominent한 것 2개 선택
+if len(peaks_endo_temps) > 0:
+    # prominence 기준으로 정렬하기 위해 다시 계산하거나, values의 크기(abs)로 정렬
+    # find_peaks 반환값에는 prominence가 포함되지 않으므로, 간단히 abs(val) 또는 주변 평균 대비 차이로 판단
+    # 여기서는 단순히 peak height(absolute value from baseline approx 0) 기준으로 정렬
+    sorted_endo_indices = np.argsort(np.abs(peaks_endo_vals))[::-1][:2]
+    selected_endo_temps = peaks_endo_temps[sorted_endo_indices]
+else:
+    selected_endo_temps = []
+
+# 발열 피크 중 prominent한 것 1개 선택
+if len(peaks_exo_temps) > 0:
+    sorted_exo_indices = np.argsort(np.abs(peaks_exo_vals))[::-1][:1]
+    selected_exo_temps = peaks_exo_temps[sorted_exo_indices]
+else:
+    selected_exo_temps = []
+
+# 플롯 설정
+plt.figure(figsize=(12, 8))
+ax1 = plt.gca()
+
+# 왼쪽 축: TGA (Weight %)
+ax1.plot(df[temp_col], df[weight_col], color='blue', label='TGA (Weight %)', linewidth=2)
+ax1.set_xlabel('Temperature (°C)', fontsize=12)
+ax1.set_ylabel('Weight (%)', color='blue', fontsize=12)
+ax1.tick_params(axis='y', labelcolor='blue')
+
+# 오른쪽 축: DSC (Heat Flow W/g)
+ax2 = ax1.twinx()
+ax2.plot(df[temp_col], df[heatflow_col], color='red', label='DSC (Heat Flow W/g)', linewidth=2)
+ax2.set_ylabel('Heat Flow (W/g)', color='red', fontsize=12)
+ax2.tick_params(axis='y', labelcolor='red')
+
+# 제목 및 범례
+plt.title('TG-DSC Analysis with Peak Annotations', fontsize=14)
+lines_1, labels_1 = ax1.get_legend_handles_labels()
+lines_2, labels_2 = ax2.get_legend_handles_labels()
+ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='upper right')
+
+# 피크 온도 표시
+# 흡열 피크 표시
+for i, temp in enumerate(selected_endo_temps):
+    # 해당 온도의 Heat Flow 값 찾기
+    idx = np.argmin(np.abs(temps - temp))
+    hf_val = heat_flow[idx]
+    
+    # 텍스트 상자를 사용하여 표시
+    offset_y = 0.1 if hf_val >= 0 else -0.1
+    ax2.annotate(f'Endo\n{temp:.1f} °C', 
+                 xy=(temp, hf_val), 
+                 xytext=(temp, hf_val + offset_y*3),
+                 arrowprops=dict(facecolor='green', shrink=0.05, width=1, headwidth=5),
+                 fontsize=9, ha='center', va='bottom' if hf_val >= 0 else 'top',
+                 bbox=dict(boxstyle="round,pad=0.3", fc="yellow", ec="k", lw=1, alpha=0.7))
+
+# 발열 피크 표시
+for i, temp in enumerate(selected_exo_temps):
+    idx = np.argmin(np.abs(temps - temp))
+    hf_val = heat_flow[idx]
+    
+    offset_y = 0.1 if hf_val >= 0 else -0.1
+    ax2.annotate(f'Exo\n{temp:.1f} °C', 
+                 xy=(temp, hf_val), 
+                 xytext=(temp, hf_val + offset_y*3),
+                 arrowprops=dict(facecolor='purple', shrink=0.05, width=1, headwidth=5),
+                 fontsize=9, ha='center', va='bottom' if hf_val >= 0 else 'top',
+                 bbox=dict(boxstyle="round,pad=0.3", fc="cyan", ec="k", lw=1, alpha=0.7))
+
+# 레이아웃 조정
+plt.tight_layout()
+
+# 저장
+import os
+os.makedirs(OUT_DIR, exist_ok=True)
+output_path = os.path.join(OUT_DIR, "tg_dsc_plot.png")
+plt.savefig(output_path, dpi=300, bbox_inches='tight')
+plt.close()

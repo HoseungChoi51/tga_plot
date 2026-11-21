@@ -1,0 +1,8 @@
+```json
+{
+  "file": "TGA.xlsx",
+  "annotate": {
+    "peak": false
+  }
+}
+```

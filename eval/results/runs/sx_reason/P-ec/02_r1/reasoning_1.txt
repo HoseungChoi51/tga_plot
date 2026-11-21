@@ -1,0 +1,38 @@
+We need answer user's request in Korean? System says test mode: cannot run commands, inspect result given. Do step 2 only: reply with JSON spec for user's request, inside one ```json block, and nothing else. Need use file name exactly. Need analyze request.
+
+User: "원하는 작업: 1006R1-V normal sheet에 있는 실험일별 인장강도를 정리해 그래프로 그려서 png로 저장해줘. B행에 있는 것들을 X축, C행에 있는 것들을 Y1축, D행에 있는 것들을 Y2 축으로 해서 그래프를 그리면 돼. weight는 20단위로 해주고, Temperature은 200단위로 표시해주고, Deriv.Weight는 0.2단위로 표시해줘. 그리고 Deriv.Weight 의 max값을 표시해주고, temperatur 800 근처일때의 Y값을 Residue {}% 으로 표시해줘.
+추가·수정 요청: temperature은 0에서부터 200씩 늘어나야해. 그리고 800과 가장가까운 값을 찾아서 그때의 weight값을 residue 몇 %인지 표시하라고.
+결과 형식: png"
+
+Need output JSON only. Need consider "실험일별 인장강도" is leftover template example? Guide says text in form that is not request (e.g. leftover template examples like "실험일별 인장강도") is ignored; explicit column letters and part names win. So ignore tensile strength.
+
+Need spec: file TGA.xlsx, sheets "1006R1-V normal". x col B, y1 col C, y2 col D. x min 0 step 200? "temperature은 0에서부터 200씩 늘어나야해" => x min 0 step 200. max? Not specified, maybe no max. Data max 900. Could set x min 0 step 200. Weight step 20: y1 step 20. Deriv.Weight step 0.2: y2 step 0.2. annotate residue x 800 method nearest text "Residue {}%". annotate peak count 1? Deriv.Weight max값 표시 default peak count 1, but explicit maybe include peak: {"count": 1}. Need output format png.
+
+Question: Should we include x min 0? Yes. Could include x step 200. Should y1/y2 step. Should annotate residue method nearest. Text "Residue {}%" as requested. Need maybe include x label? No.
+
+Need preserve TGA preset default. Since sheets specified, columns specified. JSON:
+{
+ "file": "TGA.xlsx",
+ "sheets": "1006R1-V normal",
+ "x": {"col": "B", "min": 0, "step": 200},
+ "y1": {"col": "C", "step": 20},
+ "y2": {"col": "D", "step": 0.2},
+ "annotate": {"residue": {"x": 800, "method": "nearest", "text": "Residue {}%"}, "peak": {"count": 1}},
+ "output": {"format": "png"}
+}
+
+Need maybe "Deriv.Weight" corresponds y2. Good.
+
+Need consider "B행" in Korean sometimes row? Guide says B행, B열, B칸, B column all mean Excel column B. Good.
+
+Need not include max 900? User didn't ask max. "temperature은 0에서부터 200씩 늘어나야해" could mean min 0 step 200. No max. Could maybe set max 900? They didn't say 900까지. In example they had "Temperature는 0부터 200단위" and spec only min 0 step 200. So no max.
+
+Need maybe "weight는 20단위로" means y1 step 20. "Deriv.Weight는 0.2단위로" y2 step 0.2.
+
+Need maybe "temperatur 800 근처일때의 Y값을 Residue {}%으로 표시" and additional "800과 가장가까운 값" => method nearest. Good.
+
+Need final only json block no extra. Ensure valid JSON. Could include peak count 1 or omit? They explicitly ask max값 표시. Default already does, but explicit include peak count 1. Good.
+
+Need maybe if residue at 800 for normal sheet data reaches 900 so value not null. Good.
+
+Need output only.

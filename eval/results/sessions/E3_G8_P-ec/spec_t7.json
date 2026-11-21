@@ -1,0 +1,29 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "bar",
+ "x": "반응기",
+ "y": [
+  {
+   "col": "2존온도 (°C)",
+   "agg": "mean"
+  },
+  {
+   "col": "H2/C2H4비",
+   "agg": "mean"
+  },
+  {
+   "col": "체류시간 (s)",
+   "agg": "mean"
+  }
+ ],
+ "asks": [
+  {
+   "ask": "반응기별 2존온도, H2/C2H4비, 체류시간 평균 막대그래프 비교",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/sessions/E3_G8_P-ec/out/t7"
+ }
+}

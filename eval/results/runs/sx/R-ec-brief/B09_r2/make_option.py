@@ -1,0 +1,234 @@
+import pandas as pd
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+
+def get_tga_data(file_path, sheet_name):
+    df = pd.read_excel(file_path, sheet_name=sheet_name)
+    
+    # Identify columns based on standard TGA naming or guess from preview
+    temp_col = None
+    weight_col = None
+    dtg_col = None
+    
+    for col in df.columns:
+        col_lower = str(col).lower()
+        if 'temperature' in col_lower or 'temp' in col_lower:
+            temp_col = col
+        elif 'weight' in col_lower and 'deriv' not in col_lower and 'dtg' not in col_lower:
+            weight_col = col
+        elif 'deriv' in col_lower or 'dtg' in col_lower:
+            dtg_col = col
+            
+    if temp_col is None or weight_col is None or dtg_col is None:
+        raise ValueError(f"Could not identify columns in sheet {sheet_name}")
+        
+    data_temp = df[temp_col].dropna().tolist()
+    data_weight = df[weight_col].dropna().tolist()
+    data_dtg = df[dtg_col].dropna().tolist()
+    
+    # Align lengths just in case of NaNs dropping differently (though dropna usually keeps index alignment if done per series)
+    # Better to filter rows where all three are valid
+    mask = df[[temp_col, weight_col, dtg_col]].notna().all(axis=1)
+    clean_df = df[mask]
+    
+    x_vals = clean_df[temp_col].tolist()
+    y1_vals = clean_df[weight_col].tolist()
+    y2_vals_raw = clean_df[dtg_col].tolist()
+    
+    # Multiply DTG by -1 so peaks point up
+    y2_vals = [-v for v in y2_vals_raw]
+    
+    # Find Residue at ~800°C
+    residue_val = 0.0
+    residue_x = 0.0
+    min_diff = float('inf')
+    for t, w in zip(x_vals, y1_vals):
+        diff = abs(t - 800)
+        if diff < min_diff:
+            min_diff = diff
+            residue_val = w
+            residue_x = t
+            
+    # Find Peak Temperature > 150°C (highest DTG peak, which is now positive after * -1)
+    peak_temp = 0.0
+    peak_val = -float('inf')
+    for t, d in zip(x_vals, y2_vals):
+        if t > 150:
+            if d > peak_val:
+                peak_val = d
+                peak_temp = t
+                
+    return x_vals, y1_vals, y2_vals, residue_x, residue_val, peak_temp, peak_val
+
+# Process PE Sheet
+sheet_name = "PE"
+x, y1, y2, res_x, res_y, pk_t, pk_v = get_tga_data(DATA_FILE, sheet_name)
+
+# Prepare Series Data
+# Format: [[x, y], ...]
+series_weight_data = [[round(t, 4), round(w, 4)] for t, w in zip(x, y1)]
+series_dtg_data = [[round(t, 4), round(d, 4)] for t, d in zip(x, y2)]
+
+# Determine Axis Ranges
+# User specified X: 100-700
+x_min, x_max = 100, 700
+y1_min = min(y1)
+y1_max = max(y1)
+y2_min = min(y2)
+y2_max = max(y2)
+
+# Add some padding to Y axes
+y1_padding = (y1_max - y1_min) * 0.05
+y2_padding = (y2_max - y2_min) * 0.05
+
+# Construct ECharts Option
+option = {
+    "title": {
+        "text": sheet_name,
+        "left": "center",
+        "textStyle": {
+            "fontSize": 16,
+            "fontWeight": "bold"
+        }
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {
+            "type": "cross"
+        }
+    },
+    "legend": {
+        "data": ["Weight (%)", "-DTG (%/°C)"],
+        "top": "middle",
+        "left": "left",
+        "orient": "vertical"
+    },
+    "grid": {
+        "left": "10%",
+        "right": "10%",
+        "bottom": "15%",
+        "containLabel": True
+    },
+    "xAxis": {
+        "name": "Temperature (°C)",
+        "type": "value",
+        "min": x_min,
+        "max": x_max,
+        "interval": 100,
+        "axisLabel": {
+            "formatter": "{value}"
+        }
+    },
+    "yAxis": [
+        {
+            "name": "Weight (%)",
+            "type": "value",
+            "position": "left",
+            "min": y1_min - y1_padding,
+            "max": y1_max + y1_padding,
+            "axisLine": {
+                "show": True,
+                "lineStyle": {
+                    "color": "#c0392b"
+                }
+            },
+            "axisLabel": {
+                "formatter": "{value}"
+            }
+        },
+        {
+            "name": "-DTG (%/°C)",
+            "type": "value",
+            "position": "right",
+            "min": y2_min - y2_padding,
+            "max": y2_max + y2_padding,
+            "axisLine": {
+                "show": True,
+                "lineStyle": {
+                    "color": "#c0392b"
+                }
+            },
+            "axisLabel": {
+                "formatter": "{value}"
+            }
+        }
+    ],
+    "series": [
+        {
+            "name": "Weight (%)",
+            "type": "line",
+            "yAxisIndex": 0,
+            "data": series_weight_data,
+            "smooth": False,
+            "symbol": "none",
+            "lineStyle": {
+                "width": 3,
+                "color": "#c0392b" # Red color as requested
+            },
+            "markPoint": {
+                "data": [
+                    {
+                        "coord": [res_x, res_y],
+                        "value": f"Residue {res_y:.1f}%",
+                        "symbolSize": 10,
+                        "itemStyle": {
+                            "color": "#c0392b"
+                        },
+                        "label": {
+                            "show": True,
+                            "formatter": "Residue {value}",
+                            "position": "top",
+                            "distance": 10
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "-DTG (%/°C)",
+            "type": "line",
+            "yAxisIndex": 1,
+            "data": series_dtg_data,
+            "smooth": False,
+            "symbol": "none",
+            "lineStyle": {
+                "width": 1.5,
+                "color": "#1f4e9c" # Default blue for DTG unless specified otherwise, user only changed y1 line
+            },
+            "markPoint": {
+                "data": [
+                    {
+                        "coord": [pk_t, pk_v],
+                        "value": f"{pk_t:.0f} °C",
+                        "symbolSize": 10,
+                        "itemStyle": {
+                            "color": "#1f4e9c"
+                        },
+                        "label": {
+                            "show": True,
+                            "formatter": "{value}",
+                            "position": "top",
+                            "distance": 10
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
+
+result = {
+    "figures": [
+        {
+            "name": "plot_PE",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+    ]
+}
+
+print(json.dumps(result))

@@ -1,0 +1,25 @@
+{
+ "file": "data/downtime.xlsx",
+ "sheet": "정지이력",
+ "chart": "heatmap",
+ "x": "반응기",
+ "y": "원인",
+ "z": {
+  "col": "시작시각",
+  "agg": "count"
+ },
+ "values": true,
+ "asks": [
+  {
+   "ask": "원인별 정지 횟수 표 (히트맵)",
+   "how": "key"
+  },
+  {
+   "ask": "색으로 표현",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S044_r3/out/t1"
+ }
+}

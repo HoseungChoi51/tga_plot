@@ -1,0 +1,64 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+import os
+
+# 데이터 파일 경로 및 출력 디렉토리 설정
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/B20_r2/out"
+
+# 출력 디렉토리가 없으면 생성
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# 한글 폰트 설정
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+# Acid-washed 시트 읽기
+df = pd.read_excel(DATA_FILE, sheet_name='Acid-washed')
+
+# 열 이름 확인 (전체 대문자 소문자 등 변수를 대비하여 정규화하거나 직접 사용)
+# 미리보기에 따르면: "Temperature (°C)", "Weight (%)", "Deriv. Weight (%/°C)"
+temp_col = 'Temperature (°C)'
+weight_col = 'Weight (%)'
+deriv_col = 'Deriv. Weight (%/°C)'
+
+# 데이터 추출
+temperature = df[temp_col]
+weight = df[weight_col]
+deriv_weight = df[deriv_col]
+
+# 그래프 그리기
+fig, ax1 = plt.subplots(figsize=(10, 6))
+
+# TGA 곡선 (Weight %) - 왼쪽 y축
+ax1.plot(temperature, weight, color='blue', label='Weight (%)')
+ax1.set_xlabel('Temperature (°C)', fontsize=12)
+ax1.set_ylabel('Weight (%)', color='blue', fontsize=12)
+ax1.tick_params(axis='y', labelcolor='blue')
+
+# 보조 눈금(minor ticks) 설정
+ax1.xaxis.set_minor_locator(ticker.AutoMinorLocator())
+ax1.yaxis.set_minor_locator(ticker.AutoMinorLocator())
+ax1.grid(True, which='major', linestyle='-', alpha=0.5)
+ax1.grid(True, which='minor', linestyle=':', alpha=0.3)
+
+# DTG 곡선 (Deriv. Weight %/°C) - 오른쪽 y축
+ax2 = ax1.twinx()
+ax2.plot(temperature, deriv_weight, color='red', linestyle='--', label='Deriv. Weight (%/°C)')
+ax2.set_ylabel('Deriv. Weight (%/°C)', color='red', fontsize=12)
+ax2.tick_params(axis='y', labelcolor='red')
+
+# 제목 및 범례
+ax1.set_title('TGA/DTG Analysis of Acid-washed Sample', fontsize=14)
+lines_1, labels_1 = ax1.get_legend_handles_labels()
+lines_2, labels_2 = ax2.get_legend_handles_labels()
+ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='upper right')
+
+# 레이아웃 조정
+fig.tight_layout()
+
+# 저장
+output_path = os.path.join(OUT_DIR, "tga_acid_washed.png")
+plt.savefig(output_path, dpi=300)
+plt.close()

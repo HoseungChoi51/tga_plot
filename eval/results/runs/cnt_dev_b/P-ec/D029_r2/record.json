@@ -1,0 +1,189 @@
+{
+ "arm": "P-ec",
+ "item": "D029",
+ "repeat": 2,
+ "split": "dev",
+ "persona": "공정 엔지니어",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "26주 전체 등급(A/B/C) 비율 pie. 색은 A 초록, B 주황, C 빨강, % 라벨 소수 1자리.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"pie\",\n  \"x\": \"등급 (A/B/C)\",\n  \"colors\": {\n    \"A\": \"green\",\n    \"B\": \"orange\",\n    \"C\": \"red\"\n  },\n  \"values\": \"{:.1f}%\",\n  \"asks\": [\n    {\"ask\": \"26주 전체 등급 비율 pie\", \"how\": \"key\"},\n    {\"ask\": \"색 A 초록, B 주황, C 빨강\", \"how\": \"key\"},\n    {\"ask\": \"% 라벨 소수 1자리\", \"how\": \"key\"}\n  ]\n}\n```",
+     "llm_s": 4.393,
+     "prompt_tokens": 5980,
+     "output_tokens": 166,
+     "cached_tokens": 5936,
+     "prompt_n": 44,
+     "prefill_ms": 267.146146,
+     "decode_ms": 3903.320814999999,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "pie",
+    "x": "등급 (A/B/C)",
+    "colors": {
+     "A": "green",
+     "B": "orange",
+     "C": "red"
+    },
+    "values": "{:.1f}%",
+    "asks": [
+     {
+      "ask": "26주 전체 등급 비율 pie",
+      "how": "key"
+     },
+     {
+      "ask": "색 A 초록, B 주황, C 빨강",
+      "how": "key"
+     },
+     {
+      "ask": "% 라벨 소수 1자리",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": true,
+    "engine": "echarts",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_b/P-ec/D029_r2/out/t1/pie_등급_A_B_C.png"
+    ],
+    "chart": "pie",
+    "rows_used": 997,
+    "rows_total": 997,
+    "values": {
+     "slices": {
+      "B": 522.0,
+      "A": 349.0,
+      "C": 126.0
+     },
+     "shares": {
+      "B": 0.5236,
+      "A": 0.3501,
+      "C": 0.1264
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "원 그래프를 저장했습니다: pie_등급_A_B_C.png\n사용한 행: 997 / 997\nB 52.4%, A 35.0%, C 12.6%"
+   },
+   "facts": [
+    {
+     "engine": "echarts",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": 300,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": {
+        "labels": [
+         "B",
+         "A",
+         "C"
+        ],
+        "shares": [
+         0.5235707121364093,
+         0.35005015045135407,
+         0.12637913741223672
+        ],
+        "values": [
+         522.0,
+         349.0,
+         126.0
+        ],
+        "colors": [
+         "#e07b1f",
+         "#2e8b57",
+         "#c0392b"
+        ]
+       },
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [
+        "B\n52.4%",
+        "A\n35.0%",
+        "C\n12.6%"
+       ],
+       "x": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": null,
+        "max": null,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": null,
+        "max": null,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       }
+      }
+     ],
+     "texts": [
+      "B\n52.4%",
+      "A\n35.0%",
+      "C\n12.6%"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_b/P-ec/D029_r2/out/t1/pie_등급_A_B_C.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5966525077819824,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 4,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 5.067
+  }
+ ]
+}

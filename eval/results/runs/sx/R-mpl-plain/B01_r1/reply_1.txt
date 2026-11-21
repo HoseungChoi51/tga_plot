@@ -1,0 +1,79 @@
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+# 설정
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/caox.csv"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/B01_r1/out"
+
+# 한글 폰트 설정
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+# 데이터 읽기
+df = pd.read_csv(DATA_FILE)
+
+# 열 이름 정리 (공백 등 제거를 위해 strip 처리는 필요에 따라, 여기서는 그대로 사용하되 접근 시 주의)
+time_col = "Time (min)"
+temp_col = "Temperature (°C)"
+weight_col = "Weight (%)"
+dtg_col = "Deriv. Weight (%/°C)"
+
+# 그래프 생성
+fig, ax1 = plt.subplots(figsize=(10, 6))
+
+# TGA 곡선 (무게 %) - 왼쪽 Y축
+ax1.plot(df[temp_col], df[weight_col], color='black', label='TGA (Weight %)')
+ax1.set_xlabel('Temperature (°C)', fontsize=12)
+ax1.set_ylabel('Weight (%)', color='black', fontsize=12)
+ax1.tick_params(axis='y', labelcolor='black')
+ax1.grid(True, linestyle='--', alpha=0.5)
+
+# DTG 곡선 (미분 무게 %) - 오른쪽 Y축
+ax2 = ax1.twinx()
+ax2.plot(df[temp_col], df[dtg_col], color='red', linestyle='--', label='DTG (Deriv. Weight %/°C)')
+ax2.set_ylabel('Deriv. Weight (%/°C)', color='red', fontsize=12)
+ax2.tick_params(axis='y', labelcolor='red')
+
+# 구간 정의 및 색상
+segments = [
+    {"start": 120, "end": 250, "label": "H₂O", "color": "lightblue"},
+    {"start": 430, "end": 580, "label": "CO", "color": "lightgreen"},
+    {"start": 640, "end": 830, "label": "CO₂", "color": "lightsalmon"}
+]
+
+# 구간 채우기 및 라벨 추가
+for seg in segments:
+    # 해당 구간의 y 범위 계산 (채우기 높이 조절을 위해 전체 y 범위 중 일부만 사용하거나 투명도 조절)
+    # axvspan은 x축 구간만 지정하고 y축은 전체 범위를 덮음
+    ax1.axvspan(seg["start"], seg["end"], color=seg["color"], alpha=0.3, zorder=0)
+    
+    # 라벨 위치: 구간의 중앙 x 좌표, y축 상단 근처
+    mid_x = (seg["start"] + seg["end"]) / 2
+    # y 위치는 가독성을 위해 고정된 비율로 설정 (예: y축 최대값의 90% 위치 등)
+    # ax1.get_ylim()을 사용하여 현재 축 범위에 맞춰 조정 가능하지만, 여기서는 상대적 위치 사용
+    y_pos = ax1.get_ylim()[1] * 0.95 
+    
+    ax1.text(mid_x, y_pos, seg["label"], 
+             ha='center', va='top', 
+             fontsize=14, fontweight='bold', 
+             bbox=dict(facecolor='white', alpha=0.7, edgecolor='none', pad=2))
+
+# 제목 및 범례
+ax1.set_title('TGA/DTG Analysis of CaOx with Decomposition Regions', fontsize=14)
+
+# 범례 합치기
+lines_1, labels_1 = ax1.get_legend_handles_labels()
+lines_2, labels_2 = ax2.get_legend_handles_labels()
+ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='lower left')
+
+# 레이아웃 조정
+plt.tight_layout()
+
+# 저장
+os.makedirs(OUT_DIR, exist_ok=True)
+output_path = os.path.join(OUT_DIR, "tga_caox_regions.png")
+plt.savefig(output_path, dpi=300, bbox_inches='tight')
+plt.close()
+```

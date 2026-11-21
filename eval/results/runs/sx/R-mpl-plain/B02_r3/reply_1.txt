@@ -1,0 +1,95 @@
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import find_peaks
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+# Load data
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/caox.csv"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/B02_r3/out"
+
+df = pd.read_csv(DATA_FILE)
+
+# Extract columns
+temp = df['Temperature (°C)'].values
+weight = df['Weight (%)'].values
+heat_flow = df['Heat Flow (W/g)'].values
+
+# Find peaks in Heat Flow
+# Endothermic peaks: positive peaks in heat flow
+# Exothermic peaks: negative peaks in heat flow (or we can look for local minima if convention is different, but typically endo=up, exo=down in DSC)
+# Let's assume standard DSC convention: Endothermic = positive peak, Exothermic = negative peak
+
+# Find positive peaks (endothermic)
+peaks_endo, props_endo = find_peaks(heat_flow, prominence=0.1, distance=50)
+
+# Find negative peaks (exothermic) by inverting the signal
+peaks_exo, props_exo = find_peaks(-heat_flow, prominence=0.1, distance=50)
+
+# Sort peaks by temperature to ensure correct order if needed, though find_peaks returns them in index order which corresponds to time/temp order
+# We expect 2 endothermic and 1 exothermic based on user request. If more/fewer are found, we might need to adjust prominence/distance.
+# For now, let's take all detected peaks and label them.
+
+fig, ax1 = plt.subplots(figsize=(10, 6))
+
+# Plot TGA on left axis
+ax1.plot(temp, weight, color='black', linewidth=2, label='TGA')
+ax1.set_xlabel('Temperature (°C)', fontsize=12)
+ax1.set_ylabel('Weight (%)', color='black', fontsize=12)
+ax1.tick_params(axis='y', labelcolor='black')
+ax1.set_xlim([min(temp), max(temp)])
+ax1.set_ylim([min(weight)-5, max(weight)+5])
+
+# Create twin axis for Heat Flow
+ax2 = ax1.twinx()
+ax2.plot(temp, heat_flow, color='blue', linewidth=2, label='Heat Flow')
+ax2.set_ylabel('Heat Flow (W/g)', color='blue', fontsize=12)
+ax2.tick_params(axis='y', labelcolor='blue')
+
+# Annotate Endothermic Peaks (Positive Heat Flow)
+for i, idx in enumerate(peaks_endo):
+    t_peak = temp[idx]
+    hf_peak = heat_flow[idx]
+    # Draw a vertical line or marker at the peak
+    ax2.axvline(x=t_peak, color='red', linestyle='--', alpha=0.5)
+    # Add text annotation
+    offset_y = 0.2 if i == 0 else -0.4 # Adjust offsets to avoid overlap
+    ax2.annotate(f'Endo {i+1}: {t_peak:.1f} °C', 
+                 xy=(t_peak, hf_peak), 
+                 xytext=(t_peak + 20, hf_peak + offset_y),
+                 fontsize=9, color='red',
+                 arrowprops=dict(facecolor='red', shrink=0.05, width=1, headwidth=8))
+
+# Annotate Exothermic Peak (Negative Heat Flow)
+for i, idx in enumerate(peaks_exo):
+    t_peak = temp[idx]
+    hf_peak = heat_flow[idx]
+    # Draw a vertical line or marker at the peak
+    ax2.axvline(x=t_peak, color='green', linestyle='--', alpha=0.5)
+    # Add text annotation
+    offset_y = 0.5 
+    ax2.annotate(f'Exo {i+1}: {t_peak:.1f} °C', 
+                 xy=(t_peak, hf_peak), 
+                 xytext=(t_peak + 20, hf_peak + offset_y),
+                 fontsize=9, color='green',
+                 arrowprops=dict(facecolor='green', shrink=0.05, width=1, headwidth=8))
+
+# Title and Legend
+plt.title('TGA-DSC Analysis of CaOx', fontsize=14)
+lines1, labels1 = ax1.get_legend_handles_labels()
+lines2, labels2 = ax2.get_legend_handles_labels()
+ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper right')
+
+plt.tight_layout()
+
+# Save figure
+os.makedirs(OUT_DIR, exist_ok=True)
+output_path = os.path.join(OUT_DIR, "caox_tga_dsc.png")
+plt.savefig(output_path, dpi=300)
+plt.close()
+```

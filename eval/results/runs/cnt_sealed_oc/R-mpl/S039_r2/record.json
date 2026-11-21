@@ -1,0 +1,268 @@
+{
+ "arm": "R-mpl",
+ "item": "S039",
+ "repeat": 2,
+ "split": "sealed",
+ "persona": "신입 연구원",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "주간조랑 야간조가 차이가 있는지 보고 싶은데요, 반응기별로 평균 2존 온도를 주간/야간으로 나눠서 막대로 보여 주실 수 있을까요?",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# 결측치 및 이상치 처리 (2존온도가 있는 행만 사용)\ndf_clean = df.dropna(subset=[\"2존온도 (°C)\", \"근무조\", \"반응기\"]).copy()\n\n# 그룹화: 반응기별, 근무조별 평균 2존 온도\ngrouped = df_clean.groupby([\"반응기\", \"근무조\"])[\"2존온도 (°C)\"].mean().reset_index()\n\n# 피벗 테이블로 주간/야간을 컬럼으로 분리\npivot_df = grouped.pivot(index=\"반응기\", columns=\"근무조\", values=\"2존온도 (°C)\")\n\n# 막대 그래프 그리기\nreactors = pivot_df.index.tolist()\nx = np.arange(len(reactors))\nwidth = 0.35\n\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# 주간과 야간 막대\nbars_day = ax.bar(x - width/2, pivot_df.get(\"주간\", []), width, label='주간', color='#4CAF50')\nbars_night = ax.bar(x + width/2, pivot_df.get(\"야간\", []), width, label='야간', color='#2196F3')\n\n# 라벨 및 타이틀 설정\nax.set_xlabel('반응기', fontsize=12)\nax.set_ylabel('평균 2존 온도 (°C)', fontsize=12)\nax.set_title('반응기별 근무조에 따른 평균 2존 온도 비교', fontsize=14)\nax.set_xticks(x)\nax.set_xticklabels(reactors)\nax.legend()\n\n# Y축 범위 조정 (차이를 더 잘 보이게 하기 위해 최소값에서 여유를 둠)\nmin_val = min(pivot_df.min().min(), pivot_df.max().min()) # 실제 min of all values\nall_vals = pivot_df.values.flatten()\nif len(all_vals) > 0:\n    y_min = all_vals.min() - 10\n    y_max = all_vals.max() + 10\n    ax.set_ylim(y_min, y_max)\n\n# 값 텍스트 표시\ndef add_value_labels(ax, bars):\n    for bar in bars:\n        height = bar.get_height()\n        if not np.isnan(height):\n            ax.annotate(f'{height:.1f}',\n                        xy=(bar.get_x() + bar.get_width() / 2, height),\n                        xytext=(0, 3),  # 3 points vertical offset\n                        textcoords=\"offset points\",\n                        ha='center', va='bottom', fontsize=9)\n\nadd_value_labels(ax, bars_day)\nadd_value_labels(ax, bars_night)\n\nplt.tight_layout()\nsave_path = os.path.join(OUT_DIR, \"reactor_zone2_temp_by_shift.png\")\nplt.savefig(save_path, dpi=300)\nplt.close()\n```",
+     "llm_s": 10.448,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 3813,
+     "output_chars": 2072,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# 열 이름 정리: 공백 제거 및 특수문자 확인을 위해 strip 적용\ndf.columns = df.columns.str.strip()\n\n# 실제 사용된 2존온도 컬럼명 찾기 (데이터 미리보기상에는 'I 2존온도 (°C)'라고 표시되어 있지만, \n# pandas가 읽었을 때 헤더의 공백이나 줄바꿈에 따라 이름이 다를 수 있음. \n# 가장 안전한 방법은 '2존'을 포함하는 컬럼을 찾는 것임.)\ncol_zone2 = [c for c in df.columns if '2존' in c]\nif not col_zone2:\n    raise ValueError(\"2존 온도 컬럼을 찾을 수 없습니다.\")\ncol_zone2 = col_zone2[0]\n\n# 결측치 및 이상치 처리 (해당 컬럼명이 있는 행만 사용)\n# 근무조와 반응기도 유사하게 확인 필요하지만 미리보기 기준으로 존재한다고 가정.\n# 혹시 모를 공백/차이를 대비하여 해당 컬럼들도 find 시도 후 fallback\ncol_shift = [c for c in df.columns if '근무조' in c]\ncol_reactor = [c for c in df.columns if '반응기' in c]\n\ncol_shift = col_shift[0] if col_shift else '근무조'\ncol_reactor = col_reactor[0] if col_reactor else '반응기'\n\ndf_clean = df.dropna(subset=[col_zone2, col_shift, col_reactor]).copy()\n\n# 그룹화: 반응기별, 근무조별 평균 2존 온도\ngrouped = df_clean.groupby([col_reactor, col_shift])[col_zone2].mean().reset_index()\n\n# 피벗 테이블로 주간/야간을 컬럼으로 분리\npivot_df = grouped.pivot(index=col_reactor, columns=col_shift, values=col_zone2)\n\n# 막대 그래프 그리기\nreactors = pivot_df.index.tolist()\nx = np.arange(len(reactors))\nwidth = 0.35\n\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# 주간과 야간 막대\n# pivot_df에서 컬럼명으로 접근하므로, get을 사용하여 없으면 빈 배열처럼 처리하거나 에러 방지\nvals_day = pivot_df.get('주간', pd.Series([np.nan]*len(reactors), index=reactors))\nvals_night = pivot_df.get('야간', pd.Series([np.nan]*len(reactors), index=reactors))\n\nbars_day = ax.bar(x - width/2, vals_day, width, label='주간', color='#4CAF50')\nbars_night = ax.bar(x + width/2, vals_night, width, label='야간', color='#2196F3')\n\n# 라벨 및 타이틀 설정\nax.set_xlabel('반응기', fontsize=12)\nax.set_ylabel(f'평균 {col_zone2}', fontsize=12) # 원본 컬럼명을 그대로 사용하거나 깔끔하게 가공 가능. 여기서는 명확성을 위해 원본 기반.\nax.set_title('반응기별 근무조에 따른 평균 2존 온도 비교', fontsize=14)\nax.set_xticks(x)\nax.set_xticklabels(reactors)\nax.legend()\n\n# Y축 범위 조정 (차이를 더 잘 보이게 하기 위해 최소값에서 여유를 둠)\nall_vals = np.concatenate((vals_day.values, vals_night.values))\nall_vals = all_vals[~np.isnan(all_vals)]\n\nif len(all_vals) > 0:\n    y_min = all_vals.min() - 10\n    y_max = all_vals.max() + 10\n    ax.set_ylim(y_min, y_max)\n\n# 값 텍스트 표시\ndef add_value_labels(ax, bars):\n    for bar in bars:\n        height = bar.get_height()\n        if not np.isnan(height):\n            ax.annotate(f'{height:.1f}',\n                        xy=(bar.get_x() + bar.get_width() / 2, height),\n                        xytext=(0, 3),  # 3 points vertical offset\n                        textcoords=\"offset points\",\n                        ha='center', va='bottom', fontsize=9)\n\nadd_value_labels(ax, bars_day)\nadd_value_labels(ax, bars_night)\n\nplt.tight_layout()\nsave_path = os.path.join(OUT_DIR, \"reactor_zone2_temp_by_shift.png\")\nplt.savefig(save_path, dpi=300)\nplt.close()\n```",
+     "llm_s": 13.399,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 7449,
+     "output_chars": 2998,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# 열 이름 정리: 공백 제거 및 특수문자 확인을 위해 strip 적용\ndf.columns = df.columns.str.strip()\n\n# 실제 사용된 2존온도 컬럼명 찾기 (데이터 미리보기상에는 'I 2존온도 (°C)'라고 표시되어 있지만, \n# pandas가 읽었을 때 헤더의 공백이나 줄바꿈에 따라 이름이 다를 수 있음. \n# 가장 안전한 방법은 '2존'을 포함하는 컬럼을 찾는 것임.)\ncol_zone2_candidates = [c for c in df.columns if '2존' in c]\nif not col_zone2_candidates:\n    raise ValueError(\"2존 온도 컬럼을 찾을 수 없습니다.\")\ncol_zone2 = col_zone2_candidates[0]\n\n# 근무조와 반응기도 유사하게 확인 필요하지만 미리보기 기준으로 존재한다고 가정.\ncol_shift_candidates = [c for c in df.columns if '근무조' in c]\ncol_reactor_candidates = [c for c in df.columns if '반응기' in c]\n\nif not col_shift_candidates or not col_reactor_candidates:\n    raise ValueError(\"근무조 또는 반응기 컬럼을 찾을 수 없습니다.\")\n\ncol_shift = col_shift_candidates[0]\ncol_reactor = col_reactor_candidates[0]\n\n# 결측치 처리\ndf_clean = df.dropna(subset=[col_zone2, col_shift, col_reactor]).copy()\n\n# 타입 변환: 그룹화 및 평균 계산을 위해 수치형으로 변환\n# Excel에서 텍스트로 저장되었거나 빈 문자열이 섞여 있을 경우를 대비해 errors='coerce' 사용 후 다시 dropna\ndf_clean[col_zone2] = pd.to_numeric(df_clean[col_zone2], errors='coerce')\ndf_clean = df_clean.dropna(subset=[col_zone2])\n\n# 그룹화: 반응기별, 근무조별 평균 2존 온도\ngrouped = df_clean.groupby([col_reactor, col_shift])[col_zone2].mean().reset_index()\n\n# 피벗 테이블로 주간/야간을 컬럼으로 분리\npivot_df = grouped.pivot(index=col_reactor, columns=col_shift, values=col_zone2)\n\n# 막대 그래프 그리기\nreactors = pivot_df.index.tolist()\nx = np.arange(len(reactors))\nwidth = 0.35\n\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# 주간과 야간 막대\n# pivot_df에서 컬럼명으로 접근하므로, get을 사용하여 없으면 빈 배열처럼 처리하거나 에러 방지\nvals_day = pivot_df.get('주간', pd.Series([np.nan]*len(reactors), index=reactors))\nvals_night = pivot_df.get('야간', pd.Series([np.nan]*len(reactors), index=reactors))\n\nbars_day = ax.bar(x - width/2, vals_day, width, label='주간', color='#4CAF50')\nbars_night = ax.bar(x + width/2, vals_night, width, label='야간', color='#2196F3')\n\n# 라벨 및 타이틀 설정\nax.set_xlabel('반응기', fontsize=12)\nax.set_ylabel(f'평균 {col_zone2}', fontsize=12) # 원본 컬럼명을 그대로 사용하거나 깔끔하게 가공 가능. 여기서는 명확성을 위해 원본 기반.\nax.set_title('반응기별 근무조에 따른 평균 2존 온도 비교', fontsize=14)\nax.set_xticks(x)\nax.set_xticklabels(reactors)\nax.legend()\n\n# Y축 범위 조정 (차이를 더 잘 보이게 하기 위해 최소값에서 여유를 둠)\nall_vals = np.concatenate((vals_day.values, vals_night.values))\nall_vals = all_vals[~np.isnan(all_vals)]\n\nif len(all_vals) > 0:\n    y_min = all_vals.min() - 10\n    y_max = all_vals.max() + 10\n    ax.set_ylim(y_min, y_max)\n\n# 값 텍스트 표시\ndef add_value_labels(ax, bars):\n    for bar in bars:\n        height = bar.get_height()\n        if not np.isnan(height):\n            ax.annotate(f'{height:.1f}',\n                        xy=(bar.get_x() + bar.get_width() / 2, height),\n                        xytext=(0, 3),  # 3 points vertical offset\n                        textcoords=\"offset points\",\n                        ha='center', va='bottom', fontsize=9)\n\nadd_value_labels(ax, bars_day)\nadd_value_labels(ax, bars_night)\n\nplt.tight_layout()\nsave_path = os.path.join(OUT_DIR, \"reactor_zone2_temp_by_shift.png\")\nplt.savefig(save_path, dpi=300)\nplt.close()\n```",
+     "llm_s": 16.508,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 12625,
+     "output_chars": 3293,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# 열 이름 정리: 공백 제거 및 특수문자 확인을 위해 strip 적용\ndf.columns = df.columns.str.strip()\n\n# 실제 사용된 2존온도 컬럼명 찾기 (데이터 미리보기상에는 'I 2존온도 (°C)'라고 표시되어 있지만, \n# pandas가 읽었을 때 헤더의 공백이나 줄바꿈에 따라 이름이 다를 수 있음. \n# 가장 안전한 방법은 '2존'을 포함하는 컬럼을 찾는 것임.)\ncol_zone2_candidates = [c for c in df.columns if '2존' in c]\nif not col_zone2_candidates:\n    raise ValueError(\"2존 온도 컬럼을 찾을 수 없습니다.\")\ncol_zone2 = col_zone2_candidates[0]\n\n# 근무조와 반응기도 유사하게 확인 필요하지만 미리보기 기준으로 존재한다고 가정.\ncol_shift_candidates = [c for c in df.columns if '근무조' in c]\ncol_reactor_candidates = [c for c in df.columns if '반응기' in c]\n\nif not col_shift_candidates or not col_reactor_candidates:\n    raise ValueError(\"근무조 또는 반응기 컬럼을 찾을 수 없습니다.\")\n\ncol_shift = col_shift_candidates[0]\ncol_reactor = col_reactor_candidates[0]\n\n# 결측치 처리\ndf_clean = df.dropna(subset=[col_zone2, col_shift, col_reactor]).copy()\n\n# 타입 변환: 그룹화 및 평균 계산을 위해 수치형으로 변환\n# Excel에서 텍스트로 저장되었거나 빈 문자열이 섞여 있을 경우를 대비해 errors='coerce' 사용 후 다시 dropna\ndf_clean[col_zone2] = pd.to_numeric(df_clean[col_zone2], errors='coerce')\ndf_clean = df_clean.dropna(subset=[col_zone2])\n\n# 그룹화: 반응기별, 근무조별 평균 2존 온도\ngrouped = df_clean.groupby([col_reactor, col_shift])[col_zone2].mean().reset_index()\n\n# 피벗 테이블로 주간/야간을 컬럼으로 분리\npivot_df = grouped.pivot(index=col_reactor, columns=col_shift, values=col_zone2)\n\n# 막대 그래프 그리기\nreactors = pivot_df.index.tolist()\nx = np.arange(len(reactors))\nwidth = 0.35\n\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# 주간과 야간 막대\n# pivot_df에서 컬럼명으로 접근하므로, get을 사용하여 없으면 빈 배열처럼 처리하거나 에러 방지\nvals_day = pivot_df.get('주간', pd.Series([np.nan]*len(reactors), index=reactors))\nvals_night = pivot_df.get('야간', pd.Series([np.nan]*len(reactors), index=reactors))\n\nbars_day = ax.bar(x - width/2, vals_day, width, label='주간', color='#4CAF50')\nbars_night = ax.bar(x + width/2, vals_night, width, label='야간', color='#2196F3')\n\n# 라벨 및 타이틀 설정\nax.set_xlabel('반응기', fontsize=12)\nax.set_ylabel(f'평균 {col_zone2}', fontsize=12) # 원본 컬럼명을 그대로 사용하거나 깔끔하게 가공 가능. 여기서는 명확성을 위해 원본 기반.\nax.set_title('반응기별 근무조에 따른 평균 2존 온도 비교', fontsize=14)\nax.set_xticks(x)\nax.set_xticklabels(reactors)\nax.legend()\n\n# Y축 범위 조정 (차이를 더 잘 보이게 하기 위해 최소값에서 여유를 둠)\nall_vals = np.concatenate((vals_day.values, vals_night.values))\nall_vals = all_vals[~np.isnan(all_vals)]\n\nif len(all_vals) > 0:\n    y_min = all_vals.min() - 10\n    y_max = all_vals.max() + 10\n    ax.set_ylim(y_min, y_max)\n\n# 값 텍스트 표시\ndef add_value_labels(ax, bars):\n    for bar in bars:\n        height = bar.get_height()\n        if not np.isnan(height):\n            ax.annotate(f'{height:.1f}',\n                        xy=(bar.get_x() + bar.get_width() / 2, height),\n                        xytext=(0, 3),  # 3 points vertical offset\n                        textcoords=\"offset points\",\n                        ha='center', va='bottom', fontsize=9)\n\nadd_value_labels(ax, bars_day)\nadd_value_labels(ax, bars_night)\n\nplt.tight_layout()\nsave_path = os.path.join(OUT_DIR, \"reactor_zone2_temp_by_shift.png\")\nplt.savefig(save_path, dpi=300)\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "반응기별 근무조에 따른 평균 2존 온도 비교",
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "주간",
+         "orient": "v",
+         "cats": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          1149.9808695652173,
+          1150.289516129032,
+          1149.6283464566927,
+          1149.7661538461539
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#4caf50",
+          "#4caf50",
+          "#4caf50",
+          "#4caf50"
+         ],
+         "centers": [
+          -0.175,
+          0.825,
+          1.825,
+          2.825
+         ]
+        },
+        {
+         "name": "야간",
+         "orient": "v",
+         "cats": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          1149.7345588235294,
+          1162.3761904761905,
+          1149.9915254237287,
+          1149.8355371900827
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#2196f3",
+          "#2196f3",
+          "#2196f3",
+          "#2196f3"
+         ],
+         "centers": [
+          0.175,
+          1.175,
+          2.175,
+          3.175
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 8,
+       "texts": [
+        "1150.0",
+        "1150.3",
+        "1149.6",
+        "1149.8",
+        "1149.7",
+        "1162.4",
+        "1150.0",
+        "1149.8"
+       ],
+       "x": {
+        "label": "반응기",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "R1",
+         "R2",
+         "R3",
+         "R4"
+        ],
+        "min": -0.535,
+        "max": 3.535,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "R1",
+         "R2",
+         "R3",
+         "R4"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "평균 2존온도",
+        "type": "value",
+        "ticks": [
+         1140.0,
+         1145.0,
+         1150.0,
+         1155.0,
+         1160.0,
+         1165.0,
+         1170.0
+        ],
+        "step": 5.0,
+        "categories": null,
+        "min": 1139.6283464566927,
+        "max": 1172.3761904761905,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "1135",
+         "1140",
+         "1145",
+         "1150",
+         "1155",
+         "1160",
+         "1165",
+         "1170",
+         "1175"
+        ],
+        "rotate": 0.0
+       },
+       "title": "반응기별 근무조에 따른 평균 2존 온도 비교"
+      }
+     ],
+     "texts": [
+      "1150.0",
+      "1150.3",
+      "1149.6",
+      "1149.8",
+      "1149.7",
+      "1162.4",
+      "1150.0",
+      "1149.8"
+     ],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "주간",
+       "야간"
+      ],
+      "inside": true,
+      "where": "upper right"
+     },
+     "files": [
+      {
+       "path": "out/t1/reactor_zone2_temp_by_shift.png",
+       "format": "png",
+       "px": [
+        3000,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.4897303581237793,
+   "check": {
+    "kind_expected": "grouped_bar",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 41.628
+  }
+ ]
+}

@@ -1,0 +1,6 @@
+```json
+{
+  "file": "TGA.xlsx",
+  "combine": true
+}
+```

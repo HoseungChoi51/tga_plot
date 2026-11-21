@@ -1,0 +1,84 @@
+```python
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.signal import find_peaks
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/B13_r2/out")
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+# Korean-capable font and consistent plot styling.
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+df = pd.read_excel(DATA_FILE, sheet_name="PVC")
+df.columns = [str(col).strip() for col in df.columns]
+
+temperature_col = next(col for col in df.columns if "Temperature" in col)
+weight_col = next(col for col in df.columns if "Weight (%)" in col and "Deriv" not in col)
+derivative_col = next(col for col in df.columns if "Deriv" in col and "Weight" in col)
+
+data = df[[temperature_col, weight_col, derivative_col]].apply(pd.to_numeric, errors="coerce").dropna()
+temperature = data[temperature_col].to_numpy()
+weight = data[weight_col].to_numpy()
+derivative = data[derivative_col].to_numpy()
+
+# Weight-loss stages correspond to the most negative derivative peaks.
+# Select the two strongest distinct minima, enforcing separation in temperature.
+peak_indices, _ = find_peaks(-derivative, distance=max(1, len(derivative) // 12))
+if len(peak_indices) < 2:
+    peak_indices = np.argsort(derivative)[:2]
+
+ranked = sorted(peak_indices, key=lambda idx: derivative[idx])
+chosen = []
+min_separation = 50.0
+for idx in ranked:
+    if all(abs(temperature[idx] - temperature[other]) >= min_separation for other in chosen):
+        chosen.append(idx)
+    if len(chosen) == 2:
+        break
+
+# Fallback: choose the two most negative points if peak detection/separation found fewer.
+if len(chosen) < 2:
+    for idx in np.argsort(derivative):
+        if idx not in chosen:
+            chosen.append(int(idx))
+        if len(chosen) == 2:
+            break
+
+chosen = sorted(chosen, key=lambda idx: temperature[idx])
+
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.plot(temperature, weight, color="#2457A6", linewidth=2.2, label="무게")
+ax.set_xlabel("온도 (°C)", fontsize=12)
+ax.set_ylabel("무게 (%)", fontsize=12)
+ax.set_title("PVC 열중량 분석", fontsize=15, pad=12)
+ax.set_xlim(float(np.nanmin(temperature)), float(np.nanmax(temperature)))
+ax.set_ylim(0, 105)
+ax.grid(True, alpha=0.25)
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+
+for number, idx in enumerate(chosen, start=1):
+    temp = temperature[idx]
+    wt = weight[idx]
+    ax.axvline(temp, color="#D1495B", linestyle="--", linewidth=1.5, alpha=0.9)
+    ax.scatter([temp], [wt], color="#D1495B", s=55, zorder=4)
+    ax.annotate(
+        f"{number}차 꺾임: {temp:.1f} °C",
+        xy=(temp, wt),
+        xytext=(10, 18 if number == 1 else -30),
+        textcoords="offset points",
+        color="#9E293B",
+        fontsize=10,
+        arrowprops=dict(arrowstyle="->", color="#9E293B", lw=1),
+        bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="none", alpha=0.85),
+    )
+
+fig.tight_layout()
+fig.savefig(OUT_DIR / "PVC_weight_turning_temperatures.png", dpi=300, bbox_inches="tight")
+plt.close(fig)
+```

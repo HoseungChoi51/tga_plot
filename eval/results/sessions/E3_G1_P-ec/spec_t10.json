@@ -1,0 +1,35 @@
+{
+ "file": "data/downtime.xlsx",
+ "sheet": "정지이력",
+ "chart": "bar",
+ "x": {
+  "col": "일자",
+  "period": "month"
+ },
+ "y": {
+  "col": "정지시간(분)",
+  "agg": "sum"
+ },
+ "by": "원인",
+ "stack": true,
+ "filter": [
+  "반응기 == R3"
+ ],
+ "asks": [
+  {
+   "ask": "R3만 필터링",
+   "how": "key"
+  },
+  {
+   "ask": "월별 정지시간",
+   "how": "key"
+  },
+  {
+   "ask": "원인별로 쌓은 막대",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/sessions/E3_G1_P-ec/out/t10"
+ }
+}

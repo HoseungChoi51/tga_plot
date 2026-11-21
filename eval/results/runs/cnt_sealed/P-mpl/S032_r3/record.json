@@ -1,0 +1,94 @@
+{
+ "arm": "P-mpl",
+ "item": "S032",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "신입 연구원",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "R2 반응기 존 온도 파일(r2_zone_temps.csv)을 보고 있는데요, 2존 온도가 설정값(SP)에서 얼마나 벗어나는지 시간에 따라 보고 싶습니다. 2존 온도에서 SP를 뺀 값을 그래프로 그려 주실 수 있을까요? 그리고 제일 많이 벗어난 시점이 언제인지도 알려 주시면 좋겠습니다.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/r2_zone_temps.csv\",\n  \"chart\": \"line\",\n  \"x\": \"시각\",\n  \"y\": {\n    \"col\": \"deviation\",\n    \"label\": \"2존 온도 - SP (°C)\",\n    \"agg\": \"mean\"\n  },\n  \"data_code\": \"df['deviation'] = df['2존(°C)'] - df['2존 SP(°C)']\",\n  \"annotate\": {\n    \"max_dev\": {\n      \"type\": \"value_at_x\",\n      \"x\": null,\n      \"text\": \"Max Dev: {y:.1f} °C at {x}\"\n    }\n  },\n  \"asks\": [\n    {\"ask\": \"2존 온도와 SP의 차이 계산 및 그래프\", \"how\": \"data_code\"},\n    {\"ask\": \"시간에 따른 추이 (Line chart)\", \"how\": \"key\"},\n    {\"ask\": \"제일 많이 벗어난 시점 표시\", \"how\": \"unsupported\"} \n  ]\n}\n```",
+     "llm_s": 6.362,
+     "prompt_tokens": 5559,
+     "output_tokens": 246,
+     "cached_tokens": 5308,
+     "prompt_n": 251,
+     "prefill_ms": 469.205722,
+     "decode_ms": 5754.054664000002,
+     "finish": "stop"
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/r2_zone_temps.csv\",\n  \"chart\": \"line\",\n  \"x\": \"시각\",\n  \"y\": {\n    \"col\": \"deviation\",\n    \"label\": \"2존 온도 - SP (°C)\",\n    \"agg\": \"mean\"\n  },\n  \"data_code\": \"df['deviation'] = df['2존(°C)'] - df['2존 SP(°C)']\",\n  \"code\": \"import numpy as np\\n# Find the index of the maximum absolute deviation to highlight the worst point\\nif 'deviation' in data.columns:\\n    # Assuming data is a DataFrame or similar structure accessible in code context if needed, \\n    # but usually 'data' in code refers to plotted series. \\n    # Let's use the raw df logic if available, otherwise rely on visual inspection or simple annotation if possible.\\n    # Since we can't easily access the original df in 'code' for charts reliably without knowing exact scope,\\n    # and 'annotate' isn't supported, we will just plot the line.\\n    # The user asked for \\\"when\\\" it deviated most. Without an annotation key, we can't mark it automatically on the chart via keys.\\n    # However, we can add a vertical line at the max deviation time using matplotlib in 'code'.\\n    pass\",\n  \"asks\": [\n    {\"ask\": \"2존 온도와 SP의 차이 계산 및 그래프\", \"how\": \"data_code\"},\n    {\"ask\": \"시간에 따른 추이 (Line chart)\", \"how\": \"key\"},\n    {\"ask\": \"제일 많이 벗어난 시점 표시\", \"how\": \"unsupported\"}\n  ]\n}\n```",
+     "llm_s": 16.117,
+     "prompt_tokens": 5936,
+     "output_tokens": 384,
+     "cached_tokens": 5805,
+     "prompt_n": 131,
+     "prefill_ms": 356.078489,
+     "decode_ms": 14220.174078000002,
+     "finish": "stop"
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/r2_zone_temps.csv\",\n  \"chart\": \"line\",\n  \"x\": \"시각\",\n  \"y\": {\n    \"col\": \"deviation\",\n    \"label\": \"2존 온도 - SP (°C)\",\n    \"agg\": \"mean\"\n  },\n  \"data_code\": \"df['deviation'] = df['2존(°C)'] - df['2존 SP(°C)']\",\n  \"code\": \"import numpy as np\\n# Find the index of the maximum absolute deviation in the plotted data\\n# 'data' contains the drawn numbers. For a line chart, it's usually a dict with x and y arrays.\\nif isinstance(data, dict) and 'x' in data and 'y' in data:\\n    x_vals = np.array(data['x'])\\n    y_vals = np.array(data['y'])\\n    # Find index of max absolute value\\n    idx_max = np.argmax(np.abs(y_vals))\\n    if len(x_vals) > idx_max:\\n        max_x = x_vals[idx_max]\\n        max_y = y_vals[idx_max]\\n        # Add a vertical line at the time of max deviation\\n        ax.axvline(max_x, color='red', linestyle='--', label=f'Max Dev: {max_y:.1f} °C')\\n        ax.legend()\",\n  \"asks\": [\n    {\"ask\": \"2존 온도와 SP의 차이 계산 및 그래프\", \"how\": \"data_code\"},\n    {\"ask\": \"시간에 따른 추이 (Line chart)\", \"how\": \"key\"},\n    {\"ask\": \"제일 많이 벗어난 시점 표시\", \"how\": \"code\"}\n  ]\n}\n```",
+     "llm_s": 9.742,
+     "prompt_tokens": 6427,
+     "output_tokens": 388,
+     "cached_tokens": 6320,
+     "prompt_n": 107,
+     "prefill_ms": 364.902627,
+     "decode_ms": 8802.850153,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": "data/r2_zone_temps.csv",
+    "chart": "line",
+    "x": "시각",
+    "y": {
+     "col": "deviation",
+     "label": "2존 온도 - SP (°C)",
+     "agg": "mean"
+    },
+    "data_code": "df['deviation'] = df['2존(°C)'] - df['2존 SP(°C)']",
+    "code": "import numpy as np\n# Find the index of the maximum absolute deviation in the plotted data\n# 'data' contains the drawn numbers. For a line chart, it's usually a dict with x and y arrays.\nif isinstance(data, dict) and 'x' in data and 'y' in data:\n    x_vals = np.array(data['x'])\n    y_vals = np.array(data['y'])\n    # Find index of max absolute value\n    idx_max = np.argmax(np.abs(y_vals))\n    if len(x_vals) > idx_max:\n        max_x = x_vals[idx_max]\n        max_y = y_vals[idx_max]\n        # Add a vertical line at the time of max deviation\n        ax.axvline(max_x, color='red', linestyle='--', label=f'Max Dev: {max_y:.1f} °C')\n        ax.legend()",
+    "asks": [
+     {
+      "ask": "2존 온도와 SP의 차이 계산 및 그래프",
+      "how": "data_code"
+     },
+     {
+      "ask": "시간에 따른 추이 (Line chart)",
+      "how": "key"
+     },
+     {
+      "ask": "제일 많이 벗어난 시점 표시",
+      "how": "code"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": false,
+    "error": "the extra code failed: TypeError: bad operand type for abs(): 'dict'",
+    "hint": "the chart is already drawn from your keys; \"code\" is only for drawing changes no key covers (names: fig, ax, plt, np; data = the drawn numbers, not the table). Remove \"code\" if the keys already do it; to change the data use \"data_code\""
+   },
+   "facts": [],
+   "draw_s": 0.49255967140197754,
+   "check": {
+    "kind_expected": "line",
+    "failed": [
+     "run: no plot (the extra code failed: TypeError: bad operand type for abs(): 'dict')"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 33.614
+  }
+ ]
+}

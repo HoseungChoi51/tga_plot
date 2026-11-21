@@ -1,0 +1,9 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "scatter",
+ "x": "체류시간 (s)",
+ "y": "CNT수율 (g/g-cat)",
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_lite/P-mpl/DS01_r1/out/t1"
+ }
+}

@@ -1,0 +1,65 @@
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import pandas as pd
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/10_r2/out")
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+excel = pd.ExcelFile(DATA_FILE)
+fig, ax = plt.subplots(figsize=(9, 6))
+colors = ["#1f77b4", "#d62728", "#2ca02c"]
+
+for i, sheet_name in enumerate(excel.sheet_names):
+    df = pd.read_excel(DATA_FILE, sheet_name=sheet_name)
+    df.columns = [str(c).strip() for c in df.columns]
+
+    temp_col = next(c for c in df.columns if "temperature" in c.lower())
+    weight_col = next(c for c in df.columns if "weight" in c.lower())
+
+    data = df[[temp_col, weight_col]].apply(pd.to_numeric, errors="coerce").dropna()
+    data = data.sort_values(temp_col)
+
+    # 700 °C 잔류량: 해당 온도를 포함하는 인접 측정점 사이를 선형 보간
+    residual_700 = float(
+        pd.Series(data[weight_col].to_numpy(), index=data[temp_col].to_numpy())
+        .reindex(data[temp_col].to_numpy())
+        .iloc[0]
+    ) if False else None
+
+    temperatures = data[temp_col].to_numpy()
+    weights = data[weight_col].to_numpy()
+    if temperatures.min() <= 700 <= temperatures.max():
+        residual_700 = float(__import__("numpy").interp(700, temperatures, weights))
+        ax.plot(temperatures, weights, color=colors[i % len(colors)], linewidth=2,
+                label=sheet_name)
+        ax.scatter([700], [residual_700], color=colors[i % len(colors)], s=35, zorder=3)
+        ax.annotate(
+            f"{residual_700:.2f}%",
+            xy=(700, residual_700),
+            xytext=(8, 8),
+            textcoords="offset points",
+            color=colors[i % len(colors)],
+            fontsize=9,
+        )
+    else:
+        ax.plot(temperatures, weights, color=colors[i % len(colors)], linewidth=2,
+                label=sheet_name)
+
+ax.axvline(700, color="gray", linestyle="--", linewidth=1, alpha=0.7, label="700 °C")
+ax.set_xlabel("Temperature (°C)")
+ax.set_ylabel("Weight (%)")
+ax.set_title("TGA — Residual weight at 700 °C")
+ax.set_xlim(left=0)
+ax.grid(True, alpha=0.25)
+ax.legend(frameon=False)
+fig.tight_layout()
+
+fig.savefig(OUT_DIR / "TGA_residual_700C.png", dpi=300, bbox_inches="tight")
+plt.close(fig)

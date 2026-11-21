@@ -1,0 +1,120 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from pathlib import Path
+
+# Setup fonts and directories
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/03_r3/out"
+Path(OUT_DIR).mkdir(parents=True, exist_ok=True)
+
+# Read the specific sheet
+sheet_name = "1006R1-V acid"
+df = pd.read_excel(DATA_FILE, sheet_name=sheet_name)
+
+# Extract columns based on preview info
+# x: Temperature (col B), y1: Weight(%) (col C), y2: D.W(%/C) (col D)
+temp = df['Temperature'].values
+weight = df['Weight(%)'].values
+dtg = df['D.W(%/C)'].values
+
+# Create figure and axis
+fig, ax1 = plt.subplots(figsize=(8, 6))
+
+# Plot Weight (%) on left axis (y1)
+color_y1 = '#1f4e9c'
+ax1.plot(temp, weight, color=color_y1, label='Weight (%)')
+ax1.set_xlabel('Temperature (°C)', fontsize=12)
+ax1.set_ylabel('Weight (%)', color=color_y1, fontsize=12)
+ax1.tick_params(axis='y', labelcolor=color_y1)
+ax1.tick_params(axis='x', labelsize=10)
+
+# Set x-axis range
+ax1.set_xlim(100, 800)
+
+# Create secondary axis for DTG
+ax2 = ax1.twinx()
+color_y2 = '#c0392b'
+# Multiply DTG by -1 so peaks point up
+dtg_inverted = dtg * -1
+ax2.plot(temp, dtg_inverted, color=color_y2, linestyle='--', label='DTG (%/°C)')
+ax2.set_ylabel('DTG (%/°C)', color=color_y2, fontsize=12)
+ax2.tick_params(axis='y', labelcolor=color_y2)
+
+# Find Residue at nearest to 800°C
+mask_800 = (temp >= 795) & (temp <= 805)
+if not np.any(mask_800):
+    # Fallback: find closest point to 800
+    idx_res = np.argmin(np.abs(temp - 800))
+else:
+    # Average or take first valid in range? Usually just take the value at closest temp.
+    idx_res = np.argmin(np.abs(temp[mask_800] - 800))
+    # Map back to original index if needed, but simpler to just use argmin on full array
+    idx_res = np.argmin(np.abs(temp - 800))
+
+residue_val = weight[idx_res]
+residue_temp = temp[idx_res]
+
+# Add residue marker and label
+ax1.plot(residue_temp, residue_val, 'o', color=color_y1, markersize=6)
+ax1.annotate(f'Residue {residue_val:.1f}%', 
+             xy=(residue_temp, residue_val), 
+             xytext=(residue_temp + 20, residue_val + 5),
+             arrowprops=dict(facecolor=color_y1, shrink=0.05, width=1),
+             fontsize=10, color=color_y1)
+
+# Find Peak: Highest DTG peak above 150°C
+# We look for local maxima in the inverted DTG data (which are minima in original negative DTG)
+# Or simply find the maximum of the inverted DTG curve where T > 150
+valid_mask = temp > 150
+temp_valid = temp[valid_mask]
+dtg_inv_valid = dtg_inverted[valid_mask]
+
+# Identify peaks using scipy.signal.find_peaks for robustness, then pick top 2
+from scipy.signal import find_peaks
+
+peaks, properties = find_peaks(dtg_inv_valid, height=0.05, distance=50) # Adjust height/distance as needed
+
+if len(peaks) == 0:
+    # Fallback if no distinct peaks found with strict criteria, just take global max
+    peak_indices = [np.argmax(dtg_inv_valid)]
+else:
+    # Sort peaks by height descending
+    peak_heights = properties['peak_heights']
+    sorted_peak_indices = np.argsort(peak_heights)[::-1]
+    peak_indices = sorted_peak_indices[:2] # Take top 2
+
+for i, p_idx in enumerate(peak_indices):
+    peak_t = temp_valid[p_idx]
+    peak_dtg_inv = dtg_inv_valid[p_idx]
+    
+    # Marker on the DTG curve (right axis)
+    ax2.plot(peak_t, peak_dtg_inv, 'v', color=color_y2, markersize=8)
+    
+    # Label text like "600 °C"
+    # Offset slightly to avoid overlap
+    offset_x = 20 if i == 0 else -40
+    offset_y = 0.1 if i == 0 else 0.1
+    
+    ax2.annotate(f'{peak_t:.0f} °C', 
+                 xy=(peak_t, peak_dtg_inv), 
+                 xytext=(peak_t + offset_x, peak_dtg_inv + offset_y),
+                 arrowprops=dict(facecolor=color_y2, shrink=0.05, width=1),
+                 fontsize=10, color=color_y2)
+
+# Title is sheet name
+plt.title(sheet_name, fontsize=14)
+
+# Legend at center left
+lines1, labels1 = ax1.get_legend_handles_labels()
+lines2, labels2 = ax2.get_legend_handles_labels()
+ax1.legend(lines1 + lines2, labels1 + labels2, loc='center left', bbox_to_anchor=(0.05, 0.5))
+
+# Grid
+ax1.grid(True, linestyle=':', alpha=0.5)
+
+plt.tight_layout()
+output_path = Path(OUT_DIR) / f"{sheet_name.replace(' ', '_')}.png"
+plt.savefig(output_path, dpi=300)
+plt.close()

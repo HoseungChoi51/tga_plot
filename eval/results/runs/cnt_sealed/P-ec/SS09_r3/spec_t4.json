@@ -1,0 +1,21 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "scatter",
+ "x": "외기습도 (%)",
+ "y": "잔류금속 (wt%)",
+ "by": "반응기",
+ "asks": [
+  {
+   "ask": "런별 외기습도와 잔류금속 관계 산점도",
+   "how": "key"
+  },
+  {
+   "ask": "반응기별 색상 구분",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-ec/SS09_r3/out/t4"
+ }
+}

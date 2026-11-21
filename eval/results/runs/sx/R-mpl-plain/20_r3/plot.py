@@ -1,0 +1,109 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/20_r3/out"
+
+if not os.path.exists(OUT_DIR):
+    os.makedirs(OUT_DIR)
+
+# Read all sheets
+xls = pd.ExcelFile(DATA_FILE)
+sheet_names = xls.sheet_names
+
+fig, axes = plt.subplots(len(sheet_names), 1, figsize=(8, 4 * len(sheet_names)), sharex=True)
+if len(sheet_names) == 1:
+    axes = [axes]
+
+colors = ['#1f77b4', '#ff7f0e', '#2ca02c'] # Distinct colors for each sample
+
+for i, sheet_name in enumerate(sheet_names):
+    df = pd.read_excel(DATA_FILE, sheet_name=sheet_name)
+    
+    # Identify columns based on the preview structure
+    # Assuming column order is consistent: Time, Temperature, Weight(%), D.W(%/C)
+    # Or use names if available and robust
+    cols = df.columns
+    
+    # Heuristic to find x, y1, y2
+    temp_col = None
+    weight_col = None
+    dw_col = None
+    
+    for c in cols:
+        c_lower = str(c).lower()
+        if 'temperature' in c_lower or 'temp' in c_lower:
+            temp_col = c
+        elif 'weight' in c_lower and '%' in c_lower and 'd.w' not in c_lower and 'dw' not in c_lower:
+            weight_col = c
+        elif 'd.w' in c_lower or 'dw' in c_lower or 'derivative' in c_lower:
+            dw_col = c
+            
+    # Fallback to indices if names are ambiguous
+    if temp_col is None and len(cols) >= 2: temp_col = cols[1]
+    if weight_col is None and len(cols) >= 3: weight_col = cols[2]
+    if dw_col is None and len(cols) >= 4: dw_col = cols[3]
+
+    if temp_col is None or weight_col is None:
+        continue
+        
+    x = df[temp_col].values
+    y1 = df[weight_col].values
+    y2 = df[dw_col].values if dw_col else None
+    
+    ax1 = axes[i]
+    
+    # Plot TG (Weight %)
+    line1, = ax1.plot(x, y1, color=colors[i % len(colors)], label='TG (%)')
+    ax1.set_ylabel('Weight (%)')
+    ax1.tick_params(axis='y', labelcolor=colors[i % len(colors)])
+    
+    # Highlight region 300~450 C
+    ax1.axvspan(300, 450, color='gray', alpha=0.2, label='300-450 °C')
+    
+    # Plot DTG on secondary axis if exists
+    if y2 is not None:
+        ax2 = ax1.twinx()
+        line2, = ax2.plot(x, y2, color=colors[i % len(colors)], linestyle='--', alpha=0.7, label='DTG (%/°C)')
+        ax2.set_ylabel('D.W (%/°C)', color=colors[i % len(colors)])
+        ax2.tick_params(axis='y', labelcolor=colors[i % len(colors)])
+        
+        # Combine legends
+        lines = [line1, line2]
+        labels = [l.get_label() for l in lines]
+        # Add patch legend manually if needed, but axvspan label works in some contexts
+        # For clarity, we'll just rely on the plot content and title
+    else:
+        lines = [line1]
+        labels = ['TG (%)']
+        
+    # Title for subplot
+    ax1.set_title(f'{sheet_name}')
+    
+    # Put legend inside or outside? Inside might clutter with shading. 
+    # Let's put a simple legend for the lines. The shading is self-explanatory with title/axis.
+    # To make the shading explicit in legend:
+    from matplotlib.patches import Patch
+    legend_elements = [Patch(facecolor='gray', alpha=0.2, label='300-450 °C')]
+    
+    if y2 is not None:
+        legend_elements.append(line1)
+        legend_elements.append(line2)
+        ax1.legend(handles=legend_elements, loc='best', fontsize=8)
+    else:
+        legend_elements.append(line1)
+        ax1.legend(handles=legend_elements, loc='best', fontsize=8)
+
+# Common X-axis label for the bottom plot
+axes[-1].set_xlabel('Temperature (°C)')
+
+plt.tight_layout()
+output_path = os.path.join(OUT_DIR, "tga_plot.png")
+plt.savefig(output_path, dpi=300)
+plt.close()

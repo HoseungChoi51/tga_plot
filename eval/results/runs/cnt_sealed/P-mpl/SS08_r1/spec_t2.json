@@ -1,0 +1,29 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "scatter",
+ "x": "산화개시온도 (°C)",
+ "y": "잔류금속 (wt%)",
+ "by": "등급 (A/B/C)",
+ "colors": {
+  "A": "green",
+  "B": "orange",
+  "C": "red"
+ },
+ "asks": [
+  {
+   "ask": "잔류금속 vs 산화개시온도 산점도",
+   "how": "key"
+  },
+  {
+   "ask": "전체 런",
+   "how": "key"
+  },
+  {
+   "ask": "등급별 색 구분 (A 초록, B 주황, C 빨강)",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-mpl/SS08_r1/out/t2"
+ }
+}

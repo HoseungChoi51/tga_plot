@@ -1,0 +1,34 @@
+```json
+{
+ "file": "extra_columns.xlsx",
+ "preset": "none",
+ "x": {
+  "col": "B"
+ },
+ "y1": {
+  "col": "E"
+ },
+ "y2": {
+  "col": "F",
+  "label": "Heat flow (W/g)"
+ },
+ "annotate": {
+  "peak": false,
+  "residue": false
+ },
+ "asks": [
+  {
+   "ask": "Heat Flow를 y2축으로",
+   "how": "key"
+  },
+  {
+   "ask": "y2축 라벨 'Heat flow (W/g)'",
+   "how": "key"
+  },
+  {
+   "ask": "피크 표시 빼기",
+   "how": "key"
+  }
+ ]
+}
+```

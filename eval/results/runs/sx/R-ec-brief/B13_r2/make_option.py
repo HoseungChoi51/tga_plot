@@ -1,0 +1,217 @@
+import pandas as pd
+import numpy as np
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+
+def find_significant_drops(temp, weight):
+    """Find two temperatures where the weight drops most significantly."""
+    # Calculate derivative (slope) of weight with respect to temperature
+    dt = np.diff(temp)
+    dw = np.diff(weight)
+    slope = dw / dt
+    
+    # We want to find regions where the slope is most negative (steepest drop)
+    # To avoid noise, we can smooth or just look for local minima in slope.
+    # However, "weight 꺾이는 데" usually refers to the onset of decomposition steps, 
+    # which correspond to peaks in DTG (negative derivative).
+    
+    # Let's use the DTG data directly if available, but here we only have Weight and Temp in the request context?
+    # Actually, the sheet has Deriv. Weight column D. But let's stick to calculating from Weight if needed, 
+    # or better yet, use the provided DTG column if we read it.
+    
+    # Re-reading the plan: The user asks for PVC sheet. The sheet has columns A, B, C, D.
+    # Col B: Temperature, Col C: Weight, Col D: Deriv Weight.
+    
+    # Strategy: Find the two largest peaks in -DTG (since DTG is negative during loss, -DTG is positive peak).
+    pass
+
+# Read the specific sheet 'PVC'
+df = pd.read_excel(DATA_FILE, sheet_name='PVC')
+
+# Extract relevant columns
+temp = df['Temperature (°C)'].values
+weight = df['Weight (%)'].values
+dtg = df['Deriv. Weight (%/°C)'].values
+
+# Filter out initial stable region and final stable region to focus on decomposition
+# Usually TGA starts at low temp. We look for peaks in -DTG above 150°C as per standard instruction for single peak,
+# but here we need TWO distinct drops.
+# Let's identify peaks in the negative DTG curve (which means positive values when multiplied by -1).
+
+neg_dtg = -dtg
+
+# Smooth slightly to avoid noise spikes? No, raw data might be fine.
+# Find indices where neg_dtg is a local maximum.
+from scipy.signal import find_peaks
+
+# Distance between peaks should be significant to distinguish two different decomposition stages
+peaks, properties = find_peaks(neg_dtg, distance=50, prominence=0.1)
+
+if len(peaks) < 2:
+    # If not enough prominent peaks, take the top 2 highest values
+    sorted_indices = np.argsort(neg_dtg)[::-1]
+    # Ensure they are far apart
+    selected_peaks = []
+    for idx in sorted_indices:
+        if all(abs(idx - p) > 50 for p in selected_peaks):
+            selected_peaks.append(idx)
+        if len(selected_peaks) == 2:
+            break
+    peaks = np.array(selected_peaks)
+else:
+    # Sort peaks by height (prominence or value) and take top 2
+    peak_heights = neg_dtg[peaks]
+    top_2_idx = np.argsort(peak_heights)[::-1][:2]
+    peaks = peaks[top_2_idx]
+
+# Get temperatures at these peaks
+peak_temps = temp[peaks]
+peak_weights = weight[peaks]
+
+# Sort them by temperature for consistent labeling
+sorted_order = np.argsort(peak_temps)
+final_temps = peak_temps[sorted_order]
+final_weights = peak_weights[sorted_order]
+
+# Prepare ECharts option
+option = {
+    "title": {
+        "text": "PVC",
+        "left": "center",
+        "top": 10,
+        "textStyle": {
+            "fontSize": 16,
+            "fontFamily": "Noto Sans CJK KR"
+        }
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {
+            "type": "cross"
+        }
+    },
+    "legend": {
+        "data": ["Weight (%)", "-DTG"],
+        "top": 40,
+        "left": "center",
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR"
+        }
+    },
+    "grid": {
+        "left": "10%",
+        "right": "10%",
+        "bottom": "15%",
+        "containLabel": True
+    },
+    "xAxis": {
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "type": "value",
+        "min": 30,
+        "max": 900,
+        "splitLine": {
+            "show": False
+        },
+        "axisLabel": {
+            "fontFamily": "Noto Sans CJK KR"
+        }
+    },
+    "yAxis": [
+        {
+            "name": "Weight (%)",
+            "type": "value",
+            "position": "left",
+            "min": 0,
+            "max": 100,
+            "splitLine": {
+                "lineStyle": {
+                    "type": "dashed"
+                }
+            },
+            "axisLabel": {
+                "fontFamily": "Noto Sans CJK KR"
+            }
+        },
+        {
+            "name": "-DTG (%/°C)",
+            "type": "value",
+            "position": "right",
+            "splitLine": {
+                "show": False
+            },
+            "axisLabel": {
+                "fontFamily": "Noto Sans CJK KR"
+            }
+        }
+    ],
+    "series": [
+        {
+            "name": "Weight (%)",
+            "type": "line",
+            "smooth": True,
+            "symbol": "none",
+            "lineStyle": {
+                "color": "#1f4e9c",
+                "width": 2
+            },
+            "itemStyle": {
+                "color": "#1f4e9c"
+            },
+            "markPoint": {
+                "symbolSize": 8,
+                "label": {
+                    "show": True,
+                    "formatter": "{b}",
+                    "position": "top",
+                    "fontSize": 10,
+                    "fontFamily": "Noto Sans CJK KR",
+                    "color": "#1f4e9c"
+                },
+                "data": [
+                    {
+                        "coord": [float(final_temps[0]), float(final_weights[0])],
+                        "name": f"{int(round(final_temps[0]))} °C"
+                    },
+                    {
+                        "coord": [float(final_temps[1]), float(final_weights[1])],
+                        "name": f"{int(round(final_temps[1]))} °C"
+                    }
+                ]
+            },
+            "data": [[float(t), float(w)] for t, w in zip(temp, weight)]
+        },
+        {
+            "name": "-DTG",
+            "type": "line",
+            "smooth": True,
+            "symbol": "none",
+            "yAxisIndex": 1,
+            "lineStyle": {
+                "color": "#c0392b",
+                "width": 2
+            },
+            "itemStyle": {
+                "color": "#c0392b"
+            },
+            "data": [[float(t), float(-d)] for t, d in zip(temp, dtg)]
+        }
+    ]
+}
+
+output = {
+    "figures": [
+        {
+            "name": "plot_pvc",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+    ]
+}
+
+print(json.dumps(output))

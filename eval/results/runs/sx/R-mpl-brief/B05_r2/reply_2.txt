@@ -1,0 +1,128 @@
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILES = ["/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_A.csv", "/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_B.txt"]
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/B05_r2/out"
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+fig, ax1 = plt.subplots(figsize=(8, 6))
+
+colors_y1 = ['#1f4e9c', '#2ecc71']  # Blue for Lot A, Green for Lot B
+colors_y2 = ['#c0392b', '#e67e22']  # Red for Lot A DTG, Orange for Lot B DTG
+
+legend_labels_y1 = []
+legend_labels_y2 = []
+
+for i, file_path in enumerate(DATA_FILES):
+    ext = os.path.splitext(file_path)[1].lower()
+    if ext == '.csv':
+        df = pd.read_csv(file_path)
+    elif ext == '.txt':
+        df = pd.read_csv(file_path, sep='\t')
+    else:
+        continue
+    
+    # Robustly find columns by partial matching to avoid encoding issues with special chars like °
+    cols = df.columns.tolist()
+    
+    # Find Temperature column (usually contains 'Temperature' or 'Temp')
+    x_col = None
+    for c in cols:
+        if 'temperature' in c.lower() or 'temp' in c.lower():
+            x_col = c
+            break
+            
+    # Find Weight column (usually contains 'Weight' and '%')
+    y1_col = None
+    for c in cols:
+        if 'weight' in c.lower() and '%' in c:
+            y1_col = c
+            break
+    if y1_col is None:
+        for c in cols:
+            if 'weight' in c.lower():
+                y1_col = c
+                break
+
+    # Find Derivative Weight column
+    y2_col = None
+    for c in cols:
+        if 'deriv' in c.lower() or 'dtg' in c.lower():
+            y2_col = c
+            break
+    if y2_col is None:
+        for c in cols:
+            if 'weight' in c.lower() and c != y1_col:
+                 y2_col = c
+                 break
+
+    if x_col is None or y1_col is None or y2_col is None:
+        print(f"Could not identify all required columns in {file_path}. Columns found: {cols}")
+        continue
+
+    temp = df[x_col]
+    weight = df[y1_col]
+    dtg = df[y2_col]
+    
+    # Plot Weight on left axis
+    line1, = ax1.plot(temp, weight, color=colors_y1[i % len(colors_y1)], label=f"Lot {'A' if i==0 else 'B'}")
+    legend_labels_y1.append(line1)
+    
+    # Plot DTG on right axis (multiplied by -1 to point peaks up)
+    ax2 = ax1.twinx()
+    line2, = ax2.plot(temp, -dtg, color=colors_y2[i % len(colors_y2)], linestyle='--', label=f"DTG Lot {'A' if i==0 else 'B'}")
+    legend_labels_y2.append(line2)
+    
+    # Calculate Residue at ~800°C
+    idx_800 = np.argmin(np.abs(temp - 800))
+    residue_val = weight.iloc[idx_800]
+    residue_temp = temp.iloc[idx_800]
+    ax1.plot(residue_temp, residue_val, 'o', color=colors_y1[i % len(colors_y1)], markersize=6)
+    ax1.annotate(f"Residue {residue_val:.1f}%", 
+                 xy=(residue_temp, residue_val), 
+                 xytext=(10, 10), textcoords='offset points',
+                 fontsize=8, color=colors_y1[i % len(colors_y1)])
+    
+    # Calculate Peak temperature (highest DTG peak above 150°C)
+    mask = temp > 150
+    if not mask.any():
+        continue
+    dtg_masked = dtg[mask]
+    temp_masked = temp[mask]
+    
+    # Since we plot -dtg, the highest peak in the plot corresponds to the most negative dtg value
+    # In the plot (-dtg), this becomes max(-dtg).
+    peak_idx_in_masked = np.argmax(-dtg_masked)
+    peak_temp = temp_masked.iloc[peak_idx_in_masked]
+    peak_dtg_val = dtg_masked.iloc[peak_idx_in_masked]
+    
+    ax2.plot(peak_temp, -peak_dtg_val, 'v', color=colors_y2[i % len(colors_y2)], markersize=6)
+    ax2.annotate(f"{peak_temp:.0f} °C", 
+                 xy=(peak_temp, -peak_dtg_val), 
+                 xytext=(10, 10), textcoords='offset points',
+                 fontsize=8, color=colors_y2[i % len(colors_y2)])
+
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)")
+ax2.set_ylabel("Derivative Weight (%/°C)")
+
+# Combine legends
+lines = legend_labels_y1 + legend_labels_y2
+labels = [l.get_label() for l in lines]
+ax1.legend(lines, labels, loc='center left', bbox_to_anchor=(0.02, 0.5))
+
+plt.title("TGA Comparison: Lot A vs Lot B")
+plt.tight_layout()
+
+out_file = os.path.join(OUT_DIR, "tga_overlay.png")
+plt.savefig(out_file, dpi=300)
+plt.close()
+```

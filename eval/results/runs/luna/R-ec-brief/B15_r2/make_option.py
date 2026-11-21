@@ -1,0 +1,184 @@
+import json
+import os
+
+import numpy as np
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+
+COLORS = {
+    "PE": "#1f4e9c",
+    "PVC": "#c0392b",
+    "PET": "#2e8b57",
+}
+DTG_COLOR = "#777777"
+
+
+def clean_name(value):
+    return str(value).strip().lower()
+
+
+def find_column(columns, terms):
+    for col in columns:
+        name = clean_name(col)
+        if all(term in name for term in terms):
+            return col
+    return None
+
+
+def prepare_sheet(df):
+    df = df.copy()
+    df.columns = [str(c).strip() for c in df.columns]
+
+    x_col = find_column(df.columns, ["temperature"])
+    weight_col = find_column(df.columns, ["weight"]) 
+    dtg_col = find_column(df.columns, ["deriv"])
+
+    if x_col is None or weight_col is None or dtg_col is None:
+        raise ValueError(f"Could not identify TGA columns: {list(df.columns)}")
+
+    data = df[[x_col, weight_col, dtg_col]].apply(pd.to_numeric, errors="coerce").dropna()
+    data = data.sort_values(x_col)
+    x = data[x_col].to_numpy(dtype=float)
+    weight = data[weight_col].to_numpy(dtype=float)
+    dtg = data[dtg_col].to_numpy(dtype=float)
+
+    # Residue at the measured temperature nearest 800 °C.
+    residue_index = int(np.argmin(np.abs(x - 800.0)))
+    residue_x = float(x[residue_index])
+    residue_y = float(weight[residue_index])
+
+    # Highest positive upward peak from the negative DTG signal above 150 °C.
+    candidates = np.flatnonzero((x > 150.0) & (dtg < 0.0))
+    peak_index = int(candidates[np.argmax(-dtg[candidates])]) if len(candidates) else None
+
+    return x, weight, dtg, residue_x, residue_y, peak_index
+
+
+xls = pd.ExcelFile(DATA_FILE)
+sheet_data = {}
+for sheet_name in xls.sheet_names:
+    df = pd.read_excel(DATA_FILE, sheet_name=sheet_name)
+    sheet_data[sheet_name] = prepare_sheet(df)
+
+# Normalize DTG traces to a common display scale while preserving their shapes.
+max_abs_dtg = max(float(np.max(np.abs(item[2]))) for item in sheet_data.values())
+max_weight = max(float(np.max(item[1])) for item in sheet_data.values())
+dtg_scale = (max_weight * 0.35 / max_abs_dtg) if max_abs_dtg else 1.0
+
+series = []
+for sheet_name, (x, weight, dtg, residue_x, residue_y, peak_index) in sheet_data.items():
+    color = COLORS.get(sheet_name, "#1f4e9c")
+    series.append({
+        "name": sheet_name,
+        "type": "line",
+        "yAxisIndex": 0,
+        "showSymbol": False,
+        "connectNulls": False,
+        "lineStyle": {"width": 2, "color": color},
+        "itemStyle": {"color": color},
+        "data": [[float(a), float(b)] for a, b in zip(x, weight)],
+        "markPoint": {
+            "symbol": "circle",
+            "symbolSize": 8,
+            "label": {
+                "show": True,
+                "formatter": f"Residue {residue_y:.1f}%",
+                "position": "bottom",
+                "fontSize": 11,
+                "color": color,
+            },
+            "itemStyle": {"color": color},
+            "data": [{"coord": [residue_x, residue_y]}],
+        },
+    })
+
+    # Plot -DTG upward, scaled into weight-axis units so all three traces
+    # can be compared in the same shared chart.
+    series.append({
+        "name": f"{sheet_name} DTG",
+        "type": "line",
+        "yAxisIndex": 0,
+        "showSymbol": False,
+        "connectNulls": False,
+        "lineStyle": {"width": 1.5, "type": "dashed", "color": color, "opacity": 0.75},
+        "itemStyle": {"color": color},
+        "data": [[float(a), float(-b * dtg_scale)] for a, b in zip(x, dtg)],
+        "markPoint": {
+            "symbol": "circle",
+            "symbolSize": 8,
+            "label": {
+                "show": True,
+                "formatter": f"{float(x[peak_index]):.0f} °C" if peak_index is not None else "",
+                "position": "top",
+                "fontSize": 11,
+                "color": color,
+            },
+            "itemStyle": {"color": color},
+            "data": (
+                [{"coord": [float(x[peak_index]), float(-dtg[peak_index] * dtg_scale)]}]
+                if peak_index is not None else []
+            ),
+        },
+    })
+
+option = {
+    "animation": False,
+    "title": {
+        "text": "PE, PVC, PET",
+        "left": "center",
+        "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 16},
+    },
+    "tooltip": {"trigger": "axis"},
+    "legend": {
+        "type": "scroll",
+        "orient": "vertical",
+        "right": 10,
+        "top": "middle",
+        "data": [
+            name
+            for sheet_name in sheet_data
+            for name in (sheet_name, f"{sheet_name} DTG")
+        ],
+        "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 11},
+    },
+    "grid": {"left": 75, "right": 180, "top": 65, "bottom": 65},
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 38,
+        "min": 30,
+        "max": 900,
+        "axisLine": {"show": True},
+        "axisTick": {"show": True},
+        "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+        "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+    },
+    "yAxis": {
+        "type": "value",
+        "name": "Weight (%) / scaled −DTG",
+        "nameLocation": "middle",
+        "nameGap": 52,
+        "min": 0,
+        "max": 110,
+        "axisLine": {"show": True},
+        "axisTick": {"show": True},
+        "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+        "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+        "splitLine": {"show": True, "lineStyle": {"color": "#dddddd"}},
+    },
+    "series": series,
+}
+
+result = {
+    "figures": [{
+        "name": "polymers_overlay",
+        "option": option,
+        "width": 900,
+        "height": 600,
+        "dpi": 300,
+        "formats": ["png"],
+    }]
+}
+print(json.dumps(result, ensure_ascii=False, allow_nan=False))

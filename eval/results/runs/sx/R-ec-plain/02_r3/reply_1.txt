@@ -1,0 +1,225 @@
+```python
+import pandas as pd
+import numpy as np
+import json
+
+def main():
+    file_path = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+    
+    # Read the specific sheet
+    df = pd.read_excel(file_path, sheet_name="1006R1-V normal")
+    
+    # Extract data
+    # B: Temperature (X-axis)
+    # C: Weight(%) (Y1-axis)
+    # D: D.W(%/C) (Y2-axis)
+    
+    temp = df['Temperature'].values
+    weight = df['Weight(%)'].values
+    dw = df['D.W(%/C)'].values
+    
+    # Prepare data for ECharts
+    # Series 1: Weight (%) - Left Y Axis
+    data_weight = [[float(t), float(w)] for t, w in zip(temp, weight)]
+    
+    # Series 2: Deriv. Weight (%/C) - Right Y Axis
+    data_dw = [[float(t), float(d)] for t, d in zip(temp, dw)]
+    
+    # Find max value of Deriv. Weight for annotation
+    max_dw_val = np.max(dw)
+    max_dw_idx = np.argmax(dw)
+    max_dw_temp = temp[max_dw_idx]
+    
+    # Find residue at temperature closest to 800
+    target_temp = 800
+    idx_closest_800 = np.argmin(np.abs(temp - target_temp))
+    actual_temp_at_800 = temp[idx_closest_800]
+    residue_weight = weight[idx_closest_800]
+    
+    # Construct the ECharts option
+    option = {
+        "backgroundColor": "#fff",
+        "title": {
+            "text": "TGA Analysis: 1006R1-V normal",
+            "subtext": f"Residue @ ~{target_temp}°C: {residue_weight:.2f}%\nMax Deriv. Weight: {max_dw_val:.4f} %/C",
+            "left": "center",
+            "top": "5%",
+            "textStyle": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 16,
+                "fontWeight": "bold"
+            },
+            "subtextStyle": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 12
+            }
+        },
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {
+                "type": "cross"
+            },
+            "formatter": None # Using default formatter since we can't use JS functions easily in strict JSON without complex setup, but standard tooltip works well with array data
+        },
+        "legend": {
+            "data": ["Weight (%)", "Deriv. Weight (%/C)"],
+            "top": "15%"
+        },
+        "grid": {
+            "left": "10%",
+            "right": "10%",
+            "bottom": "15%",
+            "containLabel": True
+        },
+        "xAxis": [
+            {
+                "name": "Temperature (°C)",
+                "nameLocation": "middle",
+                "nameGap": 30,
+                "type": "value",
+                "min": 0,
+                "max": 900,
+                "interval": 200,
+                "axisLine": {
+                    "lineStyle": {
+                        "color": "#333"
+                    }
+                },
+                "splitLine": {
+                    "show": False
+                }
+            }
+        ],
+        "yAxis": [
+            {
+                "name": "Weight (%)",
+                "nameLocation": "middle",
+                "nameGap": 40,
+                "type": "value",
+                "min": 0,
+                "max": 100,
+                "interval": 20,
+                "position": "left",
+                "axisLine": {
+                    "lineStyle": {
+                        "color": "#333"
+                    }
+                },
+                "splitLine": {
+                    "show": True,
+                    "lineStyle": {
+                        "type": "dashed",
+                        "color": "#ccc"
+                    }
+                }
+            },
+            {
+                "name": "Deriv. Weight (%/C)",
+                "nameLocation": "middle",
+                "nameGap": 40,
+                "type": "value",
+                "min": -1.2,
+                "max": 0.2,
+                "interval": 0.2,
+                "position": "right",
+                "axisLine": {
+                    "lineStyle": {
+                        "color": "#333"
+                    }
+                },
+                "splitLine": {
+                    "show": False
+                }
+            }
+        ],
+        "series": [
+            {
+                "name": "Weight (%)",
+                "type": "line",
+                "smooth": False,
+                "symbol": "none",
+                "lineStyle": {
+                    "width": 2,
+                    "color": "#5470c6"
+                },
+                "itemStyle": {
+                    "color": "#5470c6"
+                },
+                "data": data_weight,
+                "markPoint": {
+                    "data": [
+                        {
+                            "coord": [float(actual_temp_at_800), float(residue_weight)],
+                            "value": f"{residue_weight:.2f}%",
+                            "symbolSize": 10,
+                            "itemStyle": {
+                                "color": "#ee6666"
+                            },
+                            "label": {
+                                "show": True,
+                                "formatter": "{b}: Residue\n{c}",
+                                "fontFamily": "Noto Sans CJK KR",
+                                "fontSize": 10,
+                                "position": "top",
+                                "distance": 5
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "Deriv. Weight (%/C)",
+                "type": "line",
+                "smooth": False,
+                "symbol": "none",
+                "yAxisIndex": 1,
+                "lineStyle": {
+                    "width": 2,
+                    "color": "#91cc75"
+                },
+                "itemStyle": {
+                    "color": "#91cc75"
+                },
+                "data": data_dw,
+                "markPoint": {
+                    "data": [
+                        {
+                            "coord": [float(max_dw_temp), float(max_dw_val)],
+                            "value": f"{max_dw_val:.4f}",
+                            "symbolSize": 10,
+                            "itemStyle": {
+                                "color": "#fac858"
+                            },
+                            "label": {
+                                "show": True,
+                                "formatter": "{b}: Max\n{c}",
+                                "fontFamily": "Noto Sans CJK KR",
+                                "fontSize": 10,
+                                "position": "top",
+                                "distance": 5
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+
+    result = {
+        "figures": [
+            {
+                "name": "tga_normal",
+                "option": option,
+                "width": 800,
+                "height": 600,
+                "dpi": 300,
+                "formats": ["png"]
+            }
+        ]
+    }
+    
+    print(json.dumps(result, ensure_ascii=False))
+
+if __name__ == "__main__":
+    main()
+```

@@ -1,0 +1,223 @@
+import pandas as pd
+import numpy as np
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+def get_korean_font():
+    return {
+        "fontFamily": "Noto Sans CJK KR",
+        "fontSize": 12,
+        "color": "#333333"
+    }
+
+def process_sheet(df, sheet_name):
+    # Identify columns based on the preview structure
+    # Time: A, Temperature: B, Weight(%): C, D.W(%/C): D
+    x_col = 'Temperature'
+    y1_col = 'Weight(%)'
+    y2_col = 'D.W(%/C)'
+    
+    if x_col not in df.columns or y1_col not in df.columns or y2_col not in df.columns:
+        return None
+        
+    # Clean data: drop rows with NaN in key columns
+    df_clean = df.dropna(subset=[x_col, y1_col, y2_col])
+    
+    temp = df_clean[x_col].values
+    weight = df_clean[y1_col].values
+    dtg = df_clean[y2_col].values
+    
+    # Invert DTG so peaks point up (standard TGA convention)
+    dtg_inverted = -dtg
+    
+    # Find Residue at nearest 800°C
+    residue_temp = 800.0
+    idx_residue = np.argmin(np.abs(temp - residue_temp))
+    residue_val = weight[idx_residue]
+    residue_label = f"Residue {residue_val:.1f}%"
+    
+    # Find Peak temperature of highest DTG peak above 150°C
+    mask_peak = temp > 150.0
+    if np.any(mask_peak):
+        temp_filtered = temp[mask_peak]
+        dtg_filtered = dtg_inverted[mask_peak] # Use inverted to find max positive peak
+        idx_max_dtg = np.argmax(dtg_filtered)
+        peak_temp = temp_filtered[idx_max_dtg]
+        peak_label = f"{peak_temp:.0f} °C"
+    else:
+        peak_temp = None
+        peak_label = ""
+
+    # Prepare series data for ECharts
+    # Line 1: Weight (%)
+    line_weight_data = [[float(t), float(w)] for t, w in zip(temp, weight)]
+    
+    # Line 2: DTG (%/°C) * -1
+    line_dtg_data = [[float(t), float(d)] for t, d in zip(temp, dtg_inverted)]
+    
+    # Markers
+    mark_point_weight = []
+    if residue_temp is not None and len(weight) > 0:
+        mark_point_weight.append({
+            "coord": [float(temp[idx_residue]), float(residue_val)],
+            "symbol": "circle",
+            "symbolSize": 8,
+            "label": {
+                "show": True,
+                "formatter": residue_label,
+                "position": "top",
+                "color": "#1f4e9c",
+                "fontWeight": "bold"
+            },
+            "itemStyle": {"color": "#1f4e9c"}
+        })
+        
+    mark_point_dtg = []
+    if peak_temp is not None:
+        # Find the index again for exact coordinate matching
+        idx_peak_full = np.argmin(np.abs(temp - peak_temp))
+        mark_point_dtg.append({
+            "coord": [float(temp[idx_peak_full]), float(dtg_inverted[idx_peak_full])],
+            "symbol": "diamond",
+            "symbolSize": 8,
+            "label": {
+                "show": True,
+                "formatter": peak_label,
+                "position": "top",
+                "color": "#c0392b",
+                "fontWeight": "bold"
+            },
+            "itemStyle": {"color": "#c0392b"}
+        })
+
+    font_style = get_korean_font()
+    
+    option = {
+        "title": {
+            "text": sheet_name,
+            "left": "center",
+            "textStyle": font_style
+        },
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {
+                "type": "cross"
+            }
+        },
+        "legend": {
+            "data": ["무게 (%)", "미분 무게 (%/°C)"],
+            "left": "center",
+            "top": "10%",
+            "textStyle": font_style
+        },
+        "grid": {
+            "left": "10%",
+            "right": "10%",
+            "bottom": "15%",
+            "containLabel": True
+        },
+        "xAxis": {
+            "name": "온도 (°C)",
+            "nameLocation": "middle",
+            "nameGap": 30,
+            "type": "value",
+            "scale": True,
+            "nameTextStyle": font_style,
+            "axisLabel": {
+                "formatter": "{value}",
+                "style": font_style
+            },
+            "splitLine": {
+                "show": False
+            }
+        },
+        "yAxis": [
+            {
+                "name": "무게 (%)",
+                "type": "value",
+                "position": "left",
+                "nameTextStyle": font_style,
+                "axisLabel": {
+                    "style": font_style
+                },
+                "splitLine": {
+                    "lineStyle": {
+                        "type": "dashed",
+                        "color": "#ccc"
+                    }
+                }
+            },
+            {
+                "name": "미분 무게 (%/°C)",
+                "type": "value",
+                "position": "right",
+                "nameTextStyle": font_style,
+                "axisLabel": {
+                    "style": font_style
+                },
+                "splitLine": {
+                    "show": False
+                }
+            }
+        ],
+        "series": [
+            {
+                "name": "무게 (%)",
+                "type": "line",
+                "yAxisIndex": 0,
+                "data": line_weight_data,
+                "smooth": False,
+                "lineStyle": {
+                    "color": "#1f4e9c",
+                    "width": 2
+                },
+                "symbol": "none",
+                "markPoint": {
+                    "data": mark_point_weight
+                }
+            },
+            {
+                "name": "미분 무게 (%/°C)",
+                "type": "line",
+                "yAxisIndex": 1,
+                "data": line_dtg_data,
+                "smooth": False,
+                "lineStyle": {
+                    "color": "#c0392b",
+                    "width": 2
+                },
+                "symbol": "none",
+                "markPoint": {
+                    "data": mark_point_dtg
+                }
+            }
+        ]
+    }
+    
+    return {
+        "name": sheet_name.replace(" ", "_"),
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"]
+    }
+
+def main():
+    try:
+        xls = pd.ExcelFile(DATA_FILE)
+        figures = []
+        for sheet_name in xls.sheet_names:
+            df = pd.read_excel(xls, sheet_name=sheet_name)
+            fig = process_sheet(df, sheet_name)
+            if fig:
+                figures.append(fig)
+                
+        result = {"figures": figures}
+        print(json.dumps(result, ensure_ascii=False))
+    except Exception as e:
+        print(json.dumps({"error": str(e)}))
+
+if __name__ == "__main__":
+    main()

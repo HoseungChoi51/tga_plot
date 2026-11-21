@@ -1,0 +1,77 @@
+We need answer user's request in Korean? But test mode: reply with JSON spec only inside json block, nothing else. Need analyze. User: "세 시트 무게 곡선을 겹치지 않게 20%씩 위아래로 띄워서(offset) 한 그림에 그려줘" Means combine three sheets in one plot, weight curves (y1) offset by 20% vertically so not overlapping. Need use plotkit spec. We have inspect. Need produce JSON spec. Need understand capabilities: combine true, sheets all? Need offset? There is no documented offset key. Need extra code? Since no key covers offset. We need write code after drawing to shift y1 data? But code uses x,y1,y2 numpy arrays of plotted data; can we modify plotted line? Need know plotkit internals? We can use fig, ax1, ax2, x, y1, y2, sheet, plt, np. If combine true, code likely runs per sheet? Names? It says Names you can use: fig, ax1, x, y1, y2, sheet, plt, np. In combine mode, maybe code runs after all drawing? Could use ax1.lines? Need offset each sheet's y1 line by index*20? Need ensure only weight curves, not y2. Could set y2 false? User asks weight curves only? "무게 곡선" likely y1 only, maybe y2 not needed. They want three sheets combined, offset 20% up/down. We can set "y2": false to plot only weight. But default TGA preset includes y2; user specifically 무게 곡선, maybe omit y2. Need combine true, sheets all. Need offset. Could use code to shift each line: for i, line in enumerate(ax1.lines): ydata = line.get_ydata(); line.set_ydata(ydata + (i-1)*20) maybe center? "20%씩 위아래로 띄워서" means separate by 20 percentage points. For three sheets, could offsets -20, 0, +20 or 0,20,40. "위아래로" suggests one middle, one above, one below. But if all start at 100%, offsetting +20 can exceed axis. Maybe default y1 axis auto rescales after line data modified? If code runs before saving, axis limits may have been set? Need maybe set y1 min/max? But not requested. If shift lines, axis autoscale might not update? Could call ax1.relim(); ax1.autoscale_view(); ax2? But y2 false. Could code: for i, line in enumerate(ax1.lines): line.set_ydata(line.get_ydata() + (i - 1) * 20); ax1.relim(); ax1.autoscale_view(). But if code runs per sheet? If code runs after each sheet, ax1.lines may have multiple lines? Hmm.
+
+Need infer plotkit behavior. It likely has code run after drawing and before saving. In combine mode maybe one figure with all sheets, code executed once? Names x,y1,y2 maybe for current sheet? If code runs once after all, x,y1,y2 maybe last sheet? But ax1.lines contains all y1 lines. Could use line labels to identify sheets. Need offset per line. Could use enumerate(ax1.lines) but order likely sheet order PE, PVC, PET. If y2 false, only y1 lines. If y2 true, ax1.lines might only y1? In twin axes, y2 line on ax2. So okay. But if annotations? no.
+
+Need decide spec keys: {"file":"polymers.xlsx", "sheets":"all", "combine":true, "y2":false, "code": "for i, line in enumerate(ax1.lines): line.set_ydata(line.get_ydata() + (i - 1) * 20); ax1.relim(); ax1.autoscale_view()"}
+
+Need maybe include y1 label? Not necess
+[...]
+e there is a built-in offset key not listed? "offset" maybe? The guide says all keys run schema. We don't have schema. Could there be `y1.offset`? Part names doesn't include. If no key, use code.
+
+Could code set line ydata before axis autoscale and also update annotations if they are text. But maybe not needed for test.
+
+Need maybe include `"y1": {"step": 20}`? "20%씩" could be tick interval? Wait! User: "20%씩 위아래로 띄워서(offset)" not "눈금 20". It says offset. But rule: "200단위", "200씩", "200 간격", "눈금 200" → step. Here "20%씩" could be misinterpreted as y1 step? But they explicitly "위아래로 띄워서(offset)" means vertical offset. So code.
+
+Could there be a spec key `offset` for y1? Not in guide. Use code.
+
+Need maybe combine true and sheets all. Good.
+
+Let's consider if code should offset by sheet index * 20 not -20,0,20. If line labels unknown and code runs once, (i-1)*20 works. If code runs per sheet with unknown labels, first line offset -20, second line when code runs second: line0 offset -20, line1 offset 0. Good. If code runs once after all, same. If labels known, PE -20, PVC 0, PET 20. Good.
+
+But if code runs per sheet and labels known, when first sheet PE, line label PE, offset -20. When second sheet PVC, line label PVC offset 0. Good. If code runs after all, same. If line labels are not sheet names but maybe "Weight (%)"? Then fallback index. Good.
+
+Need if `line.get_label()` returns something like `_line0` and offset None, fallback. Good.
+
+Potential issue: if code runs multiple times and line labels known but line._orig_y stored after first run. Good.
+
+Potential issue: if code runs after all but `ax1.lines` includes lines for y2? In matplotlib, `ax1.lines` contains all lines added to ax1. If y2 false, only y1. If y2 true, y2 line added to ax2, not ax1. If twin, maybe y2 line on ax2. Good.
+
+Potential issue: if code runs multiple times and `ax1.relim()` called before all lines drawn? If code per sheet, after first sheet, axis limits set to shifted PE. After second, relim includes both. Good.
+
+Need maybe if y2 false, `ax2` None; code doesn't reference. Good.
+
+Could use `ax1.set_ylim`? no.
+
+Need final. But before final, think about Korean answer? Test mode says only JSON. So final JSON block.
+
+Double-check JSON escaping of code. Could use actual newlines inside JSON string? In final markdown, JSON can have multiline string? JSON does not allow literal newlines in strings. Need either escape \n or use single line. In a JSON code block, if we put actual newlines inside quoted string, it's invalid JSON. Need use \n escapes. Could also use semicolons but loops tricky. Use \n escapes.
+
+Construct code string:
+"lines = ax1.lines\nfor i, line in enumerate(lines):\n    if not hasattr(line, '_orig_y'):\n        line._orig_y = line.get_ydata().copy()\n    offset = {'PE': -20, 'PVC': 0, 'PET': 20}.get(line.get_label())\n    if offset is None:\n        offset = (i - 1) * 20\n    line.set_ydata(line._orig_y + offset)\nax1.relim()\nax1.autoscale_view()"
+
+JSON valid with 
+ escapes. Need ensure indentation spaces after 
+ are literal spaces. Good.
+
+Spec:
+{
+ "file": "polymers.xlsx",
+ "sheets": "all",
+ "combine": true,
+ "y2": false,
+ "code": "..."
+}
+
+Should we include `"title": ""`? no.
+
+Could include `"output": {"format": ["png"]}`? no.
+
+Need maybe if combine true, sheets all, y2 false. Good.
+
+Let's consider if `sheets: "all"` with combine true works. Yes.
+
+Potential problem: If user asked "세 시트" but there are exactly three. Good.
+
+Potential problem: "20%씩 위아래로 띄워서" maybe means offset each curve by 20% of its own range, not absolute. But weight curves range 0-100, 20% = 20. Good.
+
+Potential problem: If PE/PVC/PET order in sheets: PE, PVC, PET. Offsets -20,0,20. Good.
+
+Potential problem: If line labels are sheet names with quotes? no.
+
+Potential problem: If code modifies line ydata but legend labels remain. Good.
+
+Could code need to update `y1` array? Not necessary.
+
+Could code need to handle `ax1` has no lines? no.
+
+Now final. Ensure no additional text.

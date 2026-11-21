@@ -1,0 +1,24 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "heatmap",
+ "x": {
+  "col": "주차"
+ },
+ "y": {
+  "col": "반응기"
+ },
+ "z": {
+  "col": "IG/ID",
+  "agg": "mean"
+ },
+ "values": true,
+ "asks": [
+  {
+   "ask": "반응기별 IG/ID 주별 변화 (히트맵)",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S043_r3/out/t1"
+ }
+}

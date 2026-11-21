@@ -1,0 +1,26 @@
+{
+  "file": "data/xrd.csv",
+  "preset": "none",
+  "y2": false,
+  "legend": "none",
+  "title": "Anatase TiO2 (made-up)",
+  "x": {
+    "col": "2Theta",
+    "label": "2θ (°)",
+    "step": 10
+  },
+  "y1": {
+    "col": "Intensity",
+    "color": "black",
+    "width": 1
+  },
+  "annotate": {
+    "peaks": {
+      "type": "peak",
+      "on": "y1",
+      "count": 6,
+      "min_rel": 0.1,
+      "text": "{x:.1f}°"
+    }
+  }
+}

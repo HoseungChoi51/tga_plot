@@ -1,0 +1,13 @@
+```json
+{
+  "file": ["cnt_lot_A.csv", "cnt_lot_B.txt"],
+  "combine": true,
+  "echarts": {
+    "legend": {"data": ["Lot A", "Lot B"]},
+    "series": [
+      {"name": "Lot A"},
+      {"name": "Lot B"}
+    ]
+  }
+}
+```

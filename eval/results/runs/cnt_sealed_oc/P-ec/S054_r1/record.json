@@ -1,0 +1,274 @@
+{
+ "arm": "P-ec",
+ "item": "S054",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "데이터 분석가",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "Grouped bar: mean 잔류금속 by 반응기, grouped by 외기습도 band (<60, 60–75, ≥75 %).",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"bar\",\n  \"x\": \"반응기\",\n  \"y\": {\n    \"col\": \"잔류금속 (wt%)\",\n    \"agg\": \"mean\"\n  },\n  \"by\": \"습도 구간\",\n  \"asks\": [\n    {\n      \"ask\": \"Grouped bar: mean 잔류금속 by 반응기, grouped by 외기습도 band (<60, 60–75, ≥75 %)\",\n      \"how\": \"key\"\n    }\n  ],\n  \"data_code\": \"import pandas as pd\\n\\ndef get_band(val):\\n    if val < 60:\\n        return '<60'\\n    elif val < 75:\\n        return '60-75'\\n    else:\\n        return '>=75'\\n\\ndf['습도 구간'] = df['외기습도 (%)'].apply(get_band)\\n# Ensure category order for legend/grouping consistency\\ncat_order = ['<60', '60-75', '>=75']\\ndf['습도 구간'] = pd.Categorical(df['습도 구간'], categories=cat_order, ordered=True)\"\n}\n```",
+     "llm_s": 4.598,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 18214,
+     "output_chars": 705,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "bar",
+    "x": "반응기",
+    "y": {
+     "col": "잔류금속 (wt%)",
+     "agg": "mean"
+    },
+    "by": "습도 구간",
+    "asks": [
+     {
+      "ask": "Grouped bar: mean 잔류금속 by 반응기, grouped by 외기습도 band (<60, 60–75, ≥75 %)",
+      "how": "key"
+     }
+    ],
+    "data_code": "import pandas as pd\n\ndef get_band(val):\n    if val < 60:\n        return '<60'\n    elif val < 75:\n        return '60-75'\n    else:\n        return '>=75'\n\ndf['습도 구간'] = df['외기습도 (%)'].apply(get_band)\n# Ensure category order for legend/grouping consistency\ncat_order = ['<60', '60-75', '>=75']\ndf['습도 구간'] = pd.Categorical(df['습도 구간'], categories=cat_order, ordered=True)"
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": true,
+    "engine": "echarts",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/S054_r1/out/t1/bar_잔류금속_wt.png"
+    ],
+    "chart": "bar",
+    "rows_used": 997,
+    "rows_total": 997,
+    "values": {
+     "categories": [
+      "R1",
+      "R2",
+      "R3",
+      "R4"
+     ],
+     "series": {
+      "60-75": [
+       3.2847,
+       3.2641,
+       3.3106,
+       4.6214
+      ],
+      "<60": [
+       3.0809,
+       3.1258,
+       3.1196,
+       4.4496
+      ],
+      ">=75": [
+       4.1486,
+       4.1707,
+       4.1225,
+       5.3676
+      ]
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "막대 그래프를 저장했습니다: bar_잔류금속_wt.png\n사용한 행: 997 / 997\n60-75: R1 3.28, R2 3.26, R3 3.31, R4 4.62\n<60: R1 3.08, R2 3.13, R3 3.12, R4 4.45\n>=75: R1 4.15, R2 4.17, R3 4.12, R4 5.37"
+   },
+   "facts": [
+    {
+     "engine": "echarts",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": 300,
+     "title": null,
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "60-75",
+         "orient": "v",
+         "cats": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          3.2846987951807227,
+          3.2640789473684215,
+          3.3106097560975614,
+          4.6213750000000005
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c"
+         ]
+        },
+        {
+         "name": "<60",
+         "orient": "v",
+         "cats": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          3.0809174311926606,
+          3.125811965811966,
+          3.1196396396396406,
+          4.4496460176991155
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#c0392b",
+          "#c0392b",
+          "#c0392b",
+          "#c0392b"
+         ]
+        },
+        {
+         "name": ">=75",
+         "orient": "v",
+         "cats": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          4.14864406779661,
+          4.1707017543859655,
+          4.1225000000000005,
+          5.367586206896551
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#2e8b57",
+          "#2e8b57",
+          "#2e8b57",
+          "#2e8b57"
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "반응기",
+        "type": "category",
+        "ticks": [],
+        "step": null,
+        "categories": [
+         "R1",
+         "R2",
+         "R3",
+         "R4"
+        ],
+        "min": 0.0,
+        "max": 3.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "잔류금속 (wt%) (mean)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0,
+         5.0,
+         6.0
+        ],
+        "step": 1.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 6.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       }
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "습도 구간",
+       "60-75",
+       "<60",
+       ">=75"
+      ],
+      "inside": true,
+      "where": "upper left"
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/S054_r1/out/t1/bar_잔류금속_wt.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.7308297157287598,
+   "check": {
+    "kind_expected": "grouped_bar",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 5.414
+  }
+ ]
+}

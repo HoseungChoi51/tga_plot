@@ -1,0 +1,218 @@
+import json
+import re
+import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+WIDTH = 614
+HEIGHT = 442
+DPI = 300
+
+
+def clean_name(value):
+    name = re.sub(r"[^\w가-힣.-]+", "_", str(value).strip())
+    return name.strip("_.") or "plot"
+
+
+def find_column(columns, pattern, fallback):
+    for column in columns:
+        if re.search(pattern, str(column), re.IGNORECASE):
+            return column
+    return columns[fallback]
+
+
+def to_number(series):
+    return pd.to_numeric(series, errors="coerce")
+
+
+def make_figure(sheet_name, frame):
+    columns = list(frame.columns)
+    x_col = find_column(columns, r"temperature|temp|온도", min(1, len(columns) - 1))
+    weight_col = find_column(columns, r"weight|mass|중량|무게", min(2, len(columns) - 1))
+    dtg_col = find_column(columns, r"\bd\.?\s*w\b|dtg|derivative|미분", min(3, len(columns) - 1))
+
+    x = to_number(frame[x_col]).to_numpy(dtype=float)
+    weight = to_number(frame[weight_col]).to_numpy(dtype=float)
+    dtg = to_number(frame[dtg_col]).to_numpy(dtype=float)
+
+    valid = np.isfinite(x) & np.isfinite(weight) & np.isfinite(dtg)
+    x, weight, dtg = x[valid], weight[valid], dtg[valid]
+    if not len(x):
+        return None
+
+    order = np.argsort(x, kind="stable")
+    x, weight, dtg = x[order], weight[order], dtg[order]
+
+    residue_candidates = np.flatnonzero(np.isclose(x, 800))
+    if len(residue_candidates):
+        residue_idx = int(residue_candidates[0])
+    else:
+        residue_idx = int(np.argmin(np.abs(x - 800)))
+
+    peak_candidates = np.flatnonzero(x > 150)
+    if len(peak_candidates):
+        # DTG is conventionally negative during mass loss; invert it so the
+        # largest mass-loss event is the highest positive plotted peak.
+        peak_idx = int(peak_candidates[np.argmax(-dtg[peak_candidates])])
+    else:
+        peak_idx = int(np.argmax(-dtg))
+
+    plotted_dtg = -dtg
+    option = {
+        "animation": False,
+        "backgroundColor": "#ffffff",
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR, sans-serif",
+            "color": "#222222",
+        },
+        "title": {
+            "text": str(sheet_name),
+            "left": "center",
+            "top": 8,
+            "textStyle": {"fontSize": 16, "fontWeight": "normal"},
+        },
+        "legend": {
+            "data": ["Weight (%)", "-DTG (%/°C)"],
+            "left": 70,
+            "top": "middle",
+            "orient": "vertical",
+            "itemWidth": 18,
+            "itemHeight": 10,
+            "textStyle": {"fontSize": 11},
+        },
+        "grid": {"left": 72, "right": 72, "top": 55, "bottom": 55},
+        "tooltip": {"trigger": "axis"},
+        "xAxis": {
+            "type": "value",
+            "name": "Temperature (°C)",
+            "nameLocation": "middle",
+            "nameGap": 32,
+            "axisLine": {"show": True, "lineStyle": {"color": "#555555"}},
+            "axisTick": {"show": True},
+            "axisLabel": {"fontSize": 10},
+            "splitLine": {"show": False},
+        },
+        "yAxis": [
+            {
+                "type": "value",
+                "name": "Weight (%)",
+                "nameLocation": "middle",
+                "nameGap": 48,
+                "axisLine": {"show": True, "lineStyle": {"color": "#1f4e9c"}},
+                "axisTick": {"show": True},
+                "axisLabel": {"fontSize": 10},
+                "splitLine": {
+                    "show": True,
+                    "lineStyle": {"color": "#e5e5e5", "type": "dashed"},
+                },
+            },
+            {
+                "type": "value",
+                "name": "-DTG (%/°C)",
+                "nameLocation": "middle",
+                "nameGap": 48,
+                "axisLine": {"show": True, "lineStyle": {"color": "#c0392b"}},
+                "axisTick": {"show": True},
+                "axisLabel": {"fontSize": 10},
+                "splitLine": {"show": False},
+            },
+        ],
+        "series": [
+            {
+                "name": "Weight (%)",
+                "type": "line",
+                "yAxisIndex": 0,
+                "showSymbol": False,
+                "sampling": "lttb",
+                "lineStyle": {"width": 1.8, "color": "#1f4e9c"},
+                "data": [[float(a), float(b)] for a, b in zip(x, weight)],
+                "markPoint": {
+                    "symbol": "circle",
+                    "symbolSize": 8,
+                    "itemStyle": {"color": "#1f4e9c"},
+                    "label": {
+                        "show": True,
+                        "formatter": f"Residue {weight[residue_idx]:.1f}%",
+                        "position": "right",
+                        "fontSize": 10,
+                        "color": "#1f4e9c",
+                    },
+                    "data": [
+                        {
+                            "coord": [
+                                float(x[residue_idx]),
+                                float(weight[residue_idx]),
+                            ]
+                        }
+                    ],
+                },
+            },
+            {
+                "name": "-DTG (%/°C)",
+                "type": "line",
+                "yAxisIndex": 1,
+                "showSymbol": False,
+                "sampling": "lttb",
+                "lineStyle": {"width": 1.5, "color": "#c0392b"},
+                "data": [[float(a), float(b)] for a, b in zip(x, plotted_dtg)],
+                "markPoint": {
+                    "symbol": "circle",
+                    "symbolSize": 8,
+                    "itemStyle": {"color": "#c0392b"},
+                    "label": {
+                        "show": True,
+                        "formatter": f"{x[peak_idx]:.0f} °C",
+                        "position": "top",
+                        "fontSize": 10,
+                        "color": "#c0392b",
+                    },
+                    "data": [
+                        {
+                            "coord": [
+                                float(x[peak_idx]),
+                                float(plotted_dtg[peak_idx]),
+                            ]
+                        }
+                    ],
+                },
+            },
+        ],
+    }
+    return {
+        "name": clean_name(sheet_name),
+        "option": option,
+        "width": WIDTH,
+        "height": HEIGHT,
+        "dpi": DPI,
+        "formats": ["png"],
+    }
+
+
+def main():
+    path = Path(DATA_FILE)
+    figures = []
+
+    if path.suffix.lower() in {".xlsx", ".xls"}:
+        sheets = pd.read_excel(path, sheet_name=None)
+        for sheet_name, frame in sheets.items():
+            figure = make_figure(sheet_name, frame)
+            if figure:
+                figures.append(figure)
+    else:
+        if path.suffix.lower() == ".csv":
+            frame = pd.read_csv(path)
+        else:
+            frame = pd.read_csv(path, sep=None, engine="python")
+        figure = make_figure(path.stem, frame)
+        if figure:
+            figures.append(figure)
+
+    print(json.dumps({"figures": figures}, ensure_ascii=False, allow_nan=False))
+
+
+if __name__ == "__main__":
+    main()

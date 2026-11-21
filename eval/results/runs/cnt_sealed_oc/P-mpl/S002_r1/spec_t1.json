@@ -1,0 +1,34 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "hbar",
+ "x": "반응기",
+ "y": {
+  "col": "정지시간(분)",
+  "agg": "sum"
+ },
+ "sort": "desc",
+ "colors": {
+  "R3": "red",
+  "R1": "gray",
+  "R2": "gray",
+  "R4": "gray"
+ },
+ "asks": [
+  {
+   "ask": "반응기별 총 정지시간 가로막대",
+   "how": "key"
+  },
+  {
+   "ask": "많은 순으로 위에서부터",
+   "how": "key"
+  },
+  {
+   "ask": "제일 많은 반응기만 빨간색, 나머지는 회색",
+   "how": "code"
+  }
+ ],
+ "code": "bars = ax.patches\nif bars:\n    max_val = -1\n    for p in bars:\n        if p.get_width() > max_val:\n            max_val = p.get_width()\n    for p in bars:\n        if p.get_width() == max_val:\n            p.set_color('red')\n        else:\n            p.set_color('gray')",
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S002_r1/out/t1"
+ }
+}

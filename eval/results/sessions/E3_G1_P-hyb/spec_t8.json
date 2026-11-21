@@ -1,0 +1,20 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "bar",
+ "x": "반응기",
+ "y": {
+  "col": "정지시간(분)",
+  "agg": "sum"
+ },
+ "by": "원인",
+ "stack": true,
+ "asks": [
+  {
+   "ask": "반응기별 원인별 정지시간 합계 막대그래프",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/sessions/E3_G1_P-hyb/out/t8"
+ }
+}

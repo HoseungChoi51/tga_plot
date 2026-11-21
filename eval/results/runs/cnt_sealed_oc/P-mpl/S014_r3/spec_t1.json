@@ -1,0 +1,35 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "주간요약",
+ "data_code": "import pandas as pd\nimport numpy as np\n\n# df is currently the '주간요약' sheet (columns: 주차, 시작일, 런수, 평균수율(g/g-cat), 평균잔류금속(wt%), 합격률(%), 총생산량(kg))\n\n# Load downtime data separately within data_code\ntry:\n    # The sandbox might have access to other files if we specify path correctly relative to workspace root\n    # Usually plotkit loads the main file into df. To load another, we use pd.read_excel with the full path provided in preview.\n    df_dt = pd.read_excel('data/downtime.xlsx', sheet_name='정지이력')\nexcept FileNotFoundError:\n    # Fallback if path structure differs, though 'data/...' is standard here\n    raise ValueError(\"Could not find data/downtime.xlsx\")\n\n# Convert minutes to hours\ndf_dt['정지시간_h'] = df_dt['정지시간(분)'] / 60.0\n\n# Calculate week number based on start date (2026-03-02 is Week 1)\ndf_dt['시작일_dt'] = pd.to_datetime(df_dt['일자'])\nbase_date = pd.Timestamp('2026-03-02')\ndf_dt['주차'] = ((df_dt['시작일_dt'] - base_date).dt.days // 7 + 1).clip(lower=1, upper=26)\n\n# Aggregate total stop time per week\ndt_weekly = df_dt.groupby('주차')['정지시간_h'].sum().reset_index()\ndt_weekly.rename(columns={'정지시간_h': '총 정지시간 (h)'}, inplace=True)\n\n# Merge with the current df (which is 주간요약)\n# Ensure column types match for merge\nif '주차' in df.columns and '주차' in dt_weekly.columns:\n    df['주차'] = pd.to_numeric(df['주차'], errors='coerce')\n    dt_weekly['주차'] = pd.to_numeric(dt_weekly['주차'], errors='coerce')\n    \n    # Inner join to keep only weeks present in both (should be all 26 weeks)\n    df_merged = pd.merge(df, dt_weekly[['주차', '총 정지시간 (h)']], on='주차', how='inner')\n    df = df_merged\nelse:\n    raise ValueError(\"Column '주차' not found in one of the datasets for merging\")",
+ "chart": "scatter",
+ "x": {
+  "col": "총 정지시간 (h)",
+  "label": "주차별 총 정지시간 (h)"
+ },
+ "y": {
+  "col": "총생산량(kg)",
+  "label": "주차별 총생산량 (kg)"
+ },
+ "asks": [
+  {
+   "ask": "주차별 총 정지시간과 주차별 총생산량 관계 산점도",
+   "how": "code"
+  },
+  {
+   "ask": "정지시간을 시간 단위로 변환 및 주차별 합산",
+   "how": "code"
+  },
+  {
+   "ask": "런로그 주간요약 시트 사용",
+   "how": "key"
+  },
+  {
+   "ask": "주차 계산 (3월 2일 기준)",
+   "how": "code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S014_r3/out/t1"
+ }
+}

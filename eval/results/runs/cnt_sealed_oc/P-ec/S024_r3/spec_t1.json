@@ -1,0 +1,51 @@
+{
+ "file": [
+  "data/tga_batches.xlsx",
+  "data/run_log.xlsx"
+ ],
+ "sheets": {
+  "data/tga_batches.xlsx": "all",
+  "data/run_log.xlsx": [
+   "런로그"
+  ]
+ },
+ "chart": "scatter",
+ "x": {
+  "col": "잔류금속_Fe",
+  "label": "TGA 잔량 환산 Fe (wt%)"
+ },
+ "y": {
+  "col": "잔류금속 (wt%)",
+  "label": "런로그 잔류금속 (wt%)"
+ },
+ "ref": [
+  {
+   "type": "line",
+   "slope": 1,
+   "intercept": 0,
+   "text": "y = x"
+  }
+ ],
+ "data_code": "import pandas as pd\nimport numpy as np\n\ntga_results = []\nfor sh_name in sheets:\n    df_tga = data[sh_name]\n    temp_col = 'B'\n    weight_col = 'C'\n    idx_800 = np.argmin(np.abs(df_tga[temp_col].values - 800))\n    resid_wt = df_tga.iloc[idx_800][weight_col]\n    resid_fe = resid_wt * 0.699\n    tga_results.append({'런ID': sh_name, '잔류금속_Fe': resid_fe})\n\ntga_df = pd.DataFrame(tga_results)\ndf = df.merge(tga_df, on='런ID', how='inner')",
+ "asks": [
+  {
+   "ask": "TGA 10개 배치 각각 800 °C 잔량(wt%)을 Fe로 환산(Fe₂O₃ → Fe, ×0.699)",
+   "how": "data_code"
+  },
+  {
+   "ask": "런로그 잔류금속(wt%)과 비교하는 산점도",
+   "how": "key"
+  },
+  {
+   "ask": "시트 이름이 런ID",
+   "how": "data_code"
+  },
+  {
+   "ask": "y = x 기준선",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/S024_r3/out/t1"
+ }
+}

@@ -1,0 +1,65 @@
+from pathlib import Path
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.ticker import AutoMinorLocator
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/extra_columns.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/24_r3/out"
+
+def main():
+    out_dir = Path(OUT_DIR)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    # 첫 번째 시트에서 온도, 중량(%), Heat Flow 열을 읽습니다.
+    df = pd.read_excel(DATA_FILE, sheet_name=0)
+    df.columns = [str(col).strip() for col in df.columns]
+
+    x_col = "Temperature (°C)"
+    weight_col = "Weight (%)"
+    heat_col = "Heat Flow (W/g)"
+
+    for col in (x_col, weight_col, heat_col):
+        if col not in df.columns:
+            raise ValueError(f"필요한 열을 찾을 수 없습니다: {col}")
+
+    data = df[[x_col, weight_col, heat_col]].apply(pd.to_numeric, errors="coerce").dropna()
+    if data.empty:
+        raise ValueError("유효한 데이터가 없습니다.")
+
+    plt.rcParams["font.family"] = "Noto Sans CJK KR"
+    plt.rcParams["axes.unicode_minus"] = False
+
+    fig, ax1 = plt.subplots(figsize=(9, 6))
+    ax2 = ax1.twinx()
+
+    line1, = ax1.plot(
+        data[x_col], data[weight_col],
+        color="#1f77b4", linewidth=1.8, label="Weight (%)"
+    )
+    line2, = ax2.plot(
+        data[x_col], data[heat_col],
+        color="#d62728", linewidth=1.6, label="Heat Flow (W/g)"
+    )
+
+    ax1.set_xlabel("Temperature (°C)")
+    ax1.set_ylabel("Weight (%)", color=line1.get_color())
+    ax2.set_ylabel("Heat flow (W/g)", color=line2.get_color())
+    ax1.tick_params(axis="y", colors=line1.get_color())
+    ax2.tick_params(axis="y", colors=line2.get_color())
+
+    ax1.set_xlim(data[x_col].min(), data[x_col].max())
+    ax1.xaxis.set_minor_locator(AutoMinorLocator())
+    ax1.yaxis.set_minor_locator(AutoMinorLocator())
+    ax2.yaxis.set_minor_locator(AutoMinorLocator())
+
+    ax1.grid(True, which="major", linestyle="--", linewidth=0.6, alpha=0.45)
+    ax1.grid(True, which="minor", linestyle=":", linewidth=0.4, alpha=0.25)
+    ax1.legend([line1, line2], [line1.get_label(), line2.get_label()], loc="best", frameon=False)
+
+    fig.tight_layout()
+    fig.savefig(out_dir / "tga_heat_flow.png", dpi=300, bbox_inches="tight")
+    plt.close(fig)
+
+if __name__ == "__main__":
+    main()

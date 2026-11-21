@@ -1,0 +1,120 @@
+```python
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/eval/inputs_b/caox.csv")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/B01_r2/out")
+
+# Korean font
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+df = pd.read_csv(DATA_FILE)
+columns = {str(col).strip().lower(): col for col in df.columns}
+
+def find_column(fragment):
+    for key, original in columns.items():
+        if fragment in key:
+            return original
+    raise ValueError(f"필요한 열을 찾을 수 없습니다: {fragment}")
+
+temperature_col = find_column("temperature")
+weight_col = find_column("weight (%)")
+dtg_col = find_column("deriv")
+
+temperature = pd.to_numeric(df[temperature_col], errors="coerce").to_numpy()
+weight = pd.to_numeric(df[weight_col], errors="coerce").to_numpy()
+dtg = pd.to_numeric(df[dtg_col], errors="coerce").to_numpy()
+
+valid = np.isfinite(temperature) & np.isfinite(weight) & np.isfinite(dtg)
+temperature, weight, dtg = temperature[valid], weight[valid], dtg[valid]
+
+order = np.argsort(temperature)
+temperature, weight, dtg = temperature[order], weight[order], dtg[order]
+
+fig, ax1 = plt.subplots(figsize=(9, 6))
+ax2 = ax1.twinx()
+
+ax1.plot(temperature, weight, color="#1f4e9c", linewidth=1.8, label="Weight (%)")
+ax2.plot(temperature, -dtg, color="#c0392b", linewidth=1.5, label="-DTG (%/°C)")
+
+# Highlight the three mass-loss temperature intervals and label their regions.
+regions = [
+    (120, 250, "H2O", "#4aa3df"),
+    (430, 580, "CO", "#58a55c"),
+    (640, 830, "CO2", "#e69f3a"),
+]
+for low, high, label, color in regions:
+    ax1.axvspan(low, high, color=color, alpha=0.18, linewidth=0, zorder=0)
+    ax1.text(
+        (low + high) / 2,
+        0.97,
+        label,
+        transform=ax1.get_xaxis_transform(),
+        ha="center",
+        va="top",
+        color=color,
+        fontsize=12,
+        fontweight="bold",
+    )
+
+# Standard TGA annotations: residue near 800 °C and highest DTG peak above 150 °C.
+residue_idx = int(np.nanargmin(np.abs(temperature - 800)))
+ax1.plot(
+    temperature[residue_idx],
+    weight[residue_idx],
+    marker="o",
+    color="#1f4e9c",
+    markersize=5,
+)
+ax1.annotate(
+    f"Residue {weight[residue_idx]:.1f}%",
+    (temperature[residue_idx], weight[residue_idx]),
+    xytext=(8, 10),
+    textcoords="offset points",
+    color="#1f4e9c",
+    fontsize=9,
+)
+
+peak_candidates = np.flatnonzero((temperature > 150) & np.isfinite(dtg))
+if peak_candidates.size:
+    peak_idx = peak_candidates[np.argmax(-dtg[peak_candidates])]
+    ax2.plot(
+        temperature[peak_idx],
+        -dtg[peak_idx],
+        marker="o",
+        color="#c0392b",
+        markersize=5,
+    )
+    ax2.annotate(
+        f"{temperature[peak_idx]:.0f} °C",
+        (temperature[peak_idx], -dtg[peak_idx]),
+        xytext=(8, 8),
+        textcoords="offset points",
+        color="#c0392b",
+        fontsize=9,
+    )
+
+ax1.set_title("caox")
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)", color="#1f4e9c")
+ax2.set_ylabel("-DTG (%/°C)", color="#c0392b")
+ax1.tick_params(axis="y", labelcolor="#1f4e9c")
+ax2.tick_params(axis="y", labelcolor="#c0392b")
+ax1.grid(True, alpha=0.25)
+
+lines1, labels1 = ax1.get_legend_handles_labels()
+lines2, labels2 = ax2.get_legend_handles_labels()
+ax1.legend(lines1 + lines2, labels1 + labels2, loc="center left")
+
+fig.tight_layout()
+fig.savefig(OUT_DIR / "caox.png", dpi=300, bbox_inches="tight")
+plt.close(fig)
+```

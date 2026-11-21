@@ -1,0 +1,110 @@
+{
+ "arm": "P-ec",
+ "item": "S024",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "TGA 10개 배치 각각 800 °C 잔량(wt%)을 Fe로 환산(Fe₂O₃ → Fe, ×0.699)해서 런로그 잔류금속(wt%)과 비교하는 산점도 그려 주세요. 시트 이름이 런ID입니다. y = x 기준선도 넣어 주세요.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": [\n    \"data/tga_batches.xlsx\",\n    \"data/run_log.xlsx\"\n  ],\n  \"sheets\": {\n    \"tga_batches.xlsx\": \"all\",\n    \"run_log.xlsx\": \"런로그\"\n  },\n  \"chart\": \"scatter\",\n  \"x\": {\n    \"col\": \"TGA_Fe_wt%\",\n    \"label\": \"TGA 잔류 Fe (wt%)\"\n  },\n  \"y\": {\n    \"col\": \"잔류금속 (wt%)\",\n    \"label\": \"런로그 잔류금속 (wt%)\"\n  },\n  \"ref\": [\n    {\n      \"type\": \"line\",\n      \"slope\": 1,\n      \"intercept\": 0,\n      \"text\": \"y = x\"\n    }\n  ],\n  \"data_code\": \"import pandas as pd\\n# Load TGA data for all sheets to calculate residue at 800C\\ntga_files = ['data/tga_batches.xlsx']\\nresidues = {}\\nfor f in tga_files:\\n    xls = pd.ExcelFile(f)\\n    for sheet in xls.sheet_names:\\n        df_tga = pd.read_excel(f, sheet_name=sheet)\\n        # Find index closest to 800 C\\n        temp_col = '온도 (°C)'\\n        weight_col = '중량 (%)'\\n        if temp_col in df_tga.columns and weight_col in df_tga.columns:\\n            idx = (df_tga[temp_col] - 800).abs().idxmin()\\n            wt_800 = df_tga.loc[idx, weight_col]\\n            fe_wt = wt_800 * 0.699\\n            residues[sheet] = fe_wt\\n\\n# Merge with run_log based on Run ID (sheet name)\\ndf['RunID'] = df['런ID']\\ndf['TGA_Fe_wt%'] = df['RunID'].map(residues)\\n# Drop rows where TGA data is missing\\ndf = df.dropna(subset=['TGA_Fe_wt%'])\",\n  \"asks\": [\n    {\n      \"ask\": \"TGA 10개 배치 각각 800 °C 잔량(wt%)을 Fe로 환산(Fe₂O₃ → Fe, ×0.699)\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"런로그 잔류금속(wt%)과 비교하는 산점도\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"시트 이름이 런ID입니다 (매칭)\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"y = x 기준선\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 21.509,
+     "prompt_tokens": 7547,
+     "output_tokens": 653,
+     "cached_tokens": 5052,
+     "prompt_n": 2495,
+     "prefill_ms": 2923.0593209999997,
+     "decode_ms": 18062.363135,
+     "finish": "stop"
+    },
+    {
+     "reply": "```json\n{\n  \"file\": [\n    \"data/tga_batches.xlsx\",\n    \"data/run_log.xlsx\"\n  ],\n  \"chart\": \"scatter\",\n  \"x\": {\n    \"col\": \"TGA_Fe_wt%\",\n    \"label\": \"TGA 잔류 Fe (wt%)\"\n  },\n  \"y\": {\n    \"col\": \"잔류금속 (wt%)\",\n    \"label\": \"런로그 잔류금속 (wt%)\"\n  },\n  \"ref\": [\n    {\n      \"type\": \"line\",\n      \"slope\": 1,\n      \"intercept\": 0,\n      \"text\": \"y = x\"\n    }\n  ],\n  \"data_code\": \"import pandas as pd\\nimport numpy as np\\n\\n# Load TGA data for all sheets to calculate residue at 800C\\ntga_file = 'data/tga_batches.xlsx'\\nxls = pd.ExcelFile(tga_file)\\nresidues = {}\\nfor sheet in xls.sheet_names:\\n    df_tga = pd.read_excel(tga_file, sheet_name=sheet)\\n    # Find index closest to 800 C\\n    temp_col = '온도 (°C)'\\n    weight_col = '중량 (%)'\\n    if temp_col in df_tga.columns and weight_col in df_tga.columns:\\n        idx = (df_tga[temp_col] - 800).abs().idxmin()\\n        wt_800 = df_tga.loc[idx, weight_col]\\n        fe_wt = wt_800 * 0.699\\n        residues[sheet] = fe_wt\\n\\n# Merge with run_log based on Run ID (sheet name)\\ndf['RunID'] = df['런ID']\\ndf['TGA_Fe_wt%'] = df['RunID'].map(residues)\\n# Drop rows where TGA data is missing\\ndf = df.dropna(subset=['TGA_Fe_wt%'])\",\n  \"asks\": [\n    {\n      \"ask\": \"TGA 10개 배치 각각 800 °C 잔량(wt%)을 Fe로 환산(Fe₂O₃ → Fe, ×0.699)\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"런로그 잔류금속(wt%)과 비교하는 산점도\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"시트 이름이 런ID입니다 (매칭)\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"y = x 기준선\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 12.596,
+     "prompt_tokens": 8390,
+     "output_tokens": 621,
+     "cached_tokens": 8200,
+     "prompt_n": 190,
+     "prefill_ms": 441.38480300000003,
+     "decode_ms": 11736.838243999999,
+     "finish": "stop"
+    },
+    {
+     "reply": "```json\n{\n  \"file\": [\n    \"data/tga_batches.xlsx\",\n    \"data/run_log.xlsx\"\n  ],\n  \"chart\": \"scatter\",\n  \"x\": {\n    \"col\": \"TGA_Fe_wt%\",\n    \"label\": \"TGA 잔류 Fe (wt%)\"\n  },\n  \"y\": {\n    \"col\": \"잔류금속 (wt%)\",\n    \"label\": \"런로그 잔류금속 (wt%)\"\n  },\n  \"ref\": [\n    {\n      \"type\": \"line\",\n      \"slope\": 1,\n      \"intercept\": 0,\n      \"text\": \"y = x\"\n    }\n  ],\n  \"data_code\": \"import pandas as pd\\nimport numpy as np\\n\\n# Load TGA data for all sheets to calculate residue at 800C\\ntga_file = 'data/tga_batches.xlsx'\\nxls = pd.ExcelFile(tga_file)\\nresidues = {}\\nfor sheet in xls.sheet_names:\\n    df_tga = pd.read_excel(tga_file, sheet_name=sheet)\\n    # Find index closest to 800 C\\n    temp_col = '온도 (°C)'\\n    weight_col = '중량 (%)'\\n    if temp_col in df_tga.columns and weight_col in df_tga.columns:\\n        idx = (df_tga[temp_col] - 800).abs().idxmin()\\n        wt_800 = df_tga.loc[idx, weight_col]\\n        fe_wt = wt_800 * 0.699\\n        residues[sheet] = fe_wt\\n\\n# Merge with run_log based on Run ID (sheet name)\\ndf['RunID'] = df['런ID']\\ndf['TGA_Fe_wt%'] = df['RunID'].map(residues)\\n# Drop rows where TGA data is missing\\ndf = df.dropna(subset=['TGA_Fe_wt%'])\",\n  \"asks\": [\n    {\n      \"ask\": \"TGA 10개 배치 각각 800 °C 잔량(wt%)을 Fe로 환산(Fe₂O₃ → Fe, ×0.699)\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"런로그 잔류금속(wt%)과 비교하는 산점도\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"시트 이름이 런ID입니다 (매칭)\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"y = x 기준선\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 12.351,
+     "prompt_tokens": 9085,
+     "output_tokens": 621,
+     "cached_tokens": 9011,
+     "prompt_n": 74,
+     "prefill_ms": 318.119602,
+     "decode_ms": 11899.187086000002,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": [
+     "data/tga_batches.xlsx",
+     "data/run_log.xlsx"
+    ],
+    "chart": "scatter",
+    "x": {
+     "col": "TGA_Fe_wt%",
+     "label": "TGA 잔류 Fe (wt%)"
+    },
+    "y": {
+     "col": "잔류금속 (wt%)",
+     "label": "런로그 잔류금속 (wt%)"
+    },
+    "ref": [
+     {
+      "type": "line",
+      "slope": 1,
+      "intercept": 0,
+      "text": "y = x"
+     }
+    ],
+    "data_code": "import pandas as pd\nimport numpy as np\n\n# Load TGA data for all sheets to calculate residue at 800C\ntga_file = 'data/tga_batches.xlsx'\nxls = pd.ExcelFile(tga_file)\nresidues = {}\nfor sheet in xls.sheet_names:\n    df_tga = pd.read_excel(tga_file, sheet_name=sheet)\n    # Find index closest to 800 C\n    temp_col = '온도 (°C)'\n    weight_col = '중량 (%)'\n    if temp_col in df_tga.columns and weight_col in df_tga.columns:\n        idx = (df_tga[temp_col] - 800).abs().idxmin()\n        wt_800 = df_tga.loc[idx, weight_col]\n        fe_wt = wt_800 * 0.699\n        residues[sheet] = fe_wt\n\n# Merge with run_log based on Run ID (sheet name)\ndf['RunID'] = df['런ID']\ndf['TGA_Fe_wt%'] = df['RunID'].map(residues)\n# Drop rows where TGA data is missing\ndf = df.dropna(subset=['TGA_Fe_wt%'])",
+    "asks": [
+     {
+      "ask": "TGA 10개 배치 각각 800 °C 잔량(wt%)을 Fe로 환산(Fe₂O₃ → Fe, ×0.699)",
+      "how": "data_code"
+     },
+     {
+      "ask": "런로그 잔류금속(wt%)과 비교하는 산점도",
+      "how": "key"
+     },
+     {
+      "ask": "시트 이름이 런ID입니다 (매칭)",
+      "how": "data_code"
+     },
+     {
+      "ask": "y = x 기준선",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": false,
+    "error": "data_code failed: FileNotFoundError: [Errno 2] No such file or directory: 'data/tga_batches.xlsx'",
+    "hint": "names: df (pandas DataFrame of the table), pd, np; leave the result in df"
+   },
+   "facts": [],
+   "draw_s": 0.5831809043884277,
+   "check": {
+    "kind_expected": "scatter",
+    "failed": [
+     "run: no plot (data_code failed: FileNotFoundError: [Errno 2] No such file or directory: 'data/tga_batches.xlsx')"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 48.225
+  }
+ ]
+}

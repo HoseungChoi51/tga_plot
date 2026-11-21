@@ -1,0 +1,82 @@
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/B18_r1/out")
+SHEET_NAME = "Annealed"
+
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+# Load the Annealed sheet and locate the temperature and weight columns by name.
+df = pd.read_excel(DATA_FILE, sheet_name=SHEET_NAME)
+df.columns = [str(c).strip() for c in df.columns]
+
+temperature_col = next(c for c in df.columns if "temperature" in c.lower())
+weight_col = next(c for c in df.columns if "weight" in c.lower() and "deriv" not in c.lower())
+
+data = df[[temperature_col, weight_col]].apply(pd.to_numeric, errors="coerce").dropna()
+data = data.sort_values(temperature_col).drop_duplicates(subset=temperature_col)
+
+temperature = data[temperature_col].to_numpy(dtype=float)
+weight = data[weight_col].to_numpy(dtype=float)
+
+# Estimate the principal decomposition region from the largest negative
+# derivative, then fit a tangent around that point. The onset is the
+# intersection of this tangent with the initial mass baseline.
+derivative = np.gradient(weight, temperature)
+peak_idx = int(np.argmin(derivative))
+
+# Fit a local line around the maximum mass-loss-rate point.
+half_window = 5
+lo = max(0, peak_idx - half_window)
+hi = min(len(temperature), peak_idx + half_window + 1)
+slope, intercept = np.polyfit(temperature[lo:hi], weight[lo:hi], 1)
+
+# Use the mean of the initial 5% of observations as the initial baseline.
+baseline_n = max(3, int(np.ceil(len(weight) * 0.05)))
+baseline = float(np.mean(weight[:baseline_n]))
+
+if np.isclose(slope, 0.0):
+    raise ValueError("주요 질량 감소 구간의 접선 기울기가 0에 가까워 onset을 계산할 수 없습니다.")
+
+onset_temperature = (baseline - intercept) / slope
+
+# Plot TGA curve and the tangent/baseline used to determine onset.
+fig, ax = plt.subplots(figsize=(9, 6))
+ax.plot(temperature, weight, color="#1f77b4", linewidth=2, label="Weight")
+ax.axhline(baseline, color="0.45", linestyle="--", linewidth=1.2, label="초기 질량 기준선")
+
+tangent_x = np.linspace(max(temperature.min(), onset_temperature - 30),
+                        min(temperature.max(), temperature[peak_idx] + 30), 200)
+ax.plot(tangent_x, slope * tangent_x + intercept, color="#d62728",
+        linestyle="--", linewidth=1.5, label="최대 감소율 지점의 접선")
+
+ax.axvline(onset_temperature, color="#d62728", linestyle=":", linewidth=1.5)
+ax.scatter([onset_temperature], [baseline], color="#d62728", zorder=5)
+ax.annotate(
+    f"Onset = {onset_temperature:.1f} °C",
+    xy=(onset_temperature, baseline),
+    xytext=(12, 14),
+    textcoords="offset points",
+    color="#b22222",
+    arrowprops=dict(arrowstyle="->", color="#b22222"),
+)
+
+ax.set_xlabel("Temperature (°C)")
+ax.set_ylabel("Weight (%)")
+ax.set_title("Annealed: TGA onset temperature")
+ax.grid(True, alpha=0.25)
+ax.legend(frameon=False)
+fig.tight_layout()
+
+output_path = OUT_DIR / "annealed_onset.png"
+fig.savefig(output_path, dpi=300, bbox_inches="tight")
+plt.close(fig)
+
+print(f"Onset temperature: {onset_temperature:.2f} °C")
+print(f"Saved figure: {output_path}")

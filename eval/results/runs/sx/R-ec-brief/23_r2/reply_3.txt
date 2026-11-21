@@ -1,0 +1,207 @@
+```python
+import pandas as pd
+import numpy as np
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/instrument_export.txt"
+
+# Read the data file
+# The error suggests encoding issues (UnicodeDecodeError). 
+# We need to specify an encoding that handles the bytes. 'latin1' or 'cp1252' often works for instrument exports.
+# Also, the previous error suggested inconsistent columns. Using engine='python' is more robust for irregular spacing.
+try:
+    df = pd.read_csv(DATA_FILE, sep=r'\s+', header=None, skiprows=10, engine='python', encoding='latin1')
+except Exception:
+    try:
+        df = pd.read_csv(DATA_FILE, sep=r'\s+', header=None, skiprows=10, engine='python', encoding='cp1252')
+    except Exception:
+        # Last resort: ignore errors in decoding
+        df = pd.read_csv(DATA_FILE, sep=r'\s+', header=None, skiprows=10, engine='python', encoding='utf-8', on_bad_lines='skip')
+
+# Ensure we have at least 4 columns based on preview (Index, Temp, Weight, DTG)
+# If fewer columns exist in some rows, they will be NaN.
+if df.shape[1] < 4:
+    # Pad with NaNs if necessary
+    while df.shape[1] < 4:
+        df[f'col_{df.shape[1]}'] = np.nan
+
+# Assign column names based on TGA structure guess from preview
+# Col A: index/time (ignored for plot), B: Temp, C: Weight %, D: DTG
+col_names = ['Index', 'Temp', 'Weight', 'DTG']
+df = df.iloc[:, :4]
+df.columns = col_names
+
+# Drop rows with NaN in critical columns
+df = df.dropna(subset=['Temp', 'Weight', 'DTG'])
+
+# Convert to numeric just in case
+for c in ['Temp', 'Weight', 'DTG']:
+    df[c] = pd.to_numeric(df[c], errors='coerce')
+
+df = df.dropna(subset=['Temp', 'Weight', 'DTG'])
+
+# Prepare data for ECharts
+temp_data = df['Temp'].tolist()
+weight_data = df['Weight'].tolist()
+dtg_data = df['DTG'].tolist()
+
+# Calculate Residue at ~800°C
+target_temp = 800.0
+idx_residue = (df['Temp'] - target_temp).abs().idxmin()
+residue_val = df.loc[idx_residue, 'Weight']
+residue_temp = df.loc[idx_residue, 'Temp']
+
+# Calculate Peak Temperature (highest DTG peak above 150°C)
+# DTG is negative during mass loss. "Highest peak" usually means most negative value (largest magnitude of mass loss rate).
+# The prompt says "multiplied by -1 so its peaks point up". So we look for min(DTG) or max(-DTG).
+mask_peak = df['Temp'] > 150.0
+if not mask_peak.empty:
+    # Find the minimum DTG value (most negative) in the range > 150C
+    idx_peak = df[mask_peak]['DTG'].idxmin()
+    peak_temp = df.loc[idx_peak, 'Temp']
+    peak_dtg_val = df.loc[idx_peak, 'DTG']
+else:
+    peak_temp = None
+    peak_dtg_val = None
+
+# Format labels
+residue_label_text = f"Residue: {residue_val:.1f}%"
+
+peak_label_text = ""
+if peak_temp is not None:
+    peak_label_text = f"{peak_temp:.0f} °C"
+
+# Build Series Data
+series_weight = []
+for t, w in zip(temp_data, weight_data):
+    series_weight.append([t, w])
+
+series_dtg = []
+for t, d in zip(temp_data, dtg_data):
+    # Multiply DTG by -1 to make peaks point up
+    series_dtg.append([t, -d])
+
+# Define Markers
+markers = []
+# Residue Marker
+markers.append({
+    "coord": [residue_temp, residue_val],
+    "name": "Residue",
+    "label": {
+        "show": True,
+        "formatter": residue_label_text,
+        "position": "right",
+        "fontSize": 12,
+        "color": "#1f4e9c"
+    },
+    "symbol": "circle",
+    "symbolSize": 8,
+    "itemStyle": {"color": "#1f4e9c"}
+})
+
+# Peak Marker
+if peak_temp is not None and peak_dtg_val is not None:
+    markers.append({
+        "coord": [peak_temp, -peak_dtg_val],
+        "name": "Peak",
+        "label": {
+            "show": True,
+            "formatter": peak_label_text,
+            "position": "top",
+            "fontSize": 12,
+            "color": "#c0392b"
+        },
+        "symbol": "triangle",
+        "symbolSize": 10,
+        "itemStyle": {"color": "#c0392b"}
+    })
+
+option = {
+    "title": {
+        "text": "instrument_export",
+        "left": "center"
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {
+            "type": "cross"
+        }
+    },
+    "legend": {
+        "data": ["Weight (%)", "DTG (-%/°C)"],
+        "left": "left",
+        "top": "middle"
+    },
+    "grid": {
+        "left": "10%",
+        "right": "10%",
+        "bottom": "15%",
+        "containLabel": True
+    },
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "axisLine": {"onZero": False},
+        "splitLine": {"show": True, "lineStyle": {"type": "dashed"}}
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Weight (%)",
+            "position": "left",
+            "axisLine": {"lineStyle": {"color": "#1f4e9c"}},
+            "splitLine": {"show": True, "lineStyle": {"type": "dashed"}}
+        },
+        {
+            "type": "value",
+            "name": "DTG (-%/°C)",
+            "position": "right",
+            "axisLine": {"lineStyle": {"color": "#c0392b"}},
+            "splitLine": {"show": False}
+        }
+    ],
+    "series": [
+        {
+            "name": "Weight (%)",
+            "type": "line",
+            "data": series_weight,
+            "yAxisIndex": 0,
+            "smooth": True,
+            "showSymbol": False,
+            "lineStyle": {"width": 2, "color": "#1f4e9c"},
+            "markPoint": {
+                "data": [m for m in markers if m["name"] == "Residue"]
+            }
+        },
+        {
+            "name": "DTG (-%/°C)",
+            "type": "line",
+            "data": series_dtg,
+            "yAxisIndex": 1,
+            "smooth": True,
+            "showSymbol": False,
+            "lineStyle": {"width": 2, "color": "#c0392b"},
+            "markPoint": {
+                "data": [m for m in markers if m["name"] == "Peak"]
+            }
+        }
+    ]
+}
+
+output = {
+    "figures": [
+        {
+            "name": "plot1",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+    ]
+}
+
+print(json.dumps(output))
+```

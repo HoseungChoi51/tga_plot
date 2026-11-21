@@ -1,0 +1,64 @@
+We need answer user's request in Korean? But test mode says cannot run commands; do step 2 only: reply with JSON spec inside one json block and nothing else. Need produce JSON spec for request: "Annealed 시트에서 외삽 개시 온도(onset)를 구해서 그래프에 표시해줘". Need infer how to compute onset and display. Need use plotkit spec keys. There is no key for onset/extrapolation. Need extra code maybe. Need use sheet Annealed. Data TGA. Need plot TGA preset? For TGA data keep default preset. Need compute onset temperature: likely extrapolate onset from derivative? For TGA onset can be intersection of tangent at max derivative with baseline? Need implement in code. Need annotate point/line. Need know plotkit code environment: after drawing before saving. Names fig, ax1, ax2, x, y1, y2 arrays of plotted data, sheet, plt, np. Need compute onset from data. Need display on graph. We can include code string in JSON. Need only JSON block. Need ensure valid JSON. Need maybe use code to compute onset and add vline/text. Need think of robust method. User asks "외삽 개시 온도(onset)를 구해서 그래프에 표시해줘". Onset temperature in TGA often from intersection of tangent at maximum weight loss rate (DTG peak) with baseline before decomposition. Need compute using DTG data. Since data has x temperature, y2 derivative weight negative? Deriv. Weight min negative, max positive small. Peak pointing up default? The default preset draws derivative weight with peaks pointing up. But raw y2 values are negative for weight loss; preset likely flips sign? The arrays y2 in code: are they plotted data? It says y2 numpy arrays of plotted data. If preset flips sign, y2 likely positive peaks. Need compute onset. Could use y2 plotted data. Need find max peak. Then tangent line at max? For onset: draw tangent at maximum DTG and intersect baseline (zero or initial baseline). If y2 peaks pointing up, baseline maybe near 0. Need extrapolate: find max y2. Slope of tangent at max? At max derivative of DTG = 0, tangent horizontal, not useful. Actually onset from TGA: tangent at steepest slope of weight loss curve (maximum derivative) intersect initial weight baseline. In terms of derivative curve? If using DTG, tangent at inflection? Wait onset temperature is intersection of tangent to the weight loss curve at the point of maximum rate (inflection point of weight, maximum DTG) with the extrapolated baseline weight before decomposition. But if using derivative curve, onset can be intersection of tangent to DTG at maximum? Hmm.
+
+Common TGA onset: extrapolate the baseline (pre-decomposition) and the tangent at the maximum slope (of TG curve) to intersect. Need compute from Weight (%) data: find max slope (most negative dW/dT), tangent line at that point, intersect baseline (e.g. initial weight 100 or average before decomposition). But data already has derivative. Could compute tangent slope from y1. Need onset = intersection of tangent line at max derivative with baseline y=initial weight (or pre-decomposition mean). For TGA weig
+[...]
+e? "Annealed" no space. Good.
+
+Let's consider if there is a built-in annotation type `onset`? Not in guide. So code.
+
+Need maybe if test expects no code? Could they expect `annotate.peak`? No, onset not peak. Could maybe use `annotate.vline` with x computed? But cannot compute. Code necessary.
+
+Need maybe if they expect `"annotate": {"onset": {"type": "vline", "x": ...}}` but x unknown. No.
+
+Need final only JSON. Good.
+
+Double-check no hidden issue with JSON string containing `°` maybe okay. If output must be ASCII? Not specified. Unicode okay.
+
+Could maybe use `text` fallback with Korean. Good.
+
+Let's maybe think if `plotkit.py` code execution uses `exec(code, globals())` and variables are numpy arrays. Semicolons okay. It might not allow conditional expression as statement? Python does. Good.
+
+Could maybe use `ax1.text(...)` if onset not None else `ax1.text(...)`: both branches function calls. Good.
+
+Potential issue: `ha='left' if onset < (ax1.get_xlim()[0]+ax1.get_xlim()[1])/2 else 'right'` inside a conditional expression that is itself only evaluated if onset is not None. Good.
+
+Potential issue: `onset` is float, but if `np.clip` returns `nan`? If slope negative but xs[i]+... nan? maybe if base nan? base from finite ys. okay. If onset nan, `onset is not None` true, axvline nan maybe no line, text f'nan'. Could check `np.isfinite(onset)`. Use condition `slope<0 and np.isfinite(xs[i]+...)`? Could compute `raw = xs[i]+...` then onset if finite. One-liner more complex. Could do: `raw=xs[i]+(base-ys[i])/slope if len(xs)>0 and slope<0 else None; onset=float(np.clip(raw, xs[0], xs[-1])) if raw is not None and np.isfinite(raw) else None`. Add. Good.
+
+Full with raw:
+```
+...; raw=xs[i]+(base-ys[i])/slope if len(xs)>0 and slope<0 else None; onset=float(np.clip(raw, xs[0], xs[-1])) if raw is not None and np.isfinite(raw) else None; ...
+```
+If raw is numpy scalar, `raw is not None` okay. `np.isfinite(raw)` returns bool. Good.
+
+Need if raw is array? scalar. Good.
+
+Could maybe if raw outside range, clip. Good.
+
+Potential issue: If raw is `np.float64`, `raw is not None` true. Good.
+
+Let's write final code string:
+`m=np.isfinite(x)&np.isfinite(y1); xs=x[m]; ys=y1[m]; o=np.argsort(xs); xs=xs[o]; ys=ys[o]; xs, uidx=np.unique(xs, return_index=True); ys=ys[uidx]; g=np.gradient(ys,xs) if len(xs)>1 else np.zeros_like(ys); i=int(np.argmin(g)) if len(g)>0 else 0; slope=float(g[i]) if len(g)>0 else 0.0; base=float(np.median(ys[:max(1,int(0.05*len(ys)))])) if len(ys)>0 else 0.0; raw=xs[i]+(base-ys[i])/slope if len(xs)>0 and slope<0 else None; onset=float(np.clip(raw, xs[0], xs[-1])) if raw is not None and np.isfinite(raw) else None; ax1.axvline(onset, color='red', linestyle='--', linewidth=1) if onset is not None else None; ax1.text(onset, ax1.get_ylim()[1]*0.95, f'외삽 onset = {onset:.1f} °C', color='red', ha='left' if onset < (ax1.get_xlim()[0]+ax1.get_xlim()[1])/2 else 'right', va='top') if onset is not None else ax1.text(ax1.get_xlim()[1], ax1.get_ylim()[1]*0.95, '외삽 onset 계산 불가', color='red', ha='right', va='top')`
+
+Check if `np.isfinite(raw)` returns np.bool_ and `and` with `raw is not None` okay. If raw is None, short-circuit. Good.
+
+Potential issue: If raw is not None but `np.isfinite(raw)` returns array? raw scalar. Good.
+
+Potential issue: `np.clip(raw, xs[0], xs[-1])` if raw is Python float? okay.
+
+Potential issue: if xs empty, raw condition false, onset None. Then ax1.text fallback uses ax1.get_xlim. okay.
+
+Could maybe if y1 top is negative and 0.95 makes lower? not.
+
+Need maybe if `ax1.get_ylim()[1]*0.95` if top is 0, text at 0. okay.
+
+Could maybe if top is 100, text at 95. Good.
+
+Need maybe if onset near top? no.
+
+Let's think if `plotkit` may use `ax1` for y1, but if `y2` false? no, default y2 present. Good.
+
+Need maybe if code should use `ax2` for DTG peak? no.
+
+Could maybe if user wants onset displayed as annotation in `annotations` output? Not possible. But code draws.
+
+Need final. Ensure only JSON block. final can be JSON block. Good.

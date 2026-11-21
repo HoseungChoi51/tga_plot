@@ -1,0 +1,27 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "heatmap",
+ "filter": [
+  "원인 == 노즐 막힘"
+ ],
+ "x": {
+  "col": "주차"
+ },
+ "y": {
+  "col": "반응기"
+ },
+ "z": {
+  "agg": "count"
+ },
+ "values": true,
+ "data_code": "df['주차'] = ((pd.to_datetime(df['일자']) - pd.Timestamp('2026-03-02')).dt.days // 7 + 1).astype(int)",
+ "asks": [
+  {
+   "ask": "Pivot 노즐 막힘 event counts from downtime.xlsx: rows 반응기, cols production week (week = (일자 − 2026-03-02) // 7 + 1 → 1–26), fill missing with 0, show as heatmap.",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S058_r3/out/t1"
+ }
+}

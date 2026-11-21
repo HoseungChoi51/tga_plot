@@ -1,0 +1,164 @@
+```python
+import pandas as pd
+import json
+import numpy as np
+
+# Load the Excel file
+file_path = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+sheet_name = "1006R1-V normal"
+
+# Read data from the specified sheet
+df = pd.read_excel(file_path, sheet_name=sheet_name)
+
+# Extract columns based on the description:
+# B: Temperature (X-axis)
+# C: Weight(%) (Y1-axis)
+# D: D.W(%/C) (Y2-axis)
+
+temp_col = 'Temperature'
+weight_col = 'Weight(%)'
+dw_col = 'D.W(%/C)'
+
+x_data = df[temp_col].tolist()
+y1_data = df[weight_col].tolist()
+y2_data = df[dw_col].tolist()
+
+# Find max of Deriv.Weight (D.W)
+max_dw = max(y2_data)
+max_dw_index = y2_data.index(max_dw)
+max_dw_temp = x_data[max_dw_index]
+
+# Find the temperature closest to 800 and its corresponding weight
+target_temp = 800
+closest_temp_idx = min(range(len(x_data)), key=lambda i: abs(x_data[i] - target_temp))
+residue_weight = y1_data[closest_temp_idx]
+actual_closest_temp = x_data[closest_temp_idx]
+
+# Prepare ECharts option
+option = {
+    "title": {
+        "text": f"TGA Curve ({sheet_name})",
+        "left": "center",
+        "top": 10
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {
+            "type": "cross"
+        }
+    },
+    "legend": {
+        "data": ["Weight (%)", "Deriv. Weight (%/°C)"],
+        "top": 40
+    },
+    "grid": {
+        "left": "3%",
+        "right": "4%",
+        "bottom": "3%",
+        "containLabel": True
+    },
+    "xAxis": [
+        {
+            "name": "Temperature (°C)",
+            "type": "value",
+            "min": 0,
+            "max": 900,
+            "interval": 200,
+            "axisLine": {"onZero": False},
+            "splitLine": {"show": True}
+        }
+    ],
+    "yAxis": [
+        {
+            "name": "Weight (%)",
+            "type": "value",
+            "position": "left",
+            "min": 0,
+            "max": 100,
+            "interval": 20,
+            "axisLine": {"show": True},
+            "splitLine": {"show": True}
+        },
+        {
+            "name": "Deriv. Weight (%/°C)",
+            "type": "value",
+            "position": "right",
+            "min": -1.2,
+            "max": 0.2,
+            "interval": 0.2,
+            "axisLine": {"show": True},
+            "splitLine": {"show": False}
+        }
+    ],
+    "series": [
+        {
+            "name": "Weight (%)",
+            "type": "line",
+            "smooth": True,
+            "symbol": "none",
+            "data": [[t, w] for t, w in zip(x_data, y1_data)],
+            "itemStyle": {
+                "color": "#5470c6"
+            },
+            "markPoint": {
+                "data": [
+                    {
+                        "coord": [actual_closest_temp, residue_weight],
+                        "name": f"Residue {residue_weight:.2f}% @ {actual_closest_temp:.0f}°C",
+                        "symbolSize": 10,
+                        "itemStyle": {"color": "#ee6666"},
+                        "label": {
+                            "show": True,
+                            "formatter": f"Residue\n{residue_weight:.2f}%",
+                            "position": "top",
+                            "fontSize": 10
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Deriv. Weight (%/°C)",
+            "type": "line",
+            "smooth": True,
+            "symbol": "none",
+            "yAxisIndex": 1,
+            "data": [[t, dw] for t, dw in zip(x_data, y2_data)],
+            "itemStyle": {
+                "color": "#91cc75"
+            },
+            "markPoint": {
+                "data": [
+                    {
+                        "coord": [max_dw_temp, max_dw],
+                        "name": f"Max DW: {max_dw:.4f}",
+                        "symbolSize": 10,
+                        "itemStyle": {"color": "#fac858"},
+                        "label": {
+                            "show": True,
+                            "formatter": f"Max DW\n{max_dw:.4f}",
+                            "position": "top",
+                            "fontSize": 10
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
+
+result = {
+    "figures": [
+        {
+            "name": "tga_normal",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+    ]
+}
+
+print(json.dumps(result, ensure_ascii=False))
+```

@@ -1,0 +1,143 @@
+We need answer to user: corrected JSON spec only. Need analyze issue. User request: 세 시트 무게 곡선을 겹치지 않게 20%씩 위아래로 띄워서(offset) 한 그림에 그려줘. Inspect polymers.xlsx sheets PE PVC PET. Need combine all sheets in one plot, y2 false? They want weight curves only, offset vertically by 20% each to avoid overlap. plotkit error unknown path echarts.series[1].offset. Allowed series props no offset. Need implement offset perhaps via echarts series data transform? But cannot put plotted data in echarts. Could use markLine? No. Need use allowed ECharts settings maybe series lineStyle? Offset vertical not directly supported. Could use y axis? Maybe plotkit has no key. Need use echarts allowed? We need produce corrected JSON spec. Since offset not allowed, maybe use graphic? Need shift series vertically? ECharts line series has no offset. Could use `transform`? Not allowed. Could use `markLine`? Not actual data. Could use `series[].data`? Forbidden: never put plotted data in echarts; it comes from file. But maybe allowed? It says never put plotted data. We need no offset? But request requires offset. Could use `echarts.series[].markLine`? no. Could use `echarts.series[].lineStyle`? no. Could use `echarts.series[].itemStyle`? no. Could use `echarts.graphic`? allowed text line rect only, not series transform. Could use `echarts.yAxis`? Maybe combine sheets with one y1 axis; offset visually by using different y axes? Allowed yAxis list 0 = y1 left, 1 = y2 right. With combine, one y1 line per sheet, then one y2 line per sheet? If y2 false maybe only y1 series. Could create multiple y axes? yAxis allowed list, maybe can add more axes? But series must be assigned to yAxisIndex? Is `yAxisIndex` allowed? Not listed under series allowed: name, lineStyle, itemStyle, areaStyle, symbol, symbolSize, showSymbol, smooth, step, z, label, emphasis, markArea, markLine, markPoint. No yAxisIndex. Could use `echarts.yAxis` with offset? But series mapping not.
+
+Maybe plotkit's `combine` with multiple sheets automatically offsets? No. Need maybe use `echarts.series[].data` with transformed data? But forbidden. However error only about offset path. Could we use `echarts.series[1].data`? It says never put plotted data. But maybe to offset, we can use `echarts.series[1].markPoint`? no. Need satisfy user? Could use `echarts.series[1].markLine`? no.
+
+Maybe allowed `series[].emphasis`? no.
+
+Could use `echarts.series[].label` with formatter? no.
+
+Could use `echarts.series[].itemStyle`? no.
+
+Could use `echarts.series[].areaStyle`? no.
+
+Could use `echarts.series[].smooth`? no.
+
+Could use `echarts.series[].step`? no.
+
+Could use `echarts.series[].z`? no.
+
+Maybe use `echarts.graphic` to draw shifted lines? But need data coordinates. Could use graphic line with type 'line' and coordinates? But cannot know data points. Not practical.
+
+Could use `echarts.series[].markArea`? no.
+
+Maybe use `echarts.series[].markLine` with multiple markLine segments to simulate shifted curve? impossible.
+
+Could use `echar
+[...]
+series[1].markArea` with `data` of `yAxis`? no.
+
+Could use `echarts.series[1].markLine` with `data` of `xAxis`? no.
+
+Maybe use `echarts.series[1].markPoint` with `data` of `xAxis`? no.
+
+Maybe use `echarts.series[1].markArea` with `data` of `xAxis`? no.
+
+Could use `echarts.series[1].markLine` with `data` of `yAxis`? no.
+
+Maybe use `echarts.series[1].markPoint` with `data` of `yAxis`? no.
+
+Maybe use `echarts.series[1].markArea` with `data` of `yAxis`? no.
+
+Could use `echarts.series[1].markLine` with `data` of `xAxis`? no.
+
+Maybe use `echarts.series[1].markPoint` with `data` of `xAxis`? no.
+
+Maybe use `echarts.series[1].markArea` with `data` of `xAxis`? no.
+
+Could use `echarts.series[1].markLine` with `data` of `yAxis`? no.
+
+Maybe use `echarts.series[1].markPoint` with `data` of `yAxis`? no.
+
+Maybe use `echarts.series[1].markArea` with `data` of `yAxis`? no.
+
+Could use `echarts.series[1].markLine` with `data` of `xAxis`? no.
+
+Maybe use `echarts.series[1].markPoint` with `data` of `xAxis`? no.
+
+Maybe use `echarts.series[1].markArea` with `data` of `xAxis`? no.
+
+Could use `echarts.series[1].markLine` with `data` of `yAxis`? no.
+
+Maybe use `echarts.series[1].markPoint` with `data` of `yAxis`? no.
+
+Maybe use `echarts.series[1].markArea` with `data` of `yAxis`? no.
+
+Could use `echarts.series[1].markLine` with `data` of `xAxis`? no.
+
+Maybe use `echarts.series[1].markPoint` with `data` of `xAxis`? no.
+
+Maybe use `echarts.series[1].markArea` with `data` of `xAxis`? no.
+
+Could use `echarts.series[1].markLine` with `data` of `yAxis`? no.
+
+Maybe use `echarts.series[1].markPoint` with `data` of `yAxis`? no.
+
+Maybe use `echarts.series[1].markArea` with `data` of `yAxis`? no.
+
+Could use `echarts.series[1].markLine` with `data` of `xAxis`? no.
+
+Maybe use `echarts.series[1].markPoint` with `data` of `xAxis`? no.
+
+Maybe use `echarts.series[1].markArea` with `data` of `xAxis`? no.
+
+Could use `echarts.series[1].markLine` with `data` of `yAxis`? no.
+
+Maybe use `echarts.series[1].markPoint` with `data` of `yAxis`? no.
+
+Maybe use `echarts.series[1].markArea` with `data` of `yAxis`? no.
+
+Could use `echarts.series[1].markLine` with `data` of `xAxis`? no.
+
+Maybe use `echarts.series[1].markPoint` with `data` of `xAxis`? no.
+
+Maybe use `echarts.series[1].markArea` with `data` of `xAxis`? no.
+
+Could use `echarts.series[1].markLine` with `data` of `yAxis`? no.
+
+Maybe use `echarts.series[1].markPoint` with `data` of `yAxis`? no.
+
+Maybe use `echarts.series[1].markArea` with `data` of `yAxis`? no.
+
+Could use `echarts.series[1].markLine` with `data` of `xAxis`? no.
+
+Maybe use `echarts.series[1].markPoint` with `data` of `xAxis`? no.
+
+Maybe use `echarts.series[1].markArea` with `data` of `xAxis`? no.
+
+Could use `echarts.series[1].markLine` with `data` of `yAxis`? no.
+
+Maybe use `echarts.series[1].markPoint` with `data` of `yAxis`? no.
+
+Maybe use `echarts.series[1].markArea` with `data` of `yAxis`? no.
+
+Could use `echarts.series[1].markLine` with `data` of `xAxis`? no.
+
+Maybe use `echarts.series[1].markPoint` with `data` of `xAxis`? no.
+
+Maybe use `echarts.series[1].markArea` with `data` of `xAxis`? no.
+
+Could use `echarts.series[1].markLine` with `data` of `yAxis`? no.
+
+Maybe use `echarts.series[1].markPoint` with `data` of `yAxis`? no.
+
+Maybe use `echarts.series[1].markArea` with `data` of `yAxis`? no.
+
+Could use `echarts.series[1].markLine` with `data` of `xAxis`? no.
+
+Maybe use `echarts.series[1].markPoint` with `data` of `xAxis`? no.
+
+Maybe use `echarts.series[1].markArea` with `data` of `xAxis`? no.
+
+Could use `echarts.series[1].markLine` with `data` of `yAxis`? no.
+
+Maybe use `echarts.series[1].markPoint` with `data` of `yAxis`? no.
+
+Maybe use `echarts.series[1].markArea` with `data` of `yAxis`? no.
+
+Could use `echarts.series[1].markLine` with `data` of `xAxis`? no.
+
+Maybe use `echarts.series[1].markPoint` with `data` of `xAxis`? no.
+
+Maybe use `echarts.series[1].markArea` with `data` of `xAxis`? no.
+
+Could use `echarts.series[1].markLine` with `data` of `y

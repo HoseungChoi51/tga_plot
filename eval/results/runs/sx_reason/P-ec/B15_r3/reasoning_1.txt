@@ -1,0 +1,52 @@
+We need answer user's request with JSON spec only inside json block. Need analyze in Korean? user Korean. Need produce final only JSON. Need ensure spec includes combine true, legend outside right? Need know spec key legend where. Guide: legend (`where`, `show`, `size`), example "범례 오른쪽 위" -> "legend": "upper right". For outside right, ECharts legend has orient vertical, right maybe. But spec may accept "outside right"? Need infer. They say "범례는 그래프 바깥 오른쪽에 둬". In plotkit legend positions include standard matplotlib positions: best, upper right, upper left, lower right, lower left, center left, center right, upper center, lower center, center, none. "그래프 바깥 오른쪽" could be "outside right"? Not listed. Could use echarts extra: legend: {"orient": "vertical", "right": 10, "top": "middle", "left": "auto"?}. Need allowed extra ECharts settings include legend. But if no key fits? There is key legend where, but positions list doesn't include outside right. Could maybe set legend: {"where": "outside right"}? Need know plotkit may support? It says legend positions: best, upper right, ... none (오른쪽 위, 왼쪽 아래, ... also work). "outside right" not listed. To be safe use echarts legend to place outside right. But maybe plotkit spec supports legend as string or dict. If we set legend: {"where": "outside right"} might error if not allowed. Better use echarts: {"legend": {"orient": "vertical", "right": 10, "top": "middle", "left": "auto", "show": true}}. But if combine true, legend needs show series names. ECharts default legend maybe show? Need include show true. Also need ensure grid makes room? Could set grid right maybe 150. But allowed. However if only legend outside right, maybe enough. But if plotkit's default grid right may overlap. Could set grid: {"right": 150}. But user didn't ask grid, but to place legend outside right may need adjust. Is it okay to include extra echarts settings? Yes only when no key fits. But maybe there is a key for legend outside? The guide says legend (`where`, `show`, `size`). Could `where` accept ECharts positions? It lists positions as strings. Maybe "outside right" not. Could use `legend: {"where": "right"}`? But not listed. If use echarts, we must not override too much? Need only what asked: combine, legend outside right. JSON: {"file": "polymers.xlsx", "combine": true, "echarts": {"legend": {"show": true, "orient": "vertical", "right": 20, "top": "middle"}}}. But if plotkit's legend spec default may set legend position? If we don't set legend key, default legend maybe inside. ECharts option merged over finished plot; if legend exists with x/y? Need know. Could set legend: {"show": true, "orient": "vertical", "right": 20, "top": "middle", "left": null?}. If previous legend had x/y, merging may conflict? ECharts merge might keep x if set. But unknown. Could set legend: {"show": true, "orient": "vertical", "right": 20, "top": "middle", "left": null?}. JSON null maybe allowed? Not sure. Maybe better set `legend` spec key: {"legend
+[...]
+rong? Need guess expected.
+
+The prompt says: "Write a JSON spec that contains ONLY what the user asked for. Everything else has defaults." But also "If no key covers the request, put a few ECharts settings in `\"echarts\"`". So adding echarts settings is allowed if necessary. But maybe adding grid is beyond request. However to place legend outside right, grid adjustment is often necessary. But maybe ECharts can place outside without grid? Actually if legend is outside container? ECharts legend is inside canvas; if right: 10, it occupies right margin. If grid right default maybe 80, legend may overlap plot if width >80. But if we don't adjust, could overlap. But maybe default grid right is 120. Not know.
+
+Maybe plotkit has legend where "outside right" built-in. Let's think of possible implementation: They have a spec key `legend` with `where` mapping to ECharts legend positions. They list allowed positions but maybe include Korean translations. "그래프 바깥 오른쪽" could be translated to "outside right" and supported. The guide's allowed positions may not be exhaustive? It says Legend positions: `best`, `upper right`, ... `none` (오른쪽 위, 왼쪽 아래, ... also work). It doesn't mention outside. But part name says `legend` (`where`, `show`, `size`). Could `where` accept any ECharts legend position? The examples use string. The test might expect `"legend": {"where": "outside right"}` if they introduced phrase. But guide did not list, so safer to use echarts.
+
+Need also consider `combine: true` with multiple sheets and y2 derivative. The default TGA preset draws y2 derivative with peaks pointing up? Wait default: y2 derivative weight with peaks pointing up. But data derivative min negative, max small positive? The preset likely inverts? It says peaks pointing up. Fine.
+
+Need final JSON only. Could be:
+```json
+{
+  "file": "polymers.xlsx",
+  "combine": true,
+  "echarts": {
+    "legend": {
+      "show": true,
+      "orient": "vertical",
+      "right": 20,
+      "top": "middle"
+    }
+  }
+}
+```
+Should we include `legend: {"show": true}`? If default legend already shown. If we set echarts legend only, maybe show remains default true. Include show true not harmful. But if default legend spec sets show false? no.
+
+Need maybe include `legend: {"where": "center right"}`? If we include both spec legend and echarts, conflict. Better only echarts.
+
+Could include `"legend": {"where": "center right"}` to satisfy key, and echarts to move outside? But if `center right` inside, then echarts right maybe overrides? If plotkit sets ECharts legend x/y based on center right, then echarts right may conflict. Avoid.
+
+Need maybe use `"legend": "none"`? no.
+
+Let's think if `combine: true` automatically sets legend show true with sheet names. Yes.
+
+Potential issue: `echarts.legend.top: "middle"` may be invalid? ECharts legend top can be 'top', 'middle', 'bottom', percent, px. yes.
+
+Potential issue: `right: 20` is number px. okay.
+
+Need maybe include `orient: "vertical"`. yes.
+
+Need maybe include `grid: {"right": 150}`. Let's evaluate expected answer style from examples. They don't add unnecessary. For "범례는 그래프 바깥 오른쪽에 둬", if using echarts, they might expect:
+{"file":"polymers.xlsx","combine":true,"echarts":{"legend":{"show":true,"orient":"vertical","right":10,"top":"middle"}}}
+No grid.
+
+But if plotkit validates echarts paths and maybe disallows `legend.top`? It says allowed legend. Should be fine.
+
+Need ensure file name exactly polymers.xlsx.
+
+Could there be requirement to list sheets? "세 시트" maybe all three. Omit sheets. If default only first sheet? The examples for TGA default likely all sheets? It says default TGA preset draws... For multiple sheets maybe plot each sheet separately unless combine? The request says 세 시트 겹쳐 그려. Need combine true. If default sheets all, combine true. If default only first? The guide says sheets default? Not explicitly. But example "시트 전부 한 그림에 겹쳐서" uses combine true without sheets. So okay.
+
+Need final only JSON block. Ensure no extra text.

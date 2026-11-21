@@ -1,0 +1,11 @@
+We need answer user's request. Need produce JSON spec only in ```json block. Need analyze in Korean? User Korean, analysis can be Korean. Need use inspect result. File xrd.csv, sheet xrd. Columns A 2Theta, B Intensity. Not TGA, so preset none, x.col A, y1.col B. Request: XRD pattern draw, strong peaks 5 values of 2θ display. Right axis not needed. Need annotate peak count 5 on y1? Since y2 false. Peak type default? For non-TGA no preset? Need set annotate peak? We need specify annotate.peak with count 5. But for preset none, does peak default exist? Maybe need annotate peak type peak on y1? Guide: TGA preset has peak on y2. For other data use preset none and give x/y1. If want peak, need include annotate.peak maybe {"on":"y1","count":5,"kind":"max"}? The peak annotation type likely needs on axis. In examples TGA preset default has peak on y2. For non-TGA, if preset none, no default annotations. Need add peak annotation. Use type peak? The key annotate.peak can be dict. For peak display strong peaks 5: `"annotate": {"peak": {"on": "y1", "count": 5, "kind": "max"}}`. Need maybe x values text? User wants 2θ values. Default peak text likely "{x:.0f} °C" from TGA? But for XRD, unit should deg maybe. Need text template for 2θ values. Could use `"text": "{x:.1f}°"`? Need maybe no unit? Strong peaks 5 2θ values display. Use text "{x:.1f}°" or "{x:.1f} deg". Guide text templates: {} = peak x with 0 decimals, {x:.0f}. For XRD, 2θ values likely decimals. Use "{x:.1f}°". Right axis no need: `"y2": false`. Need maybe x label and y1 label? Not requested. Do not add. But if preset none, maybe labels default from headers? likely. Need include sheets? Only one sheet, no need. Need output? no. Need file exactly xrd.csv. Spec:
+{
+ "file": "xrd.csv",
+ "preset": "none",
+ "x": {"col": "A"},
+ "y1": {"col": "B"},
+ "y2": false,
+ "annotate": {"peak": {"on": "y1", "count": 5, "kind": "max", "text": "{x:.1f}°"}}
+}
+Need ensure no extra. If peak default kind max? maybe include. Could `annotate.peak` only count? But on y1 necessary? For non-TGA, if no y2, peak default on y2 would fail? Better include on y1. Need maybe y2 false before annotate? JSON order irrelevant.
+Need final only json block. Ensure no additional text.

@@ -1,0 +1,25 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "scatter",
+ "x": {
+  "col": "2존온도 (°C)",
+  "label": "2 Zone Temperature (°C)"
+ },
+ "y": {
+  "col": "CNT수율 (g/g-cat)",
+  "label": "Yield (g/g-cat)"
+ },
+ "trend": {
+  "label": true
+ },
+ "asks": [
+  {
+   "ask": "2존 온도와 수율 관계 확인",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S034_r3/out/t1"
+ }
+}

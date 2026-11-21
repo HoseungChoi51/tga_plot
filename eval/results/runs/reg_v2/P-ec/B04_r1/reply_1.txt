@@ -1,0 +1,36 @@
+```json
+{
+  "file": "xrd.csv",
+  "preset": "none",
+  "x": {
+    "col": "2Theta (deg)",
+    "label": "2θ (deg)"
+  },
+  "y1": {
+    "col": "Intensity (counts)",
+    "label": "Intensity"
+  },
+  "y2": false,
+  "annotate": {
+    "peak": {
+      "count": 5,
+      "kind": "max",
+      "text": "{}°"
+    }
+  },
+  "asks": [
+    {
+      "ask": "XRD 패턴 그리기",
+      "how": "key"
+    },
+    {
+      "ask": "강한 피크 5개 표시",
+      "how": "key"
+    },
+    {
+      "ask": "오른쪽 축 제거",
+      "how": "key"
+    }
+  ]
+}
+```

@@ -1,0 +1,26 @@
+{
+ "file": "data/doe_temp_h2.csv",
+ "chart": "scatter",
+ "x": {
+  "col": "2존온도(°C)",
+  "label": "Zone 2 Temperature (°C)"
+ },
+ "y": {
+  "col": "수율(g/g-cat)",
+  "label": "Yield (g/g-cat)"
+ },
+ "trend": true,
+ "asks": [
+  {
+   "ask": "온도에 따른 수율 변화 확인",
+   "how": "key"
+  },
+  {
+   "ask": "그래프 종류 선택 (스캐터+추세선)",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/SS11_r3/out/t1"
+ }
+}

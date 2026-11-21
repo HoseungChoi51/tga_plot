@@ -1,0 +1,199 @@
+{
+ "arm": "R-mpl",
+ "item": "S002",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "생산팀장",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "반응기별 총 설비 정지시간을 가로막대로 보여 주세요. 많은 순으로 위에서부터 놓고, 제일 많은 반응기만 빨간색, 나머지는 회색으로 해 주세요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/downtime.xlsx\"\ndf = pd.read_excel(file_path, sheet_name='정지이력')\n\n# 반응기별 총 정지시간 합산\ntotal_downtime = df.groupby('반응기')['정지시간(분)'].sum().sort_values(ascending=False)\n\n# plotting\nfig, ax = plt.subplots(figsize=(10, 6))\n\ncolors = ['#FF0000' if i == 0 else '#808080' for i in range(len(total_downtime))]\n\nbars = ax.barh(total_downtime.index, total_downtime.values, color=colors)\n\n# 가로막대 차트에서 y축 레이블은 인덱스, x축 값은 길이\nax.set_xlabel(\"총 정지시간 (분)\")\nax.set_ylabel(\"반응기\")\nax.set_title(\"반응기별 총 설비 정지시간\")\n\n# 막대 끝에 수치 표시\nfor bar in bars:\n    width = bar.get_width()\n    ax.text(width + max(total_downtime)*0.01, \n            bar.get_y() + bar.get_height()/2.,\n            f'{int(width)}', \n            va='center', \n            ha='left')\n\n# 축 범위 조정\nax.set_xlim(0, max(total_downtime) * 1.15)\n\n# 그리드 생략 또는 최소한으로 유지 (가로막대라 y축 눈금선만 보일 수 있음)\nax.grid(axis='x', linestyle='--', alpha=0.7)\nax.set_axisbelow(True)\n\n# 저장\noutput_filename = os.path.join(OUT_DIR, \"downtime_by_reactor.png\")\nplt.tight_layout()\nplt.savefig(output_filename, dpi=300)\nplt.close()\n```",
+     "llm_s": 7.925,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 2989,
+     "output_chars": 1285,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/downtime.xlsx\"\ndf = pd.read_excel(file_path, sheet_name='정지이력')\n\n# 반응기별 총 정지시간 합산\ntotal_downtime = df.groupby('반응기')['정지시간(분)'].sum().sort_values(ascending=False)\n\n# plotting\nfig, ax = plt.subplots(figsize=(10, 6))\n\ncolors = ['#FF0000' if i == 0 else '#808080' for i in range(len(total_downtime))]\n\nbars = ax.barh(total_downtime.index, total_downtime.values, color=colors)\n\n# 가로막대 차트에서 y축 레이블은 인덱스, x축 값은 길이\nax.set_xlabel(\"총 정지시간 (분)\")\nax.set_ylabel(\"반응기\")\nax.set_title(\"반응기별 총 설비 정지시간\")\n\n# 막대 끝에 수치 표시\nfor bar in bars:\n    width = bar.get_width()\n    ax.text(width + max(total_downtime)*0.01, \n            bar.get_y() + bar.get_height()/2.,\n            f'{int(width)}', \n            va='center', \n            ha='left')\n\n# 축 범위 조정\nax.set_xlim(0, max(total_downtime) * 1.15)\n\n# 그리드 생략 또는 최소한으로 유지 (가로막대라 y축 눈금선만 보일 수 있음)\nax.grid(axis='x', linestyle='--', alpha=0.7)\nax.set_axisbelow(True)\n\n# 저장\noutput_filename = os.path.join(OUT_DIR, \"downtime_by_reactor.png\")\nplt.tight_layout()\nplt.savefig(output_filename, dpi=300)\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "반응기별 총 설비 정지시간",
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "",
+         "orient": "h",
+         "cats": [
+          "R4",
+          "R2",
+          "R1",
+          "R3"
+         ],
+         "values": [
+          6671.0,
+          6551.0,
+          6367.0,
+          6190.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#ff0000",
+          "#808080",
+          "#808080",
+          "#808080"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 4,
+       "texts": [
+        "6671",
+        "6551",
+        "6367",
+        "6190"
+       ],
+       "x": {
+        "label": "총 정지시간 (분)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         1000.0,
+         2000.0,
+         3000.0,
+         4000.0,
+         5000.0,
+         6000.0,
+         7000.0
+        ],
+        "step": 1000.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 7671.65,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "1000",
+         "2000",
+         "3000",
+         "4000",
+         "5000",
+         "6000",
+         "7000",
+         "8000"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "반응기",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "R4",
+         "R2",
+         "R1",
+         "R3"
+        ],
+        "min": -0.5900000000000001,
+        "max": 3.5900000000000003,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "R4",
+         "R2",
+         "R1",
+         "R3"
+        ],
+        "rotate": 0.0
+       },
+       "title": "반응기별 총 설비 정지시간"
+      }
+     ],
+     "texts": [
+      "6671",
+      "6551",
+      "6367",
+      "6190"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t1/downtime_by_reactor.png",
+       "format": "png",
+       "px": [
+        3000,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5124692916870117,
+   "check": {
+    "kind_expected": "hbar",
+    "failed": [],
+    "unchecked": [
+     "highlight=R4",
+     "order=largest at top"
+    ],
+    "n_checks": 4,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 8.438
+  }
+ ]
+}

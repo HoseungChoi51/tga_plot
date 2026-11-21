@@ -1,0 +1,22 @@
+{
+ "file": "data/tga_batches.xlsx",
+ "sheets": "R2-260616-1",
+ "asks": [
+  {
+   "ask": "TG 곡선",
+   "how": "key"
+  },
+  {
+   "ask": "extrapolated onset 표시 (접선 450-800 DTG max, 기준선 500C 중량)",
+   "how": "code"
+  }
+ ],
+ "data_code": "import numpy as np\n# Calculate DTG from Weight (Column C) and Temperature (Column B)\ndtg = np.gradient(y1, x)\n# Find max DTG peak in 450-800 C range\nmask = (x >= 450) & (x <= 800)\nif not np.any(mask):\n    marks.append({'type': 'text', 'x': 500, 'y': y1[0], 'text': 'No peak found'})\nelse:\n    # Indices relative to the full array for correct interpolation later\n    idx_full = np.where(mask)[0]\n    dtg_subset = dtg[idx_full]\n    max_idx_local = np.argmax(dtg_subset)\n    max_idx_global = idx_full[max_idx_local]\n    \n    x_peak = x[max_idx_global]\n    y_peak = y1[max_idx_global]\n    \n    # Tangent slope at peak (use derivative value calculated above)\n    # Note: np.gradient uses central differences. The value dtg[max_idx_global] is the slope.\n    slope = dtg[max_idx_global]\n    \n    if abs(slope) < 1e-9:\n        marks.append({'type': 'text', 'x': x_peak, 'y': y_peak, 'text': 'Slope too small'})\n    else:\n        # Baseline: Horizontal line at weight at 500 C\n        y_base = np.interp(500, x, y1)\n        \n        # Extrapolated Onset Calculation:\n        # Line equation of tangent: Y - y_peak = slope * (X - x_peak)\n        # Intersection with baseline Y = y_base:\n        # y_base - y_peak = slope * (x_onset - x_peak)\n        # x_onset = x_peak + (y_base - y_peak) / slope\n        \n        x_onset = x_peak + (y_base - y_peak) / slope\n        \n        # Draw Vertical Line at Onset\n        marks.append({\"type\": \"vline\", \"x\": float(x_onset), \"text\": f\"Onset: {x_onset:.1f} °C\"})\n        \n        # Optional: Mark the baseline level or peak? User asked specifically for onset display.\n        # We will just show the onset vline and text.",
+ "annotate": {
+  "peak": false,
+  "residue": true
+ },
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S017_r1/out/t1"
+ }
+}

@@ -1,0 +1,16 @@
+{
+ "file": "data/tga_batches.xlsx",
+ "sheets": "all",
+ "combine": true,
+ "preset": "none",
+ "x": {
+  "col": "B"
+ },
+ "y1": {
+  "col": "C"
+ },
+ "y2": false,
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_lite/P-mpl/DS02_r1/out/t1"
+ }
+}

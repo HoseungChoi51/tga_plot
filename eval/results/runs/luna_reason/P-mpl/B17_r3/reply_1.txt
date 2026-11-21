@@ -1,0 +1,8 @@
+```json
+{
+  "file": "polymers.xlsx",
+  "combine": true,
+  "y2": false,
+  "code": "for i, line in enumerate(ax1.lines): line.set_ydata(line.get_ydata() + 20 * i)\nax1.relim(); ax1.autoscale_view()"
+}
+```

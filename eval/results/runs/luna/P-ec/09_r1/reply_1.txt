@@ -1,0 +1,3 @@
+```json
+{"file": "TGA.xlsx", "tick_direction": "out", "font_size": 9}
+```

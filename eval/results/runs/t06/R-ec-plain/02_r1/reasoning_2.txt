@@ -1,0 +1,108 @@
+We need answer user with corrected complete script only inside one python block. Need analyze requirements.
+
+User Korean: Data preview TGA.xlsx. DATA_FILE. Request: "원하는 작업: 1006R1-V normal sheet에 있는 실험일별 인장강도를 정리해 그래프로 그려서 png로 저장해줘. B행에 있는 것들을 X축, C행에 있는 것들을 Y1축, D행에 있는 것들을 Y2 축으로 해서 그래프를 그리면 돼. weight는 20단위로 해주고, Temperature은 200단위로 표시해주고, Deriv.Weight는 0.2단위로 표시해줘. 그리고 Deriv.Weight 의 max값을 표시해주고, temperatur 800 근처일때의 Y값을 Residue {}% 으로 표시해줘.
+추가·수정 요청: temperature은 0에서부터 200씩 늘어나야해. 그리고 800과 가장가까운 값을 찾아서 그때의 weight값을 residue 몇 %인지 표시하라고.
+결과 형식: png
+
+Need produce script reading Excel, output JSON with figure option. Need likely only sheet 1006R1-V normal? They mention 1006R1-V normal sheet. Need plot X Temperature (B), Y1 Weight (%), Y2 D.W (%/C). Need intervals: Weight y-axis interval 20, Temperature x-axis interval 200 starting from 0, Deriv.Weight y2 interval 0.2. Show max of Deriv.Weight. Find temperature closest to 800 and display that weight as Residue {}%. Need maybe mark point and label. Use ECharts option. Need no JS functions, plain JSON. Need Korean font. Need width/height maybe 614x442. Need only png. Need script prints JSON only. Need handle Korean font? ECharts server-side likely uses font family? Could set textStyle fontFamily 'Noto Sans CJK KR'. Need maybe title. Need no markdown except python block.
+
+Need consider "실험일별 인장강도" but TGA data, maybe irrelevant. Need parse sheet. Need compute max D.W and residue at nearest 800. Need labels maybe graphic text? Could use markPoint and markLine? For max D.W: use markPoint on second series? But markPoint label uses value maybe. Need plain JSON. Could include series[1].markPoint.data with coord and label. But D.W max is negative? Actually D.W min -1.027, max 0.002528. "Deriv.Weight max값" likely maximum absolute derivative? In TGA DTG peak usually most negative (mass loss rate max). But user says max value. Data max is 0.002528 (near baseline), probably not meaningful. In Korean maybe "Deriv.Weight 의 max값을 표시" could mean maximum (most negative? max mass loss?) Need infer. TGA derivative often peak at negative values; max rate is minimum value. But they explicitly say max값. Could display maximum value? If data max is small positive, marker near baseline not useful. Maybe they mean absolute maximum / peak? In TGA, derivative weight (D.W) maximum in magnitude (lowest value) is important. But phrase max could mean maximum of absolute value. Need decide. The request: "weight는 20단위로 해주고, Temperature은 200단위로 표시해주고, Deriv.Weight는 0.2단위로 표시해줘. 그리고 Deriv.Weight 의 max값을 표시해주고, temperatur 800 근처일때의 Y값을 Residue {}% 으로 표시해줘." They want axis intervals and mark max of deriv. In TGA, derivative peak is negative, so max in magnitude is min. Could label "DTG peak" maybe. But if they truly mean max numeric, it's near zero. Need maybe compute max absolute derivative and show its value and temp. But "max값" could be max(D.W) numeric. For normal sheet max 0.002528. Maybe they want show highest derivative (most n
+[...]
+)*0.2 = -1.2. Good.
+
+Let's test mentally:
+axis_bounds: for weight vmin 7.974 vmax 100. floor(0.3987)=0, ceil(5-eps)=5 -> 100. Good.
+For dw vmin -1.027 vmax 0.002528. floor(-5.135+eps?) If +1e-12 -> -5.134999999999 floor -6 -> -1.2. ceil(0.01264-eps)=1 -> 0.2. Good.
+If vmin exactly -1.0: -5.0 + eps = -4.999999999999 floor -5 -> -1.0. Good. If vmax exactly 0.2: 1.0 - eps = 0.999999999999 ceil 1 -> 0.2. Good.
+If vmin exactly 0: 0+eps floor 0. Good.
+
+Need maybe if interval 0.2 and min -1.2 max 0.2, ticks 8? -1.2,-1.0,...0.2. Good.
+
+Need maybe if y2 axis splitLine false. Good.
+
+Need maybe if y1 axis splitLine true. Good.
+
+Need maybe if markPoint label position dynamic:
+def choose_pos(value, lo, hi):
+   mid = (lo+hi)/2
+   return "top" if value < mid else "bottom"
+For residue weight low <50 -> top. For max_dw near 0 > mid -0.5 -> bottom. Good.
+If max_dw all negative but max -0.1 > mid -0.5 -> bottom. Good. If max -1.0 < mid -> top. Good.
+
+Need maybe if markPoint label position top for residue may collide with legend? weight low, y axis 10, top label around 15, grid top 110, okay.
+
+Need maybe if x_max 1000 and residue temp 800, markPoint near right but not edge. Good.
+
+Need maybe if derivative max numeric at x maybe 87 or 900. Label bottom maybe near top. Good.
+
+Need maybe if derivative max numeric at x 900, markPoint at right edge, label may overflow. Could position left? Hard. Could set label position "inside" or "bottom". Maybe okay. Could use markPoint symbolSize 8. If at x max 1000? data max 900, axis max 1000, so not edge. Good.
+
+Need maybe if x_max 1000, data max 900, markPoint not edge. Good.
+
+Need maybe if max numeric at temp 900, x axis max 1000, enough space. Good.
+
+Need maybe if residue temp 800, enough.
+
+Potential issue: If x_max computed 1000 but data max 900, the x axis has tick 1000. Good.
+
+Need maybe if user wanted temperature 0 to 200 increments, maybe x_max 1000 okay.
+
+Need maybe if "weight는 20단위로" maybe y1 interval 20. Good.
+
+Need maybe if "Deriv.Weight는 0.2단위로" y2 interval 0.2. Good.
+
+Need maybe if "실험일별 인장강도" maybe they wanted another plot? But data TGA. They say B X, C Y1, D Y2. Good.
+
+Need maybe if output one figure. Good.
+
+Let's consider if the script should save png? The server renders and saves. We only output option. Good.
+
+Need maybe if formats list lower-case. Good.
+
+Need maybe if name "plot1". Good.
+
+Potential issue: ECharts option "series" line with markPoint label formatter string may not show if markPoint label show false? We set show true in markPoint.label and label in data. Good.
+
+Potential issue: markPoint data item label formatter string overrides label show? It should. Good.
+
+Potential issue: markPoint symbol color from itemStyle. Good.
+
+Potential issue: markPoint label color from itemStyle? We set label color. Good.
+
+Potential issue: If markPoint label position in data is "bottom", but markPoint.label.position top default; data overrides. Good.
+
+Potential issue: If markPoint label distance? default 5. Good.
+
+Need maybe if JSON option has Python True/False? json.dumps converts. Good.
+
+Need maybe if print adds newline. okay.
+
+Let's maybe include data rounding to 3? Temperature maybe integer, weight maybe 2, dw maybe 6. Use 6. Good.
+
+Need maybe if data size 871, JSON length maybe ~100KB. okay.
+
+Need maybe if script uses f-string with degree symbol. okay.
+
+Potential issue: The final answer should be only one python block. Good.
+
+Let's maybe refine script:
+
+def get_column(df, names, index):
+    for name in names:
+       if name in df.columns: return name
+    return df.columns[index]
+
+Use names:
+x_col = get_column(df, ["Temperature", "Temp", "T"], 1)
+y1_col = get_column(df, ["Weight(%)", "Weight (%)", "Weight"], 2)
+y2_col = get_column(df, ["D.W(%/C)", "D.W (%/C)", "Deriv.Weight", "DTG"], 3)
+But if names not exact, index. Good.
+
+Need maybe if column index beyond. If len <4, use last? Could.
+
+Read file:
+if DATA_FILE.lower().endswith((".xls", ".xlsx")):
+   xl = pd.ExcelFile(DATA_FILE)
+   ...
+else:
+   df

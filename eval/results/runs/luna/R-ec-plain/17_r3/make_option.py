@@ -1,0 +1,195 @@
+import json
+
+figures = [
+    {
+        "name": "tga_normal",
+        "option": {
+            "title": {
+                "text": "1006R1-V normal",
+                "left": "center",
+                "textStyle": {"fontFamily": "Noto Sans CJK KR"}
+            },
+            "tooltip": {"trigger": "axis"},
+            "legend": {
+                "data": ["Weight (%)", "D.W. (%/°C)"],
+                "top": 32,
+                "textStyle": {"fontFamily": "Noto Sans CJK KR"}
+            },
+            "grid": {"left": 72, "right": 72, "top": 78, "bottom": 62},
+            "xAxis": {
+                "type": "value",
+                "name": "Temperature (°C)",
+                "nameLocation": "middle",
+                "nameGap": 38,
+                "min": 30,
+                "max": 900,
+                "axisLabel": {"fontFamily": "Noto Sans CJK KR"}
+            },
+            "yAxis": [
+                {
+                    "type": "value",
+                    "name": "Weight (%)",
+                    "nameLocation": "middle",
+                    "nameGap": 48,
+                    "min": 0,
+                    "max": 105,
+                    "axisLabel": {"fontFamily": "Noto Sans CJK KR"}
+                },
+                {
+                    "type": "value",
+                    "name": "D.W. (%/°C)",
+                    "nameLocation": "middle",
+                    "nameGap": 48,
+                    "axisLabel": {"fontFamily": "Noto Sans CJK KR"}
+                }
+            ],
+            "series": [
+                {
+                    "name": "Weight (%)",
+                    "type": "line",
+                    "showSymbol": False,
+                    "data": []
+                },
+                {
+                    "name": "D.W. (%/°C)",
+                    "type": "line",
+                    "yAxisIndex": 1,
+                    "showSymbol": False,
+                    "data": []
+                }
+            ]
+        },
+        "width": 768,
+        "height": 480,
+        "dpi": 600,
+        "formats": ["png"]
+    },
+    {
+        "name": "tga_acid",
+        "option": {
+            "title": {
+                "text": "1006R1-V acid",
+                "left": "center",
+                "textStyle": {"fontFamily": "Noto Sans CJK KR"}
+            },
+            "tooltip": {"trigger": "axis"},
+            "legend": {
+                "data": ["Weight (%)", "D.W. (%/°C)"],
+                "top": 32,
+                "textStyle": {"fontFamily": "Noto Sans CJK KR"}
+            },
+            "grid": {"left": 72, "right": 72, "top": 78, "bottom": 62},
+            "xAxis": {
+                "type": "value",
+                "name": "Temperature (°C)",
+                "nameLocation": "middle",
+                "nameGap": 38,
+                "min": 30,
+                "max": 900,
+                "axisLabel": {"fontFamily": "Noto Sans CJK KR"}
+            },
+            "yAxis": [
+                {
+                    "type": "value",
+                    "name": "Weight (%)",
+                    "nameLocation": "middle",
+                    "nameGap": 48,
+                    "min": 0,
+                    "max": 105,
+                    "axisLabel": {"fontFamily": "Noto Sans CJK KR"}
+                },
+                {
+                    "type": "value",
+                    "name": "D.W. (%/°C)",
+                    "nameLocation": "middle",
+                    "nameGap": 48,
+                    "axisLabel": {"fontFamily": "Noto Sans CJK KR"}
+                }
+            ],
+            "series": [
+                {
+                    "name": "Weight (%)",
+                    "type": "line",
+                    "showSymbol": False,
+                    "data": []
+                },
+                {
+                    "name": "D.W. (%/°C)",
+                    "type": "line",
+                    "yAxisIndex": 1,
+                    "showSymbol": False,
+                    "data": []
+                }
+            ]
+        },
+        "width": 768,
+        "height": 480,
+        "dpi": 600,
+        "formats": ["png"]
+    },
+    {
+        "name": "tga_750c",
+        "option": {
+            "title": {
+                "text": "1006R1-V 750C",
+                "left": "center",
+                "textStyle": {"fontFamily": "Noto Sans CJK KR"}
+            },
+            "tooltip": {"trigger": "axis"},
+            "legend": {
+                "data": ["Weight (%)", "D.W. (%/°C)"],
+                "top": 32,
+                "textStyle": {"fontFamily": "Noto Sans CJK KR"}
+            },
+            "grid": {"left": 72, "right": 72, "top": 78, "bottom": 62},
+            "xAxis": {
+                "type": "value",
+                "name": "Temperature (°C)",
+                "nameLocation": "middle",
+                "nameGap": 38,
+                "min": 30,
+                "max": 750,
+                "axisLabel": {"fontFamily": "Noto Sans CJK KR"}
+            },
+            "yAxis": [
+                {
+                    "type": "value",
+                    "name": "Weight (%)",
+                    "nameLocation": "middle",
+                    "nameGap": 48,
+                    "min": 0,
+                    "max": 105,
+                    "axisLabel": {"fontFamily": "Noto Sans CJK KR"}
+                },
+                {
+                    "type": "value",
+                    "name": "D.W. (%/°C)",
+                    "nameLocation": "middle",
+                    "nameGap": 48,
+                    "axisLabel": {"fontFamily": "Noto Sans CJK KR"}
+                }
+            ],
+            "series": [
+                {
+                    "name": "Weight (%)",
+                    "type": "line",
+                    "showSymbol": False,
+                    "data": []
+                },
+                {
+                    "name": "D.W. (%/°C)",
+                    "type": "line",
+                    "yAxisIndex": 1,
+                    "showSymbol": False,
+                    "data": []
+                }
+            ]
+        },
+        "width": 768,
+        "height": 480,
+        "dpi": 600,
+        "formats": ["png"]
+    }
+]
+
+print(json.dumps({"figures": figures}, ensure_ascii=False))

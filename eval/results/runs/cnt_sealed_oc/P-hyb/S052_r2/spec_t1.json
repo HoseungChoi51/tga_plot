@@ -1,0 +1,22 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "scatter",
+ "x": {
+  "col": "잔류금속 (wt%)",
+  "agg": "mean"
+ },
+ "y": {
+  "col": "CNT수율 (g/g-cat)",
+  "agg": "mean"
+ },
+ "by": "촉매로트",
+ "asks": [
+  {
+   "ask": "촉매로트별 평균 잔류금속 vs 평균 CNT수율 산점도",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S052_r2/out/t1"
+ }
+}

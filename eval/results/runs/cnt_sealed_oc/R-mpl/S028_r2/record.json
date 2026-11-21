@@ -1,0 +1,271 @@
+{
+ "arm": "R-mpl",
+ "item": "S028",
+ "repeat": 2,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "산화개시온도 분포를 R4와 나머지(R1–R3) 두 그룹으로 나눠서 겹친 히스토그램으로 보여 주세요. bin은 5 °C 간격, 535–610 °C.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 로드\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# 산화개시온도 (°C) 컬럼명 확인 및 전처리\ncol_temp = \"산화개시온도 (°C)\"\nif col_temp not in df.columns:\n    # 혹시 공백 차이 등 때문에 못 찾으면 유사한 이름 검색\n    col_temp = [c for c in df.columns if \"산화개시\" in c][0]\n\n# 결측치 제거\ndf_plot = df.dropna(subset=[col_temp, \"반응기\"]).copy()\n\n# 그룹 분리: R4와 나머지(R1, R2, R3)\ndf_r4 = df_plot[df_plot[\"반응기\"] == \"R4\"][col_temp]\ndf_rest = df_plot[df_plot[\"반응기\"].isin([\"R1\", \"R2\", \"R3\"])][col_temp]\n\n# 히스토그램 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\nbins = np.arange(535, 611, 5)  # 535부터 610까지, 5 간격 (마지막 엣지 포함을 위해 611까지)\n\nax.hist(df_rest, bins=bins, alpha=0.6, label='R1–R3', color='skyblue', edgecolor='black')\nax.hist(df_r4, bins=bins, alpha=0.6, label='R4', color='salmon', edgecolor='black')\n\n# 라벨 및 제목 설정\nax.set_xlabel(\"산화개시온도 (°C)\", fontsize=12)\nax.set_ylabel(\"빈도 (Count)\", fontsize=12)\nax.set_title(\"반응기 그룹별 산화개시온도 분포 히스토그램\", fontsize=14)\nax.legend(loc='upper right', fontsize=10)\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\n# x축 범위 고정\nax.set_xlim(535, 610)\n\n# 저장\nsave_path = os.path.join(OUT_DIR, \"oxidation_onset_hist.png\")\nplt.tight_layout()\nplt.savefig(save_path, dpi=300)\nplt.close()\n```",
+     "llm_s": 7.458,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 3800,
+     "output_chars": 1428,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 로드\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# 산화개시온도 (°C) 컬럼명 확인 및 전처리\ncol_temp = \"산화개시온도 (°C)\"\nif col_temp not in df.columns:\n    # 혹시 공백 차이 등 때문에 못 찾으면 유사한 이름 검색\n    col_temp = [c for c in df.columns if \"산화개시\" in c][0]\n\n# 결측치 제거\ndf_plot = df.dropna(subset=[col_temp, \"반응기\"]).copy()\n\n# 그룹 분리: R4와 나머지(R1, R2, R3)\ndf_r4 = df_plot[df_plot[\"반응기\"] == \"R4\"][col_temp]\ndf_rest = df_plot[df_plot[\"반응기\"].isin([\"R1\", \"R2\", \"R3\"])][col_temp]\n\n# 히스토그램 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\nbins = np.arange(535, 611, 5)  # 535부터 610까지, 5 간격 (마지막 엣지 포함을 위해 611까지)\n\nax.hist(df_rest, bins=bins, alpha=0.6, label='R1–R3', color='skyblue', edgecolor='black')\nax.hist(df_r4, bins=bins, alpha=0.6, label='R4', color='salmon', edgecolor='black')\n\n# 라벨 및 제목 설정\nax.set_xlabel(\"산화개시온도 (°C)\", fontsize=12)\nax.set_ylabel(\"빈도 (Count)\", fontsize=12)\nax.set_title(\"반응기 그룹별 산화개시온도 분포 히스토그램\", fontsize=14)\nax.legend(loc='upper right', fontsize=10)\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\n# x축 범위 고정\nax.set_xlim(535, 610)\n\n# 저장\nsave_path = os.path.join(OUT_DIR, \"oxidation_onset_hist.png\")\nplt.tight_layout()\nplt.savefig(save_path, dpi=300)\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "반응기 그룹별 산화개시온도 분포 히스토그램",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [
+        {
+         "name": "",
+         "edges": [
+          535.0,
+          540.0,
+          545.0,
+          550.0,
+          555.0,
+          560.0,
+          565.0,
+          570.0,
+          575.0,
+          580.0,
+          585.0,
+          590.0,
+          595.0,
+          600.0,
+          605.0,
+          610.0
+         ],
+         "counts": [
+          0.0,
+          0.0,
+          1.0,
+          7.0,
+          10.0,
+          21.0,
+          43.0,
+          45.0,
+          92.0,
+          146.0,
+          186.0,
+          130.0,
+          59.0,
+          6.0,
+          0.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#87ceeb"
+        },
+        {
+         "name": "",
+         "edges": [
+          535.0,
+          540.0,
+          545.0,
+          550.0,
+          555.0,
+          560.0,
+          565.0,
+          570.0,
+          575.0,
+          580.0,
+          585.0,
+          590.0,
+          595.0,
+          600.0,
+          605.0,
+          610.0
+         ],
+         "counts": [
+          1.0,
+          2.0,
+          7.0,
+          11.0,
+          10.0,
+          25.0,
+          37.0,
+          67.0,
+          57.0,
+          29.0,
+          5.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#fa8072"
+        }
+       ],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "산화개시온도 (°C)",
+        "type": "value",
+        "ticks": [
+         540.0,
+         550.0,
+         560.0,
+         570.0,
+         580.0,
+         590.0,
+         600.0,
+         610.0
+        ],
+        "step": 10.0,
+        "categories": null,
+        "min": 535.0,
+        "max": 610.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "530",
+         "540",
+         "550",
+         "560",
+         "570",
+         "580",
+         "590",
+         "600",
+         "610"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "빈도 (Count)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         25.0,
+         50.0,
+         75.0,
+         100.0,
+         125.0,
+         150.0,
+         175.0
+        ],
+        "step": 25.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 195.3,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "25",
+         "50",
+         "75",
+         "100",
+         "125",
+         "150",
+         "175",
+         "200"
+        ],
+        "rotate": 0.0
+       },
+       "title": "반응기 그룹별 산화개시온도 분포 히스토그램"
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "R1–R3",
+       "R4"
+      ],
+      "inside": true,
+      "where": "upper right"
+     },
+     "files": [
+      {
+       "path": "out/t1/oxidation_onset_hist.png",
+       "format": "png",
+       "px": [
+        3000,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.540806770324707,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 8.0
+  }
+ ]
+}

@@ -1,0 +1,22 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "scatter",
+ "x": "2존온도 (°C)",
+ "y": "IG/ID",
+ "filter": [
+  "반응기 == R2"
+ ],
+ "asks": [
+  {
+   "ask": "R2만 (다른 반응기 제외)",
+   "how": "key"
+  },
+  {
+   "ask": "2존온도(x)와 IG/ID(y) 산점도",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/sessions/E3_G3_P-ec/out/t5"
+ }
+}

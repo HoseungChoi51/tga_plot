@@ -1,0 +1,165 @@
+import json
+import os
+import re
+
+import numpy as np
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+
+def clean_name(value):
+    value = re.sub(r"[^A-Za-z0-9_-]+", "_", str(value)).strip("_")
+    return value or "plot"
+
+
+def find_column(columns, pattern, fallback_index):
+    for column in columns:
+        if re.search(pattern, str(column), flags=re.IGNORECASE):
+            return column
+    return columns[fallback_index]
+
+
+figures = []
+sheets = pd.read_excel(DATA_FILE, sheet_name=None)
+
+for sheet_name, df in sheets.items():
+    df = df.dropna(how="all")
+    if df.empty or len(df.columns) < 3:
+        continue
+
+    columns = list(df.columns)
+    x_col = find_column(columns, r"temp", 1 if len(columns) > 1 else 0)
+    weight_col = find_column(columns, r"weight|mass", 2 if len(columns) > 2 else 1)
+    dtg_col = find_column(columns, r"dtg|d\.w|deriv", 3 if len(columns) > 3 else len(columns) - 1)
+
+    x = pd.to_numeric(df[x_col], errors="coerce").to_numpy(dtype=float)
+    weight = pd.to_numeric(df[weight_col], errors="coerce").to_numpy(dtype=float)
+    dtg = pd.to_numeric(df[dtg_col], errors="coerce").to_numpy(dtype=float)
+    valid = np.isfinite(x) & np.isfinite(weight) & np.isfinite(dtg)
+    x, weight, dtg = x[valid], weight[valid], dtg[valid]
+    if not len(x):
+        continue
+
+    residue_index = int(np.argmin(np.abs(x - 800)))
+    peak_candidates = np.flatnonzero(x > 150)
+    peak_index = int(peak_candidates[np.argmax(-dtg[peak_candidates])]) if len(peak_candidates) else int(np.argmax(-dtg))
+
+    x_data = [[float(a), float(b)] for a, b in zip(x, weight)]
+    dtg_data = [[float(a), float(-b)] for a, b in zip(x, dtg)]
+
+    option = {
+        "animation": False,
+        "title": {
+            "text": str(sheet_name),
+            "left": "center",
+            "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 16},
+        },
+        "tooltip": {"trigger": "axis"},
+        "legend": {
+            "data": ["Weight (%)", "-DTG (%/°C)"],
+            "left": 12,
+            "top": "middle",
+            "orient": "vertical",
+            "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 10},
+        },
+        "grid": {"left": 82, "right": 75, "top": 58, "bottom": 62},
+        "xAxis": {
+            "type": "value",
+            "name": "Temperature (°C)",
+            "nameLocation": "middle",
+            "nameGap": 34,
+            "axisTick": {"inside": False},
+            "axisLabel": {"fontFamily": "Noto Sans CJK KR", "fontSize": 9},
+            "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+        },
+        "yAxis": [
+            {
+                "type": "value",
+                "name": "Weight (%)",
+                "nameLocation": "middle",
+                "nameGap": 50,
+                "axisTick": {"inside": False},
+                "axisLabel": {"fontFamily": "Noto Sans CJK KR", "fontSize": 9},
+                "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+                "splitLine": {"show": True, "lineStyle": {"color": "#e5e5e5"}},
+            },
+            {
+                "type": "value",
+                "name": "-DTG (%/°C)",
+                "nameLocation": "middle",
+                "nameGap": 52,
+                "axisTick": {"inside": False},
+                "axisLabel": {"fontFamily": "Noto Sans CJK KR", "fontSize": 9},
+                "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+                "splitLine": {"show": False},
+            },
+        ],
+        "series": [
+            {
+                "name": "Weight (%)",
+                "type": "line",
+                "showSymbol": False,
+                "data": x_data,
+                "yAxisIndex": 0,
+                "lineStyle": {"color": "#1f4e9c", "width": 2},
+                "itemStyle": {"color": "#1f4e9c"},
+                "markPoint": {
+                    "symbolSize": 9,
+                    "data": [
+                        {
+                            "coord": [float(x[residue_index]), float(weight[residue_index])],
+                            "value": f"Residue {weight[residue_index]:.1f}%",
+                            "itemStyle": {"color": "#1f4e9c"},
+                            "label": {
+                                "show": True,
+                                "formatter": f"Residue {weight[residue_index]:.1f}%",
+                                "position": "right",
+                                "fontFamily": "Noto Sans CJK KR",
+                                "fontSize": 10,
+                            },
+                        }
+                    ],
+                },
+            },
+            {
+                "name": "-DTG (%/°C)",
+                "type": "line",
+                "showSymbol": False,
+                "data": dtg_data,
+                "yAxisIndex": 1,
+                "lineStyle": {"color": "#c0392b", "width": 1.8},
+                "itemStyle": {"color": "#c0392b"},
+                "markPoint": {
+                    "symbolSize": 9,
+                    "data": [
+                        {
+                            "coord": [float(x[peak_index]), float(-dtg[peak_index])],
+                            "value": f"{x[peak_index]:.0f} °C",
+                            "itemStyle": {"color": "#c0392b"},
+                            "label": {
+                                "show": True,
+                                "formatter": f"{x[peak_index]:.0f} °C",
+                                "position": "top",
+                                "fontFamily": "Noto Sans CJK KR",
+                                "fontSize": 10,
+                            },
+                        }
+                    ],
+                },
+            },
+        ],
+    }
+
+    figures.append(
+        {
+            "name": clean_name(sheet_name),
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"],
+        }
+    )
+
+print(json.dumps({"figures": figures}, ensure_ascii=False, allow_nan=False))

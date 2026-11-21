@@ -1,0 +1,28 @@
+{
+ "file": "data/diameters.csv",
+ "chart": "bar",
+ "x": "라벨",
+ "y": {
+  "col": "직경(nm)",
+  "agg": "mean"
+ },
+ "error": "std",
+ "data_code": "df['라벨'] = df['반응기'] + ' / ' + df['촉매로트']",
+ "asks": [
+  {
+   "ask": "시료별 평균 직경 막대그래프",
+   "how": "key"
+  },
+  {
+   "ask": "표준편차 오차막대",
+   "how": "key"
+  },
+  {
+   "ask": "라벨을 반응기/촉매로트로 변경",
+   "how": "data_code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-ec/SS10_r2/out/t3"
+ }
+}

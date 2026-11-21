@@ -1,0 +1,16 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "scatter",
+ "x": "체류시간 (s)",
+ "y": "CNT수율 (g/g-cat)",
+ "asks": [
+  {
+   "ask": "전체 런 체류시간 vs CNT수율 scatter",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_t07/P-mpl/DS01_r1/out/t1"
+ }
+}

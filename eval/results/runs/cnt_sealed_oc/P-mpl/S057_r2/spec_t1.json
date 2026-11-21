@@ -1,0 +1,35 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "heatmap",
+ "corr": [
+  "체류시간 (s)",
+  "H2/C2H4비",
+  "2존온도 (°C)",
+  "3존온도 (°C)",
+  "외기습도 (%)",
+  "CNT수율 (g/g-cat)",
+  "잔류금속 (wt%)",
+  "산화개시온도 (°C)",
+  "IG/ID"
+ ],
+ "cmap": "RdBu_r",
+ "values": "{:.2f}",
+ "asks": [
+  {
+   "ask": "Pearson correlation heatmap",
+   "how": "key"
+  },
+  {
+   "ask": "diverging cmap centered at 0",
+   "how": "unsupported"
+  },
+  {
+   "ask": "annotate with 2 decimals",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S057_r2/out/t1"
+ }
+}

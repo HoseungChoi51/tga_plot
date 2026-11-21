@@ -38,8 +38,8 @@ Do step 2 only: reply with the JSON spec for the user's request, inside one ```j
 Use the file name exactly as shown in the inspect result."""
 
 
-def call_llm(base, model, key, messages, max_tokens=4000, timeout=600):
-    body = {"model": model, "temperature": 0, "max_tokens": max_tokens, "messages": messages}
+def call_llm(base, model, key, messages, max_tokens=4000, timeout=600, temperature=0):
+    body = {"model": model, "temperature": temperature, "max_tokens": max_tokens, "messages": messages}
     req = urllib.request.Request(base.rstrip("/") + "/chat/completions", data=json.dumps(body).encode(),
                                  headers={"Content-Type": "application/json",
                                           "Authorization": f"Bearer {key or 'none'}"})
@@ -85,7 +85,7 @@ def summary_ko(res):
 
 
 def run(base, model, key, file, request, no_think=False, retries=2, verbose=True,
-        engine=None, agent_md=None):
+        engine=None, agent_md=None, temperature=0):
     engine = plotkit.engine_name(engine)
     agent_md = agent_md or ("AGENT_ECHARTS.md" if engine == "echarts" else "AGENT.md")
     system = (HERE / agent_md).read_text(encoding="utf-8") + SPEC_ONLY
@@ -98,7 +98,7 @@ def run(base, model, key, file, request, no_think=False, retries=2, verbose=True
     messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
     calls = []
     for attempt in range(retries + 1):
-        reply, stats = call_llm(base, model, key, messages)
+        reply, stats = call_llm(base, model, key, messages, temperature=temperature)
         calls.append(stats)
         try:
             spec = extract_json(reply)
@@ -157,7 +157,7 @@ def batch(a):
                     continue
                 file = str(HERE / file) if file and not Path(file).is_absolute() else file
                 res = run(a.base_url, a.model, a.api_key, file, request, a.no_think, verbose=False,
-                          engine=a.engine, agent_md=a.agent_md)
+                          engine=a.engine, agent_md=a.agent_md, temperature=a.temperature)
                 spec = res.get("spec")
                 if res["ok"]:
                     ok, why, _ = scorer.score(rid, spec, plotkit.engine_name(a.engine),
@@ -189,6 +189,7 @@ def main():
     ap.add_argument("--file")
     ap.add_argument("--request")
     ap.add_argument("--no-think", action="store_true")
+    ap.add_argument("--temperature", type=float, default=0.0, help="sampling temperature (default 0)")
     ap.add_argument("--engine", choices=plotkit.ENGINES, help="default: $PLOTKIT_ENGINE or matplotlib")
     ap.add_argument("--agent-md", help="system prompt file (default AGENT.md, or AGENT_ECHARTS.md for echarts)")
     ap.add_argument("--batch", help="run every request in this prompts file, e.g. tests/AGENT_TEST_PROMPTS.md")
@@ -203,7 +204,7 @@ def main():
         return batch(a)
     if not (a.file and a.request):
         ap.error("--file and --request are needed (or --batch)")
-    out = run(a.base_url, a.model, a.api_key, a.file, a.request, a.no_think, engine=a.engine, agent_md=a.agent_md)
+    out = run(a.base_url, a.model, a.api_key, a.file, a.request, a.no_think, engine=a.engine, agent_md=a.agent_md, temperature=a.temperature)
     if out["ok"]:
         print("spec:", json.dumps(out["spec"], ensure_ascii=False))
         print(summary_ko(out["result"]))

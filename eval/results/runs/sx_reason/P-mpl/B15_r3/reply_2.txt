@@ -1,0 +1,1 @@
+{"file": "polymers.xlsx", "combine": true, "legend": {"where": "outside right"}}

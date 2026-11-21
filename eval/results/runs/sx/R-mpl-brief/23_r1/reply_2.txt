@@ -1,0 +1,153 @@
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/instrument_export.txt"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/23_r1/out"
+
+def read_tga_file(filepath):
+    """
+    Reads a TGA text file, skipping header lines until numeric data starts.
+    Assumes columns: Time/Index, Temperature, Weight, DTG based on preview.
+    """
+    try:
+        # Read the entire file as text to inspect structure if needed, 
+        # but pd.read_csv with sep='\t' or whitespace usually handles mixed headers if we skip bad rows.
+        # The preview says data_start_row is 11. Let's try reading without header and filtering.
+        
+        df_raw = pd.read_csv(filepath, sep=r'\s+', header=None, engine='python')
+        
+        # Convert all to numeric, forcing errors to NaN
+        df_numeric = df_raw.apply(pd.to_numeric, errors='coerce')
+        
+        # Identify valid data rows:
+        # Col 1 (index 1) should be Temperature (positive, reasonable range)
+        # Col 2 (index 2) should be Weight (0-100ish)
+        # We look for rows where these are not NaN
+        
+        if df_numeric.shape[1] < 4:
+            raise ValueError("File has fewer than 4 columns")
+            
+        # Filter for rows where Temp (col 1) and Weight (col 2) are valid numbers
+        mask = (~df_numeric.iloc[:, 1].isna()) & (~df_numeric.iloc[:, 2].isna())
+        df_clean = df_numeric[mask].reset_index(drop=True)
+        
+        if df_clean.empty:
+             raise ValueError("No valid numeric data found in expected columns")
+             
+        # Assign standard column names based on TGA context from preview
+        # Preview: A=Time/Index, B=Temp, C=Weight, D=DTG
+        cols = ['time', 'temperature', 'weight', 'dtg']
+        df_final = df_clean.iloc[:, :4].copy()
+        df_final.columns = cols
+        
+        return df_final
+        
+    except Exception as e:
+        print(f"Error reading file: {e}")
+        raise
+
+def plot_tga(df, sheet_name, out_dir):
+    fig, ax1 = plt.subplots(figsize=(8, 6))
+    
+    temp = df['temperature'].values
+    weight = df['weight'].values
+    dtg = df['dtg'].values
+    
+    # Plot Weight on left axis
+    color1 = '#1f4e9c'
+    ax1.set_xlabel('Temperature (°C)', fontsize=12)
+    ax1.set_ylabel('Weight (%)', color=color1, fontsize=12)
+    line1, = ax1.plot(temp, weight, color=color1, label='Weight')
+    ax1.tick_params(axis='y', labelcolor=color1)
+    
+    # Plot DTG on right axis (inverted sign so peaks point up)
+    ax2 = ax1.twinx()
+    color2 = '#c0392b'
+    ax2.set_ylabel('DTG (%/°C)', color=color2, fontsize=12)
+    line2, = ax2.plot(temp, -dtg, color=color2, label='DTG')
+    ax2.tick_params(axis='y', labelcolor=color2)
+    
+    # Title
+    ax1.set_title(sheet_name, fontsize=14)
+    
+    # Legend
+    lines = [line1, line2]
+    labels = [l.get_label() for l in lines]
+    ax1.legend(lines, labels, loc='center left')
+    
+    # Calculate Residue at ~800°C
+    target_temp = 800.0
+    idx_res = np.argmin(np.abs(temp - target_temp))
+    residue_val = weight[idx_res]
+    residue_temp = temp[idx_res]
+    
+    # Add Residue Label with requested format "Residue: {}%"
+    ax1.annotate(f'Residue: {residue_val:.1f}%', 
+                 xy=(residue_temp, residue_val), 
+                 xytext=(residue_temp + 50, residue_val + 5),
+                 arrowprops=dict(arrowstyle='->', color='black'),
+                 fontsize=10, color='black',
+                 bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="gray", alpha=0.8))
+    ax1.plot(residue_temp, residue_val, 'o', color=color1, markersize=6)
+    
+    # Calculate Peak above 150°C
+    # Find the temperature of the highest DTG peak (most negative DTG value) above 150°C
+    mask_peak = temp > 150
+    if np.any(mask_peak):
+        # Invert DTG to make peaks positive for easier max finding
+        dtg_inverted = -dtg
+        
+        # Mask values below 150C by setting them to -inf so they aren't picked as max
+        dtg_masked = dtg_inverted.copy()
+        dtg_masked[~mask_peak] = -np.inf
+        
+        peak_idx = np.argmax(dtg_masked)
+        peak_temp = temp[peak_idx]
+        peak_dtg_original = dtg[peak_idx] # Original negative value
+        
+        # Add Peak Label
+        # Note: On ax2 we plotted -dtg, so the y-coordinate for the marker is -peak_dtg_original
+        y_pos_marker = -peak_dtg_original
+        
+        ax2.annotate(f'{peak_temp:.0f} °C', 
+                     xy=(peak_temp, y_pos_marker), 
+                     xytext=(peak_temp + 50, y_pos_marker + 0.1),
+                     arrowprops=dict(arrowstyle='->', color='black'),
+                     fontsize=10, color='black',
+                     bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="gray", alpha=0.8))
+        ax2.plot(peak_temp, y_pos_marker, 'o', color=color2, markersize=6)
+        
+    # Grid
+    ax1.grid(True, linestyle='--', alpha=0.5)
+    
+    # Save
+    filename = f"{sheet_name}.png"
+    filepath = os.path.join(out_dir, filename)
+    plt.tight_layout()
+    plt.savefig(filepath, dpi=300)
+    plt.close(fig)
+
+def main():
+    if not os.path.exists(OUT_DIR):
+        os.makedirs(OUT_DIR)
+        
+    try:
+        df = read_tga_file(DATA_FILE)
+        # Since it's a single text file, treat the whole thing as one "sheet" named after the file base
+        base_name = os.path.splitext(os.path.basename(DATA_FILE))[0]
+        plot_tga(df, base_name, OUT_DIR)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print(f"Error processing file: {e}")
+
+if __name__ == "__main__":
+    main()
+```

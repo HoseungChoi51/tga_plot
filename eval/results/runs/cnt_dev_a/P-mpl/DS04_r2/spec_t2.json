@@ -1,0 +1,24 @@
+{
+ "file": "data/r2_zone_temps.csv",
+ "preset": "none",
+ "x": {
+  "col": "A"
+ },
+ "y1": {
+  "col": "2존(°C)"
+ },
+ "data_code": "import pandas as pd\nmask = (pd.to_datetime(x) >= '2026-06-17 20:00') & (pd.to_datetime(x) <= '2026-06-17 22:00')\nx = x[mask]\ny1 = y1[mask]",
+ "asks": [
+  {
+   "ask": "r2 존온도 2존만",
+   "how": "key"
+  },
+  {
+   "ask": "저녁 8시부터 10시까지 확대",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_a/P-mpl/DS04_r2/out/t2"
+ }
+}

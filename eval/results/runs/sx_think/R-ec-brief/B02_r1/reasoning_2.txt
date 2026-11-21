@@ -1,0 +1,104 @@
+We need answer to user with corrected complete script only inside one python block. Need analyze request. User: Korean: "데이터 미리보기 ... DATA_FILE ... 사용자 요청: 오른쪽 축에 DTG 대신 Heat Flow를 그리고, 흡열 피크 두 개와 발열 피크 하나의 온도를 표시해줘" Need produce Python script reading CSV, output JSON with ECharts option. Need include labels for peaks: two endothermic peaks and one exothermic peak temperatures. Need infer Heat Flow sign convention. In DSC, heat flow W/g: exothermic can be positive or negative depending instrument. Need detect from data. We have min -1.374, max 2.307. Need identify peaks. Need plot x temperature, y1 weight %, y2 Heat Flow instead of DTG. Need mark temperatures of two endothermic and one exothermic peak. Need maybe label each on chart. Need robust script. Need only print JSON. Need no extra. Need use pandas, maybe scipy find peaks. Need consider CSV single sheet name caox. Title sheet name. Need y2 axis label Heat Flow (W/g). Need not multiply by -1? The standard says DTG multiplied by -1. For Heat Flow, user asks draw Heat Flow, not DTG. Should plot as is. Need identify peaks: two endothermic and one exothermic. Need know sign: If Heat Flow positive peaks are endothermic? Many DSC: endothermic positive. Given data max 2.307, min -1.374. Need find two positive peaks and one negative peak? likely. Need output option with series: Weight line y1, Heat Flow line y2, scatter/markers for peaks. Need labels maybe markPoint with coords and label formatter? ECharts plain JSON no functions. Need include data in series.data. For labels, can use scatter series with markPoint? Or use markPoint on Heat Flow series with data array containing coord and name. But labels for peaks need temperatures. Could use scatter series with labels show formatter? In plain JSON, label.formatter can be string template? ECharts supports {c} but for scatter maybe {@[1]}? Better use markPoint with data: [{coord:[temp, hf], name:'Endo 1', value: temp}], label formatter maybe '{b}: {c} °C'? If value is temp. But markPoint value maybe numeric. Could use scatter series with data: [[temp, hf]], label formatter as string? ECharts label formatter can be string with {@[0]}? For scatter, formatter: '{@[0]} °C' maybe works? But no functions. Simpler: create separate scatter series for each label with data: [[temp, hf]] and label formatter string like '{@[0]} °C'. Need ensure label visible. Or use markPoint with label formatter '{b}' and name includes temp? But name maybe not shown? markPoint label.formatter can be '{b}' and name set to 'Endo 1 (123 °C)'. Good. But markPoint symbol size? Need no functions. Could also add markLine vertical lines at peak temps with label formatter? But markLine label can show name? maybe. Use markPoint on heat flow series. Need two endothermic peaks and one exothermic peak. Need algorithm robust.
+
+Need script:
+import json, sys, pandas as pd, numpy as np
+from scipy.signal import find_peaks, peak_widths maybe.
+Read file. If CSV, pd.read_csv. For Excel, but here CS
+[...]
+ed maybe if y1 max: if max_y1 <= 105: max_y1=105? But if weight min 38, max 100. Use min_y1=0, max_y1=105. If max_y1 > 105, max_y1=math.ceil(max_y1*1.05/5)*5. If min_y1 <0? weight maybe mg, min 0. Use min_y1=0 if min>=0 else floor. But if weight % can go below 0? no. Use min_y1 = 0 if min_y1 >= -1 else floor. max_y1 = max(105, ceil(max_y1*1.05)). But if max_y1=100, max=105. If max_y1=50, max=105? Maybe too high. Better if column is weight %, max around 100. If other data weight mg max 10, min 0, max 105 bad. Could use max_y1 = max(max_y1*1.05, min_y1 + (max-min)*0.05). But standard weight % often 0-100. To be general, use auto nice: min_y1 = math.floor(min_y1/10)*10 if min_y1<0 else 0; max_y1 = math.ceil(max_y1*1.05/10)*10. If max_y1=100 -> 110. If max=10 -> 20. Good. But if max=38? -> 40. Good. Use min_y1 = 0 if min_y1 >= 0 else floor. If min_y1=38, min=0, max=110. okay. Could set max_y1 = max(105, ...) only if max_y1 > 90? Maybe not. Use general.
+
+Need maybe if y1 weight % starts 100, min 0 creates space. Standard TGA often y1 0-100. Good.
+
+Need maybe if y2 axis splitLine false. Good.
+
+Need maybe if tooltip valueFormatter? no functions.
+
+Need maybe if animation false? Could set "animation": false for server render. Good.
+
+Need maybe if use "large": true? no.
+
+Need maybe if series line smooth false.
+
+Need maybe if data rounding: use round(float(v), 4). Temperature maybe 1 decimal. Heat flow maybe 6. Use 4 maybe enough. But if small heat flow, 4 okay. Could use 6. JSON size okay. Use 6.
+
+Need maybe if x values are floats like 0.0. Good.
+
+Need maybe if there are NaN in series data after rounding? skip.
+
+Need maybe if multiple sheets and one missing columns, skip.
+
+Need maybe if file is text? Could be CSV. If .txt, try read_csv.
+
+Need maybe if Excel with multiple sheets, sheet name maybe "Sheet1". Title. Good.
+
+Need maybe if user named sheet? not.
+
+Need maybe if figure formats list. Use ["png"].
+
+Need maybe if dpi 300.
+
+Need maybe if width/height 614/442. Good.
+
+Potential issue: The script must be inside ```python block and nothing else. Final answer only code block. Need no explanation.
+
+Need ensure final code syntactically correct. Let's write carefully.
+
+Detailed code:
+
+import os, sys, json, math
+import pandas as pd
+import numpy as np
+from scipy.signal import find_peaks
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/caox.csv"
+
+def _reconfigure_stdout():
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
+def read_sheets(path):
+    ext = os.path.splitext(path)[1].lower()
+    if ext in (".csv", ".txt"):
+        try:
+            df = pd.read_csv(path, encoding="utf-8-sig")
+        except Exception:
+            df = pd.read_csv(path, sep=None, engine="python", encoding="utf-8-sig")
+        return [(os.path.splitext(os.path.basename(path))[0], df)]
+    try:
+        xl = pd.ExcelFile(path)
+        return [(str(s), pd.read_excel(path, sheet_name=s)) for s in xl.sheet_names]
+    except Exception:
+        try:
+            df = pd.read_csv(path, encoding="utf-8-sig")
+            return [(os.path.splitext(os.path.basename(path))[0], df)]
+        except Exception:
+            return []
+
+def find_col(df, patterns, exclude=None):
+    for col in df.columns:
+        c = str(col).lower()
+        if exclude:
+            if any(e in c for e in exclude):
+                continue
+        if any(p in c for p in patterns):
+            return col
+    return None
+
+def get_numeric_columns(df):
+    cols=[]
+    for col in df.columns:
+        s = pd.to_numeric(df[col], errors="coerce")
+        if s.notna().sum() > 1:
+            cols.append(col)
+    return cols
+
+def extract_tga(df):
+    xcol = find_col(df, ["temperature", "temp"])
+    y1col = find_col(df, ["weight (%)", "weight", "wt", "mass"])
+    heatcol = find_col(df, ["heat flow", "heatflow", "heat", "dsc"])
+    derivcol = find_col(df, ["deriv", "dtg", "derivative"])
+    if y1col is None:
+        y1col = find_col(df, ["weight", "wt", "mass"])
+    if xcol

@@ -1,0 +1,162 @@
+import json
+import re
+import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+
+
+def clean_name(value):
+    return re.sub(r"\s+", " ", str(value).strip()).lower()
+
+
+def main():
+    path = Path(DATA_FILE)
+    df = pd.read_excel(path, sheet_name="PET")
+    df.columns = [str(c).strip() for c in df.columns]
+
+    def find_column(pattern, fallback):
+        for col in df.columns:
+            if re.search(pattern, clean_name(col)):
+                return col
+        return df.columns[fallback]
+
+    x_col = find_column(r"temperature", 1)
+    weight_col = find_column(r"weight\s*\(%", 2)
+    dtg_col = find_column(r"deriv|dtg", 3)
+
+    x = pd.to_numeric(df[x_col], errors="coerce").to_numpy(dtype=float)
+    weight = pd.to_numeric(df[weight_col], errors="coerce").to_numpy(dtype=float)
+    dtg = pd.to_numeric(df[dtg_col], errors="coerce").to_numpy(dtype=float)
+    valid = np.isfinite(x) & np.isfinite(weight) & np.isfinite(dtg)
+    x, weight, dtg = x[valid], weight[valid], dtg[valid]
+
+    order = np.argsort(x)
+    x, weight, dtg = x[order], weight[order], dtg[order]
+
+    residue_idx = int(np.argmin(np.abs(x - 800.0)))
+    residue_x = float(x[residue_idx])
+    residue_y = float(weight[residue_idx])
+
+    peak_candidates = np.flatnonzero(x > 150.0)
+    if peak_candidates.size:
+        peak_idx = int(peak_candidates[np.argmax(-dtg[peak_candidates])])
+        peak_x = float(x[peak_idx])
+        peak_y = float(-dtg[peak_idx])
+    else:
+        peak_x = None
+        peak_y = None
+
+    option = {
+        "animation": False,
+        "title": {
+            "text": "PET 열분해",
+            "left": "center",
+            "textStyle": {"fontFamily": "Noto Sans CJK KR"},
+        },
+        "textStyle": {"fontFamily": "Noto Sans CJK KR"},
+        "tooltip": {"trigger": "axis"},
+        "legend": {
+            "data": ["Weight", "DTG (-)"],
+            "left": 18,
+            "bottom": 12,
+            "orient": "vertical",
+        },
+        "grid": {"left": 72, "right": 72, "top": 68, "bottom": 66},
+        "xAxis": {
+            "type": "value",
+            "name": "Temperature (°C)",
+            "nameLocation": "middle",
+            "nameGap": 34,
+            "min": float(np.nanmin(x)),
+            "max": float(np.nanmax(x)),
+            "splitLine": {"show": True, "lineStyle": {"color": "#dddddd"}},
+        },
+        "yAxis": [
+            {
+                "type": "value",
+                "name": "Weight (%)",
+                "nameLocation": "middle",
+                "nameGap": 48,
+                "min": 0,
+                "max": 105,
+                "axisLine": {"show": True, "lineStyle": {"color": "#1f4e9c"}},
+                "axisLabel": {"color": "#1f4e9c"},
+                "splitLine": {"show": True, "lineStyle": {"color": "#dddddd"}},
+            },
+            {
+                "type": "value",
+                "name": "DTG (-, %/°C)",
+                "nameLocation": "middle",
+                "nameGap": 48,
+                "inverse": False,
+                "axisLine": {"show": True, "lineStyle": {"color": "#c0392b"}},
+                "axisLabel": {"color": "#c0392b"},
+                "splitLine": {"show": False},
+            },
+        ],
+        "series": [
+            {
+                "name": "Weight",
+                "type": "line",
+                "showSymbol": False,
+                "lineStyle": {"width": 2, "color": "#1f4e9c"},
+                "data": [[float(a), float(b)] for a, b in zip(x, weight)],
+                "markPoint": {
+                    "symbol": "circle",
+                    "symbolSize": 9,
+                    "itemStyle": {"color": "#1f4e9c"},
+                    "label": {
+                        "show": True,
+                        "position": "top",
+                        "formatter": f"Residue {residue_y:.2f}%",
+                    },
+                    "data": [{"coord": [residue_x, residue_y]}],
+                },
+            },
+            {
+                "name": "DTG (-)",
+                "type": "line",
+                "yAxisIndex": 1,
+                "showSymbol": False,
+                "lineStyle": {"width": 2, "color": "#c0392b"},
+                "data": [[float(a), float(-b)] for a, b in zip(x, dtg)],
+                "markPoint": {
+                    "symbol": "circle",
+                    "symbolSize": 9,
+                    "itemStyle": {"color": "#c0392b"},
+                    "label": {
+                        "show": True,
+                        "position": "top",
+                        "formatter": f"{peak_x:.0f} °C" if peak_x is not None else "",
+                    },
+                    "data": (
+                        [{"coord": [peak_x, peak_y]}]
+                        if peak_x is not None
+                        else []
+                    ),
+                },
+            },
+        ],
+    }
+
+    result = {
+        "figures": [
+            {
+                "name": "PET",
+                "option": option,
+                "width": 614,
+                "height": 442,
+                "dpi": 300,
+                "formats": ["png"],
+            }
+        ]
+    }
+    print(json.dumps(result, ensure_ascii=False, allow_nan=False))
+
+
+if __name__ == "__main__":
+    main()

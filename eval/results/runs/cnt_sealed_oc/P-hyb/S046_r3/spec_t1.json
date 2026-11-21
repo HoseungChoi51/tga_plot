@@ -1,0 +1,31 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheets": "런로그",
+ "chart": "line",
+ "x": {
+  "col": "주차"
+ },
+ "y": {
+  "col": "CNT수율 (g/g-cat)",
+  "agg": "mean"
+ },
+ "smooth": 4,
+ "title": "Weekly Mean CNT Yield vs Week (with 4-week Trailing Rolling Mean)",
+ "asks": [
+  {
+   "ask": "Weekly mean CNT수율 vs 주차",
+   "how": "key"
+  },
+  {
+   "ask": "all reactors pooled",
+   "how": "default (no 'by' grouping)"
+  },
+  {
+   "ask": "4-week trailing rolling mean as second line",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S046_r3/out/t1"
+ }
+}

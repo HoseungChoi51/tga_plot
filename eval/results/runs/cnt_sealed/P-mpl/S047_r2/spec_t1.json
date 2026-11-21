@@ -1,0 +1,36 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "line",
+ "x": {
+  "col": "일자"
+ },
+ "y": {
+  "col": "cumulative_production_kg",
+  "agg": "sum"
+ },
+ "by": "반응기",
+ "data_code": "df['daily_production_kg'] = df['생산속도 (g/h)'] * df['가동시간 (h)'] / 1000\ndf = df.sort_values(['반응기', '일자'])\ndf['cumulative_production_kg'] = df.groupby('반응기')['daily_production_kg'].cumsum()",
+ "title": "Cumulative Production per Reactor",
+ "asks": [
+  {
+   "ask": "Cumulative production (kg) per 반응기 over 일자",
+   "how": "key"
+  },
+  {
+   "ask": "per-run production = 생산속도 × 가동시간 / 1000",
+   "how": "data_code"
+  },
+  {
+   "ask": "One line per reactor",
+   "how": "key"
+  },
+  {
+   "ask": "daily resolution",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-mpl/S047_r2/out/t1"
+ }
+}

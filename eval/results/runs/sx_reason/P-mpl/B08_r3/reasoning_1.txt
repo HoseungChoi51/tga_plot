@@ -1,0 +1,8 @@
+We need answer user's request in test mode: reply only JSON spec inside ```json block, nothing else. Need analyze. User Korean: "Raw 시트에 무게 50% 위치에 가로 보조선 넣고, 오른쪽 위에 '공기, 10 °C/min'이라고 메모해줘"
+Data inspect cnt_batches.xlsx sheets Raw etc. Need create plot spec for Raw sheet. TGA default likely okay. Need horizontal guide line at weight 50%: annotate hline. Need note upper right text. Need sheet Raw. Maybe include annotate: {"hline1": {"type": "hline", "on": "y1", "y": 50}, "note1": {"type": "text", "text": "공기, 10 °C/min", "where": "upper right"}}. Since request says 무게 50% 위치: y1 Weight. Use hline on y1. Also note. No other changes. Need file name exactly cnt_batches.xlsx. JSON only. Ensure no extra text. Could include sheets "Raw". Does note type text with where upper right supported? Guide says "note1": {"type": "text", "text": "...", "where": "upper right"}. Yes.
+Need consider if default TGA preset includes residue/peak; user didn't mention them. Leave defaults. Horizontal line named new. Should we include y1 label? no.
+Final:
+```json
+{"file":"cnt_batches.xlsx","sheets":"Raw","annotate":{"hline1":{"type":"hline","on":"y1","y":50},"note1":{"type":"text","text":"공기, 10 °C/min","where":"upper right"}}}
+```
+Need maybe "weight" means y1 line? It's horizontal guide line at 50. Good.

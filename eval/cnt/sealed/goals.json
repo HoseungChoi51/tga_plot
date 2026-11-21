@@ -1,0 +1,124 @@
+{
+ "meta": {
+  "purpose": "Analysis goals for simulated multi-turn sessions. A simulated engineer receives prompt_for_user only, then explores the data with the plotting assistant. hidden_answer / evidence / success_criterion are for the judge.",
+  "data_root": "eval/cnt/data",
+  "numbers": "evidence numbers are computed from the written data files (pandas); see NOTES.md"
+ },
+ "goals": [
+  {
+   "id": "G1",
+   "title": "yield drop from June",
+   "prompt_for_user": "6월 이후로 라인 전체 CNT 수율이 눈에 띄게 낮아졌습니다. 계절 탓인지 설비 탓인지 다른 원인인지, 데이터로 원인을 찾아보고 싶어요.",
+   "files": ["data/run_log.xlsx", "data/diameters.csv"],
+   "hidden_answer": "Catalyst lot change. From lot FC-2606 onward (charged week 14 in R1/R2, week 15 in R3/R4) yield is ~4.3 g/g-cat lower (old lots FC-2602..2605 ≈ 27.6, new lots FC-2606..2608 ≈ 23.3 g/g-cat, about −16 %). It is a lot effect, not a calendar effect: in week 14 the reactors still on FC-2605 (R3, R4, and R2 before its switch) keep ~28 g/g-cat while R1/R2 on FC-2606 drop to ~23.",
+   "evidence": [
+    {"plot": "line: weekly mean CNT수율 (all reactors)", "shows": "flat ≈27.5 for weeks 1–13, step down to ≈23–24 from week 14–15"},
+    {"plot": "bar: mean CNT수율 by 촉매로트", "shows": "FC-2602 27.7, FC-2603 27.3, FC-2604 28.1, FC-2605 27.5 | FC-2606 23.4, FC-2607 23.7, FC-2608 22.8"},
+    {"plot": "grouped bar / table: week-14 yield by 반응기 × 촉매로트", "shows": "FC-2605 runs ≈27.6–28.4 vs FC-2606 runs ≈23.1 in the same week"},
+    {"plot": "histogram/bar: TEM diameter by sample (diameters.csv)", "shows": "FC-2607 samples ≈11.7–12.3 nm vs FC-2604/2605 ≈9.4–10.3 nm (supporting: different catalyst particle size)"}
+   ],
+   "distractors": ["humidity rises over the same months but does not affect yield", "R3 has an extra, gradual loss (G2)"],
+   "success_criterion": "User names the catalyst lot change (FC-2606 and later) as the cause of the yield drop, backed by a plot that groups or colours by 촉매로트 (or shows the step aligned with the lot switch), not only by date/season. Bonus: notes the staggered switch (week 14 vs 15) or the larger TEM diameters."
+  },
+  {
+   "id": "G2",
+   "title": "R3 extra yield loss",
+   "prompt_for_user": "R3 반응기 수율이 봄에는 다른 반응기와 비슷했는데, 여름으로 갈수록 다른 반응기보다 더 크게 떨어지고 있어요. R3만 유독 나빠지는 이유를 찾고 싶습니다.",
+   "files": ["data/run_log.xlsx", "data/doe_temp_h2.csv"],
+   "hidden_answer": "H₂ flow drift in R3 (MFC drift). From week 8 the measured H2유량 in R3 rises ~1.15 %/week (≈28,500 sccm in weeks 1–7 → ≈34,000 sccm in weeks 20–26) while C2H4 is unchanged, so H2/C2H4비 climbs from ≈10.0 to ≈11.8 (other reactors stay ≈10.0). Yield falls off the optimum ratio (~10, see DOE) — weeks 20–26 R3 ≈20.7 g/g-cat vs ≈24 for R1/R2/R4.",
+   "evidence": [
+    {"plot": "line: weekly mean H2/C2H4비 (or H2유량) by 반응기", "shows": "R3 rises steadily from week 8 to ≈12 by week 26; R1, R2, R4 flat ≈10"},
+    {"plot": "line: weekly mean CNT수율 by 반응기", "shows": "all step down at the lot change; R3 keeps sliding further (≈3 g/g-cat below the others by weeks 20–26)"},
+    {"plot": "scatter: H2/C2H4비 vs CNT수율 (R3 only)", "shows": "yield decreases as ratio rises above ~10.5"},
+    {"plot": "heatmap: DOE mean 수율 by 2존온도 × H2/C2H4비", "shows": "yield optimum at ratio 10 (1150 °C); ratio 12 already ~2–3 g/g-cat lower"}
+   ],
+   "distractors": ["the lot change (G1) affects all reactors equally", "R3 residence time drifts slightly shorter as a side effect of the higher flow"],
+   "success_criterion": "User identifies the rising H2 flow / H2/C2H4 ratio specific to R3 (time-trend plot split by reactor) as the cause of R3's extra decline, distinct from the line-wide lot effect."
+  },
+  {
+   "id": "G3",
+   "title": "R2 night-shift zone-2 overshoot",
+   "prompt_for_user": "QA에서 R2 제품의 IG/ID랑 산화개시온도가 다른 반응기보다 들쭉날쭉하다는 피드백이 왔습니다. 무엇 때문인지 확인하고 싶어요.",
+   "files": ["data/run_log.xlsx", "data/r2_zone_temps.csv"],
+   "hidden_answer": "R2 night-shift zone-2 over-temperature. On 야간 runs R2's zone-2 runs ≈12 °C above set point (R2 야간 mean 2존온도 ≈1162.4 °C vs ≈1150 for every other reactor/shift) because of the night-mode loop tuning; the switch at ~20:30 overshoots to ≈1184 °C (+34 °C at 20:34:50) and then holds ≈+10 °C until 08:00. Over-temperature lowers crystallinity: R2 야간 IG/ID ≈2.30 vs ≈2.66 on 주간, onset ≈576 vs ≈586 °C.",
+   "evidence": [
+    {"plot": "grouped bar: mean 2존온도 by 반응기 × 근무조", "shows": "only R2 야간 is high (≈1162 °C)"},
+    {"plot": "grouped bar: mean IG/ID by 반응기 × 근무조", "shows": "R2 야간 ≈2.30 vs ≈2.66–2.68 for R1/R3 and R2 주간"},
+    {"plot": "line: r2_zone_temps.csv 2존 PV vs SP over the day", "shows": "overshoot at ~20:30–20:45 to ≈1184 °C, +10 °C plateau 00:00–08:00 and 20:30–24:00, on SP 08:00–20:30"},
+    {"plot": "scatter: 2존온도 vs IG/ID coloured by 반응기/근무조", "shows": "R2 night cluster at high T2 and low IG/ID"}
+   ],
+   "distractors": ["operators rotate between day and night crews weekly, so no single operator explains it", "R4 also has low IG/ID but on both shifts (G8)"],
+   "success_criterion": "User links R2's low/variable IG/ID (or onset) to night-shift zone-2 over-temperature, using a shift-split plot and/or the zone-temperature trace showing the evening overshoot."
+  },
+  {
+   "id": "G4",
+   "title": "humidity hurts purity",
+   "prompt_for_user": "여름 들어 잔류금속이 높아지고 산화개시온도가 떨어졌습니다. 촉매 로트 때문인지, 계절 영향인지, 다른 원인인지 가려내고 싶어요.",
+   "files": ["data/run_log.xlsx"],
+   "hidden_answer": "High ambient humidity. Above ≈65 % RH, residual metal rises ≈0.05 wt% per % RH and onset drops ≈0.6 °C per % RH. Binned means of 잔류금속: <65 % ≈3.44 wt%, 70–80 % ≈3.94, 80–90 % ≈4.45, ≥90 % ≈4.94. It is not the lot: on old lots, humid runs (≥70 %) already show ≈4.07 wt% vs ≈3.44 for <60 %; on new lots, dry runs (<65 %) are back at ≈3.44 wt% while ≥80 % runs are ≈4.61.",
+   "evidence": [
+    {"plot": "scatter: 외기습도 vs 잔류금속 (all runs)", "shows": "flat up to ~65 %, rising beyond; r ≈ 0.47 (onset r ≈ −0.57)"},
+    {"plot": "bar: mean 잔류금속 by humidity band", "shows": "monotonic rise above 65–70 %"},
+    {"plot": "grouped bar or coloured scatter: humidity band × lot group (old/new)", "shows": "humidity effect present within each lot group; lot itself adds nothing at equal humidity"}
+   ],
+   "distractors": ["mean 잔류금속 by lot looks higher for FC-2606..2608 (3.86–4.09) only because those lots ran in the humid months", "R4 is high on every day (G8)"],
+   "success_criterion": "User attributes the purity loss to humidity (not to the lot or simply 'summer'), with a humidity-axis plot; full credit if they show it holds within lot groups or name a threshold around 65–70 % RH."
+  },
+  {
+   "id": "G5",
+   "title": "residence-time sweet spot",
+   "prompt_for_user": "체류시간을 몇 초 정도로 운전하는 게 수율에 가장 유리한지 런 데이터로 확인하고 싶어요.",
+   "files": ["data/run_log.xlsx"],
+   "hidden_answer": "Yield is maximal at τ ≈ 4.4 s (quadratic loss ≈1.5 g/g-cat per s² away from it). 0.5 s bin means: 2.5–3.0 s ≈20.9, 3.5–4.0 ≈25.1, 4.0–4.5 ≈26.5, 4.5–5.0 ≈26.5, 5.0–5.5 ≈26.0, 6.0–6.5 ≈22.4, 6.5–7.0 ≈18.9 g/g-cat. Optimum window ≈4.0–5.0 s.",
+   "evidence": [
+    {"plot": "bar/line: mean CNT수율 per 체류시간 bin (0.25–0.5 s)", "shows": "inverted-U peaking at 4.0–5.0 s"},
+    {"plot": "scatter: 체류시간 vs CNT수율", "shows": "naively almost flat (r ≈ 0.13); the arch is only clear with binning, a quadratic fit, or after separating old/new lots"}
+   ],
+   "distractors": ["lot change shifts the whole curve down by ~4 g/g-cat without moving the optimum"],
+   "success_criterion": "User reports an interior optimum around 4–5 s (centre ≈4.4–4.6 s) supported by a binned/aggregated or fitted plot; stating a monotonic trend fails."
+  },
+  {
+   "id": "G6",
+   "title": "nozzle clogging after lot change",
+   "prompt_for_user": "6월부터 설비가 자주 멈춘다는 현장 얘기가 있습니다. 정지 이력에서 무엇이 늘었는지, 언제부터인지 확인하고 싶어요.",
+   "files": ["data/downtime.xlsx", "data/run_log.xlsx"],
+   "hidden_answer": "노즐 막힘 (injector nozzle clogging) events increased ~2.6× after the FC-2606 lot was introduced: ≈1.8 events/week plant-wide in weeks 1–13 vs ≈4.7/week in weeks 14–26 (monthly counts Mar–Aug: 10, 8, 5, 16, 23, 22). Other causes are roughly flat in count. 히터 고장 dominates total minutes but did not increase after June.",
+   "evidence": [
+    {"plot": "stacked/grouped bar: monthly event count by 원인", "shows": "노즐 막힘 jumps from June; others flat"},
+    {"plot": "heatmap: 반응기 × 주차 노즐 막힘 counts", "shows": "increase in all four reactors from week 14–15 (matches each reactor's lot switch)"},
+    {"plot": "bar: total minutes by 원인", "shows": "히터 고장 largest by minutes (a red herring for 'what increased')"}
+   ],
+   "distractors": ["히터 고장 has the largest minutes overall", "전력 events come in bursts that hit all four reactors at once"],
+   "success_criterion": "User shows 노즐 막힘 counts rising from June (week 14+) with a time-split plot by cause; full credit if they connect the timing to the catalyst lot switch."
+  },
+  {
+   "id": "G7",
+   "title": "low IG/ID tracks residual metal",
+   "prompt_for_user": "Raman IG/ID가 낮게 나오는 런들은 공통적으로 무엇이 다른지 알고 싶어요.",
+   "files": ["data/run_log.xlsx", "data/raman/", "data/tga_batches.xlsx"],
+   "hidden_answer": "IG/ID falls with residual metal: IG/ID ≈ 3.23 − 0.18 × 잔류금속(wt%), r ≈ −0.60. High-metal runs (R4, humid days) have more defective/amorphous carbon. A secondary driver is R2 night-shift over-temperature (G3).",
+   "evidence": [
+    {"plot": "scatter: 잔류금속 vs IG/ID (all runs, with fit)", "shows": "clear negative slope ≈ −0.18 per wt%, r ≈ −0.6"},
+    {"plot": "line: Raman spectra normalised to G", "shows": "R4 samples (high metal) have the tallest D band"},
+    {"plot": "heatmap: correlation matrix of run-log numerics", "shows": "IG/ID most strongly (negatively) correlated with 잔류금속; humidity indirectly"}
+   ],
+   "distractors": ["yield is unrelated to IG/ID"],
+   "success_criterion": "User identifies residual metal (TGA) as the main correlate of low IG/ID with a scatter/fit; mentioning R2-night temperature as a second factor is a bonus."
+  },
+  {
+   "id": "G8",
+   "title": "R4: fine yield, poor purity",
+   "prompt_for_user": "반응기 네 대 중에 품질 면에서 문제가 있는 반응기가 있는지 알고 싶습니다. 있다면 수율은 어떤지, 그리고 원인 후보도 같이 보고 싶어요.",
+   "files": ["data/run_log.xlsx", "data/tga_batches.xlsx"],
+   "hidden_answer": "R4. Its yield is normal or slightly best (≈26.2 g/g-cat vs 24.7–25.6) but purity is worst: 잔류금속 ≈4.72 wt% vs ≈3.40, 산화개시온도 ≈571 vs ≈581–585 °C, IG/ID ≈2.41, pass rate ≈71 % vs 97–99 % for R1/R3 (R2 ≈82 % because of G3). Root-cause clue: R4 zone-3 runs ≈24 °C cold (≈1076 vs ≈1100 °C). TGA 800 °C residues of the two R4 batches are ≈7.3 and ≈7.9 wt% vs ≈4.4–5.9 wt% for most others (the one non-R4 batch at ≈6.7 wt% is a humid-day R1 run, G4).",
+   "evidence": [
+    {"plot": "grouped bar or two panels: mean CNT수율 and mean 잔류금속 by 반응기", "shows": "R4 top yield but clearly highest metal"},
+    {"plot": "bar: pass rate (A+B) by 반응기", "shows": "R4 ≈71 % lowest"},
+    {"plot": "bar: mean 3존온도 by 반응기", "shows": "R4 ≈1076 °C vs ≈1100 °C"},
+    {"plot": "line: TGA curves R4 vs others", "shows": "higher final residue for R4 sheets"}
+   ],
+   "distractors": ["R2 also has a lower pass rate, but for a shift-specific reason (G3)"],
+   "success_criterion": "User singles out R4 as having acceptable/high yield but poor purity (metal/onset/grade), using reactor-level comparison plots; full credit if the low zone-3 temperature is found."
+  }
+ ]
+}

@@ -1,0 +1,104 @@
+import pandas as pd
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+
+# Read all sheets
+xls = pd.ExcelFile(DATA_FILE)
+sheets = xls.sheet_names  # ['PE', 'PVC', 'PET']
+
+# Prepare data for TGA (Weight %) and DTG (Deriv. Weight)
+tga_data = []
+dtg_data = []
+
+for sheet in sheets:
+    df = pd.read_excel(xls, sheet_name=sheet)
+    temp = df['Temperature (°C)'].tolist()
+    weight = df['Weight (%)'].tolist()
+    deriv_weight = df['Deriv. Weight (%/°C)'].tolist()
+    
+    tga_data.append({
+        "name": sheet,
+        "type": "line",
+        "smooth": True,
+        "symbol": "none",
+        "data": [[temp[i], weight[i]] for i in range(len(temp))]
+    })
+    
+    dtg_data.append({
+        "name": sheet,
+        "type": "line",
+        "smooth": True,
+        "symbol": "none",
+        "yAxisIndex": 1,
+        "data": [[temp[i], deriv_weight[i]] for i in range(len(temp))]
+    })
+
+# Build ECharts option
+option = {
+    "title": {
+        "text": "TGA & DTG Curves of Polymers",
+        "left": "center"
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {
+            "type": "cross"
+        }
+    },
+    "legend": {
+        "orient": "vertical",
+        "right": 0,
+        "top": "middle",
+        "data": sheets
+    },
+    "grid": {
+        "left": "3%",
+        "right": "15%",
+        "bottom": "3%",
+        "containLabel": True
+    },
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "min": 30,
+        "max": 900,
+        "splitLine": {
+            "show": True
+        }
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Weight (%)",
+            "min": 0,
+            "max": 100,
+            "position": "left"
+        },
+        {
+            "type": "value",
+            "name": "Deriv. Weight (%/°C)",
+            "position": "right",
+            "splitLine": {
+                "show": False
+            }
+        }
+    ],
+    "series": tga_data + dtg_data
+}
+
+# Output JSON
+result = {
+    "figures": [
+        {
+            "name": "tga_dtg_polymers",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+    ]
+}
+
+print(json.dumps(result, ensure_ascii=False))

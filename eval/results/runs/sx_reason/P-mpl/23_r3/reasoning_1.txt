@@ -1,0 +1,5 @@
+We need answer user's request. Need produce JSON spec only inside ```json block. Need analyze in same language as user's request? User Korean. Need comply: test mode, cannot run commands, inspect result given. Need reply only JSON spec. Need use file name exactly: instrument_export.txt.
+
+Request: "잔류량 글자를 'Residue: {}%'로 바꿔줘" Means change residue label text to 'Residue: {}%'. Need include annotate.residue text. Since mentions 잔류량 표시? It says change residue text. According rules: if user mentions 잔류량 표시 at all, include annotate.residue. Here "잔류량 글자" likely residue annotation. Need set {"annotate": {"residue": {"text": "Residue: {}%"}}}. Keep default TGA preset. File instrument_export.txt. No other keys. Need maybe ensure residue true? If only text changed, include residue object with text; default x=800 etc. Good.
+
+Need final only json block. Ensure no extra text.

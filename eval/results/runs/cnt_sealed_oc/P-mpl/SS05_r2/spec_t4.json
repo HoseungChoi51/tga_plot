@@ -1,0 +1,64 @@
+{
+ "file": "data/tga_batches.xlsx",
+ "sheets": [
+  "R3-260428-1",
+  "R3-260810-2"
+ ],
+ "combine": true,
+ "x": {
+  "col": "B",
+  "min": 400,
+  "max": 800
+ },
+ "y1": {
+  "col": "C",
+  "linestyle": "solid"
+ },
+ "y2": {
+  "col": "D",
+  "linestyle": "dotted"
+ },
+ "annotate": {
+  "peak": {
+   "count": 1,
+   "kind": "max"
+  }
+ },
+ "asks": [
+  {
+   "ask": "TG 곡선",
+   "how": "key"
+  },
+  {
+   "ask": "DTG 오른쪽 y축",
+   "how": "key"
+  },
+  {
+   "ask": "R3-260810-2 겹쳐 그리기",
+   "how": "key"
+  },
+  {
+   "ask": "배치별 색 구분",
+   "how": "default_combine_colors"
+  },
+  {
+   "ask": "TG 실선",
+   "how": "key"
+  },
+  {
+   "ask": "DTG 점선",
+   "how": "key"
+  },
+  {
+   "ask": "x축 400–800 범위",
+   "how": "key"
+  },
+  {
+   "ask": "각 배치 DTG 피크 표시",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS05_r2/out/t4"
+ }
+}

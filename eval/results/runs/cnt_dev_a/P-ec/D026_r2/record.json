@@ -1,0 +1,337 @@
+{
+ "arm": "P-ec",
+ "item": "D026",
+ "repeat": 2,
+ "split": "dev",
+ "persona": "라인 작업자",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "설비 정지 언제 많이나는지 요일이랑 시간대로 히트맵 해줘",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/downtime.xlsx\",\n  \"chart\": \"heatmap\",\n  \"data_code\": \"import pandas as pd\\n# 요일 추출 (월=0, 일=6)\\ndf['요일'] = df['일자'].dt.dayofweek\\ndf['요일명'] = df['요일'].map({0:'월',1:'화',2:'수',3:'목',4:'금',5:'토',6:'일'})\\n# 시간대 추출 (시작시각 텍스트에서 시 부분)\\nhour = df['시작시각'].str.split(':').str[0].astype(int)\\nbins = [0, 6, 12, 18, 24]\\nlabels = ['0-6시', '6-12시', '12-18시', '18-24시']\\ndf['시간대'] = pd.cut(hour, bins=bins, labels=labels, right=False)\",\n  \"x\": {\n    \"col\": \"요일명\",\n    \"order\": [\"월\", \"화\", \"수\", \"목\", \"금\", \"토\", \"일\"]\n  },\n  \"y\": {\n    \"col\": \"시간대\",\n    \"order\": [\"0-6시\", \"6-12시\", \"12-18시\", \"18-24시\"]\n  },\n  \"z\": {\n    \"agg\": \"count\"\n  },\n  \"values\": true,\n  \"asks\": [\n    {\"ask\": \"요일별/시간대별 정지 빈도 히트맵\", \"how\": \"key\"}\n  ]\n}\n```",
+     "llm_s": 14.236,
+     "prompt_tokens": 5272,
+     "output_tokens": 377,
+     "cached_tokens": 4607,
+     "prompt_n": 665,
+     "prefill_ms": 939.745265,
+     "decode_ms": 12076.704033000005,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": "data/downtime.xlsx",
+    "chart": "heatmap",
+    "data_code": "import pandas as pd\n# 요일 추출 (월=0, 일=6)\ndf['요일'] = df['일자'].dt.dayofweek\ndf['요일명'] = df['요일'].map({0:'월',1:'화',2:'수',3:'목',4:'금',5:'토',6:'일'})\n# 시간대 추출 (시작시각 텍스트에서 시 부분)\nhour = df['시작시각'].str.split(':').str[0].astype(int)\nbins = [0, 6, 12, 18, 24]\nlabels = ['0-6시', '6-12시', '12-18시', '18-24시']\ndf['시간대'] = pd.cut(hour, bins=bins, labels=labels, right=False)",
+    "x": {
+     "col": "요일명",
+     "order": [
+      "월",
+      "화",
+      "수",
+      "목",
+      "금",
+      "토",
+      "일"
+     ]
+    },
+    "y": {
+     "col": "시간대",
+     "order": [
+      "0-6시",
+      "6-12시",
+      "12-18시",
+      "18-24시"
+     ]
+    },
+    "z": {
+     "agg": "count"
+    },
+    "values": true,
+    "asks": [
+     {
+      "ask": "요일별/시간대별 정지 빈도 히트맵",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": true,
+    "engine": "echarts",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_a/P-ec/D026_r2/out/t1/heatmap_시간대.png"
+    ],
+    "chart": "heatmap",
+    "rows_used": 294,
+    "rows_total": 294,
+    "values": {
+     "rows": [
+      "0-6시",
+      "6-12시",
+      "12-18시",
+      "18-24시"
+     ],
+     "cols": [
+      "월",
+      "화",
+      "수",
+      "목",
+      "금",
+      "토",
+      "일"
+     ],
+     "max": {
+      "row": "18-24시",
+      "col": "금",
+      "value": 22.0
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "히트맵 그래프를 저장했습니다: heatmap_시간대.png\n사용한 행: 294 / 294\n가장 큰 값: 18-24시 / 금 = 22"
+   },
+   "facts": [
+    {
+     "engine": "echarts",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": 300,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": {
+        "rows": [
+         "0-6시",
+         "6-12시",
+         "12-18시",
+         "18-24시"
+        ],
+        "cols": [
+         "월",
+         "화",
+         "수",
+         "목",
+         "금",
+         "토",
+         "일"
+        ],
+        "z": [
+         [
+          13.0,
+          9.0,
+          14.0,
+          9.0,
+          10.0,
+          4.0,
+          12.0
+         ],
+         [
+          14.0,
+          8.0,
+          14.0,
+          14.0,
+          5.0,
+          18.0,
+          11.0
+         ],
+         [
+          8.0,
+          8.0,
+          11.0,
+          5.0,
+          13.0,
+          11.0,
+          8.0
+         ],
+         [
+          11.0,
+          8.0,
+          9.0,
+          8.0,
+          22.0,
+          11.0,
+          6.0
+         ]
+        ],
+        "colorbar": true,
+        "values_shown": true,
+        "cmap": null,
+        "ramp": [
+         "#440154",
+         "#482475",
+         "#414487",
+         "#355f8d",
+         "#2a788e",
+         "#21918c",
+         "#22a884",
+         "#44bf70",
+         "#7ad151",
+         "#bddf26",
+         "#fde725"
+        ],
+        "clim": [
+         4.0,
+         22.0
+        ]
+       },
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [
+        "5",
+        "10",
+        "15",
+        "20",
+        "count",
+        "13",
+        "9",
+        "14",
+        "9",
+        "10",
+        "4",
+        "12",
+        "14",
+        "8",
+        "14",
+        "14",
+        "5",
+        "18",
+        "11",
+        "8",
+        "8",
+        "11",
+        "5",
+        "13",
+        "11",
+        "8",
+        "11",
+        "8",
+        "9",
+        "8",
+        "22",
+        "11",
+        "6"
+       ],
+       "x": {
+        "label": "요일명",
+        "type": "category",
+        "ticks": [],
+        "step": null,
+        "categories": [
+         "월",
+         "화",
+         "수",
+         "목",
+         "금",
+         "토",
+         "일"
+        ],
+        "min": 0.0,
+        "max": 6.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "시간대",
+        "type": "category",
+        "ticks": [],
+        "step": null,
+        "categories": [
+         "0-6시",
+         "6-12시",
+         "12-18시",
+         "18-24시"
+        ],
+        "min": 0.0,
+        "max": 3.0,
+        "log": false,
+        "inverted": true,
+        "tick_labels": null,
+        "rotate": 0.0
+       }
+      }
+     ],
+     "texts": [
+      "5",
+      "10",
+      "15",
+      "20",
+      "count",
+      "13",
+      "9",
+      "14",
+      "9",
+      "10",
+      "4",
+      "12",
+      "14",
+      "8",
+      "14",
+      "14",
+      "5",
+      "18",
+      "11",
+      "8",
+      "8",
+      "11",
+      "5",
+      "13",
+      "11",
+      "8",
+      "11",
+      "8",
+      "9",
+      "8",
+      "22",
+      "11",
+      "6"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_a/P-ec/D026_r2/out/t1/heatmap_시간대.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.6951911449432373,
+   "check": {
+    "kind_expected": "heatmap",
+    "failed": [
+     "heatmap: rows/columns differ (drawn ['0-6시', '6-12시', '12-18시', '18-24시'] x ['월', '화', '수', '목', '금'], want ['월', '화', '수', '목', '금'] x ['0', '1', '2', '3', '4'])"
+    ],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 1,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 15.007
+  }
+ ]
+}

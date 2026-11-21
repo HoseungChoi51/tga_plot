@@ -1,0 +1,77 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/instrument_export.txt"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/23_r2/out"
+
+# Ensure output directory exists
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# Read the data file with encoding handling for UTF-16 or similar issues (0xff byte suggests UTF-16 LE/BE BOM)
+try:
+    # Try reading with utf-16 encoding first due to 0xff error
+    df = pd.read_csv(DATA_FILE, sep=r'\s+', header=None, skiprows=10, names=['A', 'B', 'C', 'D'], encoding='utf-16')
+except UnicodeDecodeError:
+    try:
+        # Fallback to latin-1 if utf-16 fails
+        df = pd.read_csv(DATA_FILE, sep=r'\s+', header=None, skiprows=10, names=['A', 'B', 'C', 'D'], encoding='latin-1')
+    except Exception:
+        # Last resort: read all and filter numeric rows
+        df_raw = pd.read_csv(DATA_FILE, sep=r'\s+', header=None, engine='python', encoding='latin-1')
+        df = df_raw[pd.to_numeric(df_raw[1], errors='coerce').notna()].copy()
+        df.columns = ['A', 'B', 'C', 'D']
+
+# Convert to numeric
+df['B'] = pd.to_numeric(df['B'], errors='coerce')
+df['C'] = pd.to_numeric(df['C'], errors='coerce')
+df['D'] = pd.to_numeric(df['D'], errors='coerce')
+
+# Drop NaNs
+df.dropna(subset=['B', 'C', 'D'], inplace=True)
+
+# Plotting
+fig, ax1 = plt.subplots(figsize=(10, 6))
+
+# TGA curve (Weight % vs Temperature)
+ax1.plot(df['B'], df['C'], label='TGA (Weight %)', color='blue')
+ax1.set_xlabel('Temperature (°C)')
+ax1.set_ylabel('Weight (%)', color='blue')
+ax1.tick_params(axis='y', labelcolor='blue')
+ax1.grid(True, linestyle='--', alpha=0.5)
+
+# DTG curve (Derivative Weight % vs Temperature) on secondary axis
+ax2 = ax1.twinx()
+ax2.plot(df['B'], df['D'], label='DTG (dW/dT)', color='red')
+ax2.set_ylabel('dW/dT (%/°C)', color='red')
+ax2.tick_params(axis='y', labelcolor='red')
+
+# Title and Legend
+plt.title('TGA/DTG Analysis')
+
+# Combine legends
+lines_1, labels_1 = ax1.get_legend_handles_labels()
+lines_2, labels_2 = ax2.get_legend_handles_labels()
+ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='upper right')
+
+# Add Residue annotation
+# Find the final weight percentage (last valid data point)
+if not df.empty:
+    final_weight = df['C'].iloc[-1]
+    residue_text = f'Residue: {final_weight:.2f}%'
+    
+    # Place text in a suitable location, e.g., bottom right inside plot
+    ax1.text(0.95, 0.05, residue_text, transform=ax1.transAxes, fontsize=12,
+             verticalalignment='bottom', horizontalalignment='right',
+             bbox=dict(boxstyle='round,pad=0.5', facecolor='white', edgecolor='black'))
+
+plt.tight_layout()
+
+# Save figure
+output_path = os.path.join(OUT_DIR, 'tga_dtg_plot.png')
+plt.savefig(output_path, dpi=300, bbox_inches='tight')
+plt.close()

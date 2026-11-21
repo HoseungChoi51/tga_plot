@@ -1,0 +1,47 @@
+{
+ "file": [
+  "data/raman/R1-260326-1.csv",
+  "data/raman/R2-260616-1.csv",
+  "data/raman/R4-260721-1.csv"
+ ],
+ "combine": true,
+ "names": [
+  "R1",
+  "R2",
+  "R4"
+ ],
+ "x": {
+  "col": "A",
+  "label": "Raman Shift (cm-1)",
+  "min": 1000,
+  "max": 2000
+ },
+ "y1": {
+  "col": "B",
+  "label": "Normalized Intensity"
+ },
+ "preset": "none",
+ "y2": false,
+ "data_code": "import numpy as np\n# Baseline correction: line between mean of 1090-1110 and 1790-1810\ndef get_mean(arr_x, arr_y, center):\n    mask = (arr_x >= center - 10) & (arr_x <= center + 10)\n    if not np.any(mask):\n        return 0.0 # Fallback if no points in range\n    return float(np.mean(arr_y[mask]))\n\nb_left = get_mean(x, y1, 1100)\nb_right = get_mean(x, y1, 1800)\n\n# Calculate linear baseline for current x array\nif b_left != b_right:\n    slope = (b_right - b_left) / (1800.0 - 1100.0)\n    baseline = b_left + slope * (x - 1100.0)\nelse:\n    baseline = np.full_like(x, b_left)\n\n# Subtract baseline\ny1 = y1 - baseline\n\n# Normalize G-band (1550-1620) max to 1\ng_mask = (x >= 1550) & (x <= 1620)\nif np.any(g_mask):\n    g_max = np.max(y1[g_mask])\n    if g_max > 0:\n        y1 = y1 / g_max\n    else:\n        # If max is negative or zero due to noise, set to 1 to avoid div by zero/negative scale issues visually, \n        # though strictly it means no positive peak.\n        pass\n",
+ "asks": [
+  {
+   "ask": "세 개 파일 overlay",
+   "how": "key"
+  },
+  {
+   "ask": "직선 베이스라인 빼기",
+   "how": "data_code"
+  },
+  {
+   "ask": "G 밴드 최대값으로 정규화",
+   "how": "data_code"
+  },
+  {
+   "ask": "1000–2000 cm⁻¹ 구간 표시",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/S020_r1/out/t1"
+ }
+}

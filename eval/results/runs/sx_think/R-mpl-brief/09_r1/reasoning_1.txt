@@ -1,0 +1,98 @@
+We need answer user in Korean? They ask to produce Python script only inside ```python block. Need analyze request. Need produce complete script reading DATA_FILE Excel TGA, OUT_DIR. User request: "틱 방향 바깥쪽으로, 틱 라벨 크기 9" Means tick direction outward, tick label size 9. No axis named, so applies to x, y1, y2. Need draw standard TGA plots per sheet. Need include residue and peak labels. Need Korean font. Need save PNG 300 dpi. Need not show. Need robust.
+
+Need consider tick direction outward: matplotlib tick direction = 'out'. tick label size 9 for all axes. Need maybe set tick_params(direction='out', labelsize=9) for ax1 and ax2. Since standard TGA: x temperature, y1 weight %, line #1f4e9c, y2 DTG * -1 line #c0392b. Title sheet name. Legend center left. Residue: weight at measured point nearest 800°C, label "Residue X.X%", marker on curve. Peak: temperature of highest DTG peak above 150°C, label "600°C", marker. Need handle sheets max temp below 800? For 750C sheet nearest 800 is 750. For peak above 150: if no DTG peak? choose max of -DTG above 150? If all nonpositive? choose max? Need robust.
+
+Need parse Excel with header row 1, data start row 2. Use pandas read_excel sheet_name=None? Header=0. Column names as given. Need identify x, y1, y2 columns by names. Use tga_guess? We can implement generic. Need for each sheet.
+
+Potential issue: derivative weight negative while mass lost. Multiply by -1 so peaks up. For peak, highest DTG peak above 150°C: Since we plot -DTG, peak is max of -DTG among temp > 150. But if using original D.W(%/C), most negative corresponds highest mass loss. Need choose index where temp > 150 and dw is minimum (most negative), or -dw maximum. Label original temp. If no positive? If no negative? choose max -dw maybe. But if dw all positive small, -dw max is least negative? Hmm. We can choose max of -dw above 150. If max <=0? still choose max. Need marker on DTG curve at peak: plot marker at (temp, -dw). For residue: nearest temp to 800 among data, label weight at that point. Need marker on weight curve.
+
+Need set y2 label maybe "DTG (%/C)"? Standard: y1 weight %, y2 DTG. Axis labels: x Temperature (°C), y1 Weight (%), y2 DTG (%/C). Since user didn't specify. Need maybe use column names? Better standard.
+
+Need legend at center left. Legend labels: Weight, DTG? Could use y1 column name and y2 column name. Maybe "Weight (%)" and "DTG (%/C)". Since y2 plotted -DTG, label maybe "-DTG (%/C)"? Standard says right y axis = DTG multiplied by -1 so peaks point up. Legend can show "DTG (%/C)" but line is -DTG. Maybe "DTG (%/C) (×-1)"? But standard likely just DTG. Use y2 column name maybe "D.W(%/C)". To avoid confusion, label "DTG (%/C)".
+
+Need tick direction outward and label size 9. Apply to x,y1,y2. Also maybe minor ticks? Not specified. Use ax.tick_params(direction='out', labelsize=9). For twin axes, set both. Need maybe spines? Not needed.
+
+Need file names. For each sheet, safe filename from sheet name. Save to OUT_DIR. Need create 
+[...]
+ty? data nonempty. OK.
+
+Potential issue: If x contains inf? dropna doesn't remove inf. Could `np.isfinite` needed. Data no inf. Could robust: `data = data[np.isfinite(data[x_col]) & np.isfinite(data[y1_col]) ...]`. But not necessary. Could add to be safe.
+
+Maybe in plot_sheet:
+```
+mask = np.isfinite(data[x_col]) & np.isfinite(data[y1_col])
+if y2_col is not None: mask &= np.isfinite(data[y2_col])
+data = data[mask]
+```
+But if y2 has NaNs, we might drop entire row; derivative may have NaNs at endpoints. Better not drop y2 NaNs if weight valid. But for peak, finite. For plotting, NaNs break line. Could leave. For x/y1 need finite. Use dropna subset x,y1 only. If y2 NaN, line has gap. OK. But if x/y1 inf, drop. Use `data = data.replace([np.inf, -np.inf], np.nan).dropna(subset=[x_col, y1_col])`. Good.
+
+Potential issue: If y2 has inf, line may go crazy. Could replace y2 inf with NaN. OK.
+
+```
+data = df[needed].replace([np.inf, -np.inf], np.nan).dropna(subset=[x_col, y1_col])
+```
+If y2_col None, subset works. Good.
+
+Potential issue: If y2_col not None but all NaN, plot line none. OK.
+
+Potential issue: If `np.nanmin(y2_plot)` with all NaN in add? finite false. OK.
+
+Potential issue: If `ax2.plot` with all NaN, y2 axis may not autoscale? It may default. But y2 axis might have no data, but we still call ax2.set_ylabel. If no finite y2, y2 axis may be empty. Could if no finite y2, don't create ax2? But we create before. If y2 all NaN, line no data, y2 axis maybe 0-1. Not important. Could check finite before creating ax2? But need y2_plot. We can if y2_plot is not None and np.any(np.isfinite(y2_plot)): create ax2. Else no ax2. But standard has y2. Could implement:
+```
+has_y2 = y2_plot is not None and np.any(np.isfinite(y2_plot))
+if has_y2: ax2=...
+```
+Then add_residue_and_peak only if ax2 not None. Good. If y2 all NaN, no right axis. But maybe not.
+
+Potential issue: If y2_plot has finite but all negative, has_y2 true. OK.
+
+Potential issue: If y2_plot finite but line label. OK.
+
+Potential issue: If no y2, legend only weight. OK.
+
+Potential issue: If y2 finite but peak finite false? impossible if finite true. But finite mask above 150 maybe false if all finite x <=150? Then mask all true fallback, finite true. OK.
+
+Potential issue: If x all <=150, fallback all. Good.
+
+Potential issue: If derivative finite but x NaN? drop x. OK.
+
+Potential issue: If `np.where(finite, y2_plot, -np.inf)` with y2_plot NaN and finite false; OK.
+
+Potential issue: If y2_plot contains -inf and finite false; set -inf. OK.
+
+Potential issue: If y2_plot contains +inf, finite false, set -inf, so not chosen. Good.
+
+Potential issue: If all finite false? skip.
+
+Potential issue: If y2_plot finite but all -inf? finite false. OK.
+
+Potential issue: If `np.nanmin(y2_plot)` with some finite and some inf? If +inf, nanmin ignores NaN but not inf? It will consider inf. But finite mask for peak excludes inf. y2_min/max for annotation might be inf if any inf. Could use finite values for range:
+```
+finite_y2 = y2_plot[np.isfinite(y2_plot)]
+y2_min = finite_y2.min(); y2_max = finite_y2.max()
+```
+Better. Similarly y1 range finite. x range finite. Since data x/y1 finite after dropna? Could still inf replaced. Good. But y2 may inf. Use finite.
+
+Modify add_residue_and_peak:
+```
+finite_x = x[np.isfinite(x)]
+if finite_x.size == 0: return
+x_min, x_max = finite_x.min(), finite_x.max()
+finite_y1 = y1[np.isfinite(y1)]
+if finite_y1.size == 0: return
+y_min, y_max = finite_y1.min(), finite_y1.max()
+...
+if y2_plot is not None:
+   finite_y2 = y2_plot[np.isfinite(y2_plot)]
+   if finite_y2.size == 0: return
+   y2_min, y2_max = finite_y2.min(), finite_y2.max()
+```
+But peak finite mask already. Good.
+
+Potential issue: If x has NaN? drop. OK.
+
+Potential issue: If y1 has NaN? drop. OK.
+
+Potential issue: If y2 has inf, line may show? replace inf with nan in data. We'll do replace all inf in needed columns with nan. Then drop x/y1. y2 inf becomes nan. Good.
+
+Potential issue: If y2 all nan, has_y2 false if check

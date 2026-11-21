@@ -1,0 +1,10 @@
+We need answer user's request in Korean? Test mode says reply with JSON spec only inside ```json block and nothing else. Need produce spec. Need analyze request: XRD pattern, strong peaks 5 2θ values, right axis not needed. Data xrd.csv, sheet xrd, columns A 2Theta, B Intensity. Not TGA, so preset none, x col A, y1 col B, y2 false. Need annotate peak count 5 on y1? Peak label shows x value by default? For peak type on y2 default. Need specify annotate peak on y1, count 5. Text maybe default "{x:.0f} °C"? For XRD units deg, maybe text "{x:.1f}°"? User asks 2θ values; could use default? Peak template default x with 0 decimals? In guide peak text default "{x:.0f} °C" maybe if on y2. Need for XRD likely "{x:.1f}°" or "{x:.0f}°". Request: 강한 피크 5개의 2θ 값을 표시해줘. Use annotate peak count 5 on y1. Need maybe kind max. Right axis not needed: y2 false. Could include labels? Not asked. But xrd preset none, maybe labels default? Need only what asked. For non-TGA use preset none and x/y1. Could include title? no. Need maybe legend? no. Need output? no. Need ensure peak annotation uses y1. JSON:
+{
+ "file": "xrd.csv",
+ "preset": "none",
+ "x": {"col": "A"},
+ "y1": {"col": "B"},
+ "y2": false,
+ "annotate": {"peak": {"on": "y1", "count": 5, "kind": "max", "text": "{x:.1f}°"}}
+}
+Could text use {x:.0f}°? Strong peaks maybe 2θ values. 1 decimal okay. If no units? 2θ values; maybe "{x:.1f}°". Need maybe not include kind because default max? For peak default kind? likely max. Could omit. But safe? If kind omitted, default maybe max. Need not overdo. Could include text "{x:.1f}°". Is text key allowed? yes. Need no extra. Need only JSON block. Ensure no Korean text. Final only code block.

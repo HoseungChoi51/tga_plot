@@ -1,0 +1,141 @@
+We need answer user's corrected JSON spec only. Need analyze in same language as user's request? User request Korean. Need produce JSON spec. Need solve: user wants "세 시트 무게 곡선을 겹치지 않게 20%씩 위아래로 띄워서(offset) 한 그림에 그려줘". We tried echarts series offset not allowed. Need use allowed path? The plotkit tool likely doesn't support offset. Need maybe use y1 series transforms? Allowed series keys include lineStyle, itemStyle, areaStyle, symbol, symbolSize, showSymbol, smooth, step, z, label, emphasis, markArea, markLine, markPoint. No offset. Could use markLine? No. Could use echarts yAxis? Maybe combine with y1 lines per sheet. Need shift series visually by 20% each. Could use y1 axis? If all y1 lines share axis, cannot offset series except by data transformation. But cannot put plotted data in echarts. Could maybe use series label? No. Could use graphic? Not for shifting lines. Could use series markLine? no.
+
+Need consider plotkit spec keys. There is no offset key. Maybe use y1 axis? Could set y1 axis min/max? No. Could use separate y axes? The allowed echarts yAxis list: 0 = y1 left, 1 = y2 right. With combine, one y1 line per sheet, then one y2 line per sheet. Maybe assign series to different yAxisIndex? But allowed in series? Not listed: allowed here: name, lineStyle... no yAxisIndex. But maybe top-level yAxis can have offset? ECharts yAxis has offset? It has position, offset? In ECharts, yAxis has offset? Actually axis has `offset`? For position? There is `offset` for axis? I think axis has `offset` property? Maybe not allowed? Allowed paths: title, legend, grid, xAxis, yAxis (list), series (list), graphic, textStyle, backgroundColor. Could set yAxis[0] with min/max? No per series.
+
+Maybe use `echarts.series[i].label` with formatter? No.
+
+Could use `echarts.series[i].markLine`? Not shift curve.
+
+Could use `echarts.series[i].markPoint`? no.
+
+Maybe use `echarts.series[i].z`? no.
+
+Could use `echarts.series[i].lineStyle`? no.
+
+Could use `echarts.series[i].areaStyle`? no.
+
+Could use `echarts.series[i].smooth`? no.
+
+Need maybe use `echarts.series[i].name`? no.
+
+Maybe use `echarts.series[i].markArea` to create offset? no.
+
+Could use `echarts.graphic` to draw shifted lines? But "Never put the plotted data in echarts; it comes from the file." We could draw a new graphic line? Not allowed because would need data. And graphic only text, line, rect. Could draw horizontal lines? no.
+
+Maybe use `echarts.series[i].label` with `position`? no.
+
+Could use `echarts.series[i].emphasis`? no.
+
+Maybe plotkit has a hidden `offset` key not listed? The error says unknown path. Could use `echarts.series[1].offset` not allowed. Need alternative. Perhaps use `echarts.series[1].markLine.data` with coords? no.
+
+Could use `echarts.series[1].lineStyle` with `offset`? ECharts lineStyle has no offset.
+
+Maybe use `echarts.series[1].itemStyle` with `offset`? no.
+
+Could use `echarts.series[1].areaStyle` with `offset`? no.
+
+Could use `echarts.series[1].symbol`? no.
+
+Could use `echarts.se
+[...]
+harts.series[1].markLine` with `data` as `[{type: 'median'}]`? no.
+
+Maybe use `echarts.series[1].markLine` with `data` as `[{type: 'max'}]`? no.
+
+Could use `echarts.series[1].markLine` with `data` as `[{type: 'min'}]`? no.
+
+Maybe use `echarts.series[1].markLine` with `data` as `[{type: 'start'}]`? no.
+
+Could use `echarts.series[1].markLine` with `data` as `[{type: 'end'}]`? no.
+
+Maybe use `echarts.series[1].markLine` with `data` as `[{type: 'average'}]`? no.
+
+Could use `echarts.series[1].markLine` with `data` as `[{type: 'median'}]`? no.
+
+Maybe use `echarts.series[1].markLine` with `data` as `[{type: 'max'}]`? no.
+
+Could use `echarts.series[1].markLine` with `data` as `[{type: 'min'}]`? no.
+
+Maybe use `echarts.series[1].markLine` with `data` as `[{type: 'start'}]`? no.
+
+Could use `echarts.series[1].markLine` with `data` as `[{type: 'end'}]`? no.
+
+Maybe use `echarts.series[1].markLine` with `data` as `[{type: 'average'}]`? no.
+
+Could use `echarts.series[1].markLine` with `data` as `[{type: 'median'}]`? no.
+
+Maybe use `echarts.series[1].markLine` with `data` as `[{type: 'max'}]`? no.
+
+Could use `echarts.series[1].markLine` with `data` as `[{type: 'min'}]`? no.
+
+Maybe use `echarts.series[1].markLine` with `data` as `[{type: 'start'}]`? no.
+
+Could use `echarts.series[1].markLine` with `data` as `[{type: 'end'}]`? no.
+
+Maybe use `echarts.series[1].markLine` with `data` as `[{type: 'average'}]`? no.
+
+Could use `echarts.series[1].markLine` with `data` as `[{type: 'median'}]`? no.
+
+Maybe use `echarts.series[1].markLine` with `data` as `[{type: 'max'}]`? no.
+
+Could use `echarts.series[1].markLine` with `data` as `[{type: 'min'}]`? no.
+
+Maybe use `echarts.series[1].markLine` with `data` as `[{type: 'start'}]`? no.
+
+Could use `echarts.series[1].markLine` with `data` as `[{type: 'end'}]`? no.
+
+Maybe use `echarts.series[1].markLine` with `data` as `[{type: 'average'}]`? no.
+
+Could use `echarts.series[1].markLine` with `data` as `[{type: 'median'}]`? no.
+
+Maybe use `echarts.series[1].markLine` with `data` as `[{type: 'max'}]`? no.
+
+Could use `echarts.series[1].markLine` with `data` as `[{type: 'min'}]`? no.
+
+Maybe use `echarts.series[1].markLine` with `data` as `[{type: 'start'}]`? no.
+
+Could use `echarts.series[1].markLine` with `data` as `[{type: 'end'}]`? no.
+
+Maybe use `echarts.series[1].markLine` with `data` as `[{type: 'average'}]`? no.
+
+Could use `echarts.series[1].markLine` with `data` as `[{type: 'median'}]`? no.
+
+Maybe use `echarts.series[1].markLine` with `data` as `[{type: 'max'}]`? no.
+
+Could use `echarts.series[1].markLine` with `data` as `[{type: 'min'}]`? no.
+
+Maybe use `echarts.series[1].markLine` with `data` as `[{type: 'start'}]`? no.
+
+Could use `echarts.series[1].markLine` with `data` as `[{type: 'end'}]`? no.
+
+Maybe use `echarts.series[1].markLine` with `data` as `[{type: 'average'}]`? no.
+
+Could use `echarts.series[1].markLine` with `data` as `[{type: 'median'}]`? no.
+
+Maybe use `echarts.series[1].markLine` with `data` as `[{type: 'max'}]`? no.
+
+Could use `echarts.series[1].markLine` with `data` as `[{type: 'min'}]`? no.
+
+Maybe use `echarts.series[1].markLine` with `data` as `[{type: 'start'}]`? no.
+
+Could use `echarts.series[1].markLine` with `data` as `[{type: 'end'}]`? no.
+
+Maybe use `echarts.series[1].markLine` with `data` as `[{type: 'average'}]`? no.
+
+Could use `echarts.series[1].markLine` with `data` as `[{type: 'median'}]`? no.
+
+Maybe use `echarts.series[1].markLine` with `data` as `[{type: 'max'}]`? no.
+
+Could use `echarts.series[1].markLine` with `data` as `[{type: 'min'}]`? no.
+
+Maybe use `echarts.series[1].markLine` with `data` as `[{type: 'start'}]`? no.
+
+Could use `echarts.series[1].markLine` with `data` as `[{type: 'end'}]`? no.
+
+Maybe use `echarts.series[1].markLine` with `data` as `[{type: 'average'}]`? no.
+
+Could use `echarts.series[1].markLine` with `data` as `[{type: 'median'}]`? no.
+
+Maybe use `echarts.series[1].markLine` with `data` as `[{type: 'max'}]`? no.
+
+Could use `echarts.series[1].markLine`

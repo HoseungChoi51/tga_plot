@@ -1,0 +1,30 @@
+{
+ "file": "data/diameters.csv",
+ "chart": "histogram",
+ "x": "직경(nm)",
+ "bins": {
+  "width": 1,
+  "min": 3,
+  "max": 28
+ },
+ "filter": [
+  "시료 in [TEM-01, TEM-02]"
+ ],
+ "asks": [
+  {
+   "ask": "TEM-01, TEM-02만 필터링",
+   "how": "key"
+  },
+  {
+   "ask": "직경 histogram overlay",
+   "how": "key"
+  },
+  {
+   "ask": "bin 1 nm 간격 3~28 nm",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_t07/P-mpl/D022_r2/out/t1"
+ }
+}

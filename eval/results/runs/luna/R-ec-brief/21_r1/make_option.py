@@ -1,0 +1,140 @@
+import json
+import math
+import os
+import re
+
+import numpy as np
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/blank_rows_on_top.xlsx"
+
+def clean_number(value):
+    try:
+        number = float(value)
+        return number if math.isfinite(number) else None
+    except (TypeError, ValueError):
+        return None
+
+def main():
+    book = pd.ExcelFile(DATA_FILE)
+    figures = []
+
+    for sheet_name in book.sheet_names:
+        raw = pd.read_excel(DATA_FILE, sheet_name=sheet_name, header=None)
+
+        # The preview indicates the header is on Excel row 8 and data begins on row 9.
+        # Excel columns C, D, E correspond to zero-based indices 2, 3, 4.
+        data = raw.iloc[8:, [2, 3, 4]].copy()
+        data.columns = ["x", "y1", "y2"]
+        for col in data.columns:
+            data[col] = pd.to_numeric(data[col], errors="coerce")
+        data = data.dropna(subset=["x", "y1", "y2"])
+
+        x = [clean_number(v) for v in data["x"].to_numpy()]
+        y1 = [clean_number(v) for v in data["y1"].to_numpy()]
+        # Standard TGA convention: invert derivative weight so mass-loss peaks point up.
+        y2 = [-clean_number(v) for v in data["y2"].to_numpy()]
+
+        points_y1 = [[a, b] for a, b in zip(x, y1) if a is not None and b is not None]
+        points_y2 = [[a, b] for a, b in zip(x, y2) if a is not None and b is not None]
+
+        residue_idx = min(range(len(x)), key=lambda i: abs(x[i] - 800)) if x else None
+        peak_candidates = [i for i, temp in enumerate(x) if temp > 150]
+        peak_idx = max(peak_candidates, key=lambda i: y2[i]) if peak_candidates else None
+
+        series = [
+            {
+                "name": "Weight(%)",
+                "type": "line",
+                "showSymbol": False,
+                "yAxisIndex": 0,
+                "data": points_y1,
+                "lineStyle": {"color": "#1f4e9c", "width": 2},
+                "itemStyle": {"color": "#1f4e9c"},
+                "markPoint": {
+                    "symbol": "circle",
+                    "symbolSize": 9,
+                    "itemStyle": {"color": "#1f4e9c"},
+                    "label": {
+                        "show": True,
+                        "formatter": "Residue " + f"{y1[residue_idx]:.1f}%",
+                        "position": "top",
+                    },
+                    "data": [{"coord": [x[residue_idx], y1[residue_idx]]}],
+                } if residue_idx is not None else {},
+            },
+            {
+                "name": "DTG",
+                "type": "line",
+                "showSymbol": False,
+                "yAxisIndex": 1,
+                "data": points_y2,
+                "lineStyle": {"color": "#c0392b", "width": 2},
+                "itemStyle": {"color": "#c0392b"},
+                "markPoint": {
+                    "symbol": "circle",
+                    "symbolSize": 9,
+                    "itemStyle": {"color": "#c0392b"},
+                    "label": {
+                        "show": True,
+                        "formatter": f"{x[peak_idx]:.0f} °C",
+                        "position": "top",
+                    },
+                    "data": [{"coord": [x[peak_idx], y2[peak_idx]]}],
+                } if peak_idx is not None else {},
+            },
+        ]
+
+        option = {
+            "title": {"text": str(sheet_name), "left": "center"},
+            "tooltip": {"trigger": "axis"},
+            "legend": {"data": ["Weight(%)", "DTG"], "left": "center"},
+            "grid": {"left": 70, "right": 70, "top": 75, "bottom": 60},
+            "xAxis": {
+                "type": "value",
+                "name": "Temperature (°C)",
+                "nameLocation": "middle",
+                "nameGap": 35,
+                "axisLine": {"show": True},
+                "axisTick": {"show": True},
+                "axisLabel": {"show": True},
+            },
+            "yAxis": [
+                {
+                    "type": "value",
+                    "name": "Weight (%)",
+                    "nameLocation": "middle",
+                    "nameGap": 50,
+                    "axisLine": {"show": True},
+                    "axisTick": {"show": True},
+                    "axisLabel": {"show": True},
+                    "splitLine": {"show": True, "lineStyle": {"color": "#dddddd"}},
+                },
+                {
+                    "type": "value",
+                    "name": "-DTG (%/°C)",
+                    "nameLocation": "middle",
+                    "nameGap": 50,
+                    "axisLine": {"show": True},
+                    "axisTick": {"show": True},
+                    "axisLabel": {"show": True},
+                    "splitLine": {"show": False},
+                },
+            ],
+            "series": series,
+        }
+
+        safe_name = re.sub(r"[^A-Za-z0-9가-힣_-]+", "_", str(sheet_name)).strip("_") or "plot1"
+        figures.append({
+            "name": safe_name,
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"],
+        })
+
+    print(json.dumps({"figures": figures}, ensure_ascii=False, allow_nan=False))
+
+if __name__ == "__main__":
+    main()

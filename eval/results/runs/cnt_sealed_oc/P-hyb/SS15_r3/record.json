@@ -1,0 +1,755 @@
+{
+ "arm": "P-hyb",
+ "item": "SS15",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "데이터 분석가",
+ "type": "session",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "Histogram of CNT수율, 30 bins.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"chart\": \"histogram\",\n  \"x\": {\"col\": \"CNT수율 (g/g-cat)\"},\n  \"bins\": 30,\n  \"asks\": [\n    {\"ask\": \"Histogram of CNT수율\", \"how\": \"key\"},\n    {\"ask\": \"30 bins\", \"how\": \"key\"}\n  ]\n}\n```",
+     "llm_s": 5.233,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 17941,
+     "output_chars": 221,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "chart": "histogram",
+    "x": {
+     "col": "CNT수율 (g/g-cat)"
+    },
+    "bins": 30,
+    "asks": [
+     {
+      "ask": "Histogram of CNT수율",
+      "how": "key"
+     },
+     {
+      "ask": "30 bins",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": true,
+    "engine": "echarts",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/SS15_r3/out/t1/histogram_CNT수율_g_g_cat.png"
+    ],
+    "chart": "histogram",
+    "rows_used": 997,
+    "rows_total": 997,
+    "values": {
+     "bins": 30,
+     "series": {
+      "CNT수율 (g/g-cat)": {
+       "n": 997,
+       "mean": 25.516088264794384
+      }
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "히스토그램 그래프를 저장했습니다: histogram_CNT수율_g_g_cat.png\n사용한 행: 997 / 997\nCNT수율 (g/g-cat): 997개, 평균 25.52"
+   },
+   "facts": [
+    {
+     "engine": "echarts",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": 300,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [
+        {
+         "name": "CNT수율 (g/g-cat)",
+         "edges": [
+          12.69,
+          13.431666666666667,
+          14.173333333333332,
+          14.915,
+          15.656666666666666,
+          16.398333333333333,
+          17.14,
+          17.881666666666668,
+          18.623333333333335,
+          19.365000000000002,
+          20.106666666666666,
+          20.848333333333333,
+          21.59,
+          22.331666666666667,
+          23.07333333333333,
+          23.814999999999998,
+          24.556666666666665,
+          25.298333333333332,
+          26.04,
+          26.781666666666666,
+          27.523333333333333,
+          28.265,
+          29.006666666666668,
+          29.748333333333335,
+          30.490000000000002,
+          31.23166666666667,
+          31.973333333333336,
+          32.715,
+          33.45666666666666,
+          34.19833333333333,
+          34.94
+         ],
+         "counts": [
+          1.0,
+          1.0,
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          9.0,
+          9.0,
+          14.0,
+          20.0,
+          29.0,
+          43.0,
+          45.0,
+          48.0,
+          68.0,
+          64.0,
+          91.0,
+          91.0,
+          90.0,
+          69.0,
+          74.0,
+          81.0,
+          57.0,
+          41.0,
+          23.0,
+          15.0,
+          4.0,
+          2.0,
+          1.0,
+          1.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#1f4e9c"
+        }
+       ],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "CNT수율 (g/g-cat)",
+        "type": "value",
+        "ticks": [
+         15.0,
+         20.0,
+         25.0,
+         30.0
+        ],
+        "step": 5.0,
+        "categories": null,
+        "min": 12.69,
+        "max": 34.94,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "count",
+        "type": "value",
+        "ticks": [
+         0.0,
+         20.0,
+         40.0,
+         60.0,
+         80.0,
+         100.0
+        ],
+        "step": 20.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 100.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       }
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/SS15_r3/out/t1/histogram_CNT수율_g_g_cat.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5711219310760498,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 5.892
+  },
+  {
+   "turn": 2,
+   "text": "Overlay two periods — 주차 1–13 vs 14–26 — with shared bin edges, 1 g/g-cat wide from 12 to 36.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"chart\": \"histogram\",\n  \"x\": {\"col\": \"CNT수율 (g/g-cat)\"},\n  \"bins\": {\"width\": 1, \"min\": 12, \"max\": 36},\n  \"by\": {\"type\": \"period\", \"col\": \"주차\", \"groups\": {\"1-13\": [1, 13], \"14-26\": [14, 26]}},\n  \"combine\": true,\n  \"asks\": [\n    {\"ask\": \"Period overlay (주차 1-13 vs 14-26)\", \"how\": \"key\"},\n    {\"ask\": \"Shared bin edges, width 1 from 12 to 36\", \"how\": \"key\"}\n  ]\n}\n```",
+     "llm_s": 3.645,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 18526,
+     "output_chars": 408,
+     "attempts": 1
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"chart\": \"histogram\",\n  \"x\": {\"col\": \"CNT수율 (g/g-cat)\"},\n  \"bins\": {\"width\": 1, \"min\": 12, \"max\": 36},\n  \"by\": \"주차\",\n  \"filter\": [\"주차 <= 13 OR 주차 >= 14\"],\n  \"colors\": [\"blue\", \"orange\"],\n  \"asks\": [\n    {\"ask\": \"Period overlay (주차 1-13 vs 14-26)\", \"how\": \"unsupported\"},\n    {\"ask\": \"Shared bin edges, width 1 from 12 to 36\", \"how\": \"key\"}\n  ]\n}\n```",
+     "llm_s": 3.917,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 19460,
+     "output_chars": 392,
+     "attempts": 1
+    },
+    {
+     "reply": "The user wants to overlay two periods (weeks 1-13 vs weeks 14-26) on a histogram.\nIn the previous attempt, I used `by: \"주차\"` which creates a separate series for every week (1, 2, ..., 26), not just two groups. Also, the filter syntax was incorrect (`OR` is not supported directly in the string list format shown in examples; usually filters are ANDed, or one uses specific operators).\n\nTo achieve \"Overlay two periods\" with `plotkit` charts:\n1. We need to group the data into two categories: \"1-13\" and \"14-26\".\n2. The `by` key splits the chart by a column's values. Since there is no existing column for this grouping, we should use `data_code` to create a helper column.\n3. Once the helper column exists, we can use it in `by`.\n4. The bins are defined as width 1, min 12, max 36.\n\nLet's construct the `data_code`:\n```python\ndf['기간'] = df['주차'].apply(lambda x: '주차 1-13' if x <= 13 else '주차 14-26')\n```\n\nThen set `by` to `\"기간\"`.\n\nThe error log indicated that `combine` is not a valid key for charts. In charts, overlapping series are handled naturally by `by` (which splits into multiple bars/lines per bin). For histograms, `by` will draw stacked or side-by-side bars depending on context, but typically overlaid histograms require `alpha` transparency or stacking. The prompt says \"Overlay\", which usually implies transparency or just plotting them on the same axes. Plotkit's histogram with `by` might stack them. If they need to be transparently overlaid, `alpha` is a valid chart key. Let's assume standard behavior first. If \"overlay\" means non-stacked transparent, we might need `code`, but usually `by` + `alpha` works for visibility. However, looking at the available keys: `alpha` is listed.\n\nLet's refine the spec:\n- `file`: \"data/run_log.xlsx\"\n- `chart`: \"histogram\"\n- `x`: {\"col\": \"CNT수율 (g/g-cat)\"}\n- `bins`: {\"width\": 1, \"min\": 12, \"max\": 36}\n- `data_code`: Create the grouping column.\n- `by`: Use the new column.\n- `colors`: Optional, but good for distinction.\n\nWait, the previous error said `filter: no column matches...`. This confirms my previous filter string was bad. But even if the filter worked, `by: \"주차\"` would give 26 series. So `data_code` is the correct approach to create the 2 groups.\n\nIs `alpha` needed? \"Overlay\" often implies seeing both distributions. Histograms with `by` often stack. If the user strictly wants overlay (transparent layers), `code` might be needed to set `alpha` if the default isn't right, but `alpha` is a top-level chart key. Let's include `alpha` to ensure visibility of both distributions if they overlap significantly.\n\nSpec construction:\n```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"chart\": \"histogram\",\n  \"x\": {\"col\": \"CNT수율 (g/g-cat)\"},\n  \"bins\": {\"width\": 1, \"min\": 12, \"max\": 36},\n  \"data_code\": \"df['기간구분'] = np.where(df['주차'] <= 13, '주차 1-13', '주차 14-26')\",\n  \"by\": \"기간구분\",\n  \"alpha\": 0.5,\n  \"asks\": [\n    {\"ask\": \"Period overlay (주차 1-13 vs 14-26)\", \"how\": \"key\"},\n    {\"ask\": \"Shared bin edges, width 1 from 12 to 36\", \"how\": \"key\"}\n  ]\n}\n```\nNote: `np` is available in `data_code`.\n\nOne detail: The prompt asks for \"Overlay\". In matplotlib/pandas histograms, `by` usually results in grouped or stacked bars. If the engine stacks them, `alpha` doesn't help much unless it changes the rendering mode. However, without a specific \"stack: false\" key documented for histograms (though `stack` exists for bar), `by` is the standard way to split data. If the result is stacked and the user wanted overlaid (transparent), we might need `code`. But given the constraints and typical behavior of such tools, using `by` with `alpha` is the most likely intended \"spec-based\" solution before falling back to `code`.\n\nActually, looking at the Chart rules: `by` -> \"split into series (one colour each; bars side by side)\". Side-by-side is effectively an overlay comparison. Stacking is explicit via `stack: true`. So default `by` is side-by-side. That fits \"compare two periods\".\n\nLet's double check the `data_code` syntax. `df['주차']` contains numbers. `np.where` is safe.\n\nFinal check on `asks`:\n- Period overlay: Handled by creating the group column and using `by`.\n- Shared bins: Handled by `bins`.\n\n```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"chart\": \"histogram\",\n  \"x\": {\"col\": \"CNT수율 (g/g-cat)\"},\n  \"bins\": {\"width\": 1, \"min\": 12, \"max\": 36},\n  \"data_code\": \"df['기간구분'] = np.where(df['주차'] <= 13, '주차 1-13', '주차 14-26')\",\n  \"by\": \"기간구분\",\n  \"alpha\": 0.7,\n  \"asks\": [\n    {\"ask\": \"Period overlay (주차 1-13 vs 14-26)\", \"how\": \"key\"},\n    {\"ask\": \"Shared bin edges, width 1 from 12 to 36\", \"how\": \"key\"}\n  ]\n}\n```",
+     "llm_s": 25.503,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 20570,
+     "output_chars": 4568,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "chart": "histogram",
+    "x": {
+     "col": "CNT수율 (g/g-cat)"
+    },
+    "bins": {
+     "width": 1,
+     "min": 12,
+     "max": 36
+    },
+    "by": "주차",
+    "filter": [
+     "주차 <= 13 OR 주차 >= 14"
+    ],
+    "colors": [
+     "blue",
+     "orange"
+    ],
+    "asks": [
+     {
+      "ask": "Period overlay (주차 1-13 vs 14-26)",
+      "how": "unsupported"
+     },
+     {
+      "ask": "Shared bin edges, width 1 from 12 to 36",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": false,
+    "error": "your reply could not be read: Expecting value: line 1 column 1 (char 0)",
+    "hint": "reply with one ```json block"
+   },
+   "facts": [],
+   "draw_s": 0.3028883934020996,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [
+     "run: no plot (your reply could not be read: Expecting value: line 1 column 1 (char 0))"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 33.657
+  },
+  {
+   "turn": 3,
+   "text": "Add a vertical line at each period's median.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"chart\": \"histogram\",\n  \"x\": {\"col\": \"CNT수율 (g/g-cat)\"},\n  \"bins\": {\"width\": 1, \"min\": 12, \"max\": 36},\n  \"data_code\": \"df['기간구분'] = np.where(df['주차'] <= 13, '주차 1-13', '주차 14-26')\",\n  \"by\": \"기간구분\",\n  \"alpha\": 0.7,\n  \"code\": \"for i, group in enumerate(['주차 1-13', '주차 14-26']):\\n    sub_df = df[df['기간구분'] == group]\\n    med = sub_df['CNT수율 (g/g-cat)'].median()\\n    color = plt.rcParams['axes.prop_cycle'].by_key()['color'][i % 7]\\n    ax.axvline(med, color=color, linestyle='--', linewidth=2)\\n    ax.text(med + 0.5, ax.get_ylim()[1] * 0.95 - i*0.05, f'{group} Median: {med:.1f}', color=color, fontsize=9)\",\n  \"asks\": [\n    {\"ask\": \"Period overlay (주차 1-13 vs 14-26)\", \"how\": \"key\"},\n    {\"ask\": \"Shared bin edges, width 1 from 12 to 36\", \"how\": \"key\"},\n    {\"ask\": \"Vertical line at each period's median\", \"how\": \"code\"}\n  ]\n}\n```",
+     "llm_s": 6.976,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 25565,
+     "output_chars": 875,
+     "attempts": 1
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"chart\": \"histogram\",\n  \"x\": {\"col\": \"CNT수율 (g/g-cat)\"},\n  \"bins\": {\"width\": 1, \"min\": 12, \"max\": 36},\n  \"data_code\": \"df['기간구분'] = np.where(df['주차'] <= 13, '주차 1-13', '주차 14-26')\\nmed1 = df.loc[df['기간구분']=='주차 1-13', 'CNT수율 (g/g-cat)'].median()\\nmed2 = df.loc[df['기간구분']=='주차 14-26', 'CNT수율 (g/g-cat)'].median()\\ndf['_median_marker_'] = ''\\ndf.loc[df['주차']==1, '_median_marker_'] = f'Med(1-13): {med1:.1f}'\\ndf.loc[df['주차']==14, '_median_marker_'] = f'Med(14-26): {med2:.1f}'\",\n  \"by\": \"기간구분\",\n  \"alpha\": 0.7,\n  \"code\": \"import numpy as np\\n# Calculate medians from the filtered data if we could access it, but we can't.\\n# However, plotkit usually draws 'by' groups with specific colors.\\n# Since we cannot easily map color indices to group names reliably in code without knowing the internal sort order,\\n# and 'ref' lines don't support 'by' grouping for histograms directly in a way that puts one line per group on the same axis automatically via key alone... \\n# Actually, looking at the error, the user wants vertical lines AT THE MEDIAN.\\n# The previous attempt failed because 'df' isn't available in 'code'.\\n# We can compute the medians in data_code and store them, but how to draw them?\\n# 'code' has access to 'ax'. It does NOT have access to the raw dataframe 'df'.\\n# But we can use 'np' and hardcoded values or compute them if we passed them somehow?\\n# No, we must rely on keys or simple code.\\n# Wait, the prompt says: \\\"Use `data_code` ... to change the data\\\". \\n# And \\\"`code` is Python run after drawing... Names: fig, ax, plt, np\\\".\\n# We can't get the median of the drawn bars easily from `data` if `data` is just counts.\\n# Let's look at the hint: \\\"Remove 'code' if the keys already do it\\\". Keys don't do median lines for histograms by default.\\n# Maybe I should calculate the medians in data_code and then use 'ref'? No, ref is global.\\n# Alternative: Use 'code' but calculate medians using the logic from the original file? No, we don't have the file in sandbox code scope.\\n# BUT, we CAN compute the medians in `data_code` and assign them to a column, then... wait, histogram ignores extra columns for x-axis position.\\n# \\n# Correct approach for 'code':\\n# We need the median values. We calculated them in `data_code`. Can we pass them to `code`?\\n# Usually, variables defined in `data_code` are not persistent in `code` unless stored in `df` attributes or similar.\\n# Let's try storing them in `df.attrs` which might persist?\\n# Or simpler: The user asked for this in a follow-up. \\n# If I put the median calculation in `data_code`, I can't draw the line there.\\n# If I put it in `code`, I don't have the data.\\n# \\n# Let's re-read the error: `NameError: name 'df' is not defined`. This confirms `df` is missing in `code`.\\n# Is there a way to draw median lines using keys? No standard key for \\\"median line per series\\\" in histogram.\\n# So `code` is necessary. We must provide the median values statically or find a way to get them.\\n# Since the data is fixed, I will hardcode the approximate medians based on typical CNT yield distributions or... wait, I don't know the exact numbers without running the code.\\n# \\n# HOWEVER, `plotkit` might expose the computed stats? No, `data` is drawn numbers.\\n# \\n# Let's try a different angle. Maybe I can use `annotate`? No, that's for curves.\\n# \\n# Okay, I will calculate the medians in `data_code` and print them to stdout? No.\\n# I will assume I can't get dynamic values into `code` easily without a hack.\\n# But wait! `data_code` runs before drawing. `code` runs after.\\n# If I define globals in `data_code`? `global med_val; med_val = ...`\\n# Let's try that. In `data_code`: `globals()['median_1_13'] = df[...].median()`.\\n# Then in `code`: `med = globals().get('median_1_13')`.\\n\\n  \\\"asks\\\": [\n    {\"ask\": \"Period overlay (주차 1-13 vs 14-26)\", \"how\": \"key\"},\n    {\"ask\": \"Shared bin edges, width 1 from 12 to 36\", \"how\": \"key\"},\n    {\"ask\": \"Vertical line at each period's median\", \"how\": \"code\"}\n  ]\n}\n```",
+     "llm_s": 20.583,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 26968,
+     "output_chars": 4029,
+     "attempts": 1
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"chart\": \"histogram\",\n  \"x\": {\"col\": \"CNT수율 (g/g-cat)\"},\n  \"bins\": {\"width\": 1, \"min\": 12, \"max\": 36},\n  \"data_code\": \"df['기간구분'] = np.where(df['주차'] <= 13, '주차 1-13', '주차 14-26')\\nglobals()['med_1_13'] = float(df.loc[df['기간구분']=='주차 1-13', 'CNT수율 (g/g-cat)'].median())\\nglobals()['med_14_26'] = float(df.loc[df['기간구분']=='주차 14-26', 'CNT수율 (g/g-cat)'].median())\",\n  \"by\": \"기간구분\",\n  \"alpha\": 0.7,\n  \"code\": \"ax.axvline(globals().get('med_1_13', 0), color='blue', linestyle='--', linewidth=2, label=f'Median(1-13): {globals().get(\\\"med_1_13\\\", 0):.1f}')\\nax.axvline(globals().get('med_14_26', 0), color='orange', linestyle='--', linewidth=2, label=f'Median(14-26): {globals().get(\\\"med_14_26\\\", 0):.1f}')\\nax.legend(loc='upper right')\",\n  \"asks\": [\n    {\"ask\": \"Period overlay (주차 1-13 vs 14-26)\", \"how\": \"key\"},\n    {\"ask\": \"Shared bin edges, width 1 from 12 to 36\", \"how\": \"key\"},\n    {\"ask\": \"Vertical line at each period's median\", \"how\": \"code\"}\n  ]\n}\n```",
+     "llm_s": 8.759,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 31423,
+     "output_chars": 1001,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "chart": "histogram",
+    "x": {
+     "col": "CNT수율 (g/g-cat)"
+    },
+    "bins": {
+     "width": 1,
+     "min": 12,
+     "max": 36
+    },
+    "data_code": "df['기간구분'] = np.where(df['주차'] <= 13, '주차 1-13', '주차 14-26')\nglobals()['med_1_13'] = float(df.loc[df['기간구분']=='주차 1-13', 'CNT수율 (g/g-cat)'].median())\nglobals()['med_14_26'] = float(df.loc[df['기간구분']=='주차 14-26', 'CNT수율 (g/g-cat)'].median())",
+    "by": "기간구분",
+    "alpha": 0.7,
+    "code": "ax.axvline(globals().get('med_1_13', 0), color='blue', linestyle='--', linewidth=2, label=f'Median(1-13): {globals().get(\"med_1_13\", 0):.1f}')\nax.axvline(globals().get('med_14_26', 0), color='orange', linestyle='--', linewidth=2, label=f'Median(14-26): {globals().get(\"med_14_26\", 0):.1f}')\nax.legend(loc='upper right')",
+    "asks": [
+     {
+      "ask": "Period overlay (주차 1-13 vs 14-26)",
+      "how": "key"
+     },
+     {
+      "ask": "Shared bin edges, width 1 from 12 to 36",
+      "how": "key"
+     },
+     {
+      "ask": "Vertical line at each period's median",
+      "how": "code"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/SS15_r3/out/t3/histogram_CNT수율_g_g_cat.png"
+    ],
+    "chart": "histogram",
+    "rows_used": 997,
+    "rows_total": 997,
+    "values": {
+     "bins": 24,
+     "series": {
+      "주차 1-13": {
+       "n": 489,
+       "mean": 27.593701431492843
+      },
+      "주차 14-26": {
+       "n": 508,
+       "mean": 23.516181102362204
+      }
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "히스토그램 그래프를 저장했습니다: histogram_CNT수율_g_g_cat.png\n사용한 행: 997 / 997\n주차 1-13: 489개, 평균 27.59\n주차 14-26: 508개, 평균 23.52"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [
+        {
+         "name": "주차 1-13",
+         "edges": [
+          12.0,
+          13.0,
+          14.0,
+          15.0,
+          16.0,
+          17.0,
+          18.0,
+          19.0,
+          20.0,
+          21.0,
+          22.0,
+          23.0,
+          24.0,
+          25.0,
+          26.0,
+          27.0,
+          28.0,
+          29.0,
+          30.0,
+          31.0,
+          32.0,
+          33.0,
+          34.0,
+          35.0,
+          36.0
+         ],
+         "counts": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          4.0,
+          6.0,
+          14.0,
+          38.0,
+          54.0,
+          74.0,
+          78.0,
+          89.0,
+          66.0,
+          34.0,
+          24.0,
+          3.0,
+          2.0,
+          2.0,
+          0.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#1f4e9c"
+        },
+        {
+         "name": "주차 14-26",
+         "edges": [
+          12.0,
+          13.0,
+          14.0,
+          15.0,
+          16.0,
+          17.0,
+          18.0,
+          19.0,
+          20.0,
+          21.0,
+          22.0,
+          23.0,
+          24.0,
+          25.0,
+          26.0,
+          27.0,
+          28.0,
+          29.0,
+          30.0,
+          31.0,
+          32.0,
+          33.0,
+          34.0,
+          35.0,
+          36.0
+         ],
+         "counts": [
+          1.0,
+          1.0,
+          0.0,
+          1.0,
+          5.0,
+          9.0,
+          17.0,
+          21.0,
+          45.0,
+          53.0,
+          57.0,
+          74.0,
+          70.0,
+          60.0,
+          43.0,
+          23.0,
+          15.0,
+          6.0,
+          4.0,
+          2.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#c0392b"
+        }
+       ],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [
+        0.0,
+        0.0
+       ],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "CNT수율 (g/g-cat)",
+        "type": "value",
+        "ticks": [
+         15.0,
+         20.0,
+         25.0,
+         30.0,
+         35.0
+        ],
+        "step": 5.0,
+        "categories": null,
+        "min": -1.800000000000001,
+        "max": 37.8,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "15",
+         "20",
+         "25",
+         "30",
+         "35"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "count",
+        "type": "value",
+        "ticks": [
+         0.0,
+         20.0,
+         40.0,
+         60.0,
+         80.0,
+         100.0
+        ],
+        "step": 20.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 100.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "-20",
+         "0",
+         "20",
+         "40",
+         "60",
+         "80",
+         "100",
+         "120"
+        ],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "Median(1-13): 0.0",
+       "Median(14-26): 0.0",
+       "주차 1-13",
+       "주차 14-26"
+      ],
+      "inside": true,
+      "where": "upper right"
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/SS15_r3/out/t3/histogram_CNT수율_g_g_cat.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5556952953338623,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [],
+    "unchecked": [
+     "ref_lines={'14–26주': 23.63, '1–13주': 27.64}"
+    ],
+    "n_checks": 3,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 37.516
+  }
+ ]
+}

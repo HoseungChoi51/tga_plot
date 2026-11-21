@@ -1,0 +1,115 @@
+import json
+import os
+import sys
+
+import pandas as pd
+
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+COLORS = ["#5470C6", "#91CC75", "#FAC858"]
+SHEETS = ["1006R1-V normal", "1006R1-V acid", "1006R1-V 750C"]
+
+
+def make_figure(file_path, sheet_name, color):
+    df = pd.read_excel(file_path, sheet_name=sheet_name)
+    df.columns = [str(column).strip() for column in df.columns]
+
+    temperature = pd.to_numeric(df["Temperature"], errors="coerce")
+    weight = pd.to_numeric(df["Weight(%)"], errors="coerce")
+    derivative = pd.to_numeric(df["D.W(%/C)"], errors="coerce")
+    valid = temperature.notna() & weight.notna() & derivative.notna()
+
+    weight_data = [
+        [float(x), float(y)]
+        for x, y in zip(temperature[valid], weight[valid])
+    ]
+    derivative_data = [
+        [float(x), float(y)]
+        for x, y in zip(temperature[valid], derivative[valid])
+    ]
+
+    option = {
+        "animation": False,
+        "title": {
+            "text": sheet_name,
+            "left": "center",
+            "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 16},
+        },
+        "tooltip": {"trigger": "axis", "axisPointer": {"type": "cross"}},
+        "legend": {"data": ["무게 (%)", "미분 무게 (%/°C)"], "top": 34},
+        "grid": {"left": 76, "right": 82, "top": 82, "bottom": 64},
+        "xAxis": {
+            "type": "value",
+            "name": "온도 (°C)",
+            "nameLocation": "middle",
+            "nameGap": 38,
+            "min": 30,
+            "max": 900 if "750C" not in sheet_name else 750,
+            "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+            "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+        },
+        "yAxis": [
+            {
+                "type": "value",
+                "name": "무게 (%)",
+                "nameLocation": "middle",
+                "nameGap": 52,
+                "min": 0,
+                "max": 105,
+                "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+                "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+                "splitLine": {"show": True, "lineStyle": {"color": "#E5E7EB"}},
+            },
+            {
+                "type": "value",
+                "name": "미분 무게 (%/°C)",
+                "nameLocation": "middle",
+                "nameGap": 58,
+                "inverse": True,
+                "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+                "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+                "splitLine": {"show": False},
+            },
+        ],
+        "series": [
+            {
+                "name": "무게 (%)",
+                "type": "line",
+                "data": weight_data,
+                "showSymbol": False,
+                "lineStyle": {"width": 2, "color": color},
+                "yAxisIndex": 0,
+            },
+            {
+                "name": "미분 무게 (%/°C)",
+                "type": "line",
+                "data": derivative_data,
+                "showSymbol": False,
+                "lineStyle": {"width": 1.8, "color": "#D9534F"},
+                "yAxisIndex": 1,
+            },
+        ],
+    }
+
+    return {
+        "name": "tga_" + sheet_name.replace(" ", "_").replace("-", "_"),
+        "option": option,
+        "width": 900,
+        "height": 560,
+        "dpi": 300,
+        "formats": ["png"],
+    }
+
+
+def main():
+    file_path = os.environ.get("DATA_FILE", DATA_FILE)
+    figures = [
+        make_figure(file_path, sheet_name, color)
+        for sheet_name, color in zip(SHEETS, COLORS)
+    ]
+    json.dump({"figures": figures}, sys.stdout, ensure_ascii=False, allow_nan=False)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,10 @@
+```json
+{
+  "file": "cnt_batches.xlsx",
+  "sheets": "Annealed",
+  "text_color": "black",
+  "font_size": 8,
+  "size": [3.5, 2.6],
+  "dpi": 600
+}
+```

@@ -1,0 +1,25 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "pie",
+ "x": "등급",
+ "y": {
+  "col": "런ID",
+  "agg": "count"
+ },
+ "filter": [
+  "등급 == C"
+ ],
+ "asks": [
+  {
+   "ask": "불량 비율 한 장으로 보여줄 수 있어요?",
+   "how": "key"
+  },
+  {
+   "ask": "이번 주 임원 보고에 들어갑니다.",
+   "how": "unsupported"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S005_r1/out/t1"
+ }
+}

@@ -1,0 +1,323 @@
+{
+ "arm": "R-mpl",
+ "item": "S027",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "TEM 직경 데이터 6개 시료 전부 합쳐서 히스토그램 그려 주세요. bin 폭 0.5 nm, 4–28 nm. 평균과 중앙값 위치에 세로선 넣어 주세요.",
+   "calls": [
+    {
+     "reply": "```python\nimport os\nimport pandas as pd\nimport matplotlib.pyplot as plt\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read data\nfile_path = \"data/diameters.csv\"\ndf = pd.read_csv(file_path)\n\n# Get the diameter column (column D: 직경(nm))\ncol_name = df.columns[3]  # '직경(nm)'\ndiameters = df[col_name].dropna()\n\n# Compute mean and median\nmean_val = diameters.mean()\nmedian_val = diameters.median()\n\n# Create histogram\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# Bins from 4 to 28 with width 0.5 nm\nbins = np.arange(4, 28 + 0.5, 0.5)\nax.hist(diameters, bins=bins, edgecolor='black', alpha=0.7, color='steelblue')\n\n# Add vertical lines for mean and median\nax.axvline(mean_val, color='red', linestyle='--', linewidth=2, label=f'평균: {mean_val:.2f} nm')\nax.axvline(median_val, color='green', linestyle='-', linewidth=2, label=f'중앙값: {median_val:.2f} nm')\n\n# Labels and title\nax.set_xlabel('직경 (nm)', fontsize=12)\nax.set_ylabel('빈도 (Count)', fontsize=12)\nax.set_title('TEM 직경 분포 히스토그램 (모든 시료 합산)', fontsize=14)\nax.legend(loc='upper right')\n\n# Set x-axis limits\nax.set_xlim(4, 28)\n\nplt.tight_layout()\n\n# Save figure\noutput_file = os.path.join(OUT_DIR, \"tem_diameter_histogram.png\")\nplt.savefig(output_file, dpi=300)\nplt.close()\n```",
+     "llm_s": 6.943,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 2488,
+     "output_chars": 1322,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport os\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read data\nfile_path = \"data/diameters.csv\"\ndf = pd.read_csv(file_path)\n\n# Get the diameter column (column D: 직경(nm))\ncol_name = df.columns[3]  # '직경(nm)'\ndiameters = df[col_name].dropna()\n\n# Compute mean and median\nmean_val = diameters.mean()\nmedian_val = diameters.median()\n\n# Create histogram\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# Bins from 4 to 28 with width 0.5 nm\nbins = np.arange(4, 28 + 0.5, 0.5)\nax.hist(diameters, bins=bins, edgecolor='black', alpha=0.7, color='steelblue')\n\n# Add vertical lines for mean and median\nax.axvline(mean_val, color='red', linestyle='--', linewidth=2, label=f'평균: {mean_val:.2f} nm')\nax.axvline(median_val, color='green', linestyle='-', linewidth=2, label=f'중앙값: {median_val:.2f} nm')\n\n# Labels and title\nax.set_xlabel('직경 (nm)', fontsize=12)\nax.set_ylabel('빈도 (Count)', fontsize=12)\nax.set_title('TEM 직경 분포 히스토그램 (모든 시료 합산)', fontsize=14)\nax.legend(loc='upper right')\n\n# Set x-axis limits\nax.set_xlim(4, 28)\n\nplt.tight_layout()\n\n# Save figure\noutput_file = os.path.join(OUT_DIR, \"tem_diameter_histogram.png\")\nplt.savefig(output_file, dpi=300)\nplt.close()\n```",
+     "llm_s": 7.898,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 4746,
+     "output_chars": 1341,
+     "attempts": 1
+    }
+   ],
+   "spec": "import os\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read data\nfile_path = \"data/diameters.csv\"\ndf = pd.read_csv(file_path)\n\n# Get the diameter column (column D: 직경(nm))\ncol_name = df.columns[3]  # '직경(nm)'\ndiameters = df[col_name].dropna()\n\n# Compute mean and median\nmean_val = diameters.mean()\nmedian_val = diameters.median()\n\n# Create histogram\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# Bins from 4 to 28 with width 0.5 nm\nbins = np.arange(4, 28 + 0.5, 0.5)\nax.hist(diameters, bins=bins, edgecolor='black', alpha=0.7, color='steelblue')\n\n# Add vertical lines for mean and median\nax.axvline(mean_val, color='red', linestyle='--', linewidth=2, label=f'평균: {mean_val:.2f} nm')\nax.axvline(median_val, color='green', linestyle='-', linewidth=2, label=f'중앙값: {median_val:.2f} nm')\n\n# Labels and title\nax.set_xlabel('직경 (nm)', fontsize=12)\nax.set_ylabel('빈도 (Count)', fontsize=12)\nax.set_title('TEM 직경 분포 히스토그램 (모든 시료 합산)', fontsize=14)\nax.legend(loc='upper right')\n\n# Set x-axis limits\nax.set_xlim(4, 28)\n\nplt.tight_layout()\n\n# Save figure\noutput_file = os.path.join(OUT_DIR, \"tem_diameter_histogram.png\")\nplt.savefig(output_file, dpi=300)\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "TEM 직경 분포 히스토그램 (모든 시료 합산)",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [
+        {
+         "name": "",
+         "edges": [
+          4.0,
+          4.5,
+          5.0,
+          5.5,
+          6.0,
+          6.5,
+          7.0,
+          7.5,
+          8.0,
+          8.5,
+          9.0,
+          9.5,
+          10.0,
+          10.5,
+          11.0,
+          11.5,
+          12.0,
+          12.5,
+          13.0,
+          13.5,
+          14.0,
+          14.5,
+          15.0,
+          15.5,
+          16.0,
+          16.5,
+          17.0,
+          17.5,
+          18.0,
+          18.5,
+          19.0,
+          19.5,
+          20.0,
+          20.5,
+          21.0,
+          21.5,
+          22.0,
+          22.5,
+          23.0,
+          23.5,
+          24.0,
+          24.5,
+          25.0,
+          25.5,
+          26.0,
+          26.5,
+          27.0,
+          27.5,
+          28.0
+         ],
+         "counts": [
+          1.0,
+          3.0,
+          11.0,
+          21.0,
+          36.0,
+          60.0,
+          56.0,
+          59.0,
+          85.0,
+          90.0,
+          92.0,
+          80.0,
+          91.0,
+          91.0,
+          74.0,
+          68.0,
+          52.0,
+          62.0,
+          41.0,
+          29.0,
+          36.0,
+          22.0,
+          33.0,
+          12.0,
+          26.0,
+          11.0,
+          14.0,
+          10.0,
+          8.0,
+          3.0,
+          6.0,
+          1.0,
+          2.0,
+          2.0,
+          2.0,
+          1.0,
+          2.0,
+          1.0,
+          2.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          2.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#4682b4"
+        }
+       ],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [
+        10.704,
+        10.2
+       ],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "직경 (nm)",
+        "type": "value",
+        "ticks": [
+         5.0,
+         10.0,
+         15.0,
+         20.0,
+         25.0
+        ],
+        "step": 5.0,
+        "categories": null,
+        "min": 4.0,
+        "max": 28.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "5",
+         "10",
+         "15",
+         "20",
+         "25",
+         "30"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "빈도 (Count)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         20.0,
+         40.0,
+         60.0,
+         80.0
+        ],
+        "step": 20.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 96.6,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "20",
+         "40",
+         "60",
+         "80",
+         "100"
+        ],
+        "rotate": 0.0
+       },
+       "title": "TEM 직경 분포 히스토그램 (모든 시료 합산)"
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "평균: 10.70 nm",
+       "중앙값: 10.20 nm"
+      ],
+      "inside": true,
+      "where": "upper right"
+     },
+     "files": [
+      {
+       "path": "out/t1/tem_diameter_histogram.png",
+       "format": "png",
+       "px": [
+        3000,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.47130298614501953,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [],
+    "unchecked": [
+     "ref_line=10.704",
+     "ref_line=10.2"
+    ],
+    "n_checks": 4,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 15.648
+  }
+ ]
+}

@@ -1,0 +1,91 @@
+We need script only. Need standard TGA PET, title, legend lower left, grid, residue 2 decimal. Peak default. Need robust read Excel. font. Plot output. Residue nearest 800. peak highest DTG upward = -D maximum above 150. labels. Avoid conflict maybe annotate. Use sheet parse header. Plot. Output filename. Include script full.```python
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/B11_r2/out")
+SHEET_NAME = "PET"
+
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+# The workbook has one header row: temperature, weight, and derivative weight
+# are in columns B, C, and D, respectively.
+df = pd.read_excel(DATA_FILE, sheet_name=SHEET_NAME, header=0)
+temperature = pd.to_numeric(df.iloc[:, 1], errors="coerce")
+weight = pd.to_numeric(df.iloc[:, 2], errors="coerce")
+dtg = pd.to_numeric(df.iloc[:, 3], errors="coerce")
+
+valid = temperature.notna() & weight.notna() & dtg.notna()
+temperature = temperature[valid].to_numpy()
+weight = weight[valid].to_numpy()
+dtg = dtg[valid].to_numpy()
+
+fig, ax1 = plt.subplots(figsize=(9, 6))
+ax2 = ax1.twinx()
+
+weight_line, = ax1.plot(
+    temperature, weight, color="#1f4e9c", linewidth=1.8, label="Weight (%)"
+)
+dtg_up = -dtg
+dtg_line, = ax2.plot(
+    temperature, dtg_up, color="#c0392b", linewidth=1.5, label="DTG (%/°C)"
+)
+
+# Residue at the measured point nearest 800 °C.
+residue_idx = int(np.argmin(np.abs(temperature - 800)))
+residue_temp = temperature[residue_idx]
+residue_value = weight[residue_idx]
+ax1.scatter(
+    residue_temp, residue_value, color="#1f4e9c", edgecolor="white",
+    linewidth=0.7, zorder=5
+)
+ax1.annotate(
+    f"Residue {residue_value:.2f}%",
+    xy=(residue_temp, residue_value),
+    xytext=(8, 10),
+    textcoords="offset points",
+    color="#1f4e9c",
+    fontsize=9,
+)
+
+# Highest upward-pointing DTG peak above 150 °C.
+peak_candidates = np.flatnonzero(temperature > 150)
+if peak_candidates.size:
+    peak_idx = peak_candidates[np.argmax(dtg_up[peak_candidates])]
+    peak_temp = temperature[peak_idx]
+    peak_value = dtg_up[peak_idx]
+    ax2.scatter(
+        peak_temp, peak_value, color="#c0392b", edgecolor="white",
+        linewidth=0.7, zorder=5
+    )
+    ax2.annotate(
+        f"{peak_temp:.0f} °C",
+        xy=(peak_temp, peak_value),
+        xytext=(8, 10),
+        textcoords="offset points",
+        color="#c0392b",
+        fontsize=9,
+    )
+
+ax1.set_title("PET 열분해")
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)")
+ax2.set_ylabel("-Derivative weight (%/°C)")
+ax1.grid(True, linestyle="--", alpha=0.5)
+
+ax1.legend(
+    [weight_line, dtg_line],
+    [weight_line.get_label(), dtg_line.get_label()],
+    loc="lower left",
+)
+
+fig.tight_layout()
+fig.savefig(OUT_DIR / "PET_열분해.png", dpi=300, bbox_inches="tight")
+plt.close(fig)
+```

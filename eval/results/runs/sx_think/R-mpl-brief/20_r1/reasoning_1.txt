@@ -1,0 +1,81 @@
+We need answer user's request with complete Python script inside one python block only. Need produce script reading TGA.xlsx, OUT_DIR. User Korean: "300~450 °C 구간을 연한 회색으로 칠해줘" means shade region 300 to 450 °C with light gray. Need likely standard TGA plot per sheet, with residue and peak labels, title sheet name, legend center left. Need add axvspan light gray between 300 and 450. Need ensure Korean font. Save PNG 300 dpi. Need not plt.show. Need robust. Need maybe DATA_FILE variable. Need handle multiple sheets. Need parse Excel with pandas. Need identify columns via tga_guess? We can implement generic. Need consider sheet 750C max 750, region 300-450 within. Need shade behind curves? Usually axvspan with zorder low. Need labels: residue at nearest 800C; for 750C sheet max 750, nearest measured point to 800 is 750. But standard says residue at measured point nearest 800 °C. For 750 sheet, use 750. Need peak highest DTG above 150: DTG negative, highest peak means most negative? They say multiplied by -1 so peaks point up; "highest DTG peak above 150 °C" likely maximum of -DTG (i.e. min DTG) above 150. Need marker. Need labels format: residue "Residue 8.0%", peak "600 °C". Need choose marker. Need maybe annotate near points. Need avoid overlap? Simple. Need use light gray: '#d3d3d3' or '#e0e0e0', alpha maybe 0.5? "연한 회색" light gray. Use axvspan color '#d9d9d9', alpha=0.5, zorder=0.5. Need ensure curves on top. Need y1 line #1f4e9c, y2 line #c0392b multiplied by -1. Need right axis label maybe derivative weight. Axis labels? Standard maybe x Temperature (°C), y1 Weight (%), y2 DTG (%/°C). But if y2 multiplied by -1, label maybe "DTG (%/°C)"? Could be "-DTG (%/°C)"? Standard says right y axis = DTG, multiplied by -1. Usually label "DTG (%/°C)" but values positive. Maybe use "DTG (%/°C)". Legend center left. Need one plot per sheet. Need file names safe. Need maybe create OUT_DIR. Need font: matplotlib.rcParams['font.family']='Noto Sans CJK KR'. Need minus sign. Need handle NaN. Need maybe if no sheets? But file has. Need read all sheets. Need detect header row? Given header_rows [1], data_start_row 2. pandas read_excel with header=0 works? header_rows [1] means first row? likely 1-indexed header row. Use header=0. But generic maybe read all sheets with header=0. Need robust if columns names. Need find x, y1, y2 columns by name or numeric. Could use tga_guess not available in script. Need implement heuristics: columns: Time, Temperature, Weight(%), D.W(%/C). For each sheet: df = pd.read_excel(file, sheet_name=sheet, header=0). Drop rows with all NaN. Convert numeric. Identify x: column name contains temp or temperature; if none maybe second column. y1: contains weight and not derivative; y2: contains d.w, dtg, derivative. If not, use guess: x = col B, y1 = col C, y2 = col D if enough numeric columns. Need maybe use original column labels. Need ensure sorted by x? TGA time monotonic but maybe sort by x for plotting and nearest. Need filter finite. Ne
+[...]
+replaced. Good.
+
+Potential issue: If two sheets sanitize same, overwrite. Could append index if duplicate. Could maintain used_names set. For each sheet, base safe; if base in used, append _2. Implement:
+used_names=set()
+...
+base = safe_filename(...)
+fname = base + ".png"
+if fname in used_names:
+   j=2
+   while f"{base}_{j}.png" in used_names: j+=1
+   fname=f"{base}_{j}.png"
+used_names.add(fname)
+Good.
+
+Need maybe if OUT_DIR file format PNG. Good.
+
+Potential issue: If user asks file format? no.
+
+Need maybe if dpi? 300. Good.
+
+Potential issue: If font not found? It is installed. Could fallback? Not needed. But maybe set font.sans-serif. Use plt.rcParams["font.sans-serif"] = ["Noto Sans CJK KR", "DejaVu Sans"]. Good.
+
+Potential issue: Matplotlib may not find Noto Sans CJK KR if font cache missing? It is installed. Could also use font_manager.addfont? Not necessary. But robust: from matplotlib import font_manager; font_manager.fontManager.addfont? Need path unknown. Not.
+
+Need maybe if degree symbol in font. Noto supports. Good.
+
+Potential issue: If pd.read_excel with sheet_name=sheet and header=None returns DataFrame with columns 0..n. Good.
+
+Potential issue: If find_header_row returns h, but header row has duplicate names. df.columns duplicates. to_numeric okay. find_tga_columns uses positions. Good.
+
+Potential issue: If header row is row 1 but data_start_row 2, raw row0 maybe blank? find_header_row could skip blank row and find row1? Given header_rows [1] maybe first row? If row0 blank, row0 notna sum 0, skip, row1 header, next numeric -> return 1. Good.
+
+Potential issue: If row1 header, row2 data, good.
+
+Potential issue: If row1 header but row2 units? not.
+
+Potential issue: If find_header_row numeric_count counts next row numeric but header row contains "Time" etc. Good.
+
+Potential issue: If first data row has all zeros? numeric. Good.
+
+Potential issue: If row0 has header but next row has one numeric and one string? numeric_count maybe 3. Good.
+
+Potential issue: If Excel has merged cells, raw may have NaN. Not.
+
+Need maybe if data rows 871, okay.
+
+Let's maybe test mentally for sheet 1006R1-V normal:
+raw header row0 strings, data row1 numeric. find_header 0. df columns Time, Temperature, Weight(%), D.W(%/C). numeric all. find cols: y2_idx=3, x_idx=1, y1_idx=2. chosen [1,2,3]. x,y1,y2. plot.
+Residue nearest 800: x max 900, x_range 870, threshold 769.5, r_x maybe 800? offset -130. y_range 92, r_y ~8, min+9.2=17.2, y_off +9.2. label at 670,17. Good.
+Peak: x >150, dtg max maybe around 600. x_off +130. dtg_range ~1, y_off -0.1. label at 730, peak_y-0.1. Good.
+Legend center left. Shading.
+
+For 750C: x max 750, x_range720, threshold642. residue x=750 offset -108. y_range70, min30, threshold37, r_y30, y_off +7. label at642,37. Peak maybe 600 offset +108. Good.
+
+Need maybe if ax1.legend with handles line1,line2 but line2 belongs ax2. It works.
+
+Need maybe if ax2 ylabel may overlap legend? okay.
+
+Potential issue: bbox_inches='tight' may include legend outside? legend inside. Good.
+
+Need maybe if fig.tight_layout not needed with bbox_inches tight. Could omit. If include, okay. Use only savefig bbox_inches tight.
+
+Need maybe if axvspan zorder=0.5 but ax1 has default zorder 0? It will be above axes background but below lines. Good.
+
+Potential issue: If ax2 grid? no.
+
+Potential issue: If ax1 has default zorder for span maybe 0.5, but ax2 patch? okay.
+
+Need maybe if shading should be "연한 회색" maybe '#f2f2f2' with alpha 0.7? '#d9d9d9' light gray. Good.
+
+Potential issue: If user wants only shade but no labels? Standard says labels always unless user says otherwise. Good.
+
+Need maybe if user says "300~450 °C 구간을 연한 회색으로 칠해줘" could be interpreted as fill between x-axis and curve? No, "구간" region along x-axis. Use axvspan. Good.
+
+Potential issue: If they want shade between 300 and 450 on x-axis for all sheets. yes.
+
+Need final only code block. Ensure no analysis outside. Final code with updated dynamic offsets and used_names.
+
+Let's produce final.

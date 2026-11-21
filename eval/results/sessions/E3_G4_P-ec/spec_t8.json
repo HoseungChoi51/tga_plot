@@ -1,0 +1,20 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "line",
+ "x": {
+  "col": "주차"
+ },
+ "y": {
+  "col": "외기습도 (%)",
+  "agg": "mean"
+ },
+ "asks": [
+  {
+   "ask": "주차별 평균 외기습도 추이 선그래프",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/sessions/E3_G4_P-ec/out/t8"
+ }
+}

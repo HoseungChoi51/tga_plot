@@ -1,0 +1,130 @@
+import pandas as pd
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx"
+
+# Define sheet names and colors
+sheets_info = [
+    {"name": "Raw", "color": "#000000"},
+    {"name": "Acid-washed", "color": "#1f77b4"},
+    {"name": "Annealed", "color": "#d62728"}
+]
+
+series_list = []
+
+for info in sheets_info:
+    df = pd.read_excel(DATA_FILE, sheet_name=info["name"])
+    
+    # Identify columns based on the preview structure
+    temp_col = "Temperature (°C)"
+    weight_col = "Weight (%)"
+    deriv_col = "Deriv. Weight (%/°C)"
+    
+    # Prepare data for TGA curve (Weight vs Temp)
+    tga_data = list(zip(df[temp_col].tolist(), df[weight_col].tolist()))
+    
+    # Prepare data for DTG curve (Deriv. Weight vs Temp) - usually plotted below or on secondary axis
+    # Since we are making one figure per request context usually implies a combined view or separate. 
+    # The user asked to "overlay three samples". Standard TGA plots show Weight Loss and Derivative together.
+    # We will create two series per sample if we want both, but typically "TGA plot" refers to Weight %.
+    # However, having DTG is very common. Let's assume the main request is the Weight % curves overlaid.
+    # If I include DTG, it needs a second Y-axis. Let's stick to the primary interpretation: Weight (%) curves.
+    # But wait, often researchers want both. Let's provide the Weight curves as the primary visual overlay.
+    # To be safe and comprehensive for a lab report, plotting just Weight (%) is the standard "TGA" chart.
+    
+    series_list.append({
+        "name": info["name"],
+        "type": "line",
+        "data": tga_data,
+        "smooth": False,
+        "symbol": "none",
+        "lineStyle": {
+            "width": 2,
+            "color": info["color"]
+        },
+        "itemStyle": {
+            "color": info["color"]
+        }
+    })
+
+option = {
+    "backgroundColor": "#ffffff",
+    "title": {
+        "text": "TGA Curves Comparison",
+        "subtext": "Raw vs Acid-washed vs Annealed",
+        "left": "center",
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR",
+            "fontSize": 16
+        }
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {
+            "type": "cross"
+        }
+    },
+    "legend": {
+        "data": [s["name"] for s in series_list],
+        "top": "10%",
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR"
+        }
+    },
+    "grid": {
+        "left": "10%",
+        "right": "10%",
+        "bottom": "15%",
+        "containLabel": True
+    },
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "min": 0,
+        "max": 900,
+        "axisLabel": {
+            "formatter": "{value}"
+        },
+        "splitLine": {
+            "show": True,
+            "lineStyle": {
+                "type": "dashed"
+            }
+        }
+    },
+    "yAxis": {
+        "type": "value",
+        "name": "Weight (%)",
+        "nameLocation": "middle",
+        "nameGap": 40,
+        "min": 0,
+        "max": 105,
+        "axisLabel": {
+            "formatter": "{value}%"
+        },
+        "splitLine": {
+            "show": True,
+            "lineStyle": {
+                "type": "dashed"
+            }
+        }
+    },
+    "series": series_list
+}
+
+result = {
+    "figures": [
+        {
+            "name": "tga_comparison",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+    ]
+}
+
+print(json.dumps(result))

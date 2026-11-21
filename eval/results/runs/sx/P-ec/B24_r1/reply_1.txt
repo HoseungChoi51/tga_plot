@@ -1,0 +1,17 @@
+```json
+{
+  "file": "polymers.xlsx",
+  "sheets": "PE",
+  "x": {
+    "col": "B",
+    "label": "Temperature (K)"
+  },
+  "echarts": {
+    "series": [
+      {
+        "data": null
+      }
+    ]
+  }
+}
+```

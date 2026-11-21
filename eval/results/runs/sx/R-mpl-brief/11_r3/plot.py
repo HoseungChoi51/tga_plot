@@ -1,0 +1,104 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+
+# Configure Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/11_r3/out"
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+def plot_tga_sheet(df, sheet_name, out_path):
+    # Identify columns based on the preview structure
+    # Time: A, Temperature: B, Weight(%): C, D.W(%/C): D
+    x_col = "Temperature"
+    y1_col = "Weight(%)"
+    y2_col = "D.W(%/C)"
+    
+    if x_col not in df.columns or y1_col not in df.columns or y2_col not in df.columns:
+        print(f"Columns missing in sheet {sheet_name}")
+        return
+
+    temp = df[x_col].values
+    weight = df[y1_col].values
+    dtg = df[y2_col].values
+    
+    # Create figure and axis
+    fig, ax1 = plt.subplots(figsize=(8, 6))
+    
+    # Plot Weight (%) on left y-axis
+    color_y1 = '#1f4e9c'
+    ax1.set_xlabel('Temperature (°C)', fontsize=12)
+    ax1.set_ylabel('Weight (%)', color=color_y1, fontsize=12)
+    line1, = ax1.plot(temp, weight, color=color_y1, label='Weight (%)')
+    ax1.tick_params(axis='y', labelcolor=color_y1)
+    
+    # Create secondary y-axis for DTG
+    ax2 = ax1.twinx()
+    color_y2 = '#c0392b'
+    ax2.set_ylabel('DTG (%/°C)', color=color_y2, fontsize=12)
+    # Multiply DTG by -1 so peaks point up
+    dtg_inverted = dtg * -1
+    line2, = ax2.plot(temp, dtg_inverted, color=color_y2, linestyle='--', label='DTG (%/°C)')
+    ax2.tick_params(axis='y', labelcolor=color_y2)
+    
+    # Title
+    ax1.set_title(sheet_name, fontsize=14)
+    
+    # Residue Label: nearest to 800°C
+    # Find index closest to 800
+    idx_800 = np.argmin(np.abs(temp - 800))
+    residue_val = weight[idx_800]
+    residue_temp = temp[idx_800]
+    
+    # Draw marker for residue
+    ax1.scatter(residue_temp, residue_val, color=color_y1, s=50, zorder=5)
+    ax1.annotate(f'Residue {residue_val:.1f}%', 
+                 xy=(residue_temp, residue_val), 
+                 xytext=(10, 10), textcoords='offset points',
+                 fontsize=10, color=color_y1,
+                 arrowprops=dict(arrowstyle='->', color=color_y1))
+    
+    # Peak Label: highest DTG peak above 150°C
+    # Filter data where temp > 150
+    mask = temp > 150
+    if np.any(mask):
+        temp_filtered = temp[mask]
+        dtg_inverted_filtered = dtg_inverted[mask]
+        
+        # Find max of inverted DTG (which corresponds to min of original DTG, i.e., steepest loss)
+        idx_max_dtg = np.argmax(dtg_inverted_filtered)
+        peak_temp = temp_filtered[idx_max_dtg]
+        peak_dtg_val = dtg_inverted_filtered[idx_max_dtg]
+        
+        # User requested to remove peak display ("피크 표시 지워줘")
+        # So we do NOT draw the marker or annotation for the peak.
+    
+    # Legend
+    lines = [line1, line2]
+    labels = [l.get_label() for l in lines]
+    ax1.legend(lines, labels, loc='center left')
+    
+    # Save
+    plt.tight_layout()
+    plt.savefig(out_path, dpi=300)
+    plt.close(fig)
+
+# Read Excel file
+xls = pd.ExcelFile(DATA_FILE)
+
+for sheet_name in xls.sheet_names:
+    df = pd.read_excel(xls, sheet_name=sheet_name)
+    # Clean column names just in case
+    df.columns = [str(c).strip() for c in df.columns]
+    
+    # Determine output filename
+    safe_name = "".join([c if c.isalnum() or c in (' ', '-', '_') else '_' for c in sheet_name]).replace(' ', '_')
+    out_filename = f"{safe_name}.png"
+    out_path = os.path.join(OUT_DIR, out_filename)
+    
+    plot_tga_sheet(df, sheet_name, out_path)

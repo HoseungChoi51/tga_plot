@@ -1,0 +1,57 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "histogram",
+ "x": {
+  "col": "CNT수율 (g/g-cat)",
+  "bins": {
+   "edges": [
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36
+   ]
+  }
+ },
+ "filter": [
+  "주차 between 1 and 26"
+ ],
+ "asks": [
+  {
+   "ask": "주차 1-13 vs 14-26 비교 (오버레이)",
+   "how": "unsupported"
+  },
+  {
+   "ask": "공용 빈 간격 (1 g/g-cat 폭, 12~36)",
+   "how": "key"
+  },
+  {
+   "ask": "기간별 중앙값 수직선",
+   "how": "unsupported"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/SS15_r1/out/t3"
+ }
+}

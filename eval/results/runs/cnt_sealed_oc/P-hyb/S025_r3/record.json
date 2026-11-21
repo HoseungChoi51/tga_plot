@@ -1,0 +1,294 @@
+{
+ "arm": "P-hyb",
+ "item": "S025",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "raman 폴더 8개 파일 각각 I_G/I_D를 계산해서 막대그래프로, 높은 순으로 정렬해 주세요. 베이스라인 보정 없이 피크 높이비로요: I_G는 1550–1620 cm⁻¹ 최대값, I_D는 1300–1400 cm⁻¹ 최대값입니다.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/raman/*.csv\",\n  \"chart\": \"bar\",\n  \"x\": {\"col\": \"filename\", \"label\": \"시료\"},\n  \"y\": {\"col\": \"IG_ID_ratio\", \"agg\": \"mean\", \"label\": \"I_G/I_D (피크 높이비)\"},\n  \"sort\": \"desc\",\n  \"values\": true,\n  \"data_code\": \"import pandas as pd\\n# Get unique filenames from the dataframe to ensure correct mapping\\nfiles = df['filename'].unique()\\nratios = []\\nfor f in files:\\n    # Filter data for the current file\\n    sub_df = df[df['filename'] == f]\\n    if len(sub_df) == 0:\\n        ratios.append(0)\\n        continue\\n    \\n    x = sub_df['A'].values\\n    y = sub_df['B'].values\\n    \\n    # Find max intensity in D band range (1300-1400 cm-1)\\n    mask_d = (x >= 1300) & (x <= 1400)\\n    if np.any(mask_d):\\n        i_d = np.max(y[mask_d])\\n    else:\\n        i_d = 0\\n        \\n    # Find max intensity in G band range (1550-1620 cm-1)\\n    mask_g = (x >= 1550) & (x <= 1620)\\n    if np.any(mask_g):\\n        i_g = np.max(y[mask_g])\\n    else:\\n        i_g = 0\\n        \\n    ratio = i_g / i_d if i_d != 0 else 0\\n    ratios.append(ratio)\\n\\n# Map back to original dataframe rows\\ndf['IG_ID_ratio'] = [ratios[list(files).index(fn)] for fn in df['filename']]\",\n  \"asks\": [\n    {\n      \"ask\": \"8개 파일 각각 I_G/I_D 계산\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"막대그래프로 표시\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"높은 순으로 정렬\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"베이스라인 보정 없이 피크 높이비 사용\",\n      \"how\": \"data_code\"\n    }\n  ]\n}\n```",
+     "llm_s": 10.262,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 17787,
+     "output_chars": 1459,
+     "attempts": 1
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/raman/*.csv\",\n  \"chart\": \"bar\",\n  \"x\": {\"col\": \"_filename\", \"label\": \"시료\"},\n  \"y\": {\"col\": \"IG_ID_ratio\", \"agg\": \"mean\", \"label\": \"I_G/I_D (피크 높이비)\"},\n  \"sort\": \"desc\",\n  \"values\": true,\n  \"data_code\": \"import pandas as pd\\nimport numpy as np\\n\\n# The '_filename' column is usually available in multi-file charts. \\n# If not, we might need to rely on the index or specific file loading order, \\n# but typically plotkit injects '_filename' for grouped data.\\nif '_filename' not in df.columns:\\n    # Fallback: If _filename isn't there, we assume the user wants to process \\n    # each row's x/y columns directly if they were already loaded as curves? \\n    # But here it is a chart spec. Let's assume standard behavior where _filename exists.\\n    pass\\n\\nfiles = df['_filename'].unique()\\nratios = {}\\nfor f in files:\\n    sub_df = df[df['_filename'] == f]\\n    if len(sub_df) == 0:\\n        ratios[f] = 0\\n        continue\\n    \\n    # In a curve export context loaded into a chart-like structure for processing,\\n    # x and y are often the column names 'A' and 'B' based on preview.\\n    # However, 'df' contains all rows from all files stacked.\\n    # We need to identify which columns hold the X (Raman Shift) and Y (Intensity).\\n    # Based on preview: A=Raman Shift, B=Intensity.\\n    \\n    try:\\n        x_col = 'A'\\n        y_col = 'B'\\n        \\n        # Ensure numeric\\n        x_vals = pd.to_numeric(sub_df[x_col], errors='coerce').dropna().values\\n        y_vals = pd.to_numeric(sub_df[y_col], errors='coerce').dropna().values\\n        \\n        # Align lengths just in case dropna removed different amounts (unlikely if same rows)\\n        min_len = min(len(x_vals), len(y_vals))\\n        x_vals = x_vals[:min_len]\\n        y_vals = y_vals[:min_len]\\n        \\n        mask_d = (x_vals >= 1300) & (x_vals <= 1400)\\n        i_d = np.max(y_vals[mask_d]) if np.any(mask_d) else 0\\n        \\n        mask_g = (x_vals >= 1550) & (x_vals <= 1620)\\n        i_g = np.max(y_vals[mask_g]) if np.any(mask_g) else 0\\n        \\n        ratio = i_g / i_d if i_d != 0 else 0\\n        ratios[f] = ratio\\n    except Exception as e:\\n        ratios[f] = 0\\n\\ndf['IG_ID_ratio'] = df['_filename'].map(ratios)\",\n  \"asks\": [\n    {\n      \"ask\": \"8개 파일 각각 I_G/I_D 계산\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"막대그래프로 표시\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"높은 순으로 정렬\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"베이스라인 보정 없이 피크 높이비 사용\",\n      \"how\": \"data_code\"\n    }\n  ]\n}\n```",
+     "llm_s": 12.183,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 19819,
+     "output_chars": 2518,
+     "attempts": 1
+    },
+    {
+     "reply": "The `KeyError: '_filename'` indicates that when plotkit loads multiple files into a single DataFrame for charting, it does not automatically inject a column named `_filename` or `filename`. Instead, the rows are simply stacked. To identify which file each row belongs to, we must rely on the order in which the files are loaded (which matches the glob pattern expansion) and calculate the ratio per contiguous block of rows, or more robustly, use the unique values of the data itself if they were distinct (they aren't here).\n\nHowever, since the user wants **one bar per file** based on the calculation from the raw curves in those files, the most reliable way within `data_code` for a multi-file *chart* context is often tricky because `df` is just a stack. A better approach for \"Curves\" logic applied to \"Charts\" output is to realize that `plotkit` might not support calculating aggregates from raw curve data directly in `data_code` for a bar chart without explicit grouping columns.\n\nWait, looking at the previous error and the nature of the request: The user provided 8 CSV files. Each has ~1560 rows. When combined into `df`, there are ~12480 rows. There is no column identifying the source file.\nIf I cannot group by file name in `data_code` because the info isn't in `df`, I cannot produce a bar chart with 8 bars representing the 8 files using only `data_code` on the stacked `df`.\n\n**Alternative Strategy:**\nUse `\"combine\": true` in the spec? No, that's for curves overlaying.\nThe request is explicitly for a **bar chart** (`\"chart\": \"bar\"`).\n\nLet's look at the preview again.\n`A Raman Shift (cm-1)` | `B Intensity (a.u.)`\nThere is no \"Sample ID\" or \"File Name\" column in the CSVs themselves.\n\nIs there a way to force plotkit to add a filename column? Usually, `data/raman/*.csv` implies merging. If the merge doesn't keep track of origin, we can't distinguish them easily unless we assume the order is preserved and equal-sized chunks correspond to files. But file sizes might vary slightly (though here all say 1560 rows).\n\nActually, a common workaround in these systems if `df` lacks the identifier is to **not** use a standard chart aggregation but rather pre-process. But we can't change the input format.\n\nLet's reconsider the `data_code` environment. Does it have access to file metadata? No, just `df`.\nDoes `df` have an index that resets per file? Unlikely.\n\nHowever, if the system merges them, it might keep the original index or append. If the indices are duplicated (0..1559 repeated), we can't tell them apart.\n\n**Correction:** In many plotting libraries like this, when you specify `\"file\": [\"path1\", \"path2\"]` or a glob for a *Chart*, it expects a long-format table. If the input is wide/curve format, it fails to aggregate by file unless a key exists.\n\nBut wait, the prompt says: *\"Several files: a list, or a pattern... Curves ... Charts\"*.\nFor **Charts**, the data is treated as records. If the records don't have a \"file\" column, we can't group by file.\n\nIs it possible to extract the filenames from the context? No, `data_code` only sees `df`.\n\nLet's try a different interpretation. Maybe the `data_code` should generate a *new* small dataframe and assign it to `df`? Yes! We can replace `df` entirely. But how do we get the filenames? We can't know them inside `data_code` unless they are in the data. They are NOT in the data columns shown in the preview.\n\nThis seems like a limitation of the tool description or a trick.\nAh, look at the first example in my previous turn: I tried `df['filename']`. It failed. Then `_filename`. It failed.\n\nIf the data truly has no identifier, we cannot make a bar chart of 8 specific samples from a merged blob of 8 identical-looking structures without knowing where one ends and the other begins.\nSince all files have exactly 1560 rows (from preview: \"1560행\"), we can assume `df` is ordered by file and chunked by 1560.\nWe can infer the file order from the glob `data/raman/*.csv`. Python sorts globs alphabetically.\nFiles:\nR1-260326-1.csv\nR1-260711-1.csv\nR1-260716-1.csv\nR2-260616-1.csv\nR2-260617-1.csv\nR3-260810-2.csv\nR4-260407-1.csv\nR4-260721-1.csv\n\nTotal rows = 8 * 1560 = 12480.\nWe can slice `df` into 8 chunks of 1560 rows. For each chunk, calculate IG/ID. Then create a new summary DataFrame with 8 rows (label + ratio) and assign it back to `df`. This replaces the huge stacked data with the summary data needed for the bar chart.\n\nThe labels for the x-axis will be generated artificially or derived from the chunk index mapped to the known sorted filenames. Since we can't read the directory listing inside `data_code` reliably (sandbox restrictions?), we might just use generic labels like \"Sample 1\", \"Sample 2\"... OR, we can check if `df` has any other hints.\n\nActually, safer bet: Use the chunking logic. The order of files in `df` follows the glob order. We can hardcode the sorted list of filenames or just use indices if names aren't available. However, the user likely wants readable names.\nCan I pass the filenames? No.\nI will generate labels \"S1\", \"S2\"... corresponding to the alphabetical sort of the glob, which is deterministic.\n\nLet's verify the sorting of `data/raman/*.csv`:\n1. R1-260326-1.csv\n2. R1-260711-1.csv\n3. R1-260716-1.csv\n4. R2-260616-1.csv\n5. R2-260617-1.csv\n6. R3-260810-2.csv\n7. R4-260407-1.csv\n8. R4-260721-1.csv\n\nI will create a new `df` with columns `label` and `ratio`.\n\n```json\n{\n  \"file\": \"data/raman/*.csv\",\n  \"chart\": \"bar\",\n  \"x\": {\"col\": \"label\", \"label\": \"시료\"},\n  \"y\": {\"col\": \"IG_ID_ratio\", \"agg\": \"mean\", \"label\": \"I_G/I_D\"},\n  \"sort\": \"desc\",\n  \"values\": true,\n  \"data_code\": \"import numpy as np\\nimport pandas as pd\\n\\n# Determine number of files and rows per file from df length\\n# Assuming uniform row counts as per preview (1560)\\nn_total = len(df)\\nrows_per_file = 1560\\nn_files = n_total // rows_per_file\\n\\nif n_files == 0:\\n    # Fallback if detection fails\\n    n_files = 8\\n    rows_per_file = n_total // 8 if n_total > 0 else 1\\n\\n# Hardcoded sorted filenames for labels (matches 'data/raman/*.csv' alphabetical sort)\\nfilenames = [\\n    \\\"R1-260326\\\",\\n    \\\"R1-260711\\\",\\n    \\\"R1-260716\\\",\\n    \\\"R2-260616\\\",\\n    \\\"R2-260617\\\",\\n    \\\"R3-260810\\\",\\n    \\\"R4-260407\\\",\\n    \\\"R4-260721\\\"\\n]\\n\\nresults = []\\n\\nfor i in range(n_files):\\n    start_idx = i * rows_per_file\\n    end_idx = start_idx + rows_per_file\\n    \\n    # Slice the dataframe for this file\\n    sub_df = df.iloc[start_idx:end_idx]\\n    \\n    if len(sub_df) == 0:\\n        continue\\n        \\n    # Extract x (Raman Shift) and y (Intensity)\\n    # Based on preview: Col A is Shift, Col B is Intensity\\n    # Plotkit usually keeps original column names 'A', 'B' or maps them.\\n    # Let's check columns. If 'A' and 'B' exist, use them.\\n    x_col = 'A' if 'A' in sub_df.columns else 'Raman Shift (cm-1)'\\n    y_col = 'B' if 'B' in sub_df.columns else 'Intensity (a.u.)'\\n    \\n    x_vals = pd.to_numeric(sub_df[x_col], errors='coerce').dropna().values\\n    y_vals = pd.to_numeric(sub_df[y_col], errors='coerce').dropna().values\\n    \\n    # Align lengths\\n    min_len = min(len(x_vals), len(y_vals))\\n    x_vals = x_vals[:min_len]\\n    y_vals = y_vals[:min_len]\\n    \\n    # Calculate D peak max (1300-1400)\\n    mask_d = (x_vals >= 1300) & (x_vals <= 1400)\\n    i_d = np.max(y_vals[mask_d]) if np.any(mask_d) else 0\\n    \\n    # Calculate G peak max (1550-1620)\\n    mask_g = (x_vals >= 1550) & (x_vals <= 1620)\\n    i_g = np.max(y_vals[mask_g]) if np.any(mask_g) else 0\\n    \\n    ratio = i_g / i_d if i_d != 0 else 0\\n    \\n    label = filenames[i] if i < len(filenames) else f\\\"File_{i}\\\"\\n    results.append({\\\"label\\\": label, \\\"IG_ID_ratio\\\": ratio})\\n\\n# Replace df with the summary table\\ndf = pd.DataFrame(results)\",\n  \"asks\": [\n    {\n      \"ask\": \"8개 파일 각각 I_G/I_D 계산\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"막대그래프로 표시\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"높은 순으로 정렬\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"베이스라인 보정 없이 피크 높이비 사용\",\n      \"how\": \"data_code\"\n    }\n  ]\n}\n```",
+     "llm_s": 47.908,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 22783,
+     "output_chars": 8013,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/raman/*.csv",
+    "chart": "bar",
+    "x": {
+     "col": "label",
+     "label": "시료"
+    },
+    "y": {
+     "col": "IG_ID_ratio",
+     "agg": "mean",
+     "label": "I_G/I_D"
+    },
+    "sort": "desc",
+    "values": true,
+    "data_code": "import numpy as np\nimport pandas as pd\n\n# Determine number of files and rows per file from df length\n# Assuming uniform row counts as per preview (1560)\nn_total = len(df)\nrows_per_file = 1560\nn_files = n_total // rows_per_file\n\nif n_files == 0:\n    # Fallback if detection fails\n    n_files = 8\n    rows_per_file = n_total // 8 if n_total > 0 else 1\n\n# Hardcoded sorted filenames for labels (matches 'data/raman/*.csv' alphabetical sort)\nfilenames = [\n    \"R1-260326\",\n    \"R1-260711\",\n    \"R1-260716\",\n    \"R2-260616\",\n    \"R2-260617\",\n    \"R3-260810\",\n    \"R4-260407\",\n    \"R4-260721\"\n]\n\nresults = []\n\nfor i in range(n_files):\n    start_idx = i * rows_per_file\n    end_idx = start_idx + rows_per_file\n    \n    # Slice the dataframe for this file\n    sub_df = df.iloc[start_idx:end_idx]\n    \n    if len(sub_df) == 0:\n        continue\n        \n    # Extract x (Raman Shift) and y (Intensity)\n    # Based on preview: Col A is Shift, Col B is Intensity\n    # Plotkit usually keeps original column names 'A', 'B' or maps them.\n    # Let's check columns. If 'A' and 'B' exist, use them.\n    x_col = 'A' if 'A' in sub_df.columns else 'Raman Shift (cm-1)'\n    y_col = 'B' if 'B' in sub_df.columns else 'Intensity (a.u.)'\n    \n    x_vals = pd.to_numeric(sub_df[x_col], errors='coerce').dropna().values\n    y_vals = pd.to_numeric(sub_df[y_col], errors='coerce').dropna().values\n    \n    # Align lengths\n    min_len = min(len(x_vals), len(y_vals))\n    x_vals = x_vals[:min_len]\n    y_vals = y_vals[:min_len]\n    \n    # Calculate D peak max (1300-1400)\n    mask_d = (x_vals >= 1300) & (x_vals <= 1400)\n    i_d = np.max(y_vals[mask_d]) if np.any(mask_d) else 0\n    \n    # Calculate G peak max (1550-1620)\n    mask_g = (x_vals >= 1550) & (x_vals <= 1620)\n    i_g = np.max(y_vals[mask_g]) if np.any(mask_g) else 0\n    \n    ratio = i_g / i_d if i_d != 0 else 0\n    \n    label = filenames[i] if i < len(filenames) else f\"File_{i}\"\n    results.append({\"label\": label, \"IG_ID_ratio\": ratio})\n\n# Replace df with the summary table\ndf = pd.DataFrame(results)",
+    "asks": [
+     {
+      "ask": "8개 파일 각각 I_G/I_D 계산",
+      "how": "data_code"
+     },
+     {
+      "ask": "막대그래프로 표시",
+      "how": "key"
+     },
+     {
+      "ask": "높은 순으로 정렬",
+      "how": "key"
+     },
+     {
+      "ask": "베이스라인 보정 없이 피크 높이비 사용",
+      "how": "data_code"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": true,
+    "engine": "echarts",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S025_r3/out/t1/bar_IG_ID_ratio.png"
+    ],
+    "chart": "bar",
+    "rows_used": 8,
+    "rows_total": 8,
+    "values": {
+     "categories": [
+      "R2-260617",
+      "R1-260326",
+      "R1-260716",
+      "R1-260711",
+      "R2-260616",
+      "R3-260810",
+      "R4-260407",
+      "R4-260721"
+     ],
+     "series": {
+      "IG_ID_ratio": [
+       2.3726,
+       2.2392,
+       2.1754,
+       2.1321,
+       2.0822,
+       2.0242,
+       1.9225,
+       1.8228
+      ]
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "막대 그래프를 저장했습니다: bar_IG_ID_ratio.png\n사용한 행: 8 / 8\nIG_ID_ratio: R2-260617 2.37, R1-260326 2.24, R1-260716 2.18, R1-260711 2.13, R2-260616 2.08, R3-260810 2.02, R4-260407 1.92, R4-260721 1.82"
+   },
+   "facts": [
+    {
+     "engine": "echarts",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": 300,
+     "title": null,
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "IG_ID_ratio",
+         "orient": "v",
+         "cats": [
+          "R2-260617",
+          "R1-260326",
+          "R1-260716",
+          "R1-260711",
+          "R2-260616",
+          "R3-260810",
+          "R4-260407",
+          "R4-260721"
+         ],
+         "values": [
+          2.372622388525101,
+          2.239154210718192,
+          2.1754147970364186,
+          2.1321364757934145,
+          2.082213343019736,
+          2.0241622976977434,
+          1.9225493476078956,
+          1.822779357284397
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c"
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 8,
+       "texts": [
+        "2.37",
+        "2.24",
+        "2.18",
+        "2.13",
+        "2.08",
+        "2.02",
+        "1.92",
+        "1.82"
+       ],
+       "x": {
+        "label": "시료",
+        "type": "category",
+        "ticks": [],
+        "step": null,
+        "categories": [
+         "R2-260617",
+         "R1-260326",
+         "R1-260716",
+         "R1-260711",
+         "R2-260616",
+         "R3-260810",
+         "R4-260407",
+         "R4-260721"
+        ],
+        "min": 0.0,
+        "max": 7.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 45.0
+       },
+       "y": {
+        "label": "I_G/I_D",
+        "type": "value",
+        "ticks": [
+         0.0,
+         0.5,
+         1.0,
+         1.5,
+         2.0,
+         2.5,
+         3.0
+        ],
+        "step": 0.5,
+        "categories": null,
+        "min": 0.0,
+        "max": 3.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       }
+      }
+     ],
+     "texts": [
+      "2.37",
+      "2.24",
+      "2.18",
+      "2.13",
+      "2.08",
+      "2.02",
+      "1.92",
+      "1.82"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S025_r3/out/t1/bar_IG_ID_ratio.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.6820235252380371,
+   "check": {
+    "kind_expected": "bar",
+    "failed": [
+     "values: categories not drawn: ['R2-260617-1', 'R1-260326-1', 'R1-260716-1', 'R1-260711-1', 'R2-260616-1', 'R3-260810-2'] (drawn: ['R2-260617', 'R1-260326', 'R1-260716', 'R1-260711', 'R2-260616', 'R3-260810', 'R4-260407', 'R4-260721'])",
+     "values: extra categories drawn: ['R2-260617', 'R1-260326', 'R1-260716', 'R1-260711', 'R2-260616', 'R3-260810']"
+    ],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 2,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 72.069
+  }
+ ]
+}

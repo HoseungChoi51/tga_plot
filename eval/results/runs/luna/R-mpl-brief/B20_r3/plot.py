@@ -1,0 +1,85 @@
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+
+import matplotlib.pyplot as plt
+from matplotlib.ticker import AutoMinorLocator
+import numpy as np
+import pandas as pd
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/B20_r3/out")
+SHEET_NAME = "Acid-washed"
+
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+# Korean-compatible font
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+df = pd.read_excel(DATA_FILE, sheet_name=SHEET_NAME)
+df.columns = [str(c).strip() for c in df.columns]
+
+# Select columns by their names, with positional fallbacks.
+def find_column(keyword, fallback_position):
+    matches = [c for c in df.columns if keyword.lower() in c.lower()]
+    return matches[0] if matches else df.columns[fallback_position]
+
+temperature_col = find_column("temperature", 1)
+weight_col = find_column("weight (%)", 2)
+dtg_col = find_column("deriv", 3)
+
+temperature = pd.to_numeric(df[temperature_col], errors="coerce").to_numpy()
+weight = pd.to_numeric(df[weight_col], errors="coerce").to_numpy()
+dtg = pd.to_numeric(df[dtg_col], errors="coerce").to_numpy()
+
+valid = np.isfinite(temperature) & np.isfinite(weight) & np.isfinite(dtg)
+temperature, weight, dtg = temperature[valid], weight[valid], dtg[valid]
+
+fig, ax1 = plt.subplots(figsize=(8, 5))
+line1, = ax1.plot(temperature, weight, color="#1f4e9c", label="Weight (%)")
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)", color="#1f4e9c")
+ax1.tick_params(axis="y", labelcolor="#1f4e9c")
+ax1.set_title(SHEET_NAME)
+
+# Add minor ticks on the x-axis.
+ax1.xaxis.set_minor_locator(AutoMinorLocator())
+ax1.tick_params(axis="x", which="minor", length=3)
+
+ax2 = ax1.twinx()
+dtg_up = -dtg
+line2, = ax2.plot(temperature, dtg_up, color="#c0392b", label="DTG (%/°C)")
+ax2.set_ylabel("-DTG (%/°C)", color="#c0392b")
+ax2.tick_params(axis="y", labelcolor="#c0392b")
+
+# Residue: measured weight at the point nearest 800 °C.
+residue_idx = int(np.argmin(np.abs(temperature - 800)))
+ax1.plot(temperature[residue_idx], weight[residue_idx], "o", color="#1f4e9c")
+ax1.annotate(
+    f"Residue {weight[residue_idx]:.1f}%",
+    (temperature[residue_idx], weight[residue_idx]),
+    xytext=(8, 8),
+    textcoords="offset points",
+    color="#1f4e9c",
+)
+
+# DTG peak: highest upward peak above 150 °C.
+eligible = np.flatnonzero(temperature > 150)
+if eligible.size:
+    peak_idx = eligible[np.argmax(dtg_up[eligible])]
+    ax2.plot(temperature[peak_idx], dtg_up[peak_idx], "o", color="#c0392b")
+    ax2.annotate(
+        f"{temperature[peak_idx]:.0f} °C",
+        (temperature[peak_idx], dtg_up[peak_idx]),
+        xytext=(8, 8),
+        textcoords="offset points",
+        color="#c0392b",
+    )
+
+ax1.legend([line1, line2], [line1.get_label(), line2.get_label()], loc="center left")
+ax1.grid(True, which="major", alpha=0.3)
+fig.tight_layout()
+fig.savefig(OUT_DIR / "Acid-washed.png", dpi=300, bbox_inches="tight")
+plt.close(fig)

@@ -1,0 +1,44 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "bar",
+ "x": {
+  "col": "반응기"
+ },
+ "y": {
+  "col": "CNT수율 (g/g-cat)",
+  "agg": "mean"
+ },
+ "by": {
+  "col": "일자",
+  "format": "%m"
+ },
+ "filter": [
+  "B between 2026-03-01 and 2026-03-31 OR B between 2026-08-01 and 2026-08-31"
+ ],
+ "sort": "x",
+ "title": {
+  "text": "반응기별 월간 평균 수율 비교 (3월 vs 8월)"
+ },
+ "values": true,
+ "legend": {
+  "where": "best",
+  "show": true
+ },
+ "asks": [
+  {
+   "ask": "반응기별 평균 수율",
+   "how": "key"
+  },
+  {
+   "ask": "3월과 8월 비교 (나란히/묶은 막대)",
+   "how": "key"
+  },
+  {
+   "ask": "보고용 제목 추가",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S010_r2/out/t1"
+ }
+}

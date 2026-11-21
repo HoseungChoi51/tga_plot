@@ -1,0 +1,26 @@
+{
+ "file": "data/r2_zone_temps.csv",
+ "chart": "histogram",
+ "x": "차이(°C)",
+ "bins": {
+  "width": 2
+ },
+ "filter": [
+  "시각 >= 2026-06-17 20:00",
+  "시각 <= 2026-06-17 22:00"
+ ],
+ "data_code": "df['차이(°C)'] = df['2존(°C)'] - df['2존 SP(°C)']",
+ "asks": [
+  {
+   "ask": "2존과 SP 차이 히스토그램",
+   "how": "key"
+  },
+  {
+   "ask": "2도 간격",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_t07/P-mpl/DS04_r2/out/t3"
+ }
+}

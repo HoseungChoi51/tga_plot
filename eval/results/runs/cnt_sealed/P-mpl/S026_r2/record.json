@@ -1,0 +1,349 @@
+{
+ "arm": "P-mpl",
+ "item": "S026",
+ "repeat": 2,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "반응기별 등급 A/B/C 구성비(%)를 묶은 막대로 보여 주세요. 반응기마다 합이 100%가 되게요.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"bar\",\n  \"x\": \"반응기\",\n  \"y\": \"count\",\n  \"by\": \"등급 (A/B/C)\",\n  \"stack\": true,\n  \"normalize\": true,\n  \"values\": \"percent\",\n  \"asks\": [\n    {\n      \"ask\": \"반응기별 등급 구성비 막대\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"합이 100%가 되게 (정규화)\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 5.956,
+     "prompt_tokens": 6278,
+     "output_tokens": 162,
+     "cached_tokens": 6233,
+     "prompt_n": 45,
+     "prefill_ms": 361.59657,
+     "decode_ms": 4832.276647000001,
+     "finish": "stop"
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"bar\",\n  \"x\": \"반응기\",\n  \"y\": \"count\",\n  \"by\": \"등급 (A/B/C)\",\n  \"stack\": true,\n  \"percent\": true,\n  \"values\": \"percent\",\n  \"asks\": [\n    {\n      \"ask\": \"반응기별 등급 구성비 막대\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"합이 100%가 되게 (정규화)\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 3.284,
+     "prompt_tokens": 6571,
+     "output_tokens": 162,
+     "cached_tokens": 6440,
+     "prompt_n": 131,
+     "prefill_ms": 353.446201,
+     "decode_ms": 2756.472253,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "bar",
+    "x": "반응기",
+    "y": "count",
+    "by": "등급 (A/B/C)",
+    "stack": true,
+    "percent": true,
+    "values": "percent",
+    "asks": [
+     {
+      "ask": "반응기별 등급 구성비 막대",
+      "how": "key"
+     },
+     {
+      "ask": "합이 100%가 되게 (정규화)",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-mpl/S026_r2/out/t1/bar_반응기.png"
+    ],
+    "chart": "bar",
+    "rows_used": 997,
+    "rows_total": 997,
+    "values": {
+     "categories": [
+      "R1",
+      "R2",
+      "R3",
+      "R4"
+     ],
+     "series": {
+      "A": [
+       138.0,
+       79.0,
+       131.0,
+       1.0
+      ],
+      "B": [
+       106.0,
+       126.0,
+       112.0,
+       178.0
+      ],
+      "C": [
+       7.0,
+       45.0,
+       2.0,
+       72.0
+      ]
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "막대 그래프를 저장했습니다: bar_반응기.png\n사용한 행: 997 / 997\nA: R1 138, R2 79, R3 131, R4 1\nB: R1 106, R2 126, R3 112, R4 178\nC: R1 7, R2 45, R3 2, R4 72"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": null,
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "A",
+         "orient": "v",
+         "cats": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          138.0,
+          79.0,
+          131.0,
+          1.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0
+         ]
+        },
+        {
+         "name": "B",
+         "orient": "v",
+         "cats": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          106.0,
+          126.0,
+          112.0,
+          178.0
+         ],
+         "bottoms": [
+          138.0,
+          79.0,
+          131.0,
+          1.0
+         ],
+         "colors": [
+          "#c0392b",
+          "#c0392b",
+          "#c0392b",
+          "#c0392b"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0
+         ]
+        },
+        {
+         "name": "C",
+         "orient": "v",
+         "cats": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          7.0,
+          45.0,
+          2.0,
+          72.0
+         ],
+         "bottoms": [
+          244.0,
+          205.0,
+          243.0,
+          179.0
+         ],
+         "colors": [
+          "#2e8b57",
+          "#2e8b57",
+          "#2e8b57",
+          "#2e8b57"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 12,
+       "texts": [
+        "138",
+        "79",
+        "131",
+        "1",
+        "106",
+        "126",
+        "112",
+        "178",
+        "7",
+        "45",
+        "2",
+        "72"
+       ],
+       "x": {
+        "label": "반응기",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "R1",
+         "R2",
+         "R3",
+         "R4"
+        ],
+        "min": -0.5900000000000001,
+        "max": 3.5900000000000003,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "R1",
+         "R2",
+         "R3",
+         "R4"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "count",
+        "type": "value",
+        "ticks": [
+         0.0,
+         100.0,
+         200.0,
+         300.0,
+         400.0
+        ],
+        "step": 100.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 400.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "-100",
+         "0",
+         "100",
+         "200",
+         "300",
+         "400",
+         "500"
+        ],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [
+      "138",
+      "79",
+      "131",
+      "1",
+      "106",
+      "126",
+      "112",
+      "178",
+      "7",
+      "45",
+      "2",
+      "72"
+     ],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "A",
+       "B",
+       "C"
+      ],
+      "inside": true,
+      "where": "upper right"
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-mpl/S026_r2/out/t1/bar_반응기.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.4086918830871582,
+   "check": {
+    "kind_expected": "grouped_bar",
+    "failed": [
+     "kind: drawn ['bar', 'stacked_bar'], want grouped_bar",
+     "values: R1/A: drawn 138.0, want 54.98; R2/A: drawn 79.0, want 31.6; R3/A: drawn 131.0, want 53.469; R4/A: drawn 1.0, want 0.398; R1/B: drawn 106.0, want 42.231",
+     "kind: bars are stacked, want side by side"
+    ],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 3,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 9.948
+  }
+ ]
+}

@@ -1,0 +1,78 @@
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/B19_r2/out")
+
+# Korean font and plot defaults
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+# Read the PVC worksheet and identify the temperature and mass columns by header.
+df = pd.read_excel(DATA_FILE, sheet_name="PVC")
+temperature_col = next(c for c in df.columns if "Temperature" in str(c))
+weight_col = next(c for c in df.columns if "Weight" in str(c) and "Deriv" not in str(c))
+
+df[temperature_col] = pd.to_numeric(df[temperature_col], errors="coerce")
+df[weight_col] = pd.to_numeric(df[weight_col], errors="coerce")
+df = df.dropna(subset=[temperature_col, weight_col]).sort_values(temperature_col)
+
+# Interpolate weights at the requested temperature limits.
+temperatures = df[temperature_col].to_numpy(dtype=float)
+weights = df[weight_col].to_numpy(dtype=float)
+t_start, t_end = 200.0, 400.0
+
+if temperatures.min() > t_start or temperatures.max() < t_end:
+    raise ValueError("PVC 데이터의 온도 범위가 200–400 °C를 포함하지 않습니다.")
+
+weight_200 = float(np.interp(t_start, temperatures, weights))
+weight_400 = float(np.interp(t_end, temperatures, weights))
+mass_loss = weight_200 - weight_400
+
+# Plot the full TGA curve and highlight the 200–400 °C interval.
+fig, ax = plt.subplots(figsize=(9, 5.5))
+ax.plot(temperatures, weights, color="#2563a6", linewidth=2, label="PVC 질량")
+ax.axvspan(t_start, t_end, color="#f2a541", alpha=0.18, label="계산 구간 (200–400 °C)")
+ax.plot([t_start, t_end], [weight_200, weight_400], "o", color="#d04a35", markersize=6, zorder=3)
+ax.vlines([t_start, t_end], ymin=0, ymax=[weight_200, weight_400],
+          colors="#d04a35", linestyles=":", linewidth=1.2)
+
+ax.annotate(f"200 °C: {weight_200:.2f}%",
+            (t_start, weight_200), xytext=(10, 12),
+            textcoords="offset points", fontsize=10, color="#333333")
+ax.annotate(f"400 °C: {weight_400:.2f}%",
+            (t_end, weight_400), xytext=(10, 12),
+            textcoords="offset points", fontsize=10, color="#333333")
+
+mid_x = (t_start + t_end) / 2
+mid_y = (weight_200 + weight_400) / 2
+ax.annotate(
+    f"질량 감소량: {mass_loss:.2f}%",
+    xy=(mid_x, mid_y),
+    xytext=(0, -34),
+    textcoords="offset points",
+    ha="center",
+    va="top",
+    color="#9a3d2c",
+    fontsize=11,
+    fontweight="bold",
+    arrowprops=dict(arrowstyle="->", color="#9a3d2c", lw=1.2),
+    bbox=dict(boxstyle="round,pad=0.35", fc="white", ec="#d04a35", alpha=0.95),
+)
+
+ax.set_title("PVC의 200–400 °C 구간 질량 감소")
+ax.set_xlabel("온도 (°C)")
+ax.set_ylabel("질량 (%)")
+ax.set_xlim(temperatures.min(), temperatures.max())
+ax.set_ylim(bottom=0)
+ax.grid(True, linestyle="--", alpha=0.35)
+ax.legend(loc="best")
+fig.tight_layout()
+
+fig.savefig(OUT_DIR / "PVC_mass_loss_200_400C.png", dpi=300, bbox_inches="tight")
+plt.close(fig)

@@ -1,0 +1,72 @@
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+# 데이터 파일 경로와 출력 디렉토리 설정
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/caox.csv"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/B12_r3/out"
+
+# 한글 폰트 설정
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+# 데이터 읽기
+df = pd.read_csv(DATA_FILE)
+
+# 열 이름 확인 및 변수 할당 (데이터 미리보기 기준)
+# "Temperature (°C)" -> x축
+# "Weight (%)" -> y축
+temp_col = "Temperature (°C)"
+weight_col = "Weight (%)"
+
+# 데이터 필터링: x 범위 100 to 900
+df_plot = df[(df[temp_col] >= 100) & (df[temp_col] <= 900)]
+
+# 그래프 생성
+fig, ax = plt.subplots(figsize=(8, 6))
+
+# TGA 곡선 (Weight %) 그리기
+ax.plot(df_plot[temp_col], df_plot[weight_col], color='blue', linewidth=1.5, label='Weight (%)')
+
+# 축 라벨 및 제목 설정
+ax.set_xlabel("Temperature (°C)", fontsize=12)
+ax.set_ylabel("Weight (%)", fontsize=12)
+ax.set_title("TGA Curve of CaoX", fontsize=14)
+
+# x축 범위 설정
+ax.set_xlim(100, 900)
+
+# 잔류량(residue) 계산 및 라벨링
+# 900°C에서의 무게를 찾기 위해 가장 가까운 데이터 포인트 사용
+idx_900 = (df[temp_col] - 900).abs().idxmin()
+residue_weight = df.loc[idx_900, weight_col]
+residue_temp = df.loc[idx_900, temp_col]
+
+# 라벨 추가
+label_text = f"Residue @ {residue_temp:.0f} °C:\n{residue_weight:.2f} %"
+ax.annotate(label_text,
+            xy=(residue_temp, residue_weight),
+            xytext=(residue_temp - 200, residue_weight + 10), # 텍스트 위치 조정
+            arrowprops=dict(facecolor='black', shrink=0.05, width=1, headwidth=5),
+            fontsize=10,
+            ha='center')
+
+# 격자 표시
+ax.grid(True, linestyle='--', alpha=0.6)
+
+# 레전드 표시
+ax.legend(loc='upper right')
+
+# 레이아웃 자동 조정
+plt.tight_layout()
+
+# 출력 디렉토리가 없으면 생성
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# 그림 저장
+output_path = os.path.join(OUT_DIR, "tga_weight_curve.png")
+plt.savefig(output_path, dpi=300)
+
+print(f"Plot saved to {output_path}")
+```

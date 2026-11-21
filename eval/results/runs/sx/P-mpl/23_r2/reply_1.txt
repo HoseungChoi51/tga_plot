@@ -1,0 +1,3 @@
+```json
+{"file": "instrument_export.txt", "annotate": {"residue": {"text": "Residue: {}%"}}}
+```

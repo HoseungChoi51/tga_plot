@@ -1,0 +1,86 @@
+We need answer to user with corrected JSON spec only. Need analyze. User says plotkit error: echarts.grid must be an object | hint: Reply with corrected JSON spec only.
+
+We need produce JSON spec that plots weight top, DTG bottom, shared x. plotkit only allows echarts.grid as object, not list. But to create two grids? Maybe allowed grid object only? The guide says allowed: title, legend, grid, xAxis, yAxis (list...), series (list...). But error says echarts.grid must be an object. So cannot use list for grid. Need achieve two panels with allowed keys? Maybe use graphic? But likely plotkit's echarts validation expects grid object, not list. Could use graphic lines to separate? But two separate y axes? ECharts supports multiple grids as array normally, but plotkit restricts grid to object. Maybe can use yAxis list with position? But without multiple grids, cannot have top/bottom. Need use graphic? Maybe use markArea? Hmm.
+
+Need infer plotkit behavior. It likely builds ECharts option with one grid object. User request: weight above, DTG below, shared x. How to do with plotkit keys? Maybe there is a preset or key? The guide doesn't mention subplot. Could use echarts.series with markLine? No.
+
+Maybe use `echarts` with `graphic` to draw two axes? But data series still in one grid, can't separate top/bottom. Could use two y axes in same grid but position? Weight on left, DTG on right, not top/bottom.
+
+Maybe use `echarts.grid` object with `left`, `right`, `top`, `bottom`, `height` but only one grid. Could set top half? But then second series? Not possible.
+
+Maybe use `echarts` with `xAxis` list and `yAxis` list, but grid must object; ECharts can have multiple axes referencing gridIndex? If grid is object, gridIndex maybe ignored? Not good.
+
+Need satisfy validation: grid must be object. Could provide a single grid object that covers entire plot, but then not split. Maybe use `series` with `markArea` to visually separate? But data overlapping.
+
+Could use `echarts.graphic` to create two separate charts? No, graphic only text/line/rect.
+
+Maybe plotkit supports a key for separate plots? The guide doesn't. But maybe `output.format` multiple? No.
+
+Could create two separate PNGs? Request says separate graphs (weight top, DTG bottom) maybe can output two files? But only one file? Could use sheets? no.
+
+Maybe use `echarts` with `grid` object and `xAxis` list? If grid object only, ECharts might accept multiple xAxis/yAxis in same grid, but series can assign to different axes. Still same coordinate area.
+
+Maybe use `graphic` to draw a line in middle and set y-axis ranges so weight occupies top half and DTG bottom half within same grid? We can set y1 min/max so weight line drawn in top half, y2 min/max so DTG drawn in bottom half, and hide axes? But x shared. Could be acceptable visually: weight top, DTG bottom by scaling y axes. Need use TGA default y1 weight, y2 DTG. We can set y1 min/max to make weight occupy upper area, y2 min/max to occupy lower area. But axes w
+[...]
+m bottom. So DTG spans bottom 7% to middle 50%. Good. Peak annotation maybe at max value 0.002553 near bottom, not peak? But default peak maybe highest DTG peak (most negative?) If it uses kind max, it would pick 0.002553 (small positive) not the big negative peak. The guide says highest DTG peak; maybe derivative weight peaks are negative but "highest" maybe max absolute? Not sure. Default peak option `kind` max/min. It may default max? For derivative weight negative, max is near zero. But guide says default highest DTG peak; maybe it uses min? Hmm. Not relevant.
+
+If we set y2 max=0.1, positive data included. Good. If flip true, min=-1.2 top, max=0.1 bottom. DTG bottom half. Good.
+
+But if default y2 not flipped, min=-1.2 max=0.1 puts DTG middle/top? With flip false, min bottom -1.2, max top 0.1, -0.546 at 0.503 from bottom (middle), 0 at 0.923 (top). That puts DTG middle to top. Not good. So flip true essential.
+
+Could set `y2.flip: true` and min=-1.2 max=0.1. Good.
+
+For y1 top half, if we set min=-100 max=100. Data weight 38-100 maps 0.69-1 from bottom. Good. If y1 flip false. Include flip false.
+
+Now, if y axes hidden, the hline separator at y1=0 is middle. Good.
+
+Could we set y1 min=-100 max=100 but weight line top half; y2 flip true min=-1.2 max=0.1 DTG bottom half. Great.
+
+Need maybe set y1/y2 label? If hidden axis labels, label may still show. We can keep labels. But if axis line hidden, label maybe. To be safe, use graphic text? Hmm.
+
+Maybe keep axis labels and hide only tick labels? If axisLine show false but name show. If not, labels missing. Could not hide axisLine, just hide tick labels? Then axis lines on sides, but data separated. It may look okay. We can set `axisLabel.show=false` but keep `axisLine.show=true`. Then axis names likely show. No need graphic. But axis lines with no ticks. Good. Let's do that. `splitLine` maybe hide. `axisTick` hide. Keep axisLine show true. Then y1/y2 labels from plotkit show. Good.
+
+Spec:
+```
+"echarts": {"yAxis": [{"axisLabel": {"show": false}, "axisTick": {"show": false}, "splitLine": {"show": false}}, {"axisLabel": {"show": false}, "axisTick": {"show": false}, "splitLine": {"show": false}}]}
+```
+Keep axisLine default true. Good.
+
+But if axisLine true, y1 axis line left, y2 right. Fine.
+
+Could hide splitLine to avoid grid lines across both panels. Good.
+
+Need maybe set `grid` object? Not needed. But if we don't include grid, no error. Good.
+
+Could include `grid` object with `containLabel: true` to ensure labels. But not necessary. If include, must be object. Could include to be explicit. But omit simpler.
+
+Now, hline annotation at y1=0. If y1 axis line visible, hline across. Good.
+
+Could default residue/peak annotations remain. Good.
+
+Let's ensure JSON:
+```
+{
+  "file": "caox.csv",
+  "y1": {"flip": false, "min": -100, "max": 100},
+  "y2": {"flip": true, "min": -1.2, "max": 0.1},
+  "annotate": {"sep": {"type": "hline", "on": "y1", "y": 0, "color": "gray", "text": ""}},
+  "echarts": {
+    "yAxis": [
+      {"axisLabel": {"show": false}, "axisTick": {"show": false}, "splitLine": {"show": false}},
+      {"axisLabel": {"show": false}, "axisTick": {"show": false}, "splitLine": {"show": false}}
+    ]
+  }
+}
+```
+Will `flip` key be accepted? Yes axis flip.
+
+Potential issue: `annotate.sep.text: ""` maybe invalid because empty? Could omit text. If default text maybe none? Guide hline example no text. Use omit to be safe. But if default text maybe y value? It might show "0". Could be okay. To suppress, maybe `text: " "`? Hmm. I think omit is safer than empty string. But if it shows "0", not too bad. Use omit.
+
+Spec without text:
+```
+"annotate": {"sep": {"type": "hline", "on": "y1", "y": 0, "color": "gray"}}
+```
+Good.
+
+Potential issue: `color` for hline maybe needs line color? Guide annotate color text color? It says annotate.<name>.color (text color). For hline line color maybe maybe `line_color`? Not specified. If `color` is text color, line may default. But separator line color maybe not gray

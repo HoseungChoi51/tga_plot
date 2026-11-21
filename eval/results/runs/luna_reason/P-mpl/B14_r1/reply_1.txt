@@ -1,0 +1,8 @@
+```json
+{
+  "file": "polymers.xlsx",
+  "sheets": "PVC",
+  "font_size": 16,
+  "code": "fig.set_size_inches(10, fig.get_size_inches()[1])"
+}
+```

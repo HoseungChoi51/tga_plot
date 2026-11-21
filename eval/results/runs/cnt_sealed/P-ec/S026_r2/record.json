@@ -1,0 +1,285 @@
+{
+ "arm": "P-ec",
+ "item": "S026",
+ "repeat": 2,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "반응기별 등급 A/B/C 구성비(%)를 묶은 막대로 보여 주세요. 반응기마다 합이 100%가 되게요.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"chart\": \"bar\",\n  \"x\": \"반응기\",\n  \"y\": \"count\",\n  \"by\": \"등급 (A/B/C)\",\n  \"stack\": true,\n  \"normalize\": true,\n  \"asks\": [\n    {\n      \"ask\": \"반응기별 등급 구성비(%)\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"묶은 막대 (100% 스택)\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 3.658,
+     "prompt_tokens": 6334,
+     "output_tokens": 144,
+     "cached_tokens": 6289,
+     "prompt_n": 45,
+     "prefill_ms": 249.807029,
+     "decode_ms": 2961.348021,
+     "finish": "stop"
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"chart\": \"bar\",\n  \"x\": \"반응기\",\n  \"y\": \"count\",\n  \"by\": \"등급 (A/B/C)\",\n  \"stack\": true,\n  \"percent\": true,\n  \"asks\": [\n    {\n      \"ask\": \"반응기별 등급 구성비(%)\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"묶은 막대 (100% 스택)\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 3.573,
+     "prompt_tokens": 6609,
+     "output_tokens": 144,
+     "cached_tokens": 6478,
+     "prompt_n": 131,
+     "prefill_ms": 361.14138099999997,
+     "decode_ms": 2819.5257640000004,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "chart": "bar",
+    "x": "반응기",
+    "y": "count",
+    "by": "등급 (A/B/C)",
+    "stack": true,
+    "percent": true,
+    "asks": [
+     {
+      "ask": "반응기별 등급 구성비(%)",
+      "how": "key"
+     },
+     {
+      "ask": "묶은 막대 (100% 스택)",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": true,
+    "engine": "echarts",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-ec/S026_r2/out/t1/bar_반응기.png"
+    ],
+    "chart": "bar",
+    "rows_used": 997,
+    "rows_total": 997,
+    "values": {
+     "categories": [
+      "R1",
+      "R2",
+      "R3",
+      "R4"
+     ],
+     "series": {
+      "A": [
+       138.0,
+       79.0,
+       131.0,
+       1.0
+      ],
+      "B": [
+       106.0,
+       126.0,
+       112.0,
+       178.0
+      ],
+      "C": [
+       7.0,
+       45.0,
+       2.0,
+       72.0
+      ]
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "막대 그래프를 저장했습니다: bar_반응기.png\n사용한 행: 997 / 997\nA: R1 138, R2 79, R3 131, R4 1\nB: R1 106, R2 126, R3 112, R4 178\nC: R1 7, R2 45, R3 2, R4 72"
+   },
+   "facts": [
+    {
+     "engine": "echarts",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": 300,
+     "title": null,
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "A",
+         "orient": "v",
+         "cats": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          138.0,
+          79.0,
+          131.0,
+          1.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c"
+         ]
+        },
+        {
+         "name": "B",
+         "orient": "v",
+         "cats": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          106.0,
+          126.0,
+          112.0,
+          178.0
+         ],
+         "bottoms": [
+          138.0,
+          79.0,
+          131.0,
+          1.0
+         ],
+         "colors": [
+          "#c0392b",
+          "#c0392b",
+          "#c0392b",
+          "#c0392b"
+         ]
+        },
+        {
+         "name": "C",
+         "orient": "v",
+         "cats": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          7.0,
+          45.0,
+          2.0,
+          72.0
+         ],
+         "bottoms": [
+          244.0,
+          205.0,
+          243.0,
+          179.0
+         ],
+         "colors": [
+          "#2e8b57",
+          "#2e8b57",
+          "#2e8b57",
+          "#2e8b57"
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "반응기",
+        "type": "category",
+        "ticks": [],
+        "step": null,
+        "categories": [
+         "R1",
+         "R2",
+         "R3",
+         "R4"
+        ],
+        "min": 0.0,
+        "max": 3.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "count",
+        "type": "value",
+        "ticks": [
+         0.0,
+         100.0,
+         200.0,
+         300.0,
+         400.0
+        ],
+        "step": 100.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 400.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       }
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "등급",
+       "A",
+       "B",
+       "C"
+      ],
+      "inside": true,
+      "where": "upper right"
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-ec/S026_r2/out/t1/bar_반응기.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.6039302349090576,
+   "check": {
+    "kind_expected": "grouped_bar",
+    "failed": [
+     "kind: drawn ['bar', 'stacked_bar'], want grouped_bar",
+     "values: R1/A: drawn 138.0, want 54.98; R2/A: drawn 79.0, want 31.6; R3/A: drawn 131.0, want 53.469; R4/A: drawn 1.0, want 0.398; R1/B: drawn 106.0, want 42.231",
+     "kind: bars are stacked, want side by side"
+    ],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 3,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 8.15
+  }
+ ]
+}

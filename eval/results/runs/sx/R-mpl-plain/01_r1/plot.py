@@ -1,0 +1,73 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+# 데이터 파일 경로 및 출력 디렉토리 설정
+DATA_FILE = "/home/chs/CNT/Plot/tests/inputs/TGA.xlsx"
+OUT_DIR = "/home/chs/CNT/Plot/eval/results/runs/sx/R-mpl-plain/01_r1/out"
+
+# 한국어 폰트 설정
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+# 시트 이름 목록 (미리보기에 따라)
+sheets = ['1006R1-V normal', '1006R1-V acid', '1006R1-V 750C']
+
+# 그래프 설정
+fig, ax1 = plt.subplots(figsize=(10, 6))
+
+# 색상 정의
+colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
+
+for i, sheet_name in enumerate(sheets):
+    # 각 시트 데이터 읽기
+    df = pd.read_excel(DATA_FILE, sheet_name=sheet_name, header=0)
+    
+    # 열 이름 정리 (공백 제거 등)
+    df.columns = [col.strip() for col in df.columns]
+    
+    x = df['Temperature']
+    y_weight = df['Weight(%)']
+    y_dwt = df['D.W(%/C)']
+    
+    color = colors[i % len(colors)]
+    
+    # TGA 곡선 (Weight %) - 왼쪽 Y축
+    line1, = ax1.plot(x, y_weight, label=f'{sheet_name} (TGA)', color=color, linewidth=1.5)
+    
+    # DTG 곡선 (D.W %/C) - 오른쪽 Y축
+    ax2 = ax1.twinx()
+    line2, = ax2.plot(x, y_dwt, linestyle='--', alpha=0.7, color=color, linewidth=1.2)
+    
+    # 라벨 추가를 위해 첫 번째 반복에서만 축 레이블 설정
+    if i == 0:
+        ax1.set_xlabel('온도 (°C)', fontsize=12)
+        ax1.set_ylabel('무게 (%)', fontsize=12, color='#333333')
+        ax2.set_ylabel('DTG (%/°C)', fontsize=12, color='#333333')
+
+# 제목 설정
+ax1.set_title('TGA/DTG 분석 결과 비교', fontsize=14, pad=10)
+
+# 범례 생성
+lines_labels = ax1.get_legend_handles_labels()
+lines_dtg = ax2.get_legend_handles_labels()
+
+# 모든 라인 객체와 레이블을 하나로 통합하여 범례 표시
+all_lines = lines_labels[0] + lines_dtg[0]
+all_labels = lines_labels[1] + lines_dtg[1]
+
+# 중복된 레이블 제거 및 정렬은 생략하고 그대로 사용하되, 가독성을 위해 위치 조정
+ax1.legend(all_lines, all_labels, loc='upper right', fontsize=9)
+
+# 그리드 설정
+ax1.grid(True, linestyle=':', alpha=0.6)
+
+# 레이아웃 자동 조정
+plt.tight_layout()
+
+# 출력 파일명 설정
+output_filename = os.path.join(OUT_DIR, "TGA_comparison.png")
+
+# 저장
+plt.savefig(output_filename, dpi=300, bbox_inches='tight')
+plt.close()

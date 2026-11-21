@@ -1,0 +1,3 @@
+```json
+{"file": "polymers.xlsx", "sheets": 2, "annotate": {"residue": true, "vline1": {"type": "vline", "x": 300}, "vline2": {"type": "vline", "x": 600}}}
+```

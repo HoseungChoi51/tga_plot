@@ -1,0 +1,47 @@
+{
+ "file": [
+  "data/tga_batches.xlsx",
+  "data/run_log.xlsx"
+ ],
+ "chart": "scatter",
+ "x": {
+  "col": "TGA_Fe_wt%",
+  "label": "TGA 잔류량 환산 Fe (wt%)"
+ },
+ "y": {
+  "col": "잔류금속 (wt%)",
+  "label": "런로그 잔류금속 (wt%)"
+ },
+ "ref": [
+  {
+   "type": "line",
+   "slope": 1,
+   "intercept": 0,
+   "text": "y = x",
+   "color": "gray",
+   "linestyle": "dashed"
+  }
+ ],
+ "data_code": "import pandas as pd\nimport numpy as np\n\n# Load TGA data from the first file in the list\ntga_file = 'data/tga_batches.xlsx'\nxl_tga = pd.ExcelFile(tga_file)\n\nresults = []\nfor sheet_name in xl_tga.sheet_names:\n    df_sheet = pd.read_excel(xl_tga, sheet_name=sheet_name)\n    \n    # Identify columns: Temperature and Weight %\n    temp_col = None\n    weight_col = None\n    for col in df_sheet.columns:\n        c_str = str(col)\n        if '온도' in c_str or 'Temp' in c_str:\n            temp_col = col\n        elif '중량' in c_str or '%' in c_str:\n            weight_col = col\n            \n    if temp_col is None or weight_col is None:\n        continue\n        \n    # Sort by temperature to ensure correct interpolation\n    df_sorted = df_sheet.sort_values(temp_col)\n    \n    # Interpolate weight at 800 °C\n    w_800 = np.interp(800, df_sorted[temp_col].values, df_sorted[weight_col].values)\n    \n    # Convert Fe2O3 residue to Fe equivalent (factor 0.699)\n    fe_equiv = w_800 * 0.699\n    \n    results.append({\n        '런ID': sheet_name,\n        'TGA_Fe_wt%': fe_equiv\n    })\n\ndf_tga_summary = pd.DataFrame(results)\n\n# Merge with the main dataframe (which comes from run_log.xlsx)\n# The 'df' variable contains the data from the files specified in 'file'.\n# Since we listed both files, plotkit might have concatenated them or just loaded one.\n# Usually, if multiple files are given without a specific merge key in the spec, \n# it's safer to assume 'df' is the primary table (run_log) and we merge into it.\n# However, if 'df' already has all rows from both, merging on 런ID works.\n# If 'df' is just run_log, this adds the column.\nif '런ID' in df.columns:\n    df = df.merge(df_tga_summary, on='런ID', how='inner')\nelse:\n    # Fallback if 런ID isn't named exactly that in df, though preview says A 런ID\n    pass",
+ "asks": [
+  {
+   "ask": "TGA 10개 배치 각각 800 °C 잔량(wt%)을 Fe로 환산(Fe₂O₃ → Fe, ×0.699)",
+   "how": "data_code"
+  },
+  {
+   "ask": "런로그 잔류금속(wt%)과 비교하는 산점도",
+   "how": "key"
+  },
+  {
+   "ask": "시트 이름이 런ID",
+   "how": "data_code"
+  },
+  {
+   "ask": "y = x 기준선",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-mpl/S024_r3/out/t1"
+ }
+}

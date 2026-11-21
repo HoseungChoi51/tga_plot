@@ -1,0 +1,39 @@
+{
+ "file": "data/tga_batches.xlsx",
+ "sheets": [
+  "R4-260407-1",
+  "R4-260721-1"
+ ],
+ "preset": "none",
+ "combine": true,
+ "x": {
+  "col": "B",
+  "min": 30,
+  "max": 900,
+  "label": "온도 (°C)"
+ },
+ "y1": {
+  "col": "C",
+  "min": 0,
+  "max": 105,
+  "label": "중량 (%)"
+ },
+ "y2": false,
+ "asks": [
+  {
+   "ask": "R4 두 시트 TG 곡선 overlay",
+   "how": "key"
+  },
+  {
+   "ask": "x축 30–900 °C 고정",
+   "how": "key"
+  },
+  {
+   "ask": "y축 0–105 wt% 고정",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S016_r3/out/t1"
+ }
+}

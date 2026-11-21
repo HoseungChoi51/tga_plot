@@ -1,0 +1,3 @@
+```json
+{"file": "TGA.xlsx", "text_color": "gray", "font_size": 13, "asks": [{"ask": "전체 글자 색깔 회색", "how": "key"}, {"ask": "글자 크기 13", "how": "key"}]}
+```

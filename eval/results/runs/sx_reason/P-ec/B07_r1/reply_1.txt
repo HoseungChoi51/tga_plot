@@ -1,0 +1,20 @@
+```json
+{
+  "file": "polymers.xlsx",
+  "sheets": "PVC",
+  "annotate": {
+    "weight300": {
+      "type": "value_at_x",
+      "on": "y1",
+      "x": 300,
+      "text": "{y:.1f}%"
+    },
+    "weight600": {
+      "type": "value_at_x",
+      "on": "y1",
+      "x": 600,
+      "text": "{y:.1f}%"
+    }
+  }
+}
+```

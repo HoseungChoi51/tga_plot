@@ -1,0 +1,889 @@
+{
+ "arm": "R-mpl",
+ "item": "SS15",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "데이터 분석가",
+ "type": "session",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "Histogram of CNT수율, 30 bins.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# Configure font for Korean text\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the data\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Extract CNT yield data\nyield_data = df[\"CNT수율 (g/g-cat)\"].dropna()\n\n# Create histogram\nplt.figure(figsize=(10, 6))\nn, bins, patches = plt.hist(yield_data, bins=30, edgecolor='black', color='steelblue')\n\n# Add labels and title\nplt.xlabel(\"CNT수율 (g/g-cat)\", fontsize=12)\nplt.ylabel(\"빈도 (Count)\", fontsize=12)\nplt.title(\"CNT수율 히스토그램 (30 bins)\", fontsize=14)\nplt.grid(axis='y', alpha=0.75)\nplt.grid(axis='x', alpha=0.75)\n\n# Save the plot\noutput_file = os.path.join(OUT_DIR, \"cnt_yield_histogram.png\")\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\nplt.close()\n```",
+     "llm_s": 6.256,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 3669,
+     "output_chars": 901,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# Configure font for Korean text\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the data\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Identify the correct column name for CNT yield by searching for '수율'\ncol_name = None\nfor col in df.columns:\n    if 'CNT수율' in str(col):\n        col_name = col\n        break\n\nif col_name is None:\n    raise ValueError(\"Column containing 'CNT수율' not found.\")\n\n# Extract CNT yield data\nyield_data = df[col_name].dropna()\n\n# Create histogram\nplt.figure(figsize=(10, 6))\nn, bins, patches = plt.hist(yield_data, bins=30, edgecolor='black', color='steelblue')\n\n# Add labels and title\nplt.xlabel(\"CNT수율 (g/g-cat)\", fontsize=12)\nplt.ylabel(\"빈도 (Count)\", fontsize=12)\nplt.title(\"CNT수율 히스토그램 (30 bins)\", fontsize=14)\nplt.grid(axis='y', alpha=0.75)\nplt.grid(axis='x', alpha=0.75)\n\n# Save the plot\noutput_file = os.path.join(OUT_DIR, \"cnt_yield_histogram.png\")\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\nplt.close()\n```",
+     "llm_s": 6.497,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 6054,
+     "output_chars": 1151,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\nimport numpy as np\n\n# Configure font for Korean text\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the data\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Identify the correct column name for CNT yield by searching for '수율'\ncol_name = None\nfor col in df.columns:\n    if 'CNT수율' in str(col):\n        col_name = col\n        break\n\nif col_name is None:\n    raise ValueError(\"Column containing 'CNT수율' not found.\")\n\n# Extract CNT yield data and ensure it is numeric\n# The error suggests the column might contain non-numeric data (strings/NaNs mixed in a way that confuses mpl units)\n# We force conversion to numeric, dropping errors/NaNs\nyield_data = pd.to_numeric(df[col_name], errors='coerce').dropna()\n\n# Create histogram\nplt.figure(figsize=(10, 6))\nn, bins, patches = plt.hist(yield_data.values, bins=30, edgecolor='black', color='steelblue')\n\n# Add labels and title\nplt.xlabel(\"CNT수율 (g/g-cat)\", fontsize=12)\nplt.ylabel(\"빈도 (Count)\", fontsize=12)\nplt.title(\"CNT수율 히스토그램 (30 bins)\", fontsize=14)\nplt.grid(axis='y', alpha=0.75)\nplt.grid(axis='x', alpha=0.75)\n\n# Save the plot\noutput_file = os.path.join(OUT_DIR, \"cnt_yield_histogram.png\")\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\nplt.close()\n```",
+     "llm_s": 6.516,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 8675,
+     "output_chars": 1406,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport os\nimport numpy as np\n\n# Configure font for Korean text\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the data\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Identify the correct column name for CNT yield by searching for '수율'\ncol_name = None\nfor col in df.columns:\n    if 'CNT수율' in str(col):\n        col_name = col\n        break\n\nif col_name is None:\n    raise ValueError(\"Column containing 'CNT수율' not found.\")\n\n# Extract CNT yield data and ensure it is numeric\n# The error suggests the column might contain non-numeric data (strings/NaNs mixed in a way that confuses mpl units)\n# We force conversion to numeric, dropping errors/NaNs\nyield_data = pd.to_numeric(df[col_name], errors='coerce').dropna()\n\n# Create histogram\nplt.figure(figsize=(10, 6))\nn, bins, patches = plt.hist(yield_data.values, bins=30, edgecolor='black', color='steelblue')\n\n# Add labels and title\nplt.xlabel(\"CNT수율 (g/g-cat)\", fontsize=12)\nplt.ylabel(\"빈도 (Count)\", fontsize=12)\nplt.title(\"CNT수율 히스토그램 (30 bins)\", fontsize=14)\nplt.grid(axis='y', alpha=0.75)\nplt.grid(axis='x', alpha=0.75)\n\n# Save the plot\noutput_file = os.path.join(OUT_DIR, \"cnt_yield_histogram.png\")\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "CNT수율 히스토그램 (30 bins)",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [
+        {
+         "name": "",
+         "edges": [
+          12.69,
+          13.431666666666665,
+          14.173333333333332,
+          14.915,
+          15.656666666666666,
+          16.398333333333333,
+          17.14,
+          17.881666666666668,
+          18.623333333333335,
+          19.365000000000002,
+          20.106666666666666,
+          20.848333333333333,
+          21.59,
+          22.33166666666667,
+          23.07333333333333,
+          23.814999999999998,
+          24.556666666666665,
+          25.298333333333332,
+          26.04,
+          26.781666666666666,
+          27.523333333333333,
+          28.265,
+          29.006666666666668,
+          29.748333333333335,
+          30.490000000000002,
+          31.23166666666667,
+          31.973333333333333,
+          32.715,
+          33.45666666666666,
+          34.19833333333332,
+          34.93999999999999
+         ],
+         "counts": [
+          1.0,
+          1.0,
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          9.0,
+          9.0,
+          14.0,
+          20.0,
+          29.0,
+          43.0,
+          45.0,
+          48.0,
+          68.0,
+          64.0,
+          91.0,
+          91.0,
+          90.0,
+          69.0,
+          74.0,
+          81.0,
+          57.0,
+          41.0,
+          23.0,
+          15.0,
+          4.0,
+          2.0,
+          1.0,
+          1.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#4682b4"
+        }
+       ],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "CNT수율 (g/g-cat)",
+        "type": "value",
+        "ticks": [
+         15.0,
+         20.0,
+         25.0,
+         30.0,
+         35.0
+        ],
+        "step": 5.0,
+        "categories": null,
+        "min": 11.5775,
+        "max": 36.05249999999999,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "10",
+         "15",
+         "20",
+         "25",
+         "30",
+         "35",
+         "40"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "빈도 (Count)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         20.0,
+         40.0,
+         60.0,
+         80.0
+        ],
+        "step": 20.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 95.55,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "20",
+         "40",
+         "60",
+         "80",
+         "100"
+        ],
+        "rotate": 0.0
+       },
+       "title": "CNT수율 히스토그램 (30 bins)"
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t1/cnt_yield_histogram.png",
+       "format": "png",
+       "px": [
+        2530,
+        1666
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.48323678970336914,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 20.586
+  },
+  {
+   "turn": 2,
+   "text": "Overlay two periods — 주차 1–13 vs 14–26 — with shared bin edges, 1 g/g-cat wide from 12 to 36.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\nimport numpy as np\n\n# Configure font for Korean text\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the data\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Identify the correct column name for CNT yield by searching for '수율'\ncol_name = None\nfor col in df.columns:\n    if 'CNT수율' in str(col):\n        col_name = col\n        break\n\nif col_name is None:\n    raise ValueError(\"Column containing 'CNT수율' not found.\")\n\n# Ensure numeric types for plotting columns\ndf['주차_num'] = pd.to_numeric(df['주차'], errors='coerce')\ndf['yield_num'] = pd.to_numeric(df[col_name], errors='coerce')\n\n# Filter out rows where either 주차 or 수율 is NaN\ndf_clean = df.dropna(subset=['주차_num', 'yield_num'])\n\n# Separate data into two periods: Weeks 1-13 and Weeks 14-26\nperiod1_data = df_clean[df_clean['주차_num'] <= 13]['yield_num'].values\nperiod2_data = df_clean[df_clean['주차_num'] >= 14]['yield_num'].values\n\n# Define shared bin edges: 1 g/g-cat wide from 12 to 36\nbin_edges = np.arange(12, 37, 1)\n\n# Create overlay histogram\nplt.figure(figsize=(10, 6))\nplt.hist(period1_data, bins=bin_edges, alpha=0.5, label='주차 1–13', color='steelblue', edgecolor='black')\nplt.hist(period2_data, bins=bin_edges, alpha=0.5, label='주차 14–26', color='darkorange', edgecolor='black')\n\n# Add labels and title\nplt.xlabel(\"CNT수율 (g/g-cat)\", fontsize=12)\nplt.ylabel(\"빈도 (Count)\", fontsize=12)\nplt.title(\"CNT수율 분포 비교: 주차 1–13 vs 14–26\", fontsize=14)\nplt.legend()\nplt.grid(axis='y', alpha=0.75)\nplt.grid(axis='x', alpha=0.75)\n\n# Save the plot\noutput_file = os.path.join(OUT_DIR, \"cnt_yield_histogram_overlay.png\")\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\nplt.close()\n```",
+     "llm_s": 10.184,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 10353,
+     "output_chars": 1828,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport os\nimport numpy as np\n\n# Configure font for Korean text\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the data\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Identify the correct column name for CNT yield by searching for '수율'\ncol_name = None\nfor col in df.columns:\n    if 'CNT수율' in str(col):\n        col_name = col\n        break\n\nif col_name is None:\n    raise ValueError(\"Column containing 'CNT수율' not found.\")\n\n# Ensure numeric types for plotting columns\ndf['주차_num'] = pd.to_numeric(df['주차'], errors='coerce')\ndf['yield_num'] = pd.to_numeric(df[col_name], errors='coerce')\n\n# Filter out rows where either 주차 or 수율 is NaN\ndf_clean = df.dropna(subset=['주차_num', 'yield_num'])\n\n# Separate data into two periods: Weeks 1-13 and Weeks 14-26\nperiod1_data = df_clean[df_clean['주차_num'] <= 13]['yield_num'].values\nperiod2_data = df_clean[df_clean['주차_num'] >= 14]['yield_num'].values\n\n# Define shared bin edges: 1 g/g-cat wide from 12 to 36\nbin_edges = np.arange(12, 37, 1)\n\n# Create overlay histogram\nplt.figure(figsize=(10, 6))\nplt.hist(period1_data, bins=bin_edges, alpha=0.5, label='주차 1–13', color='steelblue', edgecolor='black')\nplt.hist(period2_data, bins=bin_edges, alpha=0.5, label='주차 14–26', color='darkorange', edgecolor='black')\n\n# Add labels and title\nplt.xlabel(\"CNT수율 (g/g-cat)\", fontsize=12)\nplt.ylabel(\"빈도 (Count)\", fontsize=12)\nplt.title(\"CNT수율 분포 비교: 주차 1–13 vs 14–26\", fontsize=14)\nplt.legend()\nplt.grid(axis='y', alpha=0.75)\nplt.grid(axis='x', alpha=0.75)\n\n# Save the plot\noutput_file = os.path.join(OUT_DIR, \"cnt_yield_histogram_overlay.png\")\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "CNT수율 분포 비교: 주차 1–13 vs 14–26",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [
+        {
+         "name": "",
+         "edges": [
+          12.0,
+          13.0,
+          14.0,
+          15.0,
+          16.0,
+          17.0,
+          18.0,
+          19.0,
+          20.0,
+          21.0,
+          22.0,
+          23.0,
+          24.0,
+          25.0,
+          26.0,
+          27.0,
+          28.0,
+          29.0,
+          30.0,
+          31.0,
+          32.0,
+          33.0,
+          34.0,
+          35.0,
+          36.0
+         ],
+         "counts": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          4.0,
+          6.0,
+          14.0,
+          38.0,
+          54.0,
+          74.0,
+          78.0,
+          89.0,
+          66.0,
+          34.0,
+          24.0,
+          3.0,
+          2.0,
+          2.0,
+          0.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#4682b4"
+        },
+        {
+         "name": "",
+         "edges": [
+          12.0,
+          13.0,
+          14.0,
+          15.0,
+          16.0,
+          17.0,
+          18.0,
+          19.0,
+          20.0,
+          21.0,
+          22.0,
+          23.0,
+          24.0,
+          25.0,
+          26.0,
+          27.0,
+          28.0,
+          29.0,
+          30.0,
+          31.0,
+          32.0,
+          33.0,
+          34.0,
+          35.0,
+          36.0
+         ],
+         "counts": [
+          1.0,
+          1.0,
+          0.0,
+          1.0,
+          5.0,
+          9.0,
+          17.0,
+          21.0,
+          45.0,
+          53.0,
+          57.0,
+          74.0,
+          70.0,
+          60.0,
+          43.0,
+          23.0,
+          15.0,
+          6.0,
+          4.0,
+          2.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#ff8c00"
+        }
+       ],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "CNT수율 (g/g-cat)",
+        "type": "value",
+        "ticks": [
+         15.0,
+         20.0,
+         25.0,
+         30.0,
+         35.0
+        ],
+        "step": 5.0,
+        "categories": null,
+        "min": 10.8,
+        "max": 37.2,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "10",
+         "15",
+         "20",
+         "25",
+         "30",
+         "35",
+         "40"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "빈도 (Count)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         20.0,
+         40.0,
+         60.0,
+         80.0
+        ],
+        "step": 20.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 93.45,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "20",
+         "40",
+         "60",
+         "80",
+         "100"
+        ],
+        "rotate": 0.0
+       },
+       "title": "CNT수율 분포 비교: 주차 1–13 vs 14–26"
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "주차 1–13",
+       "주차 14–26"
+      ],
+      "inside": true,
+      "where": "upper right"
+     },
+     "files": [
+      {
+       "path": "out/t2/cnt_yield_histogram_overlay.png",
+       "format": "png",
+       "px": [
+        2530,
+        1666
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5376410484313965,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 10.723
+  },
+  {
+   "turn": 3,
+   "text": "Add a vertical line at each period's median.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\nimport numpy as np\n\n# Configure font for Korean text\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the data\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Identify the correct column name for CNT yield by searching for '수율'\ncol_name = None\nfor col in df.columns:\n    if 'CNT수율' in str(col):\n        col_name = col\n        break\n\nif col_name is None:\n    raise ValueError(\"Column containing 'CNT수율' not found.\")\n\n# Ensure numeric types for plotting columns\ndf['주차_num'] = pd.to_numeric(df['주차'], errors='coerce')\ndf['yield_num'] = pd.to_numeric(df[col_name], errors='coerce')\n\n# Filter out rows where either 주차 or 수율 is NaN\ndf_clean = df.dropna(subset=['주차_num', 'yield_num'])\n\n# Separate data into two periods: Weeks 1-13 and Weeks 14-26\nperiod1_data = df_clean[df_clean['주차_num'] <= 13]['yield_num'].values\nperiod2_data = df_clean[df_clean['주차_num'] >= 14]['yield_num'].values\n\n# Calculate medians for each period\nmedian1 = np.median(period1_data)\nmedian2 = np.median(period2_data)\n\n# Define shared bin edges: 1 g/g-cat wide from 12 to 36\nbin_edges = np.arange(12, 37, 1)\n\n# Create overlay histogram\nplt.figure(figsize=(10, 6))\nplt.hist(period1_data, bins=bin_edges, alpha=0.5, label='주차 1–13', color='steelblue', edgecolor='black')\nplt.hist(period2_data, bins=bin_edges, alpha=0.5, label='주차 14–26', color='darkorange', edgecolor='black')\n\n# Add vertical lines for medians\nplt.axvline(median1, color='navy', linestyle='--', linewidth=2, label=f'중앙값 (주차 1–13): {median1:.2f}')\nplt.axvline(median2, color='brown', linestyle='--', linewidth=2, label=f'중앙값 (주차 14–26): {median2:.2f}')\n\n# Add labels and title\nplt.xlabel(\"CNT수율 (g/g-cat)\", fontsize=12)\nplt.ylabel(\"빈도 (Count)\", fontsize=12)\nplt.title(\"CNT수율 분포 비교: 주차 1–13 vs 14–26\", fontsize=14)\nplt.legend()\nplt.grid(axis='y', alpha=0.75)\nplt.grid(axis='x', alpha=0.75)\n\n# Save the plot\noutput_file = os.path.join(OUT_DIR, \"cnt_yield_histogram_overlay.png\")\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\nplt.close()\n```",
+     "llm_s": 8.389,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 12449,
+     "output_chars": 2175,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport os\nimport numpy as np\n\n# Configure font for Korean text\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the data\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Identify the correct column name for CNT yield by searching for '수율'\ncol_name = None\nfor col in df.columns:\n    if 'CNT수율' in str(col):\n        col_name = col\n        break\n\nif col_name is None:\n    raise ValueError(\"Column containing 'CNT수율' not found.\")\n\n# Ensure numeric types for plotting columns\ndf['주차_num'] = pd.to_numeric(df['주차'], errors='coerce')\ndf['yield_num'] = pd.to_numeric(df[col_name], errors='coerce')\n\n# Filter out rows where either 주차 or 수율 is NaN\ndf_clean = df.dropna(subset=['주차_num', 'yield_num'])\n\n# Separate data into two periods: Weeks 1-13 and Weeks 14-26\nperiod1_data = df_clean[df_clean['주차_num'] <= 13]['yield_num'].values\nperiod2_data = df_clean[df_clean['주차_num'] >= 14]['yield_num'].values\n\n# Calculate medians for each period\nmedian1 = np.median(period1_data)\nmedian2 = np.median(period2_data)\n\n# Define shared bin edges: 1 g/g-cat wide from 12 to 36\nbin_edges = np.arange(12, 37, 1)\n\n# Create overlay histogram\nplt.figure(figsize=(10, 6))\nplt.hist(period1_data, bins=bin_edges, alpha=0.5, label='주차 1–13', color='steelblue', edgecolor='black')\nplt.hist(period2_data, bins=bin_edges, alpha=0.5, label='주차 14–26', color='darkorange', edgecolor='black')\n\n# Add vertical lines for medians\nplt.axvline(median1, color='navy', linestyle='--', linewidth=2, label=f'중앙값 (주차 1–13): {median1:.2f}')\nplt.axvline(median2, color='brown', linestyle='--', linewidth=2, label=f'중앙값 (주차 14–26): {median2:.2f}')\n\n# Add labels and title\nplt.xlabel(\"CNT수율 (g/g-cat)\", fontsize=12)\nplt.ylabel(\"빈도 (Count)\", fontsize=12)\nplt.title(\"CNT수율 분포 비교: 주차 1–13 vs 14–26\", fontsize=14)\nplt.legend()\nplt.grid(axis='y', alpha=0.75)\nplt.grid(axis='x', alpha=0.75)\n\n# Save the plot\noutput_file = os.path.join(OUT_DIR, \"cnt_yield_histogram_overlay.png\")\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "CNT수율 분포 비교: 주차 1–13 vs 14–26",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [
+        {
+         "name": "",
+         "edges": [
+          12.0,
+          13.0,
+          14.0,
+          15.0,
+          16.0,
+          17.0,
+          18.0,
+          19.0,
+          20.0,
+          21.0,
+          22.0,
+          23.0,
+          24.0,
+          25.0,
+          26.0,
+          27.0,
+          28.0,
+          29.0,
+          30.0,
+          31.0,
+          32.0,
+          33.0,
+          34.0,
+          35.0,
+          36.0
+         ],
+         "counts": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          4.0,
+          6.0,
+          14.0,
+          38.0,
+          54.0,
+          74.0,
+          78.0,
+          89.0,
+          66.0,
+          34.0,
+          24.0,
+          3.0,
+          2.0,
+          2.0,
+          0.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#4682b4"
+        },
+        {
+         "name": "",
+         "edges": [
+          12.0,
+          13.0,
+          14.0,
+          15.0,
+          16.0,
+          17.0,
+          18.0,
+          19.0,
+          20.0,
+          21.0,
+          22.0,
+          23.0,
+          24.0,
+          25.0,
+          26.0,
+          27.0,
+          28.0,
+          29.0,
+          30.0,
+          31.0,
+          32.0,
+          33.0,
+          34.0,
+          35.0,
+          36.0
+         ],
+         "counts": [
+          1.0,
+          1.0,
+          0.0,
+          1.0,
+          5.0,
+          9.0,
+          17.0,
+          21.0,
+          45.0,
+          53.0,
+          57.0,
+          74.0,
+          70.0,
+          60.0,
+          43.0,
+          23.0,
+          15.0,
+          6.0,
+          4.0,
+          2.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#ff8c00"
+        }
+       ],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [
+        27.64,
+        23.630000000000003
+       ],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "CNT수율 (g/g-cat)",
+        "type": "value",
+        "ticks": [
+         15.0,
+         20.0,
+         25.0,
+         30.0,
+         35.0
+        ],
+        "step": 5.0,
+        "categories": null,
+        "min": 10.8,
+        "max": 37.2,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "10",
+         "15",
+         "20",
+         "25",
+         "30",
+         "35",
+         "40"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "빈도 (Count)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         20.0,
+         40.0,
+         60.0,
+         80.0
+        ],
+        "step": 20.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 93.45,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "20",
+         "40",
+         "60",
+         "80",
+         "100"
+        ],
+        "rotate": 0.0
+       },
+       "title": "CNT수율 분포 비교: 주차 1–13 vs 14–26"
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "주차 1–13",
+       "주차 14–26",
+       "중앙값 (주차 1–13): 27.64",
+       "중앙값 (주차 14–26): 23.63"
+      ],
+      "inside": true,
+      "where": "upper right"
+     },
+     "files": [
+      {
+       "path": "out/t3/cnt_yield_histogram_overlay.png",
+       "format": "png",
+       "px": [
+        2530,
+        1666
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5432181358337402,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [],
+    "unchecked": [
+     "ref_lines={'14–26주': 23.63, '1–13주': 27.64}"
+    ],
+    "n_checks": 3,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 8.933
+  }
+ ]
+}

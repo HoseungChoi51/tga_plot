@@ -1,0 +1,110 @@
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+from matplotlib import font_manager
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/B10_r2/out")
+SHEET_NAME = "Annealed"
+
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+# Korean-capable font, when available.
+font_names = {font.name for font in font_manager.fontManager.ttflist}
+if "Noto Sans CJK KR" in font_names:
+    plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+plt.rcParams.update({
+    "font.size": 8,
+    "axes.titlesize": 8,
+    "axes.labelsize": 8,
+    "xtick.labelsize": 8,
+    "ytick.labelsize": 8,
+    "legend.fontsize": 8,
+})
+
+df = pd.read_excel(DATA_FILE, sheet_name=SHEET_NAME)
+df.columns = [str(c).strip() for c in df.columns]
+
+# Identify columns by their headers.
+def find_column(keywords):
+    for col in df.columns:
+        name = col.lower()
+        if all(word.lower() in name for word in keywords):
+            return col
+    raise KeyError(f"Could not find a column matching {keywords}")
+
+temp_col = find_column(["temperature"])
+weight_col = find_column(["weight"])
+dtg_col = find_column(["deriv"])
+
+data = df[[temp_col, weight_col, dtg_col]].apply(pd.to_numeric, errors="coerce").dropna()
+temperature = data[temp_col].to_numpy()
+weight = data[weight_col].to_numpy()
+dtg_up = -data[dtg_col].to_numpy()
+
+fig, ax1 = plt.subplots(figsize=(3.5, 2.6))
+ax2 = ax1.twinx()
+
+# Monochrome curves use distinct line styles for print clarity.
+line1, = ax1.plot(temperature, weight, color="black", linewidth=1.0, linestyle="-",
+                  label="Weight")
+line2, = ax2.plot(temperature, dtg_up, color="black", linewidth=1.0, linestyle="--",
+                  label="DTG")
+
+ax1.set_title(SHEET_NAME)
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)")
+ax2.set_ylabel("DTG (%/°C)")
+
+# Residue: measured weight at the point nearest 800 °C.
+residue_idx = int(np.nanargmin(np.abs(temperature - 800)))
+residue_temp = temperature[residue_idx]
+residue_weight = weight[residue_idx]
+ax1.plot(residue_temp, residue_weight, marker="o", markersize=3.5,
+         markerfacecolor="white", markeredgecolor="black", linestyle="none", zorder=5)
+ax1.annotate(
+    f"Residue {residue_weight:.1f}%",
+    xy=(residue_temp, residue_weight),
+    xytext=(-4, 7),
+    textcoords="offset points",
+    ha="right",
+    va="bottom",
+    fontsize=8,
+    color="black",
+)
+
+# Peak: highest upward DTG value above 150 °C.
+valid_peak = np.flatnonzero(temperature > 150)
+if valid_peak.size:
+    peak_idx = int(valid_peak[np.nanargmax(dtg_up[valid_peak])])
+    peak_temp = temperature[peak_idx]
+    peak_value = dtg_up[peak_idx]
+    ax2.plot(peak_temp, peak_value, marker="s", markersize=3.5,
+             markerfacecolor="white", markeredgecolor="black", linestyle="none", zorder=5)
+    ax2.annotate(
+        f"{peak_temp:.0f} °C",
+        xy=(peak_temp, peak_value),
+        xytext=(4, 5),
+        textcoords="offset points",
+        ha="left",
+        va="bottom",
+        fontsize=8,
+        color="black",
+    )
+
+ax1.legend([line1, line2], ["Weight", "DTG"], loc="center left", frameon=False)
+ax1.tick_params(direction="out", length=3, width=0.7)
+ax2.tick_params(direction="out", length=3, width=0.7)
+for spine in ax1.spines.values():
+    spine.set_linewidth(0.7)
+for spine in ax2.spines.values():
+    spine.set_linewidth(0.7)
+
+fig.tight_layout()
+fig.savefig(OUT_DIR / "Annealed.png", dpi=600, bbox_inches="tight")
+plt.close(fig)

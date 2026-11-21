@@ -1,0 +1,31 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "scatter",
+ "x": "체류시간 (s)",
+ "y": "CNT수율 (g/g-cat)",
+ "filter": [
+  "주차 between 14 and 26",
+  "반응기 in [R1, R2]"
+ ],
+ "asks": [
+  {
+   "ask": "주차 14-26 필터",
+   "how": "key"
+  },
+  {
+   "ask": "반응기 R1, R2 필터",
+   "how": "key"
+  },
+  {
+   "ask": "체류시간 vs CNT수율 산점도",
+   "how": "key"
+  },
+  {
+   "ask": "마커 크기 ∝ 가동시간",
+   "how": "unsupported"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-ec/S051_r2/out/t1"
+ }
+}

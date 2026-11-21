@@ -1,0 +1,295 @@
+{
+ "arm": "P-mpl",
+ "item": "S059",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "데이터 분석가",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "Mean CNT수율 by 체류시간 bin (0.5 s wide, 2.5–7.0 s, left-closed) × 반응기 as a heatmap, bins as rows.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"heatmap\",\n  \"x\": {\n    \"col\": \"체류시간 (s)\",\n    \"bins\": {\n      \"width\": 0.5,\n      \"min\": 2.5,\n      \"max\": 7.0\n    }\n  },\n  \"y\": \"반응기\",\n  \"z\": {\n    \"col\": \"CNT수율 (g/g-cat)\",\n    \"agg\": \"mean\"\n  },\n  \"asks\": [\n    {\n      \"ask\": \"Mean CNT수율 by 체류시간 bin × 반응기 heatmap\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"체류시간 bin 0.5 s wide, 2.5–7.0 s\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"bins as rows (체류시간 bins on y-axis, 반응기 on x-axis)\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 6.537,
+     "prompt_tokens": 6283,
+     "output_tokens": 258,
+     "cached_tokens": 6233,
+     "prompt_n": 50,
+     "prefill_ms": 275.25852299999997,
+     "decode_ms": 5782.900011000001,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "heatmap",
+    "x": {
+     "col": "체류시간 (s)",
+     "bins": {
+      "width": 0.5,
+      "min": 2.5,
+      "max": 7.0
+     }
+    },
+    "y": "반응기",
+    "z": {
+     "col": "CNT수율 (g/g-cat)",
+     "agg": "mean"
+    },
+    "asks": [
+     {
+      "ask": "Mean CNT수율 by 체류시간 bin × 반응기 heatmap",
+      "how": "key"
+     },
+     {
+      "ask": "체류시간 bin 0.5 s wide, 2.5–7.0 s",
+      "how": "key"
+     },
+     {
+      "ask": "bins as rows (체류시간 bins on y-axis, 반응기 on x-axis)",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-mpl/S059_r3/out/t1/heatmap_반응기.png"
+    ],
+    "chart": "heatmap",
+    "rows_used": 997,
+    "rows_total": 997,
+    "values": {
+     "rows": [
+      "R1",
+      "R2",
+      "R3",
+      "R4"
+     ],
+     "cols": [
+      "2.5–3",
+      "3–3.5",
+      "3.5–4",
+      "4–4.5",
+      "4.5–5",
+      "5–5.5",
+      "5.5–6",
+      "6–6.5",
+      "6.5–7"
+     ],
+     "max": {
+      "row": "R3",
+      "col": "5–5.5",
+      "value": 28.1205
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "히트맵 그래프를 저장했습니다: heatmap_반응기.png\n사용한 행: 997 / 997\n가장 큰 값: R3 / 5–5.5 = 28.12"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": {
+        "rows": [
+         "R1",
+         "R2",
+         "R3",
+         "R4"
+        ],
+        "cols": [
+         "2.5–3",
+         "3–3.5",
+         "3.5–4",
+         "4–4.5",
+         "4.5–5",
+         "5–5.5",
+         "5.5–6",
+         "6–6.5",
+         "6.5–7"
+        ],
+        "z": [
+         [
+          20.28,
+          23.058125,
+          25.446216216216214,
+          26.698461538461544,
+          26.393770491803277,
+          25.73090909090909,
+          24.934230769230773,
+          22.2025,
+          18.94
+         ],
+         [
+          22.52857142857143,
+          24.093333333333334,
+          25.478913043478265,
+          26.090535714285718,
+          26.688923076923075,
+          25.45735294117647,
+          23.426111111111112,
+          21.036666666666665,
+          null
+         ],
+         [
+          19.76,
+          22.17727272727273,
+          23.71339622641509,
+          25.76984375,
+          25.88722222222222,
+          28.120526315789476,
+          25.745,
+          23.765,
+          20.27
+         ],
+         [
+          23.16,
+          25.333636363636366,
+          26.08162790697674,
+          27.307532467532464,
+          26.786249999999995,
+          25.599117647058822,
+          24.28318181818182,
+          23.026000000000003,
+          17.49
+         ]
+        ],
+        "colorbar": true,
+        "values_shown": false,
+        "cmap": "viridis",
+        "clim": [
+         17.49,
+         28.120526315789476
+        ]
+       },
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "체류시간 (s)",
+        "type": "category",
+        "ticks": [
+         0.5,
+         1.5,
+         2.5,
+         3.5,
+         4.5,
+         5.5,
+         6.5,
+         7.5,
+         8.5
+        ],
+        "step": 1.0,
+        "categories": [
+         "2.5–3",
+         "3–3.5",
+         "3.5–4",
+         "4–4.5",
+         "4.5–5",
+         "5–5.5",
+         "5.5–6",
+         "6–6.5",
+         "6.5–7"
+        ],
+        "min": 0.0,
+        "max": 9.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "2.5–3",
+         "3–3.5",
+         "3.5–4",
+         "4–4.5",
+         "4.5–5",
+         "5–5.5",
+         "5.5–6",
+         "6–6.5",
+         "6.5–7"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "반응기",
+        "type": "category",
+        "ticks": [
+         0.5,
+         1.5,
+         2.5,
+         3.5
+        ],
+        "step": 1.0,
+        "categories": [
+         "R1",
+         "R2",
+         "R3",
+         "R4"
+        ],
+        "min": 0.0,
+        "max": 4.0,
+        "log": false,
+        "inverted": true,
+        "tick_labels": [
+         "R1",
+         "R2",
+         "R3",
+         "R4"
+        ],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-mpl/S059_r3/out/t1/heatmap_반응기.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.39753270149230957,
+   "check": {
+    "kind_expected": "heatmap",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 7.012
+  }
+ ]
+}

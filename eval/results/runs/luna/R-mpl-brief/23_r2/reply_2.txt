@@ -1,0 +1,116 @@
+```python
+from pathlib import Path
+import csv
+import re
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib import font_manager
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/tests/inputs/instrument_export.txt")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/23_r2/out")
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+if any(font.name == "Noto Sans CJK KR" for font in font_manager.fontManager.ttflist):
+    plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+
+def read_instrument_text(path):
+    """Read four numeric columns from a headerless instrument export."""
+    rows = []
+    with path.open("r", encoding="utf-8-sig", errors="replace") as file:
+        for line in file:
+            line = line.strip()
+            if not line:
+                continue
+
+            # Support tab-, comma-, semicolon-, or whitespace-separated exports.
+            if "\t" in line:
+                fields = next(csv.reader([line], delimiter="\t"))
+            elif ";" in line:
+                fields = next(csv.reader([line], delimiter=";"))
+            elif "," in line:
+                fields = next(csv.reader([line], delimiter=","))
+            else:
+                fields = re.split(r"\s+", line)
+
+            if len(fields) < 4:
+                continue
+
+            try:
+                values = [float(str(value).strip().replace(",", ".")) for value in fields[:4]]
+            except (ValueError, TypeError):
+                continue
+            rows.append(values)
+
+    if not rows:
+        raise ValueError(f"숫자 데이터 4개 열을 찾을 수 없습니다: {path}")
+
+    return pd.DataFrame(rows, columns=["time", "temperature", "weight", "dtg"])
+
+
+df = read_instrument_text(DATA_FILE)
+temperature = df["temperature"].to_numpy(dtype=float)
+weight = df["weight"].to_numpy(dtype=float)
+dtg_up = -df["dtg"].to_numpy(dtype=float)
+
+valid = np.isfinite(temperature) & np.isfinite(weight) & np.isfinite(dtg_up)
+temperature, weight, dtg_up = temperature[valid], weight[valid], dtg_up[valid]
+if temperature.size == 0:
+    raise ValueError("유효한 온도, 중량, DTG 데이터가 없습니다.")
+
+fig, ax1 = plt.subplots(figsize=(10, 6))
+ax2 = ax1.twinx()
+
+weight_line, = ax1.plot(
+    temperature, weight, color="#1f4e9c", linewidth=1.8, label="Weight"
+)
+dtg_line, = ax2.plot(
+    temperature, dtg_up, color="#c0392b", linewidth=1.5, label="DTG"
+)
+
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)", color="#1f4e9c")
+ax2.set_ylabel("DTG (-)", color="#c0392b")
+ax1.tick_params(axis="y", labelcolor="#1f4e9c")
+ax2.tick_params(axis="y", labelcolor="#c0392b")
+ax1.grid(True, alpha=0.25)
+ax1.set_title(DATA_FILE.stem)
+
+# Residue at the measured point nearest 800 °C
+residue_idx = int(np.argmin(np.abs(temperature - 800)))
+residue_temp = temperature[residue_idx]
+residue_value = weight[residue_idx]
+ax1.scatter([residue_temp], [residue_value], color="#1f4e9c", zorder=5)
+ax1.annotate(
+    f"Residue: {residue_value:.1f}%",
+    xy=(residue_temp, residue_value),
+    xytext=(8, 10),
+    textcoords="offset points",
+    color="#1f4e9c",
+    fontsize=10,
+)
+
+# Highest upward-pointing DTG value above 150 °C
+peak_candidates = np.flatnonzero(temperature > 150)
+if peak_candidates.size:
+    peak_idx = peak_candidates[np.argmax(dtg_up[peak_candidates])]
+    peak_temp = temperature[peak_idx]
+    peak_value = dtg_up[peak_idx]
+    ax2.scatter([peak_temp], [peak_value], color="#c0392b", zorder=5)
+    ax2.annotate(
+        f"{peak_temp:.0f} °C",
+        xy=(peak_temp, peak_value),
+        xytext=(8, 10),
+        textcoords="offset points",
+        color="#c0392b",
+        fontsize=10,
+    )
+
+ax1.legend([weight_line, dtg_line], ["Weight", "DTG"], loc="center left")
+fig.tight_layout()
+fig.savefig(OUT_DIR / f"{DATA_FILE.stem}.png", dpi=300, bbox_inches="tight")
+plt.close(fig)
+```

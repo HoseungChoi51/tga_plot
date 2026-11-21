@@ -1,0 +1,27 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "pie",
+ "x": "불합격사유",
+ "y": "count",
+ "filter": [
+  "등급 == C"
+ ],
+ "data_code": "def reason(r):\n    m = r['잔류금속 (wt%)'] > 5.0\n    i = r['IG/ID'] < 2.2\n    if m and i: return '둘 다'\n    if m: return '잔류금속 > 5.0 wt%'\n    if i: return 'IG/ID < 2.2'\n    return '기타'\ndf['불합격사유'] = df.apply(reason, axis=1)",
+ "asks": [
+  {
+   "ask": "등급 C 판정 런들 필터",
+   "how": "key"
+  },
+  {
+   "ask": "불합격 사유 분류 (잔류금속>5.0, IG/ID<2.2, 둘 다)",
+   "how": "data_code"
+  },
+  {
+   "ask": "비율 파이",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/S030_r3/out/t1"
+ }
+}

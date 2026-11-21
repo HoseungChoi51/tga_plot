@@ -1,0 +1,157 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+# 파일 경로 및 출력 디렉토리 설정
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/15_r1/out"
+
+# 한글 폰트 설정
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+# 데이터 읽기: 모든 시트를 읽음
+xls = pd.ExcelFile(DATA_FILE)
+sheet_names = xls.sheet_names
+
+fig, ax1 = plt.subplots(figsize=(10, 6))
+
+# 색상 팔레트 준비
+colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd']
+
+for i, sheet_name in enumerate(sheet_names):
+    df = pd.read_excel(DATA_FILE, sheet_name=sheet_name)
+    
+    # 컬럼명 정리 (strip 공백 등)
+    df.columns = [str(c).strip() for c in df.columns]
+    
+    # 데이터 추출
+    # TGA guess에 따라 x는 Temperature, y1은 Weight(%), y2는 D.W(%/C)
+    temp_col = None
+    weight_col = None
+    dw_col = None
+    
+    for col in df.columns:
+        if 'temperature' in col.lower():
+            temp_col = col
+        elif 'weight' in col.lower() and '%' in col:
+            weight_col = col
+        elif 'd.w' in col.lower() or 'dw' in col.lower():
+            dw_col = col
+            
+    if temp_col is None or weight_col is None:
+        continue
+        
+    x_data = df[temp_col]
+    y_weight = df[weight_col]
+    
+    # 라벨 생성: 시트 이름에서 접두어 제거하거나 그대로 사용
+    label = sheet_name.replace('1006R1-V ', '')
+    
+    color = colors[i % len(colors)]
+    
+    # Weight(%)을 왼쪽 축에 플롯
+    line1 = ax1.plot(x_data, y_weight, color=color, label=f'{label} - Weight')
+    
+    # D.W를 오른쪽 축에 플롯 (있는 경우에만)
+    if dw_col is not None:
+        y_dw = df[dw_col]
+        ax2 = ax1.twinx()
+        # 이전 시트들의 twinx 객체를 재사용하기 위해 ax2가 이미 존재하는지 확인 필요하지만, 
+        # 여기서는 각 시트마다 새로운 ax2를 만들면 안되므로 로직 수정이 필요함.
+        # 하지만 사용자가 "한 그림에 겹쳐 그려줘"라고 했으므로, 
+        # 보통 TGA는 Weight와 DTG(D.W)를 함께 보는 경우가 많지만, 
+        # 여러 샘플을 비교할 때는 주로 Weight만 비교하거나, Weight와 DTG를 각각 다른 축에 그릴 수 있음.
+        
+        # 전략: 왼쪽 축에는 Weight(%), 오른쪽 축에는 D.W(%/C)를 모두 표시하되,
+        # 선 스타일을 구분하여 시각화한다.
+        # 단, twinx를 반복 호출하면 문제가 생길 수 있으므로, 미리 축을 하나 더 만드는 것이 좋음.
+        
+        # 다시 생각: 모든 시트의 Weight를 왼쪽, 모든 시트의 D.W를 오른쪽에 그리는 것이 일반적임.
+        pass
+
+# 위 루프에서는 twinx 처리가 복잡해짐. 접근 방식을 변경합니다.
+# 먼저 축을 두 개 만들고(ax1, ax2), 루프 안에서 데이터를 그립니다.
+
+plt.close(fig)
+
+fig, ax1 = plt.subplots(figsize=(10, 6))
+ax2 = ax1.twinx()
+
+lines1 = []
+labels1 = []
+lines2 = []
+labels2 = []
+
+for i, sheet_name in enumerate(sheet_names):
+    df = pd.read_excel(DATA_FILE, sheet_name=sheet_name)
+    df.columns = [str(c).strip() for c in df.columns]
+    
+    temp_col = None
+    weight_col = None
+    dw_col = None
+    
+    for col in df.columns:
+        if 'temperature' in col.lower():
+            temp_col = col
+        elif 'weight' in col.lower() and '%' in col:
+            weight_col = col
+        elif 'd.w' in col.lower() or 'dw' in col.lower():
+            dw_col = col
+            
+    if temp_col is None or weight_col is None:
+        continue
+        
+    x_data = df[temp_col]
+    y_weight = df[weight_col]
+    
+    # 라벨 단순화
+    label = sheet_name.replace('1006R1-V ', '')
+    if not label:
+        label = sheet_name
+        
+    color = colors[i % len(colors)]
+    
+    # Left Axis: Weight (%)
+    l1, = ax1.plot(x_data, y_weight, color=color, linewidth=1.5, label=label)
+    lines1.append(l1)
+    labels1.append(label)
+    
+    # Right Axis: D.W (%/C)
+    if dw_col is not None:
+        y_dw = df[dw_col]
+        # 같은 색상이지만 점선 등으로 구분 가능하나, 가독성을 위해 동일 색상 사용
+        l2, = ax2.plot(x_data, y_dw, color=color, linestyle='--', linewidth=1.5)
+        lines2.append(l2)
+        labels2.append(f'{label} (D.W)')
+
+# 축 레이블 설정
+ax1.set_xlabel('Temperature (°C)', fontsize=12)
+ax1.set_ylabel('Weight (%)', fontsize=12, color='black')
+ax2.set_ylabel('Derivative Weight (%/°C)', fontsize=12, color='black')
+
+# 제목
+plt.title('TGA Curves Comparison', fontsize=14)
+
+# 범례 구성
+# ax1의 범례와 ax2의 범례를 합치거나 별도로 표시해야 함
+# 일반적으로 왼쪽 축 범례를 우선시하고, 오른쪽 축은 설명으로 대체하거나 통합 범례 사용
+legend1 = ax1.legend(lines1, labels1, loc="upper right", title="Weight (%)")
+ax1.add_artist(legend1)
+
+if lines2:
+    legend2 = ax2.legend(lines2, labels2, loc="center right", title="D.W (%/°C)", framealpha=0.8)
+else:
+    legend2 = None
+
+# 그리드 추가
+ax1.grid(True, linestyle=':', alpha=0.6)
+
+# 레이아웃 조정
+plt.tight_layout()
+
+# 저장
+output_path = os.path.join(OUT_DIR, "tga_comparison.png")
+os.makedirs(OUT_DIR, exist_ok=True)
+plt.savefig(output_path, dpi=300, bbox_inches='tight')
+plt.close()

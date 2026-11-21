@@ -1,0 +1,11 @@
+```json
+{
+  "file": "polymers.xlsx",
+  "sheets": "PE",
+  "x": {
+    "label": "Temperature (K)",
+    "min": 303.15,
+    "max": 1173.15
+  }
+}
+```

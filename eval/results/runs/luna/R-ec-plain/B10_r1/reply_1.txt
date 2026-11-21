@@ -1,0 +1,119 @@
+```python
+import json
+
+import numpy as np
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx"
+
+df = pd.read_excel(DATA_FILE, sheet_name="Annealed")
+temperature = pd.to_numeric(df["Temperature (°C)"], errors="coerce")
+weight = pd.to_numeric(df["Weight (%)"], errors="coerce")
+derivative = pd.to_numeric(df["Deriv. Weight (%/°C)"], errors="coerce")
+
+valid = temperature.notna() & weight.notna() & derivative.notna()
+temperature = temperature[valid].to_numpy()
+weight = weight[valid].to_numpy()
+derivative = derivative[valid].to_numpy()
+
+option = {
+    "animation": False,
+    "backgroundColor": "#ffffff",
+    "textStyle": {
+        "fontFamily": "Noto Sans CJK KR, sans-serif",
+        "fontSize": 8,
+        "color": "#000000",
+    },
+    "tooltip": {"show": False},
+    "legend": {
+        "show": True,
+        "top": 4,
+        "right": 10,
+        "itemWidth": 12,
+        "itemHeight": 7,
+        "textStyle": {"fontSize": 8, "color": "#000000"},
+        "data": ["Weight", "Derivative weight"],
+    },
+    "grid": {"left": 48, "right": 48, "top": 28, "bottom": 38},
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 24,
+        "min": 30,
+        "max": 900,
+        "nameTextStyle": {"fontSize": 8, "color": "#000000"},
+        "axisLabel": {"fontSize": 8, "color": "#000000"},
+        "axisLine": {"show": True, "lineStyle": {"color": "#000000", "width": 0.8}},
+        "axisTick": {"show": True, "lineStyle": {"color": "#000000", "width": 0.8}},
+        "splitLine": {"show": False},
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Weight (%)",
+            "nameLocation": "middle",
+            "nameGap": 32,
+            "min": 0,
+            "max": 105,
+            "nameTextStyle": {"fontSize": 8, "color": "#000000"},
+            "axisLabel": {"fontSize": 8, "color": "#000000"},
+            "axisLine": {"show": True, "lineStyle": {"color": "#000000", "width": 0.8}},
+            "axisTick": {"show": True, "lineStyle": {"color": "#000000", "width": 0.8}},
+            "splitLine": {"show": False},
+        },
+        {
+            "type": "value",
+            "name": "Derivative weight (%/°C)",
+            "nameLocation": "middle",
+            "nameGap": 34,
+            "min": -1.5,
+            "max": 0.1,
+            "nameTextStyle": {"fontSize": 8, "color": "#000000"},
+            "axisLabel": {"fontSize": 8, "color": "#000000"},
+            "axisLine": {"show": True, "lineStyle": {"color": "#000000", "width": 0.8}},
+            "axisTick": {"show": True, "lineStyle": {"color": "#000000", "width": 0.8}},
+            "splitLine": {"show": False},
+        },
+    ],
+    "series": [
+        {
+            "name": "Weight",
+            "type": "line",
+            "yAxisIndex": 0,
+            "data": [[float(x), float(y)] for x, y in zip(temperature, weight)],
+            "showSymbol": False,
+            "lineStyle": {"color": "#000000", "width": 1.2, "type": "solid"},
+            "silent": True,
+        },
+        {
+            "name": "Derivative weight",
+            "type": "line",
+            "yAxisIndex": 1,
+            "data": [[float(x), float(y)] for x, y in zip(temperature, derivative)],
+            "showSymbol": False,
+            "lineStyle": {"color": "#000000", "width": 1.0, "type": "dashed"},
+            "silent": True,
+        },
+    ],
+}
+
+print(
+    json.dumps(
+        {
+            "figures": [
+                {
+                    "name": "annealed_tga",
+                    "option": option,
+                    "width": 336,
+                    "height": 250,
+                    "dpi": 600,
+                    "formats": ["png"],
+                }
+            ]
+        },
+        ensure_ascii=False,
+        allow_nan=False,
+    )
+)
+```

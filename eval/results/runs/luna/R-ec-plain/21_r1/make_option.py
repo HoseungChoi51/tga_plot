@@ -1,0 +1,80 @@
+import json
+import os
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/blank_rows_on_top.xlsx"
+
+df = pd.read_excel(DATA_FILE, sheet_name="Sheet1", header=7, usecols="C:E")
+df.columns = [str(c).strip() for c in df.columns]
+
+x = pd.to_numeric(df["Temperature"], errors="coerce")
+y1 = pd.to_numeric(df["Weight(%)"], errors="coerce")
+y2 = pd.to_numeric(df["D.W(%/C)"], errors="coerce")
+valid = x.notna() & y1.notna() & y2.notna()
+
+x = x[valid].tolist()
+y1 = y1[valid].tolist()
+y2 = y2[valid].tolist()
+
+option = {
+    "animation": False,
+    "tooltip": {"trigger": "axis"},
+    "legend": {"top": 10, "data": ["Weight(%)", "D.W(%/C)"]},
+    "grid": {"left": 72, "right": 78, "top": 58, "bottom": 62},
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 38,
+        "axisLine": {"show": True},
+        "splitLine": {"show": True, "lineStyle": {"type": "dashed", "color": "#dddddd"}},
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Weight (%)",
+            "nameLocation": "middle",
+            "nameGap": 52,
+            "axisLine": {"show": True},
+            "splitLine": {"show": True, "lineStyle": {"type": "dashed", "color": "#dddddd"}},
+        },
+        {
+            "type": "value",
+            "name": "D.W (%/°C)",
+            "nameLocation": "middle",
+            "nameGap": 55,
+            "position": "right",
+            "axisLine": {"show": True},
+            "splitLine": {"show": False},
+        },
+    ],
+    "series": [
+        {
+            "name": "Weight(%)",
+            "type": "line",
+            "data": [[a, b] for a, b in zip(x, y1)],
+            "yAxisIndex": 0,
+            "showSymbol": False,
+            "lineStyle": {"width": 2, "color": "#1f77b4"},
+        },
+        {
+            "name": "D.W(%/C)",
+            "type": "line",
+            "data": [[a, b] for a, b in zip(x, y2)],
+            "yAxisIndex": 1,
+            "showSymbol": False,
+            "lineStyle": {"width": 2, "color": "#d62728"},
+        },
+    ],
+}
+
+print(json.dumps({
+    "figures": [{
+        "name": "tga_temperature_weight_derivative",
+        "option": option,
+        "width": 900,
+        "height": 600,
+        "dpi": 300,
+        "formats": ["png"],
+    }]
+}, ensure_ascii=False, allow_nan=False))

@@ -1,0 +1,117 @@
+{
+ "arm": "P-mpl",
+ "item": "S024",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "TGA 10개 배치 각각 800 °C 잔량(wt%)을 Fe로 환산(Fe₂O₃ → Fe, ×0.699)해서 런로그 잔류금속(wt%)과 비교하는 산점도 그려 주세요. 시트 이름이 런ID입니다. y = x 기준선도 넣어 주세요.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": [\n    \"data/tga_batches.xlsx\",\n    \"data/run_log.xlsx\"\n  ],\n  \"chart\": \"scatter\",\n  \"x\": {\n    \"col\": \"Fe 환산 잔량 (wt%)\",\n    \"label\": \"TGA Fe 환산 잔량 (wt%)\"\n  },\n  \"y\": {\n    \"col\": \"잔류금속 (wt%)\",\n    \"label\": \"런로그 잔류금속 (wt%)\"\n  },\n  \"ref\": [\n    {\"y\": \"x\", \"text\": \"y = x\"}\n  ],\n  \"data_code\": \"import pandas as pd\\n\\n# Load TGA data\\ntga_file = 'data/tga_batches.xlsx'\\nrun_file = 'data/run_log.xlsx'\\n\\n# Function to get residue at 800C and convert to Fe equivalent\\ndef process_tga(sheet_name):\\n    df = pd.read_excel(tga_file, sheet_name=sheet_name)\\n    temp_col = 'B' # Temperature column usually B in preview description logic or name based\\n    weight_col = 'C' # Weight %\\n    \\n    # Identify columns by name if possible, fallback to position based on typical structure described\\n    # Preview says: A 시간, B 온도, C 중량, D 미분중량\\n    temps = df['B'] if 'B' in df.columns else df.iloc[:,1]\\n    weights = df['C'] if 'C' in df.columns else df.iloc[:,2]\\n    \\n    # Find index closest to 800C\\n    idx = abs(temps - 800).idxmin()\\n    residue = weights.loc[idx]\\n    \\n    # Convert Fe2O3 -> Fe (*0.699)\\n    fe_residue = residue * 0.699\\n    return {'RunID': sheet_name, 'Fe_Recalc_WtPct': fe_residue}\\n\\n# Get all sheets from TGA file except first one which is run_log structure? No, tga_batches has only batches.\\nsheets = pd.ExcelFile(tga_file).sheet_names\\nresults = []\\nfor s in sheets:\\n    results.append(process_tga(s))\\n\\ntga_df = pd.DataFrame(results)\\n\\n# Merge with Run Log\\ndf = pd.read_excel(run_file, sheet_name='런로그')\\n# Join on Run ID (Column A in RunLog is 런ID)\\ndf = df.merge(tga_df, left_on='A', right_on='RunID', how='inner')\\n\\n# Rename columns for plotting keys\\ndf['Fe 환산 잔량 (wt%)'] = df['Fe_Recalc_WtPct']\\ndf['잔류금속 (wt%)'] = df['S'] # Column S is 잔류금속\\n\",\n  \"asks\": [\n    {\n      \"ask\": \"TGA 10개 배치 각각 800 °C 잔량을 Fe로 환산\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"런로그 잔류금속과 비교하는 산점도\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"시트 이름이 런ID\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"y = x 기준선\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 12.017,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 20106,
+     "output_chars": 2102,
+     "attempts": 1
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"chart\": \"scatter\",\n  \"x\": {\n    \"col\": \"Fe 환산 잔량 (wt%)\",\n    \"label\": \"TGA Fe 환산 잔량 (wt%)\"\n  },\n  \"y\": {\n    \"col\": \"잔류금속 (wt%)\",\n    \"label\": \"런로그 잔류금속 (wt%)\"\n  },\n  \"ref\": [\n    {\"y\": \"x\", \"text\": \"y = x\"}\n  ],\n  \"data_code\": \"import pandas as pd\\nimport numpy as np\\nfrom openpyxl import load_workbook\\n\\n# The user wants to compare TGA data with Run Log data.\\n# Since 'df' is pre-loaded from the main file specified in 'file', we assume df is run_log.\\n# We need to manually load the TGA file, calculate the values, and merge them into df.\\n\\ntga_path = 'data/tga_batches.xlsx'\\nrun_log_sheet_name = '런로그'\\n\\n# Load TGA workbook\\nwb_tga = load_workbook(tga_path, data_only=True)\\ntga_results = []\\n\\nfor sheet_name in wb_tga.sheetnames:\\n    ws = wb_tga[sheet_name]\\n    # Columns based on preview: B=Temp, C=Weight\\n    # Iterate rows starting from row 2 (assuming header in row 1)\\n    temps = []\\n    weights = []\\n    for row in ws.iter_rows(min_row=2, values_only=True):\\n        if row[1] is not None and row[2] is not None:\\n            try:\\n                t = float(row[1])\\n                w = float(row[2])\\n                temps.append(t)\\n                weights.append(w)\\n            except (ValueError, TypeError):\\n                continue\\n    \\n    if not temps:\\n        continue\\n        \\n    temps_arr = np.array(temps)\\n    weights_arr = np.array(weights)\\n    \\n    # Find index closest to 800 C\\n    idx = np.argmin(np.abs(temps_arr - 800))\\n    residue_800 = weights_arr[idx]\\n    \\n    # Convert to Fe equivalent (assume residue is measured as oxide or similar factor provided by user: *0.699)\\n    fe_equiv = residue_800 * 0.699\\n    \\n    tga_results.append({\\n        'RunID': sheet_name,\\n        'Fe_Recalc_WtPct': fe_equiv\\n    })\\n\\ntga_df = pd.DataFrame(tga_results)\\n\\n# Merge with existing df (run log)\\n# Assuming 'df' contains column 'A' which is 런ID based on preview\\nif 'A' in df.columns:\\n    df = df.merge(tga_df, left_on='A', right_on='RunID', how='inner')\\nelse:\\n    # Fallback if column name differs slightly, e.g., '런ID'\\n    if '런ID' in df.columns:\\n        df = df.merge(tga_df, left_on='런ID', right_on='RunID', how='inner')\\n    else:\\n        raise ValueError(\\\"Could not find Run ID column in df to merge TGA data\\\")\\n\\n# Rename/Prepare columns for plotting keys\\ndf['Fe 환산 잔량 (wt%)'] = df['Fe_Recalc_WtPct']\\n# Ensure '잔류금속 (wt%)' exists. Preview says Column S is 잔류금속.\\nif 'S' in df.columns:\\n    df['잔류금속 (wt%)'] = df['S']\\nelif '잔류금속 (wt%)' not in df.columns:\\n    # Try finding by partial match if exact header missing in loaded df\\n    col_match = [c for c in df.columns if '잔류' in str(c) or '금속' in str(c)]\\n    if col_match:\\n        df['잔류금속 (wt%)'] = df[col_match[0]]\\n\",\n  \"asks\": [\n    {\n      \"ask\": \"TGA 10개 배치 각각 800 °C 잔량을 Fe로 환산\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"런로그 잔류금속과 비교하는 산점도\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"시트 이름이 런ID\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"y = x 기준선\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 13.354,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 22932,
+     "output_chars": 3082,
+     "attempts": 1
+    },
+    {
+     "reply": "```json\n{\n  \"file\": [\n    \"data/tga_batches.xlsx\",\n    \"data/run_log.xlsx\"\n  ],\n  \"chart\": \"scatter\",\n  \"x\": {\n    \"col\": \"Fe 환산 잔량 (wt%)\",\n    \"label\": \"TGA Fe 환산 잔량 (wt%)\"\n  },\n  \"y\": {\n    \"col\": \"잔류금속 (wt%)\",\n    \"label\": \"런로그 잔류금속 (wt%)\"\n  },\n  \"ref\": [\n    {\"y\": \"x\", \"text\": \"y = x\"}\n  ],\n  \"data_code\": \"import pandas as pd\\nimport numpy as np\\n\\n# df contains the combined data from the files listed in 'file'.\\n# We need to calculate 'Fe 환산 잔량 (wt%)' for each run ID based on TGA sheets.\\n# The TGA data is likely merged or available. If plotkit merges by sheet name/run ID, \\n# we might have multiple rows per RunID if not careful, but usually 'combine' handles overlays.\\n# However, for a chart of records, we assume 'df' has one row per relevant record or we can filter/group.\\n\\n# Let's identify columns. Based on preview:\\n# tga_batches: B=Temp, C=Weight. Sheet name = RunID.\\n# run_log: A=RunID, S=Residual Metal.\\n\\n# Since we don't have direct access to the raw multi-sheet structure inside data_code easily without knowing exactly how plotkit joined them,\\n# we assume standard behavior: if files are provided, plotkit might just load them separately or join on common keys if specified.\\n# But here, the key link is Sheet Name in TGA == Column A in RunLog.\\n\\n# Strategy: \\n# 1. If df has column 'Sheet' (common when loading multiple sheets), we can group by it.\\n# 2. If not, we might need to rely on the fact that we only want to plot points where both exist.\\n\\n# Let's try to compute the TGA metric directly from the df if possible.\\n# Usually, multi-file loads in this system result in a single dataframe with all columns from all files joined by a common key if inferred, or separate.\\n# Given the previous error was about file paths, and now we pass the file list, plotkit should handle loading.\\n\\n# Check if we have temperature and weight columns in df (from tga_batches)\\ntemp_col = None\\nweight_col = None\\nrun_id_col = None\\nresidual_col = None\\n\\nfor c in df.columns:\\n    c_str = str(c)\\n    if '온도' in c_str and temp_col is None:\\n        temp_col = c\\n    elif '중량' in c_str and weight_col is None:\\n        weight_col = c\\n    elif '런ID' in c_str or c_str == 'A':\\n        run_id_col = c\\n    elif '잔류금속' in c_str or c_str == 'S':\\n        residual_col = c\\n\\nif temp_col and weight_col and run_id_col:\\n    # Group by RunID/Sheet to find the residue at ~800C for each batch\\n    def get_fe_residue(group):\\n        # Find row closest to 800C\\n        if group[temp_col].isna().all():\\n            return np.nan\\n        idx = abs(group[temp_col] - 800).idxmin()\\n        val = group.loc[idx, weight_col]\\n        return val * 0.699 if pd.notnull(val) else np.nan\\n\\n    # Create a temporary series mapping RunID -> Fe Residue\\n    fe_map = df.groupby(run_id_col)[[temp_col, weight_col]].apply(lambda g: get_fe_residue(g))\\n    \\n    # Map back to df\\n    df['Fe 환산 잔량 (wt%)'] = df[run_id_col].map(fe_map)\\nelse:\\n    # Fallback: If columns aren't found as expected, maybe the data wasn't merged correctly in df.\\n    # In many plotkit setups, if you provide two files, they might be treated as independent datasets unless joined.\\n    # If they are not joined, we cannot merge them in data_code easily without re-reading.\\n    # However, the prompt says \\\"names: df ... leave result in df\\\". \\n    # If df doesn't have TGA data, we must have missed how it's loaded.\\n    # Let's assume if temp/weight cols missing, we can't proceed via simple df manipulation.\\n    # But typically, 'file': [...] loads them. If no join key was specified, it might concatenate? No, schemas differ.\\n    # It likely keeps them separate or fails to merge automatically.\\n    # Wait, the user said \\\"시트 이름이 런ID입니다\\\". This implies we should use sheet names.\\n    # If plotkit loads 'tga_batches.xlsx' with multiple sheets, does it create a 'sheet' column? Yes, usually.\\n    \\n    sheet_col = None\\n    for c in df.columns:\\n        if 'sheet' in str(c).lower() or '시트' in str(c):\\n            sheet_col = c\\n            break\\n            \\n    if sheet_col and temp_col and weight_col:\\n         # Filter for TGA data first\\n        tga_df = df[df[sheet_col].isin(pd.ExcelFile('data/tga_batches.xlsx').sheet_names)] # Can't open file again due to sandbox restrictions usually? \\n        # Actually, in these sandboxes, we often CAN'T read external files if path fails. \\n        # BUT, if 'df' contains ALL data from ALL sheets/files passed in 'file', then we have it.\\n        # Let's check if 'sheet' column exists to distinguish.\\n        pass\\n\\n# Robust approach assuming df contains all rows from all inputs concatenated or joined.\\n# If joined by RunID (implied by matching names), duplicates might exist.\\n# Let's just recalculate carefully.\\n\\nif 'Fe 환산 잔량 (wt%)' not in df.columns:\\n    # Try to infer from available columns if strict grouping failed above\\n    if temp_col and weight_col:\\n        # Assume each unique combination of other identifying columns represents a batch\\n        # Or simpler: The request implies comparing specific batches.\\n        # Let's try to map using the index if structure is flat.\\n        pass\\n\\n# Ensure the y column exists\\nif residual_col and '잔류금속 (wt%)' not in df.columns:\\n    df['잔류금속 (wt%)'] = df[residual_col]\\n\\n# Remove rows where either axis is NaN to make scatter clean\\ndf.dropna(subset=['Fe 환산 잔량 (wt%)', '잔류금속 (wt%)'], inplace=True)\",\n  \"asks\": [\n    {\n      \"ask\": \"TGA 10개 배치 각각 800 °C 잔량을 Fe로 환산\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"런로그 잔류금속과 비교하는 산점도\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"시트 이름이 런ID\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"y = x 기준선\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 31.231,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 26640,
+     "output_chars": 5713,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": [
+     "data/tga_batches.xlsx",
+     "data/run_log.xlsx"
+    ],
+    "chart": "scatter",
+    "x": {
+     "col": "Fe 환산 잔량 (wt%)",
+     "label": "TGA Fe 환산 잔량 (wt%)"
+    },
+    "y": {
+     "col": "잔류금속 (wt%)",
+     "label": "런로그 잔류금속 (wt%)"
+    },
+    "ref": [
+     {
+      "y": "x",
+      "text": "y = x"
+     }
+    ],
+    "data_code": "import pandas as pd\nimport numpy as np\n\n# df contains the combined data from the files listed in 'file'.\n# We need to calculate 'Fe 환산 잔량 (wt%)' for each run ID based on TGA sheets.\n# The TGA data is likely merged or available. If plotkit merges by sheet name/run ID, \n# we might have multiple rows per RunID if not careful, but usually 'combine' handles overlays.\n# However, for a chart of records, we assume 'df' has one row per relevant record or we can filter/group.\n\n# Let's identify columns. Based on preview:\n# tga_batches: B=Temp, C=Weight. Sheet name = RunID.\n# run_log: A=RunID, S=Residual Metal.\n\n# Since we don't have direct access to the raw multi-sheet structure inside data_code easily without knowing exactly how plotkit joined them,\n# we assume standard behavior: if files are provided, plotkit might just load them separately or join on common keys if specified.\n# But here, the key link is Sheet Name in TGA == Column A in RunLog.\n\n# Strategy: \n# 1. If df has column 'Sheet' (common when loading multiple sheets), we can group by it.\n# 2. If not, we might need to rely on the fact that we only want to plot points where both exist.\n\n# Let's try to compute the TGA metric directly from the df if possible.\n# Usually, multi-file loads in this system result in a single dataframe with all columns from all files joined by a common key if inferred, or separate.\n# Given the previous error was about file paths, and now we pass the file list, plotkit should handle loading.\n\n# Check if we have temperature and weight columns in df (from tga_batches)\ntemp_col = None\nweight_col = None\nrun_id_col = None\nresidual_col = None\n\nfor c in df.columns:\n    c_str = str(c)\n    if '온도' in c_str and temp_col is None:\n        temp_col = c\n    elif '중량' in c_str and weight_col is None:\n        weight_col = c\n    elif '런ID' in c_str or c_str == 'A':\n        run_id_col = c\n    elif '잔류금속' in c_str or c_str == 'S':\n        residual_col = c\n\nif temp_col and weight_col and run_id_col:\n    # Group by RunID/Sheet to find the residue at ~800C for each batch\n    def get_fe_residue(group):\n        # Find row closest to 800C\n        if group[temp_col].isna().all():\n            return np.nan\n        idx = abs(group[temp_col] - 800).idxmin()\n        val = group.loc[idx, weight_col]\n        return val * 0.699 if pd.notnull(val) else np.nan\n\n    # Create a temporary series mapping RunID -> Fe Residue\n    fe_map = df.groupby(run_id_col)[[temp_col, weight_col]].apply(lambda g: get_fe_residue(g))\n    \n    # Map back to df\n    df['Fe 환산 잔량 (wt%)'] = df[run_id_col].map(fe_map)\nelse:\n    # Fallback: If columns aren't found as expected, maybe the data wasn't merged correctly in df.\n    # In many plotkit setups, if you provide two files, they might be treated as independent datasets unless joined.\n    # If they are not joined, we cannot merge them in data_code easily without re-reading.\n    # However, the prompt says \"names: df ... leave result in df\". \n    # If df doesn't have TGA data, we must have missed how it's loaded.\n    # Let's assume if temp/weight cols missing, we can't proceed via simple df manipulation.\n    # But typically, 'file': [...] loads them. If no join key was specified, it might concatenate? No, schemas differ.\n    # It likely keeps them separate or fails to merge automatically.\n    # Wait, the user said \"시트 이름이 런ID입니다\". This implies we should use sheet names.\n    # If plotkit loads 'tga_batches.xlsx' with multiple sheets, does it create a 'sheet' column? Yes, usually.\n    \n    sheet_col = None\n    for c in df.columns:\n        if 'sheet' in str(c).lower() or '시트' in str(c):\n            sheet_col = c\n            break\n            \n    if sheet_col and temp_col and weight_col:\n         # Filter for TGA data first\n        tga_df = df[df[sheet_col].isin(pd.ExcelFile('data/tga_batches.xlsx').sheet_names)] # Can't open file again due to sandbox restrictions usually? \n        # Actually, in these sandboxes, we often CAN'T read external files if path fails. \n        # BUT, if 'df' contains ALL data from ALL sheets/files passed in 'file', then we have it.\n        # Let's check if 'sheet' column exists to distinguish.\n        pass\n\n# Robust approach assuming df contains all rows from all inputs concatenated or joined.\n# If joined by RunID (implied by matching names), duplicates might exist.\n# Let's just recalculate carefully.\n\nif 'Fe 환산 잔량 (wt%)' not in df.columns:\n    # Try to infer from available columns if strict grouping failed above\n    if temp_col and weight_col:\n        # Assume each unique combination of other identifying columns represents a batch\n        # Or simpler: The request implies comparing specific batches.\n        # Let's try to map using the index if structure is flat.\n        pass\n\n# Ensure the y column exists\nif residual_col and '잔류금속 (wt%)' not in df.columns:\n    df['잔류금속 (wt%)'] = df[residual_col]\n\n# Remove rows where either axis is NaN to make scatter clean\ndf.dropna(subset=['Fe 환산 잔량 (wt%)', '잔류금속 (wt%)'], inplace=True)",
+    "asks": [
+     {
+      "ask": "TGA 10개 배치 각각 800 °C 잔량을 Fe로 환산",
+      "how": "data_code"
+     },
+     {
+      "ask": "런로그 잔류금속과 비교하는 산점도",
+      "how": "key"
+     },
+     {
+      "ask": "시트 이름이 런ID",
+      "how": "data_code"
+     },
+     {
+      "ask": "y = x 기준선",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": false,
+    "error": "no rows left after the filters",
+    "hint": "filters: []; check the values with preview"
+   },
+   "facts": [],
+   "draw_s": 0.6444432735443115,
+   "check": {
+    "kind_expected": "scatter",
+    "failed": [
+     "run: no plot (no rows left after the filters)"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 58.522
+  }
+ ]
+}

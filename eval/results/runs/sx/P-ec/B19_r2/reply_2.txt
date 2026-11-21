@@ -1,0 +1,16 @@
+```json
+{
+ "file": "polymers.xlsx",
+ "sheets": "PVC",
+ "annotate": {
+  "band1": {
+   "type": "band",
+   "x_min": 200,
+   "x_max": 400,
+   "color": "gray",
+   "alpha": 0.2,
+   "text": "Mass Loss (200-400°C)"
+  }
+ }
+}
+```

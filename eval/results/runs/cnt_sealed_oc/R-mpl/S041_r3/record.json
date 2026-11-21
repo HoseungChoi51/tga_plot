@@ -1,0 +1,238 @@
+{
+ "arm": "R-mpl",
+ "item": "S041",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "신입 연구원",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "촉매 로트가 여러 개던데, 로트별로 런이 몇 번 돌았는지 가로 막대로 보여 주실 수 있나요?",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\nsheet_name = \"런로그\"\n\ntry:\n    df = pd.read_excel(file_path, sheet_name=sheet_name)\nexcept Exception as e:\n    raise e\n\n# '촉매로트' 컬럼이 있는지 확인하고 그룹화하여 런 수 계산\nif '촉매로트' in df.columns:\n    lot_counts = df['촉매로트'].value_counts()\n    \n    # 그래프 그리기\n    fig, ax = plt.subplots(figsize=(10, 6))\n    \n    # 가로 막대 차트 (barh)\n    bars = ax.barh(lot_counts.index, lot_counts.values, color='steelblue', edgecolor='black')\n    \n    # 각 막대에 값 표시\n    for bar in bars:\n        width = bar.get_width()\n        ax.text(width + 1, bar.get_y() + bar.get_height()/2, f'{int(width)}', \n                va='center', ha='left', fontsize=10)\n        \n    ax.set_xlabel('런 수 (Count)', fontsize=12)\n    ax.set_ylabel('촉매 로트 (Catalyst Lot)', fontsize=12)\n    ax.set_title('촉매 로트별 런 수 통계', fontsize=14)\n    \n    # y축 순서 정렬 (값이 큰 상단이 오도록 또는 오름차순 등 필요에 따라)\n    # value_counts는 기본 내림차순이라 위쪽부터 많은 순으로 나옴\n    \n    plt.tight_layout()\n    \n    # 저장\n    output_file = os.path.join(OUT_DIR, \"catalyst_lot_run_count.png\")\n    plt.savefig(output_file, dpi=300)\n    plt.close(fig)\nelse:\n    print(\"Column '촉매로트' not found.\")\n```",
+     "llm_s": 15.868,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 3758,
+     "output_chars": 1346,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\nsheet_name = \"런로그\"\n\ntry:\n    df = pd.read_excel(file_path, sheet_name=sheet_name)\nexcept Exception as e:\n    raise e\n\n# '촉매로트' 컬럼이 있는지 확인하고 그룹화하여 런 수 계산\nif '촉매로트' in df.columns:\n    lot_counts = df['촉매로트'].value_counts()\n    \n    # 그래프 그리기\n    fig, ax = plt.subplots(figsize=(10, 6))\n    \n    # 가로 막대 차트 (barh)\n    bars = ax.barh(lot_counts.index, lot_counts.values, color='steelblue', edgecolor='black')\n    \n    # 각 막대에 값 표시\n    for bar in bars:\n        width = bar.get_width()\n        ax.text(width + 1, bar.get_y() + bar.get_height()/2, f'{int(width)}', \n                va='center', ha='left', fontsize=10)\n        \n    ax.set_xlabel('런 수 (Count)', fontsize=12)\n    ax.set_ylabel('촉매 로트 (Catalyst Lot)', fontsize=12)\n    ax.set_title('촉매 로트별 런 수 통계', fontsize=14)\n    \n    # y축 순서 정렬 (값이 큰 상단이 오도록 또는 오름차순 등 필요에 따라)\n    # value_counts는 기본 내림차순이라 위쪽부터 많은 순으로 나옴\n    \n    plt.tight_layout()\n    \n    # 저장\n    output_file = os.path.join(OUT_DIR, \"catalyst_lot_run_count.png\")\n    plt.savefig(output_file, dpi=300)\n    plt.close(fig)\nelse:\n    print(\"Column '촉매로트' not found.\")\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "촉매 로트별 런 수 통계",
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "",
+         "orient": "h",
+         "cats": [
+          "FC-2606",
+          "FC-2607",
+          "FC-2608",
+          "FC-2603",
+          "FC-2602",
+          "FC-2604",
+          "FC-2605",
+          "-"
+         ],
+         "values": [
+          170.0,
+          160.0,
+          155.0,
+          150.0,
+          148.0,
+          113.0,
+          101.0,
+          1.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#4682b4",
+          "#4682b4",
+          "#4682b4",
+          "#4682b4",
+          "#4682b4",
+          "#4682b4",
+          "#4682b4",
+          "#4682b4"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0,
+          7.0
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 8,
+       "texts": [
+        "170",
+        "160",
+        "155",
+        "150",
+        "148",
+        "113",
+        "101",
+        "1"
+       ],
+       "x": {
+        "label": "런 수 (Count)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         20.0,
+         40.0,
+         60.0,
+         80.0,
+         100.0,
+         120.0,
+         140.0,
+         160.0
+        ],
+        "step": 20.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 178.5,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "20",
+         "40",
+         "60",
+         "80",
+         "100",
+         "120",
+         "140",
+         "160",
+         "180"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "촉매 로트 (Catalyst Lot)",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0,
+         5.0,
+         6.0,
+         7.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "FC-2606",
+         "FC-2607",
+         "FC-2608",
+         "FC-2603",
+         "FC-2602",
+         "FC-2604",
+         "FC-2605",
+         "-"
+        ],
+        "min": -0.79,
+        "max": 7.789999999999999,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "FC-2606",
+         "FC-2607",
+         "FC-2608",
+         "FC-2603",
+         "FC-2602",
+         "FC-2604",
+         "FC-2605",
+         "-"
+        ],
+        "rotate": 0.0
+       },
+       "title": "촉매 로트별 런 수 통계"
+      }
+     ],
+     "texts": [
+      "170",
+      "160",
+      "155",
+      "150",
+      "148",
+      "113",
+      "101",
+      "1"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t1/catalyst_lot_run_count.png",
+       "format": "png",
+       "px": [
+        3000,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5437383651733398,
+   "check": {
+    "kind_expected": "hbar",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 16.412
+  }
+ ]
+}

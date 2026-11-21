@@ -1,0 +1,145 @@
+import pandas as pd
+import json
+import numpy as np
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+def main():
+    # Read all sheets from the Excel file
+    xls = pd.ExcelFile(DATA_FILE)
+    
+    figures = []
+    
+    for sheet_name in xls.sheet_names:
+        df = pd.read_excel(xls, sheet_name=sheet_name)
+        
+        # Extract data columns based on the preview structure
+        # Assuming column names are consistent: Temperature, Weight(%), D.W(%/C)
+        try:
+            temp_col = [c for c in df.columns if 'Temperature' in c][0]
+            weight_col = [c for c in df.columns if 'Weight' in c][0]
+            dtg_col = [c for c in df.columns if 'D.W' in c or 'DTG' in c.upper()][0]
+        except IndexError:
+            continue
+            
+        x_data = df[temp_col].tolist()
+        y1_data = df[weight_col].tolist()
+        y2_data = df[dtg_col].tolist()
+        
+        # Create ECharts option
+        option = {
+            "title": {
+                "text": f"TGA/DTG - {sheet_name}",
+                "left": "center",
+                "textStyle": {
+                    "fontFamily": "Noto Sans CJK KR"
+                }
+            },
+            "tooltip": {
+                "trigger": "axis",
+                "axisPointer": {
+                    "type": "cross"
+                }
+            },
+            "legend": {
+                "data": ["Weight (%)", "DTG (%/°C)"],
+                "top": 30,
+                "textStyle": {
+                    "fontFamily": "Noto Sans CJK KR"
+                }
+            },
+            "grid": {
+                "left": "8%",
+                "right": "8%",
+                "bottom": "15%",
+                "containLabel": True
+            },
+            "xAxis": {
+                "name": "Temperature (°C)",
+                "nameLocation": "middle",
+                "nameGap": 30,
+                "type": "value",
+                "min": 30,
+                "max": 900,
+                "axisLabel": {
+                    "formatter": "{value} °C"
+                },
+                "splitLine": {
+                    "show": False
+                }
+            },
+            "yAxis": [
+                {
+                    "name": "Weight (%)",
+                    "type": "value",
+                    "position": "left",
+                    "axisLabel": {
+                        "formatter": "{value} %"
+                    },
+                    "splitLine": {
+                        "lineStyle": {
+                            "type": "dashed"
+                        }
+                    }
+                },
+                {
+                    "name": "DTG (%/°C)",
+                    "type": "value",
+                    "position": "right",
+                    "axisLabel": {
+                        "formatter": "{value} %/°C",
+                        "color": "#008000"  # Green color for Y2 label text
+                    },
+                    "axisLine": {
+                        "lineStyle": {
+                            "color": "#008000"  # Green color for Y2 axis line
+                        }
+                    },
+                    "splitLine": {
+                        "show": False
+                    }
+                }
+            ],
+            "series": [
+                {
+                    "name": "Weight (%)",
+                    "type": "line",
+                    "yAxisIndex": 0,
+                    "data": [[t, w] for t, w in zip(x_data, y1_data)],
+                    "smooth": True,
+                    "symbol": "none",
+                    "lineStyle": {
+                        "width": 2,
+                        "color": "#1f77b4"
+                    }
+                },
+                {
+                    "name": "DTG (%/°C)",
+                    "type": "line",
+                    "yAxisIndex": 1,
+                    "data": [[t, d] for t, d in zip(x_data, y2_data)],
+                    "smooth": True,
+                    "symbol": "none",
+                    "lineStyle": {
+                        "width": 2,
+                        "color": "#008000"  # Green color for Y2 series line
+                    }
+                }
+            ]
+        }
+        
+        fig_entry = {
+            "name": f"tga_{sheet_name.replace(' ', '_').replace('-', '_')}",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+        figures.append(fig_entry)
+        
+    output = {"figures": figures}
+    print(json.dumps(output, ensure_ascii=False))
+
+if __name__ == "__main__":
+    main()

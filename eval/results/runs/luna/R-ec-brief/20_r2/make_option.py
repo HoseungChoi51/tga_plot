@@ -1,0 +1,216 @@
+import json
+import re
+import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+DATA_FILES = None
+
+BLUE = "#1f4e9c"
+RED = "#c0392b"
+GRAY = "rgba(180,180,180,0.22)"
+
+
+def clean_name(value):
+    text = str(value).strip()
+    return re.sub(r"[^\w.-]+", "_", text).strip("_") or "plot"
+
+
+def read_sheets(path):
+    workbook = pd.read_excel(path, sheet_name=None)
+    return workbook.items()
+
+
+def find_column(columns, patterns, fallback):
+    for pattern in patterns:
+        for col in columns:
+            if re.search(pattern, str(col), re.IGNORECASE):
+                return col
+    return columns[fallback] if len(columns) > fallback else None
+
+
+def build_option(sheet_name, frame):
+    frame = frame.dropna(how="all").copy()
+    if frame.empty:
+        return None
+
+    columns = list(frame.columns)
+    xcol = find_column(columns, [r"temperature", r"temp", r"온도"], 1)
+    y1col = find_column(columns, [r"weight", r"mass", r"중량", r"무게"], 2)
+    y2col = find_column(columns, [r"D\.?\s*W", r"DTG", r"derivative", r"미분"], 3)
+
+    if xcol is None or y1col is None:
+        return None
+
+    x = pd.to_numeric(frame[xcol], errors="coerce").to_numpy(dtype=float)
+    y1 = pd.to_numeric(frame[y1col], errors="coerce").to_numpy(dtype=float)
+    valid = np.isfinite(x) & np.isfinite(y1)
+    x, y1 = x[valid], y1[valid]
+    if not len(x):
+        return None
+
+    order = np.argsort(x)
+    x, y1 = x[order], y1[order]
+
+    series = [
+        {
+            "name": str(y1col),
+            "type": "line",
+            "yAxisIndex": 0,
+            "showSymbol": False,
+            "connectNulls": True,
+            "lineStyle": {"color": BLUE, "width": 2},
+            "itemStyle": {"color": BLUE},
+            "data": [[float(a), float(b)] for a, b in zip(x, y1)],
+            "markArea": {
+                "silent": True,
+                "itemStyle": {"color": GRAY},
+                "data": [[{"xAxis": 300}, {"xAxis": 450}]],
+            },
+        }
+    ]
+
+    y2 = None
+    if y2col is not None:
+        y2_raw = pd.to_numeric(frame[y2col], errors="coerce").to_numpy(dtype=float)
+        y2_raw = y2_raw[valid][order]
+        valid2 = np.isfinite(y2_raw)
+        if valid2.any():
+            x2 = x[valid2]
+            # DTG is negative during mass loss; invert it so loss peaks point upward.
+            y2 = -y2_raw[valid2]
+            series.append(
+                {
+                    "name": str(y2col) + " (−)",
+                    "type": "line",
+                    "yAxisIndex": 1,
+                    "showSymbol": False,
+                    "connectNulls": True,
+                    "lineStyle": {"color": RED, "width": 1.8},
+                    "itemStyle": {"color": RED},
+                    "data": [[float(a), float(b)] for a, b in zip(x2, y2)],
+                }
+            )
+
+    # Residue at the measured point nearest 800 °C.
+    residue_idx = int(np.argmin(np.abs(x - 800)))
+    residue_x, residue_y = float(x[residue_idx]), float(y1[residue_idx])
+    series[0]["markPoint"] = {
+        "symbol": "circle",
+        "symbolSize": 8,
+        "itemStyle": {"color": BLUE},
+        "label": {
+            "show": True,
+            "formatter": f"Residue {residue_y:.1f}%",
+            "position": "right",
+            "color": "#333",
+            "fontSize": 11,
+        },
+        "data": [{"coord": [residue_x, residue_y]}],
+    }
+
+    # Highest inverted DTG peak above 150 °C.
+    if y2 is not None:
+        peak_mask = (x >= 150) & np.isfinite(y2)
+        peak_indices = np.flatnonzero(peak_mask)
+        if len(peak_indices):
+            peak_idx = int(peak_indices[np.argmax(y2[peak_indices])])
+            peak_x, peak_y = float(x[peak_idx]), float(y2[peak_idx])
+            series[1]["markPoint"] = {
+                "symbol": "circle",
+                "symbolSize": 8,
+                "itemStyle": {"color": RED},
+                "label": {
+                    "show": True,
+                    "formatter": f"{peak_x:.0f} °C",
+                    "position": "top",
+                    "color": "#333",
+                    "fontSize": 11,
+                },
+                "data": [{"coord": [peak_x, peak_y]}],
+            }
+
+    return {
+        "title": {
+            "text": str(sheet_name),
+            "left": "center",
+            "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 15},
+        },
+        "tooltip": {"trigger": "axis"},
+        "legend": {"left": "center", "bottom": 4, "data": [s["name"] for s in series]},
+        "grid": {"left": 68, "right": 68, "top": 58, "bottom": 58},
+        "xAxis": {
+            "type": "value",
+            "name": "Temperature (°C)",
+            "nameLocation": "middle",
+            "nameGap": 34,
+            "min": float(np.nanmin(x)),
+            "max": float(np.nanmax(x)),
+            "axisLine": {"lineStyle": {"color": "#555"}},
+            "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+            "splitLine": {"show": True, "lineStyle": {"color": "#e5e5e5"}},
+        },
+        "yAxis": [
+            {
+                "type": "value",
+                "name": "Weight (%)",
+                "nameLocation": "middle",
+                "nameGap": 48,
+                "min": 0,
+                "max": 105,
+                "axisLine": {"show": True, "lineStyle": {"color": BLUE}},
+                "axisLabel": {"color": BLUE, "fontFamily": "Noto Sans CJK KR"},
+                "splitLine": {"show": False},
+            },
+            {
+                "type": "value",
+                "name": "−DTG (%/°C)",
+                "nameLocation": "middle",
+                "nameGap": 48,
+                "axisLine": {"show": True, "lineStyle": {"color": RED}},
+                "axisLabel": {"color": RED, "fontFamily": "Noto Sans CJK KR"},
+                "splitLine": {"show": False},
+            },
+        ],
+        "series": series,
+    }
+
+
+def main():
+    paths = DATA_FILES if DATA_FILES else [DATA_FILE]
+    figures = []
+    used_names = set()
+
+    for file_path in paths:
+        path = Path(file_path)
+        for sheet_name, frame in read_sheets(path):
+            option = build_option(sheet_name, frame)
+            if option is None:
+                continue
+            base = clean_name(sheet_name)
+            name = base
+            suffix = 2
+            while name in used_names:
+                name = f"{base}_{suffix}"
+                suffix += 1
+            used_names.add(name)
+            figures.append(
+                {
+                    "name": name,
+                    "option": option,
+                    "width": 614,
+                    "height": 442,
+                    "dpi": 300,
+                    "formats": ["png"],
+                }
+            )
+
+    print(json.dumps({"figures": figures}, ensure_ascii=False, allow_nan=False))
+
+
+if __name__ == "__main__":
+    main()

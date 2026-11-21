@@ -1,0 +1,110 @@
+We need answer user's request in Korean? User asks Python script only inside one python block, nothing else. Need produce script reading file, drawing plot. Need think in English? User Korean; maybe same language? They wrote Korean, so think in Korean. Need final only python block.
+
+Task: DATA_FILE is isothermal.txt. Columns: Time (min), Temperature (°C), Weight (%). User: 시간(분)을 x축으로, 무게는 왼쪽 축, 온도는 오른쪽 축에 그려줘. 140분일 때 무게를 표시해줘.
+Need make plot: x=Time, y1=Weight (left), y2=Temperature (right). Mark weight at 140 min. Since no DTG. Standard TGA not applicable because x time. Need labels? Probably title sheet name "isothermal". Need legend center left maybe? They didn't specify but standard? We can include legend. Need Korean font Noto Sans CJK KR. Need save PNG 300 dpi in OUT_DIR. Need handle file text with header_rows? Data file likely tab/space separated? Need robust reading. Header row maybe first row? The preview says header_rows [1], data_start_row 2, columns names. Could be text with header line? Need parse. Use pandas read_csv with sep=None engine python? But header rows? If header row is first, skip? Could use read_csv(sep=r'\s+', header=0). But if there are multiple header rows? preview header_rows [1] means first row is header? data_start_row 2 (1-indexed) so header row 1. Use pd.read_csv(DATA_FILE, sep=r'\s+', header=0). But if file has leading blank? Could robust: read lines, find first line with numbers? But names include parentheses. Simpler: try pd.read_csv with sep=None, engine='python', header=0. If fails, read_csv(header=None, sep=r'\s+') and infer header. Need ensure columns names. Could implement robust load: read all lines, strip, skip empty. If first line contains non-numeric tokens, use as header. Else header None and assign based on known patterns. But for this file first line likely "Time (min) Temperature (°C) Weight (%)". Use pd.read_csv(sep=r'\s+', header=0, comment='#'). If numeric columns object, convert.
+
+Plot: x time, y1 weight, y2 temperature. Need mark weight at 140 min. Find row nearest 140. If exact 140 exists. Label "Residue?" They say 140분일 때 무게 표시. Could label like "140 min: 75.2%"? Need marker on curve. Use y1 weight. Maybe label "Weight at 140 min = 75.2%"? Korean? Use English? Standard labels residue written like "Residue 8.0%". Here not residue, but weight at 140 min. Could label f"{time:.0f} min: {weight:.1f}%". Mark with scatter on y1 curve. Need avoid y2 scaling confusion. Use y1.
+
+Need right axis temperature line color? Standard: y1 line #1f4e9c, y2 line #c0392b. Use those. y1 label "Weight (%)", y2 "Temperature (°C)", x "Time (min)". Title sheet name "isothermal". Legend center left. But if two lines with labels "Weight (%)" and "Temperature (°C)". Need ensure y2 line not multiplied by -1 because not DTG. Just temperature.
+
+Need one plot per sheet? Text file one sheet. Could if Excel multiple sheets? User only this file. But script should maybe handle if Excel? DATA_FILE .txt. But robust: if file ext
+[...]
+mn names. Better: use y1_label, y2_label for legend. If generic, legend shows Weight/Temp. Use lines labels set when plotting to y1_label/y2_label. So:
+ax1.plot(..., label=y1_label)
+ax2.plot(..., label=y2_label)
+Then legend labels. Good.
+
+Need axis_label function:
+def axis_label(col, default):
+    s = str(col).strip()
+    if not s or s.lower().startswith('col'):
+        return default
+    return s
+But if actual column name is 'col1' but user wants default? okay.
+
+Use x_label = axis_label(x_col, 'Time (min)') etc.
+
+Need if actual column name is 'Time (min)' good. If actual 'Time' good. If actual 'Temperature (°C)' good.
+
+Potential issue: If actual column name is Korean '시간' and default? axis_label returns Korean, font okay. Good.
+
+Need if y1_label default but actual generic col2; legend Weight (%). Good.
+
+Need if y2_label default but actual generic col3; legend Temperature (°C). Good.
+
+Potential issue: If actual column name is 'Weight (%)' but y1_col chosen by numeric range, label good.
+
+Need if y2 temperature line should be right axis, but if temperature values are lower than weight? right axis independent. Good.
+
+Potential issue: If y2 line label in legend overlaps with y2 axis? legend center left. Good.
+
+Need if annotation arrow crosses legend? no.
+
+Potential issue: If figure tight_layout with twinx and annotation offset maybe okay.
+
+Could set fig.subplots_adjust? no.
+
+Potential issue: If x values not sorted, sort. Good.
+
+Potential issue: If duplicate x values, scatter nearest first. Good.
+
+Potential issue: If target 140 and data has multiple rows at 140, nanargmin picks first. Weight maybe same. Good.
+
+Potential issue: If x column not numeric but object, d[x_col]=pd.to_numeric, dropna. Good.
+
+Potential issue: If y1/y2 columns have inf? dropna doesn't drop inf. Could replace inf with nan. Add d = d.replace([np.inf, -np.inf], np.nan). Good.
+
+Need if numeric_max with inf? not.
+
+Add in plot_sheet: d = d.replace([np.inf, -np.inf], np.nan).
+
+Potential issue: If all rows dropped, return no file. But data exists.
+
+Need if multiple sheets and one fails, continue.
+
+Potential issue: If OUT_DIR path string, Path. Good.
+
+Let's craft final code now.
+
+Double-check no missing imports: os not used maybe remove. re, pathlib, pandas, numpy, matplotlib. Good.
+
+Potential issue: matplotlib rcParams font family: If 'Noto Sans CJK KR' not in font manager, may fallback with warning. Could set:
+matplotlib.rcParams['font.family'] = ['Noto Sans CJK KR', 'sans-serif']
+matplotlib.rcParams['font.sans-serif'] = ['Noto Sans CJK KR', 'DejaVu Sans']
+Good.
+
+Potential issue: degree symbol in labels with font. Good.
+
+Potential issue: If sheet name contains newline? safe.
+
+Let's write final code in python block.
+
+Need ensure final answer no analysis. final only code.
+
+One more thought: The user request is in Korean, but code comments can be English. Fine.
+
+Could there be a requirement to use DATA_FILE exactly as given. We set. Good.
+
+Potential issue: If DATA_FILES is defined after script? No.
+
+Potential issue: If script executed with exec where DATA_FILE is local variable? We define global. okay.
+
+Potential issue: If OUT_DIR not writable? no.
+
+Potential issue: If file name output should maybe "isothermal.png". Good.
+
+Potential issue: If sheet name is "isothermal.txt" because load_sheets returns Path(file).stem? stem is isothermal. Good.
+
+Potential issue: If Excel file with multiple sheets and user only wants one? one per sheet. Good.
+
+Potential issue: If text file has a sheet name in first line? no.
+
+Potential issue: If data file has header row with trailing spaces and data rows with leading spaces, split_line handles.
+
+Potential issue: If data row contains negative DTG with leading minus, numeric. Good.
+
+Potential issue: If y2 temperature line should not be inverted. Good.
+
+Potential issue: If user asked "무게는 왼쪽 축, 온도는 오른쪽 축" but standard y1 line #1f4e9c, y2 #c0392b. Good.
+
+Potential issue: If 140분일 때 무게 표시 should maybe use marker and text "Residue 75.2%"? They

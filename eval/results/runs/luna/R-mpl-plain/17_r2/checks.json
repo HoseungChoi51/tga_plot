@@ -1,0 +1,1 @@
+[{"check": "series", "cat": "data", "ok": true, "why": "", "spec": {"series": {"axis": "y1", "y_ranges": [[7.9739, 100.01], [2.9705, 100.02], [29.983, 100.02]]}, "cat": "data"}}, {"check": "png_px", "cat": "ask", "ok": false, "why": "png sizes [[4723, 2935], [4723, 2935], [4723, 2935]]", "spec": {"png_px": [4800, 3000]}}]

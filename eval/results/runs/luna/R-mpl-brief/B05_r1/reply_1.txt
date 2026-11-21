@@ -1,0 +1,104 @@
+```python
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+DATA_FILES = [
+    "/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_A.csv",
+    "/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_B.txt",
+]
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/B05_r1/out"
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+
+def read_data(path):
+    """Read CSV or delimited text, accommodating common separators."""
+    suffix = Path(path).suffix.lower()
+    if suffix == ".csv":
+        return pd.read_csv(path)
+    for sep in (r"\s+", "\t", ",", ";"):
+        try:
+            df = pd.read_csv(path, sep=sep, engine="python")
+            if df.shape[1] >= 3:
+                return df
+        except Exception:
+            pass
+    return pd.read_csv(path, sep=None, engine="python")
+
+
+def find_column(df, candidates):
+    columns = list(df.columns)
+    for candidate in candidates:
+        matches = [col for col in columns if candidate in str(col).lower()]
+        if matches:
+            return matches[0]
+    raise ValueError(f"Could not find a column matching any of: {candidates}")
+
+
+datasets = []
+for path, label in zip(DATA_FILES, ["Lot A", "Lot B"]):
+    df = read_data(path)
+    x_col = find_column(df, ["temperature", "temp"])
+    weight_col = find_column(df, ["weight"])
+    dtg_col = find_column(df, ["deriv", "dtg"])
+
+    x = pd.to_numeric(df[x_col], errors="coerce")
+    weight = pd.to_numeric(df[weight_col], errors="coerce")
+    dtg = pd.to_numeric(df[dtg_col], errors="coerce")
+    valid = x.notna() & weight.notna() & dtg.notna()
+    datasets.append((label, x[valid].to_numpy(), weight[valid].to_numpy(), dtg[valid].to_numpy()))
+
+fig, ax1 = plt.subplots(figsize=(9, 6))
+ax2 = ax1.twinx()
+colors = ["#1f4e9c", "#c0392b"]
+
+for (label, x, weight, dtg), color in zip(datasets, colors):
+    order = np.argsort(x)
+    x, weight, dtg = x[order], weight[order], dtg[order]
+
+    ax1.plot(x, weight, color=color, linewidth=2, label=label)
+    ax2.plot(x, -dtg, color=color, linewidth=1.7, linestyle="--", alpha=0.85)
+
+    residue_idx = int(np.argmin(np.abs(x - 800)))
+    ax1.plot(x[residue_idx], weight[residue_idx], "o", color=color, markersize=5)
+    ax1.annotate(
+        f"Residue {weight[residue_idx]:.1f}%",
+        (x[residue_idx], weight[residue_idx]),
+        xytext=(7, 8),
+        textcoords="offset points",
+        color=color,
+        fontsize=9,
+    )
+
+    peak_candidates = np.flatnonzero(x > 150)
+    if peak_candidates.size:
+        peak_idx = peak_candidates[np.argmax(-dtg[peak_candidates])]
+        ax2.plot(x[peak_idx], -dtg[peak_idx], "s", color=color, markersize=5)
+        ax2.annotate(
+            f"{x[peak_idx]:.0f} °C",
+            (x[peak_idx], -dtg[peak_idx]),
+            xytext=(7, 8),
+            textcoords="offset points",
+            color=color,
+            fontsize=9,
+        )
+
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)", color="#1f4e9c")
+ax2.set_ylabel("−DTG (%/°C)", color="#c0392b")
+ax1.tick_params(axis="y", labelcolor="#1f4e9c")
+ax2.tick_params(axis="y", labelcolor="#c0392b")
+ax1.set_title("Lot A vs Lot B")
+ax1.grid(True, alpha=0.25)
+ax1.legend(loc="center left")
+fig.tight_layout()
+
+out_dir = Path(OUT_DIR)
+out_dir.mkdir(parents=True, exist_ok=True)
+fig.savefig(out_dir / "lot_A_vs_lot_B.png", dpi=300, bbox_inches="tight")
+plt.close(fig)
+```

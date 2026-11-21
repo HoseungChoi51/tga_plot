@@ -1,0 +1,10 @@
+```json
+{
+  "file": "polymers.xlsx",
+  "sheets": "PE",
+  "x": {
+    "col": "B",
+    "label": "Temperature (K)"
+  }
+}
+```

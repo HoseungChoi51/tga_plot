@@ -1,0 +1,38 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "heatmap",
+ "corr": [
+  "1존온도 (°C)",
+  "2존온도 (°C)",
+  "3존온도 (°C)",
+  "C2H4유량 (sccm)",
+  "H2유량 (sccm)",
+  "H2/C2H4비",
+  "체류시간 (s)",
+  "외기습도 (%)",
+  "CNT수율 (g/g-cat)",
+  "잔류금속 (wt%)",
+  "산화개시온도 (°C)",
+  "IG/ID"
+ ],
+ "cmap": "RdBu_r",
+ "code": "import matplotlib.pyplot as plt\n# Find the colorbar associated with the heatmap\ncbars = [cb for cb in fig.colorbar if hasattr(cb, 'ax')]\nif not cbars:\n    # Fallback: try to find it via axes collections or images if needed, but usually colorbar is attached.\n    # If standard access fails, we might need to recreate or find differently. \n    # However, typically ax.images[0] works for imshow. Let's try a more robust way to get the mappable.\n    pass\n\n# Robustly get the mappable object from the axes\nmappables = list(ax.collections) + list(ax.images)\nif mappables:\n    im = mappables[0]\n    im.set_clim(-1, 1)\n    # Update existing colorbar limits if possible, or create new one if missing\n    # Note: plotkit likely already created a colorbar. We just want to fix its range.\n    # The previous error was IndexError on ax.images[0], so ax.collections might hold it or it's handled differently.\n    # If the above finds nothing, we can't easily change the clim without the object.\n    # Assuming ax.images[0] failed, let's check if there are other ways.\n    # Actually, if ax.images is empty, maybe the heatmap is drawn differently? \n    # But usually correlation heatmaps use imshow.\n    # Let's assume the previous code failed because ax.images was empty. \n    # If mappables is also empty, we can't do much. \n    # But wait, if ax.images[0] raised IndexError, ax.images is empty.\n    # Maybe the heatmap is in a different axis? Or drawn with pcolormesh (collections)?\n    # Let's try to set clim on any collection/image found.\nelse:\n    # If no mappable found, we can't set clim directly. \n    # This suggests the heatmap might be drawn in a way that doesn't expose images/collections directly on `ax`?\n    # Or perhaps `ax` is not the main axis? \n    # Given the constraints, I will assume the standard case where it IS an image but maybe accessed differently or the error was transient/misleading about which list was empty.\n    # Let's try to force a re-draw of colorbar if needed? No, too complex.\n    # Let's stick to trying to find the mappable.\n    pass\n\n# If we found it, update the colorbar ticks\nif mappables:\n    im = mappables[0]\n    im.set_clim(-1, 1)\n    # Try to find and update the colorbar\n    for cbar in fig.colorbars:\n        cbar.set_ticks([-1, -0.5, 0, 0.5, 1])\n        cbar.update_normal(im)\n    plt.tight_layout()",
+ "asks": [
+  {
+   "ask": "상관계수 heatmap",
+   "how": "key"
+  },
+  {
+   "ask": "diverging cmap",
+   "how": "key"
+  },
+  {
+   "ask": "-1~1 고정",
+   "how": "code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_a/P-mpl/D027_r2/out/t1"
+ }
+}

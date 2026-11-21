@@ -1,0 +1,94 @@
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/17_r2/out")
+
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+sheets = pd.read_excel(DATA_FILE, sheet_name=None)
+
+for sheet_name, df in sheets.items():
+    normalized = {str(col).strip().lower(): col for col in df.columns}
+
+    x_col = next(
+        col for key, col in normalized.items()
+        if "temperature" in key or "temp" in key
+    )
+    weight_col = next(col for key, col in normalized.items() if "weight" in key)
+    dtg_col = next(
+        col for key, col in normalized.items()
+        if "d.w" in key or "dtg" in key or "derivative" in key
+    )
+
+    data = df[[x_col, weight_col, dtg_col]].apply(
+        pd.to_numeric, errors="coerce"
+    ).dropna()
+
+    if data.empty:
+        continue
+
+    temperature = data[x_col].to_numpy()
+    weight = data[weight_col].to_numpy()
+    dtg_up = -data[dtg_col].to_numpy()
+
+    fig, ax1 = plt.subplots(figsize=(8, 5))
+    ax2 = ax1.twinx()
+
+    ax1.plot(temperature, weight, color="#1f4e9c", label="Weight (%)")
+    ax2.plot(temperature, dtg_up, color="#c0392b", label="-DTG (%/°C)")
+
+    ax1.set_xlabel("Temperature (°C)")
+    ax1.set_ylabel("Weight (%)", color="#1f4e9c")
+    ax2.set_ylabel("-DTG (%/°C)", color="#c0392b")
+    ax1.tick_params(axis="y", labelcolor="#1f4e9c")
+    ax2.tick_params(axis="y", labelcolor="#c0392b")
+    ax1.set_title(str(sheet_name))
+    ax1.grid(True, alpha=0.3)
+
+    residue_idx = int(np.argmin(np.abs(temperature - 800)))
+    residue_temp = temperature[residue_idx]
+    residue = weight[residue_idx]
+    ax1.plot(residue_temp, residue, "o", color="#1f4e9c", zorder=5)
+    ax1.annotate(
+        f"Residue {residue:.1f}%",
+        xy=(residue_temp, residue),
+        xytext=(8, 10),
+        textcoords="offset points",
+        color="#1f4e9c",
+    )
+
+    eligible = np.flatnonzero(temperature > 150)
+    if eligible.size:
+        peak_idx = eligible[np.argmax(dtg_up[eligible])]
+        peak_temp = temperature[peak_idx]
+        peak_value = dtg_up[peak_idx]
+        ax2.plot(peak_temp, peak_value, "o", color="#c0392b", zorder=5)
+        ax2.annotate(
+            f"{peak_temp:.0f} °C",
+            xy=(peak_temp, peak_value),
+            xytext=(8, 10),
+            textcoords="offset points",
+            color="#c0392b",
+        )
+
+    lines1, labels1 = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines1 + lines2, labels1 + labels2, loc="center left")
+
+    fig.tight_layout()
+    safe_name = "".join(
+        char if char.isalnum() or char in "-_ ." else "_"
+        for char in str(sheet_name)
+    ).strip()
+    fig.savefig(OUT_DIR / f"{safe_name or 'sheet'}.png", dpi=600, bbox_inches="tight")
+    plt.close(fig)

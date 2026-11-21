@@ -1,0 +1,8 @@
+```json
+{
+  "file": "polymers.xlsx",
+  "combine": true,
+  "y2": false,
+  "offset": 20
+}
+```

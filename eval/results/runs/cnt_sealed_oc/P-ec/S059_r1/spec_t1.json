@@ -1,0 +1,36 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "heatmap",
+ "x": {
+  "col": "반응기"
+ },
+ "y": {
+  "col": "체류시간 (s)",
+  "bins": {
+   "width": 0.5,
+   "min": 2.5,
+   "max": 7.0
+  }
+ },
+ "z": {
+  "col": "CNT수율 (g/g-cat)",
+  "agg": "mean"
+ },
+ "asks": [
+  {
+   "ask": "체류시간 0.5 s 간격, 2.5~7.0 s 구간으로 평균 CNT수율 히트맵",
+   "how": "key"
+  },
+  {
+   "ask": "반응기별",
+   "how": "key"
+  },
+  {
+   "ask": "구간을 행으로 표시",
+   "how": "default"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/S059_r1/out/t1"
+ }
+}

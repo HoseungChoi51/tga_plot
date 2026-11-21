@@ -1,0 +1,102 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/extra_columns.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/24_r3/out"
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# Read the Excel file
+xls = pd.ExcelFile(DATA_FILE)
+
+for sheet_name in xls.sheet_names:
+    df = pd.read_excel(xls, sheet_name=sheet_name, header=0)
+    
+    # Identify columns based on standard TGA naming or preview info
+    # From preview: B=Temperature, E=Weight (%), F=Heat Flow (W/g), G=Deriv. Weight
+    
+    temp_col = None
+    weight_col = None
+    heat_flow_col = None
+    
+    for col in df.columns:
+        col_lower = str(col).lower()
+        if 'temperature' in col_lower:
+            temp_col = col
+        elif 'weight (%)' in col_lower or 'weight %' in col_lower:
+            weight_col = col
+        elif 'heat flow' in col_lower:
+            heat_flow_col = col
+            
+    # If specific names not found, fallback to indices from preview if needed, 
+    # but usually name matching works. Let's assume standard detection worked.
+    if temp_col is None or weight_col is None or heat_flow_col is None:
+        # Fallback logic based on typical structure if names are slightly off
+        cols = list(df.columns)
+        # Heuristic: Temp is usually 1st numeric after index, Weight% next, HeatFlow next
+        # But let's stick to what we found or try common variations
+        pass 
+
+    # Clean data: remove rows with NaN in critical columns
+    df_clean = df.dropna(subset=[temp_col, weight_col, heat_flow_col])
+    
+    x = df_clean[temp_col]
+    y1 = df_clean[weight_col]
+    y2 = df_clean[heat_flow_col]
+    
+    # Create figure and axis
+    fig, ax1 = plt.subplots(figsize=(8, 6))
+    
+    # Plot Weight (%) on left axis (y1)
+    color1 = '#1f4e9c'
+    ax1.plot(x, y1, color=color1, label='Weight (%)')
+    ax1.set_xlabel('Temperature (°C)', fontsize=12)
+    ax1.set_ylabel('Weight (%)', color=color1, fontsize=12)
+    ax1.tick_params(axis='y', labelcolor=color1)
+    
+    # Create second y-axis for Heat Flow
+    ax2 = ax1.twinx()
+    color2 = '#c0392b'
+    ax2.plot(x, y2, color=color2, label='Heat Flow (W/g)')
+    ax2.set_ylabel('Heat flow (W/g)', color=color2, fontsize=12)
+    ax2.tick_params(axis='y', labelcolor=color2)
+    
+    # Title is the sheet name
+    ax1.set_title(sheet_name, fontsize=14)
+    
+    # Residue Label (at ~800°C)
+    # Find point nearest to 800°C
+    idx_800 = (x - 800).abs().idxmin()
+    residue_val = y1.loc[idx_800]
+    residue_temp = x.loc[idx_800]
+    
+    # Add marker for residue
+    ax1.plot(residue_temp, residue_val, 'o', color=color1, markersize=5)
+    # Annotate residue
+    ax1.annotate(f'Residue {residue_val:.1f}%', 
+                 xy=(residue_temp, residue_val), 
+                 xytext=(10, 10), textcoords='offset points',
+                 color=color1, fontsize=10,
+                 arrowprops=dict(arrowstyle='->', color=color1))
+                 
+    # Peak Label: User requested to REMOVE peak display ("피크 표시는 빼줘")
+    # So we skip adding the DTG peak annotation entirely.
+    
+    # Legend
+    lines1, labels1 = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines1 + lines2, labels1 + labels2, loc='center left', bbox_to_anchor=(0.02, 0.5))
+    
+    # Grid
+    ax1.grid(True, linestyle='--', alpha=0.5)
+    
+    # Save plot
+    filename = f"{sheet_name}.png"
+    filepath = os.path.join(OUT_DIR, filename)
+    plt.tight_layout()
+    plt.savefig(filepath, dpi=300)
+    plt.close(fig)

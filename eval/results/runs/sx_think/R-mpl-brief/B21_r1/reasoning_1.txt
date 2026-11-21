@@ -1,0 +1,61 @@
+We need answer user in Korean? User asks Korean. Need produce complete Python script inside one ```python block only. Need analyze request.
+
+User: DATA_FILE, OUT_DIR. Data preview. Request: "Raw 시트를 x축 방향 뒤집어서(높은 온도가 왼쪽) 그려줘" => Plot Raw sheet with x-axis reversed (high temp left). Need standard TGA plot? Since user only asks Raw sheet reversed. Need draw standard TGA for Raw sheet? Likely yes: one plot per sheet named Raw. Need include residue and peak labels unless user says otherwise. Need x-axis reversed: set xlim from max to min (900 to 30) or invert_xaxis. Need save PNG 300 dpi into OUT_DIR. Need Korean font Noto Sans CJK KR. Need read Excel sheet Raw. Need handle columns by names or positions. Need robust.
+
+Need output only python code block. Need no plt.show. Need ensure file names. Could use sheet name sanitized. For Raw sheet: "Raw.png" maybe. Need title sheet name. Legend center left. y1 weight line #1f4e9c, y2 DTG multiplied by -1 line #c0392b. Residue at nearest 800 C: weight at measured point nearest 800, label "Residue 8.0%" with marker on curve. Peak: highest DTG peak above 150 C: temperature of highest DTG peak above 150 (of original DTG? Since DTG negative mass loss; highest DTG peak above 150 likely most negative original? They say derivative weight negative while mass lost; y2 multiplied by -1 so peaks point up. "peak: temperature of the highest DTG peak above 150 °C" Could mean highest peak in plotted -DTG (max of -DTG) above 150, equivalent min original DTG above 150. Need marker on curve. Which curve? likely on DTG curve (right y). Could place marker on y2 at -dtg value at peak temp, label maybe "600 °C". Need format: peak label written like "600 °C". Use one decimal? If temp integer? Could format as f"{peak_temp:.0f} °C" maybe. Residue f"Residue {residue:.1f}%". Need markers.
+
+Need consider x reversed: if invert x axis, markers/labels positions still okay. Legend center left: with x reversed, center left? In axes coords, legend loc='center left'. Good.
+
+Need maybe set y2 label? Standard TGA plot: x=temperature, left y weight %, right y DTG. Axis labels? The default standard maybe set labels: x "Temperature (°C)", y1 "Weight (%)", y2 "DTG (%/°C)"? Since user doesn't specify. It says standard TGA plot here: x=temperature; left y=weight; right y=DTG multiplied -1; title sheet name; legend center left. Should set axis labels? Likely yes. Use column names maybe. y2 label could be "DTG (%/°C)" or original column name? If multiplied by -1, maybe "DTG (%/°C)" or "-DTG (%/°C)". Need not overdo. But standard likely axis labels from column names: x "Temperature (°C)", y1 "Weight (%)", y2 "Deriv. Weight (%/°C)"? But if multiplied by -1, label maybe "DTG (%/°C)". Use y2 label "DTG (%/°C)"? The data column is Deriv. Weight (%/°C). Maybe use "DTG (%/°C)".
+
+Need robust column detection: TGA guess gives B, C, D. Could use names containing Temperature, Weight, Deriv. Weight. For Raw sheet, read with header row 1 (0-index? pandas read_excel 
+[...]
+matplotlib.use("Agg")` after importing pyplot? We import matplotlib then use then pyplot. Good.
+
+Potential issue: If `plt.rcParams.update` with font.family list. Good.
+
+Potential issue: If Korean font not available, fallback. Good.
+
+Potential issue: If `axes.unicode_minus` false to avoid missing minus. Good.
+
+Potential issue: If `fig.tight_layout()` with `bbox_inches='tight'` may produce warning if tight_layout cannot be applied? Usually fine.
+
+Potential issue: If `ax2.set_ylabel` and `ax1.set_ylabel` both, tight_layout handles.
+
+Potential issue: If annotations with `fontweight='bold'` okay.
+
+Potential issue: If peak label should be just temperature without °C? Prompt says written like "600 °C". Good.
+
+Potential issue: If residue label should be "Residue 8.0%" with space. Good.
+
+Potential issue: If residue at 800 should be weight at measured point nearest 800, not interpolated. We use nearest. Good.
+
+Potential issue: If peak above 150 should be highest DTG peak maybe local peak not global max? It says highest DTG peak, global. Good.
+
+Potential issue: If x axis reversed, `x > 150` mask unaffected. Good.
+
+Potential issue: If data includes x exactly 150, above means > not >=. Good.
+
+Potential issue: If no peak above 150, we skip peak label. But prompt says always draw unless user says otherwise. If no data, can't. Good.
+
+Potential issue: If residue marker label may overlap peak marker if both near. Not critical.
+
+Potential issue: If output figure should be 300 dpi unless user asks else. Good.
+
+Potential issue: If user asks "x축 방향 뒤집어서" maybe they don't want y2 multiplied? But standard says always. Good.
+
+Potential issue: If user asks only Raw, should we still draw residue/peak? Yes always.
+
+Potential issue: If user asks "x축 방향 뒤집어서(높은 온도가 왼쪽)" maybe they want only x axis inverted, not legend moved? Legend center left still. Good.
+
+Potential issue: If x axis inverted, legend center left might be at high temp side, which is left. Good.
+
+Potential issue: If high temperature left, x-axis label maybe still "Temperature (°C)". Good.
+
+Potential issue: If using `set_xlim(x.max(), x.min())`, the x-axis tick labels may be in descending order but tick positions maybe same. Good.
+
+Potential issue: If data x has max 900 min 30, set_xlim(900,30). Good.
+
+Potential issue: If data x not sorted and we sort, line may connect in temperature order, not time order. TGA temperature monotonic usually. If not monotonic, sorting could alter curve. Should we sort? For TGA, x temperature monotonic with time, but if there are cooling segments? TGA runs usually heat only. If not, sorting by x might connect points out of time order incorrectly. Maybe better not sort? For nearest and peak, order not important except line drawing should follow original run order. If temperature not monotonic, sorting would distort. But TGA temperature likely monotonic. However robust: don't sort for line; keep original order. For nearest and peak, order irrelevant. For x.min/max, okay. Should we remove sorting? If data has repeated x due to holds, original order fine. If temperature monotonic, no difference. If not monotonic, original order is correct. The standard TGA plot x=temperature, but if temperature not monotonic (cooling), plot vs temperature may need original order? Usually TGA heating only. But to preserve run, maybe do not sort. But if data has unsorted due to Excel? Not likely. Sorting by x could create line backtracking if nonmonotonic. Better to not sort, except maybe for x reversed? Axis inversion handles. For nearest and peak, no sort needed. For x.min/max, use min/max. For annotations, dynamic offset uses x.min/max.
+
+Should we remove `order = np.argsort(x)`? If x is monotonic ascending, no change. If not, preserving original is safer for line. But if x has NaNs removed, original order okay. Let's remove sorting to preserve run order. But if x is descending originally? TGA maybe ascending. If descending, axis reversed will show high left? If original descending,

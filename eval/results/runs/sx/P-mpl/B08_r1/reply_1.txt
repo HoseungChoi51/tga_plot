@@ -1,0 +1,3 @@
+```json
+{"file": "cnt_batches.xlsx", "sheets": "Raw", "annotate": {"hline1": {"type": "hline", "on": "y1", "y": 50}, "note1": {"type": "text", "text": "공기, 10 °C/min", "where": "upper right"}}}
+```

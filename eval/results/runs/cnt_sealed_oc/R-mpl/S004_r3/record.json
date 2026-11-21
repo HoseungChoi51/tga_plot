@@ -1,0 +1,176 @@
+{
+ "arm": "R-mpl",
+ "item": "S004",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "생산팀장",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "등급별 생산량 비중을 파이로 보여 주세요. 런 건수 말고 생산량(kg) 기준이에요. 생산량은 생산속도×가동시간으로 잡으면 됩니다.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams['axes.unicode_minus'] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Load data\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Calculate production amount (kg) per run\n# Production Speed is in g/h, Operating Time is in h -> Product is in g\n# Convert to kg by dividing by 1000\ndf[\"생산량(kg)\"] = df[\"생산속도(g/h)\"] * df[\"가동시간(h)\"] / 1000.0\n\n# Group by Grade and sum the production amount\ngrade_production = df.groupby(\"등급 V\")[\"생산량(kg)\"].sum().reset_index()\n\n# Prepare data for pie chart\nlabels = grade_production[\"등급 V\"]\nsizes = grade_production[\"생산량(kg)\"]\n\n# Create figure and axis\nfig, ax = plt.subplots(figsize=(8, 6))\n\n# Plot pie chart\nwedges, texts, autotexts = ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90, colors=['#FF9999', '#66B2FF', '#FFCC66'])\n\n# Style settings for better readability\nax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.\nplt.title('등급별 생산량 비중 (kg)', fontsize=14)\n\n# Save plot\noutput_path = os.path.join(OUT_DIR, \"grade_production_pie.png\")\nplt.savefig(output_path, dpi=300, bbox_inches='tight')\nplt.close()\n```",
+     "llm_s": 7.395,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 3810,
+     "output_chars": 1304,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams['axes.unicode_minus'] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Load data\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Clean column names: remove leading/trailing spaces to match header keys like '생산속도 (g/h)' or similar\n# Based on the preview, headers have spaces inside parentheses e.g., 'C2H4유량 (sccm)', '생산속도 (g/h)'\n# The previous error suggests the key used was '생산속도(g/h)' without space, but actual data might have space or not.\n# Let's strip whitespace from column names to be safe and check for the specific columns needed.\ndf.columns = df.columns.str.strip()\n\n# Identify correct column names for production speed and operating time\n# From preview: R 생산속도 (g/h), P 가동시간 (h)\ncol_speed = None\ncol_time = None\ncol_grade = None\n\nfor c in df.columns:\n    if '생산속도' in c:\n        col_speed = c\n    elif '가동시간' in c:\n        col_time = c\n    elif '등급' in c:\n        col_grade = c\n\nif not all([col_speed, col_time, col_grade]):\n    raise ValueError(\"Required columns not found.\")\n\n# Calculate production amount (kg) per run\n# Production Speed is in g/h, Operating Time is in h -> Product is in g\n# Convert to kg by dividing by 1000\ndf[\"생산량(kg)\"] = df[col_speed] * df[col_time] / 1000.0\n\n# Group by Grade and sum the production amount\ngrade_production = df.groupby(col_grade)[\"생산량(kg)\"].sum().reset_index()\n\n# Prepare data for pie chart\nlabels = grade_production[col_grade]\nsizes = grade_production[\"생산량(kg)\"]\n\n# Create figure and axis\nfig, ax = plt.subplots(figsize=(8, 6))\n\n# Plot pie chart\nwedges, texts, autotexts = ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90, colors=['#FF9999', '#66B2FF', '#FFCC66'])\n\n# Style settings for better readability\nax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.\nplt.title('등급별 생산량 비중 (kg)', fontsize=14)\n\n# Save plot\noutput_path = os.path.join(OUT_DIR, \"grade_production_pie.png\")\nplt.savefig(output_path, dpi=300, bbox_inches='tight')\nplt.close()\n```",
+     "llm_s": 10.078,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 6678,
+     "output_chars": 2170,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams['axes.unicode_minus'] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Load data\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Clean column names: remove leading/trailing spaces\ndf.columns = df.columns.str.strip()\n\n# Identify correct column names for production speed and operating time\ncol_speed = None\ncol_time = None\ncol_grade = None\n\nfor c in df.columns:\n    if '생산속도' in c:\n        col_speed = c\n    elif '가동시간' in c:\n        col_time = c\n    elif '등급' in c:\n        col_grade = c\n\nif not all([col_speed, col_time, col_grade]):\n    raise ValueError(\"Required columns not found.\")\n\n# Convert necessary columns to numeric, coercing errors to NaN\ndf[col_speed] = pd.to_numeric(df[col_speed], errors='coerce')\ndf[col_time] = pd.to_numeric(df[col_time], errors='coerce')\n\n# Drop rows where speed or time is NaN (cannot calculate production amount)\ndf_clean = df.dropna(subset=[col_speed, col_time])\n\n# Calculate production amount (kg) per run\n# Production Speed is in g/h, Operating Time is in h -> Product is in g\n# Convert to kg by dividing by 1000\ndf_clean[\"생산량(kg)\"] = df_clean[col_speed] * df_clean[col_time] / 1000.0\n\n# Group by Grade and sum the production amount\ngrade_production = df_clean.groupby(col_grade)[\"생산량(kg)\"].sum().reset_index()\n\n# Prepare data for pie chart\nlabels = grade_production[col_grade].astype(str) # Ensure labels are strings\nsizes = grade_production[\"생산량(kg)\"]\n\n# Create figure and axis\nfig, ax = plt.subplots(figsize=(8, 6))\n\n# Plot pie chart\nwedges, texts, autotexts = ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90, colors=['#FF9999', '#66B2FF', '#FFCC66'])\n\n# Style settings for better readability\nax.axis('equal')\nplt.title('등급별 생산량 비중 (kg)', fontsize=14)\n\n# Save plot\noutput_path = os.path.join(OUT_DIR, \"grade_production_pie.png\")\nplt.savefig(output_path, dpi=300, bbox_inches='tight')\nplt.close()\n```",
+     "llm_s": 9.161,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 10721,
+     "output_chars": 2085,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams['axes.unicode_minus'] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Load data\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Clean column names: remove leading/trailing spaces\ndf.columns = df.columns.str.strip()\n\n# Identify correct column names for production speed and operating time\ncol_speed = None\ncol_time = None\ncol_grade = None\n\nfor c in df.columns:\n    if '생산속도' in c:\n        col_speed = c\n    elif '가동시간' in c:\n        col_time = c\n    elif '등급' in c:\n        col_grade = c\n\nif not all([col_speed, col_time, col_grade]):\n    raise ValueError(\"Required columns not found.\")\n\n# Convert necessary columns to numeric, coercing errors to NaN\ndf[col_speed] = pd.to_numeric(df[col_speed], errors='coerce')\ndf[col_time] = pd.to_numeric(df[col_time], errors='coerce')\n\n# Drop rows where speed or time is NaN (cannot calculate production amount)\ndf_clean = df.dropna(subset=[col_speed, col_time])\n\n# Calculate production amount (kg) per run\n# Production Speed is in g/h, Operating Time is in h -> Product is in g\n# Convert to kg by dividing by 1000\ndf_clean[\"생산량(kg)\"] = df_clean[col_speed] * df_clean[col_time] / 1000.0\n\n# Group by Grade and sum the production amount\ngrade_production = df_clean.groupby(col_grade)[\"생산량(kg)\"].sum().reset_index()\n\n# Prepare data for pie chart\nlabels = grade_production[col_grade].astype(str) # Ensure labels are strings\nsizes = grade_production[\"생산량(kg)\"]\n\n# Create figure and axis\nfig, ax = plt.subplots(figsize=(8, 6))\n\n# Plot pie chart\nwedges, texts, autotexts = ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90, colors=['#FF9999', '#66B2FF', '#FFCC66'])\n\n# Style settings for better readability\nax.axis('equal')\nplt.title('등급별 생산량 비중 (kg)', fontsize=14)\n\n# Save plot\noutput_path = os.path.join(OUT_DIR, \"grade_production_pie.png\")\nplt.savefig(output_path, dpi=300, bbox_inches='tight')\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      8.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "등급별 생산량 비중 (kg)",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": {
+        "labels": [
+         "A",
+         "B",
+         "C"
+        ],
+        "shares": [
+         0.3567074962983997,
+         0.5261226355338162,
+         0.11716986816778403
+        ],
+        "values": null,
+        "colors": [
+         "#ff9999",
+         "#66b2ff",
+         "#ffcc66"
+        ]
+       },
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 3,
+       "texts": [
+        "A",
+        "B",
+        "C",
+        "35.7%",
+        "52.6%",
+        "11.7%"
+       ],
+       "x": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.4761899079627965,
+        "max": 1.4761908624126947,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.0999998705412766,
+        "max": 1.099999993835299,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "title": "등급별 생산량 비중 (kg)"
+      }
+     ],
+     "texts": [
+      "A",
+      "B",
+      "C",
+      "35.7%",
+      "52.6%",
+      "11.7%"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t1/grade_production_pie.png",
+       "format": "png",
+       "px": [
+        1920,
+        1522
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.4665539264678955,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 27.882
+  }
+ ]
+}

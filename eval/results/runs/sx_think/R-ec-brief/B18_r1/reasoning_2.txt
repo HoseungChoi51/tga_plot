@@ -1,0 +1,82 @@
+We need answer user's request: "no ```python block in the reply Reply with the corrected complete script only, inside one ```python block." Need provide Python script. Need analyze task. User initially provided data preview and request: "Annealed 시트에서 외삽 개시 온도(onset)를 구해서 그래프에 표시해줘" In Korean: calculate extrapolated onset temperature from Annealed sheet and display on graph. Need output one JSON document to stdout with figures. Need script reads DATA_FILE, prints JSON. Need include Korean font? Server-side ECharts renders? But script just outputs JSON option. Need likely use scipy to find onset? Need define onset: extrapolated onset temperature in TGA often intersection of baseline and tangent at maximum slope (peak) before mass loss. Need compute from Weight vs Temperature and DTG. Need display on graph. Need likely plot Annealed sheet only? User specifically Annealed sheet. Need one plot per sheet? Request says Annealed sheet. Could produce one figure for Annealed. Need mark onset temperature with vertical line/point and label maybe "Onset 350 °C". Need also standard TGA plot: title sheet name, legend center left, residue at 800 °C, peak highest DTG above 150°C. Need compute onset. Need ensure no JS functions. Need output JSON only. Need no extra text. Need script robust.
+
+Need think through implementation.
+
+Data file Excel with sheets Raw, Acid-washed, Annealed. Need select Annealed. Columns: Time, Temperature, Weight, Deriv Weight. Use pandas read_excel sheet_name='Annealed'. Need maybe column names dynamic: find temp, weight, dtg. For each sheet? Since request Annealed only. Could filter sheet name contains 'Annealed'. If none, maybe all? But should plot Annealed.
+
+Compute onset. TGA onset: common methods:
+- Extrapolated onset temperature: temperature at intersection of baseline (before degradation) and tangent line at maximum rate of weight loss (peak DTG) in derivative curve. For a single major peak above 150°C. Need find peak with highest -DTG above 150. Then find local baseline before peak (maybe 10-30 °C before peak or stable segment) and tangent slope at peak. Intersection with baseline gives onset. But if multiple peaks? Annealed likely one major? Need robust.
+
+Alternative: onset from derivative: point where derivative crosses threshold? But user says 외삽 개시 온도 (extrapolated onset temperature). In TGA, onset is intersection of baseline and tangent at inflection point (max slope). Need implement.
+
+Need maybe compute using DTG and Weight. Steps:
+1. Sort by temp ascending.
+2. Remove NaNs.
+3. dtg = derivative weight (%/°C), negative during loss.
+4. Find peak: max of -dtg for temp > 150. If none, use max -dtg overall. peak_temp, peak_dtg.
+5. Determine onset via tangent at peak and baseline.
+   - Need local window around peak to estimate tangent slope at peak. Could fit linear regression to dtg values in window around peak (e.g., ±20°C or ±10 points) to get slope? Actually tangent to weight curve at max derivative? The tangent line to weight
+[...]
++', '_', sheet_name). But maybe keep "Annealed". Use name = sheet_name if simple else f"plot{i}".
+
+Need maybe if no figures, print {"figures": []}. But should not.
+
+Let's think about onset label. Maybe "Onset 350 °C". Korean? User Korean but plot labels standard English. Could label "Onset 350 °C". Good.
+
+Need maybe if residue label "Residue 8.0%" and peak label "600 °C". Good.
+
+Need maybe markPoint symbol size. Use symbol: 'circle', symbolSize: 8. Label fontSize 11. For residue, position 'right'. For peak, position 'top'. Need avoid overlap with onset vertical line maybe.
+
+Need maybe markLine vertical line label position: if vertical line at onset, label at top inside. Use:
+"label": {"show": True, "formatter": f"Onset {onset:.0f} °C", "position": "insideEndTop", "color": "#2e8b57", "fontSize": 11, "distance": 5}
+But if position not supported, may default. Could use "position": "end". Maybe safer. ECharts markLine label position supports 'start', 'middle', 'end', 'insideStartTop', 'insideEndTop', etc. 'insideEndTop' likely okay. Use 'insideEndTop' to keep inside. But if line vertical, end is top. Good.
+
+Need maybe markLine segment label show false. In data item, label: {"show": False}. Good.
+
+Potential issue: ECharts markLine data with nested arrays and object with label false. Valid.
+
+Need maybe if markLine yAxisIndex? Since series yAxisIndex 0, markLine uses series coordinate system. For vertical line with xAxis only, it uses xAxis and yAxis of series? It should. For segment coords, uses series yAxis (y1). Good.
+
+Need maybe if DTG series markPoint peak label: coord [peak_temp, peak_y2]. If y2 min 0 and peak_y2 positive. Good.
+
+Need maybe if peak_y2 is 0? skip markPoint? But likely not.
+
+Need maybe if residue nearest 800 but weight_data has no 800? nearest. Good.
+
+Need maybe if sheet has no dtg column? Could compute derivative from weight? But preview has. Could implement if dtg missing: compute np.gradient(weight, temp). But not necessary. Could add for robustness:
+if dtg_col is None:
+   dtg = np.gradient(weight, temp)
+else dtg = df[dtg_col].values
+But column detection likely. Add.
+
+Need maybe if temp not monotonic? sort.
+
+Need maybe if Excel has multiple header rows? pandas default first row. Preview header_rows [1]. okay.
+
+Need maybe if sheet name not found, fallback all sheets. Implementation:
+xls = pd.ExcelFile(DATA_FILE)
+all_sheets = xls.sheet_names
+target = [s for s in all_sheets if 'annealed' in s.lower()]
+if not target: target = all_sheets
+for sheet in target: ...
+But if user specifically Annealed and not found, all sheets maybe okay. But if target all, multiple figures. Good.
+
+Need maybe if target all but user wanted one? no.
+
+Need maybe if multiple sheets, onset only for Annealed? If fallback all, compute for each. okay.
+
+Need maybe if sheet name 'Annealed' but there are other sheets, only one.
+
+Need maybe if data file path not exists? Could error. But environment has.
+
+Need maybe if openpyxl needed? pandas handles.
+
+Need maybe if DATA_FILE variable should be read from environment? Use os.environ.get("DATA_FILE", "/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx"). Good.
+
+Need maybe if DATA_FILES? Not here.
+
+Need final answer only python block. Need no analysis in final.
+
+Let's consider if onset calculation could produce onset far from expected due to baseline fit. Maybe we can implement an alternative onset based on tangent to weight at peak and baseline horizontal at initial weight, which is standard. Maybe simpler and more likely. Use initial baseline before first significant loss. Our algorithm does that. Good.
+
+Let's test with hypothetical Annealed data: temp 30-900, weight 100 until 250, then drops to 2 at 600, dtg peak -1.37 at maybe 350. loss_s threshold 0.068. start_idx from peak left until loss_s <=0.068 maybe around 260. baseline_mask temp<258. fit baseline horizontal 100. tangent fit around peak slope -1.3. onset = 350 - (100 - weight_peak)/1.3. If weight_peak 50 => 311. Good. If weight_peak 80 =>

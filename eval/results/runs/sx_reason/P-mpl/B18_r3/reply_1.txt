@@ -1,0 +1,7 @@
+```json
+{
+  "file": "cnt_batches.xlsx",
+  "sheets": "Annealed",
+  "code": "m=np.isfinite(x)&np.isfinite(y1); xs=x[m]; ys=y1[m]; o=np.argsort(xs); xs=xs[o]; ys=ys[o]; xs, uidx=np.unique(xs, return_index=True); ys=ys[uidx]; g=np.gradient(ys,xs) if len(xs)>1 else np.zeros_like(ys); i=int(np.argmin(g)) if len(g)>0 else 0; slope=float(g[i]) if len(g)>0 else 0.0; base=float(np.median(ys[:max(1,int(0.05*len(ys)))])) if len(ys)>0 else 0.0; raw=xs[i]+(base-ys[i])/slope if len(xs)>0 and slope<0 else None; onset=float(np.clip(raw, xs[0], xs[-1])) if raw is not None and np.isfinite(raw) else None; ax1.axvline(onset, color='red', linestyle='--', linewidth=1) if onset is not None else None; ax1.text(onset, ax1.get_ylim()[1]*0.95, f'외삽 onset = {onset:.1f} °C', color='red', ha='left' if onset < (ax1.get_xlim()[0]+ax1.get_xlim()[1])/2 else 'right', va='top') if onset is not None else ax1.text(ax1.get_xlim()[1], ax1.get_ylim()[1]*0.95, '외삽 onset 계산 불가', color='red', ha='right', va='top')"
+}
+```

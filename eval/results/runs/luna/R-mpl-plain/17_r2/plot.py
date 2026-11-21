@@ -1,0 +1,74 @@
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import pandas as pd
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/17_r2/out")
+
+# Korean-capable font
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+sheets = pd.read_excel(DATA_FILE, sheet_name=None)
+
+for sheet_name, df in sheets.items():
+    # Normalize column names for matching while preserving original data.
+    columns = {str(col).strip().lower(): col for col in df.columns}
+
+    def find_column(fragment):
+        for normalized, original in columns.items():
+            if fragment in normalized:
+                return original
+        return None
+
+    temperature_col = find_column("temperature")
+    weight_col = find_column("weight")
+    derivative_col = find_column("d.w")
+
+    if temperature_col is None or weight_col is None:
+        # Skip sheets that do not have the expected TGA columns.
+        continue
+
+    temperature = pd.to_numeric(df[temperature_col], errors="coerce")
+    weight = pd.to_numeric(df[weight_col], errors="coerce")
+
+    fig, ax1 = plt.subplots(figsize=(8, 5))
+    ax1.plot(temperature, weight, color="tab:blue", linewidth=1.6, label="Weight (%)")
+    ax1.set_xlabel("Temperature (°C)")
+    ax1.set_ylabel("Weight (%)", color="tab:blue")
+    ax1.tick_params(axis="y", labelcolor="tab:blue")
+    ax1.grid(True, linestyle="--", linewidth=0.6, alpha=0.5)
+
+    if derivative_col is not None:
+        derivative = pd.to_numeric(df[derivative_col], errors="coerce")
+        ax2 = ax1.twinx()
+        ax2.plot(
+            temperature,
+            derivative,
+            color="tab:red",
+            linewidth=1.2,
+            label="D.W (%/°C)",
+        )
+        ax2.set_ylabel("D.W (%/°C)", color="tab:red")
+        ax2.tick_params(axis="y", labelcolor="tab:red")
+
+        lines1, labels1 = ax1.get_legend_handles_labels()
+        lines2, labels2 = ax2.get_legend_handles_labels()
+        ax1.legend(lines1 + lines2, labels1 + labels2, loc="best", frameon=False)
+    else:
+        ax1.legend(loc="best", frameon=False)
+
+    ax1.set_title(sheet_name)
+    fig.tight_layout()
+
+    safe_name = "".join(
+        char if char.isalnum() or char in ("-", "_") else "_"
+        for char in str(sheet_name)
+    )
+    fig.savefig(OUT_DIR / f"{safe_name}.png", dpi=600, bbox_inches="tight")
+    plt.close(fig)

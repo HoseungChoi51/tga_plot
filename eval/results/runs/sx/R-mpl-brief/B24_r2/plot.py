@@ -1,0 +1,146 @@
+import os
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib
+
+# Set Korean font
+matplotlib.rcParams['font.family'] = 'Noto Sans CJK KR'
+matplotlib.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/B24_r2/out"
+
+# Ensure output directory exists
+os.makedirs(OUT_DIR, exist_ok=True)
+
+def plot_tga_sheet(df, sheet_name, out_dir):
+    """
+    Plots a standard TGA graph for a given DataFrame and sheet name.
+    x-axis: Temperature in Kelvin (converted from Celsius)
+    y1: Weight (%)
+    y2: DTG (%/°C) * -1
+    """
+    # Identify columns based on the provided structure
+    # Assuming standard column names from the preview
+    temp_col = "Temperature (°C)"
+    weight_col = "Weight (%)"
+    dtg_col = "Deriv. Weight (%/°C)"
+    
+    if temp_col not in df.columns or weight_col not in df.columns or dtg_col not in df.columns:
+        print(f"Missing required columns in sheet {sheet_name}")
+        return
+
+    # Extract data
+    temp_c = df[temp_col].values
+    weight = df[weight_col].values
+    dtg = df[dtg_col].values
+    
+    # Convert Temperature to Kelvin
+    temp_k = temp_c + 273.15
+    
+    # Prepare DTG for plotting (multiply by -1 so peaks point up)
+    dtg_plot = dtg * -1
+    
+    # Create figure and axis
+    fig, ax1 = plt.subplots(figsize=(8, 6))
+    
+    # Plot Weight (y1)
+    color1 = '#1f4e9c'
+    ax1.plot(temp_k, weight, color=color1, label='Weight (%)')
+    ax1.set_xlabel('Temperature (K)', fontsize=12)
+    ax1.set_ylabel('Weight (%)', color=color1, fontsize=12)
+    ax1.tick_params(axis='y', labelcolor=color1)
+    
+    # Create secondary axis for DTG
+    ax2 = ax1.twinx()
+    color2 = '#c0392b'
+    ax2.plot(temp_k, dtg_plot, color=color2, label='DTG (%/°C)')
+    ax2.set_ylabel('DTG (%/°C)', color=color2, fontsize=12)
+    ax2.tick_params(axis='y', labelcolor=color2)
+    
+    # Title
+    ax1.set_title(sheet_name, fontsize=14)
+    
+    # Find Residue at nearest 800 °C (which is 1073.15 K)
+    target_temp_c = 800.0
+    target_temp_k = target_temp_c + 273.15
+    
+    # Find index of temperature closest to 800 C
+    idx_residue = np.argmin(np.abs(temp_c - target_temp_c))
+    residue_weight = weight[idx_residue]
+    residue_temp_k = temp_k[idx_residue]
+    
+    # Add residue marker and label
+    ax1.scatter(residue_temp_k, residue_weight, color=color1, zorder=5)
+    ax1.annotate(f'Residue {residue_weight:.1f}%', 
+                 xy=(residue_temp_k, residue_weight),
+                 xytext=(10, 10), textcoords='offset points',
+                 color=color1, fontsize=10,
+                 arrowprops=dict(arrowstyle='->', color=color1))
+    
+    # Find Peak: highest DTG peak above 150 °C
+    # Filter for temp > 150 C
+    mask = temp_c > 150.0
+    if np.any(mask):
+        dtg_filtered = dtg[mask]
+        temp_filtered = temp_c[mask]
+        
+        # Find max of original DTG (most negative value becomes most positive after * -1, but we want the peak of mass loss rate)
+        # The prompt says "highest DTG peak". In TGA, DTG is negative during loss. 
+        # "Highest peak" usually means the maximum magnitude of mass loss rate.
+        # Since we plotted dtg * -1, the visual peak is the max of (dtg * -1).
+        # This corresponds to the minimum of original dtg.
+        
+        min_dtg_idx = np.argmin(dtg_filtered) # Most negative original DTG
+        peak_temp_c = temp_filtered[min_dtg_idx]
+        peak_temp_k = peak_temp_c + 273.15
+        
+        # Get the corresponding plotted DTG value for marker placement on the right axis curve? 
+        # Or just mark the temperature on the x-axis? 
+        # Prompt: "written like '600 °C', with a marker."
+        # Usually markers are placed on the curve. Let's place it on the DTG curve (ax2).
+        peak_dtg_val = dtg_plot[mask][min_dtg_idx]
+        
+        ax2.scatter(peak_temp_k, peak_dtg_val, color=color2, zorder=5)
+        ax2.annotate(f'{peak_temp_c:.0f} °C', 
+                     xy=(peak_temp_k, peak_dtg_val),
+                     xytext=(-20, 10), textcoords='offset points',
+                     color=color2, fontsize=10,
+                     arrowprops=dict(arrowstyle='->', color=color2))
+    else:
+        print("No DTG peak found above 150°C")
+
+    # Legend
+    lines_1, labels_1 = ax1.get_legend_handles_labels()
+    lines_2, labels_2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='center left', bbox_to_anchor=(0.05, 0.5))
+    
+    # Grid
+    ax1.grid(True, linestyle='--', alpha=0.5)
+    
+    # Save
+    filename = f"{sheet_name}_Kelvin.png"
+    filepath = os.path.join(out_dir, filename)
+    plt.tight_layout()
+    plt.savefig(filepath, dpi=300)
+    plt.close(fig)
+    print(f"Saved {filepath}")
+
+# Read Excel file
+try:
+    xl_file = pd.ExcelFile(DATA_FILE)
+    sheets = xl_file.sheet_names
+    
+    # User requested only PE sheet
+    target_sheets = ["PE"]
+    
+    for sheet in target_sheets:
+        if sheet in sheets:
+            df = pd.read_excel(DATA_FILE, sheet_name=sheet)
+            plot_tga_sheet(df, sheet, OUT_DIR)
+        else:
+            print(f"Sheet '{sheet}' not found.")
+            
+except Exception as e:
+    print(f"Error processing file: {e}")

@@ -1,0 +1,19 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "bar",
+ "x": "반응기",
+ "y": {
+  "col": "가동시간 (h)",
+  "agg": "mean"
+ },
+ "asks": [
+  {
+   "ask": "반응기별 가동시간 평균 막대그래프",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/sessions/E3_G8_P-ec/out/t8"
+ }
+}

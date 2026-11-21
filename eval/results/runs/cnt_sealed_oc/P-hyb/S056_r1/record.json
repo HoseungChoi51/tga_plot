@@ -1,0 +1,214 @@
+{
+ "arm": "P-hyb",
+ "item": "S056",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "데이터 분석가",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "Histogram of downtime 정지시간(분) on a log-x axis with log-spaced bin edges 5, 10, 20, 50, 100, 200, 500, 1000.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/downtime.xlsx\",\n  \"chart\": \"histogram\",\n  \"x\": {\n    \"col\": \"정지시간(분)\",\n    \"log\": true,\n    \"bins\": [5, 10, 20, 50, 100, 200, 500, 1000]\n  },\n  \"asks\": [\n    {\"ask\": \"Histogram of downtime 정지시간(분)\", \"how\": \"key\"},\n    {\"ask\": \"log-x axis\", \"how\": \"key\"},\n    {\"ask\": \"log-spaced bin edges 5, 10, 20, 50, 100, 200, 500, 1000\", \"how\": \"key\"}\n  ]\n}\n```",
+     "llm_s": 4.524,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 17185,
+     "output_chars": 375,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/downtime.xlsx",
+    "chart": "histogram",
+    "x": {
+     "col": "정지시간(분)",
+     "log": true,
+     "bins": [
+      5,
+      10,
+      20,
+      50,
+      100,
+      200,
+      500,
+      1000
+     ]
+    },
+    "asks": [
+     {
+      "ask": "Histogram of downtime 정지시간(분)",
+      "how": "key"
+     },
+     {
+      "ask": "log-x axis",
+      "how": "key"
+     },
+     {
+      "ask": "log-spaced bin edges 5, 10, 20, 50, 100, 200, 500, 1000",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": true,
+    "engine": "echarts",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S056_r1/out/t1/histogram_정지시간_분.png"
+    ],
+    "chart": "histogram",
+    "rows_used": 294,
+    "rows_total": 294,
+    "values": {
+     "bins": 7,
+     "series": {
+      "정지시간(분)": {
+       "n": 294,
+       "mean": 87.68367346938776
+      }
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "히스토그램 그래프를 저장했습니다: histogram_정지시간_분.png\n사용한 행: 294 / 294\n정지시간(분): 294개, 평균 87.68"
+   },
+   "facts": [
+    {
+     "engine": "echarts",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": 300,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [
+        {
+         "name": "정지시간(분)",
+         "edges": [
+          5.0,
+          10.0,
+          20.0,
+          50.0,
+          100.0,
+          200.0,
+          500.0,
+          1000.0
+         ],
+         "counts": [
+          5.0,
+          21.0,
+          99.0,
+          100.0,
+          43.0,
+          25.0,
+          1.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#1f4e9c"
+        }
+       ],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "정지시간(분)",
+        "type": "value",
+        "ticks": [
+         5.0,
+         10.0,
+         100.0,
+         1000.0
+        ],
+        "step": 90.0,
+        "categories": null,
+        "min": 5.0,
+        "max": 1000.0,
+        "log": true,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "count",
+        "type": "value",
+        "ticks": [
+         0.0,
+         20.0,
+         40.0,
+         60.0,
+         80.0,
+         100.0,
+         120.0
+        ],
+        "step": 20.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 120.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       }
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S056_r1/out/t1/histogram_정지시간_분.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5021073818206787,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [],
+    "unchecked": [
+     "xscale=log"
+    ],
+    "n_checks": 3,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 5.099
+  }
+ ]
+}

@@ -1,0 +1,39 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "line",
+ "x": {
+  "col": "체류시간_bin_mid",
+  "label": "체류시간 (s)"
+ },
+ "y": {
+  "col": "CNT수율_mean",
+  "agg": "mean"
+ },
+ "by": "촉매로트_그룹",
+ "filter": [
+  "bin_n >= 10"
+ ],
+ "data_code": "import numpy as np; import pandas as pd; df['촉매로트_그룹'] = df['촉매로트'].map({'FC-2602':'Old', 'FC-2603':'Old', 'FC-2604':'Old', 'FC-2605':'Old', 'FC-2606':'New', 'FC-2607':'New', 'FC-2608':'New'}); bins = np.arange(2.5, 6.75 + 0.25, 0.25); df['bin_idx'] = np.digitize(df['체류시간 (s)'], bins) - 1; df['bin_left'] = df['bin_idx'].apply(lambda i: bins[i] if 0 <= i < len(bins)-1 else np.nan); df['bin_right'] = df['bin_idx'].apply(lambda i: bins[i+1] if 0 <= i < len(bins)-1 else np.nan); grp = df.groupby(['촉매로트_그룹', 'bin_left', 'bin_right']); agg_df = grp.agg(cnt=('CNT수율 (g/g-cat)', 'size'), mean_yield=('CNT수율 (g/g-cat)', 'mean')).reset_index(); agg_df['mid'] = (agg_df['bin_left'] + agg_df['bin_right']) / 2; pts = []; for _, r in agg_df.iterrows(): pts.append({'체류시간_bin_mid': r['mid'], 'CNT수율_mean': r['mean_yield'], '촉매로트_그룹': r['촉매로트_그룹'], 'bin_n': int(r['cnt'])}); new_df = pd.DataFrame(pts); df.drop(columns=df.columns, inplace=True); df_new_cols = list(new_df.columns); for c in df_new_cols: df[c] = new_df[c].values",
+ "asks": [
+  {
+   "ask": "Scatter 체류시간 vs CNT수율, all runs",
+   "how": "key"
+  },
+  {
+   "ask": "Color by catalyst lot group (old/new)",
+   "how": "code"
+  },
+  {
+   "ask": "Bin 체류시간 0.25s, mean CNT수율, line per group",
+   "how": "code"
+  },
+  {
+   "ask": "Drop bins with n < 10",
+   "how": "code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/SS13_r1/out/t3"
+ }
+}

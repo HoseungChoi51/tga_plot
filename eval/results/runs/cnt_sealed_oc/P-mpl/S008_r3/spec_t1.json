@@ -1,0 +1,35 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "line",
+ "x": {
+  "col": "주차"
+ },
+ "y": {
+  "col": "CNT수율 (g/g-cat)",
+  "agg": "mean"
+ },
+ "ref": [
+  {
+   "x": 14,
+   "text": "FC-2606 투입"
+  }
+ ],
+ "asks": [
+  {
+   "ask": "주차별 평균 수율 선그래프",
+   "how": "key"
+  },
+  {
+   "ask": "반응기 구분 없이 전체 평균",
+   "how": "key"
+  },
+  {
+   "ask": "14주차 세로 점선 및 라벨",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S008_r3/out/t1"
+ }
+}

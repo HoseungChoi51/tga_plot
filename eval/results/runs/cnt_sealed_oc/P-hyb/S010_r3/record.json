@@ -1,0 +1,107 @@
+{
+ "arm": "P-hyb",
+ "item": "S010",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "생산팀장",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "반응기별로 3월하고 8월 평균 수율을 나란히 비교하는 묶은 막대 만들어 주세요. 보고용입니다.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"chart\": \"bar\",\n  \"x\": \"반응기\",\n  \"y\": {\n    \"col\": \"CNT수율 (g/g-cat)\",\n    \"agg\": \"mean\"\n  },\n  \"by\": \"월\",\n  \"filter\": [\n    \"일자 between 2026-03-01 and 2026-03-31\",\n    \"일자 between 2026-08-01 and 2026-08-31\"\n  ],\n  \"data_code\": \"df['월'] = pd.to_datetime(df['B']).dt.month.astype(str).replace({3: '3월', 8: '8월'})\\ndf = df[df['월'].isin(['3월', '8월'])]\",\n  \"values\": true,\n  \"legend\": \"upper right\",\n  \"asks\": [\n    {\"ask\": \"반응기별 평균 수율 막대\", \"how\": \"key\"},\n    {\"ask\": \"3월과 8월 비교 (묶은 막대)\", \"how\": \"code\"},\n    {\"ask\": \"값 표시\", \"how\": \"key\"}\n  ]\n}\n```",
+     "llm_s": 4.796,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 18035,
+     "output_chars": 585,
+     "attempts": 1
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"chart\": \"bar\",\n  \"x\": \"반응기\",\n  \"y\": {\n    \"col\": \"CNT수율 (g/g-cat)\",\n    \"agg\": \"mean\"\n  },\n  \"by\": \"월\",\n  \"filter\": [\n    \"일자 between 2026-03-01 and 2026-03-31\",\n    \"일자 between 2026-08-01 and 2026-08-31\"\n  ],\n  \"data_code\": \"df['월'] = pd.to_datetime(df['일자']).dt.month.astype(str).replace({3: '3월', 8: '8월'})\\ndf = df[df['월'].isin(['3월', '8월'])]\",\n  \"values\": true,\n  \"legend\": \"upper right\",\n  \"asks\": [\n    {\"ask\": \"반응기별 평균 수율 막대\", \"how\": \"key\"},\n    {\"ask\": \"3월과 8월 비교 (묶은 막대)\", \"how\": \"code\"},\n    {\"ask\": \"값 표시\", \"how\": \"key\"}\n  ]\n}\n```",
+     "llm_s": 5.927,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 19128,
+     "output_chars": 586,
+     "attempts": 1
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"chart\": \"bar\",\n  \"x\": \"반응기\",\n  \"y\": {\n    \"col\": \"CNT수율 (g/g-cat)\",\n    \"agg\": \"mean\"\n  },\n  \"by\": \"월\",\n  \"filter\": [\n    \"일자 between 2026-03-01 and 2026-08-31\"\n  ],\n  \"data_code\": \"df['월'] = pd.to_datetime(df['일자']).dt.month.astype(str).replace({3: '3월', 8: '8월'})\\ndf = df[df['월'].isin(['3월', '8월'])]\",\n  \"values\": true,\n  \"legend\": \"upper right\",\n  \"asks\": [\n    {\"ask\": \"반응기별 평균 수율 막대\", \"how\": \"key\"},\n    {\"ask\": \"3월과 8월 비교 (묶은 막대)\", \"how\": \"code\"},\n    {\"ask\": \"값 표시\", \"how\": \"key\"}\n  ]\n}\n```",
+     "llm_s": 5.132,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 20134,
+     "output_chars": 542,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "chart": "bar",
+    "x": "반응기",
+    "y": {
+     "col": "CNT수율 (g/g-cat)",
+     "agg": "mean"
+    },
+    "by": "월",
+    "filter": [
+     "일자 between 2026-03-01 and 2026-08-31"
+    ],
+    "data_code": "df['월'] = pd.to_datetime(df['일자']).dt.month.astype(str).replace({3: '3월', 8: '8월'})\ndf = df[df['월'].isin(['3월', '8월'])]",
+    "values": true,
+    "legend": "upper right",
+    "asks": [
+     {
+      "ask": "반응기별 평균 수율 막대",
+      "how": "key"
+     },
+     {
+      "ask": "3월과 8월 비교 (묶은 막대)",
+      "how": "code"
+     },
+     {
+      "ask": "값 표시",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": false,
+    "error": "no rows left after the filters",
+    "hint": "filters: ['일자 between 2026-03-01 and 2026-08-31']; check the values with preview"
+   },
+   "facts": [],
+   "draw_s": 0.4573500156402588,
+   "check": {
+    "kind_expected": "grouped_bar",
+    "failed": [
+     "run: no plot (no rows left after the filters)"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 17.476
+  }
+ ]
+}

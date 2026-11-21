@@ -1,0 +1,67 @@
+We need answer user's request in test mode: only reply JSON spec in ```json block, nothing else. Need analyze. User Korean: "세 시트 무게 곡선을 겹치지 않게 20%씩 위아래로 띄워서(offset) 한 그림에 그려줘" Means three sheets weight curves, not overlapping, offset up/down by 20% each, in one plot. Need produce plotkit spec. Need use inspect result file polymers.xlsx. Need likely TGA preset? They want weight curves only? "무게 곡선" means Weight (%) curves. Three sheets PE, PVC, PET. Need combine? "한 그림에" = one figure. But "겹치지 않게 20%씩 위아래로 띄워서(offset)" means offset each sheet's y values by +20, +40? Maybe to avoid overlap. Need figure out spec keys. There is no explicit offset key in guide? Need use extra code? We need create JSON spec only. Need understand plotkit capabilities. We have schema not run. Guide says all keys run schema. But we can infer. For multiple sheets combine true draws sheets in one plot. But offset? There may be no key. Could use code? Extra code runs after drawing and before saving. But if combine true, code names? It says names: fig, ax1, ax2, x, y1, y2, sheet, plt, np. For combined multiple sheets? Maybe code only for each? Hmm. Need produce spec that achieves offset. Could use y1 offset? Maybe no key. Need maybe set y1 col C and combine true, but need offset curves by 20%. How to do? Could use code to modify line data? But after drawing? If code runs after drawing, could adjust artist ydata? Need know plotkit implementation? We can't edit. Need robust spec. Maybe use "code" to replot? But instructions: If no key covers request, put few lines of matplotlib in code. Need code can use fig, ax1, x, y1, y2, sheet. But for combine true, what are x,y1,y2? Maybe per sheet? If code runs for each sheet? Need infer.
+
+The user asks: three sheets weight curves offset by 20% up/down. Could be achieved by plotting y1 values plus offset per sheet. But spec doesn't have per-sheet offset. Maybe use code with ax1.lines and offset ydata. If combine true, ax1 contains lines for each sheet. We can offset each line by i*20. Need code: for i, line in enumerate(ax1.lines): line.set_ydata(line.get_ydata() + i*20). But if y2 lines? Weight only? If y2 false? They want weight curves, so no y2. If combine true with TGA preset may include y2 derivative lines in ax2. We can set y2 false. Then ax1 lines are weight curves for each sheet. Offset 20%씩 위아래로: maybe PE 0, PVC +20, PET +40? Or center? "위아래로" maybe vertical offset. Could set offsets [0, 20, 40] or [-20,0,20]? "20%씩 위아래로 띄워서" means separate vertically by 20. Usually offset by +20, +40. Could use code.
+
+Need include sheets all? "세 시트" all three. Could specify sheets: ["PE","PVC","PET"] or "all". Use all? Since only three sheets, "all" okay. But user says 세 시트. Could use sheets: ["PE", "PVC", "PET"] to be explicit. combine true. y2 false. Maybe title? Not asked. Legend? combine will show legend? Probably yes. Need maybe set y1 label? Not asked. Defaults.
+
+But code: Need ensure offset applied after drawing. Could use:
+"code": "for 
+[...]
+clude annotate. They may not consider residue conflict. We should follow rules over hypothetical run. Use minimal.
+
+Need maybe include code to offset lines only. Good.
+
+Could code with gid be considered too much? Maybe expected simpler. But okay.
+
+Need maybe if code uses ax1.lines and y2 false, but if combine true, there may be line objects for each sheet. Good.
+
+Let's consider if plotkit's code is executed in a context where line objects are not accessible via ax1.lines because it draws using collections? Likely lines. Good.
+
+Alternative: Use code to set ydata before drawing? Not possible. Could use monkeypatch? no.
+
+Need final. But let's think if there is a way to specify offset via "code" using x,y1 arrays and sheet variable if code runs per sheet. Maybe code could do:
+"if sheet == 'PVC': y1 = y1 + 20
+elif sheet == 'PET': y1 = y1 + 40"
+But code runs after drawing, so changing y1 variable doesn't update plot. Need update line. Good.
+
+Could use ax1.lines[-1].set_ydata(y1 + offset) if code per sheet. But if code once, not. Our robust code better.
+
+Need maybe if line.get_ydata() returns 2D? no.
+
+Potential issue: ax1.relim() after setting ydata may reset y limits to data, but if there are annotations with offset? no.
+
+Should we set "y1": {"min": 0}? Not asked. If offset positive, min maybe 0? Original min ~1, offset 0,20,40. Autoscale min ~1. Good.
+
+Need maybe if offset makes curves overlap? PE 0-100, PVC 20-120, PET 40-140. They still overlap in ranges but separated by baseline. Good.
+
+Could offset by 20% of full scale (e.g. 20% of 100 = 20). Good.
+
+Need final JSON only. Ensure no comments. Use file name exactly "polymers.xlsx". Good.
+
+Let's maybe choose simpler code to avoid potential JSON complexity:
+"code": "for i, line in enumerate(ax1.lines):\n    if line.get_gid() != 'pk_offset':\n        line.set_ydata(line.get_ydata() + i * 20)\n        line.set_gid('pk_offset')\nax1.relim(); ax1.autoscale_view()"
+This uses index, no label map. If code per sheet, works as simulated. If extra lines, bad. But with y2 false, likely only weight lines. If residue marker line? Could be extra. Label map better. But simpler expected. Which to final? Robust label map maybe okay but longer. The guide says few lines; label map 8 lines maybe still few. Could be seen as overengineering but valid.
+
+Need maybe if code runs once and line labels are sheet names, label map offsets correct. If code runs per sheet and labels are sheet names, correct. If code runs once and labels are not sheet names, fallback first 3 by index. Good. Use robust.
+
+Could include "sheets": "all" to make labels all sheets. If code label map hardcodes names, okay. If use all and file has exactly these, okay. If hidden sheets, code offsets first 3? But user says three. Use list.
+
+Need maybe if combine true and sheets list, line labels may be sheet names. Good.
+
+Let's final with robust code and no annotate. But maybe if code label map finds lines, and there are also lines with labels in offsets? only weight. Good.
+
+One more thought: If code run per sheet, and labels known, first code lines = [PE], set gid. second code lines = [PE, PVC], set PVC. But ax1.relim after first may autoscale to PE offset 0. After second, relim autoscale to PE+PVC. Good.
+
+If code run once, lines list all. Good.
+
+If line.get_gid() != 'pk_offset' but line.get_ydata() is already offset due to code run? gid prevents. Good.
+
+If line.get_gid() returns 'pk_offset' but offset should be different? Not.
+
+Need maybe if line.get_label() returns 'PE' but offset 0, gid set. Good.
+
+Potential issue: If code run per sheet and labels unknown, fallback lines = ax1.lines[:3]. First code line0 gid set. second code line0 skip, line1 set. third line2 set. Good. If code run once, line0,1,2 set. Good. If there are more than 3 lines and labels unknown, only first 3 offset. Good.
+
+Could there be line labels known but line.get_gid() already 'pk_offset' from previous sheet? yes skip. Good.
+
+Need final. Use JSON block. No extra. final.

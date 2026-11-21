@@ -1,0 +1,27 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "scatter",
+ "x": {
+  "col": "잔류금속 (wt%)",
+  "agg": "mean"
+ },
+ "y": {
+  "col": "CNT수율 (g/g-cat)",
+  "agg": "mean"
+ },
+ "by": "촉매로트",
+ "asks": [
+  {
+   "ask": "Aggregate per (촉매로트, 반응기): mean 잔류금속 on x, mean CNT수율 on y — one point per group",
+   "how": "unsupported"
+  },
+  {
+   "ask": "Color by 촉매로트",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/S052_r3/out/t1"
+ }
+}

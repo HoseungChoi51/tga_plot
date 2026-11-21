@@ -1,0 +1,159 @@
+import json
+import re
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+
+def clean_name(name):
+    return re.sub(r"[^\w가-힣-]+", "_", str(name)).strip("_") or "plot"
+
+
+def make_figure(sheet_name, frame):
+    frame = frame.dropna(how="all")
+    frame.columns = [str(column).strip() for column in frame.columns]
+
+    def find_column(candidates):
+        for column in frame.columns:
+            if any(term in column.lower() for term in candidates):
+                return column
+        return None
+
+    temperature_col = find_column(["temperature", "온도"])
+    weight_col = find_column(["weight", "무게"])
+    dtg_col = find_column(["d.w", "dtg", "derivative", "미분"])
+
+    if temperature_col is None or weight_col is None or dtg_col is None:
+        if len(frame.columns) < 4:
+            raise ValueError(f"시트 '{sheet_name}'에서 TGA 열을 찾을 수 없습니다.")
+        temperature_col, weight_col, dtg_col = frame.columns[1:4]
+
+    data = frame[[temperature_col, weight_col, dtg_col]].apply(
+        pd.to_numeric, errors="coerce"
+    ).dropna()
+
+    temperature = data[temperature_col].to_numpy(dtype=float)
+    weight = data[weight_col].to_numpy(dtype=float)
+    dtg = data[dtg_col].to_numpy(dtype=float)
+
+    weight_data = [[float(x), float(y)] for x, y in zip(temperature, weight)]
+    dtg_data = [[float(x), float(-y)] for x, y in zip(temperature, dtg)]
+
+    residue_index = int(np.argmin(np.abs(temperature - 800)))
+    residue_x = float(temperature[residue_index])
+    residue_y = float(weight[residue_index])
+
+    peak_candidates = np.flatnonzero(temperature > 150)
+    if peak_candidates.size:
+        peak_index = int(peak_candidates[np.argmax(-dtg[peak_candidates])])
+        peak_x = float(temperature[peak_index])
+        peak_y = float(-dtg[peak_index])
+    else:
+        peak_x = peak_y = None
+
+    series = [
+        {
+            "name": "무게",
+            "type": "line",
+            "yAxisIndex": 0,
+            "showSymbol": False,
+            "data": weight_data,
+            "lineStyle": {"color": "#1f4e9c", "width": 2},
+            "markPoint": {
+                "symbol": "circle",
+                "symbolSize": 9,
+                "itemStyle": {"color": "#1f4e9c"},
+                "label": {
+                    "show": True,
+                    "formatter": f"Residue {residue_y:.1f}%",
+                    "position": "top",
+                },
+                "data": [{"coord": [residue_x, residue_y]}],
+            },
+        },
+        {
+            "name": "미분 무게",
+            "type": "line",
+            "yAxisIndex": 1,
+            "showSymbol": False,
+            "data": dtg_data,
+            "lineStyle": {"color": "#c0392b", "width": 2},
+        },
+    ]
+
+    if peak_x is not None:
+        series[1]["markPoint"] = {
+            "symbol": "circle",
+            "symbolSize": 9,
+            "itemStyle": {"color": "#c0392b"},
+            "label": {
+                "show": True,
+                "formatter": f"{peak_x:.0f} °C",
+                "position": "top",
+            },
+            "data": [{"coord": [peak_x, peak_y]}],
+        }
+
+    option = {
+        "animation": False,
+        "title": {
+            "text": str(sheet_name),
+            "left": "center",
+            "textStyle": {"fontFamily": "Noto Sans CJK KR"},
+        },
+        "tooltip": {"trigger": "axis"},
+        "legend": {"data": ["무게", "미분 무게"], "left": "center"},
+        "grid": {"left": 75, "right": 75, "top": 75, "bottom": 65},
+        "xAxis": {
+            "type": "value",
+            "name": "온도 (°C)",
+            "nameLocation": "middle",
+            "nameGap": 35,
+            "axisLine": {"show": True},
+            "splitLine": {"show": False},
+        },
+        "yAxis": [
+            {
+                "type": "value",
+                "name": "무게 (%)",
+                "nameLocation": "middle",
+                "nameGap": 48,
+                "axisLine": {"show": True},
+                "splitLine": {"show": True, "lineStyle": {"color": "#dddddd"}},
+            },
+            {
+                "type": "value",
+                "name": "미분 무게 (%/°C)",
+                "nameLocation": "middle",
+                "nameGap": 48,
+                "axisLine": {"show": True},
+                "splitLine": {"show": False},
+            },
+        ],
+        "series": series,
+    }
+
+    return {
+        "name": clean_name(sheet_name),
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"],
+    }
+
+
+path = Path(DATA_FILE)
+figures = []
+if path.suffix.lower() in {".xlsx", ".xls"}:
+    workbook = pd.read_excel(path, sheet_name=None)
+    for sheet_name, frame in workbook.items():
+        figures.append(make_figure(sheet_name, frame))
+else:
+    frame = pd.read_csv(path)
+    figures.append(make_figure(path.stem, frame))
+
+print(json.dumps({"figures": figures}, ensure_ascii=False, allow_nan=False))

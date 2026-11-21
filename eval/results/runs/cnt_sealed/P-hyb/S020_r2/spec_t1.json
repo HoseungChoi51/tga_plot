@@ -1,0 +1,46 @@
+{
+ "file": [
+  "data/raman/R1-260326-1.csv",
+  "data/raman/R2-260616-1.csv",
+  "data/raman/R4-260721-1.csv"
+ ],
+ "combine": true,
+ "x": {
+  "col": "Raman Shift (cm-1)",
+  "min": 1000,
+  "max": 2000,
+  "label": "Raman Shift (cm⁻¹)"
+ },
+ "y1": {
+  "col": "Intensity (a.u.)",
+  "label": "Normalized Intensity"
+ },
+ "preset": "none",
+ "names": [
+  "R1-260326-1",
+  "R2-260616-1",
+  "R4-260721-1"
+ ],
+ "data_code": "import numpy as np\n# Baseline subtraction using points at 1100 and 1800 cm-1 (+/- 10)\ndef get_baseline_val(shifts, intensities, target_center):\n    mask = (shifts >= target_center - 10) & (shifts <= target_center + 10)\n    if not np.any(mask):\n        return np.interp(target_center, shifts, intensities)\n    return np.mean(intensities[mask])\n\nb1 = get_baseline_val(x, y1, 1100)\nb2 = get_baseline_val(x, y1, 1800)\n\n# Create linear baseline array\nbaseline = np.linspace(b1, b2, len(x))\ny1_corrected = y1 - baseline\n\n# Normalize to G-band max (1550-1620)\ng_mask = (x >= 1550) & (x <= 1620)\nif np.any(g_mask):\n    g_max = np.max(y1_corrected[g_mask])\n    if g_max != 0:\n        y1_final = y1_corrected / g_max\n    else:\n        y1_final = y1_corrected\nelse:\n    y1_final = y1_corrected\n\ny1 = y1_final",
+ "asks": [
+  {
+   "ask": "세 파일 overlay",
+   "how": "key"
+  },
+  {
+   "ask": "베이스라인 보정 (1100, 1800 ±10 평균 연결)",
+   "how": "data_code"
+  },
+  {
+   "ask": "G 밴드(1550-1620) 최대값 정규화",
+   "how": "data_code"
+  },
+  {
+   "ask": "1000-2000 구간 표시",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-hyb/S020_r2/out/t1"
+ }
+}

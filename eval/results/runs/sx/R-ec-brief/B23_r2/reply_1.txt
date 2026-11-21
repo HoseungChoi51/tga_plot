@@ -1,0 +1,325 @@
+```python
+import pandas as pd
+import json
+import numpy as np
+
+def main():
+    file_path = "/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx"
+    
+    # Read all sheets
+    xls = pd.ExcelFile(file_path)
+    sheet_names = xls.sheet_names
+    
+    # Define colors for each sheet based on user request
+    color_map = {
+        "Raw": "#000000",       # Black
+        "Acid-washed": "#1f78b4", # Blue (using a standard blue, or could use #0000FF)
+        "Annealed": "#e31a1c"    # Red
+    }
+    
+    # If exact names don't match, try to find them case-insensitively or just use order if only 3 sheets
+    # The prompt says Raw is black, Acid-washed is blue, Annealed is red.
+    
+    series_weight = []
+    series_dtg = []
+    
+    # We need to calculate residue and peak for EACH sheet individually? 
+    # The prompt says "one plot per sheet; when no sheet is named, every sheet of the file."
+    # BUT the user said "세 시료 겹쳐서 그리고" (overlay three samples).
+    # So we create ONE plot with multiple series.
+    # The labels (residue, peak) are usually drawn for the specific curve they belong to.
+    # Since there are 3 curves, we should probably add markers/labels for each if possible, 
+    # or maybe just the general instruction applies to the "standard TGA plot".
+    # Standard TGA plot instructions: "two labels are always drawn... residue... peak..."
+    # With overlapping plots, drawing 3 sets of labels might be cluttered. 
+    # However, the instruction says "always drawn unless the user says otherwise".
+    # Let's calculate them for each series and add them as markPoints.
+    
+    # To keep the JSON clean and ECharts compatible, we'll structure it as:
+    # Series 1: Weight Raw (yAxisIndex 0)
+    # Series 2: DTG Raw (yAxisIndex 1) - multiplied by -1
+    # Series 3: Weight Acid-washed (yAxisIndex 0)
+    # Series 4: DTG Acid-washed (yAxisIndex 1) - multiplied by -1
+    # Series 5: Weight Annealed (yAxisIndex 0)
+    # Series 6: DTG Annealed (yAxisIndex 1) - multiplied by -1
+    
+    # Legend needs to distinguish between Weight and DTG for each sample.
+    # Or maybe group them? ECharts legend handles series names.
+    
+    all_series_data = []
+    
+    # Helper to find nearest point for residue (at 800 C)
+    def get_residue_info(temp, weight):
+        idx = np.argmin(np.abs(temp - 800))
+        return temp[idx], weight[idx]
+
+    # Helper to find highest DTG peak above 150 C
+    # Note: DTG in data is negative during mass loss. Peak means most negative value (lowest point).
+    # But we multiply by -1 for plotting so peaks point up.
+    # So we look for the minimum value in original DTG (which becomes maximum after * -1) where Temp > 150.
+    def get_peak_info(temp, dtg_original):
+        mask = temp > 150
+        if not np.any(mask):
+            return None, None
+        
+        t_masked = temp[mask]
+        d_masked = dtg_original[mask]
+        
+        # Find index of minimum value (most negative) in masked DTG
+        min_idx_in_masked = np.argmin(d_masked)
+        peak_temp = t_masked[min_idx_in_masked]
+        peak_val_original = d_masked[min_idx_in_masked]
+        
+        return peak_temp, peak_val_original
+
+    for sheet_name in sheet_names:
+        df = pd.read_excel(xls, sheet_name=sheet_name)
+        
+        # Identify columns based on preview
+        # Time (min), Temperature (°C), Weight (%), Deriv. Weight (%/°C)
+        col_time = 'Time (min)'
+        col_temp = 'Temperature (°C)'
+        col_weight = 'Weight (%)'
+        col_dtg = 'Deriv. Weight (%/°C)'
+        
+        # Check if columns exist, fallback to position if needed
+        if col_temp not in df.columns:
+            # Try finding by content or position
+            cols = df.columns.tolist()
+            # Assuming B=Temp, C=Weight, D=DTG based on preview
+            if len(cols) >= 4:
+                col_temp = cols[1]
+                col_weight = cols[2]
+                col_dtg = cols[3]
+                
+        temps = df[col_temp].values
+        weights = df[col_weight].values
+        dtgs = df[col_dtg].values
+        
+        # Clean NaNs
+        valid_mask = ~(np.isnan(temps) | np.isnan(weights) | np.isnan(dtgs))
+        temps = temps[valid_mask]
+        weights = weights[valid_mask]
+        dtgs = dtgs[valid_mask]
+        
+        # Sort by temperature just in case
+        sort_idx = np.argsort(temps)
+        temps = temps[sort_idx]
+        weights = weights[sort_idx]
+        dtgs = dtgs[sort_idx]
+        
+        # Get Color
+        color = color_map.get(sheet_name, "#333333")
+        
+        # --- Process Weight Series ---
+        w_name = f"{sheet_name} Weight"
+        w_data = [[float(t), float(w)] for t, w in zip(temps, weights)]
+        
+        # Calculate Residue Marker
+        res_t, res_w = get_residue_info(temps, weights)
+        residue_label_text = f"Residue {res_w:.1f}%"
+        
+        weight_series = {
+            "name": w_name,
+            "type": "line",
+            "yAxisIndex": 0,
+            "data": w_data,
+            "itemStyle": {"color": color},
+            "lineStyle": {"color": color, "width": 2},
+            "showSymbol": False,
+            "markPoint": {
+                "symbolSize": 8,
+                "itemStyle": {"color": color},
+                "label": {
+                    "show": True,
+                    "formatter": "{b}",
+                    "position": "top",
+                    "fontSize": 10,
+                    "color": color
+                },
+                "data": [
+                    {
+                        "coord": [float(res_t), float(res_w)],
+                        "value": residue_label_text,
+                        "name": residue_label_text
+                    }
+                ]
+            }
+        }
+        series_weight.append(weight_series)
+        
+        # --- Process DTG Series ---
+        # Multiply by -1 so peaks point up
+        dtgs_inv = dtgs * -1
+        dtg_name = f"{sheet_name} DTG"
+        dtg_data = [[float(t), float(d)] for t, d in zip(temps, dtgs_inv)]
+        
+        # Calculate Peak Marker
+        pk_t, pk_d_orig = get_peak_info(temps, dtgs)
+        if pk_t is not None:
+            peak_label_text = f"{pk_t:.0f} °C"
+            # The marker coord uses the plotted value (dtg_inv)
+            pk_d_plotted = pk_d_orig * -1
+            
+            dtg_series = {
+                "name": dtg_name,
+                "type": "line",
+                "yAxisIndex": 1,
+                "data": dtg_data,
+                "itemStyle": {"color": color},
+                "lineStyle": {"color": color, "width": 2, "type": "dashed"}, # Dashed to distinguish from weight
+                "showSymbol": False,
+                "markPoint": {
+                    "symbolSize": 8,
+                    "itemStyle": {"color": color},
+                    "label": {
+                        "show": True,
+                        "formatter": "{b}",
+                        "position": "bottom",
+                        "fontSize": 10,
+                        "color": color
+                    },
+                    "data": [
+                        {
+                            "coord": [float(pk_t), float(pk_d_plotted)],
+                            "value": peak_label_text,
+                            "name": peak_label_text
+                        }
+                    ]
+                }
+            }
+        else:
+             dtg_series = {
+                "name": dtg_name,
+                "type": "line",
+                "yAxisIndex": 1,
+                "data": dtg_data,
+                "itemStyle": {"color": color},
+                "lineStyle": {"color": color, "width": 2, "type": "dashed"},
+                "showSymbol": False
+            }
+            
+        series_dtg.append(dtg_series)
+
+    # Combine all series
+    final_series = series_weight + series_dtg
+    
+    # Determine Axis Ranges dynamically or set reasonable defaults
+    # Y1 (Weight %): 0 to 105
+    # Y2 (DTG): Need to find max/min of inverted DTGs
+    
+    all_dtg_vals = []
+    for s in series_dtg:
+        for p in s["data"]:
+            all_dtg_vals.append(p[1])
+            
+    if all_dtg_vals:
+        min_dtg = min(all_dtg_vals)
+        max_dtg = max(all_dtg_vals)
+        # Add some padding
+        y2_min = min(-0.1, min_dtg - 0.1)
+        y2_max = max(0.1, max_dtg + 0.1)
+    else:
+        y2_min, y2_max = -1, 1
+
+    option = {
+        "backgroundColor": "#ffffff",
+        "title": {
+            "text": "TGA Comparison: Raw, Acid-washed, Annealed",
+            "left": "center",
+            "textStyle": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 16,
+                "fontWeight": "bold"
+            }
+        },
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {
+                "type": "cross"
+            }
+        },
+        "legend": {
+            "data": [s["name"] for s in final_series],
+            "orient": "vertical",
+            "left": "left",
+            "top": "middle",
+            "textStyle": {
+                "fontFamily": "Noto Sans CJK KR"
+            }
+        },
+        "grid": {
+            "left": "10%",
+            "right": "10%",
+            "bottom": "15%",
+            "containLabel": True
+        },
+        "xAxis": {
+            "type": "value",
+            "name": "Temperature (°C)",
+            "nameLocation": "middle",
+            "nameGap": 30,
+            "min": 0,
+            "max": 950,
+            "splitLine": {
+                "show": True,
+                "lineStyle": {
+                    "type": "dashed"
+                }
+            },
+            "axisLabel": {
+                "fontFamily": "Noto Sans CJK KR"
+            }
+        },
+        "yAxis": [
+            {
+                "type": "value",
+                "name": "Weight (%)",
+                "position": "left",
+                "min": 0,
+                "max": 105,
+                "splitLine": {
+                    "show": True,
+                    "lineStyle": {
+                        "type": "dashed"
+                    }
+                },
+                "axisLabel": {
+                    "fontFamily": "Noto Sans CJK KR"
+                }
+            },
+            {
+                "type": "value",
+                "name": "DTG (%/°C) [inverted]",
+                "position": "right",
+                "min": y2_min,
+                "max": y2_max,
+                "splitLine": {
+                    "show": False
+                },
+                "axisLabel": {
+                    "fontFamily": "Noto Sans CJK KR"
+                }
+            }
+        ],
+        "series": final_series
+    }
+
+    result = {
+        "figures": [
+            {
+                "name": "plot1",
+                "option": option,
+                "width": 800,
+                "height": 600,
+                "dpi": 300,
+                "formats": ["png"]
+            }
+        ]
+    }
+    
+    print(json.dumps(result, ensure_ascii=False))
+
+if __name__ == "__main__":
+    main()
+```

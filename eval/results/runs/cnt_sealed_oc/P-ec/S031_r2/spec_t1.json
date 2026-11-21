@@ -1,0 +1,27 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "line",
+ "x": {
+  "col": "일자",
+  "period": "day"
+ },
+ "y": {
+  "col": "CNT수율 (g/g-cat)",
+  "agg": "mean"
+ },
+ "title": "일별 평균 CNT 수율 추이",
+ "asks": [
+  {
+   "ask": "수율이 기간에 따라 어떻게 변해 왔는지 그래프",
+   "how": "key"
+  },
+  {
+   "ask": "어떤 그래프가 좋은지 추천",
+   "how": "추천: 시계열 데이터(날짜)의 평균값 추이를 보기에는 꺾은선 그래프(line chart)가 가장 직관적이고 적합합니다. 일별 변동성을 줄이기 위해 '평균(mean)'으로 집계하여 그렸습니다."
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/S031_r2/out/t1"
+ }
+}

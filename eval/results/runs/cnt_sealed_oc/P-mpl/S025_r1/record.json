@@ -1,0 +1,97 @@
+{
+ "arm": "P-mpl",
+ "item": "S025",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "raman 폴더 8개 파일 각각 I_G/I_D를 계산해서 막대그래프로, 높은 순으로 정렬해 주세요. 베이스라인 보정 없이 피크 높이비로요: I_G는 1550–1620 cm⁻¹ 최대값, I_D는 1300–1400 cm⁻¹ 최대값입니다.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/raman/*.csv\",\n  \"asks\": [\n    {\n      \"ask\": \"8개 파일 각각 I_G/I_D 계산하여 막대그래프 (베이스라인 보정 없이 피크 높이비)\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"높은 순으로 정렬\",\n      \"how\": \"key\"\n    }\n  ],\n  \"chart\": \"bar\",\n  \"x\": \"Sample\",\n  \"y\": \"Ratio\",\n  \"sort\": \"desc\",\n  \"values\": true,\n  \"title\": \"Raman I_G/I_D Ratio by Sample\",\n  \"data_code\": \"\\nimport pandas as pd\\nimport numpy as np\\nimport glob\\nimport os\\n\\n# Initialize lists to store results\\nsamples = []\\nratios = []\\n\\n# Get all files matching the pattern\\nfiles = sorted(glob.glob('data/raman/*.csv'))\\n\\nfor f in files:\\n    try:\\n        # Read CSV. Assuming standard header structure based on preview.\\n        df_raw = pd.read_csv(f)\\n        \\n        # Identify columns: A is Raman Shift, B is Intensity\\n        # Using column names from preview if available, otherwise positional\\n        shift_col = 'Raman Shift (cm-1)'\\n        int_col = 'Intensity (a.u.)'\\n        \\n        if shift_col not in df_raw.columns or int_col not in df_raw.columns:\\n            # Fallback to position if headers differ slightly but order is same\\n            shift_col = df_raw.columns[0]\\n            int_col = df_raw.columns[1]\\n\\n        x_vals = df_raw[shift_col].values\\n        y_vals = df_raw[int_col].values\\n\\n        # Define masks for D band (1300-1400 cm^-1) and G band (1550-1620 cm^-1)\\n        mask_d = (x_vals >= 1300) & (x_vals <= 1400)\\n        mask_g = (x_vals >= 1550) & (x_vals <= 1620)\\n\\n        # Calculate max intensity in these ranges (Peak Height method, no baseline subtraction)\\n        # Check if data exists in range\\n        if np.any(mask_d) and np.any(mask_g):\\n            i_d = np.max(y_vals[mask_d])\\n            i_g = np.max(y_vals[mask_g])\\n            \\n            if i_d > 0:\\n                ratio = i_g / i_d\\n            else:\\n                ratio = 0.0\\n                \\n            # Create sample name from filename (remove extension and path)\\n            base_name = os.path.basename(f).replace('.csv', '')\\n            samples.append(base_name)\\n            ratios.append(ratio)\\n    except Exception as e:\\n        print(f\\\"Error processing {f}: {e}\\\")\n\n# Create a new DataFrame with the calculated metrics\ndf_new = pd.DataFrame({\n    'Sample': samples,\n    'Ratio': ratios\n})\n\n# Replace the original dataframe with the aggregated one so chart keys work on it\ndf = df_new\n\"\n}\n```",
+     "llm_s": 11.842,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 17787,
+     "output_chars": 2406,
+     "attempts": 1
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/raman/*.csv\",\n  \"asks\": [\n    {\n      \"ask\": \"8개 파일 각각 I_G/I_D 계산하여 막대그래프 (베이스라인 보정 없이 피크 높이비)\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"높은 순으로 정렬\",\n      \"how\": \"key\"\n    }\n  ],\n  \"chart\": \"bar\",\n  \"x\": \"Sample\",\n  \"y\": \"Ratio\",\n  \"sort\": \"desc\",\n  \"values\": true,\n  \"title\": \"Raman I_G/I_D Ratio by Sample\",\n  \"data_code\": \"import pandas as pd\\nimport numpy as np\\nimport glob\\nimport os\\nsamples = []\\nratios = []\\nfiles = sorted(glob.glob('data/raman/*.csv'))\\nfor f in files:\\n    try:\\n        df_raw = pd.read_csv(f)\\n        shift_col = 'Raman Shift (cm-1)'\\n        int_col = 'Intensity (a.u.)'\\n        if shift_col not in df_raw.columns or int_col not in df_raw.columns:\\n            shift_col = df_raw.columns[0]\\n            int_col = df_raw.columns[1]\\n        x_vals = df_raw[shift_col].values\\n        y_vals = df_raw[int_col].values\\n        mask_d = (x_vals >= 1300) & (x_vals <= 1400)\\n        mask_g = (x_vals >= 1550) & (x_vals <= 1620)\\n        if np.any(mask_d) and np.any(mask_g):\\n            i_d = np.max(y_vals[mask_d])\\n            i_g = np.max(y_vals[mask_g])\\n            ratio = i_g / i_d if i_d > 0 else 0.0\\n            base_name = os.path.basename(f).replace('.csv', '')\\n            samples.append(base_name)\\n            ratios.append(ratio)\\n    except Exception as e:\\n        print(f\\\"Error processing {f}: {e}\\\")\\ndf_new = pd.DataFrame({'Sample': samples, 'Ratio': ratios})\\ndf = df_new\"\n}\n```",
+     "llm_s": 7.036,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 20752,
+     "output_chars": 1471,
+     "attempts": 1
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/raman/*.csv\",\n  \"asks\": [\n    {\n      \"ask\": \"8개 파일 각각 I_G/I_D 계산하여 막대그래프 (베이스라인 보정 없이 피크 높이비)\",\n      \"how\": \"code\"\n    },\n    {\n      \"ask\": \"높은 순으로 정렬\",\n      \"how\": \"code\"\n    }\n  ],\n  \"chart\": \"bar\",\n  \"x\": \"Sample\",\n  \"y\": \"Ratio\",\n  \"sort\": \"desc\",\n  \"values\": true,\n  \"title\": \"Raman I_G/I_D Ratio by Sample\",\n  \"code\": \"\\nimport pandas as pd\\nimport numpy as np\\nimport glob\\nimport os\\nimport matplotlib.pyplot as plt\\n\\n# Calculate ratios from all files\\nfiles = sorted(glob.glob('data/raman/*.csv'))\\nsamples = []\\nratios = []\\n\\nfor f in files:\\n    try:\\n        df_raw = pd.read_csv(f)\\n        shift_col = 'Raman Shift (cm-1)'\\n        int_col = 'Intensity (a.u.)'\\n        \\n        # Fallback to positional if header names differ slightly\\n        if shift_col not in df_raw.columns or int_col not in df_raw.columns:\\n            shift_col = df_raw.columns[0]\\n            int_col = df_raw.columns[1]\\n\\n        x_vals = df_raw[shift_col].values\\n        y_vals = df_raw[int_col].values\\n\\n        mask_d = (x_vals >= 1300) & (x_vals <= 1400)\\n        mask_g = (x_vals >= 1550) & (x_vals <= 1620)\\n\\n        if np.any(mask_d) and np.any(mask_g):\\n            i_d = np.max(y_vals[mask_d])\\n            i_g = np.max(y_vals[mask_g])\\n            ratio = i_g / i_d if i_d > 0 else 0.0\\n            base_name = os.path.basename(f).replace('.csv', '')\\n            samples.append(base_name)\\n            ratios.append(ratio)\\n    except Exception as e:\\n        print(f\\\"Error processing {f}: {e}\\\")\n\n# Create dataframe for plotting\ndf_plot = pd.DataFrame({'Sample': samples, 'Ratio': ratios})\n\n# Sort descending\ndf_plot = df_plot.sort_values(by='Ratio', ascending=False).reset_index(drop=True)\n\n# Clear the existing axes (which were prepared for empty data)\nax.cla()\n\n# Plot bar chart manually\nbars = ax.bar(df_plot['Sample'], df_plot['Ratio'])\n\n# Add value labels on bars\nfor bar in bars:\n    height = bar.get_height()\n    ax.text(bar.get_x() + bar.get_width()/2., height,\n            f'{height:.3f}',\n            ha='center', va='bottom', fontsize=9)\n\n# Set title and labels\nax.set_title('Raman I_G/I_D Ratio by Sample')\nax.set_ylabel('I_G / I_D Ratio')\nax.set_xlabel('Sample')\n\n# Rotate x-tick labels for better readability if needed\nplt.xticks(rotation=45, ha='right')\n\n# Adjust layout to prevent label cutoff\nfig.tight_layout()\n\"\n}\n```",
+     "llm_s": 10.272,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 22557,
+     "output_chars": 2379,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/raman/*.csv",
+    "asks": [
+     {
+      "ask": "8개 파일 각각 I_G/I_D 계산하여 막대그래프 (베이스라인 보정 없이 피크 높이비)",
+      "how": "data_code"
+     },
+     {
+      "ask": "높은 순으로 정렬",
+      "how": "key"
+     }
+    ],
+    "chart": "bar",
+    "x": "Sample",
+    "y": "Ratio",
+    "sort": "desc",
+    "values": true,
+    "title": "Raman I_G/I_D Ratio by Sample",
+    "data_code": "import pandas as pd\nimport numpy as np\nimport glob\nimport os\nsamples = []\nratios = []\nfiles = sorted(glob.glob('data/raman/*.csv'))\nfor f in files:\n    try:\n        df_raw = pd.read_csv(f)\n        shift_col = 'Raman Shift (cm-1)'\n        int_col = 'Intensity (a.u.)'\n        if shift_col not in df_raw.columns or int_col not in df_raw.columns:\n            shift_col = df_raw.columns[0]\n            int_col = df_raw.columns[1]\n        x_vals = df_raw[shift_col].values\n        y_vals = df_raw[int_col].values\n        mask_d = (x_vals >= 1300) & (x_vals <= 1400)\n        mask_g = (x_vals >= 1550) & (x_vals <= 1620)\n        if np.any(mask_d) and np.any(mask_g):\n            i_d = np.max(y_vals[mask_d])\n            i_g = np.max(y_vals[mask_g])\n            ratio = i_g / i_d if i_d > 0 else 0.0\n            base_name = os.path.basename(f).replace('.csv', '')\n            samples.append(base_name)\n            ratios.append(ratio)\n    except Exception as e:\n        print(f\"Error processing {f}: {e}\")\ndf_new = pd.DataFrame({'Sample': samples, 'Ratio': ratios})\ndf = df_new"
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": false,
+    "error": "your reply could not be read: Invalid control character at: line 19 column 1194 (char 1529)",
+    "hint": "reply with one ```json block"
+   },
+   "facts": [],
+   "draw_s": 0.446488618850708,
+   "check": {
+    "kind_expected": "bar",
+    "failed": [
+     "run: no plot (your reply could not be read: Invalid control character at: line 19 column 1194 (char 1529))"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 29.702
+  }
+ ]
+}

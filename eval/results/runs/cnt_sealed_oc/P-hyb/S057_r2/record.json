@@ -1,0 +1,110 @@
+{
+ "arm": "P-hyb",
+ "item": "S057",
+ "repeat": 2,
+ "split": "sealed",
+ "persona": "데이터 분석가",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "Pearson correlation heatmap for 체류시간, H2/C2H4비, 2존온도, 3존온도, 외기습도, CNT수율, 잔류금속, 산화개시온도, IG/ID. Annotate with 2 decimals, diverging cmap centered at 0 (vmin −1, vmax 1).",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"heatmap\",\n  \"corr\": [\n    \"체류시간 (s)\",\n    \"H2/C2H4비\",\n    \"2존온도 (°C)\",\n    \"3존온도 (°C)\",\n    \"외기습도 (%)\",\n    \"CNT수율 (g/g-cat)\",\n    \"잔류금속 (wt%)\",\n    \"산화개시온도 (°C)\",\n    \"IG/ID\"\n  ],\n  \"values\": \"{:.2f}\",\n  \"cmap\": {\n    \"name\": \"RdBu_r\",\n    \"center\": 0,\n    \"vmin\": -1,\n    \"vmax\": 1\n  },\n  \"asks\": [\n    {\"ask\": \"Pearson correlation heatmap for specified columns\", \"how\": \"key\"},\n    {\"ask\": \"Annotate with 2 decimals\", \"how\": \"key\"},\n    {\"ask\": \"Diverging cmap centered at 0 (vmin -1, vmax 1)\", \"how\": \"key\"}\n  ]\n}\n```",
+     "llm_s": 5.205,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 18132,
+     "output_chars": 592,
+     "attempts": 1
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"heatmap\",\n  \"corr\": [\n    \"체류시간 (s)\",\n    \"H2/C2H4비\",\n    \"2존온도 (°C)\",\n    \"3존온도 (°C)\",\n    \"외기습도 (%)\",\n    \"CNT수율 (g/g-cat)\",\n    \"잔류금속 (wt%)\",\n    \"산화개시온도 (°C)\",\n    \"IG/ID\"\n  ],\n  \"values\": \"{:.2f}\",\n  \"cmap\": \"RdBu_r\",\n  \"asks\": [\n    {\"ask\": \"Pearson correlation heatmap for specified columns\", \"how\": \"key\"},\n    {\"ask\": \"Annotate with 2 decimals\", \"how\": \"key\"},\n    {\"ask\": \"Diverging cmap centered at 0 (vmin -1, vmax 1) - code fallback\", \"how\": \"code\"}\n  ],\n  \"code\": \"import numpy as np; import matplotlib.colors as mcolors; im = ax.images[0]; norm = mcolors.TwoSlopeNorm(vmin=-1.0, vcenter=0.0, vmax=1.0); im.set_norm(norm); fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)\"\n}\n```",
+     "llm_s": 5.564,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 19152,
+     "output_chars": 764,
+     "attempts": 1
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"heatmap\",\n  \"corr\": [\n    \"체류시간 (s)\",\n    \"H2/C2H4비\",\n    \"2존온도 (°C)\",\n    \"3존온도 (°C)\",\n    \"외기습도 (%)\",\n    \"CNT수율 (g/g-cat)\",\n    \"잔류금속 (wt%)\",\n    \"산화개시온도 (°C)\",\n    \"IG/ID\"\n  ],\n  \"values\": \"{:.2f}\",\n  \"cmap\": \"RdBu_r\",\n  \"asks\": [\n    {\"ask\": \"Pearson correlation heatmap for specified columns\", \"how\": \"key\"},\n    {\"ask\": \"Annotate with 2 decimals\", \"how\": \"key\"},\n    {\"ask\": \"Diverging cmap centered at 0 (vmin -1, vmax 1)\", \"how\": \"code\"}\n  ],\n  \"code\": \"import matplotlib.colors as mcolors; norm = mcolors.TwoSlopeNorm(vmin=-1.0, vcenter=0.0, vmax=1.0); if ax.images: im = ax.images[0]; im.set_norm(norm); fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)\"\n}\n```",
+     "llm_s": 7.863,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 20463,
+     "output_chars": 742,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "heatmap",
+    "corr": [
+     "체류시간 (s)",
+     "H2/C2H4비",
+     "2존온도 (°C)",
+     "3존온도 (°C)",
+     "외기습도 (%)",
+     "CNT수율 (g/g-cat)",
+     "잔류금속 (wt%)",
+     "산화개시온도 (°C)",
+     "IG/ID"
+    ],
+    "values": "{:.2f}",
+    "cmap": "RdBu_r",
+    "asks": [
+     {
+      "ask": "Pearson correlation heatmap for specified columns",
+      "how": "key"
+     },
+     {
+      "ask": "Annotate with 2 decimals",
+      "how": "key"
+     },
+     {
+      "ask": "Diverging cmap centered at 0 (vmin -1, vmax 1)",
+      "how": "code"
+     }
+    ],
+    "code": "import matplotlib.colors as mcolors; norm = mcolors.TwoSlopeNorm(vmin=-1.0, vcenter=0.0, vmax=1.0); if ax.images: im = ax.images[0]; im.set_norm(norm); fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)"
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": false,
+    "error": "the extra code failed: SyntaxError: invalid syntax (<spec code>, line 1)",
+    "hint": "the chart is already drawn from your keys; \"code\" is only for drawing changes no key covers (names: fig, ax, plt, np; data = the drawn numbers, not the table). Remove \"code\" if the keys already do it; to change the data use \"data_code\""
+   },
+   "facts": [],
+   "draw_s": 0.31160736083984375,
+   "check": {
+    "kind_expected": "heatmap",
+    "failed": [
+     "run: no plot (the extra code failed: SyntaxError: invalid syntax (<spec code>, line 1))"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 19.801
+  }
+ ]
+}

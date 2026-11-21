@@ -1,0 +1,5 @@
+{
+  "file": "data/cnt_batches.xlsx",
+  "sheets": "Raw",
+  "code": "ax1.fill_between(x, y1, color='#1f4e9c', alpha=0.08)\nax1.annotate('catalyst residue', xy=(850, 16), xytext=(640, 45), color='gray',\n             arrowprops=dict(arrowstyle='->', color='gray'))\nax1.spines['top'].set_visible(False); ax2.spines['top'].set_visible(False)"
+}

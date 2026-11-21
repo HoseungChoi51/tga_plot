@@ -1,0 +1,36 @@
+{
+  "file": "data/rheology.csv",
+  "preset": "none",
+  "title": "Frequency sweep at 190 °C",
+  "x": {
+    "col": "frequency",
+    "log": true,
+    "label": "ω (rad/s)"
+  },
+  "y1": {
+    "col": "Storage",
+    "log": true,
+    "min": 100,
+    "max": 200000,
+    "style": "line+marker",
+    "label": "G′ (Pa)",
+    "legend": "G′ storage"
+  },
+  "y2": {
+    "col": "Loss",
+    "log": true,
+    "min": 100,
+    "max": 200000,
+    "style": "scatter",
+    "label": "G″ (Pa)",
+    "legend": "G″ loss"
+  },
+  "legend": "lower right",
+  "annotate": {
+    "cross": {
+      "type": "vline",
+      "x": 1.4,
+      "text": "G′ = G″"
+    }
+  }
+}

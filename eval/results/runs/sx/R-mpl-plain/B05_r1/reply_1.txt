@@ -1,0 +1,73 @@
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+# Configure matplotlib for Korean text
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILES = ["/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_A.csv", "/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_B.txt"]
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/B05_r1/out"
+
+# Ensure output directory exists
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# Read data files
+df_a = pd.read_csv(DATA_FILES[0])
+df_b = pd.read_csv(DATA_FILES[1], sep=r'\s+')  # Assuming whitespace separated based on .txt extension and typical TGA exports, but if it's tab or comma we might need adjustment. 
+# Looking at the preview, header_rows: [1], data_start_row: 2. It doesn't specify delimiter. 
+# Let's try reading with default pandas read_csv which handles commas, tabs, etc., or specifically check if it needs a separator.
+# Given the previous CSV was comma, this TXT might be tab-separated or space-separated. 
+# Pandas `read_csv` often auto-detects or works with sep=None + engine='python'.
+try:
+    df_b = pd.read_csv(DATA_FILES[1], sep=None, engine='python')
+except Exception:
+    # Fallback to tab separation if python engine fails or picks wrong
+    df_b = pd.read_csv(DATA_FILES[1], sep='\t')
+
+# Identify columns based on the preview info
+# x: Temperature (°C), y1: Weight (%), y2: Deriv. Weight (%/°C)
+temp_col = "Temperature (°C)"
+weight_col = "Weight (%)"
+deriv_col = "Deriv. Weight (%/°C)"
+
+# Verify columns exist in both dataframes
+if temp_col not in df_a.columns or weight_col not in df_a.columns or deriv_col not in df_a.columns:
+    raise ValueError(f"Required columns not found in Lot A file. Columns: {df_a.columns.tolist()}")
+if temp_col not in df_b.columns or weight_col not in df_b.columns or deriv_col not in df_b.columns:
+    raise ValueError(f"Required columns not found in Lot B file. Columns: {df_b.columns.tolist()}")
+
+# Create figure and axis
+fig, ax1 = plt.subplots(figsize=(10, 6))
+
+# Plot Lot A
+ax1.plot(df_a[temp_col], df_a[weight_col], label='Lot A', color='blue', linestyle='-')
+ax1.set_xlabel('Temperature (°C)', fontsize=12)
+ax1.set_ylabel('Weight (%)', color='black', fontsize=12)
+ax1.tick_params(axis='y', labelcolor='black')
+
+# Create secondary axis for derivative weight
+ax2 = ax1.twinx()
+ax2.plot(df_a[temp_col], df_a[deriv_col], label='Lot A (DTG)', color='blue', linestyle='--', alpha=0.7)
+ax2.set_ylabel('Deriv. Weight (%/°C)', color='blue', fontsize=12)
+ax2.tick_params(axis='y', labelcolor='blue')
+
+# Plot Lot B
+ax1.plot(df_b[temp_col], df_b[weight_col], label='Lot B', color='red', linestyle='-')
+ax2.plot(df_b[temp_col], df_b[deriv_col], label='Lot B (DTG)', color='red', linestyle='--', alpha=0.7)
+
+# Combine legends from both axes
+lines_1, labels_1 = ax1.get_legend_handles_labels()
+lines_2, labels_2 = ax2.get_legend_handles_labels()
+ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='upper right')
+
+# Title and layout
+plt.title('TGA Analysis: Lot A vs Lot B', fontsize=14)
+fig.tight_layout()
+
+# Save plot
+output_path = os.path.join(OUT_DIR, 'tga_comparison.png')
+plt.savefig(output_path, dpi=300)
+plt.close()
+```

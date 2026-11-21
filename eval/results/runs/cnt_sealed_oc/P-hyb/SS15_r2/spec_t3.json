@@ -1,0 +1,68 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "histogram",
+ "x": {
+  "col": "CNT수율 (g/g-cat)",
+  "bins": {
+   "edges": [
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36
+   ]
+  }
+ },
+ "by": {
+  "col": "주차",
+  "label": "기간",
+  "mapping": [
+   [
+    1,
+    13
+   ],
+   [
+    14,
+    26
+   ]
+  ]
+ },
+ "asks": [
+  {
+   "ask": "주차 1–13 vs 14–26 오버레이",
+   "how": "key"
+  },
+  {
+   "ask": "공통 빈 간격 (1 g/g-cat, 12~36)",
+   "how": "key"
+  },
+  {
+   "ask": "Each period's median vertical line",
+   "how": "unsupported"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/SS15_r2/out/t3"
+ }
+}

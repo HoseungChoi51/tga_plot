@@ -1,0 +1,162 @@
+```python
+import pandas as pd
+import numpy as np
+import json
+
+# Load the data
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/rheology.csv"
+df = pd.read_csv(DATA_FILE, header=0)
+
+# Rename columns for clarity
+df.columns = ['freq', 'G_prime', 'G_double_prime']
+
+# Prepare data for ECharts
+# x-axis: Angular frequency (log scale)
+x_data = df['freq'].tolist()
+y1_data = df['G_prime'].tolist()  # Left Y axis
+y2_data = df['G_double_prime'].tolist()  # Right Y axis
+
+# Define the ECharts option
+option = {
+    "backgroundColor": "#ffffff",
+    "title": {
+        "text": "주파수에 따른 저장 탄성률(G')과 손실 탄성률(G'')",
+        "left": "center",
+        "top": 10,
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR",
+            "fontSize": 16,
+            "fontWeight": "bold"
+        }
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {
+            "type": "cross"
+        },
+        "formatter": None  # Default formatter works fine with log axes if we handle it, but let's keep it simple or use default. 
+                          # Actually, default tooltip might show scientific notation weirdly on log axes sometimes, 
+                          # but usually acceptable. Let's stick to default for simplicity unless specified.
+    },
+    "legend": {
+        "data": ["G' (Storage Modulus)", "G'' (Loss Modulus)"],
+        "top": 40,
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR"
+        }
+    },
+    "grid": {
+        "left": "10%",
+        "right": "10%",
+        "bottom": "15%",
+        "containLabel": True
+    },
+    "xAxis": {
+        "type": "log",
+        "name": "각속도 (rad/s)",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "nameTextStyle": {
+            "fontFamily": "Noto Sans CJK KR",
+            "fontSize": 12
+        },
+        "axisLabel": {
+            "formatter": "{value}",
+            "fontFamily": "Noto Sans CJK KR"
+        },
+        "splitLine": {
+            "show": True,
+            "lineStyle": {
+                "type": "dashed"
+            }
+        }
+    },
+    "yAxis": [
+        {
+            "type": "log",
+            "name": "저장 탄성률 G' (Pa)",
+            "position": "left",
+            "nameTextStyle": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 12
+            },
+            "axisLabel": {
+                "formatter": "{value}",
+                "fontFamily": "Noto Sans CJK KR"
+            },
+            "splitLine": {
+                "show": True,
+                "lineStyle": {
+                    "type": "dashed"
+                }
+            }
+        },
+        {
+            "type": "log",
+            "name": "손실 탄성률 G'' (Pa)",
+            "position": "right",
+            "nameTextStyle": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 12
+            },
+            "axisLabel": {
+                "formatter": "{value}",
+                "fontFamily": "Noto Sans CJK KR"
+            },
+            "splitLine": {
+                "show": False  # Avoid clutter by hiding grid lines for secondary axis
+            }
+        }
+    ],
+    "series": [
+        {
+            "name": "G' (Storage Modulus)",
+            "type": "line",
+            "xAxisIndex": 0,
+            "yAxisIndex": 0,
+            "data": [[x, y] for x, y in zip(x_data, y1_data)],
+            "symbol": "circle",
+            "symbolSize": 6,
+            "lineStyle": {
+                "width": 2,
+                "color": "#5470c6"
+            },
+            "itemStyle": {
+                "color": "#5470c6"
+            }
+        },
+        {
+            "name": "G'' (Loss Modulus)",
+            "type": "line",
+            "xAxisIndex": 0,
+            "yAxisIndex": 1,
+            "data": [[x, y] for x, y in zip(x_data, y2_data)],
+            "symbol": "diamond",
+            "symbolSize": 6,
+            "lineStyle": {
+                "width": 2,
+                "color": "#91cc75"
+            },
+            "itemStyle": {
+                "color": "#91cc75"
+            }
+        }
+    ]
+}
+
+# Construct the final JSON output
+output = {
+    "figures": [
+        {
+            "name": "rheology_plot",
+            "option": option,
+            "width": 800,
+            "height": 600,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+    ]
+}
+
+print(json.dumps(output))
+```

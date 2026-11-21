@@ -1,0 +1,17 @@
+```json
+{
+  "file": "cnt_batches.xlsx",
+  "sheets": ["Raw", "Acid-washed", "Annealed"],
+  "combine": true,
+  "echarts": {
+    "series": [
+      {"lineStyle": {"color": "black"}},
+      {"lineStyle": {"color": "blue"}},
+      {"lineStyle": {"color": "red"}},
+      {"lineStyle": {"color": "black"}},
+      {"lineStyle": {"color": "blue"}},
+      {"lineStyle": {"color": "red"}}
+    ]
+  }
+}
+```

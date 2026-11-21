@@ -1,0 +1,162 @@
+```python
+import json
+import math
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+SHEET_NAME = "1006R1-V normal"
+
+df = pd.read_excel(DATA_FILE, sheet_name=SHEET_NAME)
+df.columns = [str(c).strip() for c in df.columns]
+
+def find_column(names):
+    for col in df.columns:
+        if any(name.lower() in col.lower() for name in names):
+            return col
+    raise ValueError(f"Could not find a column matching {names}")
+
+temp_col = find_column(["temperature"])
+weight_col = find_column(["weight"])
+dtg_col = find_column(["d.w", "deriv", "dtg"])
+
+data = df[[temp_col, weight_col, dtg_col]].copy()
+for col in [temp_col, weight_col, dtg_col]:
+    data[col] = pd.to_numeric(data[col], errors="coerce")
+data = data.dropna().sort_values(temp_col)
+
+temperatures = data[temp_col].astype(float).tolist()
+weights = data[weight_col].astype(float).tolist()
+# Plot the negative derivative upward so mass-loss peaks point up.
+dtg_positive = (-data[dtg_col]).astype(float).tolist()
+
+weight_series = [[x, y] for x, y in zip(temperatures, weights)]
+dtg_series = [[x, y] for x, y in zip(temperatures, dtg_positive)]
+
+peak_candidates = data.loc[data[temp_col] > 150]
+if peak_candidates.empty:
+    peak_idx = int(data[dtg_col].idxmin())
+else:
+    peak_idx = int(peak_candidates[dtg_col].idxmin())
+peak_temp = float(data.loc[peak_idx, temp_col])
+peak_value = float(-data.loc[peak_idx, dtg_col])
+
+residue_idx = (data[temp_col] - 800).abs().idxmin()
+residue_temp = float(data.loc[residue_idx, temp_col])
+residue = float(data.loc[residue_idx, weight_col])
+
+dtg_max = max(dtg_positive) if dtg_positive else 0.0
+y2_max = max(0.2, math.ceil(dtg_max / 0.2) * 0.2)
+x_max = float(data[temp_col].max())
+
+option = {
+    "animation": False,
+    "backgroundColor": "#ffffff",
+    "textStyle": {"fontFamily": "Noto Sans CJK KR", "color": "#333333"},
+    "title": {
+        "text": SHEET_NAME,
+        "left": "center",
+        "top": 12,
+        "textStyle": {"fontSize": 16, "fontWeight": "normal"}
+    },
+    "tooltip": {"trigger": "axis"},
+    "legend": {
+        "data": ["Weight", "Deriv.Weight"],
+        "left": "center",
+        "top": 40
+    },
+    "grid": {"left": 78, "right": 78, "top": 92, "bottom": 68},
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 38,
+        "min": 0,
+        "max": x_max,
+        "interval": 200,
+        "axisLabel": {"show": True},
+        "axisTick": {"show": True},
+        "splitLine": {"show": False}
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Weight (%)",
+            "nameLocation": "middle",
+            "nameGap": 52,
+            "min": 0,
+            "max": 100,
+            "interval": 20,
+            "axisTick": {"show": True},
+            "splitLine": {"show": True, "lineStyle": {"color": "#e6e6e6"}}
+        },
+        {
+            "type": "value",
+            "name": "Deriv.Weight (%/°C)",
+            "nameLocation": "middle",
+            "nameGap": 55,
+            "min": 0,
+            "max": y2_max,
+            "interval": 0.2,
+            "axisTick": {"show": True},
+            "splitLine": {"show": False}
+        }
+    ],
+    "series": [
+        {
+            "name": "Weight",
+            "type": "line",
+            "yAxisIndex": 0,
+            "showSymbol": False,
+            "data": weight_series,
+            "lineStyle": {"color": "#1f4e9c", "width": 2},
+            "itemStyle": {"color": "#1f4e9c"},
+            "markPoint": {
+                "symbol": "circle",
+                "symbolSize": 9,
+                "itemStyle": {"color": "#1f4e9c"},
+                "label": {
+                    "show": True,
+                    "formatter": f"Residue {residue:.1f}%",
+                    "position": "right",
+                    "color": "#1f4e9c",
+                    "fontSize": 12
+                },
+                "data": [{"coord": [residue_temp, residue], "value": residue}]
+            }
+        },
+        {
+            "name": "Deriv.Weight",
+            "type": "line",
+            "yAxisIndex": 1,
+            "showSymbol": False,
+            "data": dtg_series,
+            "lineStyle": {"color": "#c0392b", "width": 2},
+            "itemStyle": {"color": "#c0392b"},
+            "markPoint": {
+                "symbol": "circle",
+                "symbolSize": 9,
+                "itemStyle": {"color": "#c0392b"},
+                "label": {
+                    "show": True,
+                    "formatter": f"Max {peak_value:.3f} at {peak_temp:.0f} °C",
+                    "position": "top",
+                    "color": "#c0392b",
+                    "fontSize": 12
+                },
+                "data": [{"coord": [peak_temp, peak_value], "value": peak_value}]
+            }
+        }
+    ]
+}
+
+figure = {
+    "name": "1006R1-V_normal",
+    "option": option,
+    "width": 614,
+    "height": 442,
+    "dpi": 300,
+    "formats": ["png"]
+}
+
+print(json.dumps({"figures": [figure]}, ensure_ascii=False, allow_nan=False))
+```

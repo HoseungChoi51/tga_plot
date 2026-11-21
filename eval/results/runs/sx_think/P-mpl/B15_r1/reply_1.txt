@@ -1,0 +1,7 @@
+```json
+{
+  "file": "polymers.xlsx",
+  "combine": true,
+  "legend": "outside right"
+}
+```

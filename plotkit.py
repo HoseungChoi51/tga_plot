@@ -65,15 +65,18 @@ DEFAULTS = {
     "read": {"header_row": None, "data_start_row": None, "sep": None,
              "decimal": None, "encoding": None},
     "x": {"col": None, "label": None, "min": None, "max": None, "step": None, "log": False,
-          "label_size": None, "label_color": None, "tick_size": None, "tick_color": None},
+          "label_size": None, "label_color": None, "tick_size": None, "tick_color": None,
+          "minor": False, "invert": False},
     "y1": {"col": None, "label": None, "min": None, "max": None, "step": None,
            "color": "#1f4e9c", "width": 1.8, "linestyle": "solid", "style": "line",
            "flip": "none", "log": False, "legend": None, "show": True,
-           "label_size": None, "label_color": None, "tick_size": None, "tick_color": None},
+           "label_size": None, "label_color": None, "tick_size": None, "tick_color": None,
+           "minor": False, "invert": False},
     "y2": {"col": None, "label": None, "min": None, "max": None, "step": None,
            "color": "#c0392b", "width": 1.4, "linestyle": "solid", "style": "line",
            "flip": "none", "log": False, "legend": None, "show": True,
-           "label_size": None, "label_color": None, "tick_size": None, "tick_color": None},
+           "label_size": None, "label_color": None, "tick_size": None, "tick_color": None,
+           "minor": False, "invert": False},
     "annotate": {},
     "title": {"text": "{sheet}", "size": None, "color": None},
     "legend": {"where": "center left", "show": True, "size": None},
@@ -87,6 +90,12 @@ DEFAULTS = {
     "font": None,
     "font_size": 11,
     "combine": False,
+    "colors": None,
+    "names": None,
+    "offset": None,
+    "panels": None,
+    "data_code": None,
+    "asks": [],
     "output": {"dir": None, "format": "png", "name": None},
 }
 
@@ -146,6 +155,15 @@ SCHEMA_DOC = {
                "(title, legend, grid, xAxis, yAxis, series[i] styles and markArea/markLine/markPoint, graphic text/line/rect). "
                "series 0 = y1, 1 = y2 (combine: one y1 series per sheet, then one y2 series per sheet). Use only for things no key covers.",
     "grid": "true / false",
+    "x|y1|y2.minor": "true for minor ticks between the numbered ones",
+    "x|y1|y2.invert": "true to reverse the axis (x: high temperature on the left); x.flip: true means the same",
+    "colors": "combine: one colour per sheet or file, in order (a list), or \"mono\"",
+    "names": "combine: the legend name of each sheet or file, in order (a list)",
+    "offset": "combine: shift each next curve's y1 by this much (e.g. 20), so the curves do not overlap; labels keep the real values",
+    "panels": '"split": y1 in an upper panel and y2 in a lower panel with the same x axis',
+    "data_code": "Python run in a sandbox before drawing, per sheet: x, y1, y2 (numpy arrays), sheet, np; reassign them "
+                 "to change the curve; append {\"type\": \"vline\"|\"hline\"|\"text\", \"x\": .., \"y\": .., \"text\": ..} to marks",
+    "asks": 'what the user asked: [{"ask": "...", "how": "key"|"data_code"|"code"|"echarts"|"unsupported"}]',
     "size": "[width, height] in inches (default [6.4, 4.6])",
     "dpi": "resolution of png/jpg (default 300)",
     "font": 'font family; Korean fonts are picked automatically when text is Korean',
@@ -187,7 +205,11 @@ TOP_ALIASES = {"sheet": "sheets", "sheet_name": "sheets", "sheet_names": "sheets
                "주석": "annotate", "dpi_value": "dpi", "resolution": "dpi", "해상도": "dpi",
                "text_colour": "text_color", "글자 색깔": "text_color", "글자 크기": "font_size",
                "tick_dir": "tick_direction", "틱 방향": "tick_direction", "그림 크기": "size",
-               "파일 형식": "output.format", "시트": "sheets", "file_name": "file", "filename": "file"}
+               "파일 형식": "output.format", "시트": "sheets", "file_name": "file", "filename": "file",
+               "colours": "colors", "palette": "colors", "line_colors": "colors", "legend_names": "names",
+               "series_names": "names", "transform": "data_code", "python_data": "data_code",
+               "subplots": "panels", "split": "panels", "offsets": "offset", "y_offset": "offset",
+               "not_done": "asks"}
 AXIS_ALIASES = {"column": "col", "source": "col", "data": "col", "name": "label",
                 "title": "label", "tick": "step", "ticks": "step", "tick_step": "step",
                 "interval": "step", "unit": "step", "major": "step", "spacing": "step",
@@ -201,7 +223,9 @@ AXIS_ALIASES = {"column": "col", "source": "col", "data": "col", "name": "label"
                 "end": "max", "to": "max", "hi": "max", "high": "max", "ymax": "max", "xmax": "max",
                 "colour": "color", "line_width": "width", "linewidth": "width", "lw": "width",
                 "ls": "linestyle", "line_style": "linestyle", "dash": "linestyle",
-                "legend_label": "legend", "invert": "flip", "sign": "flip", "visible": "show",
+                "legend_label": "legend", "invert": "invert", "sign": "flip", "visible": "show",
+                "inverse": "invert", "inverted": "invert", "reverse": "invert", "reversed": "invert",
+                "minor_ticks": "minor", "minor_tick": "minor", "보조 눈금": "minor", "보조눈금": "minor",
                 "labelsize": "label_size", "label_font_size": "label_size", "fontsize": "label_size",
                 "font_size": "label_size", "labelcolor": "label_color", "label_colour": "label_color",
                 "ticksize": "tick_size", "tick_label_size": "tick_size", "tick_font_size": "tick_size",
@@ -223,13 +247,18 @@ LINESTYLES = {"solid": "-", "실선": "-", "-": "-", "dashed": "--", "파선": "
               "dotted": ":", "점선": ":", ":": ":", "dashdot": "-.", "일점쇄선": "-.", "-.": "-."}
 
 LEGEND_PLACES = ["best", "upper right", "upper left", "lower left", "lower right", "right",
-                 "center left", "center right", "lower center", "upper center", "center", "none"]
+                 "center left", "center right", "lower center", "upper center", "center", "none",
+                 "outside right", "outside bottom"]
 KOREAN_PLACES = {"오른쪽 위": "upper right", "우상단": "upper right", "왼쪽 위": "upper left",
                  "좌상단": "upper left", "왼쪽 아래": "lower left", "좌하단": "lower left",
                  "오른쪽 아래": "lower right", "우하단": "lower right", "가운데": "center",
                  "왼쪽 가운데": "center left", "오른쪽 가운데": "center right",
                  "위 가운데": "upper center", "아래 가운데": "lower center", "자동": "best",
-                 "없음": "none", "숨김": "none"}
+                 "없음": "none", "숨김": "none", "바깥": "outside right", "밖": "outside right",
+                 "그래프 밖": "outside right", "바깥 오른쪽": "outside right", "오른쪽 바깥": "outside right",
+                 "그래프 바깥 오른쪽": "outside right", "outside": "outside right", "right outside": "outside right",
+                 "바깥 아래": "outside bottom", "아래 바깥": "outside bottom", "bottom outside": "outside bottom",
+                 "outside below": "outside bottom", "below": "outside bottom"}
 
 COMBINE_COLORS = ["#1f4e9c", "#c0392b", "#2e8b57", "#d4881c", "#7b3fa0", "#17a2b8",
                   "#8c564b", "#e377c2", "#555555", "#9aa31b"]
@@ -279,10 +308,15 @@ def _normalize_axis(name, d):
                 raise PlotkitError(f"{name}.{k} must be [min, max]")
             out["min"], out["max"] = v
             continue
+        if name == "x" and k2 == "flip":         # x has no data sign: flip means a reversed axis
+            k2, v = "invert", v not in (False, None, "none", "no")
         if k2 not in allowed:
             raise PlotkitError(f'unknown key "{name}.{k}".{_suggest(k2, allowed)}',
                                f"allowed keys for {name}: {', '.join(sorted(allowed))}")
         out[k2] = v
+    for k in ("minor", "invert"):
+        if k in out:
+            out[k] = out[k] not in (False, None, "none", "no", 0)
     for k in ("min", "max", "step", "width", "label_size", "tick_size"):
         if k in out:
             out[k] = _num(out[k], f"{name}.{k}")
@@ -475,9 +509,33 @@ def normalize_spec(user):
                                        f"allowed: {', '.join(DEFAULTS[k])}")
             spec[k].update(u[k])
     for k in ("file", "sheets", "grid", "size", "dpi", "font", "font_size", "combine",
-              "text_color", "tick_direction", "code"):
+              "text_color", "tick_direction", "code", "data_code", "asks", "names", "offset", "panels"):
         if k in u:
             spec[k] = u[k]
+    if u.get("colors") is not None:
+        c = u["colors"]
+        if isinstance(c, str) and c.lower() in ("mono", "흑백", "bw", "black and white", "grayscale"):
+            c = ["black", "#666666", "#999999", "#333333", "#bbbbbb", "#555555"]
+        if isinstance(c, dict):
+            c = list(c.values())
+        c = c if isinstance(c, list) else [c]
+        spec["colors"] = [_color(x, f"colors[{i}]") for i, x in enumerate(c)]
+    if spec["names"] is not None and not isinstance(spec["names"], list):
+        spec["names"] = [spec["names"]]
+    if spec["offset"] is not None:
+        spec["offset"] = _num(spec["offset"], "offset")
+    if spec["panels"] not in (None, False):
+        pv = str(spec["panels"]).lower()
+        if pv in ("true", "split", "stacked", "2", "two", "위아래", "separate", "subplots", "vertical"):
+            spec["panels"] = "split"
+        else:
+            raise PlotkitError(f'panels {spec["panels"]!r} unknown', 'use "split" (y1 above, y2 below)')
+    else:
+        spec["panels"] = None
+    if isinstance(spec["data_code"], list):
+        spec["data_code"] = "\n".join(spec["data_code"])
+    if not isinstance(spec["asks"], list):
+        spec["asks"] = [spec["asks"]]
     if u.get("echarts") not in (None, {}, False):
         from plotkit_echarts import validate_patch        # the allowlist lives with the engine
         spec["echarts"] = validate_patch(u["echarts"])
@@ -528,8 +586,7 @@ def normalize_spec(user):
     spec["tick_direction"] = td
     if isinstance(spec["code"], list):
         spec["code"] = "\n".join(spec["code"])
-    if isinstance(spec["file"], str):
-        spec["file"] = [spec["file"]]
+    spec["file"] = expand_files(spec["file"] if isinstance(spec["file"], list) else [spec["file"]])
     fmts = spec["output"]["format"]
     fmts = [fmts] if isinstance(fmts, str) else list(fmts)
     fmts = [f.lower().lstrip(".").replace("jpeg", "jpg").replace("tiff", "tif") for f in fmts]
@@ -538,6 +595,22 @@ def normalize_spec(user):
             raise PlotkitError(f"output.format {f!r} not supported", "use png, pdf, svg, jpg or tif")
     spec["output"]["format"] = fmts
     return spec
+
+
+def expand_files(files):
+    """File names with * or ? become the matching files, sorted; others stay as they are."""
+    import glob
+    out = []
+    for f in files:
+        f = str(f)
+        if any(c in f for c in "*?["):
+            hits = sorted(glob.glob(f))
+            if not hits:
+                raise PlotkitError(f"no file matches {f}", "check the folder and the pattern")
+            out += hits
+        else:
+            out.append(f)
+    return out
 
 
 # =================================================================== reading
@@ -602,18 +675,18 @@ def _read_text(path, ro):
     tail = nonblank[-60:] if len(nonblank) > 60 else nonblank
     sep = ro.get("sep")
     sep = {"tab": "\t", "\\t": "\t", "space": "space", "whitespace": "space", " ": "space"}.get(sep, sep)
-    if sep is None:
+    if sep is None:                                 # the most lines with the same count wins (preamble/footer lines may differ)
         for cand in ("\t", ";", ",", "|"):
             counts = [ln.count(cand) for ln in tail]
-            if counts and min(counts) >= 1:
+            if counts:
                 mode = max(set(counts), key=counts.count)
-                if counts.count(mode) >= 0.8 * len(counts):
+                if mode >= 1 and counts.count(mode) >= 0.7 * len(counts):
                     sep = cand
                     break
         sep = sep or "space"
     decimal = ro.get("decimal")
     if decimal is None:
-        sample = " ".join(tail)
+        sample = re.sub(r"\b\d{4}[./-]\d{1,2}[./-]\d{1,2}\b|\b\d{1,2}:\d{2}(:\d{2})?\b", " ", " ".join(tail))
         decimal = "," if (sep != "," and re.search(r"(?<![\d.])-?\d+,\d+(?![\d.])", sample)
                           and not re.search(r"\d\.\d", sample)) else "."
     rows = []
@@ -1075,7 +1148,7 @@ def _draw_series(ax, X, Y, s, color, label):
 LABEL_BOX = dict(boxstyle="round,pad=0.25", fc="white", ec="none", alpha=0.85)
 
 
-def _place_labels(fig, labels, box_peaks=False, obstacles=()):
+def _place_labels(fig, labels, box_peaks=False, obstacles=(), host=None):
     """Draw the residue and peak labels collected by _annotate so that none overlap.
 
     A single residue label keeps its usual spot, 40 pt above (or below) its point, nudged
@@ -1089,7 +1162,7 @@ def _place_labels(fig, labels, box_peaks=False, obstacles=()):
     that no curve is drawn over them."""
     from matplotlib.font_manager import FontProperties
     r = fig.canvas.get_renderer()
-    top = fig.axes[-1]
+    top = host or fig.axes[-1]
     area = top.bbox                                # the plot area, display pixels
     pt = fig.dpi / 72                              # points -> display pixels
     gap = 2 * pt
@@ -1227,7 +1300,7 @@ def _within(ax, x, y):
 
 
 def _annotate(ax_for, name, a, data, color_for, results, labels, sheet, combine_color=None,
-              text_color="black", stack=0, cols=None, text_all=False):
+              text_color="black", stack=0, cols=None, text_all=False, yoff=0.0):
     """Draw one annotation. Residue and peak labels go to `labels` for _place_labels.
 
     text_all: the user set text_color, so label text uses it instead of the line colour."""
@@ -1255,13 +1328,13 @@ def _annotate(ax_for, name, a, data, color_for, results, labels, sheet, combine_
         unit = _unit(cols[on]["name"]) if cols and on in cols else None
         if a.get("_preset_text") and unit and not _same_unit(unit, "%"):   # e.g. a y1 column in mg
             text = text.replace("{y:.1f}%", "{y:.3g} " + unit)
-        label = _fmt(text, xu, yv, "y")
+        label = _fmt(text, xu, yv - (yoff if on == "y1" else 0.0), "y")      # offset curves keep their real values
         ax.plot([xu], [yv], "o", ms=6, mfc="white", mec=col, mew=1.6, zorder=5,
                 clip_on=not _within(ax, xu, yv))          # whole, even on the edge of the plot
         labels.append({"kind": "value", "name": name, "ax": ax, "xy": (xu, yv), "text": label,
                        "color": col, "text_color": tcol, "size": fs})
         results.append({"name": name, "sheet": sheet, "x_requested": a["x"], "x_used": round(xu, 3),
-                        "value": round(yv, 4), "text": label})
+                        "value": round(yv - (yoff if on == "y1" else 0.0), 4), "text": label})
     elif t == "peak":
         kind = a.get("kind", "max")
         peaks = find_peaks_xy(data["x"], data[on], a.get("count", 1), kind,
@@ -1301,6 +1374,12 @@ def _annotate(ax_for, name, a, data, color_for, results, labels, sheet, combine_
                                       textcoords="offset points", ha="center", va="top", fontsize=fs,
                                       color=a.get("color") or (text_color if text_all else "gray"))
         results.append({"name": name, "sheet": sheet, "x_min": a["x_min"], "x_max": a["x_max"]})
+    elif t == "text" and a.get("x") is not None and a.get("y") is not None:
+        tax = ax_for.get(on, ax_for["y1"])
+        tax.plot([a["x"]], [a["y"]], "o", ms=3.5, color=a.get("color") or text_color, zorder=5)
+        tax.annotate(a.get("text", ""), xy=(a["x"], a["y"]), xytext=(5, 5), textcoords="offset points",
+                     ha="left", va="bottom", fontsize=fs, color=a.get("color") or text_color, bbox=LABEL_BOX)
+        results.append({"name": name, "sheet": sheet, "text": a.get("text", ""), "x": a["x"], "y": a["y"]})
     elif t == "text":
         where = a.get("where", "upper right")
         pos = {"upper left": (0.02, 0.97, "left", "top"), "upper right": (0.98, 0.97, "right", "top"),
@@ -1387,11 +1466,60 @@ def build_jobs(spec):
             continue
         for role in data:
             data[role] = data[role][ok]
+        marks = {}
+        if spec.get("data_code"):
+            data, marks = run_data_code(spec, data, n)
         jobs.append({"file": f, "sheet": n, "cols": cols, "how": how, "data": data,
-                     "rows": int(ok.sum())})
+                     "rows": int(len(data["x"])), "marks": marks, "yoff": 0.0})
     if not jobs:
         raise PlotkitError("nothing to plot", "; ".join(warnings) or "check the file")
+    if spec.get("combine") and spec.get("offset"):
+        for k, j in enumerate(jobs):
+            j["yoff"] = k * spec["offset"]
+            j["data"]["y1"] = j["data"]["y1"] + j["yoff"]
     return jobs, warnings
+
+
+def run_data_code(spec, data, sheet):
+    """The spec's data_code on one sheet's arrays, in a sandbox. Returns (data, marks)."""
+    import sandbox
+    names = ["x", "y1", "y2", "marks"]
+    out = sandbox.run(spec["data_code"], {"x": data["x"].copy(), "y1": data["y1"].copy(),
+                                          "y2": data["y2"].copy() if "y2" in data else None,
+                                          "sheet": sheet, "marks": []}, names,
+                      hint="names: x, y1, y2 (numpy arrays), sheet, np, marks (a list); reassign x/y1/y2 to change the curve")
+    new = {}
+    for role in ("x", "y1", "y2"):
+        if role not in data:
+            continue
+        v = out.get(role)
+        try:
+            v = np.asarray(v, dtype=float).ravel()
+        except (TypeError, ValueError):
+            raise PlotkitError(f"data_code left {role} as something that is not numbers")
+        new[role] = v
+    n = len(new["x"])
+    for role, v in new.items():
+        if len(v) != n:
+            raise PlotkitError(f"data_code: {role} has {len(v)} values but x has {n}", "keep x, y1 and y2 the same length")
+    ok = np.isfinite(new["x"]) & np.isfinite(new["y1"])
+    new = {r: v[ok] for r, v in new.items()}
+    raw = out.get("marks") or []
+    if not isinstance(raw, list):
+        raise PlotkitError("data_code: marks must be a list of dicts")
+    marks = {}
+    for i, m in enumerate(raw, 1):
+        if not isinstance(m, dict):
+            raise PlotkitError("data_code: each mark must be a dict like {'type': 'vline', 'x': 605, 'text': 'Onset 605 °C'}")
+        m = {k: (float(v) if isinstance(v, (np.floating, np.integer)) else v) for k, v in m.items()}
+        ann, _ = _normalize_annotations({f"mark{i}": m})
+        d = ann[f"mark{i}"]
+        d.setdefault("type", "text")
+        need = {"vline": "x", "hline": "y"}.get(d["type"])
+        if need and d.get(need) is None:
+            raise PlotkitError(f'data_code: a {d["type"]} mark needs "{need}"')
+        marks[f"mark{i}"] = d
+    return new, marks
 
 
 def output_target(spec):
@@ -1405,8 +1533,8 @@ def output_target(spec):
 
 def figure_title(spec, first):
     title_tpl = spec["title"].get("text") or ""
-    if spec["combine"] and title_tpl == "{sheet}":
-        title_tpl = "{file}"
+    if spec["combine"] and title_tpl == "{sheet}":     # several sheets: their names are in the legend; no file-name title
+        title_tpl = ""
     return title_tpl.replace("{sheet}", first["sheet"]).replace("{file}", Path(first["file"]).stem)
 
 
@@ -1429,6 +1557,14 @@ def plot(user_spec, engine=None):
     """Make the plots. Returns a result dict (also printed as JSON by the CLI).
 
     engine: "matplotlib" (default) or "echarts"; when None, $PLOTKIT_ENGINE decides."""
+    if isinstance(user_spec, dict) and any(k in user_spec for k in ("chart", "kind", "chart_type")):
+        import chartkit
+        return chartkit.plot(user_spec, engine=engine)
+    if isinstance(user_spec, dict) and user_spec.get("file"):
+        import chartkit                            # a log with a date/time x is drawn as a chart line
+        alt = chartkit.curve_as_chart(user_spec)
+        if alt:
+            return chartkit.plot(alt, engine=engine)
     if engine_name(engine) == "echarts":
         from plotkit_echarts import plot_echarts
         return plot_echarts(user_spec)
@@ -1454,28 +1590,32 @@ def plot(user_spec, engine=None):
         title = figure_title(spec, first)
         texts = [title] + [spec[r].get("label") or "" for r in ("x", "y1", "y2")] + \
                 [j["sheet"] for j in group] + [c["name"] for j in group for c in j["cols"].values()] + \
-                [a.get("text") or "" for a in spec["annotate"].values()]
+                [a.get("text") or "" for a in spec["annotate"].values()] + [str(n) for n in spec.get("names") or []] + \
+                [str(a.get("text") or "") for j in group for a in j.get("marks", {}).values()]
         w = _setup_fonts(spec, texts)
         if w and w not in warnings:
             warnings.append(w)
         tc = spec["text_color"]
 
-        fig, ax1 = plt.subplots(figsize=tuple(spec["size"]), dpi=spec["dpi"])
         has_y2 = all("y2" in j["data"] for j in group)
-        ax2 = ax1.twinx() if has_y2 else None
+        split = bool(spec["panels"]) and has_y2
+        if split:
+            fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True, figsize=tuple(spec["size"]), dpi=spec["dpi"],
+                                           gridspec_kw={"height_ratios": [1.25, 1], "hspace": 0.08})
+        else:
+            fig, ax1 = plt.subplots(figsize=tuple(spec["size"]), dpi=spec["dpi"])
+            ax2 = ax1.twinx() if has_y2 else None
         axes = {"y1": ax1}
         if ax2 is not None:
             axes["y2"] = ax2
         handles = []
         allx = np.concatenate([j["data"]["x"] for j in group])
         for k, j in enumerate(group):
-            c1 = COMBINE_COLORS[k % len(COMBINE_COLORS)] if spec["combine"] else spec["y1"]["color"]
-            c2 = c1 if spec["combine"] else spec["y2"]["color"]
-            lab1 = j["sheet"] if spec["combine"] else (spec["y1"].get("legend") or _labels(spec, "y1", j["cols"]["y1"]))
+            c1, c2, lab1 = series_style(spec, j, k)
             handles.append(_draw_series(ax1, j["data"]["x"], j["data"]["y1"], spec["y1"], c1, lab1))
             if ax2 is not None:
                 s2 = dict(spec["y2"])
-                if spec["combine"]:
+                if spec["combine"] and not split:
                     s2["linestyle"] = "dashed"
                 lab2 = None if spec["combine"] else (spec["y2"].get("legend") or _labels(spec, "y2", j["cols"]["y2"]))
                 h = _draw_series(ax2, j["data"]["x"], j["data"]["y2"], s2, c2, lab2)
@@ -1502,7 +1642,7 @@ def plot(user_spec, engine=None):
             ax.tick_params(axis="x" if which == "x" else "y", **tk)
             return line_c
 
-        axis_text("x", ax1, "x")
+        axis_text("x", ax2 if split else ax1, "x")
         _apply_axis(ax1, "x", spec["x"], np.nanmin(allx), np.nanmax(allx), 0, 0, tight=True)
         y1all = np.concatenate([j["data"]["y1"] for j in group])
         _apply_axis(ax1, "y", spec["y1"], np.nanmin(y1all), np.nanmax(y1all), 0.08, 0.12)
@@ -1512,21 +1652,23 @@ def plot(user_spec, engine=None):
             y2all = np.concatenate([j["data"]["y2"] for j in group])
             _apply_axis(ax2, "y", spec["y2"], np.nanmin(y2all), np.nanmax(y2all), 0.12, 0.18)
             c_right = axis_text("y2", ax2, "y")
-            if c_left:
+            if c_left and not split:
                 ax2.spines["left"].set_color(c_left)
-            if c_right:
+            if c_right and not split:
                 ax2.spines["right"].set_color(c_right)
         for a in axes.values():
             a.tick_params(direction=spec["tick_direction"])
+        _axis_extras(spec, ax1, ax2, split)
         if spec["grid"]:
             ax1.grid(True, alpha=0.3)
 
         ann_results, labels = [], []
         for k, j in enumerate(group):
-            for name, a in spec["annotate"].items():
+            for name, a in list(spec["annotate"].items()) + list(j.get("marks", {}).items()):
                 _annotate(axes, name, a, j["data"], j["colors"], ann_results, labels, j["sheet"],
                           combine_color=j["colors"]["y1"] if spec["combine"] else None,
-                          text_color=tc, stack=k, cols=j["cols"], text_all=spec["_text_color_set"])
+                          text_color=tc, stack=k, cols=j["cols"], text_all=spec["_text_color_set"],
+                          yoff=j.get("yoff", 0.0))
         lg = spec["legend"]
         leg = None
         if lg["show"]:
@@ -1534,8 +1676,15 @@ def plot(user_spec, engine=None):
                 from matplotlib.lines import Line2D
                 handles = handles + [Line2D([], [], color="gray", ls="-", label=_labels(spec, "y1", first["cols"]["y1"])),
                                      Line2D([], [], color="gray", ls="--", label=_labels(spec, "y2", first["cols"]["y2"]))]
-            leg = ax1.legend(handles=handles, loc=lg["where"], frameon=False,
-                             fontsize=lg["size"] or "small")
+            if lg["where"] == "outside right":
+                leg = ax1.legend(handles=handles, loc="center left", bbox_to_anchor=(1.02 if ax2 is None or split else 1.14, 0.5),
+                                 frameon=False, fontsize=lg["size"] or "small")
+            elif lg["where"] == "outside bottom":
+                leg = (ax2 if split else ax1).legend(handles=handles, loc="upper center", bbox_to_anchor=(0.5, -0.2),
+                                                     ncol=min(4, len(handles)), frameon=False, fontsize=lg["size"] or "small")
+            else:
+                leg = ax1.legend(handles=handles, loc=lg["where"], frameon=False,
+                                 fontsize=lg["size"] or "small")
             for t in leg.get_texts():
                 t.set_color(tc)
         if title:
@@ -1543,12 +1692,18 @@ def plot(user_spec, engine=None):
             if spec["title"].get("size"):
                 kw["fontsize"] = spec["title"]["size"]
             ax1.set_title(title, **kw)
-        fig.tight_layout()                         # final geometry first, so the labels can see the legend
+        with __import__("warnings").catch_warnings():
+            __import__("warnings").simplefilter("ignore")
+            fig.tight_layout()                     # final geometry first, so the labels can see the legend
         obstacles = []
         if leg is not None:
             e = leg.get_window_extent(fig.canvas.get_renderer())
             obstacles.append([e.x0, e.y0, e.x1, e.y1])
-        _place_labels(fig, labels, box_peaks=spec["combine"], obstacles=obstacles)
+        if split:                                  # each panel places its own labels
+            _place_labels(fig, [l for l in labels if l["ax"] is ax1], box_peaks=spec["combine"], obstacles=obstacles, host=ax1)
+            _place_labels(fig, [l for l in labels if l["ax"] is ax2], box_peaks=spec["combine"], host=ax2)
+        else:
+            _place_labels(fig, labels, box_peaks=spec["combine"], obstacles=obstacles)
 
         if spec["code"]:
             last = group[-1]
@@ -1565,6 +1720,8 @@ def plot(user_spec, engine=None):
 
         fname = file_stem(name_tpl, spec, first)
         outs = []
+        if leg is not None and lg["where"].startswith("outside"):
+            fit_outside_legend(fig, leg, lg["where"])
         for fmt in spec["output"]["format"]:
             p = outdir / f"{fname}.{fmt}"
             fig.savefig(p, dpi=spec["dpi"])
@@ -1581,7 +1738,70 @@ def plot(user_spec, engine=None):
             "annotations": ann_results,
         })
     _write_summary(outdir, results)
-    return {"ok": True, "output_dir": str(outdir), "plots": results, "warnings": warnings}
+    return {"ok": True, "output_dir": str(outdir), "plots": results, "warnings": warnings, "not_done": not_done(spec)}
+
+
+def fit_outside_legend(fig, leg, where):
+    """Shrink the plot so a legend outside it still fits in the figure (the file keeps the asked size)."""
+    fig.canvas.draw()
+    r = fig.canvas.get_renderer()
+    for _ in range(4):
+        bb = leg.get_window_extent(r).transformed(fig.transFigure.inverted())
+        pars = fig.subplotpars
+        if where == "outside right":
+            over = bb.x1 - 0.99
+            if over <= 0:
+                break
+            fig.subplots_adjust(right=pars.right - over - 0.005)
+        else:
+            over = 0.01 - bb.y0
+            if over <= 0:
+                break
+            fig.subplots_adjust(bottom=pars.bottom + over + 0.005)
+        fig.canvas.draw()
+
+
+def not_done(spec):
+    """The asks the model marked unsupported, to tell the user."""
+    return [str(a.get("ask", "")) for a in spec.get("asks") or []
+            if isinstance(a, dict) and str(a.get("how", "")).lower() in ("unsupported", "no", "none", "not_done")]
+
+
+def series_style(spec, j, k):
+    """(y1 colour, y2 colour, legend name) of sheet k; shared by both engines."""
+    if spec["combine"]:
+        cols = spec.get("colors") or COMBINE_COLORS
+        c1 = cols[k % len(cols)]
+        c2 = c1
+        names = spec.get("names") or []
+        lab1 = str(names[k]) if k < len(names) else (j["sheet"] if len(spec["file"]) == 1 else
+                                                      (Path(j["file"]).stem if len({Path(f).stem for f in spec["file"]}) > 1 else j["sheet"]))
+    else:
+        cols = spec.get("colors") or []
+        c1 = cols[0] if cols else spec["y1"]["color"]
+        c2 = cols[1] if len(cols) > 1 else spec["y2"]["color"]
+        names = spec.get("names") or []
+        lab1 = str(names[0]) if names else (spec["y1"].get("legend") or _labels(spec, "y1", j["cols"]["y1"]))
+    return c1, c2, lab1
+
+
+def _axis_extras(spec, ax1, ax2, split):
+    from matplotlib.ticker import AutoMinorLocator
+    for role, ax, which in (("x", ax1, "x"), ("y1", ax1, "y"), ("y2", ax2, "y")):
+        if ax is None:
+            continue
+        a = spec[role]
+        axis = ax.xaxis if which == "x" else ax.yaxis
+        if a.get("minor") and not a.get("log"):
+            axis.set_minor_locator(AutoMinorLocator())
+            ax.tick_params(axis=which, which="minor", direction=spec["tick_direction"], length=2)
+            if split and role == "x":
+                ax2.xaxis.set_minor_locator(AutoMinorLocator())
+        if a.get("invert"):
+            if which == "x":
+                ax1.invert_xaxis()           # shared by a twin or a lower panel
+            else:
+                ax.invert_yaxis()
 
 
 def _write_summary(outdir, results):

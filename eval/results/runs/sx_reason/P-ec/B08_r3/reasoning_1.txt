@@ -1,0 +1,6 @@
+We need answer user's request in Korean? User asks: "Raw 시트에 무게 50% 위치에 가로 보조선 넣고, 오른쪽 위에 '공기, 10 °C/min'이라고 메모해줘"
+Need output JSON spec only in ```json block. Need parse request.
+File cnt_batches.xlsx. Sheet Raw. TGA data default preset. Need add horizontal guide line at weight 50% on y1, and note text upper right "공기, 10 °C/min".
+Need use annotate dict new names. Horizontal line: {"hline1": {"type":"hline", "on":"y1", "y":50}} maybe text? User didn't specify text. Could include? Probably no text or maybe default? Need maybe no text. Note: {"note1": {"type":"text", "text":"공기, 10 °C/min", "where":"upper right"}}. Need sheets Raw. Keep default TGA. No other changes.
+Need ensure if mention 잔류량? no. So no residue.
+Need output only json block.

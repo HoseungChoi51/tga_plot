@@ -1,0 +1,11 @@
+We need answer user's request. Need produce JSON spec only in ```json block. Need analyze in English? User request English but guide Korean. Need satisfy: inspect caox.csv. Request: plot weight curve only (no DTG), x range 100 to 900, and label residue at 900 °C.
+
+Need create spec. File caox.csv. TGA data default preset includes y2 derivative. Need no DTG: "y2": false. x range: x min 100 max 900. residue label at 900: annotate residue x 900? Since data max temp 950, residue at 900 possible. Need include annotate residue because requested label residue. Use default residue text? Could just {"annotate": {"residue": {"x": 900}}}. Need maybe x col? tga_guess x B, y1 C. Default TGA preset likely uses guess. Since CSV one sheet. Could include preset? default TGA. For weight only, y2 false. x min max. Need maybe y2 false and annotate residue. Ensure no extra. JSON:
+{
+ "file": "caox.csv",
+ "x": {"min": 100, "max": 900},
+ "y2": false,
+ "annotate": {"residue": {"x": 900}}
+}
+
+Need consider if y2 false with residue? residue on y1. OK. Need maybe x label? no. Need output? no. Need only JSON block. Ensure no additional text.

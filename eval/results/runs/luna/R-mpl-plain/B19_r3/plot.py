@@ -1,0 +1,68 @@
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/B19_r3/out")
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+# 한글 표시
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+# PVC 시트의 온도 및 질량 데이터 읽기
+df = pd.read_excel(DATA_FILE, sheet_name="PVC")
+df.columns = [str(c).strip() for c in df.columns]
+
+temperature = pd.to_numeric(df["Temperature (°C)"], errors="coerce").to_numpy()
+weight = pd.to_numeric(df["Weight (%)"], errors="coerce").to_numpy()
+valid = np.isfinite(temperature) & np.isfinite(weight)
+temperature, weight = temperature[valid], weight[valid]
+
+# 지정 온도의 질량은 데이터 점 사이를 선형 보간해 계산
+order = np.argsort(temperature)
+temperature, weight = temperature[order], weight[order]
+weight_200 = float(np.interp(200, temperature, weight))
+weight_400 = float(np.interp(400, temperature, weight))
+mass_loss = weight_200 - weight_400
+
+fig, ax = plt.subplots(figsize=(9, 5.5))
+ax.plot(temperature, weight, color="#2878B5", linewidth=2, label="PVC 질량")
+ax.axvspan(200, 400, color="#F0A35E", alpha=0.18, label="분석 구간 (200–400 °C)")
+
+ax.scatter([200, 400], [weight_200, weight_400], color="#C44E52", zorder=4)
+ax.axvline(200, color="#777777", linestyle="--", linewidth=1)
+ax.axvline(400, color="#777777", linestyle="--", linewidth=1)
+
+# 질량 감소량을 두 점 사이의 수직 괄호와 주석으로 표시
+x_bracket = 425
+ax.annotate(
+    "",
+    xy=(x_bracket, weight_400),
+    xytext=(x_bracket, weight_200),
+    arrowprops=dict(arrowstyle="<->", color="#C44E52", linewidth=1.6),
+)
+ax.annotate(
+    f"질량 감소량: {mass_loss:.2f}%\n"
+    f"(200 °C: {weight_200:.2f}%, 400 °C: {weight_400:.2f}%)",
+    xy=(x_bracket, (weight_200 + weight_400) / 2),
+    xytext=(12, 0),
+    textcoords="offset points",
+    va="center",
+    color="#8C2D32",
+    fontsize=10,
+)
+
+ax.set_xlim(30, 900)
+ax.set_xlabel("온도 (°C)")
+ax.set_ylabel("질량 (%)")
+ax.set_title("PVC의 200–400 °C 구간 질량 감소")
+ax.grid(True, alpha=0.25)
+ax.legend(loc="best")
+fig.tight_layout()
+
+fig.savefig(OUT_DIR / "pvc_mass_loss_200_400C.png", dpi=300, bbox_inches="tight")
+plt.close(fig)

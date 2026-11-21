@@ -1,0 +1,130 @@
+import pandas as pd
+import numpy as np
+from scipy.signal import find_peaks
+import json
+
+# Load data
+df = pd.read_csv("/home/chs/Work/tga_plot/eval/inputs_b/xrd.csv")
+
+# Extract columns
+x = df['2Theta (deg)'].values
+y = df['Intensity (counts)'].values
+
+# Find top 5 peaks using scipy find_peaks
+# We need to find local maxima. Using a high prominence or height threshold might be needed depending on noise,
+# but generally we want the highest intensity points that are local maxima.
+peaks, properties = find_peaks(y, prominence=10) # Adjust prominence if necessary to filter noise
+
+if len(peaks) > 0:
+    # Get intensities at peaks
+    peak_intensities = y[peaks]
+    
+    # Sort by intensity descending and take top 5
+    sorted_indices = np.argsort(peak_intensities)[::-1][:5]
+    top_5_peak_indices = peaks[sorted_indices]
+    top_5_peak_values_x = x[top_5_peak_indices]
+    top_5_peak_values_y = y[top_5_peak_indices]
+else:
+    top_5_peak_values_x = []
+    top_5_peak_values_y = []
+
+# Prepare series data for ECharts line chart
+series_data = [[float(xi), float(yi)] for xi, yi in zip(x, y)]
+
+# Prepare markPoint data for the top 5 peaks
+mark_points = []
+for px, py in zip(top_5_peak_values_x, top_5_peak_values_y):
+    mark_points.append({
+        "coord": [float(px), float(py)],
+        "value": f"{px:.2f}"
+    })
+
+# Construct the ECharts option
+option = {
+    "backgroundColor": "#ffffff",
+    "title": {
+        "text": "XRD Pattern",
+        "left": "center",
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR"
+        }
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "formatter": "{a} <br/>2θ: {b} deg<br/>Intensity: {c} counts"
+    },
+    "grid": {
+        "left": "10%",
+        "right": "5%",
+        "bottom": "10%",
+        "containLabel": True
+    },
+    "xAxis": {
+        "type": "value",
+        "name": "2Theta (deg)",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "min": 10,
+        "max": 80,
+        "splitLine": {
+            "show": True,
+            "lineStyle": {
+                "type": "dashed"
+            }
+        }
+    },
+    "yAxis": {
+        "type": "value",
+        "name": "Intensity (counts)",
+        "nameLocation": "middle",
+        "nameGap": 40,
+        "splitLine": {
+            "show": True,
+            "lineStyle": {
+                "type": "dashed"
+            }
+        }
+    },
+    "series": [
+        {
+            "name": "Intensity",
+            "type": "line",
+            "data": series_data,
+            "smooth": False,
+            "symbol": "none",
+            "lineStyle": {
+                "color": "#1f77b4",
+                "width": 1.5
+            },
+            "markPoint": {
+                "symbolSize": 6,
+                "itemStyle": {
+                    "color": "#d62728"
+                },
+                "label": {
+                    "show": True,
+                    "position": "top",
+                    "formatter": "{c}",
+                    "fontSize": 10,
+                    "fontFamily": "Noto Sans CJK KR"
+                },
+                "data": mark_points
+            }
+        }
+    ]
+}
+
+output = {
+    "figures": [
+        {
+            "name": "xrd_pattern",
+            "option": option,
+            "width": 800,
+            "height": 500,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+    ]
+}
+
+print(json.dumps(output))

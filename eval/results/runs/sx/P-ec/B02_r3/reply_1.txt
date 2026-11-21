@@ -1,0 +1,25 @@
+```json
+{
+  "file": "caox.csv",
+  "y2": {
+    "col": "E",
+    "label": "Heat Flow (W/g)"
+  },
+  "annotate": {
+    "peak_endo1": {
+      "type": "peak",
+      "on": "y2",
+      "kind": "max",
+      "count": 2,
+      "text": "{x:.0f} °C"
+    },
+    "peak_exo1": {
+      "type": "peak",
+      "on": "y2",
+      "kind": "min",
+      "count": 1,
+      "text": "{x:.0f} °C"
+    }
+  }
+}
+```

@@ -1,0 +1,9 @@
+We need answer user's request with JSON spec only inside ```json block. Need analyze. User Korean: "PVC 시트에서 무게가 확 꺾이는 데 두 군데 온도 표시해줘" Means in PVC sheet, mark temperatures at two places where weight sharply drops? Need map to plotkit spec.
+
+Data TGA. Request: PVC 시트에서 무게가 확 꺾이는 데 두 군데 온도 표시해줘. "무게가 확 꺾이는 데" likely derivative peaks (DTG peaks) where weight loss rate maximum. "두 군데 온도 표시" -> peak count 2? Need sheet PVC. Use default TGA preset. Need annotate peak count 2? But peak by default on y2, shows temperature. "무게가 확 꺾이는 데" could mean weight curve inflection / derivative peaks. So annotate peak count 2. Could also require x_min? Not specified. Maybe peak on y2 with count=2. Since data min negative, default peaks pointing up? Wait guide says default TGA preset already draws y2 derivative weight with peaks pointing up. In inspect D min negative, max positive tiny. TGA derivative weight often negative? But guide says peaks pointing up maybe sign inverted? Need not worry.
+
+Need include sheet PVC. Need maybe y2? default yes. Need annotate: {"peak": {"count": 2}}. Should we mention residue? User didn't mention residue, so no. Need output only JSON. File polymers.xlsx. Could include sheets "PVC". Need ensure "두 군데" count 2. Maybe "무게가 확 꺾이는 데" means weight curve has two steep drops, so annotate peaks on y1? But peak annotation on y2 default. If they want temperature where weight sharply decreases, peak on derivative. Good.
+
+Potential issue: In PVC, derivative weight has negative values (min -1.051, max 0.0025). If peaks are pointing up, maybe preset uses -y2? But not our concern.
+
+Need final with json block only. Ensure no extra text.

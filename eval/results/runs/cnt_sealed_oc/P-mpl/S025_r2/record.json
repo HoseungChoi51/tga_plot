@@ -1,0 +1,104 @@
+{
+ "arm": "P-mpl",
+ "item": "S025",
+ "repeat": 2,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "raman 폴더 8개 파일 각각 I_G/I_D를 계산해서 막대그래프로, 높은 순으로 정렬해 주세요. 베이스라인 보정 없이 피크 높이비로요: I_G는 1550–1620 cm⁻¹ 최대값, I_D는 1300–1400 cm⁻¹ 최대값입니다.",
+   "calls": [
+    {
+     "reply": "```json\n{\"file\": \"data/raman/*.csv\", \"chart\": \"bar\", \"x\": \"name\", \"y\": {\"col\": \"ratio\", \"agg\": \"first\"}, \"sort\": \"desc\", \"values\": true, \"title\": \"I_G/I_D Ratio by Sample\", \"asks\": [{\"ask\": \"8개 파일 I_G/I_D 계산\", \"how\": \"data_code\"}, {\"ask\": \"막대그래프로\", \"how\": \"key\"}, {\"ask\": \"높은 순으로 정렬\", \"how\": \"key\"}], \"data_code\": \"import glob\\nimport numpy as np\\nimport pandas as pd\\n\\ndfs = []\\nfor f in sorted(glob.glob('data/raman/*.csv')):\\n    df_file = pd.read_csv(f)\\n    x_col = df_file.columns[0]\\n    y_col = df_file.columns[1]\\n    \\n    # Peak heights (no baseline correction)\\n    mask_d = (df_file[x_col] >= 1300) & (df_file[x_col] <= 1400)\\n    mask_g = (df_file[x_col] >= 1550) & (df_file[x_col] <= 1620)\\n    \\n    i_d = df_file.loc[mask_d, y_col].max()\\n    i_g = df_file.loc[mask_g, y_col].max()\\n    \\n    ratio = i_g / i_d if i_d != 0 else 0\\n    name = f.split('/')[-1].replace('.csv', '')\\n    \\n    dfs.append({'name': name, 'ratio': ratio})\\n\\ndf = pd.DataFrame(dfs)\"}\n```",
+     "llm_s": 6.774,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 17787,
+     "output_chars": 982,
+     "attempts": 1
+    },
+    {
+     "reply": "```json\n{\"file\": \"data/raman/*.csv\", \"chart\": \"bar\", \"x\": \"name\", \"y\": {\"col\": \"ratio\", \"agg\": \"first\"}, \"sort\": \"desc\", \"values\": true, \"title\": \"I_G/I_D Ratio by Sample\", \"asks\": [{\"ask\": \"8개 파일 I_G/I_D 계산\", \"how\": \"data_code\"}, {\"ask\": \"막대그래프로\", \"how\": \"key\"}, {\"ask\": \"높은 순으로 정렬\", \"how\": \"key\"}], \"data_code\": \"import glob\\nimport numpy as np\\nimport pandas as pd\\n\\ndfs = []\\nfor f in sorted(glob.glob('data/raman/*.csv')):\\n    df_file = pd.read_csv(f)\\n    x_col = df_file.columns[0]\\n    y_col = df_file.columns[1]\\n    \\n    # Peak heights (no baseline correction)\\n    mask_d = (df_file[x_col] >= 1300) & (df_file[x_col] <= 1400)\\n    mask_g = (df_file[x_col] >= 1550) & (df_file[x_col] <= 1620)\\n    \\n    i_d = df_file.loc[mask_d, y_col].max()\\n    i_g = df_file.loc[mask_g, y_col].max()\\n    \\n    ratio = i_g / i_d if i_d != 0 else 0\\n    name = f.split('/')[-1].replace('.csv', '')\\n    \\n    dfs.append({'name': name, 'ratio': ratio})\\n\\ndf = pd.DataFrame(dfs)\\ndf['Raman Shift (cm-1)'] = df['name']\"}\n```",
+     "llm_s": 5.207,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 19199,
+     "output_chars": 1021,
+     "attempts": 1
+    },
+    {
+     "reply": "```json\n{\"file\": \"data/raman/*.csv\", \"chart\": \"bar\", \"x\": \"name\", \"y\": {\"col\": \"ratio\", \"agg\": \"first\"}, \"sort\": \"desc\", \"values\": true, \"title\": \"I_G/I_D Ratio by Sample\", \"asks\": [{\"ask\": \"8개 파일 I_G/I_D 계산\", \"how\": \"data_code\"}, {\"ask\": \"막대그래프로\", \"how\": \"key\"}, {\"ask\": \"높은 순으로 정렬\", \"how\": \"key\"}], \"data_code\": \"import glob\\nimport numpy as np\\nimport pandas as pd\\n\\ndfs = []\\nfor f in sorted(glob.glob('data/raman/*.csv')):\\n    df_file = pd.read_csv(f)\\n    x_col = df_file.columns[0]\\n    y_col = df_file.columns[1]\\n    \\n    # Peak heights (no baseline correction)\\n    mask_d = (df_file[x_col] >= 1300) & (df_file[x_col] <= 1400)\\n    mask_g = (df_file[x_col] >= 1550) & (df_file[x_col] <= 1620)\\n    \\n    i_d = df_file.loc[mask_d, y_col].max()\\n    i_g = df_file.loc[mask_g, y_col].max()\\n    \\n    ratio = i_g / i_d if i_d != 0 else 0\\n    name = f.split('/')[-1].replace('.csv', '')\\n    \\n    dfs.append({'name': name, 'ratio': ratio})\\n\\ndf = pd.DataFrame(dfs)\"}\n```",
+     "llm_s": 4.992,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 20540,
+     "output_chars": 982,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/raman/*.csv",
+    "chart": "bar",
+    "x": "name",
+    "y": {
+     "col": "ratio",
+     "agg": "first"
+    },
+    "sort": "desc",
+    "values": true,
+    "title": "I_G/I_D Ratio by Sample",
+    "asks": [
+     {
+      "ask": "8개 파일 I_G/I_D 계산",
+      "how": "data_code"
+     },
+     {
+      "ask": "막대그래프로",
+      "how": "key"
+     },
+     {
+      "ask": "높은 순으로 정렬",
+      "how": "key"
+     }
+    ],
+    "data_code": "import glob\nimport numpy as np\nimport pandas as pd\n\ndfs = []\nfor f in sorted(glob.glob('data/raman/*.csv')):\n    df_file = pd.read_csv(f)\n    x_col = df_file.columns[0]\n    y_col = df_file.columns[1]\n    \n    # Peak heights (no baseline correction)\n    mask_d = (df_file[x_col] >= 1300) & (df_file[x_col] <= 1400)\n    mask_g = (df_file[x_col] >= 1550) & (df_file[x_col] <= 1620)\n    \n    i_d = df_file.loc[mask_d, y_col].max()\n    i_g = df_file.loc[mask_g, y_col].max()\n    \n    ratio = i_g / i_d if i_d != 0 else 0\n    name = f.split('/')[-1].replace('.csv', '')\n    \n    dfs.append({'name': name, 'ratio': ratio})\n\ndf = pd.DataFrame(dfs)"
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": false,
+    "error": "no rows left after the filters",
+    "hint": "filters: []; check the values with preview"
+   },
+   "facts": [],
+   "draw_s": 0.4381906986236572,
+   "check": {
+    "kind_expected": "bar",
+    "failed": [
+     "run: no plot (no rows left after the filters)"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 18.439
+  }
+ ]
+}

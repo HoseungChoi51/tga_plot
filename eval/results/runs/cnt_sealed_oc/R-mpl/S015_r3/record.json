@@ -1,0 +1,237 @@
+{
+ "arm": "R-mpl",
+ "item": "S015",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "생산팀장",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "가동시간 분포 히스토그램 부탁해요. 1시간 간격으로 2~17 h 범위로요. 중간에 끊긴 런이 얼마나 되는지 보려고 합니다.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the Excel file\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Extract operating time data\noperating_times = df['가동시간 (h)'].dropna()\n\n# Define histogram bins: 2 to 17 with interval of 1\nbins = np.arange(2, 18, 1)\n\n# Create the plot\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# Plot histogram\nax.hist(operating_times, bins=bins, edgecolor='black', alpha=0.7, color='#4C72B0')\n\n# Labels and Title\nax.set_xlabel('가동시간 (h)', fontsize=12)\nax.set_ylabel('빈도 수 (Count)', fontsize=12)\nax.set_title('가동시간 분포 히스토그램', fontsize=14)\n\n# Add grid for better readability\nax.grid(axis='y', linestyle='--', alpha=0.5)\n\n# Adjust layout\nplt.tight_layout()\n\n# Save the figure\noutput_file = os.path.join(OUT_DIR, \"operating_time_histogram.png\")\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\n\n# Close the plot to prevent display\nplt.close(fig)\n\nprint(f\"Plot saved to {output_file}\")\n```",
+     "llm_s": 6.324,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 3793,
+     "output_chars": 1194,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the Excel file\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Identify the correct column name for operating time\n# The preview shows 'P 가동시간 (h)', but actual headers might vary slightly (e.g., extra spaces, different parentheses)\ncol_candidates = [c for c in df.columns if '가동시간' in str(c)]\nif not col_candidates:\n    raise ValueError(\"Column containing '가동시간' not found.\")\noperating_time_col = col_candidates[0]\n\n# Extract operating time data\noperating_times = df[operating_time_col].dropna()\n\n# Define histogram bins: 2 to 17 with interval of 1\n# To include values up to 17, we need bins up to 18 or ensure the last bin covers it properly.\n# np.arange(2, 18, 1) creates edges: 2, 3, ..., 17. This means the last bin is [16, 17).\n# If there are runs exactly at 17.0 or slightly above, they might be excluded depending on how we define the range.\n# The request says \"2~17 h range\". Let's create bins from 2 to 17 inclusive.\n# Bins edges: 2, 3, 4, ..., 17, 18? No, usually histogram bins are half-open [left, right).\n# To cover 2-17, we can use bins = np.arange(2, 18, 1) which gives intervals [2,3), [3,4)... [16,17), [17,18)? \n# Wait, np.arange(2, 18, 1) produces array([ 2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17]).\n# If passed to hist, these are bin edges. The last bin will be [16, 17). Values >= 17 will not be counted in the last bar unless we add an edge at 18.\n# Given the data max is 16.5, using edges up to 17 is fine, but let's make sure the axis reflects 2-17 clearly.\nbins = np.arange(2, 18, 1) \n\n# Create the plot\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# Plot histogram\nax.hist(operating_times, bins=bins, edgecolor='black', alpha=0.7, color='#4C72B0')\n\n# Labels and Title\nax.set_xlabel('가동시간 (h)', fontsize=12)\nax.set_ylabel('빈도 수 (Count)', fontsize=12)\nax.set_title('가동시간 분포 히스토그램', fontsize=14)\n\n# Add grid for better readability\nax.grid(axis='y', linestyle='--', alpha=0.5)\n\n# Adjust layout\nplt.tight_layout()\n\n# Save the figure\noutput_file = os.path.join(OUT_DIR, \"operating_time_histogram.png\")\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\n\n# Close the plot to prevent display\nplt.close(fig)\n\nprint(f\"Plot saved to {output_file}\")\n```",
+     "llm_s": 20.619,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 6494,
+     "output_chars": 2512,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the Excel file\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Identify the correct column name for operating time\ncol_candidates = [c for c in df.columns if '가동시간' in str(c)]\nif not col_candidates:\n    raise ValueError(\"Column containing '가동시간' not found.\")\noperating_time_col = col_candidates[0]\n\n# Extract operating time data and ensure it is numeric\noperating_times = pd.to_numeric(df[operating_time_col], errors='coerce').dropna()\n\n# Define histogram bins: 2 to 17 with interval of 1\n# We want bars centered or edges at integers. \n# To show distribution from 2h to 17h clearly with 1h gaps, we define edges:\n# 2, 3, ..., 17, 18? No, the request says range 2~17. \n# If a run is 16.5h, it falls into [16, 17). \n# Let's use edges that create bins [2,3), [3,4), ..., [16,17), [17,18) maybe? \n# The user asked for \"1시간 간격으로 2~17 h 범위\". This usually means bins covering this span.\n# Data max is 16.5. So bins up to 17 are sufficient.\n# Edges: 2, 3, 4, ..., 17. This creates 15 bins. \n# The last bin is [16, 17). Since max is 16.5, this covers all data > 2.\nbins = np.arange(2, 18, 1) \n\n# Create the plot\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# Plot histogram\nax.hist(operating_times, bins=bins, edgecolor='black', alpha=0.7, color='#4C72B0')\n\n# Labels and Title\nax.set_xlabel('가동시간 (h)', fontsize=12)\nax.set_ylabel('빈도 수 (Count)', fontsize=12)\nax.set_title('가동시간 분포 히스토그램', fontsize=14)\n\n# Add grid for better readability\nax.grid(axis='y', linestyle='--', alpha=0.5)\n\n# Adjust layout\nplt.tight_layout()\n\n# Save the figure\noutput_file = os.path.join(OUT_DIR, \"operating_time_histogram.png\")\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\n\n# Close the plot to prevent display\nplt.close(fig)\n\nprint(f\"Plot saved to {output_file}\")\n```",
+     "llm_s": 11.841,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 10523,
+     "output_chars": 2065,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the Excel file\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Identify the correct column name for operating time\ncol_candidates = [c for c in df.columns if '가동시간' in str(c)]\nif not col_candidates:\n    raise ValueError(\"Column containing '가동시간' not found.\")\noperating_time_col = col_candidates[0]\n\n# Extract operating time data and ensure it is numeric\noperating_times = pd.to_numeric(df[operating_time_col], errors='coerce').dropna()\n\n# Define histogram bins: 2 to 17 with interval of 1\n# We want bars centered or edges at integers. \n# To show distribution from 2h to 17h clearly with 1h gaps, we define edges:\n# 2, 3, ..., 17, 18? No, the request says range 2~17. \n# If a run is 16.5h, it falls into [16, 17). \n# Let's use edges that create bins [2,3), [3,4), ..., [16,17), [17,18) maybe? \n# The user asked for \"1시간 간격으로 2~17 h 범위\". This usually means bins covering this span.\n# Data max is 16.5. So bins up to 17 are sufficient.\n# Edges: 2, 3, 4, ..., 17. This creates 15 bins. \n# The last bin is [16, 17). Since max is 16.5, this covers all data > 2.\nbins = np.arange(2, 18, 1) \n\n# Create the plot\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# Plot histogram\nax.hist(operating_times, bins=bins, edgecolor='black', alpha=0.7, color='#4C72B0')\n\n# Labels and Title\nax.set_xlabel('가동시간 (h)', fontsize=12)\nax.set_ylabel('빈도 수 (Count)', fontsize=12)\nax.set_title('가동시간 분포 히스토그램', fontsize=14)\n\n# Add grid for better readability\nax.grid(axis='y', linestyle='--', alpha=0.5)\n\n# Adjust layout\nplt.tight_layout()\n\n# Save the figure\noutput_file = os.path.join(OUT_DIR, \"operating_time_histogram.png\")\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\n\n# Close the plot to prevent display\nplt.close(fig)\n\nprint(f\"Plot saved to {output_file}\")\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "가동시간 분포 히스토그램",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [
+        {
+         "name": "",
+         "edges": [
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0,
+          7.0,
+          8.0,
+          9.0,
+          10.0,
+          11.0,
+          12.0,
+          13.0,
+          14.0,
+          15.0,
+          16.0,
+          17.0
+         ],
+         "counts": [
+          55.0,
+          14.0,
+          22.0,
+          13.0,
+          28.0,
+          15.0,
+          15.0,
+          21.0,
+          50.0,
+          128.0,
+          222.0,
+          247.0,
+          123.0,
+          35.0,
+          9.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#4c72b0"
+        }
+       ],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "가동시간 (h)",
+        "type": "value",
+        "ticks": [
+         2.0,
+         4.0,
+         6.0,
+         8.0,
+         10.0,
+         12.0,
+         14.0,
+         16.0
+        ],
+        "step": 2.0,
+        "categories": null,
+        "min": 1.25,
+        "max": 17.75,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "2",
+         "4",
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16",
+         "18"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "빈도 수 (Count)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         50.0,
+         100.0,
+         150.0,
+         200.0,
+         250.0
+        ],
+        "step": 50.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 259.35,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "50",
+         "100",
+         "150",
+         "200",
+         "250",
+         "300"
+        ],
+        "rotate": 0.0
+       },
+       "title": "가동시간 분포 히스토그램"
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t1/operating_time_histogram.png",
+       "format": "png",
+       "px": [
+        2967,
+        1770
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5319321155548096,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 40.154
+  }
+ ]
+}

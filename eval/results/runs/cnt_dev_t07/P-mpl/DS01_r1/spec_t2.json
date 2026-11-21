@@ -1,0 +1,30 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "bar",
+ "x": {
+  "col": "체류시간 (s)",
+  "bins": {
+   "width": 0.5,
+   "min": 2.5,
+   "max": 7.0
+  }
+ },
+ "y": {
+  "col": "CNT수율 (g/g-cat)",
+  "agg": "mean"
+ },
+ "asks": [
+  {
+   "ask": "체류시간 0.5 s 구간 binning (2.5~7.0 s)",
+   "how": "key"
+  },
+  {
+   "ask": "구간별 평균 수율 bar",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_t07/P-mpl/DS01_r1/out/t2"
+ }
+}

@@ -1,0 +1,26 @@
+{
+ "file": "data/doe_temp_h2.csv",
+ "chart": "line",
+ "x": {
+  "col": "C",
+  "label": "Zone 2 Temp (°C)"
+ },
+ "y": {
+  "col": "F",
+  "label": "Yield (g/g-cat)",
+  "agg": "mean"
+ },
+ "by": {
+  "col": "D",
+  "label": "H2/C2H4 Ratio"
+ },
+ "asks": [
+  {
+   "ask": "H2 비율마다 선 따로",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS11_r3/out/t2"
+ }
+}

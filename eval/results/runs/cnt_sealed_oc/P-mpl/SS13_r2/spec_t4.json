@@ -1,0 +1,23 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "line",
+ "x": {
+  "col": "bin_midpoint",
+  "label": "Bin Midpoint (s)"
+ },
+ "y": {
+  "col": "CNT수율 (g/g-cat)",
+  "agg": "mean"
+ },
+ "by": "촉매로트 그룹",
+ "data_code": "import pandas as pd\nimport numpy as np\n\n# 1. Create lot group column\ndf['촉매로트 그룹'] = df['촉매로트'].apply(lambda x: 'old' if x in ['FC-2602', 'FC-2603', 'FC-2604', 'FC-2605'] else 'new')\n\n# 2. Define bins edges (left-closed, right-open) from 2.5 to 6.75 with width 0.25\nedges = np.arange(2.5, 6.75 + 0.25, 0.25)\n\n# 3. Assign bin index using pd.cut for robust handling\ncats = pd.cut(df['체류시간 (s)'], bins=edges, right=False)\n\n# Calculate midpoints for each category\nmidpoints = {}\nfor cat in cats.cat.categories:\n    midpoints[cat] = (cat.left + cat.right) / 2\n\n# Map categories to numeric midpoints\ndf['bin_midpoint'] = cats.map(midpoints)\n\n# 4. Drop rows where binning failed (outside range)\ndf_valid = df.dropna(subset=['bin_midpoint']).copy()\n\n# 5. Group by lot group and midpoint to count n and mean yield\n# We need this aggregated data to find the max per group for annotation\nagg_df = df_valid.groupby(['촉매로트 그룹', 'bin_midpoint'])['CNT수율 (g/g-cat)'].agg(['mean', 'size']).reset_index()\nagg_df.columns = ['촉매로트 그룹', 'bin_midpoint', 'mean_yield', 'count']\n\n# Filter out bins with n < 10\nvalid_agg = agg_df[agg_df['count'] >= 10]\n\n# Find the bin with the highest mean for each group\nmax_bins = valid_agg.loc[valid_agg.groupby('촉매로트 그룹')['mean_yield'].idxmax()]\n\n# Prepare marks list for annotations\nmarks = []\nfor _, row in max_bins.iterrows():\n    group = row['촉매로트 그룹']\n    x_val = row['bin_midpoint']\n    y_val = row['mean_yield']\n    # Mark point on the line\n    marks.append({\n        \"type\": \"scatter\",\n        \"x\": float(x_val),\n        \"y\": float(y_val),\n        \"color\": \"red\", \n        \"marker_size\": 8,\n        \"zorder\": 5\n    })\n    # Label the x value\n    marks.append({\n        \"type\": \"text\",\n        \"x\": float(x_val),\n        \"y\": float(y_val),\n        \"text\": f\"{x_val:.2f}\",\n        \"va\": \"bottom\",\n        \"ha\": \"center\",\n        \"offset_y\": 10,\n        \"fontsize\": 9,\n        \"fontweight\": \"bold\"\n    })\n\n# Keep only raw data belonging to valid bins (count >= 10) for plotting lines\n# Merge back to filter original df\nvalid_keys = valid_agg[['촉매로트 그룹', 'bin_midpoint']]\ndf_final = df_valid.merge(valid_keys, on=['촉매로트 그룹', 'bin_midpoint'], how='inner')\n\n# Leave result in df as required\ndf = df_final",
+ "asks": [
+  {
+   "ask": "Mark the bin with the highest mean on each line and label its x value",
+   "how": "code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS13_r2/out/t4"
+ }
+}

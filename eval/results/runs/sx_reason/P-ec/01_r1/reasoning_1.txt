@@ -1,0 +1,1 @@
+We need answer user's request. Need produce JSON spec only in ```json block, nothing else. Need analyze in Korean? User Korean. Need think: Request: "TGA.xlsx 그래프 그려줘". According guide default TGA preset. Need inspect result given. Need spec only file. Since no extra requests, output {"file": "TGA.xlsx"}. Ensure file name exactly. No other text.

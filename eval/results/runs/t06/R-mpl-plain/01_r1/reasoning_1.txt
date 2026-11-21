@@ -1,0 +1,114 @@
+We need answer user's request in Korean? Need produce Python script only inside ```python block. Need think through requirements. User provided data preview of TGA.xlsx with three sheets: 1006R1-V normal, 1006R1-V acid, 1006R1-V 750C. Columns Time, Temperature, Weight(%), D.W(%/C). Request: "TGA.xlsx 그래프 그려줘" (draw graph). Need infer likely plot TGA curves: Temperature vs Weight(%) and DTG? Typically TGA plots Weight (%) vs Temperature, and maybe DTG (D.W) on secondary axis. Since multiple sheets, could draw one figure with subplots for each sheet, or overlay all sheets Weight and D.W? Need make reasonable choice. Environment Python 3 pandas numpy scipy matplotlib openpyxl xlrd. Korean font Noto Sans CJK KR installed. Must read DATA_FILE, save figure(s) into OUT_DIR, PNG 300 dpi, no plt.show. Reply complete script inside one python block and nothing else.
+
+Need decide output. Could create one figure per sheet? User says 그래프 singular maybe one graph. But data has 3 samples. Could create combined figure with two subplots: top all Weight(%) vs Temperature, bottom all D.W(%/C) vs Temperature. Or one figure with twin axes per sheet? Best: one PNG with two panels: TGA (Weight %) and DTG (D.W), overlaying three samples. Labels in Korean, legend. Use colors. Save as TGA_graph.png. Need robust read Excel sheets. Data has header row index 1? Actually header_rows [1] means Excel row 2? In pandas read_excel sheet_name=..., header=1? But preview says columns names Time, Temperature, Weight(%), D.W(%/C), data_start_row 2 (0-based? Maybe header row 1 means second row? Could use header=1 to skip first row. Need robust: try header=0 then if columns not matching try header=1. Or read all with header=None and detect header row. But simpler: read_excel with header=1 for each sheet? If header is row 1 (0-based) maybe correct. But if actual header row 0? Need robust.
+
+Implement read_sheet: for h in [0,1,2]: df = pd.read_excel(file, sheet_name=name, header=h); if columns contain Temperature and Weight etc return. Could also normalize column names. Need handle Korean font:
+import matplotlib
+matplotlib.rcParams['font.family'] = 'Noto Sans CJK KR'
+matplotlib.rcParams['axes.unicode_minus'] = False
+
+Need maybe parse numeric. Use pd.to_numeric errors='coerce'. Drop rows where temp or weight NaN.
+
+Plot: fig, (ax1, ax2) = plt.subplots(2,1, figsize=(10,8), sharex=True). For each sheet, label = sheet name. Plot temp vs Weight on ax1. Plot temp vs D.W on ax2. Maybe D.W negative; ax2 label "DTG (D.W, %/°C)". ax1 label "TGA (Weight, %)". x label "Temperature (°C)". Title "TGA/DTG curves". Legend. Grid. Tight layout. Save PNG 300 dpi.
+
+Could also draw each sheet individually if request ambiguous? Maybe one combined plus individual? User asks 그래프 그려줘 singular but multiple sheets. To be safe, save one combined graph and individual graphs? But requirement save figure file(s) into OUT_DIR. Could create combined and per-sheet. But too many? It's okay. However if user expects one, multipl
+[...]
+h = matches[0]; break
+    if not os.path.exists(path):
+       return
+    try:
+       obj, sheets = load_object(path)
+    except Exception:
+       return
+    loaded = []
+    for sheet in sheets:
+       try:
+          raw = read_raw(obj, sheet)
+          data = load_sheet_from_raw(raw, sheet)
+       except Exception:
+          data = None
+       if data is not None and len(data) > 0:
+          label = sheet if len(DATA_FILES) == 1 else f"{os.path.basename(path)} - {sheet}"
+          loaded.append((label, data))
+    base = os.path.splitext(os.path.basename(path))[0]
+    out_path = os.path.join(OUT_DIR, "TGA_graph.png" if len(DATA_FILES) == 1 else f"{base}_TGA_graph.png")
+    if not loaded:
+       fig, ax = plt.subplots(figsize=(8,5))
+       ax.text(0.5,0.5,"유효한 TGA 데이터가 없습니다.", ha="center", va="center")
+       ax.axis("off")
+       fig.savefig(out_path, dpi=300)
+       plt.close(fig)
+       return
+    plot_loaded(loaded, out_path)
+```
+Need `DATA_FILES` global accessible. Good.
+
+Could if len(DATA_FILES)>1 but same base? okay.
+
+`plot_loaded`:
+```
+def plot_loaded(loaded, out_path):
+    fig, axes = plt.subplots(2, 1, figsize=(11, 8), sharex=True)
+    n = len(loaded)
+    cmap = plt.cm.tab10 if n <= 10 else plt.cm.tab20
+    colors = cmap(np.linspace(0, 1, n)) if n > 1 else [cmap(0.0)]
+    has_dtg = False
+    for i, (label, df) in enumerate(loaded):
+        temp_col = df.columns[0]
+        weight_col = df.columns[1]
+        color = colors[i]
+        axes[0].plot(df[temp_col], df[weight_col], label=label, color=color, linewidth=1.5)
+        if len(df.columns) > 2:
+            dtg_col = df.columns[2]
+            axes[1].plot(df[temp_col], df[dtg_col], label=label, color=color, linewidth=1.1)
+            has_dtg = True
+    axes[0].set_ylabel("무게 (%)")
+    axes[1].set_ylabel("DTG (D.W, %/°C)")
+    axes[1].set_xlabel("온도 (°C)")
+    axes[0].set_title("TGA/DTG 측정 결과")
+    axes[0].grid(True, linestyle="--", alpha=0.45)
+    axes[1].grid(True, linestyle="--", alpha=0.45)
+    axes[1].axhline(0, color="gray", linewidth=0.8)
+    axes[0].legend(loc="best", frameon=True, fontsize=9)
+    if has_dtg:
+        axes[1].legend(loc="best", frameon=True, fontsize=9)
+    ymin, ymax = axes[0].get_ylim()
+    axes[0].set_ylim(0, max(105.0, ymax))
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=300, bbox_inches="tight")
+    plt.close(fig)
+```
+Potential issue: `colors = [cmap(0.0)]` if n=1, cmap(0.0) returns RGBA. Good. If n>1, array. `color = colors[i]` okay. If n=0 not called.
+
+Potential issue: `axes[0].get_ylim()` after plot maybe returns tuple. Good. If no lines? loaded nonempty. Good.
+
+Potential issue: `bbox_inches="tight"` with tight_layout okay.
+
+Font:
+```
+font_name = "Noto Sans CJK KR"
+if any(font_name in f.name for f in fontManager.ttflist):
+    plt.rcParams["font.family"] = [font_name, "DejaVu Sans"]
+else:
+    plt.rcParams["font.family"] = ["DejaVu Sans"]
+plt.rcParams["axes.unicode_minus"] = False
+```
+Need `fontManager.ttflist` may not include OTC? But Noto CJK maybe otf. It includes. Good.
+
+Potential issue: `any(font_name in f.name ...)` if exact name. Good.
+
+Need if matplotlib uses cache and font not found? okay.
+
+Potential issue: If OUT_DIR not writable, script raises. okay.
+
+Could add `print`? Not necessary. Maybe no stdout. Fine.
+
+Let's consider if `pd.read_excel` with header=None returns columns as integers? We set. Good.
+
+Potential issue: In `load_sheet_from_raw`, named pass could return at h=0 with inferred? Actually named pass only. If named fails, infer pass. Good.
+
+Potential issue: If named pass at h=0 succeeds but columns are from row0 and temp/weight names accidentally present? It may choose correct. Good.
+
+Potential issue: If header row contains "Temperature" at h=1, but h=0 row also contains "Temperature"? Could succeed h=0 with df including header row. Good.
+
+Potential issue: If h=0 named returns temp, weight but dtg none because dtg column name not in row0; then returns without dtg, missing DTG. But if h=1 has dtg, we'd miss. Is that

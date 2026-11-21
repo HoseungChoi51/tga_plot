@@ -1,0 +1,70 @@
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import find_peaks
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+# File paths
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/xrd.csv"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/B04_r3/out"
+
+# Ensure output directory exists
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# Load data
+df = pd.read_csv(DATA_FILE)
+
+# Extract columns
+two_theta = df['2Theta (deg)'].values
+intensity = df['Intensity (counts)'].values
+
+# Find peaks
+# distance: minimum number of samples between peaks (adjust based on step size)
+# prominence: how much the peak stands out from surrounding baseline
+peaks, properties = find_peaks(intensity, prominence=50, distance=10)
+
+# Get top 5 peaks by intensity
+peak_indices = peaks[np.argsort(properties['prominences'])[-5:]]
+peak_two_theta = two_theta[peak_indices]
+peak_intensity = intensity[peak_indices]
+
+# Sort by 2-theta value for consistent labeling
+sort_idx = np.argsort(peak_two_theta)
+top_5_two_theta = peak_two_theta[sort_idx]
+top_5_intensity = peak_intensity[sort_idx]
+
+# Plot
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.plot(two_theta, intensity, color='black', linewidth=1)
+
+# Annotate top 5 peaks
+for x, y in zip(top_5_two_theta, top_5_intensity):
+    ax.annotate(f'{x:.2f}', 
+                xy=(x, y), 
+                xytext=(0, 10), 
+                textcoords='offset points', 
+                ha='center', 
+                fontsize=9,
+                bbox=dict(boxstyle='round,pad=0.3', fc='yellow', alpha=0.7))
+
+# Labels and title
+ax.set_xlabel('2θ (deg)', fontsize=12)
+ax.set_ylabel('Intensity (counts)', fontsize=12)
+ax.set_title('XRD Pattern with Top 5 Peaks', fontsize=14)
+
+# Remove right spine
+ax.spines['right'].set_visible(False)
+
+# Adjust layout
+plt.tight_layout()
+
+# Save figure
+output_path = os.path.join(OUT_DIR, 'xrd_pattern.png')
+plt.savefig(output_path, dpi=300)
+plt.close()
+```

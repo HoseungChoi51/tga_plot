@@ -1,0 +1,210 @@
+import json
+import re
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+DATA_FILES = [DATA_FILE]
+WIDTH, HEIGHT, DPI = 614, 442, 300
+FORMATS = ["png"]
+FONT = "Noto Sans CJK KR"
+
+
+def clean_name(value):
+    name = re.sub(r'[\\/:*?"<>|]+', "_", str(value)).strip()
+    return name or "plot"
+
+
+def make_figure(sheet_name, frame):
+    frame = frame.dropna(how="all")
+    if frame.empty:
+        return None
+
+    cols = list(frame.columns)
+
+    def find_col(patterns, fallback):
+        for pattern in patterns:
+            for col in cols:
+                if re.search(pattern, str(col), re.I):
+                    return col
+        return cols[fallback] if len(cols) > fallback else None
+
+    x_col = find_col([r"temperature", r"temp"], 1)
+    y1_col = find_col([r"weight"], 2)
+    y2_col = find_col([r"d\.?\s*w", r"dtg", r"derivative"], 3)
+
+    if x_col is None or y1_col is None:
+        return None
+
+    x = pd.to_numeric(frame[x_col], errors="coerce").to_numpy(dtype=float)
+    y1 = pd.to_numeric(frame[y1_col], errors="coerce").to_numpy(dtype=float)
+    valid = np.isfinite(x) & np.isfinite(y1)
+    x, y1 = x[valid], y1[valid]
+    if not len(x):
+        return None
+
+    order = np.argsort(x)
+    x, y1 = x[order], y1[order]
+    series = [{
+        "name": str(y1_col),
+        "type": "line",
+        "data": [[float(a), float(b)] for a, b in zip(x, y1)],
+        "showSymbol": False,
+        "smooth": False,
+        "yAxisIndex": 0,
+        "lineStyle": {"width": 2, "color": "#1f4e9c"},
+        "itemStyle": {"color": "#1f4e9c"},
+    }]
+
+    if y2_col is not None:
+        y2_all = pd.to_numeric(frame[y2_col], errors="coerce").to_numpy(dtype=float)
+        y2 = y2_all[valid][order]
+        valid2 = np.isfinite(y2)
+        x2, y2 = x[valid2], y2[valid2]
+        if len(x2):
+            # TGA DTG is typically negative during mass loss; invert for upward peaks.
+            dtg_up = -y2
+            series.append({
+                "name": str(y2_col) + " (−)",
+                "type": "line",
+                "data": [[float(a), float(b)] for a, b in zip(x2, dtg_up)],
+                "showSymbol": False,
+                "smooth": False,
+                "yAxisIndex": 1,
+                "lineStyle": {"width": 2, "color": "#c0392b"},
+                "itemStyle": {"color": "#c0392b"},
+            })
+
+            peak_candidates = np.where(x2 > 150)[0]
+            if len(peak_candidates):
+                peak_idx = peak_candidates[np.nanargmax(dtg_up[peak_candidates])]
+                peak_temp = float(x2[peak_idx])
+                series.append({
+                    "name": "DTG peak",
+                    "type": "scatter",
+                    "data": [[peak_temp, float(dtg_up[peak_idx])]],
+                    "yAxisIndex": 1,
+                    "symbolSize": 8,
+                    "itemStyle": {"color": "#c0392b"},
+                    "label": {
+                        "show": True,
+                        "formatter": f"{peak_temp:.0f} °C",
+                        "position": "top",
+                        "color": "#c0392b",
+                        "fontFamily": FONT,
+                        "fontSize": 11,
+                    },
+                })
+
+    residue_candidates = np.where(np.isclose(x, 800, atol=np.inf))[0]
+    if len(residue_candidates):
+        residue_idx = int(np.argmin(np.abs(x - 800)))
+        residue_x = float(x[residue_idx])
+        residue_y = float(y1[residue_idx])
+        series.append({
+            "name": "Residue",
+            "type": "scatter",
+            "data": [[residue_x, residue_y]],
+            "yAxisIndex": 0,
+            "symbolSize": 8,
+            "itemStyle": {"color": "#1f4e9c"},
+            "label": {
+                "show": True,
+                "formatter": f"Residue {residue_y:.1f}%",
+                "position": "right",
+                "color": "#1f4e9c",
+                "fontFamily": FONT,
+                "fontSize": 11,
+            },
+        })
+
+    option = {
+        "animation": False,
+        "title": {
+            "text": str(sheet_name),
+            "left": "center",
+            "top": 8,
+            "textStyle": {"fontFamily": FONT, "fontSize": 16, "fontWeight": "normal"},
+        },
+        "tooltip": {"trigger": "axis"},
+        "legend": {
+            "data": [str(y1_col)] + ([str(y2_col) + " (−)"] if y2_col is not None else []),
+            "left": 72,
+            "top": "middle",
+            "orient": "vertical",
+            "textStyle": {"fontFamily": FONT, "fontSize": 11},
+        },
+        "grid": {"left": 72, "right": 72, "top": 52, "bottom": 58},
+        "xAxis": {
+            "type": "value",
+            "name": "Temperature (°C)",
+            "nameLocation": "middle",
+            "nameGap": 34,
+            "axisTick": {"inside": False, "length": 5},
+            "axisLabel": {"fontFamily": FONT, "fontSize": 9, "margin": 8},
+            "nameTextStyle": {"fontFamily": FONT, "fontSize": 11},
+            "axisLine": {"show": True},
+            "splitLine": {"show": False},
+        },
+        "yAxis": [
+            {
+                "type": "value",
+                "name": str(y1_col),
+                "nameLocation": "middle",
+                "nameGap": 48,
+                "axisTick": {"inside": False, "length": 5},
+                "axisLabel": {"fontFamily": FONT, "fontSize": 9, "margin": 8},
+                "nameTextStyle": {"fontFamily": FONT, "fontSize": 11, "color": "#1f4e9c"},
+                "axisLine": {"show": True, "lineStyle": {"color": "#1f4e9c"}},
+                "axisLabelColor": "#1f4e9c",
+                "splitLine": {"show": True, "lineStyle": {"color": "#e5e5e5"}},
+            },
+            {
+                "type": "value",
+                "name": "−" + str(y2_col) if y2_col is not None else "DTG",
+                "nameLocation": "middle",
+                "nameGap": 48,
+                "axisTick": {"inside": False, "length": 5},
+                "axisLabel": {"fontFamily": FONT, "fontSize": 9, "margin": 8},
+                "nameTextStyle": {"fontFamily": FONT, "fontSize": 11, "color": "#c0392b"},
+                "axisLine": {"show": True, "lineStyle": {"color": "#c0392b"}},
+                "axisLabelColor": "#c0392b",
+                "splitLine": {"show": False},
+            },
+        ],
+        "series": series,
+    }
+
+    return {
+        "name": clean_name(sheet_name),
+        "option": option,
+        "width": WIDTH,
+        "height": HEIGHT,
+        "dpi": DPI,
+        "formats": FORMATS,
+    }
+
+
+figures = []
+for path_str in DATA_FILES:
+    path = Path(path_str)
+    if path.suffix.lower() in {".xlsx", ".xls"}:
+        sheets = pd.read_excel(path, sheet_name=None)
+        for sheet_name, frame in sheets.items():
+            fig = make_figure(sheet_name, frame)
+            if fig:
+                figures.append(fig)
+    elif path.suffix.lower() == ".csv":
+        frame = pd.read_csv(path)
+        fig = make_figure(path.stem, frame)
+        if fig:
+            figures.append(fig)
+    else:
+        frame = pd.read_csv(path, sep=None, engine="python")
+        fig = make_figure(path.stem, frame)
+        if fig:
+            figures.append(fig)
+
+print(json.dumps({"figures": figures}, ensure_ascii=False, allow_nan=False))

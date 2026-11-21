@@ -1,0 +1,128 @@
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.signal import find_peaks
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/caox.csv"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/B02_r3/out"
+
+# CSV를 읽고 열 이름의 앞뒤 공백을 정리합니다.
+df = pd.read_csv(DATA_FILE)
+df.columns = [str(c).strip() for c in df.columns]
+
+temperature = pd.to_numeric(df["Temperature (°C)"], errors="coerce").to_numpy()
+weight = pd.to_numeric(df["Weight (%)"], errors="coerce").to_numpy()
+heat_flow = pd.to_numeric(df["Heat Flow (W/g)"], errors="coerce").to_numpy()
+
+valid = np.isfinite(temperature) & np.isfinite(weight) & np.isfinite(heat_flow)
+temperature = temperature[valid]
+weight = weight[valid]
+heat_flow = heat_flow[valid]
+
+# 온도 순으로 정렬합니다.
+order = np.argsort(temperature)
+temperature = temperature[order]
+weight = weight[order]
+heat_flow = heat_flow[order]
+
+# 피크 탐색 시 작은 요동을 완화하기 위해 이동평균을 사용합니다.
+window = max(5, min(21, (len(heat_flow) // 40) * 2 + 1))
+if window % 2 == 0:
+    window += 1
+smooth_heat = (
+    pd.Series(heat_flow)
+    .rolling(window=window, center=True, min_periods=1)
+    .mean()
+    .to_numpy()
+)
+
+# 통상적인 DSC 부호(흡열 방향이 위쪽)를 가정해 양의 피크 두 개와
+# 음의 피크 한 개를 선택합니다. 피크 간 중복 선택을 줄이기 위해
+# 선택한 피크 주변을 제외한 뒤 다음 피크를 찾습니다.
+distance = max(1, len(smooth_heat) // 30)
+prominence = max(np.nanstd(smooth_heat) * 0.08, 1e-6)
+
+def select_peaks(signal, count, min_distance, min_prominence):
+    candidates, _ = find_peaks(
+        signal,
+        distance=min_distance,
+        prominence=min_prominence,
+    )
+    if len(candidates) < count:
+        candidates, _ = find_peaks(signal, distance=min_distance)
+    ranked = sorted(candidates, key=lambda i: signal[i], reverse=True)
+
+    selected = []
+    for idx in ranked:
+        if all(abs(idx - chosen) >= min_distance for chosen in selected):
+            selected.append(int(idx))
+        if len(selected) == count:
+            break
+    return sorted(selected, key=lambda i: temperature[i])
+
+endothermic_indices = select_peaks(
+    smooth_heat, count=2, min_distance=distance, min_prominence=prominence
+)
+exothermic_indices = select_peaks(
+    -smooth_heat, count=1, min_distance=distance, min_prominence=prominence
+)
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+fig, ax1 = plt.subplots(figsize=(10, 6))
+ax2 = ax1.twinx()
+
+line1, = ax1.plot(
+    temperature, weight, color="tab:blue", linewidth=2, label="Weight"
+)
+line2, = ax2.plot(
+    temperature, heat_flow, color="tab:red", linewidth=1.8, label="Heat Flow"
+)
+
+# 피크 위치와 온도를 표시합니다.
+for idx in endothermic_indices:
+    ax2.scatter(
+        temperature[idx], heat_flow[idx], color="darkorange", s=48, zorder=5
+    )
+    ax2.annotate(
+        f"흡열 {temperature[idx]:.1f} °C",
+        xy=(temperature[idx], heat_flow[idx]),
+        xytext=(8, 12),
+        textcoords="offset points",
+        color="darkorange",
+        fontsize=10,
+        arrowprops=dict(arrowstyle="->", color="darkorange", lw=0.9),
+    )
+
+for idx in exothermic_indices:
+    ax2.scatter(
+        temperature[idx], heat_flow[idx], color="purple", s=48, zorder=5
+    )
+    ax2.annotate(
+        f"발열 {temperature[idx]:.1f} °C",
+        xy=(temperature[idx], heat_flow[idx]),
+        xytext=(8, -22),
+        textcoords="offset points",
+        color="purple",
+        fontsize=10,
+        arrowprops=dict(arrowstyle="->", color="purple", lw=0.9),
+    )
+
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)", color="tab:blue")
+ax2.set_ylabel("Heat Flow (W/g)", color="tab:red")
+ax1.tick_params(axis="y", labelcolor="tab:blue")
+ax2.tick_params(axis="y", labelcolor="tab:red")
+ax1.grid(True, linestyle="--", alpha=0.35)
+ax1.set_title("TGA 및 Heat Flow")
+
+ax1.legend([line1, line2], [line1.get_label(), line2.get_label()], loc="best")
+fig.tight_layout()
+
+out_dir = Path(OUT_DIR)
+out_dir.mkdir(parents=True, exist_ok=True)
+fig.savefig(out_dir / "caox_tga_heat_flow.png", dpi=300, bbox_inches="tight")
+plt.close(fig)

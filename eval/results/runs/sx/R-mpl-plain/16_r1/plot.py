@@ -1,0 +1,65 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+# 파일 경로 및 출력 디렉토리 설정
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/16_r1/out"
+
+# 한글 폰트 설정
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+# 데이터 읽기 (시트 이름 지정)
+sheet_name = "1006R1-V normal"
+df = pd.read_excel(DATA_FILE, sheet_name=sheet_name, header=1)
+
+# 컬럼 이름 확인 및 정리 (공백 제거 등)
+cols = df.columns.tolist()
+temp_col = None
+weight_col = None
+
+for col in cols:
+    col_str = str(col).strip()
+    # 대소문자 구분 없이 포함 여부 확인
+    if 'temperature' in col_str.lower():
+        temp_col = col
+    elif 'weight' in col_str.lower():
+        weight_col = col
+
+if temp_col is None or weight_col is None:
+    # 만약 이름으로 못 찾으면 위치 기반으로 시도해볼 수 있지만, 여기서는 에러 메시지 개선
+    raise ValueError(f"Temperature 또는 Weight 컬럼을 찾을 수 없습니다. 현재 컬럼 목록: {cols}")
+
+x_data = df[temp_col]
+y_data = df[weight_col]
+
+# 플롯 그리기
+fig, ax = plt.subplots(figsize=(8, 6))
+
+ax.plot(x_data, y_data, label='TGA', color='blue')
+
+# 축 레이블 및 제목 설정
+ax.set_xlabel('Temperature (°C)', fontsize=12)
+ax.set_ylabel('Weight (%)', fontsize=12)
+ax.set_title(f'TGA Curve - {sheet_name}', fontsize=14)
+
+# 격자 표시
+ax.grid(True, linestyle='--', alpha=0.7)
+
+# 범례 표시
+ax.legend()
+
+# 레이아웃 자동 조정
+plt.tight_layout()
+
+# 출력 파일명 생성
+output_filename = "tga_normal_weight_only.png"
+output_path = os.path.join(OUT_DIR, output_filename)
+
+# 디렉토리가 없으면 생성
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# 저장
+plt.savefig(output_path, dpi=300)
+plt.close()

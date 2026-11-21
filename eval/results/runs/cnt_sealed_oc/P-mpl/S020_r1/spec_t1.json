@@ -1,0 +1,40 @@
+{
+ "file": [
+  "data/raman/R1-260326-1.csv",
+  "data/raman/R2-260616-1.csv",
+  "data/raman/R4-260721-1.csv"
+ ],
+ "preset": "none",
+ "combine": true,
+ "x": {
+  "col": "Raman Shift (cm-1)",
+  "min": 1000,
+  "max": 2000
+ },
+ "y1": {
+  "col": "Intensity (a.u.)"
+ },
+ "y2": false,
+ "data_code": "import numpy as np\n# Note: In plotkit 'data_code' for curves, x and y1 are the current sheet's arrays.\n# We modify them in place. The plotting library will apply these changes per file before combining.\n\n# 1. Baseline subtraction using straight line between two points\n# Point 1: Average of intensity at 1100 +/- 10 cm^-1\nmask1 = (x >= 1090) & (x <= 1110)\nif mask1.any():\n    p1_x = np.mean(x[mask1])\n    p1_y = np.mean(y1[mask1])\nelse:\n    p1_x = 1100\n    p1_y = np.interp(1100, x, y1)\n\n# Point 2: Average of intensity at 1800 +/- 10 cm^-1\nmask2 = (x >= 1790) & (x <= 1810)\nif mask2.any():\n    p2_x = np.mean(x[mask2])\n    p2_y = np.mean(y1[mask2])\nelse:\n    p2_x = 1800\n    p2_y = np.interp(1800, x, y1)\n\n# Linear baseline equation: y = mx + c\nif p2_x != p1_x:\n    slope = (p2_y - p1_y) / (p2_x - p1_x)\n    intercept = p1_y - slope * p1_x\n    baseline = slope * x + intercept\n    y1 = y1 - baseline\nelse:\n    y1 = y1 - p1_y\n\n# 2. Normalize to G-band max (1550-1620 cm^-1)\ng_mask = (x >= 1550) & (x <= 1620)\nif g_mask.any():\n    g_max = np.max(y1[g_mask])\n    if g_max > 0:\n        y1 = y1 / g_max\n    else:\n        y1 = y1 * 0 # Avoid div by zero\n",
+ "asks": [
+  {
+   "ask": "세 파일 overlay",
+   "how": "key"
+  },
+  {
+   "ask": "직선 베이스라인 제거 (1100, 1800 ±10 평균 기반)",
+   "how": "data_code"
+  },
+  {
+   "ask": "G 밴드 최대값 정규화",
+   "how": "data_code"
+  },
+  {
+   "ask": "1000-2000 구간 표시",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S020_r1/out/t1"
+ }
+}

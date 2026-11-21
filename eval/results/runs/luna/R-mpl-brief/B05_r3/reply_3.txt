@@ -1,0 +1,147 @@
+```python
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import pandas as pd
+
+DATA_FILES = [
+    "/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_A.csv",
+    "/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_B.txt",
+]
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/B05_r3/out"
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+
+def read_data(path):
+    path = Path(path)
+    if path.suffix.lower() == ".csv":
+        return pd.read_csv(path)
+
+    # Try common text delimiters; whitespace-separated text is the fallback.
+    for sep in ("\t", ",", ";", None):
+        try:
+            df = pd.read_csv(path, sep=sep, engine="python")
+            if df.shape[1] >= 4:
+                return df
+        except Exception:
+            continue
+    return pd.read_csv(path, sep=r"\s+", engine="python", header=None)
+
+
+def find_column(df, token):
+    for col in df.columns:
+        if token.lower() in str(col).lower():
+            return col
+    return None
+
+
+def numeric_column(df, col, fallback_position):
+    if col is not None:
+        values = pd.to_numeric(df[col], errors="coerce")
+        if values.notna().any():
+            return values
+
+    if df.shape[1] > fallback_position:
+        return pd.to_numeric(df.iloc[:, fallback_position], errors="coerce")
+
+    return pd.Series(dtype=float)
+
+
+def load_tga(path):
+    df = read_data(path)
+
+    temp_col = find_column(df, "Temperature")
+    weight_col = find_column(df, "Weight")
+    dtg_col = find_column(df, "Deriv")
+
+    # Previewed files use columns B, C, and D for temperature, weight, and DTG.
+    temp = numeric_column(df, temp_col, 1)
+    weight = numeric_column(df, weight_col, 2)
+    dtg = numeric_column(df, dtg_col, 3)
+
+    data = pd.DataFrame({"temp": temp, "weight": weight, "dtg": dtg})
+    data = data.apply(pd.to_numeric, errors="coerce").dropna()
+    if data.empty:
+        # Some text exports have an initial non-data/header line. Retry without
+        # assuming a header and use the known B/C/D column positions.
+        raw = pd.read_csv(path, sep=None, engine="python", header=None,
+                          skipinitialspace=True)
+        data = pd.DataFrame({
+            "temp": pd.to_numeric(raw.iloc[:, 1], errors="coerce"),
+            "weight": pd.to_numeric(raw.iloc[:, 2], errors="coerce"),
+            "dtg": pd.to_numeric(raw.iloc[:, 3], errors="coerce"),
+        }).dropna()
+
+    if data.empty:
+        raise ValueError(f"Could not parse numeric TGA columns from {path}")
+    return data.reset_index(drop=True)
+
+
+fig, ax1 = plt.subplots(figsize=(10, 6))
+ax2 = ax1.twinx()
+
+weight_colors = ["#1f4e9c", "#5b9bd5"]
+dtg_colors = ["#c0392b", "#e67e22"]
+lot_labels = ["Lot A", "Lot B"]
+
+for path, label, weight_color, dtg_color in zip(
+    DATA_FILES, lot_labels, weight_colors, dtg_colors
+):
+    data = load_tga(path)
+    temp = data["temp"]
+    weight = data["weight"]
+    dtg = data["dtg"]
+
+    ax1.plot(temp, weight, color=weight_color, linewidth=1.8,
+             label=f"{label} Weight")
+    ax2.plot(temp, -dtg, color=dtg_color, linewidth=1.5, linestyle="--",
+             label=f"{label} DTG")
+
+    residue_idx = (temp - 800).abs().idxmin()
+    residue_temp = temp.iloc[residue_idx]
+    residue_weight = weight.iloc[residue_idx]
+    ax1.scatter(residue_temp, residue_weight, color=weight_color,
+                edgecolor="white", linewidth=0.7, zorder=5)
+    ax1.annotate(
+        f"{label} Residue {residue_weight:.1f}%",
+        (residue_temp, residue_weight),
+        xytext=(6, 8), textcoords="offset points",
+        color=weight_color, fontsize=9
+    )
+
+    peak_indices = temp.index[temp > 150]
+    if len(peak_indices):
+        peak_idx = (-dtg.loc[peak_indices]).idxmax()
+        peak_temp = temp.iloc[peak_idx]
+        peak_value = -dtg.iloc[peak_idx]
+        ax2.scatter(peak_temp, peak_value, color=dtg_color,
+                    edgecolor="white", linewidth=0.7, zorder=5)
+        ax2.annotate(
+            f"{label} {peak_temp:.0f} °C",
+            (peak_temp, peak_value),
+            xytext=(6, 8), textcoords="offset points",
+            color=dtg_color, fontsize=9
+        )
+
+ax1.set_title("TGA Comparison")
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)")
+ax2.set_ylabel("DTG (-Derivative Weight, %/°C)")
+
+handles1, labels1 = ax1.get_legend_handles_labels()
+handles2, labels2 = ax2.get_legend_handles_labels()
+ax1.legend(handles1 + handles2, labels1 + labels2,
+           loc="center left", frameon=True, fontsize=9)
+
+ax1.grid(True, linestyle=":", alpha=0.5)
+fig.tight_layout()
+
+out_dir = Path(OUT_DIR)
+out_dir.mkdir(parents=True, exist_ok=True)
+fig.savefig(out_dir / "tga_lot_comparison.png", dpi=300, bbox_inches="tight")
+plt.close(fig)
+```

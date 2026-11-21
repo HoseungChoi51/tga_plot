@@ -1,0 +1,19 @@
+{
+ "file": "data/raman/R4-260407-1.csv",
+ "preset": "none",
+ "x": {
+  "col": "A"
+ },
+ "y1": {
+  "col": "B"
+ },
+ "asks": [
+  {
+   "ask": "Raman 데이터 그래프 (TGA 프리셋 제거)",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S033_r2/out/t1"
+ }
+}

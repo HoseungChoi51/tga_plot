@@ -1,0 +1,59 @@
+We need answer user with corrected JSON spec only. Need analyze error. User request: plot weight top, DTG bottom separate, shared x. plotkit error: echarts.grid must be an object. In ECharts, grid can be array? But plotkit validation only allows object? The guide says allowed grid, but maybe must be object. Need produce valid spec using allowed ECharts settings. Need maybe cannot do multi-grid if grid must be object. But maybe we can use echarts.grid object only one grid? To separate top/bottom with shared x? Could use graphic? Need think.
+
+We need reply corrected JSON spec only. Need satisfy request as much as possible within plotkit constraints. The plotkit tool likely supports only single grid object. Error says echarts.grid must be an object. So cannot pass array. Need maybe use echarts.grid object? But cannot create two grids if only object. Could use `echarts: {grid: {top: ...}}`? But then all series in same grid, not separate. Request: weight above, DTG below, x shared. Maybe we can use ECharts option with two grids? But plotkit disallows array? It says grid allowed, but maybe expects object. Could we use `echarts.grid` as object with `containLabel`, `left`, `right`, `top`, `bottom`, and somehow use series `yAxisIndex`? No, two grids need grid array. If grid must be object, maybe plotkit only supports one grid. Could we use `graphic` to place two separate? Not plot axes? Maybe use `echarts.series` markArea? Hmm.
+
+Maybe we can exploit allowed `echarts.grid` object to set one grid? But to separate, perhaps use `echarts.grid` object with `top` and `bottom`? Not enough.
+
+Maybe plotkit's grid validation only object but ECharts supports array. Could use `echarts.grid` object with nested? No.
+
+Maybe use `echarts` with `grid` as object and `series` with `coordinateSystem`? ECharts has `grid` only one if object. Could use `graphic` to draw second plot? No data not allowed in echarts? It says never put plotted data in echarts. So no.
+
+Could use `echarts` allowed `grid` object and `yAxis` list? But axes need gridIndex. If grid is object, gridIndex 0 only. Can't have second grid.
+
+Maybe plotkit expects grid object but can accept `grid` as object with `top`, `bottom`, etc. If we can't do separate, we should provide spec that uses allowed keys and perhaps note cannot? But final must JSON only. Need maybe choose a spec that does not error but doesn't fully satisfy? The instruction says reply corrected JSON spec only. Need likely use `echarts` with object grid but no array. But request can't be done? Maybe we can use `echarts.grid` object to adjust single grid and use `series` markLine? Hmm.
+
+Maybe there is a hidden feature: `echarts.grid` can be object with `top`, `bottom`, but to create two panels, use `graphic`? But axes? Could use `yAxis` list with `offset`? ECharts supports multiple y axes on same grid with offset? But not top/bottom separate. Could use `series` with `yAxisIndex` 0 and 1 and `grid` object? No.
+
+Could use `echarts` with `grid` object 
+[...]
+d `axisLabel` maybe show only 0-100? Not. Could set y1 axis `min: 0, max: 200`? weight 38-100 maps 0.19-0.5, not top. Could set y1 axis `min: -200, max: 100`: 38=0.793, 100=1. Better top. y2 min=-1 max=0 inverse true: 0 bottom, -0.545=0.545. Gap 0.545-0.793. Good. y1 axis range -200 to 100, weird. Could hide y1 axis? If hide, user doesn't see weight scale. Could set y1 axis `axisLabel` formatter to show only values >=0? Maybe allowed? `axisLabel` can have formatter? It says no functions. Could use `interval`? Not. Could set `axisLabel: {show: false}` for y1? Then no y1 labels. But maybe okay? User didn't ask axes. But TGA plot should show weight axis. Could set y1 axis `min: 0, max: 100` and use `markArea` to shade top? Not.
+
+Maybe use `echarts` `yAxis` list with `min`/`max` and `axisLine` `show: false`? Hmm.
+
+Could set y1 axis `min: 0`, `max: 100`, and y2 axis `min: -1`, `max: 0`, inverse true. Weight 38-100 maps 0.38-1, DTG 0-0.545. Overlap 0.38-0.545. Not separate but okay. Could set y1 min=0 max=200? weight 0.19-0.5, DTG 0-0.545 overlap. Not.
+
+Could set y1 min=-100 max=100, y2 min=-1 max=0 inverse true. Good separation but y1 negative labels. Could set y1 axis `axisLabel: {formatter: '{value}%'}`? Shows negative. Could set y1 axis `min: 0`, `max: 200`, and use `series` `markArea` to shift? No.
+
+Could use `echarts` `series` `markLine` to draw a horizontal separator at y1=0? Not.
+
+Maybe use `echarts` `grid` object and `series` `markArea` to create two panels with `data` based on y axes: top panel y1 0-100, bottom panel y2 -1-0. But axes ranges can be set to hide negative y1 labels by `axisLabel` `interval`? Could set y1 axis `min: -100, max: 100`, `axisLabel: {interval: 100, formatter: '{value}%'}` shows -100,0,100. Could set `axisLabel: {show: false}` and add `graphic` text for weight axis? Not.
+
+Maybe use `echarts` `grid` object and `series` `markLine` to draw a separator at y1=0? Not.
+
+Could use `echarts` `grid` object and `series` `markArea` to shade top half with `data` [[{yAxis: 0}, {yAxis: 100}]]? If y1 axis min=-100 max=100, top half 0-100. y1 line in top half (38-100). y2 axis min=-1 max=0 inverse true, bottom half? Its axis values 0 bottom, -1 top? Wait inverse true min=-1 top, max=0 bottom. The physical bottom half corresponds y2 values -0.5 to 0? Actually axis inverted, physical bottom is max=0, top is min=-1. So bottom half values 0 to -0.5. DTG values -0.545 to 0 mostly bottom half. Good. Could shade y1 top half and y2 bottom half? But axes different.
+
+Maybe use `echarts` `grid` object and `series` `markArea` to shade top half for y1 and bottom half for y2, with transparent colors? Not needed.
+
+Could use `echarts` `grid` object and `series` `markLine` to draw a horizontal separator at physical 50%? Could use `graphic` line at top 50%. Allowed graphic line. Could draw separator. But not necessary.
+
+Maybe final spec: use `echarts` with `grid` object? But if we don't need grid, can omit. But user asked split; maybe include `grid` object with `top`, `bottom`? Hmm.
+
+Maybe use `echarts` `grid` object with `top: '15%'`, `bottom: '15%'` and `yAxis` list ranges. But default grid already object. Could omit grid to avoid error. But if omit, no error. Need maybe include `echarts` with `yAxis` list only. Is that enough? It may pass. But does it satisfy? More than default? It sets ranges to separate. Could also set `series` to ensure y2 uses right axis? Default. Need maybe set `y2` axis inverse true? The preset likely already. But if we override y2 axis min/max, need include `inverse: true` to keep peaks up. For y1, inverse false.
+
+Spec:
+{
+ "file": "caox.csv",
+ "echarts": {
+   "yAxis": [
+     {"min": -100, "max": 100},
+     {"min": -1, "max": 0, "inverse": true}
+   ],
+   "graphic": {
+     "elements": [
+       {"type": "line", "left": "10%", "right": "5%", "top": "50%", "shape": {"x1": 0, "y1": 0, "x2": 100, "y2": 0}, "style": {"stroke": "#ccc", "lineWidth": 1}}
+     ]
+   }
+ }
+}
+
+But `graphic` allowed only text, line, rect. `

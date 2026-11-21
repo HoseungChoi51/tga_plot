@@ -1,0 +1,65 @@
+from pathlib import Path
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib import font_manager
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/B10_r1/out")
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+# Use Korean font if available.
+available_fonts = {font.name for font in font_manager.fontManager.ttflist}
+if "Noto Sans CJK KR" in available_fonts:
+    plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+plt.rcParams.update({
+    "font.size": 8,
+    "axes.labelsize": 8,
+    "xtick.labelsize": 8,
+    "ytick.labelsize": 8,
+    "legend.fontsize": 8,
+    "axes.linewidth": 0.8,
+    "lines.linewidth": 1.0,
+})
+
+df = pd.read_excel(DATA_FILE, sheet_name="Annealed")
+df.columns = [str(c).strip() for c in df.columns]
+
+temperature_col = next(c for c in df.columns if "Temperature" in c)
+weight_col = next(c for c in df.columns if "Weight" in c and "Deriv" not in c)
+derivative_col = next(c for c in df.columns if "Deriv" in c)
+
+temperature = pd.to_numeric(df[temperature_col], errors="coerce")
+weight = pd.to_numeric(df[weight_col], errors="coerce")
+derivative = pd.to_numeric(df[derivative_col], errors="coerce")
+valid = temperature.notna() & weight.notna() & derivative.notna()
+
+fig, ax1 = plt.subplots(figsize=(3.5, 2.6))
+ax2 = ax1.twinx()
+
+ax1.plot(temperature[valid], weight[valid], color="black", linestyle="-",
+         label="Weight")
+ax2.plot(temperature[valid], derivative[valid], color="black", linestyle="--",
+         label="Derivative weight")
+
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)")
+ax2.set_ylabel("Derivative weight (%/°C)")
+
+ax1.set_xlim(30, 900)
+ax1.tick_params(direction="in", length=3, width=0.8)
+ax2.tick_params(direction="in", length=3, width=0.8)
+for spine in ax1.spines.values():
+    spine.set_linewidth(0.8)
+for spine in ax2.spines.values():
+    spine.set_linewidth(0.8)
+
+handles1, labels1 = ax1.get_legend_handles_labels()
+handles2, labels2 = ax2.get_legend_handles_labels()
+ax1.legend(handles1 + handles2, labels1 + labels2, loc="best",
+           frameon=False, handlelength=2.0)
+
+fig.tight_layout(pad=0.5)
+fig.savefig(OUT_DIR / "annealed_tga.png", dpi=600, bbox_inches="tight")
+plt.close(fig)

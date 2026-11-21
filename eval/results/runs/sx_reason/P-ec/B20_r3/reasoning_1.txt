@@ -1,0 +1,11 @@
+We need answer user's request. Need produce JSON spec only in ```json block. Need analyze in Korean? User Korean. Need follow system: test mode cannot run commands, inspect given. Need reply JSON spec only.
+
+Request: "Acid-washed 시트, x축에 보조 눈금(minor tick)도 넣어줘"
+Need use inspect file cnt_batches.xlsx, sheet Acid-washed. Need spec only. Need determine if there is spec key for minor ticks. Guide part names: tick direction, tick label, tick step, axis range. No minor tick key. Need use extra ECharts settings. Allowed: xAxis. Need set minorTick show true? ECharts xAxis has minorTick: {show: true}, minorSplitLine maybe? User says 보조 눈금(minor tick)도 넣어줘. Likely show minor ticks on x-axis. Need only what asked: sheet Acid-washed, and echarts.xAxis.minorTick.show true. But need consider default TGA preset. Since TGA data, keep default. Need not include x col because default guess? But sheet specified. Should include sheets: "Acid-washed". For minor tick, ECharts option: xAxis: {minorTick: {show: true}}. Maybe also minorSplitLine? "보조 눈금" means minor tick, not gridline. Could set minorTick show. Need maybe axisTick? In ECharts, xAxis.minorTick.show. Could also splitLine? No. Need allowed path xAxis. If xAxis is object? In plotkit finished plot maybe xAxis object or list? Allowed xAxis. We can set {"xAxis": {"minorTick": {"show": true}}}. But if plotkit's xAxis maybe type category? TGA likely value axis. Need minor ticks require axis type value? It is temperature numeric, likely value. Good.
+
+Need ensure no other keys. File name exactly cnt_batches.xlsx. JSON:
+{"file": "cnt_batches.xlsx", "sheets": "Acid-washed", "echarts": {"xAxis": {"minorTick": {"show": true}}}}
+
+Need consider if minor tick interval? User didn't specify. Could also set "minorTick": {"show": true, "length": 5}? Not asked. Leave defaults.
+
+Need output only json block. Ensure no extra text.

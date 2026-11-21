@@ -1,0 +1,86 @@
+We need output script only. Need implement standard all sheets, remove peak label, residue stays. Read Excel. Korean font. Make robust. plot TGA with labels. Peak label removed means no peak marker. residue nearest 800 even sheet max 750 nearest measured 750. title sheet. Save each.```python
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/11_r1/out")
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+
+def safe_filename(name):
+    return "".join(ch if ch.isalnum() or ch in " ._-" else "_" for ch in str(name)).strip()
+
+
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+workbook = pd.ExcelFile(DATA_FILE)
+for sheet_name in workbook.sheet_names:
+    df = pd.read_excel(DATA_FILE, sheet_name=sheet_name)
+    df.columns = [str(column).strip() for column in df.columns]
+
+    temperature_col = next((c for c in df.columns if "temp" in c.lower()), None)
+    weight_col = next((c for c in df.columns if "weight" in c.lower()), None)
+    dtg_col = next(
+        (c for c in df.columns if "dtg" in c.lower() or "d.w" in c.lower() or "derivative" in c.lower()),
+        None,
+    )
+    if not all((temperature_col, weight_col, dtg_col)):
+        continue
+
+    data = df[[temperature_col, weight_col, dtg_col]].apply(pd.to_numeric, errors="coerce").dropna()
+    if data.empty:
+        continue
+
+    temperature = data[temperature_col].to_numpy()
+    weight = data[weight_col].to_numpy()
+    dtg_up = -data[dtg_col].to_numpy()
+
+    residue_idx = int(np.argmin(np.abs(temperature - 800)))
+    residue_temp = temperature[residue_idx]
+    residue_weight = weight[residue_idx]
+
+    fig, ax1 = plt.subplots(figsize=(8, 5))
+    ax2 = ax1.twinx()
+
+    weight_line, = ax1.plot(
+        temperature, weight, color="#1f4e9c", linewidth=1.8, label="Weight (%)"
+    )
+    dtg_line, = ax2.plot(
+        temperature, dtg_up, color="#c0392b", linewidth=1.5, label="DTG"
+    )
+
+    ax1.scatter(
+        [residue_temp], [residue_weight], color="#1f4e9c", s=35, zorder=5
+    )
+    ax1.annotate(
+        f"Residue {residue_weight:.1f}%",
+        xy=(residue_temp, residue_weight),
+        xytext=(8, 10),
+        textcoords="offset points",
+        color="#1f4e9c",
+        fontsize=9,
+    )
+
+    ax1.set_title(sheet_name)
+    ax1.set_xlabel("Temperature (°C)")
+    ax1.set_ylabel("Weight (%)", color="#1f4e9c")
+    ax2.set_ylabel("DTG (-D.W, %/°C)", color="#c0392b")
+    ax1.tick_params(axis="y", labelcolor="#1f4e9c")
+    ax2.tick_params(axis="y", labelcolor="#c0392b")
+    ax1.grid(True, linestyle="--", alpha=0.35)
+    ax1.legend(
+        handles=[weight_line, dtg_line],
+        loc="center left",
+        frameon=True,
+    )
+
+    fig.tight_layout()
+    output_path = OUT_DIR / f"{safe_filename(sheet_name)}.png"
+    fig.savefig(output_path, dpi=300, bbox_inches="tight")
+    plt.close(fig)
+```

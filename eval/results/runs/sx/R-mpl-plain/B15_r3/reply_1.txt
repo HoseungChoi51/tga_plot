@@ -1,0 +1,56 @@
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/B15_r3/out"
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+sheets = ['PE', 'PVC', 'PET']
+colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
+
+fig, ax1 = plt.subplots(figsize=(10, 6))
+
+for i, sheet in enumerate(sheets):
+    df = pd.read_excel(DATA_FILE, sheet_name=sheet)
+    temp = df['Temperature (°C)']
+    weight = df['Weight (%)']
+    deriv_weight = df['Deriv. Weight (%/°C)']
+    
+    # Plot TGA curve on primary axis
+    line1, = ax1.plot(temp, weight, color=colors[i], label=f'{sheet} TGA')
+    
+    # Plot DTG curve on secondary axis
+    ax2 = ax1.twinx()
+    line2, = ax2.plot(temp, deriv_weight, color=colors[i], linestyle='--', alpha=0.7)
+
+ax1.set_xlabel('Temperature (°C)', fontsize=12)
+ax1.set_ylabel('Weight (%)', fontsize=12)
+ax2.set_ylabel('Deriv. Weight (%/°C)', fontsize=12)
+
+# Combine legends from both axes
+lines1, labels1 = ax1.get_legend_handles_labels()
+lines2, labels2 = ax2.get_legend_handles_labels()
+
+# Create custom legend entries: one per polymer showing both TGA and DTG
+legend_entries = []
+for i, sheet in enumerate(sheets):
+    legend_entries.append((lines1[i], f'{sheet} TGA'))
+    legend_entries.append((lines2[i], f'{sheet} DTG'))
+
+handles = [h for h, l in legend_entries]
+labels = [l for h, l in legend_entries]
+
+ax1.legend(handles, labels, loc='upper left', bbox_to_anchor=(1.02, 1), fontsize=10)
+
+plt.tight_layout()
+plt.savefig(os.path.join(OUT_DIR, 'tga_overlay.png'), dpi=300, bbox_inches='tight')
+plt.close()
+```

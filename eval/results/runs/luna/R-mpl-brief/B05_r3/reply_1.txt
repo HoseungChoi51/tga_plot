@@ -1,0 +1,101 @@
+```python
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+DATA_FILES = [
+    "/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_A.csv",
+    "/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_B.txt",
+]
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/B05_r3/out"
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+def read_data(path):
+    path = Path(path)
+    if path.suffix.lower() == ".csv":
+        return pd.read_csv(path)
+    # Text input: infer the delimiter (tab, comma, semicolon, or whitespace).
+    return pd.read_csv(path, sep=None, engine="python")
+
+def find_column(df, token):
+    for col in df.columns:
+        if token.lower() in str(col).lower():
+            return col
+    raise ValueError(f"Could not find a column containing {token!r}")
+
+fig, ax1 = plt.subplots(figsize=(10, 6))
+ax2 = ax1.twinx()
+
+colors = ["#1f4e9c", "#5b9bd5"]
+dtg_colors = ["#c0392b", "#e67e22"]
+labels = ["Lot A", "Lot B"]
+
+for path, label, weight_color, dtg_color in zip(
+    DATA_FILES, labels, colors, dtg_colors
+):
+    df = read_data(path)
+    temp_col = find_column(df, "Temperature")
+    weight_col = find_column(df, "Weight")
+    dtg_col = find_column(df, "Deriv")
+
+    temp = pd.to_numeric(df[temp_col], errors="coerce")
+    weight = pd.to_numeric(df[weight_col], errors="coerce")
+    dtg = pd.to_numeric(df[dtg_col], errors="coerce")
+    valid = temp.notna() & weight.notna() & dtg.notna()
+    temp, weight, dtg = temp[valid], weight[valid], dtg[valid]
+
+    ax1.plot(temp, weight, color=weight_color, linewidth=1.8,
+             label=f"{label} Weight")
+    ax2.plot(temp, -dtg, color=dtg_color, linewidth=1.5, linestyle="--",
+             label=f"{label} DTG")
+
+    # Residue at the measured point nearest 800 °C.
+    residue_idx = (temp - 800).abs().idxmin()
+    ax1.scatter(temp.loc[residue_idx], weight.loc[residue_idx],
+                color=weight_color, edgecolor="white", linewidth=0.7, zorder=5)
+    ax1.annotate(
+        f"{label} Residue {weight.loc[residue_idx]:.1f}%",
+        (temp.loc[residue_idx], weight.loc[residue_idx]),
+        xytext=(6, 8), textcoords="offset points",
+        color=weight_color, fontsize=9
+    )
+
+    # Highest positive (-DTG) peak above 150 °C.
+    peak_region = temp > 150
+    if peak_region.any():
+        peak_idx = (-dtg[peak_region]).idxmax()
+        peak_temp = temp.loc[peak_idx]
+        peak_value = -dtg.loc[peak_idx]
+        ax2.scatter(peak_temp, peak_value, color=dtg_color,
+                    edgecolor="white", linewidth=0.7, zorder=5)
+        ax2.annotate(
+            f"{label} {peak_temp:.0f} °C",
+            (peak_temp, peak_value),
+            xytext=(6, 8), textcoords="offset points",
+            color=dtg_color, fontsize=9
+        )
+
+ax1.set_title("TGA Comparison")
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)")
+ax2.set_ylabel("DTG (-Derivative Weight, %/°C)")
+
+handles1, labels1 = ax1.get_legend_handles_labels()
+handles2, labels2 = ax2.get_legend_handles_labels()
+ax1.legend(handles1 + handles2, labels1 + labels2, loc="center left",
+           frameon=True, fontsize=9)
+
+ax1.grid(True, linestyle=":", alpha=0.5)
+fig.tight_layout()
+
+out_dir = Path(OUT_DIR)
+out_dir.mkdir(parents=True, exist_ok=True)
+fig.savefig(out_dir / "tga_lot_comparison.png", dpi=300, bbox_inches="tight")
+plt.close(fig)
+```

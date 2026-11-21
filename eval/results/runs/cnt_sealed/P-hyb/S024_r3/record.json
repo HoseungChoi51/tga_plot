@@ -1,0 +1,109 @@
+{
+ "arm": "P-hyb",
+ "item": "S024",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "TGA 10개 배치 각각 800 °C 잔량(wt%)을 Fe로 환산(Fe₂O₃ → Fe, ×0.699)해서 런로그 잔류금속(wt%)과 비교하는 산점도 그려 주세요. 시트 이름이 런ID입니다. y = x 기준선도 넣어 주세요.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": [\n    \"data/tga_batches.xlsx\",\n    \"data/run_log.xlsx\"\n  ],\n  \"chart\": \"scatter\",\n  \"x\": {\n    \"col\": \"TGA_Fe_wt%\",\n    \"label\": \"TGA 잔류량 환산 Fe (wt%)\"\n  },\n  \"y\": {\n    \"col\": \"잔류금속 (wt%)\",\n    \"label\": \"런로그 잔류금속 (wt%)\"\n  },\n  \"ref\": [\n    {\n      \"type\": \"line\",\n      \"slope\": 1,\n      \"intercept\": 0,\n      \"text\": \"y = x\",\n      \"color\": \"gray\",\n      \"linestyle\": \"--\"\n    }\n  ],\n  \"data_code\": \"import pandas as pd\\n# Load TGA data and calculate Fe equivalent residue at 800C\\ntga_file = 'data/tga_batches.xlsx'\\nrun_file = 'data/run_log.xlsx'\\n\\n# Get all sheets from TGA file\\nxl_tga = pd.ExcelFile(tga_file)\\nsheets = xl_tga.sheet_names\\n\\nresults = []\\nfor sheet in sheets:\\n    df_sheet = pd.read_excel(tga_file, sheet_name=sheet)\\n    # Find index closest to 800 C\\n    temp_col = '온도 (°C)'\\n    weight_col = '중량 (%)'\\n    idx_800 = (df_sheet[temp_col] - 800).abs().idxmin()\\n    residue_800 = df_sheet.loc[idx_800, weight_col]\\n    fe_equiv = residue_800 * 0.699\\n    run_id = sheet\\n    results.append({'런ID': run_id, 'TGA_Fe_wt%': fe_equiv})\\n\\ntga_df = pd.DataFrame(results)\\n\\n# Merge with run log\\nrun_df = pd.read_excel(run_file, sheet_name='런로그')\\ndf = run_df.merge(tga_df, on='런ID', how='inner')\",\n  \"asks\": [\n    {\n      \"ask\": \"TGA 10개 배치 각각 800 °C 잔량(wt%)을 Fe로 환산(Fe₂O₃ → Fe, ×0.699)\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"런로그 잔류금속(wt%)과 비교하는 산점도\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"시트 이름이 런ID\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"y = x 기준선\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 23.306,
+     "prompt_tokens": 7491,
+     "output_tokens": 637,
+     "cached_tokens": 5308,
+     "prompt_n": 2183,
+     "prefill_ms": 2460.5678510000002,
+     "decode_ms": 19837.633173999984,
+     "finish": "stop"
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"chart\": \"scatter\",\n  \"x\": {\n    \"col\": \"TGA_Fe_wt%\",\n    \"label\": \"TGA 잔류량 환산 Fe (wt%)\"\n  },\n  \"y\": {\n    \"col\": \"잔류금속 (wt%)\",\n    \"label\": \"런로그 잔류금속 (wt%)\"\n  },\n  \"ref\": [\n    {\n      \"type\": \"line\",\n      \"slope\": 1,\n      \"intercept\": 0,\n      \"text\": \"y = x\",\n      \"color\": \"gray\",\n      \"linestyle\": \"--\"\n    }\n  ],\n  \"data_code\": \"import pandas as pd\\n# Load TGA data and calculate Fe equivalent residue at 800C\\ntga_file = 'data/tga_batches.xlsx'\\nrun_file = 'data/run_log.xlsx'\\n\\n# Get all sheets from TGA file\\nxl_tga = pd.ExcelFile(tga_file)\\nsheets = xl_tga.sheet_names\\n\\nresults = []\\nfor sheet in sheets:\\n    df_sheet = pd.read_excel(tga_file, sheet_name=sheet)\\n    # Find index closest to 800 C\\n    temp_col = '온도 (°C)'\\n    weight_col = '중량 (%)'\\n    idx_800 = (df_sheet[temp_col] - 800).abs().idxmin()\\n    residue_800 = df_sheet.loc[idx_800, weight_col]\\n    fe_equiv = residue_800 * 0.699\\n    run_id = sheet\\n    results.append({'런ID': run_id, 'TGA_Fe_wt%': fe_equiv})\\n\\ntga_df = pd.DataFrame(results)\\n\\n# Merge with current df (which is the run log)\\ndf = df.merge(tga_df, on='런ID', how='inner')\",\n  \"asks\": [\n    {\n      \"ask\": \"TGA 10개 배치 각각 800 °C 잔량(wt%)을 Fe로 환산(Fe₂O₃ → Fe, ×0.699)\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"런로그 잔류금속(wt%)과 비교하는 산점도\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"시트 이름이 런ID\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"y = x 기준선\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 12.765,
+     "prompt_tokens": 8202,
+     "output_tokens": 611,
+     "cached_tokens": 8128,
+     "prompt_n": 74,
+     "prefill_ms": 310.420908,
+     "decode_ms": 12033.022921999996,
+     "finish": "stop"
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"chart\": \"scatter\",\n  \"x\": {\n    \"col\": \"TGA_Fe_wt%\",\n    \"label\": \"TGA 잔류량 환산 Fe (wt%)\"\n  },\n  \"y\": {\n    \"col\": \"잔류금속 (wt%)\",\n    \"label\": \"런로그 잔류금속 (wt%)\"\n  },\n  \"ref\": [\n    {\n      \"type\": \"line\",\n      \"slope\": 1,\n      \"intercept\": 0,\n      \"text\": \"y = x\",\n      \"color\": \"gray\",\n      \"linestyle\": \"--\"\n    }\n  ],\n  \"data_code\": \"import pandas as pd\\n# Load TGA data and calculate Fe equivalent residue at 800C\\ntga_file = 'data/tga_batches.xlsx'\\nrun_file = 'data/run_log.xlsx'\\n\\n# Get all sheets from TGA file\\nxl_tga = pd.ExcelFile(tga_file)\\nsheets = xl_tga.sheet_names\\n\\nresults = []\\nfor sheet in sheets:\\n    df_sheet = pd.read_excel(tga_file, sheet_name=sheet)\\n    # Find index closest to 800 C\\n    temp_col = '온도 (°C)'\\n    weight_col = '중량 (%)'\\n    idx_800 = (df_sheet[temp_col] - 800).abs().idxmin()\\n    residue_800 = df_sheet.loc[idx_800, weight_col]\\n    fe_equiv = residue_800 * 0.699\\n    run_id = sheet\\n    results.append({'런ID': run_id, 'TGA_Fe_wt%': fe_equiv})\\n\\ntga_df = pd.DataFrame(results)\\n\\n# Merge with current df (which is the run log)\\ndf = df.merge(tga_df, on='런ID', how='inner')\",\n  \"asks\": [\n    {\n      \"ask\": \"TGA 10개 배치 각각 800 °C 잔량(wt%)을 Fe로 환산(Fe₂O₃ → Fe, ×0.699)\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"런로그 잔류금속(wt%)과 비교하는 산점도\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"시트 이름이 런ID\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"y = x 기준선\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 11.841,
+     "prompt_tokens": 8887,
+     "output_tokens": 611,
+     "cached_tokens": 8813,
+     "prompt_n": 74,
+     "prefill_ms": 332.935844,
+     "decode_ms": 11251.401477999998,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "chart": "scatter",
+    "x": {
+     "col": "TGA_Fe_wt%",
+     "label": "TGA 잔류량 환산 Fe (wt%)"
+    },
+    "y": {
+     "col": "잔류금속 (wt%)",
+     "label": "런로그 잔류금속 (wt%)"
+    },
+    "ref": [
+     {
+      "type": "line",
+      "slope": 1,
+      "intercept": 0,
+      "text": "y = x",
+      "color": "gray",
+      "linestyle": "--"
+     }
+    ],
+    "data_code": "import pandas as pd\n# Load TGA data and calculate Fe equivalent residue at 800C\ntga_file = 'data/tga_batches.xlsx'\nrun_file = 'data/run_log.xlsx'\n\n# Get all sheets from TGA file\nxl_tga = pd.ExcelFile(tga_file)\nsheets = xl_tga.sheet_names\n\nresults = []\nfor sheet in sheets:\n    df_sheet = pd.read_excel(tga_file, sheet_name=sheet)\n    # Find index closest to 800 C\n    temp_col = '온도 (°C)'\n    weight_col = '중량 (%)'\n    idx_800 = (df_sheet[temp_col] - 800).abs().idxmin()\n    residue_800 = df_sheet.loc[idx_800, weight_col]\n    fe_equiv = residue_800 * 0.699\n    run_id = sheet\n    results.append({'런ID': run_id, 'TGA_Fe_wt%': fe_equiv})\n\ntga_df = pd.DataFrame(results)\n\n# Merge with current df (which is the run log)\ndf = df.merge(tga_df, on='런ID', how='inner')",
+    "asks": [
+     {
+      "ask": "TGA 10개 배치 각각 800 °C 잔량(wt%)을 Fe로 환산(Fe₂O₃ → Fe, ×0.699)",
+      "how": "data_code"
+     },
+     {
+      "ask": "런로그 잔류금속(wt%)과 비교하는 산점도",
+      "how": "key"
+     },
+     {
+      "ask": "시트 이름이 런ID",
+      "how": "data_code"
+     },
+     {
+      "ask": "y = x 기준선",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": false,
+    "error": "data_code failed: FileNotFoundError: [Errno 2] No such file or directory: 'data/tga_batches.xlsx'",
+    "hint": "names: df (pandas DataFrame of the table), pd, np; leave the result in df"
+   },
+   "facts": [],
+   "draw_s": 0.4521050453186035,
+   "check": {
+    "kind_expected": "scatter",
+    "failed": [
+     "run: no plot (data_code failed: FileNotFoundError: [Errno 2] No such file or directory: 'data/tga_batches.xlsx')"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 49.659
+  }
+ ]
+}

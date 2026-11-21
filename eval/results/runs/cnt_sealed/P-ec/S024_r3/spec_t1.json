@@ -1,0 +1,41 @@
+{
+ "file": [
+  "data/tga_batches.xlsx",
+  "data/run_log.xlsx"
+ ],
+ "chart": "scatter",
+ "x": {
+  "col": "TGA_Fe_wt%",
+  "label": "TGA 잔류량 환산 Fe (wt%)"
+ },
+ "y": {
+  "col": "잔류금속 (wt%)",
+  "label": "런로그 잔류금속 (wt%)"
+ },
+ "ref": [
+  {
+   "type": "line",
+   "slope": 1,
+   "intercept": 0,
+   "text": "y = x"
+  }
+ ],
+ "data_code": "# The sandbox environment for data_code does not allow reading external files via pd.read_excel.\n# However, when multiple files are provided in 'file', plotkit typically loads them into a context.\n# If the previous attempt failed because 'df' was only one of the tables, we need to ensure both are accessible.\n# In many plotkit implementations, if you list multiple files, they might be merged or available as separate variables,\n# but here we only have 'df'. \n# Since I cannot compute the TGA residue without accessing the TGA file content inside data_code,\n# and the error indicates the column doesn't exist in the current df (which seems to be the Run Log based on columns),\n# this specific cross-file calculation is technically unsupported by the standard 'data_code' sandbox constraints\n# unless the tool automatically merges them or provides access to the other file's data.\n# Given the strict constraint \"Reply with ONE JSON spec\", and the failure of manual loading,\n# I will mark the TGA calculation part as unsupported in the asks, but keep the chart definition\n# assuming the user might have pre-processed data or expects the tool to handle it if possible.\n# However, to provide a valid response that doesn't crash immediately on missing column if possible,\n# I will try to use the 'run_log' data alone if TGA isn't available, but the request specifically asks for comparison.\n# Let's assume the question implies the capability exists. If not, it's unsupported.\n# But wait, looking at the error hint: \"columns: ... 런ID ...\". This confirms df has 런ID.\n# It does NOT have TGA_Fe_wt%. \n# I cannot create it from thin air in the sandbox.\n# Therefore, the ask for TGA conversion is unsupported in this execution environment.\n\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"chart\": \"scatter\",\n  \"x\": {\n    \"col\": \"잔류금속 (wt%)\",\n    \"label\": \"잔류금속 (wt%)\"\n  },\n  \"y\": {\n    \"col\": \"산화개시온도 (°C)\",\n    \"label\": \"산화개시온도 (°C)\"\n  },\n  \"asks\": [\n    {\n      \"ask\": \"TGA 10개 배치 각각 800 °C 잔량(wt%)을 Fe로 환산(Fe₂O₃ → Fe, ×0.699)\",\n      \"how\": \"unsupported\"\n    },\n    {\n      \"ask\": \"런로그 잔류금속(wt%)과 비교하는 산점도\",\n      \"how\": \"unsupported\"\n    },\n    {\n      \"ask\": \"y = x 기준선\",\n      \"how\": \"unsupported\"\n    }\n  ]\n}",
+ "asks": [
+  {
+   "ask": "TGA 10개 배치 각각 800 °C 잔량(wt%)을 Fe로 환산(Fe₂O₃ → Fe, ×0.699)",
+   "how": "unsupported"
+  },
+  {
+   "ask": "런로그 잔류금속(wt%)과 비교하는 산점도",
+   "how": "unsupported"
+  },
+  {
+   "ask": "y = x 기준선",
+   "how": "unsupported"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-ec/S024_r3/out/t1"
+ }
+}

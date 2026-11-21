@@ -1,0 +1,109 @@
+The user wants a Python script that reads TGA.xlsx and produces ECharts JSON. The request: "틱 방향 바깥쪽으로, 틱 라벨 크기 9" — tick direction outward, tick label size 9. This applies to x, y1, y2 axes (no axis named).
+
+I need to write a complete script that:
+- Reads the Excel file with openpyxl/pandas
+- For each sheet, builds a standard TGA plot: x=temperature, y1=weight% (line #1f4e9c), y2=DTG * -1 (line #c0392b), title = sheet name, legend center left
+- Residue label: weight at nearest 800°C, "Residue X.X%" with marker on curve
+- Peak label: temperature of highest DTG peak above 150°C, "XXX °C" with marker
+- Tick direction outward: axisTick { inside: false, ... } — ECharts default is outward actually (inside: false). But explicitly set inside: false.
+- Tick label size 9: axisLabel fontSize 9 on all axes.
+- Print one JSON to stdout.
+
+Let me write the script carefully.
+
+Data: use pandas read_excel with sheet_name=None, header row 0 (data_start_row 2 means header row 1 in 1-based, so pandas header=0).
+
+Columns: find by name patterns: temperature, weight, dtg.
+
+Build series data as [[x, y], ...].
+
+For y2 multiply by -1.
+
+Residue: point nearest 800°C on weight curve. If max temp < 800 (like 750C sheet), nearest measured point is 750. Use nearest anyway.
+
+Peak: highest DTG peak above 150°C — since we multiply by -1, peaks point up; the highest peak means the most negative DTG (largest -DTG). Find max of -dtg where temp > 150.
+
+Markers: use scatter series or markPoint. Simpler: add scatter series with single point.
+
+Residue marker on weight curve at (T_res, W_res), label "Residue 8.0%". Peak marker at (T_peak, -dtg_peak) on y2 axis with label "600 °C".
+
+Use scatter series with label show.
+
+Font: Noto Sans CJK KR for text. Set textStyle fontFamily.
+
+Axis tick: axisTick: { show: true, inside: false, length: 5 }. Also minor? Not needed.
+
+axisLabel: { fontSize: 9 }.
+
+Grid: leave margins for labels.
+
+Legend at center left: legend: { left: 10, top: 'middle', orient: 'vertical' }.
+
+Title: sheet name, top center.
+
+Width/height: default 614x442? The spec says width/height CSS px at 96 px/inch. Use 614x442 default (6.4x4.6 in). Fine.
+
+dpi 300, formats ["png"].
+
+Number formatting: residue like "Residue 8.0%" one decimal. Peak like "600 °C" integer.
+
+Let me write code.
+
+Also handle NaN: filter.
+
+For line series, use type 'line', showSymbol false, lineStyle width 1.5.
+
+y2 axis: position right, splitLine off.
+
+Also axis name: x 'Temperature (°C)', y1 'Weight (%)', y2 'DTG (%/°C)'? The standard says axis labels; not explicitly requested but standard TGA plot. The user didn't request labels; default standard includes them? The instructions describe standard TGA plot with x=temperature etc. I'll include axis names.
+
+Tick label size 9 applies to x, y1, y2 axisLabel fontSize 9.
+
+Title font maybe 12.
+
+Let me produce JSON with json.dumps ensure_ascii=False.
+
+Code:
+
+import json, math
+import pandas as pd
+import numpy as np
+
+DATA_FILE = "..."
+
+def find_col(cols, patterns): ...
+
+For each sheet df:
+ cols lower.
+ xcol: contains 'temp'
+ y1col: contains 'weight'
+ y2col: contains 'd.w' or 'dtg' or 'derivative'
+
+Build arrays, drop NaN.
+
+y2v = -dtg.
+
+residue: idx = argmin(abs(temp-800)); w = weight[idx]; t = temp[idx]. label f"Residue {w:.1f}%".
+
+peak: mask temp>150; idx = argmax(y2v[mask]); t_peak, p_val.
+
+Series:
+ line weight (yAxisIndex 0), line dtg (yAxisIndex 1), scatter residue with label, scatter peak.
+
+Scatter residue: data [[t, w]], symbolSize 8, color #1f4e9c, label formatter via plain? No functions allowed. Use label: { show: true, formatter: 'Residue 8.0%', position: 'top' }. Since formatter can be a static string, fine.
+
+Peak scatter: yAxisIndex 1, data [[t_peak, p_val]], color #c0392b, label formatter f"{t_peak:.0f} °C".
+
+Axis ranges: x maybe min 0? Use data min/max with axisLabel. Let ECharts auto.
+
+Set axisTick inside false for all three axes.
+
+Also splitLine for y1 show true? Grid default. Fine.
+
+Compose option.
+
+Print {"figures": [...]}.
+
+Edge: sheet name used as title and figure name. Figure name: sanitize? "plot1", "plot2"... The example uses "plot1". I'll use plot1..N.
+
+Write final code.

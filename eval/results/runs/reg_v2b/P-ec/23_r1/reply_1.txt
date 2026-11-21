@@ -1,0 +1,3 @@
+```json
+{"file": "instrument_export.txt", "annotate": {"residue": {"text": "Residue: {}%"}}, "asks": [{"ask": "잔류량 글자 변경", "how": "key"}]}
+```

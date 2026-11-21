@@ -1,0 +1,33 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "histogram",
+ "x": {
+  "col": "CNT수율 (g/g-cat)"
+ },
+ "bins": {
+  "width": 1,
+  "min": 12,
+  "max": 36
+ },
+ "data_code": "df['기간구분'] = np.where(df['주차'] <= 13, '주차 1-13', '주차 14-26')\nglobals()['med_1_13'] = float(df.loc[df['기간구분']=='주차 1-13', 'CNT수율 (g/g-cat)'].median())\nglobals()['med_14_26'] = float(df.loc[df['기간구분']=='주차 14-26', 'CNT수율 (g/g-cat)'].median())",
+ "by": "기간구분",
+ "alpha": 0.7,
+ "code": "ax.axvline(globals().get('med_1_13', 0), color='blue', linestyle='--', linewidth=2, label=f'Median(1-13): {globals().get(\"med_1_13\", 0):.1f}')\nax.axvline(globals().get('med_14_26', 0), color='orange', linestyle='--', linewidth=2, label=f'Median(14-26): {globals().get(\"med_14_26\", 0):.1f}')\nax.legend(loc='upper right')",
+ "asks": [
+  {
+   "ask": "Period overlay (주차 1-13 vs 14-26)",
+   "how": "key"
+  },
+  {
+   "ask": "Shared bin edges, width 1 from 12 to 36",
+   "how": "key"
+  },
+  {
+   "ask": "Vertical line at each period's median",
+   "how": "code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/SS15_r3/out/t3"
+ }
+}

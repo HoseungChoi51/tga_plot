@@ -1,0 +1,46 @@
+{
+  "file": "data/cnt_batches.xlsx",
+  "sheets": "Raw",
+  "echarts": {
+    "series": [
+      {
+        "areaStyle": {
+          "opacity": 0.08
+        },
+        "markLine": {
+          "symbol": [
+            "none",
+            "arrow"
+          ],
+          "lineStyle": {
+            "color": "gray",
+            "type": "solid"
+          },
+          "label": {
+            "formatter": "catalyst residue",
+            "color": "gray"
+          },
+          "data": [
+            [
+              {
+                "coord": [
+                  640,
+                  45
+                ]
+              },
+              {
+                "coord": [
+                  850,
+                  16
+                ]
+              }
+            ]
+          ]
+        }
+      }
+    ],
+    "grid": {
+      "show": false
+    }
+  }
+}

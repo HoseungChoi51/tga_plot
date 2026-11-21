@@ -1,0 +1,120 @@
+```python
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from matplotlib.ticker import MultipleLocator
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/02_r3/out"
+SHEET_NAME = "1006R1-V normal"
+
+Path(OUT_DIR).mkdir(parents=True, exist_ok=True)
+
+# Read the requested worksheet and identify its temperature, weight, and derivative columns.
+df = pd.read_excel(DATA_FILE, sheet_name=SHEET_NAME)
+df.columns = [str(column).strip() for column in df.columns]
+
+def find_column(candidates):
+    for candidate in candidates:
+        for column in df.columns:
+            if candidate.lower() in column.lower():
+                return column
+    raise ValueError(f"Could not find a column matching {candidates}")
+
+temperature_col = find_column(["temperature"])
+weight_col = find_column(["weight"])
+derivative_col = find_column(["d.w", "deriv.weight", "derivative", "dtg"])
+
+data = df[[temperature_col, weight_col, derivative_col]].apply(
+    pd.to_numeric, errors="coerce"
+).dropna()
+
+temperature = data[temperature_col].to_numpy()
+weight = data[weight_col].to_numpy()
+derivative = data[derivative_col].to_numpy()
+
+# Residue: weight measured at the point nearest 800 °C.
+residue_index = int(np.argmin(np.abs(temperature - 800)))
+residue_temperature = temperature[residue_index]
+residue_weight = weight[residue_index]
+
+# Derivative data are negative during mass loss; plot -DTG so peaks point up.
+dtg_plot = -derivative
+
+# Mark the largest upward derivative peak above 150 °C.
+eligible = temperature > 150
+if eligible.any():
+    eligible_indices = np.flatnonzero(eligible)
+    peak_index = int(eligible_indices[np.argmax(dtg_plot[eligible])])
+else:
+    peak_index = int(np.argmax(dtg_plot))
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+fig, ax1 = plt.subplots(figsize=(10, 6))
+ax2 = ax1.twinx()
+
+line1, = ax1.plot(
+    temperature, weight, color="#1f4e9c", linewidth=1.8, label="Weight (%)"
+)
+line2, = ax2.plot(
+    temperature, dtg_plot, color="#c0392b", linewidth=1.5, label="Deriv.Weight"
+)
+
+ax1.set_title(SHEET_NAME)
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)", color="#1f4e9c")
+ax2.set_ylabel("Deriv.Weight (%/°C)", color="#c0392b")
+
+# Temperature ticks begin at 0 °C and increase in 200 °C intervals.
+ax1.set_xlim(left=0)
+ax1.xaxis.set_major_locator(MultipleLocator(200))
+ax1.yaxis.set_major_locator(MultipleLocator(20))
+ax2.yaxis.set_major_locator(MultipleLocator(0.2))
+
+ax1.tick_params(axis="y", colors="#1f4e9c")
+ax2.tick_params(axis="y", colors="#c0392b")
+ax1.grid(True, which="major", axis="both", linestyle="--", alpha=0.35)
+
+# Residue annotation on the weight curve.
+ax1.scatter(
+    [residue_temperature], [residue_weight],
+    color="#1f4e9c", edgecolor="white", linewidth=0.7, s=55, zorder=5
+)
+ax1.annotate(
+    f"Residue {residue_weight:.1f}%",
+    xy=(residue_temperature, residue_weight),
+    xytext=(10, 12),
+    textcoords="offset points",
+    color="#1f4e9c",
+    fontsize=10,
+    arrowprops=dict(arrowstyle="-", color="#1f4e9c", lw=0.8),
+)
+
+# Annotate the maximum plotted derivative peak.
+ax2.scatter(
+    [temperature[peak_index]], [dtg_plot[peak_index]],
+    color="#c0392b", edgecolor="white", linewidth=0.7, s=55, zorder=5
+)
+ax2.annotate(
+    f"Max: {dtg_plot[peak_index]:.3g} at {temperature[peak_index]:.0f} °C",
+    xy=(temperature[peak_index], dtg_plot[peak_index]),
+    xytext=(10, -18),
+    textcoords="offset points",
+    color="#c0392b",
+    fontsize=10,
+    arrowprops=dict(arrowstyle="-", color="#c0392b", lw=0.8),
+)
+
+ax1.legend([line1, line2], [line1.get_label(), line2.get_label()], loc="center left")
+fig.tight_layout()
+
+output_path = Path(OUT_DIR) / "1006R1-V_normal.png"
+fig.savefig(output_path, dpi=300, format="png", bbox_inches="tight")
+plt.close(fig)
+```

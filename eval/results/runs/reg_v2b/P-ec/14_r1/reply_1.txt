@@ -1,0 +1,3 @@
+```json
+{"file": "korean_excel.csv", "output": {"format": ["pdf", "png"]}, "asks": [{"ask": "그래프", "how": "key"}, {"ask": "pdf, png 저장", "how": "key"}]}
+```

@@ -1,0 +1,3 @@
+```json
+{"file":"TGA.xlsx","sheets":"1006R1-V acid","x":{"min":100,"max":800},"annotate":{"peak":{"count":2}}}
+```

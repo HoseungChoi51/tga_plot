@@ -1,0 +1,128 @@
+import os
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import find_peaks
+
+# Configuration
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/03_r2/out"
+SHEET_NAME = "1006R1-V acid"
+X_MIN, X_MAX = 100, 800
+NUM_PEAKS_TO_MARK = 2
+
+# Ensure output directory exists
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+# Read data
+df = pd.read_excel(DATA_FILE, sheet_name=SHEET_NAME)
+
+# Identify columns based on standard TGA structure provided in preview
+# B: Temperature, C: Weight(%), D: D.W(%/C)
+col_x = df.columns[1]  # Temperature
+col_y1 = df.columns[2] # Weight(%)
+col_y2 = df.columns[3] # D.W(%/C)
+
+temp = df[col_x].values
+weight = df[col_y1].values
+dtg = df[col_y2].values
+
+# Filter data for plotting range (optional, but good for performance/clarity if needed, 
+# though we set xlim later. We keep full data for accurate peak finding logic relative to the whole run,
+# but restrict markers to the visible range or logic specified.)
+
+# Plotting
+fig, ax1 = plt.subplots(figsize=(8, 6))
+
+# Y1: Weight (%)
+color1 = '#1f4e9c'
+ax1.plot(temp, weight, color=color1, label='Weight (%)')
+ax1.set_xlabel('Temperature (°C)', fontsize=12)
+ax1.set_ylabel('Weight (%)', color=color1, fontsize=12)
+ax1.tick_params(axis='y', labelcolor=color1)
+ax1.set_xlim(X_MIN, X_MAX)
+
+# Y2: DTG (%/°C) - multiplied by -1 so peaks point up
+color2 = '#c0392b'
+ax2 = ax1.twinx()
+dtg_inverted = dtg * -1
+ax2.plot(temp, dtg_inverted, color=color2, linestyle='--', label='DTG (%/°C)')
+ax2.set_ylabel('DTG (%/°C)', color=color2, fontsize=12)
+ax2.tick_params(axis='y', labelcolor=color2)
+
+# Title
+ax1.set_title(SHEET_NAME, fontsize=14, pad=15)
+
+# Legend
+lines1, labels1 = ax1.get_legend_handles_labels()
+lines2, labels2 = ax2.get_legend_handles_labels()
+ax1.legend(lines1 + lines2, labels1 + labels2, loc='center left', bbox_to_anchor=(0.05, 0.5))
+
+# --- Marker Logic ---
+
+# 1. Residue Label: Weight at nearest point to 800°C
+target_temp_residue = 800
+idx_residue = np.argmin(np.abs(temp - target_temp_residue))
+residue_temp = temp[idx_residue]
+residue_weight = weight[idx_residue]
+
+# Draw residue marker and label
+ax1.scatter([residue_temp], [residue_weight], color=color1, zorder=5, s=50)
+ax1.annotate(f'Residue {residue_weight:.1f}%', 
+             xy=(residue_temp, residue_weight), 
+             xytext=(10, -15), textcoords='offset points',
+             color=color1, fontsize=10, fontweight='bold')
+
+# 2. Peak Labels: Find top 2 highest DTG peaks above 150°C within the x-range of interest?
+# The prompt says "피크 표시 2개". Usually implies the most significant decomposition steps.
+# Constraint: "above 150 °C".
+# We search for peaks in the inverted DTG (so positive peaks are mass loss).
+
+mask_range = (temp >= 150) & (temp <= X_MAX) # Focus on relevant range for peak detection usually
+t_search = temp[mask_range]
+dtg_search = dtg_inverted[mask_range]
+
+# Use scipy find_peaks
+# prominence helps avoid noise. height ensures it's a real loss.
+peaks, properties = find_peaks(dtg_search, prominence=0.05, distance=50)
+
+if len(peaks) > 0:
+    # Get peak heights
+    peak_heights = dtg_search[peaks]
+    
+    # Sort peaks by height descending
+    sorted_indices = np.argsort(peak_heights)[::-1]
+    
+    # Select top N peaks
+    num_to_mark = min(NUM_PEAKS_TO_MARK, len(sorted_indices))
+    top_peak_indices = peaks[sorted_indices[:num_to_mark]]
+    
+    for i, p_idx in enumerate(top_peak_indices):
+        peak_t = t_search[p_idx]
+        peak_val = dtg_search[p_idx] # This is the inverted value (positive)
+        
+        # Mark on DTG axis (ax2)
+        ax2.scatter([peak_t], [peak_val], color=color2, zorder=5, s=50, marker='^')
+        
+        # Annotate temperature
+        # Offset slightly to avoid overlapping with line
+        offset_y = 15 if i == 0 else 25 # Stack labels if close
+        ax2.annotate(f'{peak_t:.0f} °C', 
+                     xy=(peak_t, peak_val), 
+                     xytext=(0, offset_y), textcoords='offset points',
+                     color=color2, fontsize=10, ha='center', fontweight='bold')
+else:
+    print("No significant peaks found above 150°C.")
+
+# Grid
+ax1.grid(True, linestyle=':', alpha=0.6)
+
+# Save
+out_path = os.path.join(OUT_DIR, f"{SHEET_NAME.replace(' ', '_')}.png")
+plt.tight_layout()
+plt.savefig(out_path, dpi=300, bbox_inches='tight')
+plt.close()

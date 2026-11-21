@@ -1,0 +1,197 @@
+import json
+import os
+import sys
+
+import numpy as np
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/caox.csv"
+
+def load_data(path):
+    ext = os.path.splitext(path)[1].lower()
+    if ext == ".csv":
+        try:
+            return {"caox": pd.read_csv(path)}
+        except UnicodeDecodeError:
+            return {"caox": pd.read_csv(path, encoding="cp949")}
+    if ext in (".xlsx", ".xls"):
+        return pd.read_excel(path, sheet_name=None)
+    if ext in (".txt", ".tsv"):
+        return {"data": pd.read_csv(path, sep=None, engine="python")}
+    raise ValueError(f"Unsupported file type: {ext}")
+
+sheets = load_data(DATA_FILE)
+figures = []
+
+for sheet_name, df in sheets.items():
+    df = df.dropna(how="all")
+    cols = list(df.columns)
+
+    def find_col(tokens, fallback_index):
+        for col in cols:
+            name = str(col).lower()
+            if all(token in name for token in tokens):
+                return col
+        return cols[fallback_index]
+
+    x_col = find_col(["temperature"], 1 if len(cols) > 1 else 0)
+    weight_col = find_col(["weight"], 2 if len(cols) > 2 else 1)
+    dtg_col = find_col(["deriv"], 3 if len(cols) > 3 else 2)
+
+    x = pd.to_numeric(df[x_col], errors="coerce").to_numpy(dtype=float)
+    weight = pd.to_numeric(df[weight_col], errors="coerce").to_numpy(dtype=float)
+    dtg = pd.to_numeric(df[dtg_col], errors="coerce").to_numpy(dtype=float)
+
+    valid = np.isfinite(x) & np.isfinite(weight) & np.isfinite(dtg)
+    x, weight, dtg = x[valid], weight[valid], dtg[valid]
+    if not len(x):
+        continue
+
+    order = np.argsort(x)
+    x, weight, dtg = x[order], weight[order], dtg[order]
+
+    residue_idx = int(np.argmin(np.abs(x - 800.0)))
+    residue_x, residue_y = float(x[residue_idx]), float(weight[residue_idx])
+
+    peak_mask = x > 150.0
+    if peak_mask.any():
+        peak_candidates = np.flatnonzero(peak_mask)
+        peak_idx = int(peak_candidates[np.argmax(-dtg[peak_mask])])
+    else:
+        peak_idx = int(np.argmax(-dtg))
+    peak_x, peak_y = float(x[peak_idx]), float(-dtg[peak_idx])
+
+    xmin, xmax = float(np.min(x)), float(np.max(x))
+    xpad = max((xmax - xmin) * 0.025, 1.0)
+    weight_min, weight_max = float(np.min(weight)), float(np.max(weight))
+    wpad = max((weight_max - weight_min) * 0.08, 1.0)
+    dtg_up = -dtg
+    dtg_min, dtg_max = float(np.min(dtg_up)), float(np.max(dtg_up))
+    dpad = max((dtg_max - dtg_min) * 0.12, 0.01)
+
+    option = {
+        "animation": False,
+        "title": {
+            "text": str(sheet_name),
+            "left": "center",
+            "top": 8,
+            "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 16}
+        },
+        "tooltip": {"trigger": "axis", "axisPointer": {"type": "line"}},
+        "legend": {
+            "data": ["Weight", "DTG"],
+            "left": "center",
+            "top": 34,
+            "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 11}
+        },
+        "grid": [
+            {"left": 68, "right": 65, "top": 78, "height": "34%"},
+            {"left": 68, "right": 65, "top": "59%", "height": "29%"}
+        ],
+        "xAxis": [
+            {
+                "type": "value",
+                "gridIndex": 0,
+                "min": xmin - xpad,
+                "max": xmax + xpad,
+                "name": "",
+                "axisLabel": {"show": False},
+                "axisTick": {"show": True},
+                "splitLine": {"show": False}
+            },
+            {
+                "type": "value",
+                "gridIndex": 1,
+                "min": xmin - xpad,
+                "max": xmax + xpad,
+                "name": "Temperature (°C)",
+                "nameLocation": "middle",
+                "nameGap": 30,
+                "axisLabel": {"fontFamily": "Noto Sans CJK KR", "fontSize": 11},
+                "axisLine": {"show": True},
+                "axisTick": {"show": True},
+                "splitLine": {"show": False}
+            }
+        ],
+        "yAxis": [
+            {
+                "type": "value",
+                "gridIndex": 0,
+                "name": "Weight (%)",
+                "nameLocation": "middle",
+                "nameGap": 42,
+                "min": weight_min - wpad,
+                "max": weight_max + wpad,
+                "axisLabel": {"fontFamily": "Noto Sans CJK KR", "fontSize": 11},
+                "splitLine": {"show": True, "lineStyle": {"color": "#e6e6e6"}}
+            },
+            {
+                "type": "value",
+                "gridIndex": 1,
+                "name": "-DTG (%/°C)",
+                "nameLocation": "middle",
+                "nameGap": 48,
+                "min": dtg_min - dpad,
+                "max": dtg_max + dpad,
+                "axisLabel": {"fontFamily": "Noto Sans CJK KR", "fontSize": 11},
+                "splitLine": {"show": True, "lineStyle": {"color": "#e6e6e6"}}
+            }
+        ],
+        "series": [
+            {
+                "name": "Weight",
+                "type": "line",
+                "xAxisIndex": 0,
+                "yAxisIndex": 0,
+                "data": [[float(a), float(b)] for a, b in zip(x, weight)],
+                "showSymbol": False,
+                "lineStyle": {"color": "#1f4e9c", "width": 2},
+                "markPoint": {
+                    "symbol": "circle",
+                    "symbolSize": 9,
+                    "itemStyle": {"color": "#1f4e9c"},
+                    "label": {
+                        "show": True,
+                        "formatter": f"Residue {residue_y:.1f}%",
+                        "position": "top",
+                        "fontFamily": "Noto Sans CJK KR",
+                        "fontSize": 11
+                    },
+                    "data": [{"coord": [residue_x, residue_y]}]
+                }
+            },
+            {
+                "name": "DTG",
+                "type": "line",
+                "xAxisIndex": 1,
+                "yAxisIndex": 1,
+                "data": [[float(a), float(b)] for a, b in zip(x, dtg_up)],
+                "showSymbol": False,
+                "lineStyle": {"color": "#c0392b", "width": 2},
+                "markPoint": {
+                    "symbol": "circle",
+                    "symbolSize": 9,
+                    "itemStyle": {"color": "#c0392b"},
+                    "label": {
+                        "show": True,
+                        "formatter": f"{peak_x:.0f} °C",
+                        "position": "top",
+                        "fontFamily": "Noto Sans CJK KR",
+                        "fontSize": 11
+                    },
+                    "data": [{"coord": [peak_x, peak_y]}]
+                }
+            }
+        ]
+    }
+
+    figures.append({
+        "name": str(sheet_name),
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"]
+    })
+
+print(json.dumps({"figures": figures}, ensure_ascii=False, allow_nan=False))

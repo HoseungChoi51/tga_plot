@@ -1,0 +1,200 @@
+{
+ "arm": "P-hyb",
+ "item": "S060",
+ "repeat": 2,
+ "split": "sealed",
+ "persona": "데이터 분석가",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "Share of total downtime minutes by 반응기, June–August only (2026-06-01 … 2026-08-30). Pie.",
+   "calls": [
+    {
+     "reply": "```json\n{\"file\": \"data/downtime.xlsx\", \"chart\": \"pie\", \"x\": \"반응기\", \"y\": {\"col\": \"정지시간(분)\", \"agg\": \"sum\"}, \"filter\": [\"일자 between 2026-06-01 and 2026-08-30\"], \"asks\": [{\"ask\": \"Share of total downtime minutes by 반응기\", \"how\": \"key\"}, {\"ask\": \"June–August only\", \"how\": \"key\"}, {\"ask\": \"Pie\", \"how\": \"key\"}]}\n```",
+     "llm_s": 3.833,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 17166,
+     "output_chars": 309,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/downtime.xlsx",
+    "chart": "pie",
+    "x": "반응기",
+    "y": {
+     "col": "정지시간(분)",
+     "agg": "sum"
+    },
+    "filter": [
+     "일자 between 2026-06-01 and 2026-08-30"
+    ],
+    "asks": [
+     {
+      "ask": "Share of total downtime minutes by 반응기",
+      "how": "key"
+     },
+     {
+      "ask": "June–August only",
+      "how": "key"
+     },
+     {
+      "ask": "Pie",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": true,
+    "engine": "echarts",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S060_r2/out/t1/pie_정지시간_분.png"
+    ],
+    "chart": "pie",
+    "rows_used": 181,
+    "rows_total": 294,
+    "values": {
+     "slices": {
+      "R3": 4403.0,
+      "R2": 4130.0,
+      "R1": 3516.0,
+      "R4": 3036.0
+     },
+     "shares": {
+      "R3": 0.2919,
+      "R2": 0.2738,
+      "R1": 0.2331,
+      "R4": 0.2013
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "원 그래프를 저장했습니다: pie_정지시간_분.png\n사용한 행: 181 / 294\nR3 29.2%, R2 27.4%, R1 23.3%, R4 20.1%"
+   },
+   "facts": [
+    {
+     "engine": "echarts",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": 300,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": {
+        "labels": [
+         "R3",
+         "R2",
+         "R1",
+         "R4"
+        ],
+        "shares": [
+         0.29187935034802787,
+         0.2737819025522042,
+         0.23307921776599272,
+         0.20125952933377528
+        ],
+        "values": [
+         4403.0,
+         4130.0,
+         3516.0,
+         3036.0
+        ],
+        "colors": [
+         "#1f4e9c",
+         "#c0392b",
+         "#2e8b57",
+         "#d4881c"
+        ]
+       },
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [
+        "R3\n29.2%",
+        "R2\n27.4%",
+        "R1\n23.3%",
+        "R4\n20.1%"
+       ],
+       "x": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": null,
+        "max": null,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": null,
+        "max": null,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       }
+      }
+     ],
+     "texts": [
+      "R3\n29.2%",
+      "R2\n27.4%",
+      "R1\n23.3%",
+      "R4\n20.1%"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S060_r2/out/t1/pie_정지시간_분.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.556194543838501,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 4.481
+  }
+ ]
+}

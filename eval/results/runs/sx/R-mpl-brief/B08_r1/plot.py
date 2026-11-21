@@ -1,0 +1,105 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/B08_r1/out"
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# Read the 'Raw' sheet
+df = pd.read_excel(DATA_FILE, sheet_name='Raw')
+
+# Extract columns based on standard TGA structure identified in preview
+temp_col = 'Temperature (°C)'
+weight_col = 'Weight (%)'
+dtg_col = 'Deriv. Weight (%/°C)'
+
+temps = df[temp_col].values
+weights = df[weight_col].values
+dtg = df[dtg_col].values
+
+# Create figure and axis
+fig, ax1 = plt.subplots(figsize=(8, 6))
+
+# Plot Weight (%) on left y-axis
+color1 = '#1f4e9c'
+ax1.set_xlabel('Temperature (°C)', fontsize=12)
+ax1.set_ylabel('Weight (%)', color=color1, fontsize=12)
+line1, = ax1.plot(temps, weights, color=color1, label='Weight')
+ax1.tick_params(axis='y', labelcolor=color1)
+
+# Create secondary axis for DTG
+ax2 = ax1.twinx()
+color2 = '#c0392b'
+ax2.set_ylabel('DTG (%/°C)', color=color2, fontsize=12)
+# Multiply by -1 so peaks point up
+line2, = ax2.plot(temps, dtg * -1, color=color2, label='DTG')
+ax2.tick_params(axis='y', labelcolor=color2)
+
+# Title from sheet name
+ax1.set_title('Raw', fontsize=14)
+
+# Add horizontal reference line at Weight = 50%
+ax1.axhline(y=50, color='gray', linestyle='--', linewidth=1, alpha=0.7)
+
+# Calculate Residue at ~800°C
+idx_800 = np.argmin(np.abs(temps - 800))
+residue_val = weights[idx_800]
+residue_temp = temps[idx_800]
+
+# Add residue marker and label
+ax1.plot(residue_temp, residue_val, 'o', color=color1, markersize=6)
+ax1.annotate(f'Residue {residue_val:.1f}%', 
+             xy=(residue_temp, residue_val), 
+             xytext=(10, 10), textcoords='offset points',
+             fontsize=10, color=color1,
+             arrowprops=dict(arrowstyle='->', color=color1))
+
+# Calculate Peak temperature (highest DTG peak above 150°C)
+# DTG is negative during mass loss, so we look for the minimum value (most negative) in the range > 150
+mask = temps > 150
+if np.any(mask):
+    dtg_masked = dtg[mask]
+    temps_masked = temps[mask]
+    
+    # Find index of minimum DTG (which corresponds to max weight loss rate)
+    min_dtg_idx = np.argmin(dtg_masked)
+    peak_temp = temps_masked[min_dtg_idx]
+    peak_weight_loss_rate = dtg_masked[min_dtg_idx]
+    
+    # Add peak marker and label
+    # Note: On the plot, DTG is multiplied by -1, so the peak visually is at positive Y on right axis
+    # But the annotation usually refers to the temperature.
+    ax2.plot(peak_temp, peak_weight_loss_rate * -1, 'o', color=color2, markersize=6)
+    ax2.annotate(f'{peak_temp:.0f} °C', 
+                 xy=(peak_temp, peak_weight_loss_rate * -1), 
+                 xytext=(10, 10), textcoords='offset points',
+                 fontsize=10, color=color2,
+                 arrowprops=dict(arrowstyle='->', color=color2))
+
+# Add memo text in top right corner
+memo_text = "공기, 10 °C/min"
+ax1.text(0.95, 0.95, memo_text, transform=ax1.transAxes, 
+         fontsize=12, verticalalignment='top', horizontalalignment='right',
+         bbox=dict(boxstyle='round,pad=0.3', facecolor='white', edgecolor='gray', alpha=0.8))
+
+# Legend
+lines = [line1, line2]
+labels = [l.get_label() for l in lines]
+ax1.legend(lines, labels, loc='center left')
+
+# Grid
+ax1.grid(True, linestyle=':', alpha=0.5)
+
+plt.tight_layout()
+
+# Save figure
+out_path = os.path.join(OUT_DIR, "Raw.png")
+plt.savefig(out_path, dpi=300)
+plt.close()

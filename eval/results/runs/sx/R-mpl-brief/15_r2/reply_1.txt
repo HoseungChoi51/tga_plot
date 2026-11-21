@@ -1,0 +1,158 @@
+```python
+import os
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib import rcParams
+
+# Configure Korean font support
+rcParams['font.family'] = 'Noto Sans CJK KR'
+rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/15_r2/out"
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+def plot_combined_tga(data_file, out_dir):
+    # Read all sheets from the Excel file
+    xls = pd.ExcelFile(data_file)
+    sheet_names = xls.sheet_names
+    
+    if not sheet_names:
+        print("No sheets found in the file.")
+        return
+
+    fig, ax1 = plt.subplots(figsize=(10, 6))
+    
+    # Define colors for different sheets to distinguish them
+    colors_weight = ['#1f4e9c', '#27ae60', '#8e44ad', '#d35400', '#2980b9']
+    colors_dtg = ['#c0392b', '#f39c12', '#9b59b6', '#e67e22', '#3498db']
+    
+    # We will use twin axes for DTG
+    ax2 = ax1.twinx()
+    
+    legend_handles_1 = []
+    legend_handles_2 = []
+    
+    for i, sheet_name in enumerate(sheet_names):
+        df = pd.read_excel(data_file, sheet_name=sheet_name)
+        
+        # Identify columns based on standard TGA structure or preview info
+        # Assuming column names match the preview: Temperature, Weight(%), D.W(%/C)
+        # Fallback to positional if names don't match exactly
+        cols = df.columns.tolist()
+        
+        temp_col = None
+        weight_col = None
+        dtg_col = None
+        
+        for c in cols:
+            c_lower = str(c).lower()
+            if 'temp' in c_lower:
+                temp_col = c
+            elif 'weight' in c_lower and '%' in c_lower:
+                weight_col = c
+            elif ('d.w' in c_lower or 'derivative' in c_lower or 'dtg' in c_lower):
+                dtg_col = c
+        
+        # If specific names aren't found, assume B=Temp, C=Weight, D=DTG based on preview
+        if temp_col is None and len(cols) > 1: temp_col = cols[1]
+        if weight_col is None and len(cols) > 2: weight_col = cols[2]
+        if dtg_col is None and len(cols) > 3: dtg_col = cols[3]
+        
+        if temp_col is None or weight_col is None:
+            continue
+            
+        x = df[temp_col].dropna().values
+        y1 = df[weight_col].dropna().values
+        
+        # Align indices if lengths differ due to dropna (simple alignment by min length)
+        min_len = min(len(x), len(y1))
+        x = x[:min_len]
+        y1 = y1[:min_len]
+        
+        # Plot Weight (%) on left axis (ax1)
+        color_w = colors_weight[i % len(colors_weight)]
+        line1, = ax1.plot(x, y1, color=color_w, label=f'{sheet_name} Weight', linewidth=1.5)
+        legend_handles_1.append(line1)
+        
+        # Process DTG if available
+        if dtg_col is not None:
+            y2_raw = df[dtg_col].dropna().values
+            min_len_dtg = min(len(x), len(y2_raw))
+            x_dtg = x[:min_len_dtg]
+            y2 = y2_raw[:min_len_dtg]
+            
+            # Multiply DTG by -1 so peaks point up
+            y2_inv = -y2
+            
+            color_d = colors_dtg[i % len(colors_dtg)]
+            line2, = ax2.plot(x_dtg, y2_inv, color=color_d, linestyle='--', label=f'{sheet_name} DTG', linewidth=1.5)
+            legend_handles_2.append(line2)
+            
+            # Calculate Peak Info for annotation (only for the first sheet or if requested, 
+            # but user asked for overlay. Usually annotations clutter overlays. 
+            # The prompt says "two labels are always drawn unless the user says otherwise".
+            # For an overlay of 3 sheets, drawing 6 labels might be messy, but we follow instructions.
+            # However, finding "the" peak for multiple sheets requires logic. 
+            # Let's annotate the highest DTG peak for each sheet above 150C.
+            
+            mask = (x_dtg > 150) & (y2_inv > 0)
+            if np.any(mask):
+                idx_max = np.argmax(y2_inv[mask])
+                # Find original index in the filtered array
+                indices = np.where(mask)[0]
+                orig_idx = indices[idx_max]
+                
+                peak_temp = x_dtg[orig_idx]
+                peak_val = y2_inv[orig_idx]
+                
+                # Add marker and text for this sheet's peak
+                ax2.plot(peak_temp, peak_val, 'o', color=color_d, markersize=6)
+                # Offset text slightly to avoid overlap if possible, or just place it
+                ax2.text(peak_temp, peak_val + 0.05, f'{int(peak_temp)}°C', 
+                         ha='center', va='bottom', fontsize=8, color=color_d)
+                         
+        # Calculate Residue at nearest 800°C for each sheet
+        mask_res = (x >= 790) & (x <= 810)
+        if np.any(mask_res):
+            # Find closest to 800
+            temps_near = x[mask_res]
+            weights_near = y1[mask_res]
+            idx_closest = np.argmin(np.abs(temps_near - 800))
+            res_temp = temps_near[idx_closest]
+            res_weight = weights_near[idx_closest]
+            
+            ax1.plot(res_temp, res_weight, 's', color=color_w, markersize=6)
+            ax1.text(res_temp, res_weight - 2, f'Residue {res_weight:.1f}%', 
+                     ha='right', va='top', fontsize=8, color=color_w)
+
+    # Axis Labels
+    ax1.set_xlabel('Temperature (°C)', fontsize=12)
+    ax1.set_ylabel('Weight (%)', fontsize=12, color='#1f4e9c')
+    ax2.set_ylabel('DTG (%/°C)', fontsize=12, color='#c0392b')
+    
+    # Title
+    ax1.set_title('TGA Analysis: Combined Sheets', fontsize=14)
+    
+    # Combine legends
+    lines = legend_handles_1 + legend_handles_2
+    labels = [l.get_label() for l in lines]
+    ax1.legend(lines, labels, loc='center left', bbox_to_anchor=(0.02, 0.5), fontsize=9)
+    
+    # Grid
+    ax1.grid(True, linestyle=':', alpha=0.6)
+    
+    # Adjust layout
+    plt.tight_layout()
+    
+    # Save figure
+    out_path = os.path.join(out_dir, 'TGA_combined.png')
+    plt.savefig(out_path, dpi=300, bbox_inches='tight')
+    plt.close(fig)
+    print(f"Saved plot to {out_path}")
+
+if __name__ == "__main__":
+    plot_combined_tga(DATA_FILE, OUT_DIR)
+```

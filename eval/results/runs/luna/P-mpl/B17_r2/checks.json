@@ -1,0 +1,1 @@
+[{"check": "offset", "cat": "ask", "ok": true, "why": "", "spec": {"offset": {"n": 3, "min_gap": 10}}}]

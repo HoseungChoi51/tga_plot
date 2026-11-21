@@ -1,0 +1,36 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "line",
+ "x": {
+  "col": "주차",
+  "label": "Week"
+ },
+ "y": [
+  {
+   "col": "CNT수율 (g/g-cat)",
+   "agg": "mean",
+   "label": "Weekly Mean Yield"
+  }
+ ],
+ "data_code": "df['rolling_4w'] = df.groupby('주차')['CNT수율 (g/g-cat)'].mean().rolling(window=4).mean(); df['rolling_4w_series'] = df['주차'].map(df['rolling_4w'])",
+ "smooth": {
+  "window": 4,
+  "raw": true
+ },
+ "title": "Weekly Mean CNT Yield vs Week with 4-week Rolling Average",
+ "legend": "upper left",
+ "asks": [
+  {
+   "ask": "주별 평균 수율 (전 반응기)",
+   "how": "key"
+  },
+  {
+   "ask": "4주 이동평균선 추가",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/S046_r2/out/t1"
+ }
+}

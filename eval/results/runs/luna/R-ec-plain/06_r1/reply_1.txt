@@ -1,0 +1,157 @@
+```python
+import json
+import os
+import re
+import sys
+
+import numpy as np
+import pandas as pd
+
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+
+def clean(value):
+    if pd.isna(value):
+        return None
+    number = float(value)
+    return number if np.isfinite(number) else None
+
+
+def safe_name(value):
+    name = re.sub(r"[^A-Za-z0-9가-힣_-]+", "_", str(value)).strip("_")
+    return name or "plot"
+
+
+def main():
+    figures = []
+    workbook = pd.ExcelFile(DATA_FILE)
+
+    for sheet_name in workbook.sheet_names:
+        df = pd.read_excel(workbook, sheet_name=sheet_name)
+        df.columns = [str(column).strip() for column in df.columns]
+
+        temperature_col = next(
+            (col for col in df.columns if "temperature" in col.lower()), None
+        )
+        weight_col = next(
+            (col for col in df.columns if "weight" in col.lower()), None
+        )
+        derivative_col = next(
+            (
+                col
+                for col in df.columns
+                if "d.w" in col.lower() or "derivative" in col.lower()
+            ),
+            None,
+        )
+        if temperature_col is None or weight_col is None:
+            continue
+
+        selected = [temperature_col, weight_col]
+        if derivative_col is not None:
+            selected.append(derivative_col)
+        for column in selected:
+            df[column] = pd.to_numeric(df[column], errors="coerce")
+        df = df.dropna(subset=[temperature_col, weight_col])
+
+        x = [clean(v) for v in df[temperature_col]]
+        weight = [clean(v) for v in df[weight_col]]
+        series = [
+            {
+                "name": weight_col,
+                "type": "line",
+                "data": [[xv, yv] for xv, yv in zip(x, weight) if xv is not None and yv is not None],
+                "showSymbol": False,
+                "lineStyle": {"width": 2, "color": "#2563eb"},
+                "yAxisIndex": 0,
+            }
+        ]
+
+        y_axes = [
+            {
+                "type": "value",
+                "name": "Weight (%)",
+                "nameLocation": "middle",
+                "nameGap": 48,
+                "min": 0,
+                "max": 105,
+                "axisLine": {"show": True},
+                "axisTick": {"show": True},
+                "axisLabel": {"color": "#333"},
+                "splitLine": {"show": True, "lineStyle": {"color": "#d9dee7", "width": 1}},
+            }
+        ]
+
+        if derivative_col is not None:
+            valid = df.dropna(subset=[derivative_col])
+            derivative = [clean(v) for v in valid[derivative_col]]
+            dx = [clean(v) for v in valid[temperature_col]]
+            series.append(
+                {
+                    "name": derivative_col,
+                    "type": "line",
+                    "data": [[xv, yv] for xv, yv in zip(dx, derivative) if xv is not None and yv is not None],
+                    "showSymbol": False,
+                    "lineStyle": {"width": 1.8, "color": "#dc2626"},
+                    "yAxisIndex": 1,
+                }
+            )
+            y_axes.append(
+                {
+                    "type": "value",
+                    "name": "D.W. (%/°C)",
+                    "nameLocation": "middle",
+                    "nameGap": 54,
+                    "position": "right",
+                    "axisLine": {"show": True},
+                    "axisTick": {"show": True},
+                    "axisLabel": {"color": "#333"},
+                    "splitLine": {"show": False},
+                }
+            )
+
+        option = {
+            "animation": False,
+            "textStyle": {"fontFamily": "Noto Sans CJK KR, sans-serif", "color": "#222"},
+            "title": {
+                "text": str(sheet_name),
+                "left": "center",
+                "top": 12,
+                "textStyle": {"fontSize": 16, "fontWeight": "normal"},
+            },
+            "tooltip": {"trigger": "axis"},
+            "grid": {"left": 78, "right": 82 if derivative_col else 35, "top": 62, "bottom": 62},
+            "xAxis": {
+                "type": "value",
+                "name": "Temperature (°C)",
+                "nameLocation": "middle",
+                "nameGap": 38,
+                "min": float(df[temperature_col].min()),
+                "max": float(df[temperature_col].max()),
+                "axisLine": {"show": True},
+                "axisTick": {"show": True},
+                "axisLabel": {"color": "#333"},
+                "splitLine": {"show": True, "lineStyle": {"color": "#d9dee7", "width": 1}},
+            },
+            "yAxis": y_axes,
+            "series": series,
+        }
+
+        figures.append(
+            {
+                "name": safe_name(sheet_name),
+                "option": option,
+                "width": 614,
+                "height": 442,
+                "dpi": 300,
+                "formats": ["png"],
+            }
+        )
+
+    print(json.dumps({"figures": figures}, ensure_ascii=False, allow_nan=False))
+
+
+if __name__ == "__main__":
+    main()
+```

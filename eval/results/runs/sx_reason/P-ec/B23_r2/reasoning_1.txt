@@ -1,0 +1,46 @@
+We need answer user's request in Korean? But test mode says reply with JSON spec only inside one json block, nothing else. Need produce spec. Need think. User: "세 시료 겹쳐서 그리고 Raw는 검정, Acid-washed는 파랑, Annealed는 빨강으로 해줘". Means overlay three samples (sheets) and Raw black, Acid-washed blue, Annealed red. Need use combine true. Colors per sheet? The spec keys: for y1 line color? With combine, one y1 line per sheet then one y2 line per sheet? To set colors by sheet maybe need echarts series? There may be a way? Guide says series list: 0 = y1 line, 1 = y2 line; with combine, one y1 line per sheet, then one y2 line per sheet. Allowed echarts series lineStyle. Need set colors for y1 lines corresponding to sheets order? Sheets order: Raw, Acid-washed, Annealed. combine true likely draws all sheets, default all y1/y2? User says 세 시료 겹쳐서 (three samples) and colors. It doesn't specify only weight or both. Default TGA preset includes y1 weight and y2 derivative. Overlaying three samples probably means combine sheets. Need colors for each sample. How to set color per sheet? Maybe via echarts series lineStyle colors. But if y2 lines also need colors? User says Raw black etc likely lines (both y1/y2?) Could color both y1 and y2 lines per sheet? Need consider plotkit spec might have sheets list and y1 color? No per-sheet color key except echarts. Need use echarts series. With combine, series order: one y1 line per sheet, then one y2 line per sheet. If we want Raw black, Acid-washed blue, Annealed red for all series: series array length maybe 6? Need set lineStyle.color for each series. But guide says use {} to skip. We can provide series: [{"lineStyle":{"color":"black"}}, {"lineStyle":{"color":"blue"}}, {"lineStyle":{"color":"red"}}, {"lineStyle":{"color":"black"}}, {"lineStyle":{"color":"blue"}}, {"lineStyle":{"color":"red"}}]. But if there are annotations? Series only lines. If combine true, y1 lines first, y2 lines second. Need maybe itemStyle? Lines no symbols. Could also set color property? Allowed lineStyle. Need ensure allowed. But maybe there is a simpler spec: sheets: ["Raw", "Acid-washed", "Annealed"], combine: true, y1: {"color": ...}? But y1.color applies all y1 lines? Not per sheet. Need per sheet colors. Could use echarts series. Need include file exact. Should we include sheets? combine true maybe all sheets by default. But explicit sheets list? Could include to ensure order. User says 세 시료. Use sheets: ["Raw", "Acid-washed", "Annealed"], combine: true. Then echarts series as above. Need maybe y2 false? User didn't say weight only. Default TGA preset includes y2 derivative. If overlay three samples, both weight and derivative? Usually TGA/DTG overlay. They didn't ask remove y2. Keep default. But colors for y2 lines? They said Raw is black etc, likely all traces. So color both y1 and y2 for each sample. But if y2 derivative for each sample colored same. Good.
+
+Need check allowed echarts: series lineStyle. For color maybe lineStyle.color. Could also set itemStyle? Not necessary. Need maybe legend? Not requested.
+
+Need ensure JSON only. Could there be issue with series length: If combine true and y2 default true, series count = sheets*2 = 6. If y2 false, count=3. We keep default y2 true. If plotkit's echarts merging with series list expects exact? It says list: 0 = y1 line, 1 = y2 line; with combine, one y1 line per sheet, then one y2 line per sheet. Use {} to skip. So provide 6 entries. If it has annotations as mark? Not series? Fine.
+
+Potential alternative: Use series: [{"lineStyle":{"color":"black"}}, {"lineStyle":{"color":"blue"}}, {"lineStyle":{"color":"red"}}, {"lineStyle":{"color":"black"}}, {"lineStyle":{"color":"blue"}}, {"lineStyle":{"color":"red"}}]. Need maybe y2 lines are derivative; if default y2 line colors maybe distinguish? Good.
+
+Need consider Korean colors: can use "blue", "red". Guide allows English. Raw 검정 black. Acid-washed 파랑 blue. Annealed 빨강 red.
+
+Need maybe specify sheet order: sheets list. Good.
+
+Need no extra text. Final in ```json block. Ensure no comments. 
+
+Double-check if "세 시료 겹쳐서" might mean three sheets combined into one plot. Yes.
+
+Could there be a key for series color by sheet? Not in table. Use echarts. Need maybe if combine true and sheets list, series order follows sheets list? likely. Good.
+
+Need think about y2 axis: If combine true, y2 lines per sheet. If we color y2 same, okay. But if user only wants sample colors maybe y1 lines? If y2 lines also colored, not harmful? It might be expected. If they only want y1? The phrase "Raw는 검정" could mean line(s). Since TGA preset has two lines per sample, color both. If they wanted only weight, they'd say 무게만. Keep.
+
+Could there be issue with series length if y2 is false? Not. If plotkit includes two series per sheet? Yes.
+
+Need maybe include "echarts": {"series": [...]}. No other keys.
+
+Let's craft:
+{
+ "file": "cnt_batches.xlsx",
+ "sheets": ["Raw", "Acid-washed", "Annealed"],
+ "combine": true,
+ "echarts": {
+   "series": [
+     {"lineStyle": {"color": "black"}},
+     {"lineStyle": {"color": "blue"}},
+     {"lineStyle": {"color": "red"}},
+     {"lineStyle": {"color": "black"}},
+     {"lineStyle": {"color": "blue"}},
+     {"lineStyle": {"color": "red"}}
+   ]
+ }
+}
+
+Need maybe if series order is y1 Raw, y2 Raw, y1 Acid, y2 Acid? Guide says one y1 line per sheet, then one y2 line per sheet. Good. If it were interleaved, our colors would mismatch y2. But guide explicit. Good.
+
+Could use "color" property in series? In ECharts series lineStyle color. Good.
+
+Need final only JSON block.

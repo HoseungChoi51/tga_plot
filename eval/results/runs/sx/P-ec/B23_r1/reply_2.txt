@@ -1,0 +1,3 @@
+```json
+{"file": "cnt_batches.xlsx", "combine": true, "echarts": {"series": [{"itemStyle": {"color": "black"}, "lineStyle": {"color": "black"}}, {"itemStyle": {"color": "blue"}, "lineStyle": {"color": "blue"}}, {"itemStyle": {"color": "red"}, "lineStyle": {"color": "red"}}]}}
+```

@@ -1,0 +1,36 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheets": "주간요약",
+ "chart": "bar",
+ "x": "주차",
+ "y": {
+  "col": "총생산량(kg)",
+  "agg": "sum"
+ },
+ "asks": [
+  {
+   "ask": "시트 '주간요약'",
+   "how": "key"
+  },
+  {
+   "ask": "주차별 막대그래프",
+   "how": "key"
+  },
+  {
+   "ask": "총생산량(kg) y축",
+   "how": "key"
+  },
+  {
+   "ask": "14주차부터 색 구분",
+   "how": "code"
+  },
+  {
+   "ask": "1~13주, 14~26주 평균 가로선",
+   "how": "code"
+  }
+ ],
+ "code": "for bar in ax.patches:\n    x_val = bar.get_x() + bar.get_width() / 2\n    if x_val >= 14:\n        bar.set_color('orange')\n    else:\n        bar.set_color('blue')\n# Calculate averages from the drawn data\nvals = [b.get_height() for b in ax.patches]\nxs = [b.get_x() + b.get_width()/2 for b in ax.patches]\nmask1 = [x < 14 for x in xs]\nmask2 = [x >= 14 for x in xs]\navg1 = sum(v for v, m in zip(vals, mask1) if m) / sum(mask1) if sum(mask1) > 0 else 0\navg2 = sum(v for v, m in zip(vals, mask2) if m) / sum(mask2) if sum(mask2) > 0 else 0\nax.axhline(avg1, color='gray', linestyle='--', label=f'Avg 1-13: {avg1:.1f}')\nax.axhline(avg2, color='black', linestyle=':', label=f'Avg 14-26: {avg2:.1f}')\nax.legend(loc='best')",
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS01_r2/out/t3"
+ }
+}

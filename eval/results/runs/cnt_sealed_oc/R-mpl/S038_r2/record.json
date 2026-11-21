@@ -1,0 +1,78 @@
+{
+ "arm": "R-mpl",
+ "item": "S038",
+ "repeat": 2,
+ "split": "sealed",
+ "persona": "신입 연구원",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "반응기마다 차이가 있는지 궁금합니다. 수율 기준으로 비교해 주실 수 있을까요?",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# 반응기별 수율(CNT수율 (g/g-cat)) 비교를 위한 그룹화 및 통계 계산\nreactor_stats = df.groupby(\"반응기\")[\"CNT수율 (g/g-cat)\"].agg(['mean', 'std', 'count']).reset_index()\nreactor_stats.columns = ['반응기', '평균_수율', '표준편차', '개수']\n\n# 박스 플롯용 데이터 준비 (반응기별로 리스트로 묶음)\nbox_data = [df[df['반응기'] == r]['CNT수율 (g/g-cat)'].dropna().values for r in sorted(df['반응기'].unique())]\nlabels = sorted(df['반응기'].unique())\n\n# 그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# 박스 플롯 생성\nbp = ax.boxplot(box_data, labels=labels, patch_artist=True, showmeans=True)\n\n# 색상 지정\ncolors = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072']\nfor patch, color in zip(bp['boxes'], colors):\n    patch.set_facecolor(color)\n\n# 평균값 표시 (박스플롯 내부의 삼각형 또는 점으로 표시되지만, 명확성을 위해 텍스트 추가 가능)\n# 여기서는 박스플롯 자체로 충분하지만, 요청에 따라 \"비교\"가 목적이라 시각적 구분이 중요합니다.\n\n# 축 라벨 및 제목\nax.set_title('반응기별 CNT 수율 분포 비교', fontsize=14, pad=15)\nax.set_xlabel('반응기', fontsize=12)\nax.set_ylabel('CNT 수율 (g/g-cat)', fontsize=12)\nax.grid(True, linestyle='--', alpha=0.7)\n\n# 통계 정보 텍스트로 추가 (상단이나 하단에)\nstats_text = \"\\n\".join([f\"{row['반응기']}: 평균 {row['평균_수율']:.2f} ± {row['표준편차']:.2f} (N={int(row['개수'])})\" \n                        for _, row in reactor_stats.iterrows()])\nax.text(0.98, 0.98, stats_text, transform=ax.transAxes, va='top', ha='right', \n        bbox=dict(boxstyle='round,pad=0.5', facecolor='white', alpha=0.8), fontsize=9)\n\n# 저장\noutput_file = os.path.join(OUT_DIR, \"reactor_yield_comparison.png\")\nplt.tight_layout()\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\nplt.close()\n\nprint(f\"Plot saved to {output_file}\")\n```",
+     "llm_s": 9.329,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 3744,
+     "output_chars": 1851,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# 열 이름 확인 및 공백 제거 (실제 헤더가 다를 수 있으므로 첫 번째 행을 기준으로 확인하거나 strip 처리)\n# 미리보기에는 'CNT수율 (g/g-cat)'로 보이지만, 실제 엑셀 파일의 헤더는 공백이나 특수문자 차이로 매칭 실패 가능\n# 안전한 방법: 컬럼 이름 중 'CNT'와 '수율'이 포함된 것을 찾기\ncol_yield = None\nfor col in df.columns:\n    if isinstance(col, str) and ('CNT' in col and '수율' in col):\n        col_yield = col\n        break\n\nif col_yield is None:\n    # fallback: 정확한 이름 사용 시도 (미리보기 기반)\n    col_yield = 'CNT수율 (g/g-cat)'\n    \n# 반응기별 수율 비교를 위한 그룹화 및 통계 계산\nreactor_stats = df.groupby(\"반응기\")[col_yield].agg(['mean', 'std', 'count']).reset_index()\nreactor_stats.columns = ['반응기', '평균_수율', '표준편차', '개수']\n\n# 박스 플롯용 데이터 준비 (반응기별로 리스트로 묶음)\nbox_data = [df[df['반응기'] == r][col_yield].dropna().values for r in sorted(df['반응기'].unique())]\nlabels = sorted(df['반응기'].unique())\n\n# 그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# 박스 플롯 생성\nbp = ax.boxplot(box_data, labels=labels, patch_artist=True, showmeans=True)\n\n# 색상 지정\ncolors = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072']\nfor patch, color in zip(bp['boxes'], colors):\n    patch.set_facecolor(color)\n\n# 축 라벨 및 제목\nax.set_title('반응기별 CNT 수율 분포 비교', fontsize=14, pad=15)\nax.set_xlabel('반응기', fontsize=12)\nax.set_ylabel('CNT 수율 (g/g-cat)', fontsize=12)\nax.grid(True, linestyle='--', alpha=0.7)\n\n# 통계 정보 텍스트로 추가\nstats_text = \"\\n\".join([f\"{row['반응기']}: 평균 {row['평균_수율']:.2f} ± {row['표준편차']:.2f} (N={int(row['개수'])})\" \n                        for _, row in reactor_stats.iterrows()])\nax.text(0.98, 0.98, stats_text, transform=ax.transAxes, va='top', ha='right', \n        bbox=dict(boxstyle='round,pad=0.5', facecolor='white', alpha=0.8), fontsize=9)\n\n# 저장\noutput_file = os.path.join(OUT_DIR, \"reactor_yield_comparison.png\")\nplt.tight_layout()\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\nplt.close()\n\nprint(f\"Plot saved to {output_file}\")\n```",
+     "llm_s": 13.393,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 7467,
+     "output_chars": 2114,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# 열 이름 확인: 'CNT'와 '수율'이 포함된 컬럼 찾기\ncol_yield = None\nfor col in df.columns:\n    if isinstance(col, str) and ('CNT' in col and '수율' in col):\n        col_yield = col\n        break\n\nif col_yield is None:\n    raise ValueError(\"CNT 수율 컬럼을 찾을 수 없습니다.\")\n\n# 반응기 컬럼 확인\ncol_reactor = \"반응기\"\nif col_reactor not in df.columns:\n    # 혹시 다른 이름일 경우 검색\n    for col in df.columns:\n        if \"반응기\" in str(col):\n            col_reactor = col\n            break\n\n# 데이터 정제: 수율 컬럼을 숫자형으로 변환 (object dtype 에러 방지)\ndf[col_yield] = pd.to_numeric(df[col_yield], errors='coerce')\ndf = df.dropna(subset=[col_yield])\n\n# 반응기별 수율 비교를 위한 그룹화 및 통계 계산\nreactor_stats = df.groupby(col_reactor)[col_yield].agg(['mean', 'std', 'count']).reset_index()\nreactor_stats.columns = ['반응기', '평균_수율', '표준편차', '개수']\n\n# 박스 플롯용 데이터 준비 (반응기별로 리스트로 묶음)\nbox_data = [df[df[col_reactor] == r][col_yield].dropna().values for r in sorted(df[col_reactor].unique())]\nlabels = sorted(df[col_reactor].unique())\n\n# 그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# 박스 플롯 생성\nbp = ax.boxplot(box_data, labels=labels, patch_artist=True, showmeans=True)\n\n# 색상 지정\ncolors = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072']\nfor patch, color in zip(bp['boxes'], colors):\n    patch.set_facecolor(color)\n\n# 축 라벨 및 제목\nax.set_title('반응기별 CNT 수율 분포 비교', fontsize=14, pad=15)\nax.set_xlabel('반응기', fontsize=12)\nax.set_ylabel('CNT 수율 (g/g-cat)', fontsize=12)\nax.grid(True, linestyle='--', alpha=0.7)\n\n# 통계 정보 텍스트로 추가\nstats_text = \"\\n\".join([f\"{row['반응기']}: 평균 {row['평균_수율']:.2f} ± {row['표준편차']:.2f} (N={int(row['개수'])})\" \n                        for _, row in reactor_stats.iterrows()])\nax.text(0.98, 0.98, stats_text, transform=ax.transAxes, va='top', ha='right', \n        bbox=dict(boxstyle='round,pad=0.5', facecolor='white', alpha=0.8), fontsize=9)\n\n# 저장\noutput_file = os.path.join(OUT_DIR, \"reactor_yield_comparison.png\")\nplt.tight_layout()\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\nplt.close()\n\nprint(f\"Plot saved to {output_file}\")\n```",
+     "llm_s": 10.432,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 11416,
+     "output_chars": 2303,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# 열 이름 확인: 'CNT'와 '수율'이 포함된 컬럼 찾기\ncol_yield = None\nfor col in df.columns:\n    if isinstance(col, str) and ('CNT' in col and '수율' in col):\n        col_yield = col\n        break\n\nif col_yield is None:\n    raise ValueError(\"CNT 수율 컬럼을 찾을 수 없습니다.\")\n\n# 반응기 컬럼 확인\ncol_reactor = \"반응기\"\nif col_reactor not in df.columns:\n    # 혹시 다른 이름일 경우 검색\n    for col in df.columns:\n        if \"반응기\" in str(col):\n            col_reactor = col\n            break\n\n# 데이터 정제: 수율 컬럼을 숫자형으로 변환 (object dtype 에러 방지)\ndf[col_yield] = pd.to_numeric(df[col_yield], errors='coerce')\ndf = df.dropna(subset=[col_yield])\n\n# 반응기별 수율 비교를 위한 그룹화 및 통계 계산\nreactor_stats = df.groupby(col_reactor)[col_yield].agg(['mean', 'std', 'count']).reset_index()\nreactor_stats.columns = ['반응기', '평균_수율', '표준편차', '개수']\n\n# 박스 플롯용 데이터 준비 (반응기별로 리스트로 묶음)\nbox_data = [df[df[col_reactor] == r][col_yield].dropna().values for r in sorted(df[col_reactor].unique())]\nlabels = sorted(df[col_reactor].unique())\n\n# 그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# 박스 플롯 생성\nbp = ax.boxplot(box_data, labels=labels, patch_artist=True, showmeans=True)\n\n# 색상 지정\ncolors = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072']\nfor patch, color in zip(bp['boxes'], colors):\n    patch.set_facecolor(color)\n\n# 축 라벨 및 제목\nax.set_title('반응기별 CNT 수율 분포 비교', fontsize=14, pad=15)\nax.set_xlabel('반응기', fontsize=12)\nax.set_ylabel('CNT 수율 (g/g-cat)', fontsize=12)\nax.grid(True, linestyle='--', alpha=0.7)\n\n# 통계 정보 텍스트로 추가\nstats_text = \"\\n\".join([f\"{row['반응기']}: 평균 {row['평균_수율']:.2f} ± {row['표준편차']:.2f} (N={int(row['개수'])})\" \n                        for _, row in reactor_stats.iterrows()])\nax.text(0.98, 0.98, stats_text, transform=ax.transAxes, va='top', ha='right', \n        bbox=dict(boxstyle='round,pad=0.5', facecolor='white', alpha=0.8), fontsize=9)\n\n# 저장\noutput_file = os.path.join(OUT_DIR, \"reactor_yield_comparison.png\")\nplt.tight_layout()\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\nplt.close()\n\nprint(f\"Plot saved to {output_file}\")\n",
+   "engine": null,
+   "result": {
+    "ok": false,
+    "error": "The script failed (exit 1):\nTraceback (most recent call last):\n  File \"/home/chs/Work/tga_plot/eval/_chart_runner.py\", line 16, in <module>\n    runpy.run_path(script, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/R-mpl/S038_r2/plot_t1.py\", line 52, in <module>\n    bp = ax.boxplot(box_data, labels=labels, patch_artist=True, showmeans=True)\n  File \"/home/chs/Work/tga_plot/.venv/lib/python3.13/site-packages/matplotlib/_api/deprecation.py\", line 477, in wrapper\n    return func(*args, **kwargs)\n  File \"/home/chs/Work/tga_plot/.venv/lib/python3.13/site-packages/matplotlib/__init__.py\", line 1531, in inner\n    return func(\n        ax,\n        *map(cbook.sanitize_sequence, args),\n        **{k: cbook.sanitize_sequence(v) for k, v in kwargs.items()})\nTypeError: Axes.boxplot() got an unexpected keyword argument 'labels'. Did you mean 'label'?",
+    "hint": ""
+   },
+   "facts": [],
+   "draw_s": 0.3856074810028076,
+   "check": {
+    "kind_expected": "bar",
+    "failed": [
+     "run: no plot (The script failed (exit 1):\nTraceback (most recent call last):\n  File \"/home/chs/Work/tga_plot/eval/_chart_runner.py\", line 16, in <module>\n    runpy.)"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 34.338
+  }
+ ]
+}

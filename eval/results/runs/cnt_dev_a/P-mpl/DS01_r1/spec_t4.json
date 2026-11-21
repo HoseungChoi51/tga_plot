@@ -1,0 +1,39 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "heatmap",
+ "x": {
+  "col": "체류시간 (s)",
+  "bins": {
+   "edges": [
+    2.5,
+    3.0,
+    3.5,
+    4.0,
+    4.5,
+    5.0,
+    5.5,
+    6.0,
+    6.5,
+    7.0
+   ]
+  }
+ },
+ "y": "반응기",
+ "z": {
+  "col": "CNT수율 (g/g-cat)",
+  "agg": "mean"
+ },
+ "asks": [
+  {
+   "ask": "반응기별 heatmap (행 반응기, 열 체류시간 구간)",
+   "how": "key"
+  },
+  {
+   "ask": "값 평균 수율",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_a/P-mpl/DS01_r1/out/t4"
+ }
+}

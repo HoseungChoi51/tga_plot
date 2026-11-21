@@ -1,0 +1,22 @@
+{
+  "file": "data/polymers.xlsx",
+  "sheets": "PVC",
+  "annotate": {
+    "onset": {
+      "type": "vline",
+      "x": 250,
+      "text": "HCl release starts"
+    },
+    "half": {
+      "type": "hline",
+      "on": "y1",
+      "y": 50,
+      "text": "half the mass"
+    },
+    "note": {
+      "type": "text",
+      "text": "PVC · 10 °C/min · N2",
+      "where": "upper right"
+    }
+  }
+}

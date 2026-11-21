@@ -1,0 +1,3 @@
+```json
+{"file":"polymers.xlsx","sheets":"PVC","annotate":{"mass_loss":{"type":"text","text":"질량 감소량(200–400 °C) (%)","where":"upper right"}}}
+```

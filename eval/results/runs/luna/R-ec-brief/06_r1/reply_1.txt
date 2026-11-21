@@ -1,0 +1,173 @@
+```python
+import json
+import re
+import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+
+def clean_name(value):
+    name = re.sub(r"[^A-Za-z0-9_-]+", "_", str(value).strip()).strip("_")
+    return name or "plot"
+
+
+def main():
+    path = Path(DATA_FILE)
+    workbook = pd.ExcelFile(path)
+    figures = []
+
+    for sheet_name in workbook.sheet_names:
+        df = pd.read_excel(path, sheet_name=sheet_name)
+        df.columns = [str(c).strip() for c in df.columns]
+
+        def find_column(patterns, fallback_index):
+            for pattern in patterns:
+                for column in df.columns:
+                    if re.search(pattern, column, flags=re.IGNORECASE):
+                        return column
+            return df.columns[fallback_index] if len(df.columns) > fallback_index else None
+
+        x_col = find_column([r"temperature", r"temp"], 1)
+        weight_col = find_column([r"weight"], 2)
+        dtg_col = find_column([r"\bd\.?\s*w\b", r"dtg", r"derivative"], 3)
+
+        if x_col is None or weight_col is None:
+            continue
+
+        x = pd.to_numeric(df[x_col], errors="coerce")
+        weight = pd.to_numeric(df[weight_col], errors="coerce")
+        valid = x.notna() & weight.notna()
+        x_values = x[valid].to_numpy(dtype=float)
+        weight_values = weight[valid].to_numpy(dtype=float)
+
+        if not len(x_values):
+            continue
+
+        dtg_values = None
+        if dtg_col is not None:
+            dtg = pd.to_numeric(df[dtg_col], errors="coerce")
+            dtg_values = dtg[valid].to_numpy(dtype=float)
+            finite = np.isfinite(dtg_values)
+            if not finite.any():
+                dtg_values = None
+            else:
+                dtg_values[~finite] = 0.0
+
+        series = [
+            {
+                "name": str(weight_col),
+                "type": "line",
+                "showSymbol": False,
+                "yAxisIndex": 0,
+                "lineStyle": {"color": "#1f4e9c", "width": 2},
+                "data": [[float(a), float(b)] for a, b in zip(x_values, weight_values)],
+            }
+        ]
+
+        y2_axis = None
+        if dtg_values is not None:
+            inverted_dtg = -dtg_values
+            series.append(
+                {
+                    "name": str(dtg_col),
+                    "type": "line",
+                    "showSymbol": False,
+                    "yAxisIndex": 1,
+                    "lineStyle": {"color": "#c0392b", "width": 2},
+                    "data": [[float(a), float(b)] for a, b in zip(x_values, inverted_dtg)],
+                }
+            )
+            y2_axis = {
+                "type": "value",
+                "name": str(dtg_col),
+                "axisLine": {"show": True, "lineStyle": {"color": "#c0392b"}},
+                "axisLabel": {"color": "#333"},
+                "splitLine": {"show": False},
+            }
+
+        nearest_800 = int(np.argmin(np.abs(x_values - 800.0)))
+        residue_x = float(x_values[nearest_800])
+        residue_y = float(weight_values[nearest_800])
+        series[0]["markPoint"] = {
+            "symbol": "circle",
+            "symbolSize": 9,
+            "itemStyle": {"color": "#1f4e9c"},
+            "label": {
+                "show": True,
+                "formatter": f"Residue {residue_y:.1f}%",
+                "position": "right",
+                "color": "#1f4e9c",
+            },
+            "data": [{"coord": [residue_x, residue_y]}],
+        }
+
+        if dtg_values is not None:
+            peak_candidates = np.where(x_values > 150)[0]
+            if len(peak_candidates):
+                peak_index = int(peak_candidates[np.argmax(inverted_dtg[peak_candidates])])
+                peak_x = float(x_values[peak_index])
+                peak_y = float(inverted_dtg[peak_index])
+                series[1]["markPoint"] = {
+                    "symbol": "circle",
+                    "symbolSize": 9,
+                    "itemStyle": {"color": "#c0392b"},
+                    "label": {
+                        "show": True,
+                        "formatter": f"{peak_x:.0f} °C",
+                        "position": "top",
+                        "color": "#c0392b",
+                    },
+                    "data": [{"coord": [peak_x, peak_y]}],
+                }
+
+        option = {
+            "animation": False,
+            "title": {
+                "text": str(sheet_name),
+                "left": "center",
+                "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 16},
+            },
+            "tooltip": {"trigger": "axis"},
+            "grid": {"left": 72, "right": 72, "top": 68, "bottom": 62},
+            "xAxis": {
+                "type": "value",
+                "name": str(x_col),
+                "nameLocation": "middle",
+                "nameGap": 34,
+                "axisLine": {"show": True},
+                "splitLine": {"show": True, "lineStyle": {"color": "#d9d9d9"}},
+            },
+            "yAxis": [
+                {
+                    "type": "value",
+                    "name": str(weight_col),
+                    "axisLine": {"show": True, "lineStyle": {"color": "#1f4e9c"}},
+                    "axisLabel": {"color": "#333"},
+                    "splitLine": {"show": True, "lineStyle": {"color": "#d9d9d9"}},
+                }
+            ] + ([y2_axis] if y2_axis else []),
+            "series": series,
+        }
+
+        figures.append(
+            {
+                "name": clean_name(sheet_name),
+                "option": option,
+                "width": 614,
+                "height": 442,
+                "dpi": 300,
+                "formats": ["png"],
+            }
+        )
+
+    print(json.dumps({"figures": figures}, ensure_ascii=False, allow_nan=False))
+
+
+if __name__ == "__main__":
+    main()
+```

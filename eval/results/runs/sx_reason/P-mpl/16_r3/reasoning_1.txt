@@ -1,0 +1,4 @@
+We need answer user's request. Need produce JSON spec only inside ```json block, nothing else. Need analyze in same language as user's request? User Korean. Need ensure final only JSON block.
+
+User: "1006R1-V normal 시트, y2축 없이 무게만 그려줘"
+Inspect: file TGA.xlsx, sheet 1006R1-V normal. Need spec: file TGA.xlsx, sheets "1006R1-V normal", y2 false. Keep TGA preset? y2 false means no y2. Weight only. No other changes. Should we include y1? Default x/y1 from tga_guess. Rule: leave out every key not mentioned. So {"file":"TGA.xlsx","sheets":"1006R1-V normal","y2":false}. Need maybe "y1" default? No. Output only json. Ensure exact file name.

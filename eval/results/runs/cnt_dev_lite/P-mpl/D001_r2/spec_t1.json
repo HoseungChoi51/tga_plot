@@ -1,0 +1,18 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheets": "런로그",
+ "chart": "line",
+ "x": {
+  "col": "주차",
+  "min": 1,
+  "max": 26
+ },
+ "y": {
+  "col": "CNT수율 (g/g-cat)",
+  "agg": "mean"
+ },
+ "by": "반응기",
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_lite/P-mpl/D001_r2/out/t1"
+ }
+}

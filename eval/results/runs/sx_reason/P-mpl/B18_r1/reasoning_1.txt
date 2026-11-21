@@ -1,0 +1,68 @@
+We need answer user's request in Korean? User asks: "Annealed 시트에서 외삽 개시 온도(onset)를 구해서 그래프에 표시해줘". Need produce JSON spec only inside json block, no extra. Need use inspect result. Need think about plotkit capabilities.
+
+User wants onset temperature (extrapolated onset) on graph. This is not standard TGA preset? Need likely compute onset from derivative? Onset temperature in TGA often extrapolated onset: intersection of tangent at inflection point with baseline. Need display on graph. Need use plotkit spec. No key for onset. Need use extra code? Need include sheet Annealed. Need plot TGA data with y1 weight, y2 derivative. Need annotate onset. How to compute onset? Need code can compute from arrays x, y1, y2? It says extra code names: fig, ax1, ax2, x, y1, y2 numpy arrays, sheet, plt, np. We can write Python lines to compute onset and annotate. But spec must be valid JSON. Need only reply JSON block. Need maybe use code to compute onset and draw vertical line and text. Need ensure code uses available arrays.
+
+Need determine onset method. "외삽 개시 온도(onset)" likely from TGA: extrapolated onset temperature. Could compute from DTG: onset is temperature where extrapolated baseline intersects tangent at maximum mass loss rate. For derivative weight (DTG negative? Here derivative weight min negative; peaks pointing up? Default TGA preset draws y2 derivative with peaks pointing up. In data Deriv. Weight values negative? min -1.368, max 0.002898. If peaks pointing up, maybe sign inverted? The preset likely handles. But code receives y2 as plotted data? It says y2 numpy arrays of plotted data. If preset flips sign? Need be careful. Onset from weight curve maybe: baseline before degradation, tangent at inflection (max derivative magnitude). We can compute onset using y1 and x. Need robust.
+
+Simpler: use y2 to find max derivative (mass loss rate). If y2 plotted peaks pointing up, max y2 corresponds peak. If y2 negative, max is near 0 not peak. But if preset sign flips, y2 may be positive. Need code robust: find max absolute derivative? But if y2 is plotted peaks up, y2 positive. If not, min. Could use y1 to compute derivative? We have x, y1. Could compute gradient dy/dx and find max negative (mass loss). Then onset via extrapolation.
+
+Need produce graph with onset annotation. Could use code to compute onset and draw vline + text. Need maybe use annotate dict with vline? But need computed value dynamic. Could code use ax1.axvline and ax1.text. Need not use annotate key. Need include sheet. Could include default TGA preset. Need maybe legend? No.
+
+Need ensure code only lines? Could be one string with semicolons or multiline? JSON string can contain newline? Better use semicolons. But code may need multiple statements. Could use exec? No. Need valid Python one-liner? The tool likely runs code as Python lines; can include newline in JSON string? JSON can include \n. We can provide multi-line string with actual newlines? In JSON block, can have string with newlin
+[...]
+e first 5%? 871*0.05=43 temp ~75. If weight starts dropping at 30? Hmm. TGA maybe from 30 to 900, first 10 min? Time 0-87, temperature ramp maybe 10°C/min? 87 min -> 900. First 10% temp ~120. If there is moisture loss before 120, baseline not stable. But "Annealed" maybe no moisture. Use first 5%? 43 points -> 75°C. Could include initial drift. Maybe first 10% better. Could use `n=max(10,len(x)//20)`? 5% ~43. Need baseline stable. Could use points where x < xp - 100? But if onset far. Simpler: first 10%. Good.
+
+Could fit baseline to points before peak where derivative small: select `mask = x < xp - 50`; if enough, median y1. But if peak near 100, not enough. Could use first 10%.
+
+Need maybe onset from extrapolated tangent to baseline at 100. Good.
+
+Need maybe include `annotate` with peak? no.
+
+Let's consider if user expects "onset" computed using derivative peak and tangent to baseline but maybe wants label "onset". Code does.
+
+Need final answer only JSON block. Ensure no extra text. Need maybe include `"file": "cnt_batches.xlsx"` exactly. `"sheets": "Annealed"`.
+
+Let's craft final JSON:
+```json
+{
+  "file": "cnt_batches.xlsx",
+  "sheets": "Annealed",
+  "code": "d=np.gradient(y1,x); i=int(np.argmin(d)); xp=float(x[i]); yp=float(y1[i]); n=max(10,len(x)//10); baseline=float(np.median(y1[:n])); s=float(d[i]); xo=float(xp+(baseline-yp)/s) if abs(s)>1e-12 else xp; ax1.axvline(xo,color='red',linestyle='--'); ax1.text(xo,ax1.get_ylim()[1]*0.9,f'Onset {xo:.0f} °C',rotation=90,color='red',va='top')"
+}
+```
+
+Need check Python syntax: assignment with conditional expression: `xo=float(xp+(baseline-yp)/s) if abs(s)>1e-12 else xp` is valid? Yes conditional expression applies to entire assignment? Actually Python statement: `xo = float(...) if cond else xp` valid. In one-liner separated by semicolons: `...; xo=float(xp+(baseline-yp)/s) if abs(s)>1e-12 else xp; ...` valid. Good.
+
+Need maybe if s=0, xo = xp (int? float?). okay.
+
+Need maybe text y uses ax1.get_ylim()[1]*0.9. If y1 max ~105, y=94.5. Good. If y1 min maybe 0. If y1 max negative? no. If y1 log? no.
+
+Need maybe `va='top'` okay.
+
+Need maybe f-string with degree symbol in JSON okay. Need if output encoding? fine.
+
+Could include `ax2 and ax2.axvline`? Add? `ax2 and ax2.axvline(xo,color='red',linestyle='--')` after ax1? If ax2 None, no. But duplicate line maybe okay. Could include to span right axis? But vertical line on ax1 already spans y1; ax2 shares x, same line. Not necessary. If ax2 has higher zorder, line may be hidden? Lines usually same zorder. Could draw on both: `ax1.axvline(...); ax2 and ax2.axvline(...)` but if ax2 line drawn after, same. Fine. But code longer. Could use `ax1.axvline(..., zorder=0)`? no.
+
+Need maybe text on ax1 may be covered by y2 line? no.
+
+Need maybe onset line should be named annotation? no.
+
+Potential issue: The code uses `np.gradient(y1,x)` where x and y1 are arrays of plotted data. If TGA preset sorts or filters? likely okay.
+
+Potential issue: If y2 is derivative plotted peaks up, the TGA preset might invert sign of y2 but also maybe `y2` array passed to code is plotted (positive). We don't use y2. Good.
+
+Potential issue: Onset calculation uses max derivative (argmin) but if weight curve has derivative negative at very beginning due to initial small loss, main peak still most negative. Good.
+
+Potential issue: If there are multiple degradation peaks, onset of overall? User says Annealed sheet, likely one. If multiple, maybe onset of first? Not specified. Could find first major peak? But not needed.
+
+Could we compute onset using derivative y2 and baseline tangent from weight? Good.
+
+Need maybe include `"title": "Annealed"`? no.
+
+Let's think if there is a spec key for onset? No. Extra code only when no key fits. Good.
+
+Need maybe use `annotate` with `type: vline` but value dynamic impossible. Code okay.
+
+Need maybe if code fails due to f-string degree in older Python? Python 3 supports. Good.
+
+Need final only JSON block. Ensure no analysis in final. Done.

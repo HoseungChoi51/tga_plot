@@ -1,0 +1,648 @@
+{
+ "arm": "R-mpl",
+ "item": "SS10",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "신입 연구원",
+ "type": "session",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "TEM 직경 데이터로 시료별 평균 직경을 막대그래프로 보고 싶어요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 환경 설정\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 데이터 로드\nfile_path = \"data/diameters.csv\"\ndf = pd.read_csv(file_path)\n\n# 시료별 평균 직경 계산\ngrouped = df.groupby('A 시료')['D 직경(nm)'].mean().reset_index()\n\n# 그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\nbars = ax.bar(grouped['A 시료'], grouped['D 직경(nm)'], color='skyblue', edgecolor='black')\n\n# 막대 위에 값 표시\nfor bar in bars:\n    height = bar.get_height()\n    ax.annotate(f'{height:.2f}',\n                xy=(bar.get_x() + bar.get_width() / 2, height),\n                xytext=(0, 3),  # 3 points vertical offset\n                textcoords=\"offset points\",\n                ha='center', va='bottom', fontsize=10)\n\nax.set_title('시료별 평균 TEM 직경', fontsize=14)\nax.set_xlabel('시료 (Sample)', fontsize=12)\nax.set_ylabel('평균 직경 (nm)', fontsize=12)\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\nplt.tight_layout()\n\n# 저장\noutput_path = os.path.join(OUT_DIR, 'tem_diameter_mean_bar.png')\nplt.savefig(output_path, dpi=300)\nplt.close()\n```",
+     "llm_s": 6.071,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 2407,
+     "output_chars": 1099,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 환경 설정\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 데이터 로드\nfile_path = \"data/diameters.csv\"\ndf = pd.read_csv(file_path)\n\n# 컬럼 이름 공백 제거 및 첫 번째 컬럼 확인 (KeyError 방지용 로직 포함)\n# 보통 'A 시료' 같은 헤더가 있지만, 앞뒤 공백이나 다른 명칭일 수 있어 가장 왼쪽 숫자/텍스트 컬럼을 사용하거나\n# 에러가 났으므로 컬럼명을 명확히 하는 과정이 필요합니다.\n# 미리보기에는 'A 시료'라고 되어 있지만, 실제 CSV 헤더 parsing 시 문제일 수 있습니다.\n# 안전한 방법: 컬럼 인덱스 0을 기준으로 잡거나, 컬럼명에서 불필요한 공백 제거\ndf.columns = df.columns.str.strip()\n\nsample_col = None\ndiameter_col = None\n\nfor col in df.columns:\n    if '시료' in col or 'Sample' in col:\n        sample_col = col\n    if '직경' in col or 'Diameter' in col:\n        diameter_col = col\n\n# 만약 검색 실패 시 기본값 사용 (미리보기 기준)\nif sample_col is None:\n    sample_col = df.columns[0] # A 시료\nif diameter_col is None:\n    diameter_col = df.columns[3] # D 직경(nm) - 위치상 4번째일 가능성 높음, 또는 이름에 'nm' 포함된 것\n\nprint(f\"Using Sample Column: {sample_col}, Diameter Column: {diameter_col}\")\n\n# 시료별 평균 직경 계산\ngrouped = df.groupby(sample_col)[diameter_col].mean().reset_index()\n\n# 그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\nbars = ax.bar(grouped[sample_col], grouped[diameter_col], color='skyblue', edgecolor='black')\n\n# 막대 위에 값 표시\nfor bar in bars:\n    height = bar.get_height()\n    ax.annotate(f'{height:.2f}',\n                xy=(bar.get_x() + bar.get_width() / 2, height),\n                xytext=(0, 3),  # 3 points vertical offset\n                textcoords=\"offset points\",\n                ha='center', va='bottom', fontsize=10)\n\nax.set_title('시료별 평균 TEM 직경', fontsize=14)\nax.set_xlabel('시료 (Sample)', fontsize=12)\nax.set_ylabel('평균 직경 (nm)', fontsize=12)\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\nplt.tight_layout()\n\n# 저장\noutput_path = os.path.join(OUT_DIR, 'tem_diameter_mean_bar.png')\nplt.savefig(output_path, dpi=300)\nplt.close()\n```",
+     "llm_s": 17.763,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 4668,
+     "output_chars": 1873,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 환경 설정\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 데이터 로드\nfile_path = \"data/diameters.csv\"\ndf = pd.read_csv(file_path)\n\n# 컬럼 이름 공백 제거 및 첫 번째 컬럼 확인 (KeyError 방지용 로직 포함)\n# 보통 'A 시료' 같은 헤더가 있지만, 앞뒤 공백이나 다른 명칭일 수 있어 가장 왼쪽 숫자/텍스트 컬럼을 사용하거나\n# 에러가 났으므로 컬럼명을 명확히 하는 과정이 필요합니다.\n# 미리보기에는 'A 시료'라고 되어 있지만, 실제 CSV 헤더 parsing 시 문제일 수 있습니다.\n# 안전한 방법: 컬럼 인덱스 0을 기준으로 잡거나, 컬럼명에서 불필요한 공백 제거\ndf.columns = df.columns.str.strip()\n\nsample_col = None\ndiameter_col = None\n\nfor col in df.columns:\n    if '시료' in col or 'Sample' in col:\n        sample_col = col\n    if '직경' in col or 'Diameter' in col:\n        diameter_col = col\n\n# 만약 검색 실패 시 기본값 사용 (미리보기 기준)\nif sample_col is None:\n    sample_col = df.columns[0] # A 시료\nif diameter_col is None:\n    diameter_col = df.columns[3] # D 직경(nm) - 위치상 4번째일 가능성 높음, 또는 이름에 'nm' 포함된 것\n\nprint(f\"Using Sample Column: {sample_col}, Diameter Column: {diameter_col}\")\n\n# 시료별 평균 직경 계산\ngrouped = df.groupby(sample_col)[diameter_col].mean().reset_index()\n\n# 그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\nbars = ax.bar(grouped[sample_col], grouped[diameter_col], color='skyblue', edgecolor='black')\n\n# 막대 위에 값 표시\nfor bar in bars:\n    height = bar.get_height()\n    ax.annotate(f'{height:.2f}',\n                xy=(bar.get_x() + bar.get_width() / 2, height),\n                xytext=(0, 3),  # 3 points vertical offset\n                textcoords=\"offset points\",\n                ha='center', va='bottom', fontsize=10)\n\nax.set_title('시료별 평균 TEM 직경', fontsize=14)\nax.set_xlabel('시료 (Sample)', fontsize=12)\nax.set_ylabel('평균 직경 (nm)', fontsize=12)\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\nplt.tight_layout()\n\n# 저장\noutput_path = os.path.join(OUT_DIR, 'tem_diameter_mean_bar.png')\nplt.savefig(output_path, dpi=300)\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "시료별 평균 TEM 직경",
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "",
+         "orient": "v",
+         "cats": [
+          "TEM-01",
+          "TEM-02",
+          "TEM-03",
+          "TEM-04",
+          "TEM-05",
+          "TEM-06"
+         ],
+         "values": [
+          9.386111111111113,
+          11.743181818181819,
+          9.7375,
+          9.8548,
+          10.3135,
+          12.268275862068966
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 6,
+       "texts": [
+        "9.39",
+        "11.74",
+        "9.74",
+        "9.85",
+        "10.31",
+        "12.27"
+       ],
+       "x": {
+        "label": "시료 (Sample)",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0,
+         5.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "TEM-01",
+         "TEM-02",
+         "TEM-03",
+         "TEM-04",
+         "TEM-05",
+         "TEM-06"
+        ],
+        "min": -0.69,
+        "max": 5.6899999999999995,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "TEM-01",
+         "TEM-02",
+         "TEM-03",
+         "TEM-04",
+         "TEM-05",
+         "TEM-06"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "평균 직경 (nm)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         2.0,
+         4.0,
+         6.0,
+         8.0,
+         10.0,
+         12.0
+        ],
+        "step": 2.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 12.881689655172416,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "2",
+         "4",
+         "6",
+         "8",
+         "10",
+         "12",
+         "14"
+        ],
+        "rotate": 0.0
+       },
+       "title": "시료별 평균 TEM 직경"
+      }
+     ],
+     "texts": [
+      "9.39",
+      "11.74",
+      "9.74",
+      "9.85",
+      "10.31",
+      "12.27"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t1/tem_diameter_mean_bar.png",
+       "format": "png",
+       "px": [
+        3000,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.47387051582336426,
+   "check": {
+    "kind_expected": "bar",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 24.679
+  },
+  {
+   "turn": 2,
+   "text": "혹시 오차막대로 표준편차도 넣어 주실 수 있나요?",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 환경 설정\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 데이터 로드\nfile_path = \"data/diameters.csv\"\ndf = pd.read_csv(file_path)\n\n# 컬럼 이름 공백 제거 및 매칭 (이전 오류 방지 로직 유지)\ndf.columns = df.columns.str.strip()\n\nsample_col = None\ndiameter_col = None\n\nfor col in df.columns:\n    if '시료' in col or 'Sample' in col:\n        sample_col = col\n    if '직경' in col or 'Diameter' in col or 'nm' in col:\n        diameter_col = col\n\n# 만약 검색 실패 시 기본값 사용 (미리보기 기준 인덱스 활용)\nif sample_col is None:\n    sample_col = df.columns[0]\nif diameter_col is None:\n    # 미리보기에서 D 직경(nm)가 4번째 컬럼(C index 3)이라고 했으나, 실제 구조에 따라 다를 수 있어\n    # 'nm' 또는 '직경'을 찾지 못했다면 가장 마지막 수치형 컬럼이나 적절한 인덱스를 고려해야 함.\n    # 여기서는 미리보기 순서상 A,B,C,D 이므로 D는 인덱스 3번일 가능성이 높음.\n    if len(df.columns) > 3:\n        diameter_col = df.columns[3]\n    else:\n        raise ValueError(\"직경 컬럼을 찾을 수 없습니다.\")\n\nprint(f\"Using Sample Column: {sample_col}, Diameter Column: {diameter_col}\")\n\n# 통계 계산: 평균과 표준편차\ngrouped_stats = df.groupby(sample_col)[diameter_col].agg(['mean', 'std']).reset_index()\ngrouped_stats.columns = [sample_col, 'mean_diameter', 'std_diameter']\n\n# 그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\nx_labels = grouped_stats[sample_col]\nmeans = grouped_stats['mean_diameter']\nstds = grouped_stats['std_diameter'].fillna(0) # NaN 처리\n\nbars = ax.bar(x_labels, means, yerr=stds, capsize=5, color='skyblue', edgecolor='black', ecolor='red')\n\n# 막대 위에 값 표시 (평균)\nfor bar, mean_val in zip(bars, means):\n    height = bar.get_height()\n    ax.annotate(f'{mean_val:.2f}',\n                xy=(bar.get_x() + bar.get_width() / 2, height),\n                xytext=(0, 3),\n                textcoords=\"offset points\",\n                ha='center', va='bottom', fontsize=10)\n\nax.set_title('시료별 TEM 직경 평균 및 표준편차', fontsize=14)\nax.set_xlabel('시료 (Sample)', fontsize=12)\nax.set_ylabel('직경 (nm)', fontsize=12)\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\nplt.tight_layout()\n\n# 저장\noutput_path = os.path.join(OUT_DIR, 'tem_diameter_mean_std_bar.png')\nplt.savefig(output_path, dpi=300)\nplt.close()\n```",
+     "llm_s": 4.883,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 7228,
+     "output_chars": 2153,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 환경 설정\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 데이터 로드\nfile_path = \"data/diameters.csv\"\ndf = pd.read_csv(file_path)\n\n# 컬럼 이름 공백 제거 및 매칭 (이전 오류 방지 로직 유지)\ndf.columns = df.columns.str.strip()\n\nsample_col = None\ndiameter_col = None\n\nfor col in df.columns:\n    if '시료' in col or 'Sample' in col:\n        sample_col = col\n    if '직경' in col or 'Diameter' in col or 'nm' in col:\n        diameter_col = col\n\n# 만약 검색 실패 시 기본값 사용 (미리보기 기준 인덱스 활용)\nif sample_col is None:\n    sample_col = df.columns[0]\nif diameter_col is None:\n    # 미리보기에서 D 직경(nm)가 4번째 컬럼(C index 3)이라고 했으나, 실제 구조에 따라 다를 수 있어\n    # 'nm' 또는 '직경'을 찾지 못했다면 가장 마지막 수치형 컬럼이나 적절한 인덱스를 고려해야 함.\n    # 여기서는 미리보기 순서상 A,B,C,D 이므로 D는 인덱스 3번일 가능성이 높음.\n    if len(df.columns) > 3:\n        diameter_col = df.columns[3]\n    else:\n        raise ValueError(\"직경 컬럼을 찾을 수 없습니다.\")\n\nprint(f\"Using Sample Column: {sample_col}, Diameter Column: {diameter_col}\")\n\n# 통계 계산: 평균과 표준편차\ngrouped_stats = df.groupby(sample_col)[diameter_col].agg(['mean', 'std']).reset_index()\ngrouped_stats.columns = [sample_col, 'mean_diameter', 'std_diameter']\n\n# 그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\nx_labels = grouped_stats[sample_col]\nmeans = grouped_stats['mean_diameter']\nstds = grouped_stats['std_diameter'].fillna(0) # NaN 처리\n\nbars = ax.bar(x_labels, means, yerr=stds, capsize=5, color='skyblue', edgecolor='black', ecolor='red')\n\n# 막대 위에 값 표시 (평균)\nfor bar, mean_val in zip(bars, means):\n    height = bar.get_height()\n    ax.annotate(f'{mean_val:.2f}',\n                xy=(bar.get_x() + bar.get_width() / 2, height),\n                xytext=(0, 3),\n                textcoords=\"offset points\",\n                ha='center', va='bottom', fontsize=10)\n\nax.set_title('시료별 TEM 직경 평균 및 표준편차', fontsize=14)\nax.set_xlabel('시료 (Sample)', fontsize=12)\nax.set_ylabel('직경 (nm)', fontsize=12)\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\nplt.tight_layout()\n\n# 저장\noutput_path = os.path.join(OUT_DIR, 'tem_diameter_mean_std_bar.png')\nplt.savefig(output_path, dpi=300)\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "시료별 TEM 직경 평균 및 표준편차",
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "",
+         "orient": "v",
+         "cats": [
+          "TEM-01",
+          "TEM-02",
+          "TEM-03",
+          "TEM-04",
+          "TEM-05",
+          "TEM-06"
+         ],
+         "values": [
+          9.386111111111113,
+          11.743181818181819,
+          9.7375,
+          9.8548,
+          10.3135,
+          12.268275862068966
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 6,
+       "texts": [
+        "9.39",
+        "11.74",
+        "9.74",
+        "9.85",
+        "10.31",
+        "12.27"
+       ],
+       "x": {
+        "label": "시료 (Sample)",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0,
+         5.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "TEM-01",
+         "TEM-02",
+         "TEM-03",
+         "TEM-04",
+         "TEM-05",
+         "TEM-06"
+        ],
+        "min": -0.69,
+        "max": 5.6899999999999995,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "TEM-01",
+         "TEM-02",
+         "TEM-03",
+         "TEM-04",
+         "TEM-05",
+         "TEM-06"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "직경 (nm)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         2.0,
+         4.0,
+         6.0,
+         8.0,
+         10.0,
+         12.0,
+         14.0,
+         16.0
+        ],
+        "step": 2.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 16.547875350198193,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "2",
+         "4",
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16",
+         "18"
+        ],
+        "rotate": 0.0
+       },
+       "title": "시료별 TEM 직경 평균 및 표준편차"
+      }
+     ],
+     "texts": [
+      "9.39",
+      "11.74",
+      "9.74",
+      "9.85",
+      "10.31",
+      "12.27"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t2/tem_diameter_mean_std_bar.png",
+       "format": "png",
+       "px": [
+        3000,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.40146541595458984,
+   "check": {
+    "kind_expected": "bar",
+    "failed": [],
+    "unchecked": [
+     "error_bars={'TEM-01': 2.595, 'TEM-02': 3.284, 'TEM-03': 2.561, 'TEM-04': 2.746, 'TEM-05': 3.157, 'TEM-06': 3.492}"
+    ],
+    "n_checks": 3,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 5.285
+  },
+  {
+   "turn": 3,
+   "text": "시료 이름 대신 '반응기 / 촉매로트'로 라벨을 바꿔 주실 수 있을까요? 예를 들면 'R1 / FC-2604'처럼요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 환경 설정\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 데이터 로드\nfile_path = \"data/diameters.csv\"\ndf = pd.read_csv(file_path)\n\n# 컬럼 이름 공백 제거 및 매칭 (이전 오류 방지 로직 유지)\ndf.columns = df.columns.str.strip()\n\nsample_col = None\nreactor_col = None\ncatalyst_col = None\ndiameter_col = None\n\nfor col in df.columns:\n    if '시료' in col or 'Sample' in col:\n        sample_col = col\n    elif '반응기' in col or 'Reactor' in col:\n        reactor_col = col\n    elif '촉매로트' in col or 'Catalyst' in col or 'Lot' in col:\n        catalyst_col = col\n    elif '직경' in col or 'Diameter' in col or 'nm' in col:\n        diameter_col = col\n\n# 만약 검색 실패 시 기본값 사용 (미리보기 기준 인덱스 활용)\nif sample_col is None and len(df.columns) > 0:\n    sample_col = df.columns[0] # A 시료\nif reactor_col is None and len(df.columns) > 1:\n    reactor_col = df.columns[1] # B 반응기\nif catalyst_col is None and len(df.columns) > 2:\n    catalyst_col = df.columns[2] # C 촉매로트\nif diameter_col is None and len(df.columns) > 3:\n    diameter_col = df.columns[3] # D 직경(nm)\n\nprint(f\"Using Reactor Column: {reactor_col}, Catalyst Column: {catalyst_col}, Diameter Column: {diameter_col}\")\n\n# 그룹핑을 위한 새로운 라벨 컬럼 생성\n# 예: 'R1 / FC-2604'\ndf['Label'] = df[reactor_col].astype(str) + ' / ' + df[catalyst_col].astype(str)\n\n# 통계 계산: 평균과 표준편차\ngrouped_stats = df.groupby('Label')[diameter_col].agg(['mean', 'std']).reset_index()\ngrouped_stats.columns = ['Label', 'mean_diameter', 'std_diameter']\n\n# 그래프 그리기\nfig, ax = plt.subplots(figsize=(12, 7))\n\nx_labels = grouped_stats['Label']\nmeans = grouped_stats['mean_diameter']\nstds = grouped_stats['std_diameter'].fillna(0) # NaN 처리\n\nbars = ax.bar(x_labels, means, yerr=stds, capsize=5, color='skyblue', edgecolor='black', ecolor='red')\n\n# 막대 위에 값 표시 (평균)\nfor bar, mean_val in zip(bars, means):\n    height = bar.get_height()\n    ax.annotate(f'{mean_val:.2f}',\n                xy=(bar.get_x() + bar.get_width() / 2, height),\n                xytext=(0, 3),\n                textcoords=\"offset points\",\n                ha='center', va='bottom', fontsize=9)\n\nax.set_title('반응기/촉매로트별 TEM 직경 평균 및 표준편차', fontsize=14)\nax.set_xlabel('반응기 / 촉매로트', fontsize=12)\nax.set_ylabel('직경 (nm)', fontsize=12)\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\n# X축 레이블 회전 (라벨이 길어질 수 있으므로)\nplt.xticks(rotation=45, ha='right')\n\nplt.tight_layout()\n\n# 저장\noutput_path = os.path.join(OUT_DIR, 'tem_diameter_mean_std_reactor_catalyst.png')\nplt.savefig(output_path, dpi=300)\nplt.close()\n```",
+     "llm_s": 11.319,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 10074,
+     "output_chars": 2562,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 환경 설정\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 데이터 로드\nfile_path = \"data/diameters.csv\"\ndf = pd.read_csv(file_path)\n\n# 컬럼 이름 공백 제거 및 매칭 (이전 오류 방지 로직 유지)\ndf.columns = df.columns.str.strip()\n\nsample_col = None\nreactor_col = None\ncatalyst_col = None\ndiameter_col = None\n\nfor col in df.columns:\n    if '시료' in col or 'Sample' in col:\n        sample_col = col\n    elif '반응기' in col or 'Reactor' in col:\n        reactor_col = col\n    elif '촉매로트' in col or 'Catalyst' in col or 'Lot' in col:\n        catalyst_col = col\n    elif '직경' in col or 'Diameter' in col or 'nm' in col:\n        diameter_col = col\n\n# 만약 검색 실패 시 기본값 사용 (미리보기 기준 인덱스 활용)\nif sample_col is None and len(df.columns) > 0:\n    sample_col = df.columns[0] # A 시료\nif reactor_col is None and len(df.columns) > 1:\n    reactor_col = df.columns[1] # B 반응기\nif catalyst_col is None and len(df.columns) > 2:\n    catalyst_col = df.columns[2] # C 촉매로트\nif diameter_col is None and len(df.columns) > 3:\n    diameter_col = df.columns[3] # D 직경(nm)\n\nprint(f\"Using Reactor Column: {reactor_col}, Catalyst Column: {catalyst_col}, Diameter Column: {diameter_col}\")\n\n# 그룹핑을 위한 새로운 라벨 컬럼 생성\n# 예: 'R1 / FC-2604'\ndf['Label'] = df[reactor_col].astype(str) + ' / ' + df[catalyst_col].astype(str)\n\n# 통계 계산: 평균과 표준편차\ngrouped_stats = df.groupby('Label')[diameter_col].agg(['mean', 'std']).reset_index()\ngrouped_stats.columns = ['Label', 'mean_diameter', 'std_diameter']\n\n# 그래프 그리기\nfig, ax = plt.subplots(figsize=(12, 7))\n\nx_labels = grouped_stats['Label']\nmeans = grouped_stats['mean_diameter']\nstds = grouped_stats['std_diameter'].fillna(0) # NaN 처리\n\nbars = ax.bar(x_labels, means, yerr=stds, capsize=5, color='skyblue', edgecolor='black', ecolor='red')\n\n# 막대 위에 값 표시 (평균)\nfor bar, mean_val in zip(bars, means):\n    height = bar.get_height()\n    ax.annotate(f'{mean_val:.2f}',\n                xy=(bar.get_x() + bar.get_width() / 2, height),\n                xytext=(0, 3),\n                textcoords=\"offset points\",\n                ha='center', va='bottom', fontsize=9)\n\nax.set_title('반응기/촉매로트별 TEM 직경 평균 및 표준편차', fontsize=14)\nax.set_xlabel('반응기 / 촉매로트', fontsize=12)\nax.set_ylabel('직경 (nm)', fontsize=12)\nax.grid(axis='y', linestyle='--', alpha=0.7)\n\n# X축 레이블 회전 (라벨이 길어질 수 있으므로)\nplt.xticks(rotation=45, ha='right')\n\nplt.tight_layout()\n\n# 저장\noutput_path = os.path.join(OUT_DIR, 'tem_diameter_mean_std_reactor_catalyst.png')\nplt.savefig(output_path, dpi=300)\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      12.0,
+      7.0
+     ],
+     "dpi": null,
+     "title": "반응기/촉매로트별 TEM 직경 평균 및 표준편차",
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "",
+         "orient": "v",
+         "cats": [
+          "R1 / FC-2604",
+          "R1 / FC-2607",
+          "R2 / FC-2605",
+          "R3 / FC-2604",
+          "R4 / FC-2604",
+          "R4 / FC-2607"
+         ],
+         "values": [
+          9.386111111111113,
+          11.743181818181819,
+          9.7375,
+          9.8548,
+          10.3135,
+          12.268275862068966
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 6,
+       "texts": [
+        "9.39",
+        "11.74",
+        "9.74",
+        "9.85",
+        "10.31",
+        "12.27"
+       ],
+       "x": {
+        "label": "반응기 / 촉매로트",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0,
+         5.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "R1 / FC-2604",
+         "R1 / FC-2607",
+         "R2 / FC-2605",
+         "R3 / FC-2604",
+         "R4 / FC-2604",
+         "R4 / FC-2607"
+        ],
+        "min": -0.69,
+        "max": 5.6899999999999995,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "R1 / FC-2604",
+         "R1 / FC-2607",
+         "R2 / FC-2605",
+         "R3 / FC-2604",
+         "R4 / FC-2604",
+         "R4 / FC-2607"
+        ],
+        "rotate": 45.0
+       },
+       "y": {
+        "label": "직경 (nm)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         2.0,
+         4.0,
+         6.0,
+         8.0,
+         10.0,
+         12.0,
+         14.0,
+         16.0
+        ],
+        "step": 2.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 16.547875350198193,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "2",
+         "4",
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16",
+         "18"
+        ],
+        "rotate": 0.0
+       },
+       "title": "반응기/촉매로트별 TEM 직경 평균 및 표준편차"
+      }
+     ],
+     "texts": [
+      "9.39",
+      "11.74",
+      "9.74",
+      "9.85",
+      "10.31",
+      "12.27"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t3/tem_diameter_mean_std_reactor_catalyst.png",
+       "format": "png",
+       "px": [
+        3600,
+        2100
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5207586288452148,
+   "check": {
+    "kind_expected": "bar",
+    "failed": [],
+    "unchecked": [
+     "error_bars={'R1 / FC-2604': 2.595, 'R1 / FC-2607': 3.284, 'R2 / FC-2605': 2.561, 'R3 / FC-2604': 2.746, 'R4 / FC-2604': 3.157, 'R4 / FC-2607': 3.492}"
+    ],
+    "n_checks": 3,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 11.84
+  }
+ ]
+}

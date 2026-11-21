@@ -1,0 +1,34 @@
+{
+ "file": "data/tga_batches.xlsx",
+ "sheets": [
+  "R1-260326-1",
+  "R1-260716-1"
+ ],
+ "combine": true,
+ "x": {
+  "col": "B"
+ },
+ "y1": {
+  "col": "C"
+ },
+ "y2": false,
+ "legend": "upper right",
+ "data_code": "import numpy as np\n# In combine mode, x and y1 are likely 2D arrays or lists per sheet.\n# We need to calculate the mass loss for each curve and update the names.\n# Assuming 'names' is available in scope or we use 'sheet' context if single.\n# For combine with multiple sheets, plotkit usually passes data such that we can iterate.\n# Let's assume x and y1 are lists of arrays (one per sheet) when combine=True and multiple sheets.\n# If they are flattened, this logic fails. Given the error was about 'sheets', let's try using the global variables provided in the hint: x, y1, y2, sheet, np, marks.\n# However, for multi-sheet combine, standard plotkit behavior often exposes 'x' and 'y1' as arrays corresponding to the *current* drawing pass or concatenated.\n# A safer bet for legend modification in combine mode via data_code is difficult without specific framework knowledge of how 'names' is handled.\n# Let's look at the previous attempt: it tried to modify 'names'. \n# The hint says: \"reassign x/y1/y2 to change the curve\". It doesn't explicitly mention changing legend names via data_code for combine.\n# BUT, often `names` is a variable you can set.\n# Let's try calculating based on the assumption that x and y1 are lists of numpy arrays if there are multiple sheets.\nif isinstance(x, list):\n    new_names = []\n    for i, (xi, yi) in enumerate(zip(x, y1)):\n        w200 = np.interp(200, xi, yi)\n        w450 = np.interp(450, xi, yi)\n        diff = w200 - w450\n        # Try to get original name from a 'names' variable if it exists, otherwise guess\n        try:\n            base = names[i]\n        except:\n            base = f\"Sheet {i+1}\"\n        new_names.append(f\"{base} (ΔW: {diff:.2f}%)\")\n    names = new_names\nelif hasattr(x, '__len__') and len(x.shape) == 1:\n    # Single array case? Maybe the loop runs once per sheet?\n    # But combine implies overlaying. \n    # If x is just one big array, we can't easily separate them here without knowing split points.\n    pass\n",
+ "asks": [
+  {
+   "ask": "R1 두 시트 비교",
+   "how": "key"
+  },
+  {
+   "ask": "TG 곡선만 표시 (DTG 제외)",
+   "how": "key"
+  },
+  {
+   "ask": "200–450 °C 질량 변화량 계산 및 범례 표시",
+   "how": "data_code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S018_r3/out/t1"
+ }
+}

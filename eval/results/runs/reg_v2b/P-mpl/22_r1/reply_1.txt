@@ -1,0 +1,3 @@
+```json
+{"file": "TGA.xlsx", "y2": {"color": "green", "label_color": "green"}, "asks": [{"ask": "y2 선 초록", "how": "key"}, {"ask": "y2축 라벨 초록", "how": "key"}]}
+```

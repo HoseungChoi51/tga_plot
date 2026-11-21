@@ -1,0 +1,136 @@
+import os
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib
+
+# Set Korean font
+matplotlib.rcParams['font.family'] = 'Noto Sans CJK KR'
+matplotlib.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/01_r3/out"
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# Read all sheets
+xl = pd.ExcelFile(DATA_FILE)
+sheet_names = xl.sheet_names
+
+for sheet_name in sheet_names:
+    df = pd.read_excel(DATA_FILE, sheet_name=sheet_name, header=0)
+    
+    # Identify columns based on typical TGA structure
+    # Looking for Temperature, Weight(%), and D.W(%/C) or similar derivative column
+    cols = df.columns.tolist()
+    
+    x_col = None
+    y1_col = None
+    y2_col = None
+    
+    for c in cols:
+        c_lower = str(c).lower()
+        if 'temperature' in c_lower or 'temp' in c_lower:
+            x_col = c
+        elif 'weight' in c_lower and '%' in c_lower and 'd.' not in c_lower and 'derivative' not in c_lower:
+            y1_col = c
+        elif ('d.w' in c_lower or 'derivative' in c_lower or 'dtg' in c_lower) and '%' in c_lower:
+            y2_col = c
+            
+    # Fallback if names don't match strictly
+    if x_col is None and len(cols) >= 2:
+        x_col = cols[1] # Usually Temp is second col after Time
+    if y1_col is None and len(cols) >= 3:
+        y1_col = cols[2] # Weight usually third
+    if y2_col is None and len(cols) >= 4:
+        y2_col = cols[3] # DTG usually fourth
+        
+    if x_col is None or y1_col is None:
+        continue
+        
+    temp = df[x_col].values
+    weight = df[y1_col].values
+    
+    dtg = None
+    if y2_col is not None:
+        dtg = df[y2_col].values
+        
+    # Create figure
+    fig, ax1 = plt.subplots(figsize=(8, 6))
+    
+    # Plot Weight (left axis)
+    color_weight = '#1f4e9c'
+    ax1.plot(temp, weight, color=color_weight, label='Weight (%)')
+    ax1.set_xlabel('Temperature (°C)', fontsize=12)
+    ax1.set_ylabel('Weight (%)', color=color_weight, fontsize=12)
+    ax1.tick_params(axis='y', labelcolor=color_weight)
+    ax1.grid(True, linestyle='--', alpha=0.5)
+    
+    # Plot DTG (right axis)
+    ax2 = ax1.twinx()
+    color_dtg = '#c0392b'
+    
+    residue_label = ""
+    peak_label = ""
+    
+    if dtg is not None:
+        # Multiply by -1 to make peaks point up
+        dtg_inv = dtg * -1
+        ax2.plot(temp, dtg_inv, color=color_dtg, label='DTG (%/°C)')
+        ax2.set_ylabel('DTG (%/°C)', color=color_dtg, fontsize=12)
+        ax2.tick_params(axis='y', labelcolor=color_dtg)
+        
+        # Find Peak above 150°C
+        mask_peak = (temp > 150) & (~np.isnan(dtg_inv))
+        if np.any(mask_peak):
+            temp_peak_masked = temp[mask_peak]
+            dtg_peak_masked = dtg_inv[mask_peak]
+            idx_max = np.argmax(dtg_peak_masked)
+            peak_temp = temp_peak_masked[idx_max]
+            peak_val = dtg_peak_masked[idx_max]
+            
+            # Mark peak
+            ax2.plot(peak_temp, peak_val, 'o', color=color_dtg, markersize=6)
+            peak_label = f"{int(round(peak_temp))} °C"
+            ax2.annotate(peak_label, xy=(peak_temp, peak_val), 
+                         xytext=(10, 10), textcoords='offset points',
+                         color=color_dtg, fontsize=10, ha='left')
+    else:
+        # If no DTG, just plot weight
+        pass
+
+    # Find Residue at nearest 800°C
+    mask_res = ~np.isnan(weight) & ~np.isnan(temp)
+    if np.any(mask_res):
+        temp_valid = temp[mask_res]
+        weight_valid = weight[mask_res]
+        
+        # Find index closest to 800
+        idx_800 = np.argmin(np.abs(temp_valid - 800))
+        res_temp = temp_valid[idx_800]
+        res_weight = weight_valid[idx_800]
+        
+        # Only add label if temperature range covers near 800 reasonably
+        if abs(res_temp - 800) < 100: 
+            ax1.plot(res_temp, res_weight, 's', color=color_weight, markersize=6)
+            residue_label = f"Residue {res_weight:.1f}%"
+            ax1.annotate(residue_label, xy=(res_temp, res_weight),
+                         xytext=(-10, 10), textcoords='offset points',
+                         color=color_weight, fontsize=10, ha='right')
+
+    # Title
+    ax1.set_title(sheet_name, fontsize=14, fontweight='bold')
+    
+    # Legend
+    lines1, labels1 = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines1 + lines2, labels1 + labels2, loc='center left', bbox_to_anchor=(0.05, 0.5))
+    
+    # Layout
+    plt.tight_layout()
+    
+    # Save
+    safe_sheet_name = "".join([c if c.isalnum() or c in (' ', '-', '_') else '_' for c in sheet_name]).strip()
+    out_path = os.path.join(OUT_DIR, f"{safe_sheet_name}.png")
+    plt.savefig(out_path, dpi=300, bbox_inches='tight')
+    plt.close(fig)

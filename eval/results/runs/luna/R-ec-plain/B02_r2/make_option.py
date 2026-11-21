@@ -1,0 +1,110 @@
+import json
+import numpy as np
+import pandas as pd
+from scipy.signal import find_peaks
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/caox.csv"
+
+df = pd.read_csv(DATA_FILE)
+temperature = pd.to_numeric(df["Temperature (°C)"], errors="coerce").to_numpy()
+weight = pd.to_numeric(df["Weight (%)"], errors="coerce").to_numpy()
+heat_flow = pd.to_numeric(df["Heat Flow (W/g)"], errors="coerce").to_numpy()
+
+valid = np.isfinite(temperature) & np.isfinite(weight) & np.isfinite(heat_flow)
+temperature, weight, heat_flow = temperature[valid], weight[valid], heat_flow[valid]
+
+# Detect prominent local extrema in heat flow. By the usual DSC convention,
+# negative-going peaks are endothermic and positive-going peaks are exothermic.
+span = np.nanmax(heat_flow) - np.nanmin(heat_flow)
+prominence = max(span * 0.025, 1e-9)
+negative_peaks, _ = find_peaks(-heat_flow, prominence=prominence, distance=20)
+positive_peaks, _ = find_peaks(heat_flow, prominence=prominence, distance=20)
+
+endothermic = sorted(negative_peaks, key=lambda i: heat_flow[i])[:2]
+exothermic = sorted(positive_peaks, key=lambda i: heat_flow[i], reverse=True)[:1]
+peak_indices = endothermic + exothermic
+
+# Retain a clear annotation even if the peak finder returns fewer than requested.
+annotations = []
+for idx in endothermic:
+    annotations.append({
+        "value": [float(temperature[idx]), float(heat_flow[idx])],
+        "name": f"흡열 피크 {temperature[idx]:.1f}°C",
+        "label": {"show": True, "position": "bottom", "formatter": f"흡열 {temperature[idx]:.1f}°C"}
+    })
+for idx in exothermic:
+    annotations.append({
+        "value": [float(temperature[idx]), float(heat_flow[idx])],
+        "name": f"발열 피크 {temperature[idx]:.1f}°C",
+        "label": {"show": True, "position": "top", "formatter": f"발열 {temperature[idx]:.1f}°C"}
+    })
+
+option = {
+    "animation": False,
+    "title": {"text": "TGA 및 Heat Flow", "left": "center"},
+    "tooltip": {"trigger": "axis", "axisPointer": {"type": "cross"}},
+    "legend": {"data": ["Weight", "Heat Flow"], "top": 30},
+    "grid": {"left": 75, "right": 75, "top": 80, "bottom": 65},
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 38,
+        "axisLabel": {"formatter": "{value}"},
+        "min": float(np.nanmin(temperature)),
+        "max": float(np.nanmax(temperature))
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Weight (%)",
+            "nameLocation": "middle",
+            "nameGap": 50,
+            "min": 0,
+            "max": 105
+        },
+        {
+            "type": "value",
+            "name": "Heat Flow (W/g)",
+            "nameLocation": "middle",
+            "nameGap": 55,
+            "position": "right",
+            "scale": True
+        }
+    ],
+    "series": [
+        {
+            "name": "Weight",
+            "type": "line",
+            "showSymbol": False,
+            "yAxisIndex": 0,
+            "lineStyle": {"width": 2, "color": "#3366cc"},
+            "data": [[float(x), float(y)] for x, y in zip(temperature, weight)]
+        },
+        {
+            "name": "Heat Flow",
+            "type": "line",
+            "showSymbol": False,
+            "yAxisIndex": 1,
+            "lineStyle": {"width": 2, "color": "#d62728"},
+            "data": [[float(x), float(y)] for x, y in zip(temperature, heat_flow)],
+            "markPoint": {
+                "symbol": "circle",
+                "symbolSize": 10,
+                "itemStyle": {"color": "#222"},
+                "data": annotations
+            }
+        }
+    ]
+}
+
+print(json.dumps({
+    "figures": [{
+        "name": "tga_heatflow",
+        "option": option,
+        "width": 900,
+        "height": 600,
+        "dpi": 300,
+        "formats": ["png"]
+    }]
+}, ensure_ascii=False, allow_nan=False))

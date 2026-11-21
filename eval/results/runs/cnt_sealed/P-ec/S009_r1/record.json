@@ -1,0 +1,384 @@
+{
+ "arm": "P-ec",
+ "item": "S009",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "생산팀장",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "주차별로 런이 몇 번 돌았는지 막대로 보여 주시고, 26주 평균 런 수를 가로선으로 같이 넣어 주세요.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"chart\": \"bar\",\n  \"x\": \"주차\",\n  \"y\": \"count\",\n  \"ref\": [\n    {\n      \"y\": \"mean\",\n      \"text\": \"평균 런 수\"\n    }\n  ],\n  \"asks\": [\n    {\n      \"ask\": \"주차별 런 수 막대\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"평균 런 수 가로선\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 3.378,
+     "prompt_tokens": 6328,
+     "output_tokens": 138,
+     "cached_tokens": 6289,
+     "prompt_n": 39,
+     "prefill_ms": 260.489094,
+     "decode_ms": 2975.5223929999997,
+     "finish": "stop"
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"chart\": \"bar\",\n  \"x\": \"주차\",\n  \"y\": {\"col\": \"런ID\", \"agg\": \"count\"},\n  \"ref\": [\n    {\n      \"y\": \"mean\",\n      \"text\": \"평균 런 수\"\n    }\n  ],\n  \"asks\": [\n    {\n      \"ask\": \"주차별 런 수 막대\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"평균 런 수 가로선\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 4.656,
+     "prompt_tokens": 6499,
+     "output_tokens": 148,
+     "cached_tokens": 6466,
+     "prompt_n": 33,
+     "prefill_ms": 267.49785599999996,
+     "decode_ms": 4080.9275380000004,
+     "finish": "stop"
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"chart\": \"bar\",\n  \"x\": \"주차\",\n  \"y\": {\"col\": \"런ID\", \"agg\": \"count\"},\n  \"ref\": [\n    {\n      \"y\": 38.35,\n      \"text\": \"평균 런 수\"\n    }\n  ],\n  \"asks\": [\n    {\n      \"ask\": \"주차별 런 수 막대\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"평균 런 수 가로선\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 4.433,
+     "prompt_tokens": 6693,
+     "output_tokens": 152,
+     "cached_tokens": 6647,
+     "prompt_n": 46,
+     "prefill_ms": 289.248378,
+     "decode_ms": 3797.393348,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "chart": "bar",
+    "x": "주차",
+    "y": {
+     "col": "런ID",
+     "agg": "count"
+    },
+    "ref": [
+     {
+      "y": 38.35,
+      "text": "평균 런 수"
+     }
+    ],
+    "asks": [
+     {
+      "ask": "주차별 런 수 막대",
+      "how": "key"
+     },
+     {
+      "ask": "평균 런 수 가로선",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": true,
+    "engine": "echarts",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-ec/S009_r1/out/t1/bar_런ID.png"
+    ],
+    "chart": "bar",
+    "rows_used": 997,
+    "rows_total": 997,
+    "values": {
+     "categories": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15",
+      "16",
+      "17",
+      "18",
+      "19",
+      "20",
+      "21",
+      "22",
+      "23",
+      "24",
+      "25",
+      "26"
+     ],
+     "series": {
+      "런ID": [
+       37.0,
+       39.0,
+       37.0,
+       38.0,
+       38.0,
+       37.0,
+       38.0,
+       37.0,
+       37.0,
+       37.0,
+       39.0,
+       37.0,
+       38.0,
+       38.0,
+       37.0,
+       41.0,
+       38.0,
+       42.0,
+       38.0,
+       38.0,
+       38.0,
+       40.0,
+       41.0,
+       38.0,
+       39.0,
+       40.0
+      ]
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "막대 그래프를 저장했습니다: bar_런ID.png\n사용한 행: 997 / 997\n런ID: 1 37, 2 39, 3 37, 4 38, 5 38, 6 37, 7 38, 8 37 …\n기준선: 평균 런 수"
+   },
+   "facts": [
+    {
+     "engine": "echarts",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": 300,
+     "title": null,
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "런ID",
+         "orient": "v",
+         "cats": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "20",
+          "21",
+          "22",
+          "23",
+          "24",
+          "25",
+          "26"
+         ],
+         "values": [
+          37.0,
+          39.0,
+          37.0,
+          38.0,
+          38.0,
+          37.0,
+          38.0,
+          37.0,
+          37.0,
+          37.0,
+          39.0,
+          37.0,
+          38.0,
+          38.0,
+          37.0,
+          41.0,
+          38.0,
+          42.0,
+          38.0,
+          38.0,
+          38.0,
+          40.0,
+          41.0,
+          38.0,
+          39.0,
+          40.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c"
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [
+        38.35
+       ],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "주차",
+        "type": "category",
+        "ticks": [],
+        "step": null,
+        "categories": [
+         "1",
+         "2",
+         "3",
+         "4",
+         "5",
+         "6",
+         "7",
+         "8",
+         "9",
+         "10",
+         "11",
+         "12",
+         "13",
+         "14",
+         "15",
+         "16",
+         "17",
+         "18",
+         "19",
+         "20",
+         "21",
+         "22",
+         "23",
+         "24",
+         "25",
+         "26"
+        ],
+        "min": 0.0,
+        "max": 25.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 45.0
+       },
+       "y": {
+        "label": "런ID (count)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         10.0,
+         20.0,
+         30.0,
+         40.0,
+         50.0
+        ],
+        "step": 10.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 50.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       }
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-ec/S009_r1/out/t1/bar_런ID.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5969400405883789,
+   "check": {
+    "kind_expected": "bar",
+    "failed": [],
+    "unchecked": [
+     "mean_line=38.346"
+    ],
+    "n_checks": 3,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 13.952
+  }
+ ]
+}

@@ -1,0 +1,32 @@
+We need answer user in Korean? Test mode: reply with JSON spec only inside one json block, nothing else. Need analyze request.
+
+User request: "두 번째 시트만 그리고, 300 °C와 600 °C에서의 무게를 표시해줘"
+Inspect file polymers.xlsx sheets: PE, PVC, PET. Second sheet = PVC. They want plot only second sheet, and display weight at 300 °C and 600 °C. Need spec.
+
+Default TGA preset for TGA data. Need sheets: maybe 2 or "PVC". "두 번째 시트만" => sheets: 2 or "PVC". Guide says sheets name, 1-based number, list, or all. Use 2 or PVC. Better use 2? It says take sheet names from inspect; never guess. But 1-based number allowed. Could use "PVC" explicit. "두 번째 시트" = PVC. Use sheets: "PVC".
+
+Need display weight at 300 and 600. This is 잔류량 표시? They ask 무게 at temperatures, not residue at 800. The annotation type value_at_x on y1. Need add new annotations under new names? The guide says annotate is dict of named labels. TGA preset has residue and peak. For custom labels: "annotate.<new name>" with type vline/hline, but also value_at_x? It says residue type value_at_x. For 300 and 600 weight, likely use annotate with type value_at_x on y1 at x=300 and x=600. Need include only what user asked. Since they ask 표시 at two temperatures, include two annotations. Could use names "residue300", "residue600" or "w300", "w600". Need text? default? For residue preset text "Residue {y:.1f}%". For custom maybe need text. Could set text "{y:.1f}%"? They ask 무게 표시. Maybe text should show value. Need maybe include "text": "{y:.1f}%" for each. Or default maybe? To be safe, specify text.
+
+Need consider default residue at 800? User did not mention 잔류량 표시 at all? They ask 300 and 600 weight. Does that count as 잔류량 표시? Rule: "Exception: if the user mentions 잔류량 표시 at all, include annotate.residue". They didn't mention 잔류량 표시. They ask weight at 300 and 600. Should we leave out default residue? The default TGA preset already draws residue at 800 and peak. If we add custom annotations, does default residue remain? The preset has residue and peak. If user doesn't mention 잔류량 표시, should we remove default residue? Rule: "Keep the TGA preset (the default) for TGA data." But also "Leave out every key the user did not mention. Do not repeat default values." Default includes residue at 800 and peak. If we don't mention residue, do we need to remove it? For TGA default already draws residue and highest DTG peak. If user asks only display weight at 300 and 600, maybe they want those labels in addition to default? The request says "300 °C와 600 °C에서의 무게를 표시해줘" not "only". It doesn't say remove residue/peak. So keep default preset. But if we add annotate custom, will it replace annotate? Spec is partial; adding annotate with new names should merge with preset? Guide: annotate is dict of named labels. Change only what you need. Add new ones under new names. So yes.
+
+Need maybe set sheets: 2. If using sheets: 2, no need sheet name. But "Take column letters and sheet names from inspect; never guess them." 2 is derived. Could use "PVC" to be explicit. Use sheets: "PVC".
+
+Need maybe set y2? No.
+
+Need JSON:
+{
+  "file": "polymers.xlsx",
+  "sheets": "PVC",
+  "annotate": {
+    "weight300": {"type": "value_at_x", "on": "y1", "x": 300, "text": "{y:.1f}%"},
+    "weight600": {"type": "value_at_x", "on": "y1", "x": 600, "text": "{y:.1f}%"}
+  }
+}
+
+Need consider method? default nearest. Could omit. Could include "method": "nearest"? Not needed.
+
+Could use residue key twice? No.
+
+Need ensure "300 °C와 600 °C에서의 무게" maybe annotate type value_at_x on y1. Good.
+
+Need output only JSON block. Ensure no extra text.

@@ -1,0 +1,31 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "hbar",
+ "x": "반응기",
+ "y": {
+  "col": "정지시간(분)",
+  "agg": "sum"
+ },
+ "sort": "desc",
+ "highlight": "R3",
+ "colors": {
+  "R3": "red"
+ },
+ "asks": [
+  {
+   "ask": "반응기별 총 정지시간 가로막대",
+   "how": "key"
+  },
+  {
+   "ask": "많은 순으로 정렬",
+   "how": "key"
+  },
+  {
+   "ask": "최다 반응기만 빨강, 나머지는 회색",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-mpl/S002_r3/out/t1"
+ }
+}

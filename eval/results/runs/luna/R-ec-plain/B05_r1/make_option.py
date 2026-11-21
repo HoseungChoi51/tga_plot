@@ -1,0 +1,127 @@
+import json
+import os
+import sys
+
+import numpy as np
+import pandas as pd
+
+DATA_FILES = [
+    "/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_A.csv",
+    "/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_B.txt",
+]
+
+def read_lab_file(path):
+    ext = os.path.splitext(path)[1].lower()
+    if ext == ".csv":
+        df = pd.read_csv(path)
+    elif ext in (".xls", ".xlsx"):
+        df = pd.read_excel(path)
+    else:
+        try:
+            df = pd.read_csv(path, sep=None, engine="python")
+        except Exception:
+            df = pd.read_csv(path, sep=r"\s+", engine="python")
+
+    # Convert all columns to numeric where possible, ignoring nonnumeric cells.
+    for col in df.columns:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+
+    # Select temperature, weight, and derivative-weight columns by header name.
+    cols = list(df.columns)
+    temp_col = next((c for c in cols if "temperature" in str(c).lower()), None)
+    weight_col = next((c for c in cols if "weight" in str(c).lower() and "deriv" not in str(c).lower()), None)
+    deriv_col = next((c for c in cols if "deriv" in str(c).lower()), None)
+
+    if temp_col is None or weight_col is None:
+        numeric_cols = [c for c in cols if df[c].notna().any()]
+        if len(numeric_cols) < 3:
+            raise ValueError(f"Could not identify temperature and weight columns in {path}")
+        temp_col, weight_col = numeric_cols[1], numeric_cols[2]
+        if deriv_col is None and len(numeric_cols) > 3:
+            deriv_col = numeric_cols[3]
+
+    result = pd.DataFrame({
+        "temperature": pd.to_numeric(df[temp_col], errors="coerce"),
+        "weight": pd.to_numeric(df[weight_col], errors="coerce"),
+    })
+    if deriv_col is not None:
+        result["derivative"] = pd.to_numeric(df[deriv_col], errors="coerce")
+    return result.dropna(subset=["temperature", "weight"])
+
+datasets = []
+for path, label in zip(DATA_FILES, ["Lot A", "Lot B"]):
+    data = read_lab_file(path)
+    datasets.append((label, data))
+
+colors = ["#1f77b4", "#d62728"]
+series = []
+for (label, data), color in zip(datasets, colors):
+    series.append({
+        "name": label,
+        "type": "line",
+        "showSymbol": False,
+        "smooth": False,
+        "lineStyle": {"width": 2, "color": color},
+        "itemStyle": {"color": color},
+        "data": [
+            [float(x), float(y)]
+            for x, y in zip(data["temperature"], data["weight"])
+            if np.isfinite(x) and np.isfinite(y)
+        ],
+    })
+
+option = {
+    "animation": False,
+    "backgroundColor": "#ffffff",
+    "textStyle": {"fontFamily": "Noto Sans CJK KR, sans-serif", "color": "#222222"},
+    "title": {
+        "text": "TGA 비교",
+        "left": "center",
+        "top": 12,
+        "textStyle": {"fontSize": 18, "fontWeight": "bold"},
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {"type": "cross"},
+    },
+    "legend": {
+        "data": ["Lot A", "Lot B"],
+        "top": 42,
+        "left": "center",
+    },
+    "grid": {"left": 76, "right": 28, "top": 92, "bottom": 68},
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 38,
+        "min": 30,
+        "max": 900,
+        "axisLine": {"lineStyle": {"color": "#555555"}},
+        "axisLabel": {"color": "#333333"},
+        "splitLine": {"show": True, "lineStyle": {"color": "#e5e5e5"}},
+    },
+    "yAxis": {
+        "type": "value",
+        "name": "Weight (%)",
+        "nameLocation": "middle",
+        "nameGap": 48,
+        "min": 0,
+        "max": 105,
+        "axisLine": {"lineStyle": {"color": "#555555"}},
+        "axisLabel": {"color": "#333333"},
+        "splitLine": {"show": True, "lineStyle": {"color": "#e5e5e5"}},
+    },
+    "series": series,
+}
+
+print(json.dumps({
+    "figures": [{
+        "name": "tga_lot_comparison",
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"],
+    }]
+}, ensure_ascii=False, allow_nan=False))

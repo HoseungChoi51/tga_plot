@@ -1,0 +1,66 @@
+from pathlib import Path
+
+import pandas as pd
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/tests/inputs/extra_columns.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/24_r3/out")
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+sheets = pd.read_excel(DATA_FILE, sheet_name=None)
+
+for sheet_name, df in sheets.items():
+    # Select columns by their headers, allowing harmless whitespace differences.
+    normalized = {str(col).strip().lower(): col for col in df.columns}
+    temp_col = normalized.get("temperature (°c)")
+    weight_col = normalized.get("weight (%)")
+    heat_col = normalized.get("heat flow (w/g)")
+
+    if temp_col is None or weight_col is None or heat_col is None:
+        continue
+
+    data = df[[temp_col, weight_col, heat_col]].apply(pd.to_numeric, errors="coerce").dropna()
+    if data.empty:
+        continue
+
+    temperature = data[temp_col]
+    weight = data[weight_col]
+    heat_flow = data[heat_col]
+
+    fig, ax1 = plt.subplots(figsize=(9, 6))
+    ax2 = ax1.twinx()
+
+    ax1.plot(temperature, weight, color="#1f4e9c", label="Weight (%)")
+    ax2.plot(temperature, heat_flow, color="#c0392b", label="Heat Flow (W/g)")
+
+    ax1.set_xlabel("Temperature (°C)")
+    ax1.set_ylabel("Weight (%)")
+    ax2.set_ylabel("Heat flow (W/g)")
+    ax1.set_title(str(sheet_name))
+    ax1.grid(True, alpha=0.3)
+
+    # Residue marker and annotation at the measured point nearest 800 °C.
+    nearest_idx = (temperature - 800).abs().idxmin()
+    residue_temp = temperature.loc[nearest_idx]
+    residue_weight = weight.loc[nearest_idx]
+    ax1.scatter([residue_temp], [residue_weight], color="#1f4e9c", zorder=4)
+    ax1.annotate(
+        f"Residue {residue_weight:.1f}%",
+        (residue_temp, residue_weight),
+        xytext=(8, 10),
+        textcoords="offset points",
+        color="#1f4e9c",
+    )
+
+    lines = ax1.get_lines() + ax2.get_lines()
+    ax1.legend(lines, [line.get_label() for line in lines], loc="center left")
+
+    fig.tight_layout()
+    output_path = OUT_DIR / f"{sheet_name}.png"
+    fig.savefig(output_path, dpi=300, bbox_inches="tight")
+    plt.close(fig)

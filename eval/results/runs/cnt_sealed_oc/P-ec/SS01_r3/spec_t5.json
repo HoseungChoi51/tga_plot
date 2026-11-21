@@ -1,0 +1,69 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheets": "주간요약",
+ "chart": "bar",
+ "x": "주차",
+ "y": {
+  "col": "총생산량(kg)",
+  "label": "생산량 (kg)"
+ },
+ "colors": [
+  "blue",
+  "blue",
+  "blue",
+  "blue",
+  "blue",
+  "blue",
+  "blue",
+  "blue",
+  "blue",
+  "blue",
+  "blue",
+  "blue",
+  "blue",
+  "orange",
+  "orange",
+  "orange",
+  "orange",
+  "orange",
+  "orange",
+  "orange",
+  "orange",
+  "orange",
+  "orange",
+  "orange",
+  "orange",
+  "orange"
+ ],
+ "legend": "none",
+ "ref": [
+  {
+   "y": 15.6,
+   "text": "1~13주 평균"
+  },
+  {
+   "y": 16.8,
+   "text": "14~26주 평균"
+  }
+ ],
+ "title": "주간 생산량 추이 (3~8월)",
+ "size": [
+  10,
+  5.625
+ ],
+ "dpi": 200,
+ "output": {
+  "format": "png",
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/SS01_r3/out/t5"
+ },
+ "asks": [
+  {
+   "ask": "슬라이드용 16:9 비율",
+   "how": "key"
+  },
+  {
+   "ask": "PNG 200 dpi 저장",
+   "how": "key"
+  }
+ ]
+}

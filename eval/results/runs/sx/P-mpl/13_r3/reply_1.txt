@@ -1,0 +1,9 @@
+```json
+{
+ "file": "extra_columns.xlsx",
+ "y1": {
+  "col": "D",
+  "label": "Weight (mg)"
+ }
+}
+```

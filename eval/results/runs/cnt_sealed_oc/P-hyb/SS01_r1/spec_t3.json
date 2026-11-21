@@ -1,0 +1,35 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "주간요약",
+ "chart": "bar",
+ "x": "주차",
+ "y": "총생산량(kg)",
+ "data_code": "df['color_group'] = df['주차'].apply(lambda x: 'after14' if x >= 14 else 'before14')\nmb = df[df['주차'] <= 13]['총생산량(kg)'].mean()\nma = df[df['주차'] >= 14]['총생산량(kg)'].mean()",
+ "colors": {
+  "before14": "steelblue",
+  "after14": "orange"
+ },
+ "ref": [
+  {
+   "y": "{mb}",
+   "text": "1-13주 평균"
+  },
+  {
+   "y": "{ma}",
+   "text": "14-26주 평균"
+  }
+ ],
+ "asks": [
+  {
+   "ask": "1~13주 평균 가로선",
+   "how": "key"
+  },
+  {
+   "ask": "14~26주 평균 가로선",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/SS01_r1/out/t3"
+ }
+}

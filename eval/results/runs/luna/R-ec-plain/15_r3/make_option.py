@@ -1,0 +1,198 @@
+import json
+import re
+import sys
+
+import numpy as np
+import pandas as pd
+
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+COLORS = ["#2563eb", "#dc2626", "#059669"]
+FONT = "Noto Sans CJK KR, sans-serif"
+
+
+def clean_number(value):
+    try:
+        number = float(value)
+        return number if np.isfinite(number) else None
+    except (TypeError, ValueError):
+        return None
+
+
+def main():
+    workbook = pd.ExcelFile(DATA_FILE)
+    series = []
+
+    for sheet_index, sheet_name in enumerate(workbook.sheet_names):
+        frame = pd.read_excel(workbook, sheet_name=sheet_name)
+        frame.columns = [str(column).strip() for column in frame.columns]
+
+        temperature_column = next(
+            (column for column in frame.columns if "temperature" in column.lower()),
+            None,
+        )
+        weight_column = next(
+            (column for column in frame.columns if "weight" in column.lower()),
+            None,
+        )
+        derivative_column = next(
+            (
+                column
+                for column in frame.columns
+                if "d.w" in column.lower() or "derivative" in column.lower()
+            ),
+            None,
+        )
+
+        if temperature_column is None or weight_column is None:
+            continue
+
+        color = COLORS[sheet_index % len(COLORS)]
+        x_values = pd.to_numeric(frame[temperature_column], errors="coerce")
+        weight_values = pd.to_numeric(frame[weight_column], errors="coerce")
+        weight_data = [
+            [clean_number(x), clean_number(y)]
+            for x, y in zip(x_values, weight_values)
+            if pd.notna(x) and pd.notna(y)
+        ]
+
+        series.append(
+            {
+                "name": f"{sheet_name} — Weight",
+                "type": "line",
+                "xAxisIndex": 0,
+                "yAxisIndex": 0,
+                "data": weight_data,
+                "showSymbol": False,
+                "symbol": "none",
+                "smooth": False,
+                "lineStyle": {"width": 2, "color": color},
+                "itemStyle": {"color": color},
+                "emphasis": {"focus": "series"},
+            }
+        )
+
+        if derivative_column is not None:
+            derivative_values = pd.to_numeric(
+                frame[derivative_column], errors="coerce"
+            )
+            derivative_data = [
+                [clean_number(x), clean_number(y)]
+                for x, y in zip(x_values, derivative_values)
+                if pd.notna(x) and pd.notna(y)
+            ]
+            series.append(
+                {
+                    "name": f"{sheet_name} — D.W.",
+                    "type": "line",
+                    "xAxisIndex": 1,
+                    "yAxisIndex": 1,
+                    "data": derivative_data,
+                    "showSymbol": False,
+                    "symbol": "none",
+                    "smooth": False,
+                    "lineStyle": {
+                        "width": 1.7,
+                        "type": "dashed",
+                        "color": color,
+                        "opacity": 0.9,
+                    },
+                    "itemStyle": {"color": color},
+                    "emphasis": {"focus": "series"},
+                }
+            )
+
+    option = {
+        "animation": False,
+        "backgroundColor": "#ffffff",
+        "textStyle": {"fontFamily": FONT, "color": "#1f2937"},
+        "title": {
+            "text": "시트별 TGA 곡선 비교",
+            "left": "center",
+            "top": 12,
+            "textStyle": {"fontSize": 18, "fontWeight": "bold"},
+        },
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {"type": "cross"},
+        },
+        "legend": {
+            "type": "scroll",
+            "left": 74,
+            "right": 24,
+            "top": 44,
+            "itemWidth": 16,
+            "itemHeight": 9,
+            "textStyle": {"fontSize": 11},
+        },
+        "grid": [
+            {"left": 74, "right": 76, "top": 92, "bottom": 62},
+            {"left": 74, "right": 76, "top": 92, "bottom": 62},
+        ],
+        "xAxis": [
+            {
+                "type": "value",
+                "name": "Temperature (°C)",
+                "nameLocation": "middle",
+                "nameGap": 38,
+                "min": 30,
+                "max": 900,
+                "axisLine": {"lineStyle": {"color": "#6b7280"}},
+                "axisLabel": {"fontSize": 11},
+                "splitLine": {"show": True, "lineStyle": {"color": "#e5e7eb"}},
+            },
+            {
+                "type": "value",
+                "name": "Temperature (°C)",
+                "nameLocation": "middle",
+                "nameGap": 38,
+                "min": 30,
+                "max": 900,
+                "axisLine": {"lineStyle": {"color": "#6b7280"}},
+                "axisLabel": {"show": False},
+                "splitLine": {"show": False},
+            },
+        ],
+        "yAxis": [
+            {
+                "type": "value",
+                "name": "Weight (%)",
+                "nameLocation": "middle",
+                "nameGap": 48,
+                "min": 0,
+                "max": 105,
+                "axisLine": {"lineStyle": {"color": "#6b7280"}},
+                "axisLabel": {"fontSize": 11},
+                "splitLine": {"show": True, "lineStyle": {"color": "#e5e7eb"}},
+            },
+            {
+                "type": "value",
+                "name": "D.W. (%/°C)",
+                "nameLocation": "middle",
+                "nameGap": 50,
+                "axisLine": {"lineStyle": {"color": "#6b7280"}},
+                "axisLabel": {"fontSize": 11},
+                "splitLine": {"show": False},
+            },
+        ],
+        "series": series,
+    }
+
+    result = {
+        "figures": [
+            {
+                "name": "tga_all_sheets",
+                "option": option,
+                "width": 960,
+                "height": 620,
+                "dpi": 300,
+                "formats": ["png"],
+            }
+        ]
+    }
+    json.dump(result, sys.stdout, ensure_ascii=False, separators=(",", ":"))
+
+
+if __name__ == "__main__":
+    main()

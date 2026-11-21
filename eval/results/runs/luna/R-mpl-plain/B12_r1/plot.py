@@ -1,0 +1,53 @@
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/eval/inputs_b/caox.csv")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/B12_r1/out")
+
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+# Read the CSV and select temperature and weight columns.
+df = pd.read_csv(DATA_FILE)
+temperature = pd.to_numeric(df["Temperature (°C)"], errors="coerce")
+weight = pd.to_numeric(df["Weight (%)"], errors="coerce")
+valid = temperature.notna() & weight.notna()
+temperature = temperature[valid].to_numpy()
+weight = weight[valid].to_numpy()
+
+# Sort by temperature for plotting and interpolation.
+order = np.argsort(temperature)
+temperature = temperature[order]
+weight = weight[order]
+
+residue_temp = 900.0
+residue = float(np.interp(residue_temp, temperature, weight))
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+fig, ax = plt.subplots(figsize=(8, 5.5))
+
+ax.plot(temperature, weight, color="#1f77b4", linewidth=2)
+ax.set_xlim(100, 900)
+ax.set_xlabel("Temperature (°C)")
+ax.set_ylabel("Weight (%)")
+ax.set_title("Weight vs. Temperature")
+ax.grid(True, linestyle="--", alpha=0.35)
+
+# Mark and label the interpolated residue at 900 °C.
+ax.scatter([residue_temp], [residue], color="#d62728", zorder=3)
+ax.annotate(
+    f"Residue at 900 °C: {residue:.2f}%",
+    xy=(residue_temp, residue),
+    xytext=(-10, 12),
+    textcoords="offset points",
+    ha="right",
+    va="bottom",
+    color="#d62728",
+    arrowprops={"arrowstyle": "->", "color": "#d62728", "lw": 1},
+)
+
+fig.tight_layout()
+fig.savefig(OUT_DIR / "weight_curve_residue_900C.png", dpi=300, bbox_inches="tight")
+plt.close(fig)

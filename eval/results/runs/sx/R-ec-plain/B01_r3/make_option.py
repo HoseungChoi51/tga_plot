@@ -1,0 +1,208 @@
+import pandas as pd
+import numpy as np
+import json
+
+# Load data
+df = pd.read_csv("/home/chs/Work/tga_plot/eval/inputs_b/caox.csv")
+
+# Clean column names for easier access
+df.columns = [c.strip() for c in df.columns]
+
+temp_col = "Temperature (°C)"
+weight_col = "Weight (%)"
+dwt_col = "Deriv. Weight (%/°C)"
+
+# Prepare data for ECharts
+temps = df[temp_col].tolist()
+weights = df[weight_col].tolist()
+dws = df[dwt_col].tolist()
+
+# Define regions and labels
+regions = [
+    {"start": 120, "end": 250, "color": "rgba(255, 99, 71, 0.3)", "label": "H₂O"},
+    {"start": 430, "end": 580, "color": "rgba(65, 105, 225, 0.3)", "label": "CO"},
+    {"start": 640, "end": 830, "color": "rgba(50, 205, 50, 0.3)", "label": "CO₂"}
+]
+
+# Build markArea data for the weight curve series
+mark_area_data = []
+for region in regions:
+    mark_area_data.append([
+        {
+            "xAxis": region["start"],
+            "itemStyle": {"color": region["color"]}
+        },
+        {
+            "xAxis": region["end"]
+        }
+    ])
+
+# Build markPoint data for the labels on top of the regions
+# We need to find the max Y value in each region to place the label nicely above the curve or just at a fixed high position
+# Since it's TGA, usually placing it near the top of the plot area or relative to the local max is good.
+# Let's calculate the max weight in each region to position the text slightly above the curve within that range.
+
+mark_point_data = []
+for region in regions:
+    mask = (df[temp_col] >= region["start"]) & (df[temp_col] <= region["end"])
+    if not mask.empty:
+        # Get the index of the maximum weight in this region to anchor the label
+        # Actually, for readability, placing it at the center X and a Y slightly above the min/max might be better.
+        # Or simply use 'coord' with specific values.
+        # Let's find the max weight in the region to set Y coordinate dynamically
+        max_w_in_region = df.loc[mask, weight_col].max()
+        mid_temp = (region["start"] + region["end"]) / 2
+        
+        # Place label slightly above the highest point in that segment
+        y_pos = max_w_in_region + 5 
+        if y_pos > 105: y_pos = 105
+        
+        mark_point_data.append({
+            "coord": [mid_temp, y_pos],
+            "value": region["label"],
+            "symbolSize": 0, # No symbol, just text
+            "label": {
+                "show": True,
+                "formatter": "{@[2]}", # This won't work directly for custom text in coord unless we use rich text or specific formatter
+                # Better approach for ECharts markPoint with custom text:
+                # Use 'name' or just put text in value and format it.
+            }
+        })
+
+# Refining markPoint for ECharts JSON structure
+# In ECharts, markPoint items can have 'coord' and 'label'.
+mark_points_final = []
+for region in regions:
+    mask = (df[temp_col] >= region["start"]) & (df[temp_col] <= region["end"])
+    if not mask.empty:
+        max_w_in_region = df.loc[mask, weight_col].max()
+        mid_temp = (region["start"] + region["end"]) / 2
+        y_pos = max_w_in_region + 5
+        if y_pos > 105: y_pos = 105
+        
+        mark_points_final.append({
+            "coord": [float(mid_temp), float(y_pos)],
+            "value": region["label"],
+            "symbol": "rect",
+            "symbolSize": [0, 0],
+            "label": {
+                "show": True,
+                "position": "inside",
+                "formatter": region["label"],
+                "fontSize": 14,
+                "fontWeight": "bold",
+                "color": "#333"
+            }
+        })
+
+# Constructing the Option
+option = {
+    "title": {
+        "text": "TGA/DTA Analysis of Caox",
+        "left": "center",
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR"
+        }
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {
+            "type": "cross"
+        },
+        "formatter": None # Default formatter is fine for basic display
+    },
+    "legend": {
+        "data": ["Weight (%)", "Deriv. Weight (%/°C)"],
+        "top": "10%"
+    },
+    "grid": {
+        "left": "10%",
+        "right": "10%",
+        "bottom": "15%",
+        "containLabel": True
+    },
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "min": 0,
+        "max": 950,
+        "splitLine": {
+            "lineStyle": {
+                "type": "dashed"
+            }
+        }
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Weight (%)",
+            "min": 0,
+            "max": 110,
+            "position": "left",
+            "splitLine": {
+                "lineStyle": {
+                    "type": "dashed"
+                }
+            }
+        },
+        {
+            "type": "value",
+            "name": "Deriv. Weight (%/°C)",
+            "min": -0.6,
+            "max": 0.1,
+            "position": "right",
+            "splitLine": {
+                "show": False
+            }
+        }
+    ],
+    "series": [
+        {
+            "name": "Weight (%)",
+            "type": "line",
+            "data": [[t, w] for t, w in zip(temps, weights)],
+            "smooth": False,
+            "showSymbol": False,
+            "lineStyle": {
+                "width": 2,
+                "color": "#000"
+            },
+            "markArea": {
+                "silent": True,
+                "data": mark_area_data
+            },
+            "markPoint": {
+                "data": mark_points_final
+            }
+        },
+        {
+            "name": "Deriv. Weight (%/°C)",
+            "type": "line",
+            "yAxisIndex": 1,
+            "data": [[t, dw] for t, dw in zip(temps, dws)],
+            "smooth": False,
+            "showSymbol": False,
+            "lineStyle": {
+                "width": 1.5,
+                "color": "#ff7f0e"
+            }
+        }
+    ]
+}
+
+output = {
+    "figures": [
+        {
+            "name": "plot1",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+    ]
+}
+
+print(json.dumps(output))

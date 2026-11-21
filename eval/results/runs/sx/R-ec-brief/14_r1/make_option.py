@@ -1,0 +1,222 @@
+import pandas as pd
+import numpy as np
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/korean_excel.csv"
+
+# Read the CSV file with encoding detection or fallback to cp949/euc-kr for Korean files
+try:
+    df = pd.read_csv(DATA_FILE, encoding='utf-8')
+except UnicodeDecodeError:
+    try:
+        df = pd.read_csv(DATA_FILE, encoding='cp949')
+    except:
+        df = pd.read_csv(DATA_FILE, encoding='euc-kr')
+
+# Identify columns based on TGA guess and column names
+x_col = "온도(°C)"
+y1_col = "무게(%)"
+y2_col = "미분무게(%/°C)"
+
+# Extract data
+temperature = df[x_col].values
+weight = df[y1_col].values
+dtg = df[y2_col].values
+
+# Calculate residue at nearest 800°C
+idx_800 = np.argmin(np.abs(temperature - 800))
+residue_temp = temperature[idx_800]
+residue_weight = weight[idx_800]
+residue_label = f"Residue {residue_weight:.1f}%"
+
+# Find highest DTG peak above 150°C (most negative value, so we look for min since DTG is negative during loss)
+# The user wants peaks pointing up, so we multiply by -1. A "peak" in the inverted curve corresponds to the most negative DTG.
+mask_above_150 = temperature > 150
+if np.any(mask_above_150):
+    dtg_filtered = dtg[mask_above_150]
+    temp_filtered = temperature[mask_above_150]
+    # Most negative DTG value corresponds to the maximum mass loss rate
+    idx_min_dtg = np.argmin(dtg_filtered)
+    peak_temp = temp_filtered[idx_min_dtg]
+    peak_dtg_val = dtg_filtered[idx_min_dtg]
+else:
+    # Fallback if no data above 150
+    idx_min_dtg = np.argmin(dtg)
+    peak_temp = temperature[idx_min_dtg]
+    peak_dtg_val = dtg[idx_min_dtg]
+
+peak_label = f"{peak_temp:.0f} °C"
+
+# Prepare series data
+# Series 1: Weight (%)
+series_weight_data = [[float(t), float(w)] for t, w in zip(temperature, weight)]
+
+# Series 2: DTG (%/°C) multiplied by -1
+series_dtg_data = [[float(t), float(-d)] for t, d in zip(temperature, dtg)]
+
+# Markers for annotations
+# Residue marker
+residue_marker_series = [
+    {
+        "value": [float(residue_temp), float(residue_weight)],
+        "symbolSize": 8,
+        "itemStyle": {"color": "#1f4e9c"},
+        "label": {
+            "show": True,
+            "formatter": residue_label,
+            "position": "right",
+            "fontSize": 12,
+            "color": "#1f4e9c",
+            "fontFamily": "Noto Sans CJK KR"
+        }
+    }
+]
+
+# Peak marker (on the inverted DTG curve)
+# The y-value on the right axis needs to match the inverted DTG value at that point
+inverted_peak_dtg = -peak_dtg_val
+peak_marker_series = [
+    {
+        "value": [float(peak_temp), float(inverted_peak_dtg)],
+        "symbolSize": 8,
+        "itemStyle": {"color": "#c0392b"},
+        "label": {
+            "show": True,
+            "formatter": peak_label,
+            "position": "top",
+            "fontSize": 12,
+            "color": "#c0392b",
+            "fontFamily": "Noto Sans CJK KR"
+        }
+    }
+]
+
+# Build ECharts option
+option = {
+    "title": {
+        "text": "korean_excel",
+        "left": "center",
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR",
+            "fontSize": 16
+        }
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {
+            "type": "cross"
+        },
+        "formatter": "{a0}: {c0}<br/>{a1}: {c1}"
+    },
+    "legend": {
+        "data": ["무게(%)", "미분무게(%/°C)"],
+        "orient": "vertical",
+        "left": "left",
+        "top": "middle",
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR"
+        }
+    },
+    "grid": {
+        "left": "10%",
+        "right": "10%",
+        "bottom": "15%",
+        "containLabel": True
+    },
+    "xAxis": {
+        "type": "value",
+        "name": "온도(°C)",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "axisLabel": {
+            "fontFamily": "Noto Sans CJK KR"
+        },
+        "splitLine": {
+            "show": True,
+            "lineStyle": {
+                "type": "dashed"
+            }
+        }
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "무게(%)",
+            "nameLocation": "middle",
+            "nameGap": 40,
+            "axisLabel": {
+                "fontFamily": "Noto Sans CJK KR"
+            },
+            "splitLine": {
+                "show": True,
+                "lineStyle": {
+                    "type": "dashed"
+                }
+            }
+        },
+        {
+            "type": "value",
+            "name": "미분무게(%/°C)",
+            "nameLocation": "middle",
+            "nameGap": 40,
+            "axisLabel": {
+                "fontFamily": "Noto Sans CJK KR"
+            },
+            "splitLine": {
+                "show": False
+            }
+        }
+    ],
+    "series": [
+        {
+            "name": "무게(%)",
+            "type": "line",
+            "data": series_weight_data,
+            "yAxisIndex": 0,
+            "lineStyle": {
+                "color": "#1f4e9c",
+                "width": 2
+            },
+            "showSymbol": False,
+            "smooth": False
+        },
+        {
+            "name": "미분무게(%/°C)",
+            "type": "line",
+            "data": series_dtg_data,
+            "yAxisIndex": 1,
+            "lineStyle": {
+                "color": "#c0392b",
+                "width": 2
+            },
+            "showSymbol": False,
+            "smooth": False
+        },
+        {
+            "name": "Residue Marker",
+            "type": "scatter",
+            "data": residue_marker_series,
+            "yAxisIndex": 0,
+            "z": 10
+        },
+        {
+            "name": "Peak Marker",
+            "type": "scatter",
+            "data": peak_marker_series,
+            "yAxisIndex": 1,
+            "z": 10
+        }
+    ]
+}
+
+figure_entry = {
+    "name": "plot1",
+    "option": option,
+    "width": 614,
+    "height": 442,
+    "dpi": 300,
+    "formats": ["png", "pdf"]
+}
+
+output = {"figures": [figure_entry]}
+print(json.dumps(output))

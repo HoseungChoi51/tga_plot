@@ -1,0 +1,125 @@
+{
+ "arm": "P-ec",
+ "item": "S024",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "TGA 10개 배치 각각 800 °C 잔량(wt%)을 Fe로 환산(Fe₂O₃ → Fe, ×0.699)해서 런로그 잔류금속(wt%)과 비교하는 산점도 그려 주세요. 시트 이름이 런ID입니다. y = x 기준선도 넣어 주세요.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": [\"data/tga_batches.xlsx\", \"data/run_log.xlsx\"],\n  \"sheet\": {\"data/tga_batches.xlsx\": \"all\", \"data/run_log.xlsx\": \"런로그\"},\n  \"chart\": \"scatter\",\n  \"x\": {\"col\": \"잔류금속_Fe\", \"label\": \"TGA 잔량 환산 Fe (wt%)\"},\n  \"y\": {\"col\": \"잔류금속 (wt%)\", \"label\": \"런로그 잔류금속 (wt%)\"},\n  \"ref\": [{\"type\": \"line\", \"slope\": 1, \"intercept\": 0, \"text\": \"y = x\"}],\n  \"data_code\": \"# Calculate TGA residue converted to Fe and merge with Run Log\\nimport pandas as pd\\nimport numpy as np\\n\\n# Helper to extract run ID from sheet name or filename if needed, but here sheet name is run ID\\nrun_ids = []\\ntga_residues_fe = []\\n\\nfor sh in sheets:\\n    df_sheet = data[sh]\\n    # Get the last column 'C' (Weight %) at 800 deg C\\n    temp_col = 'B' # Temperature\\n    weight_col = 'C' # Weight %\\n    \\n    # Find index closest to 800\\n    idx_800 = np.argmin(np.abs(df_sheet[temp_col].values - 800))\\n    resid_wt = df_sheet.iloc[idx_800][weight_col]\\n    \\n    # Convert Fe2O3 to Fe factor: 2*55.845 / (2*55.845 + 3*16) approx 0.699\\n    # The prompt says \"Fe로 환산(Fe₂O₃ → Fe, ×0.699)\" implying the residue is treated as oxide mass? \\n    # Usually TGA residue is metal oxide. To get metal wt%, multiply by factor.\\n    resid_fe = resid_wt * 0.699\\n    \\n    run_ids.append(sh)\\n    tga_residues_fe.append(resid_fe)\\n\\ntga_df = pd.DataFrame({\\n    '런ID': run_ids,\\n    '잔류금속_Fe': tga_residues_fe\\n})\\n\\n# Merge with the second file's data (Run Log)\\n# Assuming 'df' variable in sandbox refers to the combined/primary dataframe context or we construct it.\\n# In this environment, usually we work on the main table provided. \\n# Since two files are loaded, plotkit might have merged them or passed one. \\n# Based on typical behavior for multi-file specs without explicit join keys in JSON, \\n# data_code often operates on the primary dataset if structure allows, or creates a new one.\\n# However, the user wants to compare specific runs. \\n# Let's assume the 'df' passed into code is the Run Log sheet because it has '런ID'.\\n# We need to map TGA results to these 런IDs.\\n\\n# If 'df' is the Run Log sheet:\\ndf = df.merge(tga_df, left_on='런ID', right_on='런ID', how='inner')\\n\\n# Now df contains both columns.\",\n  \"asks\": [\n    {\n      \"ask\": \"TGA 10개 배치 각각 800 °C 잔량(wt%)을 Fe로 환산(Fe₂O₃ → Fe, ×0.699)\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"런로그 잔류금속(wt%)과 비교하는 산점도\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"시트 이름이 런ID\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"y = x 기준선\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 15.944,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 20313,
+     "output_chars": 2512,
+     "attempts": 1
+    },
+    {
+     "reply": "```json\n{\n  \"file\": [\"data/tga_batches.xlsx\", \"data/run_log.xlsx\"],\n  \"sheet\": {\"data/tga_batches.xlsx\": \"all\", \"data/run_log.xlsx\": \"런로그\"},\n  \"chart\": \"scatter\",\n  \"x\": {\"col\": \"잔류금속_Fe\", \"label\": \"TGA 잔량 환산 Fe (wt%)\"},\n  \"y\": {\"col\": \"잔류금속 (wt%)\", \"label\": \"런로그 잔류금속 (wt%)\"},\n  \"ref\": [{\"type\": \"line\", \"slope\": 1, \"intercept\": 0, \"text\": \"y = x\"}],\n  \"data_code\": \"import pandas as pd\\nimport numpy as np\\n\\ntga_results = []\\nfor sh_name in sheets:\\n    df_tga = data[sh_name]\\n    temp_col = 'B'\\n    weight_col = 'C'\\n    idx_800 = np.argmin(np.abs(df_tga[temp_col].values - 800))\\n    resid_wt = df_tga.iloc[idx_800][weight_col]\\n    resid_fe = resid_wt * 0.699\\n    tga_results.append({'런ID': sh_name, '잔류금속_Fe': resid_fe})\\n\\ntga_df = pd.DataFrame(tga_results)\\ndf = df.merge(tga_df, on='런ID', how='inner')\",\n  \"asks\": [\n    {\n      \"ask\": \"TGA 10개 배치 각각 800 °C 잔량(wt%)을 Fe로 환산(Fe₂O₃ → Fe, ×0.699)\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"런로그 잔류금속(wt%)과 비교하는 산점도\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"시트 이름이 런ID\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"y = x 기준선\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 8.401,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 23492,
+     "output_chars": 1143,
+     "attempts": 1
+    },
+    {
+     "reply": "```json\n{\n  \"file\": [\"data/tga_batches.xlsx\", \"data/run_log.xlsx\"],\n  \"sheets\": {\"data/tga_batches.xlsx\": \"all\", \"data/run_log.xlsx\": [\"런로그\"]},\n  \"chart\": \"scatter\",\n  \"x\": {\"col\": \"잔류금속_Fe\", \"label\": \"TGA 잔량 환산 Fe (wt%)\"},\n  \"y\": {\"col\": \"잔류금속 (wt%)\", \"label\": \"런로그 잔류금속 (wt%)\"},\n  \"ref\": [{\"type\": \"line\", \"slope\": 1, \"intercept\": 0, \"text\": \"y = x\"}],\n  \"data_code\": \"import pandas as pd\\nimport numpy as np\\n\\ntga_results = []\\nfor sh_name in sheets:\\n    df_tga = data[sh_name]\\n    temp_col = 'B'\\n    weight_col = 'C'\\n    idx_800 = np.argmin(np.abs(df_tga[temp_col].values - 800))\\n    resid_wt = df_tga.iloc[idx_800][weight_col]\\n    resid_fe = resid_wt * 0.699\\n    tga_results.append({'런ID': sh_name, '잔류금속_Fe': resid_fe})\\n\\ntga_df = pd.DataFrame(tga_results)\\ndf = df.merge(tga_df, on='런ID', how='inner')\",\n  \"asks\": [\n    {\n      \"ask\": \"TGA 10개 배치 각각 800 °C 잔량(wt%)을 Fe로 환산(Fe₂O₃ → Fe, ×0.699)\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"런로그 잔류금속(wt%)과 비교하는 산점도\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"시트 이름이 런ID\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"y = x 기준선\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 6.733,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 25262,
+     "output_chars": 1146,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": [
+     "data/tga_batches.xlsx",
+     "data/run_log.xlsx"
+    ],
+    "sheets": {
+     "data/tga_batches.xlsx": "all",
+     "data/run_log.xlsx": [
+      "런로그"
+     ]
+    },
+    "chart": "scatter",
+    "x": {
+     "col": "잔류금속_Fe",
+     "label": "TGA 잔량 환산 Fe (wt%)"
+    },
+    "y": {
+     "col": "잔류금속 (wt%)",
+     "label": "런로그 잔류금속 (wt%)"
+    },
+    "ref": [
+     {
+      "type": "line",
+      "slope": 1,
+      "intercept": 0,
+      "text": "y = x"
+     }
+    ],
+    "data_code": "import pandas as pd\nimport numpy as np\n\ntga_results = []\nfor sh_name in sheets:\n    df_tga = data[sh_name]\n    temp_col = 'B'\n    weight_col = 'C'\n    idx_800 = np.argmin(np.abs(df_tga[temp_col].values - 800))\n    resid_wt = df_tga.iloc[idx_800][weight_col]\n    resid_fe = resid_wt * 0.699\n    tga_results.append({'런ID': sh_name, '잔류금속_Fe': resid_fe})\n\ntga_df = pd.DataFrame(tga_results)\ndf = df.merge(tga_df, on='런ID', how='inner')",
+    "asks": [
+     {
+      "ask": "TGA 10개 배치 각각 800 °C 잔량(wt%)을 Fe로 환산(Fe₂O₃ → Fe, ×0.699)",
+      "how": "data_code"
+     },
+     {
+      "ask": "런로그 잔류금속(wt%)과 비교하는 산점도",
+      "how": "key"
+     },
+     {
+      "ask": "시트 이름이 런ID",
+      "how": "data_code"
+     },
+     {
+      "ask": "y = x 기준선",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": false,
+    "error": "sheet \"{'data/tga_batches.xlsx': 'all', 'data/run_log.xlsx': ['런로그']}\" not found in tga_batches.xlsx",
+    "hint": "sheet names: ['R1-260326-1', 'R1-260716-1', 'R2-260617-1', 'R2-260616-1', 'R3-260428-1', 'R3-260810-2', 'R4-260407-1', 'R4-260721-1', 'R1-260711-1', 'R2-260312-1']"
+   },
+   "facts": [],
+   "draw_s": 0.32391834259033203,
+   "check": {
+    "kind_expected": "scatter",
+    "failed": [
+     "run: no plot (sheet \"{'data/tga_batches.xlsx': 'all', 'data/run_log.xlsx': ['런로그']}\" not found in tga_batches.xlsx)"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 31.925
+  }
+ ]
+}

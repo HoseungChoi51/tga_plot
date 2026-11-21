@@ -1,0 +1,201 @@
+{
+ "arm": "P-ec",
+ "item": "D030",
+ "repeat": 2,
+ "split": "dev",
+ "persona": "공정 엔지니어",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "downtime 8월분(2026-08-01~08-30)만 원인별 정지시간(분) 비중 pie.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/downtime.xlsx\",\n  \"chart\": \"pie\",\n  \"x\": \"원인\",\n  \"y\": {\n    \"col\": \"정지시간(분)\",\n    \"agg\": \"sum\"\n  },\n  \"filter\": [\n    \"일자 between 2026-08-01 and 2026-08-30\"\n  ],\n  \"asks\": [\n    {\n      \"ask\": \"8월분만 (2026-08-01~08-30)\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"원인별 정지시간 합계 비중 pie\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 5.271,
+     "prompt_tokens": 5383,
+     "output_tokens": 186,
+     "cached_tokens": 4699,
+     "prompt_n": 684,
+     "prefill_ms": 805.5052109999999,
+     "decode_ms": 3841.4769140000008,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": "data/downtime.xlsx",
+    "chart": "pie",
+    "x": "원인",
+    "y": {
+     "col": "정지시간(분)",
+     "agg": "sum"
+    },
+    "filter": [
+     "일자 between 2026-08-01 and 2026-08-30"
+    ],
+    "asks": [
+     {
+      "ask": "8월분만 (2026-08-01~08-30)",
+      "how": "key"
+     },
+     {
+      "ask": "원인별 정지시간 합계 비중 pie",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": true,
+    "engine": "echarts",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_t07/P-ec/D030_r2/out/t1/pie_정지시간_분.png"
+    ],
+    "chart": "pie",
+    "rows_used": 65,
+    "rows_total": 294,
+    "values": {
+     "slices": {
+      "히터 고장": 2098.0,
+      "노즐 막힘": 1162.0,
+      "촉매 공급 이상": 1029.0,
+      "전력": 776.0,
+      "기타": 475.0
+     },
+     "shares": {
+      "히터 고장": 0.3787,
+      "노즐 막힘": 0.2097,
+      "촉매 공급 이상": 0.1857,
+      "전력": 0.1401,
+      "기타": 0.0857
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "원 그래프를 저장했습니다: pie_정지시간_분.png\n사용한 행: 65 / 294\n히터 고장 37.9%, 노즐 막힘 21.0%, 촉매 공급 이상 18.6%, 전력 14.0%, 기타 8.6%"
+   },
+   "facts": [
+    {
+     "engine": "echarts",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": 300,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": {
+        "labels": [
+         "히터 고장",
+         "노즐 막힘",
+         "촉매 공급 이상",
+         "전력",
+         "기타"
+        ],
+        "shares": [
+         0.3787003610108303,
+         0.20974729241877257,
+         0.18574007220216607,
+         0.14007220216606497,
+         0.08574007220216606
+        ],
+        "values": [
+         2098.0,
+         1162.0,
+         1029.0,
+         776.0,
+         475.0
+        ],
+        "colors": [
+         "#1f4e9c",
+         "#c0392b",
+         "#2e8b57",
+         "#d4881c",
+         "#7b3fa0"
+        ]
+       },
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [
+        "히터 고장\n37.9%",
+        "노즐 막힘\n21.0%",
+        "촉매 공급 이상\n18.6%",
+        "전력\n14.0%",
+        "기타\n8.6%"
+       ],
+       "x": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": null,
+        "max": null,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": null,
+        "max": null,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       }
+      }
+     ],
+     "texts": [
+      "히터 고장\n37.9%",
+      "노즐 막힘\n21.0%",
+      "촉매 공급 이상\n18.6%",
+      "전력\n14.0%",
+      "기타\n8.6%"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_t07/P-ec/D030_r2/out/t1/pie_정지시간_분.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5438318252563477,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 5.889
+  }
+ ]
+}

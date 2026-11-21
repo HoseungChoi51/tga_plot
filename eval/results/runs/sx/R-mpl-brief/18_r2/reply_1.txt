@@ -1,0 +1,131 @@
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/18_r2/out"
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+xl_file = pd.ExcelFile(DATA_FILE)
+sheet_names = xl_file.sheet_names
+
+for sheet_name in sheet_names:
+    df = pd.read_excel(DATA_FILE, sheet_name=sheet_name)
+    
+    # Identify columns based on the preview info
+    x_col = 'Temperature'
+    y1_col = 'Weight(%)'
+    y2_col = 'D.W(%/C)'
+    
+    if x_col not in df.columns or y1_col not in df.columns or y2_col not in df.columns:
+        continue
+        
+    temp = df[x_col].values
+    weight = df[y1_col].values
+    dtg = df[y2_col].values
+    
+    # Plotting
+    fig, ax1 = plt.subplots(figsize=(8, 6))
+    
+    color_y1 = '#1f4e9c'
+    color_y2 = '#c0392b'
+    
+    # Left axis: Weight (%)
+    line1, = ax1.plot(temp, weight, color=color_y1, label='Weight (%)')
+    ax1.set_xlabel('Temperature (°C)', fontsize=12)
+    ax1.set_ylabel('Weight (%)', color=color_y1, fontsize=12)
+    ax1.tick_params(axis='y', labelcolor=color_y1)
+    
+    # Right axis: DTG (%/C), multiplied by -1 to point peaks up
+    ax2 = ax1.twinx()
+    dtg_inv = -dtg
+    line2, = ax2.plot(temp, dtg_inv, color=color_y2, label='DTG (%/C)')
+    ax2.set_ylabel('DTG (%/C)', color=color_y2, fontsize=12)
+    ax2.tick_params(axis='y', labelcolor=color_y2)
+    
+    # User request: x-axis tick interval 100
+    min_temp = np.min(temp)
+    max_temp = np.max(temp)
+    start_tick = int(np.floor(min_temp / 100) * 100)
+    end_tick = int(np.ceil(max_temp / 100) * 100)
+    ticks_x = np.arange(start_tick, end_tick + 1, 100)
+    ax1.set_xticks(ticks_x)
+    
+    # User request: y2 axis range -0.05 ~ 1.2
+    # Note: The user specified "y2축 범위 -0.05~1.2". 
+    # Since we plot -DTG, and typical DTG is negative during loss, -DTG is positive.
+    # The requested range is likely for the plotted value (which is -DTG).
+    ax2.set_ylim(-0.05, 1.2)
+    
+    # Find Residue at nearest 800°C
+    mask_800 = (temp >= 750) & (temp <= 850)
+    if np.any(mask_800):
+        temps_near_800 = temp[mask_800]
+        weights_near_800 = weight[mask_800]
+        idx_min_diff = np.argmin(np.abs(temps_near_800 - 800))
+        residue_val = weights_near_800[idx_min_diff]
+        residue_temp = temps_near_800[idx_min_diff]
+        
+        # Add marker and label for residue
+        ax1.scatter(residue_temp, residue_val, color=color_y1, zorder=5)
+        ax1.annotate(f'Residue {residue_val:.1f}%', xy=(residue_temp, residue_val),
+                     xytext=(10, -15), textcoords='offset points',
+                     color=color_y1, fontsize=10, ha='left')
+    else:
+        # If no data near 800, use the last point? Or skip? Standard says "nearest 800".
+        # Given one sheet ends at 750, it might be tricky. Let's try to find closest overall if strict window fails.
+        idx_closest = np.argmin(np.abs(temp - 800))
+        residue_val = weight[idx_closest]
+        residue_temp = temp[idx_closest]
+        ax1.scatter(residue_temp, residue_val, color=color_y1, zorder=5)
+        ax1.annotate(f'Residue {residue_val:.1f}%', xy=(residue_temp, residue_val),
+                     xytext=(10, -15), textcoords='offset points',
+                     color=color_y1, fontsize=10, ha='left')
+
+    # Find Peak: Highest DTG peak above 150°C
+    # We look for the minimum of original DTG (most negative) which corresponds to max of -DTG
+    mask_peak = temp > 150
+    if np.any(mask_peak):
+        dtg_masked = dtg[mask_peak]
+        temp_masked = temp[mask_peak]
+        
+        # Index of minimum DTG (maximum mass loss rate)
+        idx_min_dtg = np.argmin(dtg_masked)
+        peak_temp = temp_masked[idx_min_dtg]
+        peak_weight = weight[mask_peak][idx_min_dtg]
+        peak_dtg_val = dtg_masked[idx_min_dtg]
+        
+        # Add marker and label for peak on the DTG curve (right axis)
+        # The plotted value is -peak_dtg_val
+        ax2.scatter(peak_temp, -peak_dtg_val, color=color_y2, zorder=5)
+        ax2.annotate(f'{peak_temp:.0f} °C', xy=(peak_temp, -peak_dtg_val),
+                     xytext=(10, 10), textcoords='offset points',
+                     color=color_y2, fontsize=10, ha='left')
+        
+    # Title
+    ax1.set_title(sheet_name, fontsize=14)
+    
+    # Legend
+    lines = [line1, line2]
+    labels = [l.get_label() for l in lines]
+    ax1.legend(lines, labels, loc='center left', bbox_to_anchor=(0.02, 0.5))
+    
+    # Grid
+    ax1.grid(True, linestyle='--', alpha=0.5)
+    
+    # Save
+    safe_sheet_name = "".join([c if c.isalnum() or c in (' ', '-', '_') else '_' for c in sheet_name]).strip()
+    out_path = os.path.join(OUT_DIR, f"{safe_sheet_name}.png")
+    plt.tight_layout()
+    plt.savefig(out_path, dpi=300)
+    plt.close(fig)
+
+print("Plots saved successfully.")
+```

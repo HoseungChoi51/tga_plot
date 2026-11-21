@@ -1,0 +1,34 @@
+{
+ "file": "caox.csv",
+ "y2": {
+  "col": "E"
+ },
+ "annotate": {
+  "endo1": {
+   "type": "peak",
+   "kind": "min",
+   "count": 2,
+   "axis": "y2"
+  },
+  "exo1": {
+   "type": "peak",
+   "kind": "max",
+   "count": 1,
+   "axis": "y2"
+  }
+ },
+ "asks": [
+  {
+   "ask": "오른쪽 축에 Heat Flow",
+   "how": "key"
+  },
+  {
+   "ask": "흡열 피크 두 개 표시",
+   "how": "key"
+  },
+  {
+   "ask": "발열 피크 하나 표시",
+   "how": "key"
+  }
+ ]
+}

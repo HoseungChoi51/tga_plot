@@ -1,0 +1,92 @@
+We need output script. Need infer plot dual axis, annotate weight at 140. Read txt delimiter robust. Korean font. Save. Ensure columns names maybe tab whitespace. implement pandas read_csv sep=None engine python then fallback whitespace; header. x time, temp, weight. At final time weight likely 75.18. Highlight/annotation. Use twin. Script complete.```python
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/eval/inputs_b/isothermal.txt")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/B06_r2/out")
+
+# Read a delimited text file, allowing common tab-, comma-, or whitespace-separated formats.
+try:
+    data = pd.read_csv(DATA_FILE, sep=None, engine="python")
+except Exception:
+    data = pd.read_csv(DATA_FILE, sep=r"\s+", engine="python")
+
+# Match the requested columns by name, with positional fallback for this three-column file.
+column_lookup = {str(column).strip().lower(): column for column in data.columns}
+
+
+def find_column(keyword, fallback_index):
+    for name, original in column_lookup.items():
+        if keyword in name:
+            return original
+    return data.columns[fallback_index]
+
+
+time_col = find_column("time", 0)
+temperature_col = find_column("temperature", 1)
+weight_col = find_column("weight", 2)
+
+for column in (time_col, temperature_col, weight_col):
+    data[column] = pd.to_numeric(data[column], errors="coerce")
+
+data = data.dropna(subset=[time_col, temperature_col, weight_col]).sort_values(time_col)
+if data.empty:
+    raise ValueError("파일에서 시간, 온도, 무게 데이터 행을 읽지 못했습니다.")
+
+time = data[time_col]
+temperature = data[temperature_col]
+weight = data[weight_col]
+
+# Use the row at the greatest recorded time (140 min in the supplied preview).
+final_time = time.max()
+final_row = data.loc[time.idxmax()]
+final_weight = final_row[weight_col]
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+fig, ax_weight = plt.subplots(figsize=(9, 5.5))
+ax_temperature = ax_weight.twinx()
+
+weight_line, = ax_weight.plot(
+    time, weight, color="tab:blue", linewidth=2, label="무게"
+)
+temperature_line, = ax_temperature.plot(
+    time, temperature, color="tab:red", linewidth=2, label="온도"
+)
+
+ax_weight.scatter(
+    [final_time], [final_weight], color="tab:blue", s=45, zorder=5
+)
+ax_weight.annotate(
+    f"{final_time:g}분: 무게 {final_weight:.2f}%",
+    xy=(final_time, final_weight),
+    xytext=(-12, 14),
+    textcoords="offset points",
+    ha="right",
+    color="tab:blue",
+    arrowprops={"arrowstyle": "->", "color": "tab:blue", "lw": 1},
+)
+
+ax_weight.set_xlabel("시간 (분)")
+ax_weight.set_ylabel("무게 (%)", color="tab:blue")
+ax_temperature.set_ylabel("온도 (°C)", color="tab:red")
+ax_weight.tick_params(axis="y", labelcolor="tab:blue")
+ax_temperature.tick_params(axis="y", labelcolor="tab:red")
+ax_weight.set_xlim(time.min(), time.max())
+ax_weight.grid(True, alpha=0.25)
+
+ax_weight.legend(
+    [weight_line, temperature_line],
+    ["무게", "온도"],
+    loc="best",
+    frameon=False,
+)
+fig.tight_layout()
+
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+fig.savefig(OUT_DIR / "isothermal_weight_temperature.png", dpi=300, bbox_inches="tight")
+plt.close(fig)
+```

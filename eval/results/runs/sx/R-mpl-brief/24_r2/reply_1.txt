@@ -1,0 +1,99 @@
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/extra_columns.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/24_r2/out"
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+xls = pd.ExcelFile(DATA_FILE)
+
+for sheet_name in xls.sheet_names:
+    df = pd.read_excel(xls, sheet_name=sheet_name, header=1)  # header row is index 1 (0-based)
+    
+    # Identify columns based on the preview info for this specific file structure
+    # Columns: A(Index), B(Temperature), C(Time), D(Weight mg), E(Weight %), F(Heat Flow), G(Deriv Weight)
+    
+    # Find temperature column
+    temp_col = None
+    weight_pct_col = None
+    heat_flow_col = None
+    
+    for col in df.columns:
+        if "Temperature" in str(col):
+            temp_col = col
+        elif "Weight (%)" in str(col):
+            weight_pct_col = col
+        elif "Heat Flow" in str(col):
+            heat_flow_col = col
+            
+    if temp_col is None or weight_pct_col is None or heat_flow_col is None:
+        continue
+        
+    x = df[temp_col]
+    y1 = df[weight_pct_col]
+    y2 = df[heat_flow_col]
+    
+    fig, ax1 = plt.subplots(figsize=(8, 6))
+    
+    # Plot Weight (%) on left axis
+    color1 = '#1f4e9c'
+    ax1.plot(x, y1, color=color1, label='Weight (%)')
+    ax1.set_xlabel('Temperature (°C)', fontsize=12)
+    ax1.set_ylabel('Weight (%)', color=color1, fontsize=12)
+    ax1.tick_params(axis='y', labelcolor=color1)
+    
+    # Create second axis sharing x-axis
+    ax2 = ax1.twinx()
+    color2 = '#c0392b' # Using standard DTG color even though it's Heat Flow now, or maybe a different one? 
+    # The prompt says "Heat Flow를 y2축으로 그려주고". It doesn't specify color change, but usually secondary axes have distinct colors.
+    # Let's stick to a reasonable color for the second line.
+    color2 = '#d35400' 
+    
+    ax2.plot(x, y2, color=color2, label='Heat flow (W/g)')
+    ax2.set_ylabel('Heat flow (W/g)', color=color2, fontsize=12)
+    ax2.tick_params(axis='y', labelcolor=color2)
+    
+    # Title is sheet name
+    ax1.set_title(sheet_name, fontsize=14)
+    
+    # Residue calculation and plotting
+    # Find point nearest to 800 °C
+    target_temp = 800
+    idx_residue = (x - target_temp).abs().idxmin()
+    residue_val = y1[idx_residue]
+    residue_temp = x[idx_residue]
+    
+    # Plot marker for residue on y1 curve
+    ax1.scatter([residue_temp], [residue_val], color=color1, zorder=5)
+    ax1.annotate(f'Residue {residue_val:.1f}%', 
+                 xy=(residue_temp, residue_val), 
+                 xytext=(10, 10), textcoords='offset points',
+                 color=color1, fontsize=10,
+                 bbox=dict(boxstyle="round,pad=0.3", fc="white", ec=color1, alpha=0.7))
+    
+    # Peak display is removed per user request ("피크 표시는 빼줘")
+    
+    # Legend
+    lines_1, labels_1 = ax1.get_legend_handles_labels()
+    lines_2, labels_2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='center left')
+    
+    # Grid
+    ax1.grid(True, linestyle='--', alpha=0.5)
+    
+    # Save figure
+    safe_sheet_name = "".join([c if c.isalnum() or c in (' ', '-', '_') else '_' for c in sheet_name]).strip()
+    out_path = os.path.join(OUT_DIR, f"{safe_sheet_name}.png")
+    
+    plt.tight_layout()
+    plt.savefig(out_path, dpi=300)
+    plt.close(fig)
+```

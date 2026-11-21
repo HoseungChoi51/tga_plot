@@ -1,0 +1,87 @@
+We need answer user's request in Korean? They ask: "TGA.xlsx 그래프 그려줘" and environment: we need reply with complete script inside one python block, nothing else. Need produce script that reads DATA_FILE and prints JSON ECharts option. Need likely create TGA plot: maybe one figure with Weight(%) on left y-axis and D.W(%/C) on right y-axis vs Temperature for three samples. Need use pandas, openpyxl. Need ensure JSON valid, no JS functions. Need handle Korean font? ECharts option text can be Korean; font family maybe Noto Sans CJK KR. Need output only python block. Need think about details.
+
+We need write Python script. It must read Excel file path from DATA_FILE variable? User says DATA_FILE = "/home/chs/CNT/Plot/tests/inputs/TGA.xlsx". In script, we can read from os.environ.get('DATA_FILE')? They say script reads data file(s) given as DATA_FILE (or DATA_FILES) in the message. In previous tasks, likely script should use DATA_FILE variable? Since they provide DATA_FILE = ... in prompt, maybe script should read that variable. But to be robust: if DATA_FILE in globals? In script, define path from os.environ if available else hardcode? They said script reads data file(s) given as DATA_FILE (or DATA_FILES) in the message. Could use os.environ.get("DATA_FILE", "/home/chs/CNT/Plot/tests/inputs/TGA.xlsx"). But the environment may set DATA_FILE. Better: try os.environ.get('DATA_FILE'), else use the provided path? If script executed with variable? They may inject DATA_FILE? Since we output script only, can't know. Use environment variable and fallback to given path.
+
+Need parse sheets. For each sheet, read header row 1, data start row 2. Use pandas read_excel(sheet_name=..., header=0). Column names: Time, Temperature, Weight(%), D.W(%/C). Need build ECharts option.
+
+Design: TGA graph: x Temperature (°C), y1 Weight (%), y2 DTG (%/C). Three samples. Could include legend and tooltip. Use line series. Since Weight and DTG ranges differ, use two y axes. For each sample, Weight line on yAxis 0, DTG line on yAxis 1. That yields 6 series. Could be cluttered but okay. Or maybe one figure per sample? User asks graph, TGA data with three sheets. Better one combined figure comparing samples. Need maybe color distinguish. Could set smooth false. Include dataZoom? Not necessary. But server-side svg renderer? Maybe include dataZoom? It's okay.
+
+Need ensure series.data as list of [x,y] pairs? ECharts line with xAxis type value and data as [[x,y],...]. That is good. Need round values to reduce JSON size? 871*6 ~ 5226 pairs, okay. Could round to 4 decimals. Use json.dumps with separators? Need print to stdout.
+
+Need include title: "TGA/DTG 분석", subtitle maybe. Axis names: "Temperature (°C)", "Weight (%)", "DTG (%/C)". Legend: sample names. Need maybe set color palette. For Weight lines solid, DTG lines dashed. Could set lineStyle width 1.5/1.2. Need markLine? Not necessary.
+
+Need Korean font: option textStyle fontFamily "Noto Sans CJK KR". Need maybe axisLabel formatter? Use {
+[...]
+ is JSON string not list, e.g. '"/path"', parsed str, append. Good.
+
+Potential issue: If file not exists but fallback path exists. Good.
+
+Potential issue: If no file exists, prints empty. Good.
+
+Need maybe if user wants only one figure, not multiple. Good.
+
+Need maybe if output should include width 614 height 442? Let's decide. I lean 900x600. But if system expects default maybe? Could set 614x442 to match example. But 6 series legend may overlap. Could adjust option for smaller. Maybe use 800x560. The prompt says width/height canvas CSS pixels; no default. Use 900x600. Fine.
+
+Potential issue: The script reads `DATA_FILE = "/home/chs/CNT/Plot/tests/inputs/TGA.xlsx"` in message. If the harness runs script with that variable set in global namespace? Our get_data_files checks globals. But our script defines functions and main, no assignment DATA_FILE. If harness executes our script after injecting variable? If they run `exec(script, {'DATA_FILE': path})`, globals has DATA_FILE. Good. If they run as standalone with env, okay. If they expect script to hardcode path, fallback. Good.
+
+Potential issue: If they set DATA_FILE but path doesn't exist in our environment? It might. Good.
+
+Potential issue: If they set DATA_FILES as a list of paths but one is not exists, we filter. If all not exist, fallback path. Good.
+
+Potential issue: If they want multiple figures? User says TGA.xlsx 그래프 그려줘. Could one figure. Good.
+
+Need maybe include `series[].yAxisIndex` for DTG. Good.
+
+Potential issue: ECharts may not allow `lineStyle.opacity`? It does. Good.
+
+Potential issue: ECharts may not allow `emphasis.focus` for line? It does. Good.
+
+Potential issue: ECharts may not allow `encode` with value axis? It does. Good.
+
+Potential issue: If data pairs are sorted by x, but x duplicates? If duplicate x with different y, line may vertical. TGA no duplicates. Good.
+
+Potential issue: If `pd.to_numeric` on object with commas? It fails, coerces NaN. Could remove commas. Not needed.
+
+Potential issue: If Excel has header row 1 but first row contains units? It says header rows [1]. Good.
+
+Potential issue: If sheet names are long, legend scroll. Good.
+
+Potential issue: If title uses slash maybe okay.
+
+Need maybe final answer only code block. No explanation. Ensure not include analysis. Good.
+
+Let's consider possible hidden evaluation: They may run script and parse stdout JSON. It must be only JSON. Our script prints only JSON. If exception occurs, traceback to stderr? stdout maybe empty. But okay.
+
+Need maybe if pandas emits warnings to stderr, not stdout. Good.
+
+Need maybe if `sys.stdout.reconfigure` not available in old Python? Python 3 has. If not, exception caught.
+
+Need maybe if `pd.ExcelFile` for .xlsx with engine openpyxl. Good.
+
+Potential issue: If file has .xlsx but actually CSV? fallback? No.
+
+Potential issue: If file has multiple sheets and some are empty, skip. Good.
+
+Potential issue: If sheet has columns with exact names but lower-case? find_col handles.
+
+Potential issue: If column names have trailing spaces, find_col handles.
+
+Potential issue: If `D.W(%/C)` has slash, candidate exact. Good.
+
+Potential issue: If candidate list includes 'D.W(%/C)' twice. okay.
+
+Potential issue: If y2_col fallback index 3 but column D name is something else, still uses. Good.
+
+Potential issue: If y2 values are all zero, nice_axis_bounds include zero: lo=0 hi=0 -> hi=1, pad max(1*0.08=0.08,0.05)=0.08, lo=-0.08 hi=1.08. Good.
+
+Potential issue: If y2 values very small 1e-6, pad 0.05, axis min -0.05 max 0.05. Good.
+
+Potential issue: If y2 values have min -0.8 max 0.003, pad 0.065, min -0.865 max 0.068. Good.
+
+Potential issue: If y1 min negative? include zero? We set y1_axis_min = floor(y1_min/10)*10; if y1_min >0 set 0. If negative, floor negative e.g. -1 -> -10. Good.
+
+Potential issue: If y1 max 100, max 110. Good.
+
+Potential issue: If y1 max 105, ceil(10.5)=11*10=110 +10=120. Good.
+
+Potential issue: If x_min 30, x_axis_min 30. If x_min 31, floor 3*10=30. Good. If x_max 87

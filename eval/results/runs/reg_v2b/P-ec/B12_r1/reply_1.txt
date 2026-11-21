@@ -1,0 +1,34 @@
+```json
+{
+ "file": "caox.csv",
+ "preset": "none",
+ "x": {
+  "col": "B",
+  "min": 100,
+  "max": 900
+ },
+ "y1": {
+  "col": "C"
+ },
+ "y2": false,
+ "annotate": {
+  "residue": {
+   "x": 900
+  }
+ },
+ "asks": [
+  {
+   "ask": "무게 곡선만 (DTG 제외)",
+   "how": "key"
+  },
+  {
+   "ask": "x축 범위 100~900",
+   "how": "key"
+  },
+  {
+   "ask": "900 °C 잔류량 표시",
+   "how": "key"
+  }
+ ]
+}
+```

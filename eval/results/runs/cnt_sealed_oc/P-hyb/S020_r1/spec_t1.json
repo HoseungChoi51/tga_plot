@@ -1,0 +1,44 @@
+{
+ "file": [
+  "data/raman/R1-260326-1.csv",
+  "data/raman/R2-260616-1.csv",
+  "data/raman/R4-260721-1.csv"
+ ],
+ "combine": true,
+ "x": {
+  "col": "Raman Shift",
+  "min": 1000,
+  "max": 2000
+ },
+ "y1": {
+  "col": "Intensity"
+ },
+ "preset": "none",
+ "data_code": "import numpy as np\n# Linear baseline subtraction\nmask_base_left = (x >= 1100 - 10) & (x <= 1100 + 10)\nmask_base_right = (x >= 1800 - 10) & (x <= 1800 + 10)\ny_base_1 = np.mean(y1[mask_base_left])\ny_base_2 = np.mean(y1[mask_base_right])\nx_base_1 = np.mean(x[mask_base_left])\nx_base_2 = np.mean(x[mask_base_right])\nif x_base_2 > x_base_1:\n    slope = (y_base_2 - y_base_1) / (x_base_2 - x_base_1)\n    intercept = y_base_1 - slope * x_base_1\n    baseline = slope * x + intercept\nelse:\n    baseline = np.full_like(x, y_base_1)\ny1 = y1 - baseline\n# Normalize by G-band max (1550-1620 cm-1)\nmask_g = (x >= 1550) & (x <= 1620)\ng_max = np.max(y1[mask_g])\nif g_max != 0:\n    y1 = y1 / g_max",
+ "names": [
+  "R1",
+  "R2",
+  "R4"
+ ],
+ "asks": [
+  {
+   "ask": "세 개 오버레이",
+   "how": "key"
+  },
+  {
+   "ask": "직선 베이스라인(1100, 1800 ±10 평균 연결) 차감",
+   "how": "data_code"
+  },
+  {
+   "ask": "G 밴드(1550-1620) 최대값 기준으로 정규화",
+   "how": "data_code"
+  },
+  {
+   "ask": "1000-2000 구간 표시",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S020_r1/out/t1"
+ }
+}

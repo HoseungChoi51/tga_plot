@@ -1,0 +1,214 @@
+{
+ "arm": "P-ec",
+ "item": "S005",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "생산팀장",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "불량 비율 한 장으로 보여줄 수 있어요? 이번 주 임원 보고에 들어갑니다.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"pie\",\n  \"x\": \"등급 (A/B/C)\",\n  \"asks\": [\n    {\n      \"ask\": \"불량 비율 한 장\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"임원 보고용 (시각적 강조)\",\n      \"how\": \"key\"\n    }\n  ],\n  \"colors\": {\n    \"B\": \"#F44336\",\n    \"C\": \"#FF9800\",\n    \"A\": \"#4CAF50\"\n  },\n  \"values\": \"percent\",\n  \"title\": {\n    \"text\": \"제품 등급별 비율 (불량 현황)\",\n    \"size\": 14\n  },\n  \"legend\": {\n    \"where\": \"outside right\",\n    \"show\": true,\n    \"size\": 12\n  },\n  \"font_size\": 12,\n  \"size\": [8, 6],\n  \"dpi\": 150,\n  \"output\": {\n    \"format\": \"png\",\n    \"name\": \"defect_rate_pie.png\"\n  }\n}\n```",
+     "llm_s": 5.473,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 18213,
+     "output_chars": 614,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "pie",
+    "x": "등급 (A/B/C)",
+    "asks": [
+     {
+      "ask": "불량 비율 한 장",
+      "how": "key"
+     },
+     {
+      "ask": "임원 보고용 (시각적 강조)",
+      "how": "key"
+     }
+    ],
+    "colors": {
+     "B": "#F44336",
+     "C": "#FF9800",
+     "A": "#4CAF50"
+    },
+    "values": "percent",
+    "title": {
+     "text": "제품 등급별 비율 (불량 현황)",
+     "size": 14
+    },
+    "legend": {
+     "where": "outside right",
+     "show": true,
+     "size": 12
+    },
+    "font_size": 12,
+    "size": [
+     8,
+     6
+    ],
+    "dpi": 150,
+    "output": {
+     "format": "png",
+     "name": "defect_rate_pie.png"
+    }
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": true,
+    "engine": "echarts",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/S005_r1/out/t1/defect_rate_pie.png.png"
+    ],
+    "chart": "pie",
+    "rows_used": 997,
+    "rows_total": 997,
+    "values": {
+     "slices": {
+      "B": 522.0,
+      "A": 349.0,
+      "C": 126.0
+     },
+     "shares": {
+      "B": 0.5236,
+      "A": 0.3501,
+      "C": 0.1264
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "원 그래프를 저장했습니다: defect_rate_pie.png.png\n사용한 행: 997 / 997\nB 52.4%, A 35.0%, C 12.6%"
+   },
+   "facts": [
+    {
+     "engine": "echarts",
+     "size_in": [
+      8,
+      6
+     ],
+     "dpi": 150,
+     "title": "제품 등급별 비율 (불량 현황)",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": {
+        "labels": [
+         "B",
+         "A",
+         "C"
+        ],
+        "shares": [
+         0.5235707121364093,
+         0.35005015045135407,
+         0.12637913741223672
+        ],
+        "values": [
+         522.0,
+         349.0,
+         126.0
+        ],
+        "colors": [
+         "#f44336",
+         "#4caf50",
+         "#ff9800"
+        ]
+       },
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [
+        "B\n52.4%",
+        "A\n35.0%",
+        "C\n12.6%"
+       ],
+       "x": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": null,
+        "max": null,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": null,
+        "max": null,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       }
+      }
+     ],
+     "texts": [
+      "B\n52.4%",
+      "A\n35.0%",
+      "C\n12.6%",
+      "제품 등급별 비율 (불량 현황)"
+     ],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "B",
+       "A",
+       "C"
+      ],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/S005_r1/out/t1/defect_rate_pie.png.png",
+       "format": "png",
+       "px": [
+        1200,
+        900
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5176377296447754,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [
+     "pie: slices ['B', 'A', 'C'], want ['불합격(C)', '합격(A·B)']"
+    ],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 1,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 6.063
+  }
+ ]
+}

@@ -1,0 +1,28 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "histogram",
+ "x": "가동시간 (h)",
+ "bins": {
+  "width": 1,
+  "min": 2,
+  "max": 17
+ },
+ "asks": [
+  {
+   "ask": "가동시간 분포 히스토그램",
+   "how": "key"
+  },
+  {
+   "ask": "1시간 간격",
+   "how": "key"
+  },
+  {
+   "ask": "2~17 h 범위",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S015_r3/out/t1"
+ }
+}
