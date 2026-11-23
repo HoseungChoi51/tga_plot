@@ -1,0 +1,250 @@
+{
+ "cases": 411,
+ "columns": {
+  "checked": 316,
+  "problems": []
+ },
+ "replay": {
+  "by_group": {
+   "P-ec": {
+    "n": 179,
+    "raw_ok": 151,
+    "canon_ok": 179
+   },
+   "P-mpl": {
+    "n": 179,
+    "raw_ok": 152,
+    "canon_ok": 177
+   },
+   "TGA": {
+    "n": 53,
+    "raw_ok": 53,
+    "canon_ok": 53
+   }
+  },
+  "raw_reasons": [
+   [
+    "(top): Additional properties are not allowed ('sheet'",
+    54
+   ],
+   [
+    "smooth: {'col': '2존(°C)', 'window': 60, 'raw': True} is not valid under any of the given schemas",
+    1
+   ]
+  ],
+  "canonical_failures": [
+   {
+    "case": "P-mpl D002 t1",
+    "errors": [
+     "smooth: {'col': '2존(°C)', 'window': 60, 'raw': True} is not valid under any of the given schemas"
+    ],
+    "spec": {
+     "file": "data/r2_zone_temps.csv",
+     "chart": "line",
+     "x": "시각",
+     "y": [
+      "2존(°C)",
+      "2존 SP(°C)"
+     ],
+     "smooth": {
+      "col": "2존(°C)",
+      "window": 60,
+      "raw": true
+     },
+     "asks": [
+      {
+       "ask": "2존 PV 하루치 트렌드",
+       "how": "key"
+      },
+      {
+       "ask": "2존 SP 겹치기",
+       "how": "key"
+      },
+      {
+       "ask": "2존 PV 10분 이동평균 (60포인트)",
+       "how": "key"
+      }
+     ]
+    }
+   },
+   {
+    "case": "P-mpl D009 t1",
+    "errors": [
+     "asks/2/how: 'default' is not one of ['key', 'data_code', 'code', 'echarts', 'unsupported']"
+    ],
+    "spec": {
+     "file": "data/run_log.xlsx",
+     "sheets": "런로그",
+     "chart": "scatter",
+     "x": {
+      "col": "체류시간 (s)",
+      "label": "체류시간 (s)"
+     },
+     "y": {
+      "col": "CNT수율 (g/g-cat)",
+      "label": "CNT수율 (g/g-cat)"
+     },
+     "by": "반응기",
+     "asks": [
+      {
+       "ask": "체류시간 vs CNT수율 scatter",
+       "how": "key"
+      },
+      {
+       "ask": "반응기별 색 구분",
+       "how": "key"
+      },
+      {
+       "ask": "26주 전체 런 (필터 없음)",
+       "how": "default"
+      }
+     ]
+    }
+   }
+  ]
+ },
+ "flat": {
+  "n": 411,
+  "flat_valid": 409,
+  "roundtrip_same": 411,
+  "failures": [
+   {
+    "case": "P-mpl D002 t1",
+    "schema_errors": [
+     "settings/3: {'key': 'smooth.col', 'column': '2존(°C)'} is not valid under any of the given schemas"
+    ],
+    "roundtrip_same": true,
+    "spec": {
+     "file": "data/r2_zone_temps.csv",
+     "chart": "line",
+     "x": "시각",
+     "y": [
+      "2존(°C)",
+      "2존 SP(°C)"
+     ],
+     "smooth": {
+      "col": "2존(°C)",
+      "window": 60,
+      "raw": true
+     },
+     "asks": [
+      {
+       "ask": "2존 PV 하루치 트렌드",
+       "how": "key"
+      },
+      {
+       "ask": "2존 SP 겹치기",
+       "how": "key"
+      },
+      {
+       "ask": "2존 PV 10분 이동평균 (60포인트)",
+       "how": "key"
+      }
+     ]
+    },
+    "back": {
+     "file": "data/r2_zone_temps.csv",
+     "chart": "line",
+     "x": "시각",
+     "y": [
+      "2존(°C)",
+      "2존 SP(°C)"
+     ],
+     "smooth": {
+      "col": "2존(°C)",
+      "window": 60,
+      "raw": true
+     },
+     "asks": [
+      {
+       "ask": "2존 PV 하루치 트렌드",
+       "how": "key"
+      },
+      {
+       "ask": "2존 SP 겹치기",
+       "how": "key"
+      },
+      {
+       "ask": "2존 PV 10분 이동평균 (60포인트)",
+       "how": "key"
+      }
+     ]
+    }
+   },
+   {
+    "case": "P-mpl D009 t1",
+    "schema_errors": [
+     "asks/2/how: 'default' is not one of ['key', 'data_code', 'code', 'echarts', 'unsupported']"
+    ],
+    "roundtrip_same": true,
+    "spec": {
+     "file": "data/run_log.xlsx",
+     "sheets": "런로그",
+     "chart": "scatter",
+     "x": {
+      "col": "체류시간 (s)",
+      "label": "체류시간 (s)"
+     },
+     "y": {
+      "col": "CNT수율 (g/g-cat)",
+      "label": "CNT수율 (g/g-cat)"
+     },
+     "by": "반응기",
+     "asks": [
+      {
+       "ask": "체류시간 vs CNT수율 scatter",
+       "how": "key"
+      },
+      {
+       "ask": "반응기별 색 구분",
+       "how": "key"
+      },
+      {
+       "ask": "26주 전체 런 (필터 없음)",
+       "how": "default"
+      }
+     ]
+    },
+    "back": {
+     "file": "data/run_log.xlsx",
+     "chart": "scatter",
+     "x": {
+      "col": "체류시간 (s)",
+      "label": "체류시간 (s)"
+     },
+     "y": {
+      "col": "CNT수율 (g/g-cat)",
+      "label": "CNT수율 (g/g-cat)"
+     },
+     "by": "반응기",
+     "sheets": "런로그",
+     "asks": [
+      {
+       "ask": "체류시간 vs CNT수율 scatter",
+       "how": "key"
+      },
+      {
+       "ask": "반응기별 색 구분",
+       "how": "key"
+      },
+      {
+       "ask": "26주 전체 런 (필터 없음)",
+       "how": "default"
+      }
+     ]
+    }
+   }
+  ]
+ },
+ "limits": {
+  "all_flat_within_anthropic_limits": true,
+  "worst": {
+   "optional": 0,
+   "anyof": 7
+  },
+  "full_schema_bytes": {
+   "min": 5908,
+   "max": 35167
+  }
+ }
+}

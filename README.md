@@ -26,6 +26,8 @@ exactly one spec key in `AGENT.md`. Users who use those names get predictable re
 | `gallery/` | 26 example specs on made-up data, drawn by both engines (`python gallery/make_gallery.py`) |
 | `report/` | builds the evaluation report page from `eval/results/` |
 | `HANDOFF.md` | state of the evaluation and how to continue it on another machine |
+| `spec_schema.py` | per-request JSON Schema of the spec (real files, sheets and columns as enums) for constrained decoding |
+| `EXPERIMENT_CD.md` | the constrained-decoding experiment: `+cd` / `+cdflat` arms, preflight, comparison (`eval/cd*.py`) |
 
 ## Install (once)
 

@@ -135,6 +135,11 @@ Runs that were cut off mid-way were deleted. They are not in the CSV, so they wi
 
 Absolute paths: scripts written by the model contain absolute data paths of the machine they ran on. The CSV's `run_dir` is relative to `eval/`, so review and report work anywhere.
 
+## Constrained decoding (added 2026-11-23)
+
+`EXPERIMENT_CD.md` covers it: the `+cd` / `+cdflat` arms, `eval/cd_preflight.py` (run it first against the server),
+`eval/cd_compare.py`, and the Anthropic backend used as a small-model stand-in (Haiku 5.5, low effort, thinking off).
+
 ## What is left, in order
 
 1. **Finish the `sx` batch**, then run `python eval/rescore.py --name sx`.

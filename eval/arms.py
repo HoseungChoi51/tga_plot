@@ -3,6 +3,8 @@
   P-mpl / P-ec           AGENT.md / AGENT_ECHARTS.md -> JSON spec -> plotkit (matplotlib / ECharts)
   R-mpl-plain / -brief   generic prompt (+ TGA brief) -> Python matplotlib script, run in a sandbox
   R-ec-plain / -brief    generic prompt (+ TGA brief) -> Python script printing ECharts options -> ECharts SSR
+  P-mpl+cd / P-ec+cd     the protocol arm with the reply constrained by a per-request JSON Schema (eval/cd.py)
+  P-mpl+cdflat / ...     the same, as a flat settings list (fits the Anthropic API's schema limits)
 
 Every arm gets at most 2 retries with the error it caused (plotkit error+hint, or the script's traceback).
 `run_arm` returns a record with the model calls, the final spec or script, the figure facts and timings.
@@ -20,6 +22,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(HERE))
+import cd  # noqa: E402
 import facts  # noqa: E402
 import plotkit  # noqa: E402
 import run_agent  # noqa: E402
@@ -78,6 +81,9 @@ A setting that names no axis (e.g. "틱 라벨 크기 9") applies to x, y1 and y
 
 
 def system_prompt(arm):
+    base, profile = cd.parse_arm(arm)
+    if profile:
+        return system_prompt(base) + cd.prompt_suffix(profile, CD.get("note", False))
     pdir = os.environ.get("EVAL_PROMPT_DIR")     # layer v2: core.md + hatch_mpl.md / hatch_ec.md; else AGENT.md / AGENT_ECHARTS.md
     if arm in ("P-mpl", "P-ec") and pdir:
         d = Path(pdir)
@@ -206,6 +212,7 @@ def resolve_files(spec_files, files):
 MAX_TOKENS = 16000          # same cap for every arm; writing a script takes Odin more thinking than a spec
 
 
+CD = {}                     # constrained decoding: {"backend", "param", "effort", "asks", "note"} (set by run_batch)
 EXTRA_BODY = {}             # e.g. {"chat_template_kwargs": {"enable_thinking": False}} (set by run_batch --no-think)
 PI_REFUSED = "flagged as potentially violating"     # the centinels proxy's input filter refuses some raw-code prompts
 PI_REFUSAL_RETRIES = 30                               # often, though not every time; a refused prompt never reaches the model
@@ -256,12 +263,18 @@ def call_pi(pi, messages, run_dir, timeout=1800):
             "".join(c.get("thinking", "") for c in content if c.get("type") == "thinking"), stats)
 
 
-def call_llm(base, model, key, messages, max_tokens=MAX_TOKENS, temperature=0.6, timeout=1800, run_dir=None):
+def call_llm(base, model, key, messages, max_tokens=MAX_TOKENS, temperature=0.6, timeout=1800, run_dir=None, schema=None):
     """run_agent.call_llm, but also returns the reasoning text (saved per call for diagnosis)."""
     import urllib.request
     if EXTRA_BODY.get("pi"):
+        if schema is not None:
+            raise RuntimeError("constrained decoding cannot go through Pi")
         return call_pi(EXTRA_BODY["pi"], messages, run_dir, timeout)
-    body = {"model": model, "temperature": temperature, "max_tokens": max_tokens, "messages": messages, **EXTRA_BODY}
+    if CD.get("backend") == "anthropic":
+        return cd.call_anthropic(model, key, messages, temperature, min(max_tokens, 8000), schema=schema,
+                                 effort=CD.get("effort"), base=CD.get("base"))
+    body = {"model": model, "temperature": temperature, "max_tokens": max_tokens, "messages": messages, **EXTRA_BODY,
+            **cd.openai_fields(schema, CD.get("param", "response_format"))}
     req = urllib.request.Request(base.rstrip("/") + "/chat/completions", data=json.dumps(body).encode(),
                                  headers={"Content-Type": "application/json", "Authorization": f"Bearer {key or 'none'}"})
     t0 = time.time()
@@ -283,6 +296,13 @@ def run_arm(arm, files, request, run_dir, base, model, key, temperature=0.0, ret
     run_dir.mkdir(parents=True)
     files = [Path(f) for f in files]
     out_dir = run_dir / "out"
+    base_arm, profile = cd.parse_arm(arm)
+    con_schema = own_schema = None
+    if base_arm.startswith("P-"):           # schema of this request (TGA curves; files by base name, as resolve_files does)
+        kinds = ("curve", "chart") if os.environ.get("EVAL_PROMPT_DIR") else ("curve",)    # prompts/v2 also teach charts
+        con_schema, full = cd.schemas([f.name for f in files], files[0].parent, kinds, cd.hatch_for(base_arm),
+                                      profile, CD.get("asks", "last"), inspect=True, base_names=True)
+        own_schema = con_schema if profile == "flat" else full
     messages = [{"role": "system", "content": system_prompt(arm)},
                 {"role": "user", "content": user_message(arm, files, request, out_dir)}]
     calls, errors, figs, final = [], [], None, None
@@ -290,10 +310,13 @@ def run_arm(arm, files, request, run_dir, base, model, key, temperature=0.0, ret
     exec_s = 0.0
     for attempt in range(retries + 1):
         try:
-            reply, reasoning, stats = call_llm(base, model, key, messages, temperature=temperature, run_dir=run_dir)
+            reply, reasoning, stats = call_llm(base, model, key, messages, temperature=temperature, run_dir=run_dir,
+                                               schema=con_schema)
         except Exception as e:                       # network / server trouble: record and stop this run
             errors.append(f"model call failed: {e!r}")
             break
+        if own_schema is not None:
+            stats["schema_ok"], stats["schema_error"] = cd.conformance(reply, own_schema)
         calls.append(stats)
         (run_dir / f"reply_{attempt + 1}.txt").write_text(reply, encoding="utf-8")
         if reasoning:
@@ -301,9 +324,11 @@ def run_arm(arm, files, request, run_dir, base, model, key, temperature=0.0, ret
             (run_dir / f"reasoning_{attempt + 1}.txt").write_text(r, encoding="utf-8")
         t1 = time.time()
         if arm.startswith("P-"):
-            engine = "matplotlib" if arm == "P-mpl" else "echarts"
+            engine = "matplotlib" if base_arm == "P-mpl" else "echarts"
             try:
                 spec = run_agent.extract_json(reply)
+                if profile == "flat":
+                    spec = cd.ss.flat_to_spec(spec)
                 spec["file"] = resolve_files(spec.get("file"), files)
                 if isinstance(spec.get("output"), (dict, type(None))):
                     spec["output"] = {**(spec.get("output") or {}), "dir": str(out_dir)}
