@@ -11,6 +11,9 @@ draws it -> if plotkit reports an error, the error goes back to the model
 Works with any OpenAI-compatible server (Ollama, LM Studio, vLLM, llama.cpp).
 Add --no-think for Qwen3-style models to skip the thinking phase (faster).
 
+Constrained decoding (EXPERIMENT_CD.md): --constrain sends a JSON Schema built from the file (real sheet and
+column names, only known keys) as response_format, so the reply is always a valid spec of known keys and columns.
+
 Engine experiment (see EXPERIMENT.md): --engine echarts draws with ECharts and uses
 AGENT_ECHARTS.md as the system prompt. --batch runs every request in a prompts file and
 scores it with tests/score.py:
@@ -38,8 +41,10 @@ Do step 2 only: reply with the JSON spec for the user's request, inside one ```j
 Use the file name exactly as shown in the inspect result."""
 
 
-def call_llm(base, model, key, messages, max_tokens=4000, timeout=600, temperature=0):
+def call_llm(base, model, key, messages, max_tokens=4000, timeout=600, temperature=0, schema=None):
     body = {"model": model, "temperature": temperature, "max_tokens": max_tokens, "messages": messages}
+    if schema is not None:
+        body["response_format"] = {"type": "json_schema", "json_schema": {"name": "plot_spec", "strict": True, "schema": schema}}
     req = urllib.request.Request(base.rstrip("/") + "/chat/completions", data=json.dumps(body).encode(),
                                  headers={"Content-Type": "application/json",
                                           "Authorization": f"Bearer {key or 'none'}"})
@@ -85,7 +90,7 @@ def summary_ko(res):
 
 
 def run(base, model, key, file, request, no_think=False, retries=2, verbose=True,
-        engine=None, agent_md=None, temperature=0):
+        engine=None, agent_md=None, temperature=0, constrain=False):
     engine = plotkit.engine_name(engine)
     agent_md = agent_md or ("AGENT_ECHARTS.md" if engine == "echarts" else "AGENT.md")
     system = (HERE / agent_md).read_text(encoding="utf-8") + SPEC_ONLY
@@ -96,9 +101,14 @@ def run(base, model, key, file, request, no_think=False, retries=2, verbose=True
     if no_think:
         user += " /no_think"
     messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
+    schema = None
+    if constrain:
+        import spec_schema
+        info = spec_schema.data_info([Path(file).name], Path(file).parent, inspect=True)
+        schema = spec_schema.build(info, kinds=("curve",), hatch="echarts" if engine == "echarts" else "code")
     calls = []
     for attempt in range(retries + 1):
-        reply, stats = call_llm(base, model, key, messages, temperature=temperature)
+        reply, stats = call_llm(base, model, key, messages, temperature=temperature, schema=schema)
         calls.append(stats)
         try:
             spec = extract_json(reply)
@@ -157,7 +167,7 @@ def batch(a):
                     continue
                 file = str(HERE / file) if file and not Path(file).is_absolute() else file
                 res = run(a.base_url, a.model, a.api_key, file, request, a.no_think, verbose=False,
-                          engine=a.engine, agent_md=a.agent_md, temperature=a.temperature)
+                          engine=a.engine, agent_md=a.agent_md, temperature=a.temperature, constrain=a.constrain)
                 spec = res.get("spec")
                 if res["ok"]:
                     ok, why, _ = scorer.score(rid, spec, plotkit.engine_name(a.engine),
@@ -195,6 +205,7 @@ def main():
     ap.add_argument("--batch", help="run every request in this prompts file, e.g. tests/AGENT_TEST_PROMPTS.md")
     ap.add_argument("--only", help="with --batch: comma-separated request numbers, e.g. 07,20")
     ap.add_argument("--repeat", type=int, default=1, help="with --batch: run the whole set this many times")
+    ap.add_argument("--constrain", action="store_true", help="constrained decoding: response_format with the spec's JSON Schema")
     ap.add_argument("--arm", help="with --batch: label for the results (default 0 or S from the engine)")
     ap.add_argument("--out", help="with --batch: CSV to append to (default results/batch_<arm>.csv)")
     a = ap.parse_args()
@@ -204,7 +215,8 @@ def main():
         return batch(a)
     if not (a.file and a.request):
         ap.error("--file and --request are needed (or --batch)")
-    out = run(a.base_url, a.model, a.api_key, a.file, a.request, a.no_think, engine=a.engine, agent_md=a.agent_md, temperature=a.temperature)
+    out = run(a.base_url, a.model, a.api_key, a.file, a.request, a.no_think, engine=a.engine, agent_md=a.agent_md,
+              temperature=a.temperature, constrain=a.constrain)
     if out["ok"]:
         print("spec:", json.dumps(out["spec"], ensure_ascii=False))
         print(summary_ko(out["result"]))

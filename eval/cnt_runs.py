@@ -4,6 +4,13 @@ on each arm, with the model on a llama.cpp server, checked turn by turn against 
   P-mpl / P-ec   prompts/v2 (core + the engine's hatch) -> JSON spec -> plotkit/chartkit (matplotlib / ECharts)
   P-hyb          the matplotlib prompt (the "code" hatch allowed); drawn with ECharts unless the spec uses "code"
   R-mpl          a short prompt + a data brief -> a Python matplotlib script, run in a sandbox (accuracy ceiling)
+  <P arm>+cd     the same, with the reply constrained by a per-request JSON Schema (constrained decoding)
+  <P arm>+cdflat the same, constrained to the flat settings-list form (fits the Anthropic API's schema limits)
+
+Constrained-decoding study (EXPERIMENT_CD.md), thinking off as in every run here:
+    python eval/cnt_runs.py --split dev --name cd1 --arms P-mpl,P-mpl+cd,P-ec,P-ec+cd --repeat 3
+    python eval/cnt_runs.py --split dev --name cdh --backend anthropic --model claude-haiku-5-5 --effort low \
+        --arms P-mpl,P-mpl+cdflat --repeat 3
 
     EVAL_API_KEY_FILE=~/.config/pi/strix.key python eval/cnt_runs.py --split dev --name dev1 \\
         --base-url http://strixhalo:8084/v1 --model qwen3.8-flash-next --arms P-mpl,P-ec --repeat 1 --workers 2
@@ -30,6 +37,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(HERE))
+import cd  # noqa: E402
 
 CNT = HERE / "cnt"
 PY = str(ROOT / ".venv" / "bin" / "python") if (ROOT / ".venv" / "bin" / "python").exists() else sys.executable
@@ -65,12 +73,13 @@ _lock = threading.Lock()
 PROMPT_DIR = ROOT / "prompts" / "v2"
 
 
-def system_prompt(arm, prompt_dir=None):
+def system_prompt(arm, prompt_dir=None, cd_note=False):
     d = Path(prompt_dir) if prompt_dir else PROMPT_DIR
+    arm, profile = cd.parse_arm(arm)
     if arm.startswith("P-"):
         core = (d / "core.md").read_text(encoding="utf-8")
         hatch = "hatch_mpl.md" if arm in ("P-mpl", "P-hyb") else "hatch_ec.md"   # P-hyb: ECharts, matplotlib only for "code"
-        return core + (d / hatch).read_text(encoding="utf-8")
+        return core + (d / hatch).read_text(encoding="utf-8") + cd.prompt_suffix(profile, cd_note)
     return RAW
 
 
@@ -127,9 +136,10 @@ def first_message(arm, item, text):
 
 
 # =================================================================== the model
-def call_llm(base, model, key, messages, temperature, max_tokens, timeout=900, think=False):
+def call_llm(base, model, key, messages, temperature, max_tokens, timeout=900, think=False, schema=None,
+             cd_param="response_format"):
     body = {"model": model, "messages": messages, "temperature": temperature, "max_tokens": max_tokens,
-            "chat_template_kwargs": {"enable_thinking": think}, "cache_prompt": True}
+            "chat_template_kwargs": {"enable_thinking": think}, "cache_prompt": True, **cd.openai_fields(schema, cd_param)}
     req = urllib.request.Request(base.rstrip("/") + "/chat/completions", data=json.dumps(body).encode(),
                                  headers={"Content-Type": "application/json", **({"Authorization": f"Bearer {key}"} if key else {})})
     t0 = time.time()
@@ -230,7 +240,15 @@ def run_item(arm, item, rep, args, key):
         shutil.rmtree(run_dir)
     run_dir.mkdir(parents=True)
     (run_dir / "data").symlink_to(CNT / "data", target_is_directory=True)
-    messages = [{"role": "system", "content": system_prompt(arm, args.prompt_dir)}]
+    base_arm, profile = cd.parse_arm(arm)
+    messages = [{"role": "system", "content": system_prompt(arm, args.prompt_dir, args.cd_note)}]
+    con_schema = full_schema = None
+    if base_arm.startswith("P-"):           # the schema of this request; the full one also scores free arms' replies
+        con_schema, full_schema = cd.schemas(item["files"], CNT, ("curve", "chart"), cd.hatch_for(base_arm), profile,
+                                             args.asks)
+        if profile:
+            (run_dir / "schema.json").write_text(json.dumps(con_schema, ensure_ascii=False), encoding="utf-8")
+    own_schema = con_schema if profile == "flat" else full_schema
     turns_out = []
     for ti, turn in enumerate(item["turns"], 1):
         t_turn = time.time()
@@ -239,12 +257,20 @@ def run_item(arm, item, rep, args, key):
         calls, result, facts, spec, draw_s, engine = [], None, [], None, 0.0, None
         for attempt in range(args.retries + 1):
             try:
-                text, reasoning, stats = call_llm(args.base_url, args.model, key, messages, args.temperature,
-                                                  args.max_tokens if arm.startswith("P-") else args.max_tokens_raw)
+                mt = args.max_tokens if arm.startswith("P-") else args.max_tokens_raw
+                if args.backend == "anthropic":
+                    text, reasoning, stats = cd.call_anthropic(args.model, key, messages, args.temperature, mt,
+                                                               schema=con_schema, effort=args.effort,
+                                                               base=args.base_url if args.base_url_set else None)
+                else:
+                    text, reasoning, stats = call_llm(args.base_url, args.model, key, messages, args.temperature, mt,
+                                                      schema=con_schema, cd_param=args.cd_param)
             except Exception as e:  # noqa: BLE001
                 calls.append({"error": f"{type(e).__name__}: {e}"})
                 result = {"ok": False, "error": f"model call failed: {e}", "hint": ""}
                 break
+            if own_schema is not None:          # does the reply fit the schema as written (free arms: the full one)
+                stats["schema_ok"], stats["schema_error"] = cd.conformance(text, own_schema)
             calls.append({"reply": text, **stats})
             messages.append({"role": "assistant", "content": text})
             try:
@@ -253,8 +279,11 @@ def run_item(arm, item, rep, args, key):
                     result, facts, draw_s = run_script(spec, run_dir, ti)
                 else:
                     spec = extract_json(text)
-                    engine = "matplotlib" if arm == "P-mpl" or (arm == "P-hyb" and spec.get("code")) else "echarts"
-                    if arm == "P-hyb" and engine == "matplotlib":
+                    if profile == "flat":
+                        calls[-1]["flat"] = spec
+                        spec = cd.ss.flat_to_spec(spec)
+                    engine = "matplotlib" if base_arm == "P-mpl" or (base_arm == "P-hyb" and spec.get("code")) else "echarts"
+                    if base_arm == "P-hyb" and engine == "matplotlib":
                         spec = {k: v for k, v in spec.items() if k != "echarts"}
                     result, facts, draw_s = draw_spec(spec, engine, run_dir, ti)
             except (ValueError, json.JSONDecodeError) as e:
@@ -277,14 +306,16 @@ def run_item(arm, item, rep, args, key):
                           "result": result, "facts": facts, "draw_s": draw_s, "check": chk,
                           "turn_s": round(time.time() - t_turn, 3)})
     rec = {"arm": arm, "item": item["id"], "repeat": rep, "split": item.get("split"), "persona": item.get("persona"),
-           "type": item.get("type"), "turns": turns_out}
+           "type": item.get("type"), "cd": profile or "", "backend": args.backend, "model": args.model,
+           "effort": args.effort or "", "turns": turns_out}
     (run_dir / "record.json").write_text(json.dumps(rec, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
     return rec, run_dir
 
 
 FIELDS = ["time", "run", "arm", "split", "item", "type", "persona", "turn", "n_turns", "repeat", "kind", "ok_run", "pass",
           "n_checks", "n_failed", "failed", "unchecked", "model_calls", "prompt_tokens", "cached_tokens", "prefill_ms",
-          "output_tokens", "decode_ms", "llm_s", "draw_s", "turn_s", "route", "unsupported", "n_asks", "error", "run_dir"]
+          "output_tokens", "decode_ms", "llm_s", "draw_s", "turn_s", "route", "unsupported", "n_asks", "error", "run_dir",
+          "cd", "model", "schema_ok_first", "schema_ok_all", "schema_error"]
 
 
 def rows_of(rec, run_dir, args):
@@ -309,7 +340,10 @@ def rows_of(rec, run_dir, args):
                     "route": route_of(spec), "n_asks": len(asks),
                     "unsupported": sum(1 for a in asks if isinstance(a, dict) and str(a.get("how", "")).lower() == "unsupported"),
                     "error": "" if (t["result"] or {}).get("ok") else str((t["result"] or {}).get("error", ""))[:300],
-                    "run_dir": str(run_dir.relative_to(HERE))})
+                    "run_dir": str(run_dir.relative_to(HERE)), "cd": rec.get("cd", ""), "model": rec.get("model", ""),
+                    "schema_ok_first": "" if not calls or "schema_ok" not in calls[0] else int(calls[0]["schema_ok"]),
+                    "schema_ok_all": "" if not calls or "schema_ok" not in calls[0] else int(all(c.get("schema_ok") for c in calls)),
+                    "schema_error": next((c.get("schema_error") for c in calls if c.get("schema_error")), "")[:200]})
     return out
 
 
@@ -328,8 +362,31 @@ def main():
     ap.add_argument("--retries", type=int, default=2)
     ap.add_argument("--only", help="comma-separated item ids")
     ap.add_argument("--prompt-dir", help="a folder with core.md, hatch_mpl.md, hatch_ec.md (default prompts/v2)")
+    ap.add_argument("--backend", choices=("openai", "anthropic"), default="openai",
+                    help="openai: any OpenAI-compatible server (llama.cpp); anthropic: the Messages API (ANTHROPIC_API_KEY)")
+    ap.add_argument("--cd-param", choices=("response_format", "json_schema"), default="response_format",
+                    help="openai backend: where the schema goes (json_schema = llama.cpp's own field)")
+    ap.add_argument("--effort", help="anthropic backend: output_config.effort, e.g. low")
+    ap.add_argument("--asks", choices=("last", "first"), default="last",
+                    help="+cd arms: asks optional and last (as the prompt examples), or required and first (a small plan)")
+    ap.add_argument("--cd-note", action="store_true", help="+cd arms: tell the model its reply is schema-constrained (no fence)")
     a = ap.parse_args()
+    a.base_url_set = any(x == "--base-url" or x.startswith("--base-url=") for x in sys.argv)
+    if a.backend == "anthropic":
+        if not a.base_url_set and a.model == ap.get_default("model"):
+            ap.error("--backend anthropic needs --model, e.g. --model claude-haiku-5-5")
+        if not (os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("EVAL_API_KEY_FILE")):
+            ap.error("--backend anthropic needs ANTHROPIC_API_KEY (or EVAL_API_KEY_FILE)")
+        bad = [x for x in a.arms.split(",") if x.endswith("+cd")]
+        if bad:
+            ap.error(f"{', '.join(bad)}: the Anthropic API cannot take the full schema (limits); use +cdflat")
     key = Path(os.path.expanduser(os.environ["EVAL_API_KEY_FILE"])).read_text().strip() if os.environ.get("EVAL_API_KEY_FILE") else ""
+    if a.backend == "anthropic" and not key:
+        key = os.environ["ANTHROPIC_API_KEY"]
+    for x in a.arms.split(","):
+        b, _ = cd.parse_arm(x)
+        if b not in ARMS:
+            ap.error(f"unknown arm {x}")
     data = json.loads((CNT / a.split / "requests.json").read_text(encoding="utf-8"))
     items = data["items"] if isinstance(data, dict) else data
     if a.only:
@@ -346,8 +403,9 @@ def main():
              if (arm, it["id"], str(rep)) not in done]
     print(f"{len(tasks)} runs ({len(done)} already done) -> {out.relative_to(ROOT)}", flush=True)
     new = not out.exists()
+    fields = FIELDS if new else next(csv.reader(open(out, encoding="utf-8")))     # an older CSV keeps its columns
     fh = open(out, "a", newline="", encoding="utf-8")
-    w = csv.DictWriter(fh, fieldnames=FIELDS)
+    w = csv.DictWriter(fh, fieldnames=fields, extrasaction="ignore")
     if new:
         w.writeheader()
     n = 0
