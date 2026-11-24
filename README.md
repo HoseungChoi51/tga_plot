@@ -1,73 +1,78 @@
-# TGA plots for a local AI agent (plotkit)
+# plotkit
 
-One tool, `plotkit.py`, draws TGA/DTG plots (or any x–y plot) from Excel or text files.
-A local LLM controls it by writing a short JSON **spec**, never by editing code.
-Every part of the plot has a Korean name in `guide/guide_ko.png`, and each name maps to
-exactly one spec key in `AGENT.md`. Users who use those names get predictable results.
+A language model writes a small JSON **spec**; plotkit checks it against the user's data and draws it, as live
+ECharts options for a chat app or as PNG/SVG/PDF files. The model never writes plotting code. It fills in the
+handful of keys the user asked for, and plotkit supplies the rest: house defaults (a TGA preset), a reader for messy
+lab files, and an error with a hint whenever the spec does not fit the data.
 
-## Files
+```json
+{"file": "run_log.xlsx", "sheets": "런로그", "chart": "bar", "x": "반응기",
+ "y": {"col": "CNT수율", "agg": "mean"}, "filter": ["주차 >= 10"],
+ "asks": [{"ask": "반응기별 평균 수율", "how": "key"}, {"ask": "10주차부터", "how": "key"}]}
+```
 
-| file | what it is |
+Two kinds of plot share the spec: **curves** from instrument exports (x, a left axis y1, a right axis y2; residue
+and peak labels for TGA) and **charts** of table data (bar, hbar, line, scatter, histogram, heatmap, pie; filters,
+grouping, aggregation).
+
+The design comes from a study of about 6,800 scored runs: see [docs/EXPERIMENTS.md](docs/EXPERIMENTS.md).
+
+## Install
+
+```
+pip install -e .                       # Python 3.10+: numpy, pandas, matplotlib, scipy, openpyxl
+pip install -e ".[xls]"                # also old .xls files
+npm install --prefix plotkit/js        # Node 20+: ECharts (live options, SVG), sharp (PNG/JPG/TIF)
+npx --prefix plotkit/js playwright install chromium     # only for PDF from ECharts
+```
+
+## Use it
+
+```python
+import plotkit
+
+system = plotkit.system_prompt()                                   # the model's instructions
+user = plotkit.first_message("반응기별 평균 수율", ["run_log.xlsx"], base="attachments/")
+reply = my_model([{"role": "system", "content": system}, {"role": "user", "content": user}],
+                 **plotkit.request_options())                      # thinking off by default
+try:
+    spec = plotkit.parse_reply(reply)
+    options = plotkit.echarts_options(spec, base="attachments/")   # live charts, one option per figure
+    plotkit.render(spec, "exports/", formats=("png", "pdf"), base="attachments/")   # or files
+except plotkit.PlotkitError as e:
+    next_turn = plotkit.retry_message(e)                           # error + hint back to the model, at most twice
+```
+
+`plotkit.agent.run(request, files, llm)` does the whole loop with your model as a function. From Electron, run
+`python -m plotkit serve` as a sidecar and send it JSON lines. [docs/INTEGRATION.md](docs/INTEGRATION.md) explains
+the message flow, the reasoning toggle, live view vs export, the sandbox and the known gaps.
+
+From the shell:
+
+```
+python -m plotkit prompt                                  # the system prompt
+python -m plotkit preview run_log.xlsx                    # what the model sees of the data
+python -m plotkit options spec.json                       # live ECharts options
+python -m plotkit render spec.json --out exports --format png,pdf
+python -m plotkit inspect TGA.xlsx | plot spec.json       # the older command line
+```
+
+## The spec
+
+[schema/SPEC.md](schema/SPEC.md) lists every key with its type, default, aliases and meaning;
+[schema/plotkit.spec.schema.json](schema/plotkit.spec.schema.json) is the same as a JSON Schema for TypeScript
+types. Both are generated (`python -m plotkit schema --md | --json`) and tested against the code.
+
+## Layout
+
+| path | what it is |
 |---|---|
-| `plotkit.py` | the plotting tool (inspect, plot, schema, example) |
-| `AGENT.md` | system prompt for the local LLM: workflow, rules, part name → key table, examples |
-| `guide/guide_ko.png` | the guide image for users (15 numbered parts + other terms) |
-| `run_agent.py` | a minimal agent: one request → one model call → plot (retries on errors) |
-| `tests/AGENT_TEST_PROMPTS.md` | 24 Korean test requests, ready to paste into an agent that runs commands itself (e.g. pi) |
-| `tests/inputs/` | 12 test files in different formats (made by `tests/make_test_inputs.py`) |
-| `tests/run_tests.py` | checks the reader on all test files (no LLM) |
-| `plotkit_echarts.py`, `echartkit/` | the optional ECharts engine (`PLOTKIT_ENGINE=echarts`); needs Node.js |
-| `AGENT_ECHARTS.md` | `AGENT.md` for the ECharts engine (`"echarts"` settings instead of `"code"`) |
-| `EXPERIMENT.md` | how to compare the two engines with the same model and the 24 test requests |
-| `tests/score.py`, `tests/expected_requests.json` | scores an agent's spec for one test request |
-| `examples/` | the plot made from the long example request in the original question |
-| `old/` | the first version (`tga_plot_v1.py`) and its sample data |
-| `eval/` | the protocol evaluation: six arms (spec vs raw code, both engines), figure-facts checker, parity, coverage, safety |
-| `gallery/` | 26 example specs on made-up data, drawn by both engines (`python gallery/make_gallery.py`) |
-| `report/` | builds the evaluation report page from `eval/results/` |
-| `HANDOFF.md` | state of the evaluation and how to continue it on another machine |
-| `spec_schema.py` | per-request JSON Schema of the spec (real files, sheets and columns as enums) for constrained decoding |
-| `EXPERIMENT_CD.md` | the constrained-decoding experiment: `+cd` / `+cdflat` arms, preflight, comparison (`eval/cd*.py`) |
+| `plotkit/` | the library: `core.py` (file reader, curves, matplotlib engine), `charts.py` (table charts), `echarts.py` (the ECharts engine for curves, the patch allowlist), `sandbox.py`, `schema.py`, `agent.py` (prompt, messages, reference loop), `api.py`, `__main__.py` (command line, `serve`) |
+| `plotkit/prompts/` | the system prompt: `core.md` + `hatch_echarts.md` or `hatch_matplotlib.md` |
+| `plotkit/js/` | the Node side: `translate.mjs`, `live.mjs`, `render.mjs`, `render_chart.mjs`, `revive.mjs` |
+| `schema/` | the generated spec schema and key reference |
+| `docs/` | `INTEGRATION.md` for the app developer, `EXPERIMENTS.md` for the evidence |
+| `tests/` | library tests (`python -m pytest tests`) and the reader's test files; `python tests/run_tests.py` checks the reader |
+| `experiments/` | the studies behind the design, their harness and results ([experiments/README.md](experiments/README.md)) |
 
-## Install (once)
-
-    pip install numpy matplotlib scipy openpyxl xlrd
-
-Optional ECharts engine (Node.js 20+): `npm install --prefix echartkit`, then add
-`--engine echarts` or set `PLOTKIT_ENGINE=echarts`. See `EXPERIMENT.md`.
-
-## Use it by hand
-
-    python plotkit.py inspect TGA.xlsx                 # sheets, columns, which column is what
-    python plotkit.py plot TGA.xlsx                    # every sheet with the TGA defaults
-    python plotkit.py plot spec.json                   # with your settings
-    python plotkit.py plot --json "{\"file\": \"TGA.xlsx\", \"x\": {\"step\": 200}}"
-
-Plots and `summary.csv` (residue and peak values) go to `<file>_plots/` next to the data.
-
-## Use it with the local LLM
-
-**Option A, your agent app** (Open WebUI, Qwen-Agent, LM Studio, ...): paste `AGENT.md` as the
-system prompt and give the model a shell or Python tool. It runs `inspect`, writes `spec.json`,
-runs `plot`, and reports.
-
-**Option B, `run_agent.py`** (fastest, fewest model calls):
-
-    python run_agent.py --base-url http://localhost:11434/v1 --model <model name> \
-        --file TGA.xlsx --request "1006R1-V normal 시트, x축 틱 간격 200, 피크 표시 2개" --no-think
-
-It runs `inspect` itself, makes one model call for the spec, plots, and prints a Korean summary.
-If plotkit rejects the spec, the error and hint go back to the model (at most 2 retries).
-
-## What makes it reliable
-
-- The model fills in 5–15 lines of JSON instead of writing code. Defaults cover the rest.
-- `inspect` gives the model the real sheet names and column letters, so it never guesses.
-- plotkit checks every key. Unknown keys and bad values come back as `error` + `hint`
-  (e.g. `unknown key "y1.tick_spacing"` is mapped to `step`; a missing sheet lists the real ones).
-- Common alternative key names are accepted (`tick_interval` → `step`, `y축` → `y1`, Korean colors).
-- Anything with no key can still be done with a few matplotlib lines in `"code"`.
-- The reader handles blank and metadata rows on top, units rows, extra or reordered columns,
-  Korean or unusual headers, files with no headers (guessed from the values), CSV/TXT with tab,
-  comma, semicolon or space separators, decimal commas, UTF-16 instrument exports, cp949 Korean CSVs, and old .xls.
-- Korean text uses Malgun Gothic (Windows), AppleGothic (Mac) or Nanum Gothic (Linux) automatically.
+Tests make no network or model calls.
