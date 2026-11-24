@@ -1,9 +1,0 @@
-```json
-{
-  "file": "cnt_lot_A.csv",
-  "combine": true,
-  "sheets": "all",
-  "y1": {"legend": "Lot A"},
-  "y2": {"legend": "Lot A"}
-}
-```

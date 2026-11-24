@@ -1,3 +1,0 @@
-```json
-{"file": "TGA.xlsx", "sheets": "1006R1-V normal", "title": {"text": "CNT 산화 거동", "size": 18, "color": "navy"}, "asks": [{"ask": "1006R1-V normal 시트", "how": "key"}, {"ask": "제목 'CNT 산화 거동'", "how": "key"}, {"ask": "제목 글자 크기 18", "how": "key"}, {"ask": "제목 글자 색깔 남색", "how": "key"}]}
-```

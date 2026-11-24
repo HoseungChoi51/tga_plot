@@ -1,8 +1,0 @@
-We need answer user's request. Need produce JSON spec only inside json block, nothing else. User Korean: "C행을 X축, D행을 Y1축, E행을 Y2축으로 그래프 그려줘". Inspect file blank_rows_on_top.xlsx. Need spec. Since TGA data? Columns: Temperature, Weight, D.W. User explicitly maps C x, D y1, E y2. Default TGA preset probably already does tga_guess by name. But they specify columns. Need include x.col C, y1.col D, y2.col E. Maybe no preset needed? For TGA data keep default TGA preset. If specifying columns only, okay. Need output only JSON. File name exactly. Should we include sheet? only Sheet1 default. No other settings. Need consider "행" means row? Guide says B행, B열, B칸, B column all mean Excel column B. So C행 means column C. Use letters. Spec:
-{
- "file": "blank_rows_on_top.xlsx",
- "x": {"col": "C"},
- "y1": {"col": "D"},
- "y2": {"col": "E"}
-}
-Could include preset default not needed. Ensure no extra. Final only json block.

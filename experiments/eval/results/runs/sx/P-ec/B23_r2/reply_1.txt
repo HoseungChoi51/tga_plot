@@ -1,7 +1,0 @@
-```json
-{
- "file": "cnt_batches.xlsx",
- "combine": true,
- "series_colors": ["black", "blue", "red"]
-}
-```

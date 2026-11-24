@@ -1,5 +1,0 @@
-We need answer user's request. Need produce JSON spec only in json block. Need analyze.
-
-User request Korean: "1006R1-V normal 시트, 그림 제목을 'CNT 산화 거동'으로 바꾸고 그림 제목 글자 크기 18, 그림 제목 글자 색깔 남색"
-Need spec: file TGA.xlsx, sheets "1006R1-V normal", title text CNT 산화 거동, size 18, color 남색. Colors: Korean names include 남색? Guide says Korean names (빨강, 파랑, 초록, 검정, 회색, 주황, 보라, 남색). So color "남색". Only include mentioned keys. Default TGA preset. No other. Need JSON block only. Ensure title object. Maybe "title": {"text": "CNT 산화 거동", "size": 18, "color": "남색"}.
-Need final no extra text.

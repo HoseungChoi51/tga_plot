@@ -1,3 +1,0 @@
-```json
-{"file":"cnt_batches.xlsx","combine":true,"sheets":["Raw","Acid-washed","Annealed"],"echarts":{"series":[{"lineStyle":{"color":"black"}},{},{"lineStyle":{"color":"blue"}},{},{"lineStyle":{"color":"red"}},{}]}}
-```

@@ -1,3 +1,0 @@
-```json
-{"file": "TGA.xlsx", "text_color": "gray", "font_size": 13}
-```

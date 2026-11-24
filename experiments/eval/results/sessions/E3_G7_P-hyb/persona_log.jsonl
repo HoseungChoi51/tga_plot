@@ -1,7 +1,0 @@
-{"turn":1,"request":"IG/ID 반응기별 비교","files":"data/run_log.xlsx","plot_ok":"yes","summary_matches_plot":true,"problem":"labels overlap error bars slightly","learned":"reactor means differ little (2.41-2.67); not the main factor"}
-{"turn":2,"request":"IG/ID vs 가동시간 scatter by reactor","files":"data/run_log.xlsx","plot_ok":"yes","summary_matches_plot":true,"problem":"overplotting, hard to see","learned":"no clear trend with uptime; low outliers mostly R2 (~1.4-2.0)"}
-{"turn":3,"request":"IG/ID vs 2존온도 scatter","files":"data/run_log.xlsx","plot_ok":"yes","summary_matches_plot":true,"problem":"","learned":"bulk at 1145-1155C IG/ID~2.6; sparse runs >1155C show lower IG/ID trending to ~2.0 at 1165-1170"}
-{"turn":4,"request":"same by 촉매로트 color","files":"data/run_log.xlsx","plot_ok":"yes","summary_matches_plot":true,"problem":"7 colors, busy","learned":"lot does not explain low IG/ID; high-temp decline spans all lots"}
-{"turn":5,"request":"IG/ID vs H2/C2H4비","files":"data/run_log.xlsx","plot_ok":"yes","summary_matches_plot":true,"problem":"","learned":"no relation with H2 ratio"}
-{"turn":6,"request":"IG/ID vs 외기습도","files":"data/run_log.xlsx","plot_ok":"yes","summary_matches_plot":true,"problem":"","learned":"IG/ID declines with humidity: ~2.7 at 50-70% to ~2.3 at >85%"}
-{"turn":7,"request":"2존온도 vs 외기습도","files":"data/run_log.xlsx","plot_ok":"yes","summary_matches_plot":true,"problem":"axes swapped vs wording (humidity on y)","learned":"temp and humidity independent, so two separate factors"}

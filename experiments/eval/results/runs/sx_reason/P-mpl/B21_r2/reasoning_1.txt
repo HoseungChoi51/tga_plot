@@ -1,7 +1,0 @@
-We need answer user's request in test mode: reply only JSON spec in one ```json block, nothing else. Need parse Korean request: "Raw 시트를 x축 방향 뒤집어서(높은 온도가 왼쪽) 그려줘". Need create spec for plotkit. Need use inspect file cnt_batches.xlsx. Sheet Raw. x-axis flip so high temperature left. According rules: 축 뒤집기 / 로그 축 `<axis>.flip`. x axis flip true? Need likely `"x": {"flip": true}`. Also sheet "Raw". Keep TGA preset default. User didn't mention other keys. Need output JSON only. Ensure file exactly. Maybe sheets: "Raw". x flip. Could include? No. Need no annotations. JSON:
-{
- "file": "cnt_batches.xlsx",
- "sheets": "Raw",
- "x": {"flip": true}
-}
-Need final only code block. Ensure no extra text.

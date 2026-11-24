@@ -1,3 +1,0 @@
-We need answer user's request with JSON spec only inside ```json block. Need analyze in Korean? User request Korean. Need produce spec. Need ensure all keys: tick direction out, tick label size 9. "틱 라벨 크기 9" no axis named => applies to x, y1 and y2 per rules. Need include file TGA.xlsx. No other defaults. JSON:
-{"file":"TGA.xlsx","tick_direction":"out","x":{"tick_size":9},"y1":{"tick_size":9},"y2":{"tick_size":9}}
-Need only json block nothing else. Ensure no extra.

@@ -1,6 +1,0 @@
-We need answer user's request: produce JSON spec only in ```json block, nothing else. Need analyze in Korean? User Korean. Need ensure final only json block. Need parse request: "PET 시트, 제목은 'PET 열분해', 범례는 왼쪽 아래, 격자 켜고, 잔류량은 소수 둘째 자리까지"
-File polymers.xlsx. Need spec: file, sheets PET, title text PET 열분해, legend lower left, grid true, annotate residue text with two decimals. Since mentions 잔류량 표시? "잔류량은 소수 둘째 자리까지" means residue label? Need include annotate.residue with text. Default residue x=800? PET data reaches 900 so okay. Text maybe "Residue {y:.2f}%"? They didn't specify format text, just residue to two decimals. In examples: "잔류량 표시는 소수점 둘째 자리까지" -> {"annotate": {"residue": {"text": "Residue {y:.2f}%"}}}. Use that. Need maybe title size? no. Legend left bottom: "lower left". grid true. sheets "PET". Should we include preset? TGA default. No y2 false. Output? no. Need only JSON. Ensure valid. Could include annotate residue true? If only text, enough. Since default residue exists. Need maybe file exactly polymers.xlsx. Final:
-```json
-{"file": "polymers.xlsx", "sheets": "PET", "title": {"text": "PET 열분해"}, "legend": "lower left", "grid": true, "annotate": {"residue": {"text": "Residue {y:.2f}%"}}}
-```
-Need no extra text. Ensure Korean? JSON.

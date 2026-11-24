@@ -1,9 +1,0 @@
-```json
-{
-  "file": "TGA.xlsx",
-  "legend": {
-    "where": "upper right",
-    "size": 9
-  }
-}
-```

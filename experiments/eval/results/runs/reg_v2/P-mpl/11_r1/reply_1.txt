@@ -1,3 +1,0 @@
-```json
-{"file": "TGA.xlsx", "asks": [{"ask": "피크 표시 지움", "how": "key"}]}
-```

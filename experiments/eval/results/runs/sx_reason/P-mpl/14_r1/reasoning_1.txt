@@ -1,1 +1,0 @@
-We need answer user's request. Need produce JSON spec only inside ```json block. User Korean: "korean_excel.csv 그래프 그리고 pdf랑 png 둘 다로 저장해줘". Need use inspect file exactly. Need default TGA preset. Output format pdf and png. So spec: {"file":"korean_excel.csv","output":{"format":["pdf","png"]}}. Need nothing else. Ensure final only json block.

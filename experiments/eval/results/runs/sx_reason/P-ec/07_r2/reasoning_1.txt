@@ -1,3 +1,0 @@
-We need answer user's request: produce JSON spec only inside ```json block, nothing else. Need analyze in Korean? User Korean. Need use inspect file name TGA.xlsx. Request: "범례 오른쪽 위로 옮기고 범례 글자 크기 9". Need map to legend where and size. According guide: legend (`where`, `show`, `size`). "범례 오른쪽 위" -> "legend": "upper right". But also size 9. Could do {"legend": {"where": "upper right", "size": 9}}? Need ensure allowed. Guide says legend (`where`, `show`, `size`), example "범례 오른쪽 위" → `"legend": "upper right"`. If both, likely object. Need output only spec. File required. So:
-{"file": "TGA.xlsx", "legend": {"where": "upper right", "size": 9}}
-No other keys. Need maybe if legend string accepts object? likely yes. Need final only json. Ensure no extra text.

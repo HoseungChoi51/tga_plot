@@ -1,5 +1,0 @@
-We need answer user's request in Korean? Test mode: reply with JSON spec inside one ```json block and nothing else. Need parse request. Need include file TGA.xlsx. Sheet "1006R1-V normal". x col B, y1 C, y2 D. Weight (y1) step 20. Temperature (x) step 200 and min 0? Request: temperature 0부터 200씩. So x: {"col":"B", "min":0, "step":200}. y1: {"col":"C", "step":20}. y2: {"col":"D", "step":0.2}. Deriv.Weight max 표시 => annotate peak count 1 (default on y2). residue 800 nearest, text Residue {}%. output format png. Ignore 실험일별 인장강도 leftover template? Yes explicit columns and part names win; TGA preset default. Need maybe sheet specified. Should we include title? no. Need ensure residue included because mentioned. Use nearest method. Maybe x max? no. The data reaches 900 so residue at 800 ok. Need output: {"format":"png"}. JSON only.
-Need consider "B행" means Excel column B. Good.
-Need maybe "weight는 20단위" y1 step 20. "Temperature은 200단위로 표시" and additional "0에서부터 200씩" -> min 0 step 200. Good.
-Need maybe "Deriv.Weight의 max값 표시" = peak label; default shows temperature. Good.
-Need final only json block. Ensure no extra text.

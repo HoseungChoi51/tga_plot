@@ -1,8 +1,0 @@
-We need answer user's request in test mode: only JSON spec inside json block, nothing else. Need analyze.
-
-User Korean: "Heat Flow를 y2축으로 그려주고 y2축 라벨은 'Heat flow (W/g)', 피크 표시는 빼줘"
-Need produce spec for file extra_columns.xlsx. Inspect has TGA guess x B, y1 E, y2 G. User wants Heat Flow as y2 axis. Heat Flow column F. Also y2 label 'Heat flow (W/g)'. Remove peak annotation. Since TGA preset default draws y2 derivative. We need set y2.col F and y2.label. Also annotate peak false. Keep TGA preset? This is TGA data, default preset. Need include file. Spec only what asked. Should we include sheets? Only one sheet, no need. Need y2 col F. y2 label exactly 'Heat flow (W/g)' (lowercase flow? user says Heat flow). annotate peak false. Need maybe y2 axis label only, not label size/color. Could include y2: {"col": "F", "label": "Heat flow (W/g)"}. For peak: {"annotate": {"peak": false}}. Need ensure if Heat Flow as y2, default peak annotation is on y2? If peak false remove. Good.
-
-Potential issue: y2 default label maybe from header; setting y2.col F and label. Good.
-
-Need final only JSON block. Ensure no extra text.

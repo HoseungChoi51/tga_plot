@@ -1,3 +1,0 @@
-```json
-{"file":"polymers.xlsx","sheets":"PE","x":{"min":100,"max":700,"step":100},"y1":{"width":3,"color":"red"}}
-```

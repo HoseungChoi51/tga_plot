@@ -1,1 +1,0 @@
-[{"check": "only", "cat": "data", "ok": true, "why": "", "spec": {"only": {"axis": "y1", "ranges": [[11.963, 100.02]]}, "cat": "data"}}, {"check": "size_in", "cat": "ask", "ok": true, "why": "", "spec": {"size_in": {"w": 10}}}, {"check": "font_size", "cat": "ask", "ok": false, "why": "axis text sizes [10.0, 16.0]", "spec": {"font_size": 16}}]

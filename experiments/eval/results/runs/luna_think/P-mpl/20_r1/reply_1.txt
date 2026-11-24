@@ -1,3 +1,0 @@
-```json
-{"file":"TGA.xlsx","code":"ax1.axvspan(300, 450, color='gray', alpha=0.15)"}
-```

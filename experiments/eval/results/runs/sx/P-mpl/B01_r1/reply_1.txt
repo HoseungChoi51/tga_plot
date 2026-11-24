@@ -1,3 +1,0 @@
-```json
-{"file": "caox.csv", "code": "ax1.axvspan(120, 250, color='skyblue', alpha=0.3); ax1.axvspan(430, 580, color='lightgreen', alpha=0.3); ax1.axvspan(640, 830, color='salmon', alpha=0.3); ax1.text(185, 95, 'H2O', ha='center'); ax1.text(505, 95, 'CO', ha='center'); ax1.text(735, 95, 'CO2', ha='center')"}
-```

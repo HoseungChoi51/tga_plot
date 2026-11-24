@@ -1,1 +1,0 @@
-We need answer user's request. Need produce JSON spec only in ```json block. User Korean: "피크 표시 지워줘" = remove peak annotation. Need infer file TGA.xlsx. According guide: default TGA preset draws peak. To remove: {"file":"TGA.xlsx","annotate":{"peak":false}}. Need maybe not mention residue. Since only remove peak. Ensure no extra text. final json.

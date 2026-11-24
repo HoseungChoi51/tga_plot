@@ -1,6 +1,0 @@
-```json
-{
-  "file": "caox.csv",
-  "code": "fig.clear(); ax_top, ax_bottom = fig.subplots(2, 1, sharex=True); ax_top.plot(x, y1); ax_bottom.plot(x, y2); ax_top.set_ylabel('Weight (%)'); ax_bottom.set_ylabel('Deriv. Weight (%/°C)'); ax_bottom.set_xlabel('Temperature (°C)')"
-}
-```

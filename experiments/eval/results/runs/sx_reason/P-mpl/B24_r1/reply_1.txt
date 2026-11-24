@@ -1,8 +1,0 @@
-```json
-{
-  "file": "polymers.xlsx",
-  "sheets": "PE",
-  "x": {"label": "Temperature (K)"},
-  "code": "xlim = ax1.get_xlim()\nticks = ax1.get_xticks()\nfor ax in filter(None, (ax1, ax2)):\n    for line in ax.get_lines():\n        xd = np.asarray(line.get_xdata())\n        if xd.size and np.all((xd >= xlim[0]) & (xd <= xlim[1])):\n            line.set_xdata(xd + 273.15)\n    for t in ax.texts:\n        p = t.get_position()\n        if xlim[0] <= p[0] <= xlim[1]:\n            t.set_position((p[0] + 273.15, p[1]))\n        xy = getattr(t, 'xy', None)\n        if xy is not None and xlim[0] <= xy[0] <= xlim[1]:\n            try:\n                t.xy = (xy[0] + 273.15, xy[1])\n            except Exception:\n                pass\n        s = t.get_text()\n        if '°C' in s:\n            num = ''.join(ch for ch in s if ch.isdigit() or ch == '.' or ch == '-')\n            if num:\n                try:\n                    t.set_text(f'{float(num) + 273.15:.0f} K')\n                except Exception:\n                    pass\nax1.set_xlim(xlim[0] + 273.15, xlim[1] + 273.15)\nax1.set_xticks([tick + 273.15 for tick in ticks])\nif ax2 is not None:\n    ax2.set_xlim(xlim[0] + 273.15, xlim[1] + 273.15)\n    ax2.set_xticks([tick + 273.15 for tick in ticks])"
-}
-```

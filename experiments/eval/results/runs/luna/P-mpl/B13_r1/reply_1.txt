@@ -1,6 +1,0 @@
-[JSON 스펙만 출력해야 함. PVC 시트, 요청은 weight curve의 두 급격한 꺾임 위치를 온도로 표시하는 것으로 해석. TGA peak annotation은 y2의 peak와 별개라서, 무게 급감 구간을 x에서 직접 감지하는 기능은 주어진 키에 없음. 하지만 extra code를 써서 y1의 기울기 큰 구간 두 곳을 표시하는 방법이 가능하나, 변수 x/y1을 활용하고 단순 선택 로직 작성. ‘확 꺾이는 데 두 군데’는 weight derivative의 두 가장 큰 절댓값 구간으로 온도 라벨. 사용자 요청 외 키 외에 preset 유지. 코드 한 줄 또는 몇 줄, annotations 아닌 ax1.annotate 두 극값. matplotlib numpy. PVC y1 데이터가 감소, diff / diff x의 가장 큰 음의 slope 2개 선택. 분리 구간 중복 방지 위해 간격 제한 필요. 복잡성 감수.} 
- 
-
-<|im_start|>assistant to=python.exec code 娱乐主管 ```json
-{"file": "polymers.xlsx", "sheets": "PVC", "code": "slope = np.diff(y1) / np.diff(x); candidates = np.argsort(slope)[:2]; chosen = []\nfor i in candidates:\n    if all(abs(x[i] - x[j]) > 50 for j in chosen): chosen.append(i)\nfor i in chosen: ax1.annotate(f'{x[i]:.0f} °C', xy=(x[i], y1[i]), xytext=(5, 10), textcoords='offset points', arrowprops=dict(arrowstyle='->'))"}
-```

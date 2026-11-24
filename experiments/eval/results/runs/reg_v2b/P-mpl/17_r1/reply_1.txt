@@ -1,3 +1,0 @@
-```json
-{"file": "TGA.xlsx", "size": [8, 5], "dpi": 600, "asks": [{"ask": "그림 크기 가로 8 세로 5", "how": "key"}, {"ask": "해상도 600", "how": "key"}]}
-```

@@ -1,9 +1,0 @@
-```json
-{
-  "file": "TGA.xlsx",
-  "tick_direction": "out",
-  "x": {"tick_size": 9},
-  "y1": {"tick_size": 9},
-  "y2": {"tick_size": 9}
-}
-```

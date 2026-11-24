@@ -1,1 +1,0 @@
-We need answer user's request. Need produce JSON spec only in json block. Need analyze Korean: "범례 없애고 격자 켜줘" means remove legend and turn on grid. File TGA.xlsx. No other specs. Need include legend: "none", grid: true. Maybe default TGA preset. Need no extra. Ensure only json block.

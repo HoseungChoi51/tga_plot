@@ -1,6 +1,0 @@
-```json
-{
-  "file": "caox.csv",
-  "code": "fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True, figsize=(6.4, 8))\nax1.plot(x, y1, color='C0')\nax2.plot(x, y2, color='C1')\nax1.set_ylabel('Weight (%)')\nax2.set_ylabel('DTG (%/°C)')\nax2.set_xlabel('Temperature (°C)')\nplt.tight_layout()"
-}
-```

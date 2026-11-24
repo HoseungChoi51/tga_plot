@@ -1,1 +1,0 @@
-[{"check": "only", "cat": "data", "ok": true, "why": "", "spec": {"only": {"axis": "y1", "ranges": [[11.963, 100.02]]}, "cat": "data"}}, {"check": "text_values", "cat": "ask", "ok": false, "why": "no label for [455]; texts: ['300.0 °C']", "spec": {"text_values": {"values": [300, 455], "tol": 8}}}]

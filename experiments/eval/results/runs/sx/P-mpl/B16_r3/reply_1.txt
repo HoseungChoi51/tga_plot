@@ -1,3 +1,0 @@
-```json
-{"file": "caox.csv", "code": "fig.clf(); ax1 = fig.add_subplot(2, 1, 1); ax2 = fig.add_subplot(2, 1, 2, sharex=ax1)\nax1.plot(x, y1, color='C0'); ax1.set_ylabel('Weight (%)')\nax2.plot(x, y2, color='C1'); ax2.set_ylabel('DTG (%/°C)')\nax1.set_title('TGA / DTG'); plt.tight_layout()"}
-```

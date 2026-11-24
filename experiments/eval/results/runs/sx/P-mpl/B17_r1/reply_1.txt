@@ -1,3 +1,0 @@
-```json
-{"file": "polymers.xlsx", "combine": true, "y2": false, "code": "if ax1.get_lines():\n    import numpy as np\n    lines = ax1.get_lines()\n    for i, line in enumerate(lines):\n        ydata = line.get_ydata()\n        line.set_ydata(ydata + (len(lines) - 1 - i) * 20)\n    ax1.set_ylim(-5, 145)\n"}
-```

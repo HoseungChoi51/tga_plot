@@ -1,8 +1,0 @@
-```json
-{
-  "file": "cnt_batches.xlsx",
-  "sheets": ["Raw", "Acid-washed", "Annealed"],
-  "combine": true,
-  "code": "colors = {'Raw': 'black', 'Acid-washed': 'blue', 'Annealed': 'red'}\nfor ax in (ax1, ax2):\n    if ax is not None:\n        for line in ax.get_lines():\n            for name, color in colors.items():\n                if name in line.get_label():\n                    line.set_color(color)"
-}
-```

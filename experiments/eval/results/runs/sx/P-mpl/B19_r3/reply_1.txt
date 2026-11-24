@@ -1,3 +1,0 @@
-```json
-{"file": "polymers.xlsx", "sheets": "PVC", "code": "import numpy as np; mask = (x >= 200) & (x <= 400); w_start = y1[np.argmin(np.abs(x - 200))]; w_end = y1[np.argmin(np.abs(x - 400))]; loss = w_start - w_end; ax1.annotate(f'Weight loss (200-400°C): {loss:.2f}%', xy=(300, (w_start+w_end)/2), ha='center', fontsize=9, bbox=dict(boxstyle='round,pad=0.3', fc='yellow', alpha=0.5))"}
-```

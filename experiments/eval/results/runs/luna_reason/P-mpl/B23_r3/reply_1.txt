@@ -1,7 +1,0 @@
-```json
-{
-  "file": "cnt_batches.xlsx",
-  "combine": true,
-  "code": "for ax in (ax1, ax2):\n    for line, color in zip(ax.lines[:3], ['black', 'blue', 'red']):\n        line.set_color(color)"
-}
-```

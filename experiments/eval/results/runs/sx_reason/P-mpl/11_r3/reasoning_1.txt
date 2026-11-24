@@ -1,5 +1,0 @@
-We need answer user's request. Need produce JSON spec only in json block. Need analyze. User: "피크 표시 지워줘" = remove peak annotation. Inspect TGA.xlsx. Default TGA preset includes residue and peak. Need spec only what asked: file TGA.xlsx and annotate peak false. Do not include residue unless mentioned? User only peak. Rule: Leave out every key not mentioned. For peak display remove: {"annotate": {"peak": false}}. Need include file exactly. So final:
-```json
-{"file": "TGA.xlsx", "annotate": {"peak": false}}
-```
-Ensure nothing else.

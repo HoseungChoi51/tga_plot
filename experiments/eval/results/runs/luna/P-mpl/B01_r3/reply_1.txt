@@ -1,3 +1,0 @@
-```json
-{"file":"caox.csv","code":"for start, end, color, label in [(120, 250, 'blue', 'H2O'), (430, 580, 'green', 'CO'), (640, 830, 'red', 'CO2')]:\n    ax1.axvspan(start, end, color=color, alpha=0.15)\n    ax1.text((start + end) / 2, 1.02, label, transform=ax1.get_xaxis_transform(), ha='center', va='bottom')"}
-```

@@ -1,3 +1,0 @@
-```json
-{"file":"cnt_batches.xlsx","combine":true,"sheets":"all","x":{"col":"B"},"y1":{"col":"C","color":["black","blue","red"]}}
-```

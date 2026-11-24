@@ -1,6 +1,0 @@
-```json
-{
-  "file": "caox.csv",
-  "code": "ax1.set_position([0.1, 0.55, 0.8, 0.35]); ax2.set_position([0.1, 0.1, 0.8, 0.35]); ax2.yaxis.tick_left(); ax2.yaxis.set_label_position('left'); ax2.spines['right'].set_visible(False); ax2.spines['left'].set_visible(True); ax2.xaxis.set_visible(True); ax2.xaxis.set_ticks_position('bottom'); ax2.xaxis.set_label_position('bottom'); ax2.tick_params(bottom=True, labelbottom=True); ax1.tick_params(bottom=False, labelbottom=False); ax1.spines['bottom'].set_visible(False); ax1.set_xlabel(''); ax1.set_ylabel('Weight (%)'); ax2.set_ylabel('DTG (%/°C)'); ax2.set_xlabel('Temperature (°C)')"
-}
-```

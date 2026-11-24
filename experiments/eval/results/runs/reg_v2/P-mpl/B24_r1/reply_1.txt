@@ -1,3 +1,0 @@
-```json
-{"file": "polymers.xlsx", "sheets": "PE", "data_code": "x = x + 273.15", "x": {"label": "Temperature (K)"}, "asks": [{"ask": "PE 시트", "how": "key"}, {"ask": "온도 켈빈 단위", "how": "data_code"}]}
-```

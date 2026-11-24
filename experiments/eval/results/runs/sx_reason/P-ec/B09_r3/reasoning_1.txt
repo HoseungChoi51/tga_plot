@@ -1,6 +1,0 @@
-We need answer user's request with JSON spec only inside ```json block, nothing else. Need analyze in English? User request Korean; analysis can be same language as user's request? User's request is Korean. But system says analysis same language as user's request. So I'll write Korean. Need produce final JSON spec.
-
-Request: "PE시트 그래프 x축 범위 100~700 으로하고 틱간격 100, y1 선 굵게(3) 빨간색으로 해주세용"
-Inspect file polymers.xlsx sheets PE PVC PET. Need spec: file polymers.xlsx, sheets "PE", x min 100 max 700 step 100, y1 width 3 color red. TGA default preset. No other keys. Need maybe y1 선 굵게(3) means width 3. 빨간색 red. x축 범위 100~700: x min/max. 틱간격 100: x step 100. Need include sheets PE. Output? no. JSON only.
-
-Double-check rules: leave out defaults. Use exact file. For sheet name, "PE". Good.

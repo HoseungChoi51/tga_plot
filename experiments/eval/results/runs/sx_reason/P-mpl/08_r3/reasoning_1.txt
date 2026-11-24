@@ -1,1 +1,0 @@
-We need answer user's request. User in Korean asks: "x축 라벨을 '온도 (°C)', y1축 라벨을 '무게 (%)', y2축 라벨을 '미분 무게 (%/°C)'로 바꿔줘" Need output JSON spec only in ```json block. Need use inspect file TGA.xlsx. Need map to spec keys: x.label, y1.label, y2.label. No other keys. Keep default TGA preset. File name exactly TGA.xlsx. Ensure JSON valid. Could include only labels. No title etc.

@@ -1,3 +1,0 @@
-```json
-{"file":"caox.csv","code":"p = ax1.get_position(); ax1.set_position([p.x0, p.y0 + p.height * 0.52, p.width, p.height * 0.48]); ax2.set_position([p.x0, p.y0, p.width, p.height * 0.48]); ax1.tick_params(axis='x', labelbottom=False); ax1.set_xlabel('')"}
-```

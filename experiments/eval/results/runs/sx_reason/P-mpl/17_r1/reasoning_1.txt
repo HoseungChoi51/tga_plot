@@ -1,1 +1,0 @@
-We need answer to user in final with JSON only. Need analyze request. User Korean: "그림 크기 가로 8 세로 5, 해상도 600으로" meaning figure size width 8 height 5, dpi 600. Need produce JSON spec only inside ```json block, nothing else. File TGA.xlsx. Default TGA preset. Include size [8,5], dpi 600. No other keys. Ensure exact file name. Final only code block.

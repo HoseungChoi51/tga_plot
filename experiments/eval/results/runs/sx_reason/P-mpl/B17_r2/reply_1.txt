@@ -1,9 +1,0 @@
-```json
-{
-  "file": "polymers.xlsx",
-  "sheets": "all",
-  "combine": true,
-  "y2": false,
-  "code": "lines = ax1.lines\nfor i, line in enumerate(lines):\n    if not hasattr(line, '_orig_y'):\n        line._orig_y = line.get_ydata().copy()\n    offset = {'PE': -20, 'PVC': 0, 'PET': 20}.get(line.get_label())\n    if offset is None:\n        offset = (i - 1) * 20\n    line.set_ydata(line._orig_y + offset)\nax1.relim()\nax1.autoscale_view()"
-}
-```

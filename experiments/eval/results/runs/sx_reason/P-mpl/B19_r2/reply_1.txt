@@ -1,7 +1,0 @@
-```json
-{
-  "file": "polymers.xlsx",
-  "sheets": "PVC",
-  "code": "idx = np.argsort(x); xs = x[idx]; ys = y1[idx]; w200 = np.interp(200, xs, ys); w400 = np.interp(400, xs, ys); ax1.text(0.02, 0.90, f'200-400 °C 질량 감소량: {w200 - w400:.2f}%', transform=ax1.transAxes, va='top', ha='left')"
-}
-```

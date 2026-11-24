@@ -1,1 +1,0 @@
-[{"check": "series_set", "cat": "ask", "ok": true, "why": "", "spec": {"series_set": {"axis": "y1", "ranges": [[7.9739, 100.01], [2.9705, 100.02], [29.983, 100.02]], "same_figure": true}}}]

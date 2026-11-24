@@ -1,3 +1,0 @@
-```json
-{"file":"polymers.xlsx","sheets":"all","combine":true,"legend":"center right"}
-```

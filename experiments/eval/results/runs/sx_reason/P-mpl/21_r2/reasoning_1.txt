@@ -1,3 +1,0 @@
-We need answer user's request. Need produce JSON spec only in ```json block, nothing else. Need use inspect file name exactly blank_rows_on_top.xlsx. User: C행 X축, D행 Y1축, E행 Y2축. TGA data? inspect tga_guess by name Temperature, Weight, D.W. Default TGA preset already draws x temp y1 weight y2 derivative peaks up residue at 800 and highest DTG peak. User only asks columns. Need include only requested. Since TGA data, keep default preset. Need set x.col C, y1.col D, y2.col E. No other keys. Ensure file. JSON:
-{"file":"blank_rows_on_top.xlsx","x":{"col":"C"},"y1":{"col":"D"},"y2":{"col":"E"}}
-Could there be blank rows on top, header row 8, data start row 9. plotkit handles. Need no extra.

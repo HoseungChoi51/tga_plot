@@ -1,3 +1,0 @@
-```json
-{"file": "TGA.xlsx", "legend": {"where": "upper right", "size": 9}, "asks": [{"ask": "범례 오른쪽 위로", "how": "key"}, {"ask": "범례 글자 크기 9", "how": "key"}]}
-```

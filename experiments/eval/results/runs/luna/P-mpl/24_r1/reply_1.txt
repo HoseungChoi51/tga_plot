@@ -1,3 +1,0 @@
-```json
-{"file": "extra_columns.xlsx", "y2": {"col": "F", "label": "Heat flow (W/g)"}, "annotate": {"peak": false}}
-```

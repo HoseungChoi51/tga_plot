@@ -1,8 +1,0 @@
-```json
-{
-  "file": "korean_excel.csv",
-  "output": {
-    "format": ["pdf", "png"]
-  }
-}
-```

@@ -1,3 +1,0 @@
-```json
-{"file":"blank_rows_on_top.xlsx","sheets":"Sheet1","x":{"col":"C"},"y1":{"col":"D"},"y2":{"col":"E"}}
-```

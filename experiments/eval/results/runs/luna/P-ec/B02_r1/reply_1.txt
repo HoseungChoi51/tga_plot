@@ -1,3 +1,0 @@
-```json
-{"file":"caox.csv","y2":{"col":"E","label":"Heat Flow (W/g)"},"annotate":{"peak":{"count":2,"kind":"min"},"peak2":{"type":"peak","on":"y2","count":1,"kind":"max"}}}
-```

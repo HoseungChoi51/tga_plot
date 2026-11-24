@@ -1,1 +1,0 @@
-[{"check": "series", "cat": "data", "ok": true, "why": "", "spec": {"series": {"axis": "y1", "y_range": [7.9739, 100.0072]}, "cat": "data"}}, {"check": "formats", "cat": "ask", "ok": true, "why": "", "spec": {"formats": ["pdf", "png"]}}]

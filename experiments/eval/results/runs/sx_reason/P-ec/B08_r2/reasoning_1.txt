@@ -1,5 +1,0 @@
-We need answer user's request in Korean? But test mode says: Do step 2 only: reply with JSON spec inside one ```json block, and nothing else. Need produce JSON spec only. Need analyze request: "Raw 시트에 무게 50% 위치에 가로 보조선 넣고, 오른쪽 위에 '공기, 10 °C/min'이라고 메모해줘"
-
-Need use inspect file cnt_batches.xlsx. Sheet Raw. Horizontal line at weight 50%: y1 axis Weight (%). Add hline annotation. Need note text upper right. Spec keys: sheets: "Raw". annotate: {"hline1": {"type": "hline", "on": "y1", "y": 50}, "note1": {"type": "text", "text": "공기, 10 °C/min", "where": "upper right"}}. Need maybe text_color? no. Need default TGA preset. Need no extra. Ensure JSON only. Could include file. Should we include sheets only Raw. Horizontal line: hline on y1. Weight 50% = y=50. Note: right upper. In guide: note1 {"type": "text", "text": "...", "where": "upper right"}. Good.
-
-Need final only json block. Ensure valid JSON. Maybe use Unicode. final.

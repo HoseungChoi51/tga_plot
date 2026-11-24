@@ -1,6 +1,0 @@
-```json
-{"file":"polymers.xlsx","sheets":"PVC","annotate":{"peak":{"count":2}}}
-``` (I accidentally commentary; desired only block. Need produce final exactly.) 
-```json
-{"file":"polymers.xlsx","sheets":"PVC","annotate":{"peak":{"count":2}}}
-```

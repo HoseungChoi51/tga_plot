@@ -1,8 +1,0 @@
-```json
-{
-  "file": "polymers.xlsx",
-  "combine": true,
-  "y2": false,
-  "code": "known=[line for line in ax1.get_lines() if ('Weight' in line.get_label()) or line.get_label() in ('PE','PVC','PET')]\nweight_lines=known if known else [line for line in ax1.get_lines() if str(line.get_linestyle()) not in ('None',' ','') and str(line.get_marker()) in ('None',' ','') and line.get_label() not in ('Residue','Peak','residue','peak')]\nfor i,line in enumerate(weight_lines):\n    y=np.asarray(line.get_ydata(), dtype=float)\n    if len(y):\n        line.set_ydata(y+(i*20-(y[0]-100)))\nax1.relim()\nax1.autoscale_view(scalex=False, scaley=True)"
-}
-```

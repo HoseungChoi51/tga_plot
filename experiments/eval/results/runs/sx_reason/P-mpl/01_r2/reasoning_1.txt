@@ -1,1 +1,0 @@
-We need answer user's request. User provided inspect result and asks in Korean: "TGA.xlsx 그래프 그려줘". We need in test mode reply with JSON spec only inside ```json block, nothing else. Need follow system: user requests just plot TGA.xlsx. Default TGA preset. No extra keys. Need use file exactly. So {"file": "TGA.xlsx"}. Ensure no other text. Final only json block.

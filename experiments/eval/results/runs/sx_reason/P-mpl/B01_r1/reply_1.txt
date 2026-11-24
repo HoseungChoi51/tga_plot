@@ -1,6 +1,0 @@
-```json
-{
-  "file": "caox.csv",
-  "code": "ax1.axvspan(120, 250, color='tab:blue', alpha=0.15, zorder=0); ax1.axvspan(430, 580, color='tab:orange', alpha=0.15, zorder=0); ax1.axvspan(640, 830, color='tab:green', alpha=0.15, zorder=0); ax1.text(185, 0.95, 'H2O', transform=ax1.get_xaxis_transform(), ha='center', va='top', color='tab:blue', zorder=5); ax1.text(505, 0.95, 'CO', transform=ax1.get_xaxis_transform(), ha='center', va='top', color='tab:orange', zorder=5); ax1.text(735, 0.95, 'CO2', transform=ax1.get_xaxis_transform(), ha='center', va='top', color='tab:green', zorder=5)"
-}
-```

@@ -1,3 +1,0 @@
-```json
-{"file":"caox.csv","echarts":{"grid":{"top":"10%","bottom":"10%"}}}
-```

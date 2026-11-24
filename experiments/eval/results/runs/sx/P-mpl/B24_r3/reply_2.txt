@@ -1,3 +1,0 @@
-```json
-{"file": "polymers.xlsx", "sheets": "PE", "code": "ax1.set_xlabel('Temperature (K)'); ax2 and ax2.set_xlabel('Temperature (K)'); x_new = [t + 273.15 for t in x]; import numpy as np; x = np.array(x_new); ax1.clear(); ax2 and ax2.clear(); ax1.plot(x, y1, label='Weight (%)'); ax2 and ax2.plot(x, y2, label='Deriv. Weight (%/°C)', color='red', linestyle='-'); ax1.set_ylabel('Weight (%)'); ax2 and ax2.set_ylabel('Deriv. Weight (%/°C)'); ax1.legend(loc='best'); ax2 and ax2.legend(loc='upper right')"}
-```

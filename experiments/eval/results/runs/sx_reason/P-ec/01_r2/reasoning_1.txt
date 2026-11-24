@@ -1,1 +1,0 @@
-We need answer user's request. Need produce JSON spec only in json block, nothing else. User Korean: "TGA.xlsx 그래프 그려줘". Need follow system: do step 2 only. For simple request, example says {"file": "TGA.xlsx"}. Need maybe include nothing else. Ensure file name exactly as inspect: TGA.xlsx. Final only ```json block.

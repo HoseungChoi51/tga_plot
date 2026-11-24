@@ -1,4 +1,0 @@
- 
-</analysis code>```json
-{"file":"polymers.xlsx","combine":true,"y1":{"step":20},"code":"for i, line in enumerate(ax1.lines): line.set_ydata(line.get_ydata() + i * 20)"}
-```

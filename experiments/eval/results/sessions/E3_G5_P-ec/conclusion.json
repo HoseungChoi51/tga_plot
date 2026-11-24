@@ -1,3 +1,0 @@
-{"answer": "Yield vs residence time is a hump: mean CNT yield peaks at about 4-5 s (4-4.5 and 4.5-5 bins both ~26.5 g/g-cat), ~25 at 3.5-4 and ~26 at 5-5.5, falling to ~21 at 2.5-3 and ~15 below 2.5 s, and to ~22 at 6-6.5 and ~19 above 6.5 s. Per reactor R1, R2, R4 peak at 4-5 s (~26.7-27.3); R3 shows a higher peak at 5-5.5 s (28.1) but looks noisy. Recommend operating around 4.5 s (range 4-5 s); avoid <3 s and >6 s.",
- "confidence": "medium", "evidence_turns": [1,2,3], "reached_goal": true, "turns_used": 3,
- "assistant_friction": "None significant. Binned plots do not show run counts per bin, so sparse edge bins and the R3 spike cannot be judged; no trend fit or optimum marker; confounding with other factors (temperature, flow) not examined."}

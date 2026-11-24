@@ -1,1 +1,0 @@
-[{"check": "only", "cat": "data", "ok": true, "why": "", "spec": {"only": {"axis": "y1", "ranges": [[1.9743, 100.03]]}, "cat": "data"}}, {"check": "text_value", "cat": "ask", "ok": false, "why": "no label showing 604.8±8; texts: ['Onset 976.1 °C', 'Residue 2.0%', '640 °C']", "spec": {"text_value": {"value": 604.8, "tol": 8}}}]

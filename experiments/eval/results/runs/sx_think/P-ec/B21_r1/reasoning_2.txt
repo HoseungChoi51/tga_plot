@@ -1,9 +1,0 @@
-We need answer user with corrected JSON spec only. Need analyze. User request: "Raw 시트를 x축 방향 뒤집어서(높은 온도가 왼쪽) 그려줘"
-Inspect file. Error unknown key x.flip. Allowed keys for x: col, label, label_color, label_size, log, max, min, step, tick_color, tick_size. Guide says axis flip key exists? `<axis>.flip`, `<axis>.log`. But tool says unknown x.flip. Need achieve x-axis reversed high temp left using allowed keys? Could set min/max? Reversing axis in ECharts can be done via echarts xAxis inverse: true. The guide says Extra ECharts settings allowed xAxis. Since no key fits? Actually key exists per guide but tool doesn't support. Need use echarts partial option: {"echarts": {"xAxis": {"inverse": true}}}. Need only Raw sheet. File. Maybe x.col? default tga_guess B. Could include sheets Raw. Use echarts. Ensure JSON only. Could there be allowed xAxis as list? It says allowed: xAxis, yAxis (list...), xAxis maybe object/list? Use object. Need no other keys. Final:
-{
- "file": "cnt_batches.xlsx",
- "sheets": "Raw",
- "echarts": {"xAxis": {"inverse": true}}
-}
-Need maybe x axis is category? ECharts line with xAxis type value? Inverse works. Could need xAxis[0] if list? Guide says xAxis allowed, yAxis list. For xAxis maybe object. If they expect list? The error only for x.flip. Use echarts.
-Need reply corrected JSON spec only.

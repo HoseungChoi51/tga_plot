@@ -1,1 +1,0 @@
-[{"check": "only", "cat": "data", "ok": true, "why": "", "spec": {"only": {"axis": "y1", "ranges": [[7.9739, 100.01]]}, "cat": "data"}}, {"check": "no_y2", "cat": "ask", "ok": true, "why": "", "spec": {"no_y2": true}}]

@@ -1,1 +1,0 @@
-[{"check": "series_set", "cat": "data", "ok": true, "why": "", "spec": {"series_set": {"axis": "y1", "ranges": [[0.9724, 100.01], [11.963, 100.02], [16.969, 100.02]], "same_figure": true}, "cat": "data"}}, {"check": "legend", "cat": "ask", "ok": true, "why": "", "spec": {"legend": {"shown": true, "inside": false}}}]

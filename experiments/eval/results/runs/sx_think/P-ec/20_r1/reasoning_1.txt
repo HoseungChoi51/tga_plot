@@ -1,3 +1,0 @@
-We need answer user's request in test mode: only JSON spec in one ```json block, nothing else. Need analyze request. User: "300~450 °C 구간을 연한 회색으로 칠해줘". From guide: shaded x range use annotate band. Example: {"annotate": {"band1": {"type": "band", "x_min": 300, "x_max": 450, "color": "lightgray", "alpha": 0.5}}}. Need include file. Use TGA.xlsx. No other keys. Need ensure colors: 연한 회색 -> lightgray. Alpha maybe 0.5 from example. The request says shade 300-450 light gray. So spec:
-{"file":"TGA.xlsx","annotate":{"band1":{"type":"band","x_min":300,"x_max":450,"color":"lightgray","alpha":0.5}}}
-Need output only json block. Ensure no extra.

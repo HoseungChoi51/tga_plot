@@ -1,3 +1,0 @@
-```json
-{"file": "TGA.xlsx", "annotate": {"peak": false}, "asks": [{"ask": "피크 표시 지우기", "how": "key"}]}
-```

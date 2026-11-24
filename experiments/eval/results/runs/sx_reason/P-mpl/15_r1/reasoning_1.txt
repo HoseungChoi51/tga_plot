@@ -1,1 +1,0 @@
-We need answer user's request. Need produce final JSON only. User Korean: "TGA.xlsx 시트 전부 한 그림에 겹쳐 그려줘". Need spec. According guide: combine true for multiple sheets one plot. File TGA.xlsx. Keep TGA preset default. Need no other keys. So {"file":"TGA.xlsx","combine":true}. Ensure JSON block only. No extra.

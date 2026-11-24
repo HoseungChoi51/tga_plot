@@ -1,8 +1,0 @@
-{
- "file": "data/downtime.xlsx",
- "chart": "pie",
- "x": "원인",
- "output": {
-  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_lite/P-ec/DS03_r2/out/t3"
- }
-}

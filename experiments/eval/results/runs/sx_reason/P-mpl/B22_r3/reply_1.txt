@@ -1,7 +1,0 @@
-```json
-{
-  "file": "cnt_batches.xlsx",
-  "sheets": "Raw",
-  "code": "idx = np.argsort(x); ref = np.interp(150, x[idx], y1[idx]); y1n = y1 / ref * 100; [ln.set_ydata(y1n) for ln in ax1.get_lines() if np.allclose(ln.get_ydata(), y1)]; ax1.relim(); ax1.autoscale_view()"
-}
-```

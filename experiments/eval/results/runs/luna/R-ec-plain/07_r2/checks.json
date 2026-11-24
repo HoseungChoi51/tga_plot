@@ -1,1 +1,0 @@
-[{"check": "series", "cat": "data", "ok": true, "why": "", "spec": {"series": {"axis": "y1", "y_ranges": [[7.9739, 100.01], [2.9705, 100.02], [29.983, 100.02]]}, "cat": "data"}}, {"check": "legend", "cat": "ask", "ok": false, "why": "legend at outside; legend at outside; legend at outside", "spec": {"legend": {"shown": true, "where": "upper right", "size": 9}}}]

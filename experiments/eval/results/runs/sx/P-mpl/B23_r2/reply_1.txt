@@ -1,3 +1,0 @@
-```json
-{"file": "cnt_batches.xlsx", "combine": true, "y1": {"color": ["black", "blue", "red"]}, "y2": {"color": ["black", "blue", "red"]}}
-```

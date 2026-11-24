@@ -1,0 +1,46 @@
+{
+  "name": "plotkit-ts",
+  "version": "0.1.0",
+  "description": "A language model writes a small JSON spec; plotkit checks it against the data and draws it with ECharts. TypeScript, no Python.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "docs"
+  ],
+  "engines": {
+    "node": ">=22.6"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepare": "npm run build",
+    "test": "node --test \"test/**/*.test.ts\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "echarts": "6.1.0",
+    "exceljs": "^4.4.0",
+    "quickjs-emscripten": "0.32.0"
+  },
+  "peerDependenciesMeta": {
+    "quickjs-emscripten": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "echarts": "6.1.0",
+    "exceljs": "4.4.0",
+    "quickjs-emscripten": "0.32.0",
+    "typescript": "~5.9.3"
+  }
+}

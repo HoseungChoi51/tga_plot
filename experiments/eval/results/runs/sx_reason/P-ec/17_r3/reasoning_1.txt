@@ -1,1 +1,0 @@
-We need answer user's request in test mode: only reply JSON spec in one ```json block, nothing else. Need use file name exactly TGA.xlsx. User Korean: "그림 크기 가로 8 세로 5, 해상도 600으로". Need map to size [8,5], dpi 600. Keep defaults TGA. Need no extra keys. So spec: {"file":"TGA.xlsx","size":[8,5],"dpi":600}. Ensure JSON only.

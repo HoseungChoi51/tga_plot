@@ -1,1 +1,0 @@
-{"arm": "R-ec-plain", "ok_run": false, "calls": [{"llm_s": 536.54, "prompt_tokens": 1313, "output_tokens": 16000, "thinking_tokens": 16000}], "errors": ["no ```python block in the reply", "model call failed: TimeoutError('The read operation timed out')"], "final": null, "seconds": 1136.68, "exec_seconds": 0.0, "figures": []}

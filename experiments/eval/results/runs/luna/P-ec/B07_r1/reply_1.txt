@@ -1,3 +1,0 @@
-```json
-{"file":"polymers.xlsx","sheets":2,"annotate":{"weight300":{"type":"value_at_x","on":"y1","x":300,"method":"nearest","text":"300 °C: {y:.1f}%"},"weight600":{"type":"value_at_x","on":"y1","x":600,"method":"nearest","text":"600 °C: {y:.1f}%"}}}
-```

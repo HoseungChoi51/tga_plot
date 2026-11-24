@@ -1,3 +1,0 @@
-```json
-{"file":"polymers.xlsx","sheets":"PVC","code":"import numpy as np\nx200 = np.interp(200, x, x) if False else None"}
-```

@@ -1,7 +1,0 @@
-```json
-{
-  "file": "polymers.xlsx",
-  "sheets": "PE",
-  "code": "for ax in (ax1, ax2):\n    if ax is not None:\n        for line in ax.lines:\n            line.set_xdata(np.asarray(line.get_xdata()) + 273.15)\n        lo, hi = ax.get_xlim()\n        ax.set_xlim(lo + 273.15, hi + 273.15)\n        ax.set_xlabel('Temperature (K)')\n        for text in ax.texts:\n            pos = text.get_position()\n            if np.isscalar(pos[0]):\n                text.set_position((pos[0] + 273.15, pos[1]))"
-}
-```

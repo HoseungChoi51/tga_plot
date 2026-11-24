@@ -1,3 +1,0 @@
-```json
-{"file": "polymers.xlsx", "sheets": "PVC", "annotate": {"peak": {"count": 2}}}
-```

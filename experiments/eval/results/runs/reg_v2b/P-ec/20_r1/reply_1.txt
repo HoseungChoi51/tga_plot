@@ -1,3 +1,0 @@
-```json
-{"file": "TGA.xlsx", "echarts": {"series": [{"markArea": {"data": [[{"xAxis": 300}, {"xAxis": 450}]], "itemStyle": {"color": "rgba(128,128,128,0.15)"}}}]}, "asks": [{"ask": "300~450 °C 구간 연한 회색 음영", "how": "echarts"}]}
-```

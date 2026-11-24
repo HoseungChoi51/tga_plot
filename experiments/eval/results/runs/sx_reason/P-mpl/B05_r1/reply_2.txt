@@ -1,1 +1,0 @@
-{"file": ["cnt_lot_A.csv", "cnt_lot_B.txt"], "combine": true, "legend": {"labels": ["Lot A", "Lot B"]}}

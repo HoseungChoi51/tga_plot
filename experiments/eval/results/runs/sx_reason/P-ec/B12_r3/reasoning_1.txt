@@ -1,7 +1,0 @@
-We need answer user's request. Need produce JSON spec only in ```json block, nothing else. Need analyze.
-
-User request: "Please plot the weight curve only (no DTG), x range 100 to 900, and label the residue at 900 °C"
-
-Inspect caox.csv. TGA data. Need weight curve only no DTG: set y2 false. x range 100 to 900: x.min 100 x.max 900. label residue at 900: annotate.residue x 900. Since request mentions residue label, include annotate residue. Default residue text? The preset residue at 800 with text "Residue {y:.1f}%". User says label the residue at 900 °C. So {"annotate":{"residue":{"x":900}}}. Need file caox.csv. Keep TGA preset default? y2 false removes DTG. Could also set y2 false. Need x col? default tga_guess x B. No need. Need only what asked. JSON: {"file":"caox.csv","y2":false,"x":{"min":100,"max":900},"annotate":{"residue":{"x":900}}}.
-
-Need ensure if y2 false, residue on y1 okay. Output JSON only. Final in json block.

@@ -1,1 +1,0 @@
-We need answer user's request in test mode: reply with JSON spec only inside ```json block, nothing else. Need use inspect file name exactly. Request: "그림 크기 가로 8 세로 5, 해상도 600으로". Need include file TGA.xlsx, size [8,5], dpi 600. Keep defaults TGA. No other keys. Need ensure JSON valid. Final only code block.

@@ -1,1 +1,0 @@
-[{"check": "only", "cat": "data", "ok": false, "why": "other y1 data drawn too: [[48.647, 96.92799999999994]]", "spec": {"only": {"axis": "y1", "ranges": [[1.9743, 100.03]]}, "cat": "data"}}, {"check": "text_value", "cat": "ask", "ok": true, "why": "", "spec": {"text_value": {"value": 604.8, "tol": 8}}}]

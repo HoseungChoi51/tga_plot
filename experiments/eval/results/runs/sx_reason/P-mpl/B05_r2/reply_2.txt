@@ -1,7 +1,0 @@
-```json
-{
-  "file": ["cnt_lot_A.csv", "cnt_lot_B.txt"],
-  "combine": true,
-  "code": "lines = [l for l in ax1.get_lines() if l.get_label().strip() and not l.get_label().startswith('_') and 'Deriv' not in l.get_label()][:2]; ax1.legend(lines, ['Lot A', 'Lot B'][:len(lines)]) if lines else None; ax2 and ax2.get_legend() and ax2.get_legend().remove()"
-}
-```

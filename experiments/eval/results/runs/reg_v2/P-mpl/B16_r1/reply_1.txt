@@ -1,9 +1,0 @@
-```json
-{
-  "file": "caox.csv",
-  "panels": "split",
-  "asks": [
-    {"ask": "무게 위, DTG 아래 (x축 공유)", "how": "key"}
-  ]
-}
-```

@@ -1,8 +1,0 @@
-```json
-{
-  "file": "cnt_batches.xlsx",
-  "sheets": "all",
-  "combine": true,
-  "code": "colors = ['black', 'blue', 'red']; [line.set_color(colors[i % 3]) for ax in (ax1, ax2) if ax is not None for i, line in enumerate(ax.lines)]"
-}
-```

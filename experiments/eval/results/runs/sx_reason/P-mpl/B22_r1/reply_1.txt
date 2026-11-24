@@ -1,7 +1,0 @@
-```json
-{
-  "file": "cnt_batches.xlsx",
-  "sheets": "Raw",
-  "code": "idx = np.argmin(np.abs(x - 150)); scale = 100.0 / y1[idx]; y1 *= scale; y2 *= scale; ax1.lines[0].set_data(x, y1); ax2.lines[0].set_data(x, y2); ax1.relim(); ax1.autoscale_view(); ax2.relim(); ax2.autoscale_view()"
-}
-```

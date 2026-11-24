@@ -1,3 +1,0 @@
-```json
-{"file":"cnt_batches.xlsx","sheets":"Annealed","code":"# onset: DTG 감소가 시작되는 지점의 접선과 초기 평탄부의 교점\nimport numpy as np\nvalid = np.isfinite(x) & np.isfinite(y2)\nxx, dd = x[valid], y2[valid]\norder = np.argsort(xx)\nxx, dd = xx[order], dd[order]\nbaseline = np.median(dd[xx <= np.percentile(xx, 10)])\nidx = np.where(xx >= np.percentile(xx, 10))[0][np.argmin(dd[xx >= np.percentile(xx, 10)])]\nlo, hi = max(1, idx - 3), min(len(xx) - 2, idx + 3)\nslope = (dd[hi] - dd[lo]) / (xx[hi] - xx[lo])\nonset = xx[lo] + (baseline - dd[lo]) / slope if slope != 0 else xx[lo]\nax1.axvline(onset, color='red', linestyle='--', label=f'Onset {onset:.1f} °C')\nax1.text(onset, ax1.get_ylim()[1] * 0.95, f'Onset {onset:.1f} °C', color='red', rotation=90, va='top', ha='right')"}
-```

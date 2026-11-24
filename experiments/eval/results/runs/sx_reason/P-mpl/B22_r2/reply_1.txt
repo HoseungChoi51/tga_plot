@@ -1,7 +1,0 @@
-```json
-{
-  "file": "cnt_batches.xlsx",
-  "sheets": "Raw",
-  "code": "o = np.argsort(x); xs = x[o]; ref = np.interp(150, xs, y1[o]); f = 100 / ref; y1n = y1 * f; y2n = y2 * f if y2 is not None else None; [ln.set_ydata(y1n) for ln in ax1.get_lines() if len(ln.get_xdata()) == len(x)]; (ax2 is not None) and [ln.set_ydata(y2n) for ln in ax2.get_lines() if len(ln.get_xdata()) == len(x)]; ax1.relim(); ax1.autoscale_view(); (ax2 is not None) and ax2.relim(); (ax2 is not None) and ax2.autoscale_view(); ax1.set_ylabel('Weight (%) (150 °C = 100%)'); (ax2 is not None) and ax2.set_ylabel('Deriv. Weight (%/°C, 150 °C = 100%)'); [t.set_text('Residue {:.1f}%'.format(np.interp(800, xs, y1n[o]))) for t in ax1.texts if 'Residue' in t.get_text()]"
-}
-```

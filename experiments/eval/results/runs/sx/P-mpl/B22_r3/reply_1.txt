@@ -1,3 +1,0 @@
-```json
-{"file": "cnt_batches.xlsx", "sheets": "Raw", "code": "idx = np.argmin(np.abs(x - 150)); w_ref = y1[idx]; y1[:] = y1 / w_ref * 100; ax1.set_ylabel('Weight (%) [normalized to 150 °C]')"}
-```

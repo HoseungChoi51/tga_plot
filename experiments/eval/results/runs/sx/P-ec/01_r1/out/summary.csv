@@ -1,4 +1,0 @@
-﻿file,sheet,plot,residue_x_used,residue_value,peak_x,peak_y
-TGA.xlsx,1006R1-V normal,/home/chs/CNT/Plot/eval/results/runs/sx/P-ec/01_r1/out/1006R1-V_normal.png,800.0,8.0117,599,1.0254
-TGA.xlsx,1006R1-V acid,/home/chs/CNT/Plot/eval/results/runs/sx/P-ec/01_r1/out/1006R1-V_acid.png,800.0,3.0183,559,0.80636
-TGA.xlsx,1006R1-V 750C,/home/chs/CNT/Plot/eval/results/runs/sx/P-ec/01_r1/out/1006R1-V_750C.png,,,540,0.90158

@@ -1,7 +1,0 @@
-```json
-{
-  "file": "cnt_batches.xlsx",
-  "sheets": "Annealed",
-  "code": "slope = np.gradient(y1, x)\ni = np.nanargmin(slope)\nonset = x[i] + (y1[0] - y1[i]) / slope[i]\nax1.axvline(onset, color='red', linestyle='--')\nax1.annotate(f'Onset: {onset:.1f} °C', xy=(onset, y1[0]), xytext=(onset + 20, y1[0] - 10), arrowprops=dict(arrowstyle='->', color='red'), color='red')"
-}
-```

@@ -1,6 +1,0 @@
-We need answer user's request: They provided inspect result and request: "300~450 °C 구간을 연한 회색으로 칠해줘". Need reply with JSON spec only inside ```json block. Need consider plotkit guide. Need include file TGA.xlsx. Need shade 300-450 °C. Example: {"file": "TGA.xlsx", "code": "ax1.axvspan(300, 450, color='gray', alpha=0.15)"}. User says 연한 회색 = light gray, alpha maybe 0.15 or 0.2. Example uses 0.15. Need only JSON. Ensure no extra. Maybe use color='gray', alpha=0.15. No sheet specified, all sheets? Default all sheets? likely. Need no residue mention. Need TGA preset default. So spec:
-{
-  "file": "TGA.xlsx",
-  "code": "ax1.axvspan(300, 450, color='gray', alpha=0.15)"
-}
-Need maybe if ax2? axvspan on ax1 fine. Ensure valid JSON. final only json block.

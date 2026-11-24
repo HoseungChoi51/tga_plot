@@ -1,3 +1,0 @@
-```json
-{"file": "polymers.xlsx", "combine": true, "code": "y1 = y1 + 20 * ['PE', 'PVC', 'PET'].index(sheet)"}
-```

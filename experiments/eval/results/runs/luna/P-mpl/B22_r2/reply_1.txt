@@ -1,4 +1,0 @@
- 
-```json
-{"file": "cnt_batches.xlsx", "sheets": "Raw", "code": "idx = np.argmin(np.abs(x - 150)); y1 = y1 / y1[idx] * 100"}
-```

@@ -1,8 +1,0 @@
-```json
-{
-  "file": "polymers.xlsx",
-  "combine": true,
-  "legend": {"show": true},
-  "code": "for a in (ax1, ax2, fig):\n    leg = a.get_legend() if hasattr(a, 'get_legend') else None\n    if leg:\n        if a is fig:\n            leg.set_loc('center right')\n            leg.set_bbox_to_anchor((0.99, 0.5))\n        else:\n            leg.set_loc('center left')\n            leg.set_bbox_to_anchor((1.05, 0.5))\nfig.tight_layout(rect=[0, 0, 0.8, 1])"
-}
-```

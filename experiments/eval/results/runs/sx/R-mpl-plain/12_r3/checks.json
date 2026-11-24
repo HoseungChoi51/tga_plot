@@ -1,1 +1,0 @@
-[{"check": "series", "cat": "data", "ok": true, "why": "", "spec": {"series": {"axis": "y1", "y_ranges": [[7.9739, 100.01], [2.9705, 100.02], [29.983, 100.02]]}, "cat": "data"}}, {"check": "vline", "cat": "ask", "ok": true, "why": "", "spec": {"vline": {"x": 450}}}, {"check": "text_contains", "cat": "ask", "ok": true, "why": "", "spec": {"text_contains": "산화 시작"}}]

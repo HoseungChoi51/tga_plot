@@ -1,1 +1,0 @@
-[{"check": "offset", "cat": "ask", "ok": false, "why": "curves are not offset", "spec": {"offset": {"n": 3, "min_gap": 10}}}]

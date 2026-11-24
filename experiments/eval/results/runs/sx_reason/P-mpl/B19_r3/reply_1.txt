@@ -1,7 +1,0 @@
-```json
-{
-  "file": "polymers.xlsx",
-  "sheets": "PVC",
-  "code": "ax1.axvspan(200, 400, color='gray', alpha=0.1); w200 = np.interp(200, x, y1); w400 = np.interp(400, x, y1); loss = w200 - w400; ax1.text(300, ax1.get_ylim()[1] * 0.85, f'질량 감소량: {loss:.2f}%', ha='center')"
-}
-```

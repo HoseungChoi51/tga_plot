@@ -1,3 +1,0 @@
-```json
-{"file":"polymers.xlsx","sheets":"PVC","annotate":{"note1":{"type":"text","text":"200–400 °C 질량 감소량 계산","where":"upper right"}}}
-```

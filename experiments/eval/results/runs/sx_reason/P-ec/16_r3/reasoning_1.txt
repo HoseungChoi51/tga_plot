@@ -1,4 +1,0 @@
-We need answer user's request in Korean? Test mode: "Do step 2 only: reply with the JSON spec for the user's request, inside one ```json block, and nothing else." Need produce JSON spec. Need analyze.
-
-User request Korean: "1006R1-V normal 시트, y2축 없이 무게만 그려줘"
-Need spec: file TGA.xlsx, sheets "1006R1-V normal", y2 false. Since TGA default preset. "무게만" means y2축 없이. So {"file":"TGA.xlsx","sheets":"1006R1-V normal","y2":false}. Need maybe include x/y1? Defaults TGA preset already. Leave out. Ensure JSON block only.
