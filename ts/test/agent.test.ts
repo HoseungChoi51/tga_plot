@@ -4,12 +4,12 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { REPO } from "./golden.ts";
+import { BASES } from "./golden.ts";
 import { echartsOptions, firstMessage, followupMessage, parseReply, PlotkitError, quickjsRunCode, renderSvg,
   requestOptions, retryMessage, run, systemPrompt } from "../src/index.ts";
 import type { ChatMessage, InputFile } from "../src/index.ts";
 
-const file = (name: string): InputFile => ({ name, bytes: readFileSync(join(REPO, "tests", "inputs", name)) });
+const file = (name: string): InputFile => ({ name, bytes: readFileSync(join(BASES["tests/inputs"], name)) });
 const FILES = [file("run_log.csv"), file("TGA.xlsx")];
 const GOOD = { file: "run_log.csv", chart: "bar", x: "반응기", y: { col: "수율", agg: "mean" },
   asks: [{ ask: "반응기별 평균 수율", how: "key" }, { ask: "박스 플롯으로", how: "unsupported" }] };

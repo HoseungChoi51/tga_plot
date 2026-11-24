@@ -4,7 +4,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { golden, decode, diff, REPO } from "./golden.ts";
+import { golden, decode, diff, BASES } from "./golden.ts";
 import { buildModel, echartsOption, layout, liveResult, summaryValues, koreanSummary } from "../src/charts.ts";
 import { echartsOptions } from "../src/api.ts";
 import { normalizeChart } from "../src/chartspec.ts";
@@ -91,7 +91,7 @@ test("draw_charts goldens", async t => {
 });
 
 // ------------------------------------------------------------------ the chart fixes (as tests/test_chart_fixes.py)
-const INPUTS = join(REPO, "tests", "inputs");
+const INPUTS = BASES["tests/inputs"];
 const FILES: InputFile[] = ["missing_values.csv", "run_log.csv"].map(name => ({ name, bytes: new Uint8Array(readFileSync(join(INPUTS, name))) }));
 const M = "missing_values.csv";              // blanks in 날짜 (2), 일 (1), 그룹 (13), x값 (5), xu (1), y값 (9), g1 (1)
 

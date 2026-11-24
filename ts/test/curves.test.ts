@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { golden, decode, diff, REPO } from "./golden.ts";
+import { golden, decode, diff, BASES } from "./golden.ts";
 import { resolve, curveValues, notDone, fmt, clean, rgba, axisRange, unit, sameUnit, liveResult } from "../src/curves.ts";
 import type { CurveSpec, Job } from "../src/curves.ts";
 import { liveOptions } from "../src/live.ts";
@@ -80,7 +80,7 @@ test("draw_curves: the static SVG equals Python's (render.mjs, echarts 6.1.0)", 
 // =================================================================== live fixes (tests/test_live_fixes.py)
 // The same specs as the Python tests, end to end through api.ts on tests/inputs/TGA.xlsx. FIX holds what the fixed
 // Python plotkit returned: the live options (canonHash) and the static SVG (sha), or the error and hint.
-const TGA = [{ name: "TGA.xlsx", bytes: new Uint8Array(readFileSync(join(REPO, "tests", "inputs", "TGA.xlsx"))) }];
+const TGA = [{ name: "TGA.xlsx", bytes: new Uint8Array(readFileSync(join(BASES["tests/inputs"], "TGA.xlsx"))) }];
 const FIX: Record<string, { spec: any; options?: string; svgs?: string[]; error?: [string, string] }> = {
   patch: { spec: { file: "TGA.xlsx", sheets: 1, echarts: { xAxis: { inverse: true, minorTick: { show: true } }, grid: { right: 120 },
     series: [{ lineStyle: { type: "dotted" } }, {}], yAxis: [{ name: "TG" }],

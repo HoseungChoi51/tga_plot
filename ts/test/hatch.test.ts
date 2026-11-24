@@ -4,7 +4,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { golden, decode, REPO } from "./golden.ts";
+import { golden, decode, BASES } from "./golden.ts";
 import { runChartDataCode, runCurveDataCode } from "../src/hatch.ts";
 import { quickjsRunCode } from "../src/quickjs.ts";
 import type { Frame } from "../src/types.ts";
@@ -46,7 +46,7 @@ test("curve errors come back with a hint", async () => {
 });
 
 test("chart rows: names without their unit, new columns, dates as text", async () => {
-  const lines = readFileSync(join(REPO, "tests/inputs/run_log.csv"), "utf8").trim().split(/\r?\n/).map(l => l.split(","));
+  const lines = readFileSync(join(BASES["tests/inputs"], "run_log.csv"), "utf8").trim().split(/\r?\n/).map(l => l.split(","));
   const head = lines[0], body = lines.slice(1);
   const frame: Frame = {
     columns: head,
