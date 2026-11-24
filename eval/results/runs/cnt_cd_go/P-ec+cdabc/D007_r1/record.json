@@ -1,0 +1,230 @@
+{
+ "arm": "P-ec+cdabc",
+ "item": "D007",
+ "repeat": 1,
+ "split": "dev",
+ "persona": "공정 엔지니어",
+ "type": "single",
+ "cd": "fullabc",
+ "backend": "anthropic",
+ "model": "qwen3.8-flash",
+ "effort": "",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "주간요약 시트 합격률(%) 주차별 꺾은선.",
+   "calls": [
+    {
+     "reply": "{\"asks\": [{\"ask\": \"주간요약 시트\", \"how\": \"key\"}, {\"ask\": \"합격률(%) 주차별 꺾은선\", \"how\": \"key\"}], \"chart\": \"line\", \"file\": \"data/run_log.xlsx\", \"sheets\": \"주간요약\", \"x\": \"주차\", \"y\": \"합격률(%)\"}",
+     "llm_s": 3.592,
+     "prompt_tokens": 6426,
+     "output_tokens": 82,
+     "cached_tokens": 5462,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": ""
+    }
+   ],
+   "spec": {
+    "asks": [
+     {
+      "ask": "주간요약 시트",
+      "how": "key"
+     },
+     {
+      "ask": "합격률(%) 주차별 꺾은선",
+      "how": "key"
+     }
+    ],
+    "chart": "line",
+    "file": "data/run_log.xlsx",
+    "sheets": "주간요약",
+    "x": "주차",
+    "y": "합격률(%)"
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": true,
+    "engine": "echarts",
+    "saved": [
+     "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-ec+cdabc/D007_r1/out/t1/line_합격률.png"
+    ],
+    "chart": "line",
+    "rows_used": 26,
+    "rows_total": 26,
+    "values": {
+     "series": {
+      "합격률(%)": {
+       "n": 26,
+       "min": 63.2,
+       "max": 100.0
+      }
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "선 그래프를 저장했습니다: line_합격률.png\n사용한 행: 26 / 26\n합격률(%): 26점, 63.2 ~ 100"
+   },
+   "facts": [
+    {
+     "engine": "echarts",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": 300,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [
+        {
+         "name": "합격률(%)",
+         "n": 26,
+         "x": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26
+         ],
+         "y": [
+          94.6,
+          97.4,
+          100.0,
+          94.7,
+          89.5,
+          97.3,
+          89.5,
+          97.3,
+          89.2,
+          97.3,
+          94.9,
+          83.8,
+          86.8,
+          97.4,
+          86.5,
+          90.2,
+          63.2,
+          81.0,
+          71.1,
+          78.9,
+          89.5,
+          77.5,
+          87.8,
+          92.1,
+          69.2,
+          77.5
+         ],
+         "color": "#1f4e9c",
+         "style": "solid"
+        }
+       ],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "주차",
+        "type": "value",
+        "ticks": [
+         5.0,
+         10.0,
+         15.0,
+         20.0,
+         25.0
+        ],
+        "step": 5.0,
+        "categories": null,
+        "min": 1.0,
+        "max": 26.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "합격률(%)",
+        "type": "value",
+        "ticks": [
+         60.0,
+         70.0,
+         80.0,
+         90.0,
+         100.0,
+         110.0
+        ],
+        "step": 10.0,
+        "categories": null,
+        "min": 60.0,
+        "max": 110.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       }
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-ec+cdabc/D007_r1/out/t1/line_합격률.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.8807463645935059,
+   "check": {
+    "kind_expected": "line",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 4.579
+  }
+ ]
+}

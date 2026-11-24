@@ -100,7 +100,7 @@ def main():
             continue
         seen.add(h)
         lim = ss.limits(con)
-        if a.backend == "anthropic" and not lim["anthropic_ok"]:
+        if a.backend == "anthropic" and not lim["anthropic_ok"] and not a.base_url_set:   # limits of Anthropic's own API
             print(f"SKIP {label}: over the Anthropic limits {lim}")
             ok_all = False
             continue

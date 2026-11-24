@@ -1,0 +1,14 @@
+{
+ "asks": [
+  {
+   "ask": "전체 런 수율 히스토그램",
+   "how": "key"
+  }
+ ],
+ "chart": "histogram",
+ "file": "data/run_log.xlsx",
+ "x": "CNT수율 (g/g-cat)",
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-ec+cdabc/D023_r2/out/t1"
+ }
+}

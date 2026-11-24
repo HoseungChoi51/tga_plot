@@ -1,0 +1,15 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheets": "런로그",
+ "y1": {
+  "col": "E",
+  "label": "반응기"
+ },
+ "y2": {
+  "col": "S",
+  "label": "평균 잔류금속 (wt%)"
+ },
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cd/D025_r1/out/t1"
+ }
+}

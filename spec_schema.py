@@ -461,12 +461,29 @@ def build(info, kinds=("curve", "chart"), hatch=None, profile="full", asks="last
     hatch: "code" (matplotlib prompt), "echarts" (ECharts prompt) or None."""
     if profile == "flat":
         return flat_schema(info, kinds, hatch, asks)
+    if profile not in ("full", "full2"):
+        raise ValueError(f"unknown schema profile {profile!r}")
     alts = []
     if "curve" in kinds:
         alts.append(curve_schema(info, hatch, asks))
     if "chart" in kinds:
-        alts += [chart_schema(info, hatch, asks), chart_schema(info, hatch, asks, derived=True)]
+        charts = [chart_schema(info, hatch, asks), chart_schema(info, hatch, asks, derived=True)]
+        alts += charts
+        if profile == "full2":
+            alts += [_sheets_first(c) for c in charts]
     return alts[0] if len(alts) == 1 else any_of(*alts)
+
+
+def _sheets_first(chart):
+    """The same chart branch, but written file, sheets, chart, ... . Grammars write required properties first and in
+    order, so the plain branch (required file, chart) cannot take a reply that names the sheet before the chart kind:
+    such a reply gets pushed into the curve branch. Adding this order keeps the accepted specs the same (profile
+    "full2"; JSON Schema validation ignores key order)."""
+    props = chart["properties"]
+    head = {"file": props["file"], "sheets": props["sheets"], "chart": props["chart"]}
+    rest = {k: v for k, v in props.items() if k not in head}
+    req = ["file", "sheets", "chart"] + [r for r in chart["required"] if r not in ("file", "chart", "sheets")]
+    return {**chart, "properties": head | rest, "required": req}
 
 
 def validate(obj, schema, limit=3):

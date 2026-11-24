@@ -162,3 +162,47 @@ which is why every arm here runs in the same run.
 
 Not checked here: grammar compilation and enforcement on a real llama.cpp or the Anthropic API.
 `cd_preflight.py` does that on your side.
+
+## Results (2026-11-23): OpenCode Go and Strix Halo
+
+Qwen3.8 Flash, thinking off, temperature 0.2, CNT dev split, 3 repeats. Page: `python report/build_cd.py` → `report/cd/`.
+
+| arm | OpenCode Go, 34 items | Strix Halo, 15-item subset |
+|---|---|---|
+| P-mpl (free) | 97.7% | 95.0% |
+| P-mpl+cdflat | 81.8% (Δ −15.9, p < 0.001) | 90.0% (Δ −5.0, p = 0.51) |
+| P-mpl+cdabc | 72.0% (Δ −25.8, p < 0.001) | not run |
+| P-mpl+cd | 6.1% (Δ −91.7) | not run (see below) |
+| P-ec (free) | 95.5% | 86.7% |
+| P-ec+cdabc / P-ec+cdflat | 72.0% (Δ −23.5) | 83.3% (Δ −3.3, p = 0.75) |
+
+**OpenCode Go** (`--backend anthropic --base-url https://opencode.ai/inference/go/anthropic --model qwen3.8-flash`,
+key in `EVAL_API_KEY_FILE`):
+- The gateway accepts object keys only in alphabetical order at every level.
+  - Required keys are reordered.
+  - An optional key that sorts before one already written is dropped silently.
+  - A reply that starts with `"file"` therefore loses `asks`, `by`, `chart` and `data_code`. That explains `+cd`.
+- `+cdabc` is the full schema plus a prompt note to write keys alphabetically. It brings `chart` back, but `by` then has to be written before `chart`, and with thinking off the model often puts the grouping column under `z` instead.
+- `cd.py` sends a neutral `user-agent`: Cloudflare refuses Python's default with error code 1010. It also sends the per-conversation `x-opencode-session` header the gateway requires.
+
+**Strix Halo** (gufo, `--cd-compat gufo`, see `eval/cd_gufo.py`):
+- gufo rejects the schemas as written:
+  - every enum and const needs a `type`;
+  - every object must be closed;
+  - the root must be one object;
+  - `strict: true` needs every key required.
+- gufo keeps the schema's key order, and optional keys may be skipped but not written earlier.
+- The adapter does five things:
+  - merges the root `anyOf`;
+  - adds types;
+  - closes the open maps (`annotate` gets a fixed name list; colour maps and the `echarts` patch are dropped);
+  - orders keys by the model's own order, measured from the free dev replies;
+  - sends `strict: false`.
+- Flat schemas work: 0 retries and no "no plot" turns, against 2–7% retries free, but turns take about 60% longer and use about twice the output tokens.
+- The adapted full schema hung the server: the request never returned and the box needed a restart. The full-schema arms were not run there.
+
+`+cd2` (full schema plus a branch with `sheets` before `chart`, for engines that keep schema order with required keys
+first) was added but not run: OpenCode Go sorts keys anyway, and gufo could not take the full schema.
+
+The offline self-test validates replies with JSON Schema, which ignores key order. Both servers enforce an order,
+so add a key-order probe to the preflight before trusting a schema on a new server.

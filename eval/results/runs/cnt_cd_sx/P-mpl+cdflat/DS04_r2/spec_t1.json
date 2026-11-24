@@ -1,0 +1,15 @@
+{
+ "file": "data/r2_zone_temps.csv",
+ "chart": "line",
+ "x": "시각",
+ "y": "2존(°C)",
+ "asks": [
+  {
+   "ask": "r2 존온도 중 2존만 그리기",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_sx/P-mpl+cdflat/DS04_r2/out/t1"
+ }
+}

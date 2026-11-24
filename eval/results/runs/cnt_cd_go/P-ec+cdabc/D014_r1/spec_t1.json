@@ -1,0 +1,24 @@
+{
+ "asks": [
+  {
+   "ask": "x=H2/C2H4비, y=수율",
+   "how": "key"
+  },
+  {
+   "ask": "2존온도 수준별 색 구분",
+   "how": "key"
+  },
+  {
+   "ask": "반복 3개 다 점으로",
+   "how": "key"
+  }
+ ],
+ "by": "2존온도(°C)",
+ "chart": "scatter",
+ "file": "data/doe_temp_h2.csv",
+ "x": "H2/C2H4비",
+ "y": "수율(g/g-cat)",
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-ec+cdabc/D014_r1/out/t1"
+ }
+}

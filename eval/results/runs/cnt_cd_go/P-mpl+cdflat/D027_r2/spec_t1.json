@@ -1,0 +1,34 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "heatmap",
+ "corr": [
+  "H",
+  "I",
+  "J",
+  "K",
+  "L",
+  "M",
+  "N",
+  "O",
+  "Q",
+  "S",
+  "T",
+  "U"
+ ],
+ "cmap": "RdBu_r",
+ "values": true,
+ "code": "import matplotlib.pyplot as plt\nif ax.images:\n    im = ax.images[0]\n    im.set_clim(-1, 1)\n    plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)",
+ "asks": [
+  {
+   "ask": "런로그 수치 컬럼 상관계수 heatmap",
+   "how": "key"
+  },
+  {
+   "ask": "diverging cmap, -1~1 고정",
+   "how": "code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdflat/D027_r2/out/t1"
+ }
+}

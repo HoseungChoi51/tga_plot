@@ -1,0 +1,35 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "heatmap",
+ "data_code": "import pandas as pd\n# 요일 추출 (월=0, 일=6)\ndf['요일'] = df['일자'].dt.dayofweek.map({0:'월',1:'화',2:'수',3:'목',4:'금',5:'토',6:'일'})\n# 시간대 추출 (시작시각 텍스트에서 시 부분 추출)\nhour_str = df['시작시각'].astype(str).str.split(':').str[0]\ndf['시간대'] = hour_str.astype(int)",
+ "x": {
+  "col": "요일",
+  "order": [
+   "월",
+   "화",
+   "수",
+   "목",
+   "금",
+   "토",
+   "일"
+  ]
+ },
+ "y": "시간대",
+ "z": {
+  "agg": "count"
+ },
+ "values": true,
+ "asks": [
+  {
+   "ask": "요일별/시간대별 정지 빈도 히트맵",
+   "how": "key"
+  },
+  {
+   "ask": "요일 및 시간대 파생 컬럼 생성",
+   "how": "data_code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_sx/P-mpl+cdflat/D026_r1/out/t1"
+ }
+}

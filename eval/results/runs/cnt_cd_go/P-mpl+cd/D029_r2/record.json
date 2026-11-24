@@ -1,0 +1,84 @@
+{
+ "arm": "P-mpl+cd",
+ "item": "D029",
+ "repeat": 2,
+ "split": "dev",
+ "persona": "공정 엔지니어",
+ "type": "single",
+ "cd": "full",
+ "backend": "anthropic",
+ "model": "qwen3.8-flash",
+ "effort": "",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "26주 전체 등급(A/B/C) 비율 pie. 색은 A 초록, B 주황, C 빨강, % 라벨 소수 1자리.",
+   "calls": [
+    {
+     "reply": "{\"file\": \"data/run_log.xlsx\", \"sheets\": \"런로그\", \"x\": \"등급 (A/B/C)\", \"y2\": false}",
+     "llm_s": 1.989,
+     "prompt_tokens": 6279,
+     "output_tokens": 33,
+     "cached_tokens": 5297,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": ""
+    },
+    {
+     "reply": "{\"file\": \"data/run_log.xlsx\", \"sheets\": \"런로그\", \"x\": \"등급\", \"y2\": false}",
+     "llm_s": 1.922,
+     "prompt_tokens": 6436,
+     "output_tokens": 28,
+     "cached_tokens": 5297,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": ""
+    },
+    {
+     "reply": "{\"file\": \"data/run_log.xlsx\", \"sheets\": \"런로그\", \"x\": \"V\", \"y2\": false}",
+     "llm_s": 1.747,
+     "prompt_tokens": 6585,
+     "output_tokens": 28,
+     "cached_tokens": 5297,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": ""
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheets": "런로그",
+    "x": "V",
+    "y2": false
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": false,
+    "error": "run_log.xlsx / \"런로그\" x.col: no column matches \"V\"",
+    "hint": "use a letter or part of one of these names: C \"-\", H \"°C\", I \"°C\", J \"°C\", K \"sccm\", L \"sccm\", M \"-\", N \"s\", O \"%\", P \"h\", Q \"g/g-cat\", R \"g/h\", S \"wt%\", T \"°C\", U \"-\""
+   },
+   "facts": [],
+   "draw_s": 0.4996459484100342,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [
+     "run: no plot (run_log.xlsx / \"런로그\" x.col: no column matches \"V\")"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 7.554
+  }
+ ]
+}

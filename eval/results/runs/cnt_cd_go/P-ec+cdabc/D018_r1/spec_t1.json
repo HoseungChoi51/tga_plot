@@ -1,0 +1,29 @@
+{
+ "asks": [
+  {
+   "ask": "월별 노즐막힘 발생 횟수",
+   "how": "key"
+  },
+  {
+   "ask": "반응기별로 묶어서 막대",
+   "how": "key"
+  }
+ ],
+ "chart": "bar",
+ "file": "data/downtime.xlsx",
+ "filter": [
+  "원인 == 노즐 막힘"
+ ],
+ "x": {
+  "col": "일자",
+  "label": "월",
+  "period": "month"
+ },
+ "y": "count",
+ "z": {
+  "agg": "count"
+ },
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-ec+cdabc/D018_r1/out/t1"
+ }
+}

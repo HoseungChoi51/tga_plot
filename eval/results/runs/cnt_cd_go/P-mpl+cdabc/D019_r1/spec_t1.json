@@ -1,0 +1,34 @@
+{
+ "asks": [
+  {
+   "ask": "월별 정지시간 합계",
+   "how": "key"
+  },
+  {
+   "ask": "원인별 stacked bar",
+   "how": "key"
+  },
+  {
+   "ask": "단위 분→시간(h) 환산",
+   "how": "data_code"
+  }
+ ],
+ "chart": "bar",
+ "data_code": "df['정지시간_h'] = df['정지시간(분)'] / 60.0",
+ "file": "data/downtime.xlsx",
+ "stack": true,
+ "x": {
+  "col": "일자",
+  "label": "월",
+  "period": "month"
+ },
+ "y": {
+  "agg": "sum",
+  "col": "정지시간_h",
+  "label": "정지시간 (h)"
+ },
+ "z": "원인",
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdabc/D019_r1/out/t1"
+ }
+}

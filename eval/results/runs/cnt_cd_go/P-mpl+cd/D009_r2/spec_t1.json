@@ -1,0 +1,16 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheets": "런로그",
+ "x": {
+  "col": "N",
+  "label": "체류시간 (s)"
+ },
+ "y1": {
+  "col": "Q",
+  "label": "CNT수율 (g/g-cat)"
+ },
+ "y2": false,
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cd/D009_r2/out/t1"
+ }
+}

@@ -1,0 +1,33 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "line",
+ "x": {
+  "col": "일자",
+  "period": "month"
+ },
+ "y": "count",
+ "filter": [
+  "원인 == 노즐 막힘"
+ ],
+ "asks": [
+  {
+   "ask": "정지이력 반응기별 정지 횟수 막대",
+   "how": "key"
+  },
+  {
+   "ask": "원인별로 쌓아서",
+   "how": "key"
+  },
+  {
+   "ask": "원인별 비율 파이",
+   "how": "key"
+  },
+  {
+   "ask": "노즐막힘만 월별 선그래프",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl/DS03_r2/out/t4"
+ }
+}

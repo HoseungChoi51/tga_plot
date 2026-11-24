@@ -1,0 +1,24 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "scatter",
+ "x": "잔류금속 (wt%)",
+ "y": "IG/ID",
+ "by": "등급 (A/B/C)",
+ "colors": {
+  "C": "red"
+ },
+ "asks": [
+  {
+   "ask": "잔류금속 x, IG/ID y 산점도",
+   "how": "key"
+  },
+  {
+   "ask": "등급 C 런만 빨간색, 나머지는 회색",
+   "how": "code"
+  }
+ ],
+ "code": "import matplotlib.pyplot as plt\n# Ensure non-C points are gray and C points are red\nfor line in ax.get_lines():\n    label = line.get_label()\n    if 'C' in label:\n        line.set_color('red')\n    else:\n        line.set_color('gray')",
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl/D010_r2/out/t1"
+ }
+}

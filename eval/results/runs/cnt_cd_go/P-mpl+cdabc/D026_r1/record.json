@@ -1,0 +1,327 @@
+{
+ "arm": "P-mpl+cdabc",
+ "item": "D026",
+ "repeat": 1,
+ "split": "dev",
+ "persona": "라인 작업자",
+ "type": "single",
+ "cd": "fullabc",
+ "backend": "anthropic",
+ "model": "qwen3.8-flash",
+ "effort": "",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "설비 정지 언제 많이나는지 요일이랑 시간대로 히트맵 해줘",
+   "calls": [
+    {
+     "reply": "{\n  \"asks\": [\n    {\n      \"ask\": \"요일별 정지 건수\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"시간대별 정지 건수\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"히트맵\",\n      \"how\": \"key\"\n    }\n  ],\n  \"chart\": \"heatmap\",\n  \"data_code\": \"import pandas as pd\\nfrom datetime import datetime\\ndf['시각_dt'] = pd.to_datetime(df['일자'].astype(str) + ' ' + df['시작시각'].astype(str), format='%Y-%m-%d %H:%M', errors='coerce')\\nwd_map = {0:'월',1:'화',2:'수',3:'목',4:'금',5:'토',6:'일'}\\ndf['요일'] = df['시각_dt'].dt.weekday.map(wd_map)\\nhour = df['시각_dt'].dt.hour\\nbins = [-1, 3, 7, 11, 15, 19, 23]\\nlabels = ['0-3시','4-7시','8-11시','12-15시','16-19시','20-23시']\\ndf['시간대'] = pd.cut(hour, bins=bins, labels=labels)\\ndf = df.dropna(subset=['요일','시간대'])\",\n  \"file\": \"data/downtime.xlsx\",\n  \"title\": \"설비 정지 발생 빈도 (요일 x 시간대)\",\n  \"x\": {\n    \"col\": \"요일\",\n    \"order\": [\n      \"월\",\n      \"화\",\n      \"수\",\n      \"목\",\n      \"금\",\n      \"토\",\n      \"일\"\n    ]\n  },\n  \"y\": {\n    \"col\": \"시간대\",\n    \"order\": [\n      \"0-3시\",\n      \"4-7시\",\n      \"8-11시\",\n      \"12-15시\",\n      \"16-19시\",\n      \"20-23시\"\n    ]\n  },\n  \"z\": {\n    \"agg\": \"count\"\n  }\n}",
+     "llm_s": 6.69,
+     "prompt_tokens": 5772,
+     "output_tokens": 528,
+     "cached_tokens": 5406,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": ""
+    }
+   ],
+   "spec": {
+    "asks": [
+     {
+      "ask": "요일별 정지 건수",
+      "how": "data_code"
+     },
+     {
+      "ask": "시간대별 정지 건수",
+      "how": "data_code"
+     },
+     {
+      "ask": "히트맵",
+      "how": "key"
+     }
+    ],
+    "chart": "heatmap",
+    "data_code": "import pandas as pd\nfrom datetime import datetime\ndf['시각_dt'] = pd.to_datetime(df['일자'].astype(str) + ' ' + df['시작시각'].astype(str), format='%Y-%m-%d %H:%M', errors='coerce')\nwd_map = {0:'월',1:'화',2:'수',3:'목',4:'금',5:'토',6:'일'}\ndf['요일'] = df['시각_dt'].dt.weekday.map(wd_map)\nhour = df['시각_dt'].dt.hour\nbins = [-1, 3, 7, 11, 15, 19, 23]\nlabels = ['0-3시','4-7시','8-11시','12-15시','16-19시','20-23시']\ndf['시간대'] = pd.cut(hour, bins=bins, labels=labels)\ndf = df.dropna(subset=['요일','시간대'])",
+    "file": "data/downtime.xlsx",
+    "title": "설비 정지 발생 빈도 (요일 x 시간대)",
+    "x": {
+     "col": "요일",
+     "order": [
+      "월",
+      "화",
+      "수",
+      "목",
+      "금",
+      "토",
+      "일"
+     ]
+    },
+    "y": {
+     "col": "시간대",
+     "order": [
+      "0-3시",
+      "4-7시",
+      "8-11시",
+      "12-15시",
+      "16-19시",
+      "20-23시"
+     ]
+    },
+    "z": {
+     "agg": "count"
+    }
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdabc/D026_r1/out/t1/heatmap_시간대.png"
+    ],
+    "chart": "heatmap",
+    "rows_used": 294,
+    "rows_total": 294,
+    "values": {
+     "rows": [
+      "0-3시",
+      "4-7시",
+      "8-11시",
+      "12-15시",
+      "16-19시",
+      "20-23시"
+     ],
+     "cols": [
+      "월",
+      "화",
+      "수",
+      "목",
+      "금",
+      "토",
+      "일"
+     ],
+     "max": {
+      "row": "20-23시",
+      "col": "금",
+      "value": 15.0
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "히트맵 그래프를 저장했습니다: heatmap_시간대.png\n사용한 행: 294 / 294\n가장 큰 값: 20-23시 / 금 = 15"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": "설비 정지 발생 빈도 (요일 x 시간대)",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": {
+        "rows": [
+         "0-3시",
+         "4-7시",
+         "8-11시",
+         "12-15시",
+         "16-19시",
+         "20-23시"
+        ],
+        "cols": [
+         "월",
+         "화",
+         "수",
+         "목",
+         "금",
+         "토",
+         "일"
+        ],
+        "z": [
+         [
+          12.0,
+          5.0,
+          10.0,
+          7.0,
+          6.0,
+          2.0,
+          6.0
+         ],
+         [
+          4.0,
+          7.0,
+          6.0,
+          9.0,
+          6.0,
+          7.0,
+          9.0
+         ],
+         [
+          11.0,
+          5.0,
+          12.0,
+          7.0,
+          3.0,
+          13.0,
+          8.0
+         ],
+         [
+          6.0,
+          6.0,
+          6.0,
+          5.0,
+          8.0,
+          8.0,
+          4.0
+         ],
+         [
+          6.0,
+          6.0,
+          6.0,
+          2.0,
+          12.0,
+          9.0,
+          6.0
+         ],
+         [
+          7.0,
+          4.0,
+          8.0,
+          6.0,
+          15.0,
+          5.0,
+          4.0
+         ]
+        ],
+        "colorbar": true,
+        "values_shown": false,
+        "cmap": "viridis",
+        "clim": [
+         2.0,
+         15.0
+        ]
+       },
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "요일",
+        "type": "category",
+        "ticks": [
+         0.5,
+         1.5,
+         2.5,
+         3.5,
+         4.5,
+         5.5,
+         6.5
+        ],
+        "step": 1.0,
+        "categories": [
+         "월",
+         "화",
+         "수",
+         "목",
+         "금",
+         "토",
+         "일"
+        ],
+        "min": 0.0,
+        "max": 7.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "월",
+         "화",
+         "수",
+         "목",
+         "금",
+         "토",
+         "일"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "시간대",
+        "type": "category",
+        "ticks": [
+         0.5,
+         1.5,
+         2.5,
+         3.5,
+         4.5,
+         5.5
+        ],
+        "step": 1.0,
+        "categories": [
+         "0-3시",
+         "4-7시",
+         "8-11시",
+         "12-15시",
+         "16-19시",
+         "20-23시"
+        ],
+        "min": 0.0,
+        "max": 6.0,
+        "log": false,
+        "inverted": true,
+        "tick_labels": [
+         "0-3시",
+         "4-7시",
+         "8-11시",
+         "12-15시",
+         "16-19시",
+         "20-23시"
+        ],
+        "rotate": 0.0
+       },
+       "title": "설비 정지 발생 빈도 (요일 x 시간대)"
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdabc/D026_r1/out/t1/heatmap_시간대.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.7561497688293457,
+   "check": {
+    "kind_expected": "heatmap",
+    "failed": [
+     "heatmap: rows/columns differ (drawn ['0-3시', '4-7시', '8-11시', '12-15시', '16-19시'] x ['월', '화', '수', '목', '금'], want ['월', '화', '수', '목', '금'] x ['0', '1', '2', '3', '4'])"
+    ],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 1,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 7.574
+  }
+ ]
+}

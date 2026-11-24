@@ -1,0 +1,247 @@
+{
+ "arm": "P-ec+cdabc",
+ "item": "D015",
+ "repeat": 3,
+ "split": "dev",
+ "persona": "공정 엔지니어",
+ "type": "single",
+ "cd": "fullabc",
+ "backend": "anthropic",
+ "model": "qwen3.8-flash",
+ "effort": "",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "촉매로트별 평균 CNT수율 bar. 로트 순서(FC-2602→FC-2608) 그대로, 막대 위에 값 라벨 소수 1자리.",
+   "calls": [
+    {
+     "reply": "{\n  \"asks\": [\n    {\"ask\": \"촉매로트별 평균 CNT수율 bar\", \"how\": \"key\"},\n    {\"ask\": \"로트 순서 유지 (FC-2602→FC-2608)\", \"how\": \"key\"},\n    {\"ask\": \"막대 위에 값 라벨 소수 1자리\", \"how\": \"key\"}\n  ],\n  \"chart\": \"bar\",\n  \"file\": \"data/run_log.xlsx\",\n  \"sheets\": \"런로그\",\n  \"x\": {\n    \"col\": \"촉매로트\",\n    \"order\": [\"FC-2602\", \"FC-2603\", \"FC-2604\", \"FC-2605\", \"FC-2606\", \"FC-2607\", \"FC-2608\"]\n  },\n  \"y\": {\n    \"agg\": \"mean\",\n    \"col\": \"CNT수율\"\n  },\n  \"z\": {\n    \"format\": \"{:.1f}\"\n  }\n}",
+     "llm_s": 4.534,
+     "prompt_tokens": 6453,
+     "output_tokens": 247,
+     "cached_tokens": 5462,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": ""
+    }
+   ],
+   "spec": {
+    "asks": [
+     {
+      "ask": "촉매로트별 평균 CNT수율 bar",
+      "how": "key"
+     },
+     {
+      "ask": "로트 순서 유지 (FC-2602→FC-2608)",
+      "how": "key"
+     },
+     {
+      "ask": "막대 위에 값 라벨 소수 1자리",
+      "how": "key"
+     }
+    ],
+    "chart": "bar",
+    "file": "data/run_log.xlsx",
+    "sheets": "런로그",
+    "x": {
+     "col": "촉매로트",
+     "order": [
+      "FC-2602",
+      "FC-2603",
+      "FC-2604",
+      "FC-2605",
+      "FC-2606",
+      "FC-2607",
+      "FC-2608"
+     ]
+    },
+    "y": {
+     "agg": "mean",
+     "col": "CNT수율"
+    },
+    "z": {
+     "format": "{:.1f}"
+    }
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": true,
+    "engine": "echarts",
+    "saved": [
+     "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-ec+cdabc/D015_r3/out/t1/bar_CNT수율.png"
+    ],
+    "chart": "bar",
+    "rows_used": 997,
+    "rows_total": 997,
+    "values": {
+     "categories": [
+      "FC-2602",
+      "FC-2603",
+      "FC-2604",
+      "FC-2605",
+      "FC-2606",
+      "FC-2607",
+      "FC-2608"
+     ],
+     "series": {
+      "CNT수율 (g/g-cat)": [
+       27.6877,
+       27.3337,
+       28.0542,
+       27.4558,
+       23.3475,
+       23.7239,
+       22.7977
+      ]
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "막대 그래프를 저장했습니다: bar_CNT수율.png\n사용한 행: 997 / 997\nCNT수율 (g/g-cat): FC-2602 27.7, FC-2603 27.3, FC-2604 28.1, FC-2605 27.5, FC-2606 23.3, FC-2607 23.7, FC-2608 22.8"
+   },
+   "facts": [
+    {
+     "engine": "echarts",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": 300,
+     "title": null,
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "CNT수율 (g/g-cat)",
+         "orient": "v",
+         "cats": [
+          "FC-2602",
+          "FC-2603",
+          "FC-2604",
+          "FC-2605",
+          "FC-2606",
+          "FC-2607",
+          "FC-2608"
+         ],
+         "values": [
+          27.6877027027027,
+          27.333666666666662,
+          28.05424778761062,
+          27.455841584158417,
+          23.347470588235296,
+          23.723937499999998,
+          22.797677419354837
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c"
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "촉매로트",
+        "type": "category",
+        "ticks": [],
+        "step": null,
+        "categories": [
+         "FC-2602",
+         "FC-2603",
+         "FC-2604",
+         "FC-2605",
+         "FC-2606",
+         "FC-2607",
+         "FC-2608"
+        ],
+        "min": 0.0,
+        "max": 6.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "CNT수율 (g/g-cat) (mean)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         5.0,
+         10.0,
+         15.0,
+         20.0,
+         25.0,
+         30.0
+        ],
+        "step": 5.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 30.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       }
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-ec+cdabc/D015_r3/out/t1/bar_CNT수율.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.9443540573120117,
+   "check": {
+    "kind_expected": "bar",
+    "failed": [
+     "value_labels: no value labels"
+    ],
+    "unchecked": [],
+    "n_checks": 3,
+    "n_failed": 1,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 5.576
+  }
+ ]
+}

@@ -1,0 +1,20 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "bar",
+ "x": "체류시간_bin",
+ "y": {
+  "col": "CNT수율 (g/g-cat)",
+  "agg": "mean"
+ },
+ "values": "n",
+ "data_code": "import pandas as pd\nedges = np.arange(2.5, 7.0 + 0.5, 0.5)\ndf['체류시간_bin'] = pd.cut(df['체류시간 (s)'], bins=edges, right=False, include_lowest=True).astype(str)",
+ "asks": [
+  {
+   "ask": "막대 위에 구간별 런 수(n) 표시",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdflat/DS01_r3/out/t3"
+ }
+}

@@ -1,0 +1,33 @@
+{
+ "asks": [
+  {
+   "ask": "런로그 수치 컬럼 상관계수 heatmap",
+   "how": "key"
+  },
+  {
+   "ask": "diverging cmap, -1~1 고정",
+   "how": "code"
+  }
+ ],
+ "chart": "heatmap",
+ "corr": [
+  "1존온도 (°C)",
+  "2존온도 (°C)",
+  "3존온도 (°C)",
+  "C2H4유량 (sccm)",
+  "H2유량 (sccm)",
+  "H2/C2H4비",
+  "체류시간 (s)",
+  "외기습도 (%)",
+  "CNT수율 (g/g-cat)",
+  "잔류금속 (wt%)",
+  "산화개시온도 (°C)",
+  "IG/ID"
+ ],
+ "file": "data/run_log.xlsx",
+ "sheets": "런로그",
+ "values": true,
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdabc/D027_r2/out/t1"
+ }
+}

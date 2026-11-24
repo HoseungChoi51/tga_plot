@@ -1,0 +1,26 @@
+{
+ "file": "data/tga_batches.xlsx",
+ "sheets": [
+  "R4-260407-1",
+  "R4-260721-1"
+ ],
+ "combine": true,
+ "preset": "none",
+ "x": {
+  "col": "B"
+ },
+ "y1": {
+  "col": "D",
+  "legend": "DTG"
+ },
+ "y2": false,
+ "asks": [
+  {
+   "ask": "R4 두 시트 DTG 비교",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_sx/P-mpl/D005_r3/out/t1"
+ }
+}

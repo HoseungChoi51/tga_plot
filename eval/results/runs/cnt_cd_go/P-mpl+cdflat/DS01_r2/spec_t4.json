@@ -1,0 +1,29 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "heatmap",
+ "y": "E",
+ "x": "체류시간_bin",
+ "z": {
+  "col": "CNT수율 (g/g-cat)",
+  "agg": "mean"
+ },
+ "values": true,
+ "data_code": "import numpy as np\nedges = np.arange(2.5, 7.0 + 0.5, 0.5)\nlabels = [f'{edges[i]:.1f}-{edges[i+1]:.1f}' for i in range(len(edges)-1)]\ndf['체류시간_bin'] = pd.cut(df['체류시간 (s)'], bins=edges, labels=labels, right=False, include_lowest=True)",
+ "asks": [
+  {
+   "ask": "반응기별 쪼개서 heatmap",
+   "how": "key"
+  },
+  {
+   "ask": "행 반응기, 열 체류시간 구간",
+   "how": "key"
+  },
+  {
+   "ask": "값 평균 수율",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdflat/DS01_r2/out/t4"
+ }
+}

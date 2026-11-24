@@ -1,0 +1,90 @@
+{
+ "arm": "P-mpl+cd",
+ "item": "D016",
+ "repeat": 3,
+ "split": "dev",
+ "persona": "라인 작업자",
+ "type": "single",
+ "cd": "full",
+ "backend": "anthropic",
+ "model": "qwen3.8-flash",
+ "effort": "",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "정지원인별 총 정지시간 가로막대 큰거부터",
+   "calls": [
+    {
+     "reply": "{\"file\": \"data/downtime.xlsx\", \"sheets\": \"정지이력\", \"x\": {\"col\": \"원인\"}, \"y1\": {\"col\": \"정지시간(분)\", \"label\": \"총 정지시간 (분)\"}, \"y2\": false}",
+     "llm_s": 3.121,
+     "prompt_tokens": 5659,
+     "output_tokens": 62,
+     "cached_tokens": 5297,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": ""
+    },
+    {
+     "reply": "{\"file\": \"data/downtime.xlsx\", \"sheets\": \"정지이력\", \"x\": {\"col\": \"D\"}, \"y1\": {\"col\": \"E\", \"label\": \"총 정지시간 (분)\"}, \"y2\": false}",
+     "llm_s": 2.248,
+     "prompt_tokens": 5787,
+     "output_tokens": 56,
+     "cached_tokens": 5297,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": ""
+    },
+    {
+     "reply": "{\"file\": \"data/downtime.xlsx\", \"sheets\": \"정지이력\", \"x\": {\"col\": \"D\"}, \"y1\": {\"col\": \"E\", \"label\": \"총 정지시간 (분)\"}, \"y2\": false}",
+     "llm_s": 3.189,
+     "prompt_tokens": 5901,
+     "output_tokens": 56,
+     "cached_tokens": 5297,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": ""
+    }
+   ],
+   "spec": {
+    "file": "data/downtime.xlsx",
+    "sheets": "정지이력",
+    "x": {
+     "col": "D"
+    },
+    "y1": {
+     "col": "E",
+     "label": "총 정지시간 (분)"
+    },
+    "y2": false
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": false,
+    "error": "downtime.xlsx / \"정지이력\" x.col: column D has no numbers",
+    "hint": "columns with numbers: E \"정지시간(분)\""
+   },
+   "facts": [],
+   "draw_s": 0.41649842262268066,
+   "check": {
+    "kind_expected": "hbar",
+    "failed": [
+     "run: no plot (downtime.xlsx / \"정지이력\" x.col: column D has no numbers)"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 10.097
+  }
+ ]
+}

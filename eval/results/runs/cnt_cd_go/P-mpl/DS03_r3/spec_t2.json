@@ -1,0 +1,18 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "bar",
+ "x": "반응기",
+ "y": "count",
+ "values": true,
+ "by": "원인",
+ "stack": true,
+ "asks": [
+  {
+   "ask": "원인별 쌓기",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl/DS03_r3/out/t2"
+ }
+}

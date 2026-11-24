@@ -137,9 +137,10 @@ def first_message(arm, item, text):
 
 # =================================================================== the model
 def call_llm(base, model, key, messages, temperature, max_tokens, timeout=900, think=False, schema=None,
-             cd_param="response_format"):
+             cd_param="response_format", strict=True):
     body = {"model": model, "messages": messages, "temperature": temperature, "max_tokens": max_tokens,
-            "chat_template_kwargs": {"enable_thinking": think}, "cache_prompt": True, **cd.openai_fields(schema, cd_param)}
+            "chat_template_kwargs": {"enable_thinking": think}, "cache_prompt": True,
+            **cd.openai_fields(schema, cd_param, strict)}
     req = urllib.request.Request(base.rstrip("/") + "/chat/completions", data=json.dumps(body).encode(),
                                  headers={"Content-Type": "application/json", **({"Authorization": f"Bearer {key}"} if key else {})})
     t0 = time.time()
@@ -246,6 +247,9 @@ def run_item(arm, item, rep, args, key):
     if base_arm.startswith("P-"):           # the schema of this request; the full one also scores free arms' replies
         con_schema, full_schema = cd.schemas(item["files"], CNT, ("curve", "chart"), cd.hatch_for(base_arm), profile,
                                              args.asks)
+        if profile and args.cd_compat == "gufo":     # Strix Halo's server: see eval/cd_gufo.py
+            import cd_gufo
+            con_schema = cd_gufo.gufo(con_schema)
         if profile:
             (run_dir / "schema.json").write_text(json.dumps(con_schema, ensure_ascii=False), encoding="utf-8")
     own_schema = con_schema if profile == "flat" else full_schema
@@ -264,7 +268,8 @@ def run_item(arm, item, rep, args, key):
                                                                base=args.base_url if args.base_url_set else None)
                 else:
                     text, reasoning, stats = call_llm(args.base_url, args.model, key, messages, args.temperature, mt,
-                                                      schema=con_schema, cd_param=args.cd_param)
+                                                      schema=con_schema, cd_param=args.cd_param,
+                                                      strict=args.cd_compat != "gufo")
             except Exception as e:  # noqa: BLE001
                 calls.append({"error": f"{type(e).__name__}: {e}"})
                 result = {"ok": False, "error": f"model call failed: {e}", "hint": ""}
@@ -306,7 +311,7 @@ def run_item(arm, item, rep, args, key):
                           "result": result, "facts": facts, "draw_s": draw_s, "check": chk,
                           "turn_s": round(time.time() - t_turn, 3)})
     rec = {"arm": arm, "item": item["id"], "repeat": rep, "split": item.get("split"), "persona": item.get("persona"),
-           "type": item.get("type"), "cd": profile or "", "backend": args.backend, "model": args.model,
+           "type": item.get("type"), "cd": (profile or "") + ("+gufo" if profile and args.cd_compat == "gufo" else ""), "backend": args.backend, "model": args.model,
            "effort": args.effort or "", "turns": turns_out}
     (run_dir / "record.json").write_text(json.dumps(rec, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
     return rec, run_dir
@@ -367,6 +372,8 @@ def main():
     ap.add_argument("--cd-param", choices=("response_format", "json_schema"), default="response_format",
                     help="openai backend: where the schema goes (json_schema = llama.cpp's own field)")
     ap.add_argument("--effort", help="anthropic backend: output_config.effort, e.g. low")
+    ap.add_argument("--cd-compat", choices=("none", "gufo"), default="none",
+                    help="gufo: adapt constrained schemas for Strix Halo's server (eval/cd_gufo.py), strict false")
     ap.add_argument("--asks", choices=("last", "first"), default="last",
                     help="+cd arms: asks optional and last (as the prompt examples), or required and first (a small plan)")
     ap.add_argument("--cd-note", action="store_true", help="+cd arms: tell the model its reply is schema-constrained (no fence)")
@@ -378,7 +385,7 @@ def main():
         if not (os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("EVAL_API_KEY_FILE")):
             ap.error("--backend anthropic needs ANTHROPIC_API_KEY (or EVAL_API_KEY_FILE)")
         bad = [x for x in a.arms.split(",") if x.endswith("+cd")]
-        if bad:
+        if bad and not a.base_url_set:          # Anthropic's own API limits; gateways (e.g. OpenCode Go) may take more
             ap.error(f"{', '.join(bad)}: the Anthropic API cannot take the full schema (limits); use +cdflat")
     key = Path(os.path.expanduser(os.environ["EVAL_API_KEY_FILE"])).read_text().strip() if os.environ.get("EVAL_API_KEY_FILE") else ""
     if a.backend == "anthropic" and not key:

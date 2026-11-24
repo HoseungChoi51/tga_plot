@@ -1,0 +1,15 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "histogram",
+ "x": "CNT수율 (g/g-cat)",
+ "title": "전체 런 CNT 수율 분포",
+ "asks": [
+  {
+   "ask": "전체 런 수율 히스토그램",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdflat/D023_r3/out/t1"
+ }
+}

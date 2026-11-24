@@ -1,0 +1,36 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "heatmap",
+ "data_code": "import pandas as pd\n# 요일 추출 (월~일)\ndf['요일'] = pd.to_datetime(df['일자']).dt.day_name().map({'Monday':'월','Tuesday':'화','Wednesday':'수','Thursday':'목','Friday':'금','Saturday':'토','Sunday':'일'})\n# 시간대 추출 (0~23시 -> 'HH:00' 형식 또는 단순 숫자, 여기서는 시각 문자열에서 시만 뽑아 정수로 변환 후 라벨링)\nhours = df['시작시각'].str.split(':').str[0].astype(int)\ndf['시간대'] = hours.astype(str) + ':00'\n# 정렬을 위해 시간대 순서 유지 필요할 수 있으나 heatmap은 카테고리 처리함",
+ "x": {
+  "col": "요일",
+  "order": [
+   "월",
+   "화",
+   "수",
+   "목",
+   "금",
+   "토",
+   "일"
+  ]
+ },
+ "y": {
+  "col": "시간대"
+ },
+ "z": {
+  "agg": "count"
+ },
+ "asks": [
+  {
+   "ask": "요일별/시간대별 정지 빈도 히트맵",
+   "how": "key"
+  },
+  {
+   "ask": "요일 및 시간대 파생 컬럼 생성",
+   "how": "data_code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_sx/P-ec/D026_r2/out/t1"
+ }
+}

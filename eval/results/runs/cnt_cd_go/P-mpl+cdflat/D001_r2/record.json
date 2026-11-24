@@ -1,0 +1,261 @@
+{
+ "arm": "P-mpl+cdflat",
+ "item": "D001",
+ "repeat": 2,
+ "split": "dev",
+ "persona": "공정 엔지니어",
+ "type": "single",
+ "cd": "flat",
+ "backend": "anthropic",
+ "model": "qwen3.8-flash",
+ "effort": "",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "run_log.xlsx 런로그 시트로 주차별 평균 CNT수율 추이 그려줘. 반응기(R1~R4)별 line 4개, x축 주차 1~26.",
+   "calls": [
+    {
+     "reply": "{\n  \"asks\": [\n    {\n      \"ask\": \"주차별 평균 CNT수율 추이\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"반응기(R1~R4)별 line 4개\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"x축 주차 1~26\",\n      \"how\": \"key\"\n    }\n  ],\n  \"chart\": \"line\",\n  \"file\": \"data/run_log.xlsx\",\n  \"settings\": [\n    {\n      \"sheet\": \"런로그\"\n    },\n    {\n      \"key\": \"x.col\",\n      \"new_column\": \"주차_정수\"\n    },\n    {\n      \"key\": \"y.col\",\n      \"new_column\": \"CNT수율 (g/g-cat)\"\n    },\n    {\n      \"key\": \"y.agg\",\n      \"value\": \"mean\"\n    },\n    {\n      \"key\": \"by.col\",\n      \"new_column\": \"반응기\"\n    },\n    {\n      \"key\": \"x.min\",\n      \"value\": 1\n    },\n    {\n      \"key\": \"x.max\",\n      \"value\": 26\n    },\n    {\n      \"key\": \"title.text\",\n      \"value\": \"주차별 평균 CNT수율 추이 (반응기별)\"\n    }\n  ]\n}",
+     "llm_s": 5.305,
+     "prompt_tokens": 6632,
+     "output_tokens": 335,
+     "cached_tokens": 5644,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": "",
+     "flat": {
+      "asks": [
+       {
+        "ask": "주차별 평균 CNT수율 추이",
+        "how": "key"
+       },
+       {
+        "ask": "반응기(R1~R4)별 line 4개",
+        "how": "key"
+       },
+       {
+        "ask": "x축 주차 1~26",
+        "how": "key"
+       }
+      ],
+      "chart": "line",
+      "file": "data/run_log.xlsx",
+      "settings": [
+       {
+        "sheet": "런로그"
+       },
+       {
+        "key": "x.col",
+        "new_column": "주차_정수"
+       },
+       {
+        "key": "y.col",
+        "new_column": "CNT수율 (g/g-cat)"
+       },
+       {
+        "key": "y.agg",
+        "value": "mean"
+       },
+       {
+        "key": "by.col",
+        "new_column": "반응기"
+       },
+       {
+        "key": "x.min",
+        "value": 1
+       },
+       {
+        "key": "x.max",
+        "value": 26
+       },
+       {
+        "key": "title.text",
+        "value": "주차별 평균 CNT수율 추이 (반응기별)"
+       }
+      ]
+     }
+    },
+    {
+     "reply": "{\n  \"asks\": [\n    {\n      \"ask\": \"주차별 평균 CNT수율 추이\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"반응기(R1~R4)별 line 4개\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"x축 주차 1~26\",\n      \"how\": \"key\"\n    }\n  ],\n  \"chart\": \"line\",\n  \"file\": \"data/run_log.xlsx\",\n  \"settings\": [\n    {\n      \"sheet\": \"런로그\"\n    },\n    {\n      \"key\": \"x.col\",\n      \"new_column\": \"주차_정수\"\n    },\n    {\n      \"key\": \"y.col\",\n      \"new_column\": \"CNT수율 (g/g-cat)\"\n    },\n    {\n      \"key\": \"y.agg\",\n      \"value\": \"mean\"\n    },\n    {\n      \"key\": \"by.col\",\n      \"new_column\": \"반응기\"\n    },\n    {\n      \"key\": \"x.min\",\n      \"value\": 1\n    },\n    {\n      \"key\": \"x.max\",\n      \"value\": 26\n    },\n    {\n      \"key\": \"title.text\",\n      \"value\": \"주차별 평균 CNT수율 추이 (반응기별)\"\n    }\n  ]\n}",
+     "llm_s": 5.881,
+     "prompt_tokens": 7198,
+     "output_tokens": 335,
+     "cached_tokens": 5644,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": "",
+     "flat": {
+      "asks": [
+       {
+        "ask": "주차별 평균 CNT수율 추이",
+        "how": "key"
+       },
+       {
+        "ask": "반응기(R1~R4)별 line 4개",
+        "how": "key"
+       },
+       {
+        "ask": "x축 주차 1~26",
+        "how": "key"
+       }
+      ],
+      "chart": "line",
+      "file": "data/run_log.xlsx",
+      "settings": [
+       {
+        "sheet": "런로그"
+       },
+       {
+        "key": "x.col",
+        "new_column": "주차_정수"
+       },
+       {
+        "key": "y.col",
+        "new_column": "CNT수율 (g/g-cat)"
+       },
+       {
+        "key": "y.agg",
+        "value": "mean"
+       },
+       {
+        "key": "by.col",
+        "new_column": "반응기"
+       },
+       {
+        "key": "x.min",
+        "value": 1
+       },
+       {
+        "key": "x.max",
+        "value": 26
+       },
+       {
+        "key": "title.text",
+        "value": "주차별 평균 CNT수율 추이 (반응기별)"
+       }
+      ]
+     }
+    },
+    {
+     "reply": "{\n  \"asks\": [\n    {\n      \"ask\": \"주차별 평균 CNT수율 추이\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"반응기(R1~R4)별 line 4개\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"x축 주차 1~26\",\n      \"how\": \"key\"\n    }\n  ],\n  \"chart\": \"line\",\n  \"file\": \"data/run_log.xlsx\",\n  \"settings\": [\n    {\n      \"sheet\": \"런로그\"\n    },\n    {\n      \"key\": \"x.col\",\n      \"new_column\": \"주차_정수\"\n    },\n    {\n      \"key\": \"y.col\",\n      \"new_column\": \"CNT수율 (g/g-cat)\"\n    },\n    {\n      \"key\": \"y.agg\",\n      \"value\": \"mean\"\n    },\n    {\n      \"key\": \"by.col\",\n      \"new_column\": \"반응기\"\n    },\n    {\n      \"key\": \"x.min\",\n      \"value\": 1\n    },\n    {\n      \"key\": \"x.max\",\n      \"value\": 26\n    },\n    {\n      \"key\": \"title.text\",\n      \"value\": \"주차별 평균 CNT수율 추이 (반응기별)\"\n    }\n  ]\n}",
+     "llm_s": 5.347,
+     "prompt_tokens": 7764,
+     "output_tokens": 335,
+     "cached_tokens": 5644,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": "",
+     "flat": {
+      "asks": [
+       {
+        "ask": "주차별 평균 CNT수율 추이",
+        "how": "key"
+       },
+       {
+        "ask": "반응기(R1~R4)별 line 4개",
+        "how": "key"
+       },
+       {
+        "ask": "x축 주차 1~26",
+        "how": "key"
+       }
+      ],
+      "chart": "line",
+      "file": "data/run_log.xlsx",
+      "settings": [
+       {
+        "sheet": "런로그"
+       },
+       {
+        "key": "x.col",
+        "new_column": "주차_정수"
+       },
+       {
+        "key": "y.col",
+        "new_column": "CNT수율 (g/g-cat)"
+       },
+       {
+        "key": "y.agg",
+        "value": "mean"
+       },
+       {
+        "key": "by.col",
+        "new_column": "반응기"
+       },
+       {
+        "key": "x.min",
+        "value": 1
+       },
+       {
+        "key": "x.max",
+        "value": 26
+       },
+       {
+        "key": "title.text",
+        "value": "주차별 평균 CNT수율 추이 (반응기별)"
+       }
+      ]
+     }
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "chart": "line",
+    "x": {
+     "col": "주차_정수",
+     "min": 1,
+     "max": 26
+    },
+    "y": {
+     "col": "CNT수율 (g/g-cat)",
+     "agg": "mean"
+    },
+    "by": "반응기",
+    "title": "주차별 평균 CNT수율 추이 (반응기별)",
+    "sheets": "런로그",
+    "asks": [
+     {
+      "ask": "주차별 평균 CNT수율 추이",
+      "how": "key"
+     },
+     {
+      "ask": "반응기(R1~R4)별 line 4개",
+      "how": "key"
+     },
+     {
+      "ask": "x축 주차 1~26",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": false,
+    "error": "x: no column matches \"주차_정수\" (closest: 주차)",
+    "hint": "columns: A \"런ID\", B \"일자 (yyyy-mm-dd)\", C \"주차\", D \"근무조\", E \"반응기\", F \"촉매로트\", G \"작업자\", H \"1존온도 (°C)\", I \"2존온도 (°C)\", J \"3존온도 (°C)\", K \"C2H4유량 (sccm)\", L \"H2유량 (sccm)\", M \"H2/C2H4비\", N \"체류시간 (s)\", O \"외기습도 (%)\", P \"가동시간 (h)\", Q \"CNT수율 (g/g-cat)\", R \"생산속도 (g/h)\", S \"잔류금속 (wt%)\", T \"산화개시온도 (°C)\", U \"IG/ID\", V \"등급 (A/B/C)\""
+   },
+   "facts": [],
+   "draw_s": 0.45584988594055176,
+   "check": {
+    "kind_expected": "line",
+    "failed": [
+     "run: no plot (x: no column matches \"주차_정수\" (closest: 주차))"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 18.036
+  }
+ ]
+}

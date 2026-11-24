@@ -1,0 +1,20 @@
+{
+ "file": "data/tga_batches.xlsx",
+ "combine": true,
+ "x": "온도 (°C)",
+ "y1": "중량 (%)",
+ "y2": "미분중량 (%/°C)",
+ "sheets": [
+  "R1-260326-1",
+  "R1-260716-1"
+ ],
+ "asks": [
+  {
+   "ask": "R1-260326-1, R1-260716-1 두 시트 TG 곡선 overlay",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdflat/D004_r1/out/t1"
+ }
+}

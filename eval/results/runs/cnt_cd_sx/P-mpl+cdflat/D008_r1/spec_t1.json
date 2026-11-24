@@ -1,0 +1,18 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "line",
+ "x": "일자",
+ "y": {
+  "col": "CNT수율",
+  "agg": "mean"
+ },
+ "asks": [
+  {
+   "ask": "수율 추이",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_sx/P-mpl+cdflat/D008_r1/out/t1"
+ }
+}

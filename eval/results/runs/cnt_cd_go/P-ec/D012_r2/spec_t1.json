@@ -1,0 +1,22 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "scatter",
+ "x": "H2/C2H4비",
+ "y": "CNT수율",
+ "filter": [
+  "반응기 == R3"
+ ],
+ "asks": [
+  {
+   "ask": "R3 런만 필터",
+   "how": "key"
+  },
+  {
+   "ask": "H2/C2H4비 vs CNT수율 scatter",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-ec/D012_r2/out/t1"
+ }
+}

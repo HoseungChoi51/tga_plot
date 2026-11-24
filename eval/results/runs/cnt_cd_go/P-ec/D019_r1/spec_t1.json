@@ -1,0 +1,32 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "bar",
+ "x": {
+  "col": "일자",
+  "period": "month"
+ },
+ "y": {
+  "col": "정지시간(분)",
+  "agg": "sum"
+ },
+ "by": "원인",
+ "stack": true,
+ "data_code": "df['정지시간(h)'] = df['정지시간(분)'] / 60.0",
+ "asks": [
+  {
+   "ask": "월별 정지시간 합계",
+   "how": "key"
+  },
+  {
+   "ask": "원인별 stacked bar",
+   "how": "key"
+  },
+  {
+   "ask": "단위 시간(h)으로 환산",
+   "how": "data_code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-ec/D019_r1/out/t1"
+ }
+}

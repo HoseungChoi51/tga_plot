@@ -1,0 +1,48 @@
+{
+ "asks": [
+  {
+   "ask": "요일별 정지 건수",
+   "how": "data_code"
+  },
+  {
+   "ask": "시간대별 정지 건수",
+   "how": "data_code"
+  },
+  {
+   "ask": "히트맵",
+   "how": "key"
+  }
+ ],
+ "chart": "heatmap",
+ "data_code": "df['요일'] = pd.to_datetime(df['일자']).dt.day_name()\norder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']\ndf['요일'] = pd.Categorical(df['요일'], categories=order, ordered=True)\nhour = df['시작시각'].str.split(':').str[0].astype(int)\nbins = [-1, 3, 7, 11, 15, 19, 23]\nlabels = ['0-3', '4-7', '8-11', '12-15', '16-19', '20-23']\ndf['시간대'] = pd.cut(hour, bins=bins, labels=labels)",
+ "file": "data/downtime.xlsx",
+ "x": {
+  "col": "요일",
+  "order": [
+   "Monday",
+   "Tuesday",
+   "Wednesday",
+   "Thursday",
+   "Friday",
+   "Saturday",
+   "Sunday"
+  ]
+ },
+ "y": {
+  "col": "시간대",
+  "order": [
+   "0-3",
+   "4-7",
+   "8-11",
+   "12-15",
+   "16-19",
+   "20-23"
+  ]
+ },
+ "z": {
+  "agg": "count"
+ },
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-ec+cdabc/D026_r3/out/t1"
+ }
+}

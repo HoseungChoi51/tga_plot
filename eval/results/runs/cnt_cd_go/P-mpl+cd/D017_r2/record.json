@@ -1,0 +1,94 @@
+{
+ "arm": "P-mpl+cd",
+ "item": "D017",
+ "repeat": 2,
+ "split": "dev",
+ "persona": "공정 엔지니어",
+ "type": "single",
+ "cd": "full",
+ "backend": "anthropic",
+ "model": "qwen3.8-flash",
+ "effort": "",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "반응기별 주간/야간 평균 IG/ID grouped bar.",
+   "calls": [
+    {
+     "reply": "{\"file\": \"data/run_log.xlsx\", \"sheets\": \"런로그\", \"x\": \"반응기\", \"y1\": {\"col\": \"IG/ID\", \"label\": \"주간\"}, \"y2\": {\"col\": \"IG/ID\", \"label\": \"야간\"}}",
+     "llm_s": 4.085,
+     "prompt_tokens": 6259,
+     "output_tokens": 62,
+     "cached_tokens": 5297,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": ""
+    },
+    {
+     "reply": "{\"file\": \"data/run_log.xlsx\", \"sheets\": \"런로그\", \"x\": {\"col\": \"반응기\", \"label\": \"반응기\"}, \"y1\": {\"col\": \"IG/ID\", \"label\": \"주간\"}, \"y2\": {\"col\": \"IG/ID\", \"label\": \"야간\"}}",
+     "llm_s": 2.704,
+     "prompt_tokens": 6443,
+     "output_tokens": 72,
+     "cached_tokens": 5297,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": ""
+    },
+    {
+     "reply": "{\"file\": \"data/run_log.xlsx\", \"sheets\": \"런로그\", \"x\": {\"col\": \"E\", \"label\": \"반응기\"}, \"y1\": {\"col\": \"U\", \"label\": \"주간\"}, \"y2\": {\"col\": \"U\", \"label\": \"야간\"}}",
+     "llm_s": 2.644,
+     "prompt_tokens": 6638,
+     "output_tokens": 66,
+     "cached_tokens": 5297,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": ""
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheets": "런로그",
+    "x": {
+     "col": "E",
+     "label": "반응기"
+    },
+    "y1": {
+     "col": "U",
+     "label": "주간"
+    },
+    "y2": {
+     "col": "U",
+     "label": "야간"
+    }
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": false,
+    "error": "run_log.xlsx / \"런로그\" x.col: column E has no numbers",
+    "hint": "columns with numbers: C \"-\", H \"°C\", I \"°C\", J \"°C\", K \"sccm\", L \"sccm\", M \"-\", N \"s\", O \"%\", P \"h\", Q \"g/g-cat\", R \"g/h\", S \"wt%\", T \"°C\", U \"-\""
+   },
+   "facts": [],
+   "draw_s": 0.5215396881103516,
+   "check": {
+    "kind_expected": "grouped_bar",
+    "failed": [
+     "run: no plot (run_log.xlsx / \"런로그\" x.col: column E has no numbers)"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 11.368
+  }
+ ]
+}

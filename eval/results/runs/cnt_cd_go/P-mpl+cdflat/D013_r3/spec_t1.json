@@ -1,0 +1,20 @@
+{
+ "file": "data/L3_MES_export_202607.csv",
+ "chart": "scatter",
+ "x": "F",
+ "y": "E",
+ "by": "B",
+ "asks": [
+  {
+   "ask": "x축 잔류금속, y축 CNT수율 산점도",
+   "how": "key"
+  },
+  {
+   "ask": "P1, P2 반응기별 색상 구분",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdflat/D013_r3/out/t1"
+ }
+}

@@ -44,3 +44,4 @@ report/img/
 report/luna/
 report/cnt/
 eval/results/runs/**/schema.json
+report/cd/

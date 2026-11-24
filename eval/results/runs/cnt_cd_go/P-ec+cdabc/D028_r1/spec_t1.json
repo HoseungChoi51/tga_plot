@@ -1,0 +1,14 @@
+{
+ "asks": [
+  {
+   "ask": "정지원인 비율 파이",
+   "how": "key"
+  }
+ ],
+ "chart": "pie",
+ "file": "data/downtime.xlsx",
+ "x": "원인",
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-ec+cdabc/D028_r1/out/t1"
+ }
+}

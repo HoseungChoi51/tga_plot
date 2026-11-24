@@ -1,0 +1,25 @@
+{
+ "asks": [
+  {
+   "ask": "tga r4 두개 시트",
+   "how": "key"
+  },
+  {
+   "ask": "dtg 비교 그래프",
+   "how": "key"
+  }
+ ],
+ "combine": true,
+ "file": "data/tga_batches.xlsx",
+ "names": [
+  "R4-260407-1",
+  "R4-260721-1"
+ ],
+ "sheets": [
+  "R4-260407-1",
+  "R4-260721-1"
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdabc/D005_r1/out/t1"
+ }
+}

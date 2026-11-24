@@ -1,0 +1,29 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "pie",
+ "x": "등급_순서",
+ "colors": [
+  "green",
+  "orange",
+  "red"
+ ],
+ "values": "{:.1f}%",
+ "sheets": "런로그",
+ "asks": [
+  {
+   "ask": "26주 전체 등급(A/B/C) 비율 pie",
+   "how": "key"
+  },
+  {
+   "ask": "색은 A 초록, B 주황, C 빨강",
+   "how": "key"
+  },
+  {
+   "ask": "% 라벨 소수 1자리",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdflat/D029_r2/out/t1"
+ }
+}

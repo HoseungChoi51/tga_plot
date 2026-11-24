@@ -1,0 +1,22 @@
+{
+ "asks": [
+  {
+   "ask": "반응기별 등급 A/B/C 개수",
+   "how": "key"
+  },
+  {
+   "ask": "막대 쌓기",
+   "how": "key"
+  }
+ ],
+ "chart": "bar",
+ "file": "data/run_log.xlsx",
+ "sheets": "런로그",
+ "stack": true,
+ "x": "반응기",
+ "y": "count",
+ "z": "등급",
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-ec+cdabc/D020_r2/out/t1"
+ }
+}

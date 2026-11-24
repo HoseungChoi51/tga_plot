@@ -1,0 +1,84 @@
+{
+ "arm": "P-mpl+cd",
+ "item": "D028",
+ "repeat": 2,
+ "split": "dev",
+ "persona": "라인 작업자",
+ "type": "single",
+ "cd": "full",
+ "backend": "anthropic",
+ "model": "qwen3.8-flash",
+ "effort": "",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "정지원인 비율 파이로",
+   "calls": [
+    {
+     "reply": "{\n  \"file\": \"data/downtime.xlsx\",\n  \"sheets\": \"정지이력\",\n  \"x\": \"원인\",\n  \"y2\": false\n}",
+     "llm_s": 1.981,
+     "prompt_tokens": 5651,
+     "output_tokens": 43,
+     "cached_tokens": 5297,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": ""
+    },
+    {
+     "reply": "{\n  \"file\": \"data/downtime.xlsx\",\n  \"sheets\": \"정지이력\",\n  \"x\": \"D\",\n  \"y2\": false\n}",
+     "llm_s": 2.45,
+     "prompt_tokens": 5760,
+     "output_tokens": 41,
+     "cached_tokens": 5297,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": ""
+    },
+    {
+     "reply": "{\n  \"file\": \"data/downtime.xlsx\",\n  \"sheets\": \"정지이력\",\n  \"x\": \"D\",\n  \"y2\": false\n}",
+     "llm_s": 1.868,
+     "prompt_tokens": 5859,
+     "output_tokens": 41,
+     "cached_tokens": 5297,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": ""
+    }
+   ],
+   "spec": {
+    "file": "data/downtime.xlsx",
+    "sheets": "정지이력",
+    "x": "D",
+    "y2": false
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": false,
+    "error": "downtime.xlsx / \"정지이력\" x.col: column D has no numbers",
+    "hint": "columns with numbers: E \"정지시간(분)\""
+   },
+   "facts": [],
+   "draw_s": 0.43308353424072266,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [
+     "run: no plot (downtime.xlsx / \"정지이력\" x.col: column D has no numbers)"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 7.871
+  }
+ ]
+}

@@ -1,0 +1,29 @@
+{
+ "file": "data/r2_zone_temps.csv",
+ "chart": "line",
+ "x": "시각_dt",
+ "y": [
+  "2존_PV_smooth",
+  "2존_SP"
+ ],
+ "title": "R2 Zone 2 Temperature Trend (PV, Smoothed PV, SP)",
+ "legend": "best",
+ "grid": true,
+ "asks": [
+  {
+   "ask": "2존 PV 하루치 트렌드",
+   "how": "key"
+  },
+  {
+   "ask": "2존 SP 겹치기",
+   "how": "key"
+  },
+  {
+   "ask": "2존 PV 10분 이동평균(60포인트) 추가",
+   "how": "code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdflat/D002_r1/out/t1"
+ }
+}

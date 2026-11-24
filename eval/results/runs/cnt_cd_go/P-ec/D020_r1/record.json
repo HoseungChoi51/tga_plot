@@ -1,0 +1,276 @@
+{
+ "arm": "P-ec",
+ "item": "D020",
+ "repeat": 1,
+ "split": "dev",
+ "persona": "라인 작업자",
+ "type": "single",
+ "cd": "",
+ "backend": "anthropic",
+ "model": "qwen3.8-flash",
+ "effort": "",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "반응기마다 등급 A B C 몇개씩인지 쌓아서 보여줘",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"bar\",\n  \"x\": \"반응기\",\n  \"y\": \"count\",\n  \"by\": \"등급\",\n  \"stack\": true,\n  \"asks\": [\n    {\n      \"ask\": \"반응기별 등급 A B C 개수\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"쌓아서 보여줘\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 2.689,
+     "prompt_tokens": 6314,
+     "output_tokens": 134,
+     "cached_tokens": 5353,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": false,
+     "schema_error": "(top): Additional properties are not allowed ('sheet' was unexpected)"
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "bar",
+    "x": "반응기",
+    "y": "count",
+    "by": "등급",
+    "stack": true,
+    "asks": [
+     {
+      "ask": "반응기별 등급 A B C 개수",
+      "how": "key"
+     },
+     {
+      "ask": "쌓아서 보여줘",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": true,
+    "engine": "echarts",
+    "saved": [
+     "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-ec/D020_r1/out/t1/bar_반응기.png"
+    ],
+    "chart": "bar",
+    "rows_used": 997,
+    "rows_total": 997,
+    "values": {
+     "categories": [
+      "R1",
+      "R2",
+      "R3",
+      "R4"
+     ],
+     "series": {
+      "A": [
+       138.0,
+       79.0,
+       131.0,
+       1.0
+      ],
+      "B": [
+       106.0,
+       126.0,
+       112.0,
+       178.0
+      ],
+      "C": [
+       7.0,
+       45.0,
+       2.0,
+       72.0
+      ]
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "막대 그래프를 저장했습니다: bar_반응기.png\n사용한 행: 997 / 997\nA: R1 138, R2 79, R3 131, R4 1\nB: R1 106, R2 126, R3 112, R4 178\nC: R1 7, R2 45, R3 2, R4 72"
+   },
+   "facts": [
+    {
+     "engine": "echarts",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": 300,
+     "title": null,
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "A",
+         "orient": "v",
+         "cats": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          138.0,
+          79.0,
+          131.0,
+          1.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c"
+         ]
+        },
+        {
+         "name": "B",
+         "orient": "v",
+         "cats": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          106.0,
+          126.0,
+          112.0,
+          178.0
+         ],
+         "bottoms": [
+          138.0,
+          79.0,
+          131.0,
+          1.0
+         ],
+         "colors": [
+          "#c0392b",
+          "#c0392b",
+          "#c0392b",
+          "#c0392b"
+         ]
+        },
+        {
+         "name": "C",
+         "orient": "v",
+         "cats": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          7.0,
+          45.0,
+          2.0,
+          72.0
+         ],
+         "bottoms": [
+          244.0,
+          205.0,
+          243.0,
+          179.0
+         ],
+         "colors": [
+          "#2e8b57",
+          "#2e8b57",
+          "#2e8b57",
+          "#2e8b57"
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "반응기",
+        "type": "category",
+        "ticks": [],
+        "step": null,
+        "categories": [
+         "R1",
+         "R2",
+         "R3",
+         "R4"
+        ],
+        "min": 0.0,
+        "max": 3.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "count",
+        "type": "value",
+        "ticks": [
+         0.0,
+         100.0,
+         200.0,
+         300.0,
+         400.0
+        ],
+        "step": 100.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 400.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       }
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "등급",
+       "A",
+       "B",
+       "C"
+      ],
+      "inside": true,
+      "where": "upper right"
+     },
+     "files": [
+      {
+       "path": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-ec/D020_r1/out/t1/bar_반응기.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.877730131149292,
+   "check": {
+    "kind_expected": "stacked_bar",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 3.657
+  }
+ ]
+}

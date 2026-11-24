@@ -1,0 +1,28 @@
+{
+ "file": "data/r2_zone_temps.csv",
+ "chart": "line",
+ "x": "시각",
+ "y": {
+  "col": "2존_PV_이동평균",
+  "label": "2존 온도 (°C)"
+ },
+ "legend": "best",
+ "code": "import pandas as pd\n# 원본 데이터 로드 및 이동평균 계산\ndf_raw = pd.read_csv('data/r2_zone_temps.csv')\ndf_raw['시각'] = pd.to_datetime(df_raw['시각'])\n# 10분 = 60 샘플 (10s 간격 가정)\ndf_raw['2존_PV_MA'] = df_raw['2존(°C)'].rolling(window=60, min_periods=1).mean()\n\n# 기존 축(ax)에 선 추가\nax.plot(df_raw['시각'], df_raw['2존(°C)'], label='2존 PV', color='blue', linewidth=1.5)\nax.plot(df_raw['시각'], df_raw['2존 SP(°C)'], label='2존 SP', color='red', linestyle='--', linewidth=1.5)\nax.plot(df_raw['시각'], df_raw['2존_PV_MA'], label='2존 PV 10분 이동평균', color='green', linewidth=2)\n\nax.set_ylabel('온도 (°C)')\nax.legend(loc='best')\nfig.autofmt_xdate()",
+ "asks": [
+  {
+   "ask": "2존 PV 하루치 트렌드",
+   "how": "key"
+  },
+  {
+   "ask": "2존 SP 겹치기",
+   "how": "key"
+  },
+  {
+   "ask": "2존 PV 10분 이동평균(60포인트)",
+   "how": "code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdflat/D002_r2/out/t1"
+ }
+}

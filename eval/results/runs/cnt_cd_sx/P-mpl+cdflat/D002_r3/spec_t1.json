@@ -1,0 +1,30 @@
+{
+ "file": "data/r2_zone_temps.csv",
+ "chart": "line",
+ "x": "시각",
+ "y": [
+  "2존(°C)",
+  "2존 SP(°C)"
+ ],
+ "smooth": {
+  "window": 60,
+  "raw": true
+ },
+ "asks": [
+  {
+   "ask": "2존 PV 하루치 트렌드",
+   "how": "key"
+  },
+  {
+   "ask": "2존 SP 겹치기",
+   "how": "key"
+  },
+  {
+   "ask": "2존 PV 10분 이동평균 (60포인트)",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_sx/P-mpl+cdflat/D002_r3/out/t1"
+ }
+}

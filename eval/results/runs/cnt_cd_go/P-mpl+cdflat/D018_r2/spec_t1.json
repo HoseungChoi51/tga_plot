@@ -1,0 +1,32 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "bar",
+ "x": {
+  "col": "일자",
+  "period": "month"
+ },
+ "y": {
+  "agg": "count"
+ },
+ "by": "반응기",
+ "filter": [
+  "원인 == 노즐 막힘"
+ ],
+ "asks": [
+  {
+   "ask": "월별 노즐막힘 발생 횟수",
+   "how": "key"
+  },
+  {
+   "ask": "반응기별로 묶어서 (그룹)",
+   "how": "key"
+  },
+  {
+   "ask": "막대 차트",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdflat/D018_r2/out/t1"
+ }
+}

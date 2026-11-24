@@ -1,0 +1,2295 @@
+{
+ "files": [
+  "eval/results/cnt_cd_go.csv"
+ ],
+ "arms": {
+  "P-ec": {
+   "n": 132,
+   "pass": 95.5,
+   "ci": [
+    90.2,
+    99.2
+   ],
+   "first_try": 91.7,
+   "retry": 3.8,
+   "no_plot": 0.0,
+   "fits_schema": 73.5,
+   "llm_s": 2.96,
+   "out_tok": 132.0
+  },
+  "P-ec+cdabc": {
+   "n": 132,
+   "pass": 72.0,
+   "ci": [
+    59.0,
+    83.7
+   ],
+   "first_try": 68.9,
+   "retry": 3.8,
+   "no_plot": 0.8,
+   "fits_schema": 100.0,
+   "llm_s": 3.51,
+   "out_tok": 147.5
+  },
+  "P-mpl": {
+   "n": 132,
+   "pass": 97.7,
+   "ci": [
+    93.5,
+    100.0
+   ],
+   "first_try": 93.2,
+   "retry": 4.5,
+   "no_plot": 0.0,
+   "fits_schema": 67.4,
+   "llm_s": 2.88,
+   "out_tok": 137.0
+  },
+  "P-mpl+cd": {
+   "n": 132,
+   "pass": 6.1,
+   "ci": [
+    0.8,
+    13.3
+   ],
+   "first_try": 5.3,
+   "retry": 52.3,
+   "no_plot": 32.6,
+   "fits_schema": 100.0,
+   "llm_s": 4.85,
+   "out_tok": 112.0
+  },
+  "P-mpl+cdabc": {
+   "n": 132,
+   "pass": 72.0,
+   "ci": [
+    58.9,
+    83.0
+   ],
+   "first_try": 72.0,
+   "retry": 1.5,
+   "no_plot": 0.8,
+   "fits_schema": 100.0,
+   "llm_s": 3.21,
+   "out_tok": 122.0
+  },
+  "P-mpl+cdflat": {
+   "n": 132,
+   "pass": 81.8,
+   "ci": [
+    70.3,
+    90.9
+   ],
+   "first_try": 72.0,
+   "retry": 20.5,
+   "no_plot": 7.6,
+   "fits_schema": 100.0,
+   "llm_s": 3.75,
+   "out_tok": 196.5
+  }
+ },
+ "paired": {
+  "P-ec+cdabc vs P-ec": {
+   "pairs": 132,
+   "delta": -23.5,
+   "ci": [
+    -36.5,
+    -11.1
+   ],
+   "only_cd_passed": 4,
+   "only_free_passed": 35,
+   "mcnemar_p": 0.0,
+   "differ": [
+    {
+     "item": "D001",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/D001_r1",
+     "free_run": "results/runs/cnt_cd_go/P-ec/D001_r1",
+     "cd_failed": "lines: 1 drawn, want 4 | series R1: y range 22.58..28.06, want 22.72..28.71 | series R1: 24 of 26 points off | series R2: not drawn | series R3: not drawn | ser",
+     "free_failed": ""
+    },
+    {
+     "item": "D001",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/D001_r2",
+     "free_run": "results/runs/cnt_cd_go/P-ec/D001_r2",
+     "cd_failed": "lines: 1 drawn, want 4 | series R1: y range 22.58..28.06, want 22.72..28.71 | series R1: 24 of 26 points off | series R2: not drawn | series R3: not drawn | ser",
+     "free_failed": ""
+    },
+    {
+     "item": "D001",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/D001_r3",
+     "free_run": "results/runs/cnt_cd_go/P-ec/D001_r3",
+     "cd_failed": "lines: 1 drawn, want 4 | series R1: y range 22.58..28.06, want 22.72..28.71 | series R1: 24 of 26 points off | series R2: not drawn | series R3: not drawn | ser",
+     "free_failed": ""
+    },
+    {
+     "item": "D002",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/D002_r1",
+     "free_run": "results/runs/cnt_cd_go/P-ec/D002_r1",
+     "cd_failed": "series 2존(°C): y range 1047..1056, want 1147..1184",
+     "free_failed": ""
+    },
+    {
+     "item": "D002",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 1,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/D002_r2",
+     "free_run": "results/runs/cnt_cd_go/P-ec/D002_r2",
+     "cd_failed": "",
+     "free_failed": "lines: 2 drawn, want 3 | series 2존(°C): y range 1149..1176, want 1147..1184 | series 2존 10분 이동평균: not drawn"
+    },
+    {
+     "item": "D002",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 1,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/D002_r3",
+     "free_run": "results/runs/cnt_cd_go/P-ec/D002_r3",
+     "cd_failed": "",
+     "free_failed": "lines: 2 drawn, want 3 | series 2존(°C): y range 1149..1176, want 1147..1184 | series 2존 10분 이동평균: not drawn"
+    },
+    {
+     "item": "D008",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/D008_r3",
+     "free_run": "results/runs/cnt_cd_go/P-ec/D008_r3",
+     "cd_failed": "series CNT수율: 182 points, want 26 | series CNT수율: y range 19.81..30.25, want 22.58..28.06 | series CNT수율: 26 of 26 points off",
+     "free_failed": ""
+    },
+    {
+     "item": "D010",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/D010_r2",
+     "free_run": "results/runs/cnt_cd_go/P-ec/D010_r2",
+     "cd_failed": "colors: A/B: not found",
+     "free_failed": ""
+    },
+    {
+     "item": "D010",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/D010_r3",
+     "free_run": "results/runs/cnt_cd_go/P-ec/D010_r3",
+     "cd_failed": "scatter: groups of [997] points, want [126, 871] | colors: C: not found; A/B: not found",
+     "free_failed": ""
+    },
+    {
+     "item": "D015",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/D015_r2",
+     "free_run": "results/runs/cnt_cd_go/P-ec/D015_r2",
+     "cd_failed": "value_labels: no value labels",
+     "free_failed": ""
+    },
+    {
+     "item": "D015",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/D015_r3",
+     "free_run": "results/runs/cnt_cd_go/P-ec/D015_r3",
+     "cd_failed": "value_labels: no value labels",
+     "free_failed": ""
+    },
+    {
+     "item": "D017",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/D017_r1",
+     "free_run": "results/runs/cnt_cd_go/P-ec/D017_r1",
+     "cd_failed": "kind: drawn ['bar'], want grouped_bar | values: 1 bar series drawn, want 2",
+     "free_failed": ""
+    },
+    {
+     "item": "D018",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/D018_r1",
+     "free_run": "results/runs/cnt_cd_go/P-ec/D018_r1",
+     "cd_failed": "kind: drawn ['bar'], want grouped_bar | values: 1 bar series drawn, want 4",
+     "free_failed": ""
+    },
+    {
+     "item": "D018",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/D018_r2",
+     "free_run": "results/runs/cnt_cd_go/P-ec/D018_r2",
+     "cd_failed": "kind: drawn ['bar'], want grouped_bar | values: 1 bar series drawn, want 4",
+     "free_failed": ""
+    },
+    {
+     "item": "D018",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/D018_r3",
+     "free_run": "results/runs/cnt_cd_go/P-ec/D018_r3",
+     "cd_failed": "kind: drawn ['bar'], want grouped_bar | values: 1 bar series drawn, want 4",
+     "free_failed": ""
+    },
+    {
+     "item": "D019",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/D019_r1",
+     "free_run": "results/runs/cnt_cd_go/P-ec/D019_r1",
+     "cd_failed": "kind: drawn ['bar'], want stacked_bar | values: 1 bar series drawn, want 5",
+     "free_failed": ""
+    },
+    {
+     "item": "D019",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/D019_r2",
+     "free_run": "results/runs/cnt_cd_go/P-ec/D019_r2",
+     "cd_failed": "kind: drawn ['bar'], want stacked_bar | values: 1 bar series drawn, want 5",
+     "free_failed": ""
+    },
+    {
+     "item": "D019",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/D019_r3",
+     "free_run": "results/runs/cnt_cd_go/P-ec/D019_r3",
+     "cd_failed": "kind: drawn ['bar'], want stacked_bar | values: 1 bar series drawn, want 5",
+     "free_failed": ""
+    },
+    {
+     "item": "D020",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/D020_r1",
+     "free_run": "results/runs/cnt_cd_go/P-ec/D020_r1",
+     "cd_failed": "kind: drawn ['bar'], want stacked_bar | values: 1 bar series drawn, want 3",
+     "free_failed": ""
+    },
+    {
+     "item": "D020",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/D020_r2",
+     "free_run": "results/runs/cnt_cd_go/P-ec/D020_r2",
+     "cd_failed": "kind: drawn ['bar'], want stacked_bar | values: 1 bar series drawn, want 3",
+     "free_failed": ""
+    },
+    {
+     "item": "D020",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/D020_r3",
+     "free_run": "results/runs/cnt_cd_go/P-ec/D020_r3",
+     "cd_failed": "kind: drawn ['bar'], want stacked_bar | values: 1 bar series drawn, want 3",
+     "free_failed": ""
+    },
+    {
+     "item": "D022",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/D022_r3",
+     "free_run": "results/runs/cnt_cd_go/P-ec/D022_r3",
+     "cd_failed": "histogram TEM-01: bins/counts differ (edges differ) | histogram TEM-02: bins/counts differ (edges differ)",
+     "free_failed": ""
+    },
+    {
+     "item": "D026",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 1,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/D026_r2",
+     "free_run": "results/runs/cnt_cd_go/P-ec/D026_r2",
+     "cd_failed": "",
+     "free_failed": "heatmap: rows/columns differ (drawn ['2026-03-02', '2026-03-03', '2026-03-04', '2026-03-05', '2026-03-07'] x ['00:01', '00:07', '00:16', '00:22', '00:34'], want"
+    },
+    {
+     "item": "D026",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/D026_r3",
+     "free_run": "results/runs/cnt_cd_go/P-ec/D026_r3",
+     "cd_failed": "heatmap: rows/columns differ (drawn ['0-3', '4-7', '8-11', '12-15', '16-19'] x ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], want ['월', '화', '수', '목",
+     "free_failed": ""
+    },
+    {
+     "item": "D028",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/D028_r3",
+     "free_run": "results/runs/cnt_cd_go/P-ec/D028_r3",
+     "cd_failed": "pie: 기타: 11.25%, want 23.81%; 노즐 막힘: 18.22%, want 28.57%; 전력: 6.72%, want 9.52%; 히터 고장: 40.70%, want 14.97%",
+     "free_failed": ""
+    },
+    {
+     "item": "D029",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/D029_r2",
+     "free_run": "results/runs/cnt_cd_go/P-ec/D029_r2",
+     "cd_failed": "colors: A: ['#c0392b'] not green; B: ['#1f4e9c'] not orange; C: ['#2e8b57'] not red",
+     "free_failed": ""
+    },
+    {
+     "item": "D029",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/D029_r3",
+     "free_run": "results/runs/cnt_cd_go/P-ec/D029_r3",
+     "cd_failed": "colors: A: ['#e07b1f'] not green; B: ['#2e8b57'] not orange",
+     "free_failed": ""
+    },
+    {
+     "item": "DS01",
+     "turn": "2",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/DS01_r1",
+     "free_run": "results/runs/cnt_cd_go/P-ec/DS01_r1",
+     "cd_failed": "values: categories not drawn: ['2.5–3', '3–3.5', '3.5–4', '4–4.5', '4.5–5', '5–5.5'] (drawn: ['2.49', '2.62', '2.64', '2.66', '2.68', '2.72', '2.75', '2.77']) |",
+     "free_failed": ""
+    },
+    {
+     "item": "DS01",
+     "turn": "2",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/DS01_r2",
+     "free_run": "results/runs/cnt_cd_go/P-ec/DS01_r2",
+     "cd_failed": "values: categories not drawn: ['2.5–3', '3–3.5', '3.5–4', '4–4.5', '4.5–5', '5–5.5'] (drawn: ['2.49', '2.62', '2.64', '2.66', '2.68', '2.72', '2.75', '2.77']) |",
+     "free_failed": ""
+    },
+    {
+     "item": "DS01",
+     "turn": "3",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/DS01_r1",
+     "free_run": "results/runs/cnt_cd_go/P-ec/DS01_r1",
+     "cd_failed": "values: categories not drawn: ['2.5–3', '3–3.5', '3.5–4', '4–4.5', '4.5–5', '5–5.5'] (drawn: ['2.49', '2.62', '2.64', '2.66', '2.68', '2.72', '2.75', '2.77']) |",
+     "free_failed": ""
+    },
+    {
+     "item": "DS01",
+     "turn": "3",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/DS01_r2",
+     "free_run": "results/runs/cnt_cd_go/P-ec/DS01_r2",
+     "cd_failed": "values: categories not drawn: ['2.5–3', '3–3.5', '3.5–4', '4–4.5', '4.5–5', '5–5.5'] (drawn: ['2.49', '2.62', '2.64', '2.66', '2.68', '2.72', '2.75', '2.77']) |",
+     "free_failed": ""
+    },
+    {
+     "item": "DS01",
+     "turn": "4",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/DS01_r1",
+     "free_run": "results/runs/cnt_cd_go/P-ec/DS01_r1",
+     "cd_failed": "heatmap: rows/columns differ (drawn ['R1', 'R2', 'R3', 'R4'] x ['2.49', '2.62', '2.64', '2.66', '2.68'], want ['R1', 'R2', 'R3', 'R4'] x ['2.5–3', '3–3.5', '3.5",
+     "free_failed": ""
+    },
+    {
+     "item": "DS01",
+     "turn": "4",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/DS01_r2",
+     "free_run": "results/runs/cnt_cd_go/P-ec/DS01_r2",
+     "cd_failed": "heatmap: rows/columns differ (drawn ['R1', 'R2', 'R3', 'R4'] x ['2.49', '2.62', '2.64', '2.66', '2.68'], want ['R1', 'R2', 'R3', 'R4'] x ['2.5–3', '3–3.5', '3.5",
+     "free_failed": ""
+    },
+    {
+     "item": "DS03",
+     "turn": "4",
+     "repeat": "3",
+     "cd_passed": 1,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/DS03_r3",
+     "free_run": "results/runs/cnt_cd_go/P-ec/DS03_r3",
+     "cd_failed": "",
+     "free_failed": "series 노즐 막힘 건수: y range 218..1444, want 5..23 | series 노즐 막힘 건수: 6 of 6 points off"
+    },
+    {
+     "item": "DS04",
+     "turn": "2",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/DS04_r1",
+     "free_run": "results/runs/cnt_cd_go/P-ec/DS04_r1",
+     "cd_failed": "series 2존(°C): 8640 points, want 721",
+     "free_failed": ""
+    },
+    {
+     "item": "DS04",
+     "turn": "2",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/DS04_r2",
+     "free_run": "results/runs/cnt_cd_go/P-ec/DS04_r2",
+     "cd_failed": "series 2존(°C): 8640 points, want 721",
+     "free_failed": ""
+    },
+    {
+     "item": "DS04",
+     "turn": "2",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/DS04_r3",
+     "free_run": "results/runs/cnt_cd_go/P-ec/DS04_r3",
+     "cd_failed": "series 2존(°C): 8640 points, want 721",
+     "free_failed": ""
+    },
+    {
+     "item": "DS04",
+     "turn": "3",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/DS04_r1",
+     "free_run": "results/runs/cnt_cd_go/P-ec/DS04_r1",
+     "cd_failed": "histogram: 8640 values counted, want 721 | histogram _: bins/counts differ (edges differ)",
+     "free_failed": ""
+    },
+    {
+     "item": "DS04",
+     "turn": "3",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-ec+cdabc/DS04_r3",
+     "free_run": "results/runs/cnt_cd_go/P-ec/DS04_r3",
+     "cd_failed": "run: no plot (data_code failed: KeyError: 'A')",
+     "free_failed": ""
+    }
+   ]
+  },
+  "P-mpl+cd vs P-mpl": {
+   "pairs": 132,
+   "delta": -91.7,
+   "ci": [
+    -97.7,
+    -83.8
+   ],
+   "only_cd_passed": 0,
+   "only_free_passed": 121,
+   "mcnemar_p": 0.0,
+   "differ": [
+    {
+     "item": "D001",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D001_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D001_r1",
+     "cd_failed": "lines: 1 drawn, want 4 | series R1: 997 points, want 26 | series R1: y range 12.69..34.94, want 22.72..28.71 | series R1: 24 of 26 points off | series R2: not d",
+     "free_failed": ""
+    },
+    {
+     "item": "D001",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D001_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D001_r2",
+     "cd_failed": "lines: 1 drawn, want 4 | series R1: 997 points, want 26 | series R1: y range 12.69..34.94, want 22.72..28.71 | series R1: 24 of 26 points off | series R2: not d",
+     "free_failed": ""
+    },
+    {
+     "item": "D001",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D001_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D001_r3",
+     "cd_failed": "lines: 1 drawn, want 4 | series R1: 997 points, want 26 | series R1: y range 12.69..34.94, want 22.72..28.71 | series R1: 24 of 26 points off | series R2: not d",
+     "free_failed": ""
+    },
+    {
+     "item": "D002",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D002_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D002_r1",
+     "cd_failed": "lines: 2 drawn, want 3 | series 2존 10분 이동평균: not drawn | computed max of 10-min moving average (°C): 1175.595 not shown",
+     "free_failed": ""
+    },
+    {
+     "item": "D002",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D002_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D002_r2",
+     "cd_failed": "lines: 2 drawn, want 3 | series 2존 10분 이동평균: not drawn | computed max of 10-min moving average (°C): 1175.595 not shown",
+     "free_failed": ""
+    },
+    {
+     "item": "D002",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D002_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D002_r3",
+     "cd_failed": "lines: 2 drawn, want 3 | series 2존 10분 이동평균: not drawn | computed max of 10-min moving average (°C): 1175.595 not shown",
+     "free_failed": ""
+    },
+    {
+     "item": "D003",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D003_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D003_r2",
+     "cd_failed": "kind: drawn ['line'], want scatter | scatter: no points drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "D003",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D003_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D003_r3",
+     "cd_failed": "kind: drawn ['line'], want scatter | scatter: no points drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "D004",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D004_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D004_r1",
+     "cd_failed": "lines: 1 drawn, want 2 | series R1-260716-1: not drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "D004",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D004_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D004_r2",
+     "cd_failed": "lines: 1 drawn, want 2 | series R1-260716-1: not drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "D004",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D004_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D004_r3",
+     "cd_failed": "lines: 1 drawn, want 2 | series R1-260716-1: not drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "D005",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D005_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D005_r1",
+     "cd_failed": "lines: 1 drawn, want 2 | series R4-260721-1: not drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "D005",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D005_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D005_r2",
+     "cd_failed": "series R4-260721-1: y range 7.252..100.2, want -0.019..1.644",
+     "free_failed": ""
+    },
+    {
+     "item": "D005",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D005_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D005_r3",
+     "cd_failed": "series R4-260721-1: y range 7.252..100.2, want -0.019..1.644",
+     "free_failed": ""
+    },
+    {
+     "item": "D006",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D006_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D006_r1",
+     "cd_failed": "lines: 1 drawn, want 8 | series R1-260326-1: y range 193.4..1843, want 0.105..1 | series R1-260711-1: not drawn | series R1-260716-1: not drawn | series R2-2606",
+     "free_failed": ""
+    },
+    {
+     "item": "D006",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D006_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D006_r2",
+     "cd_failed": "lines: 1 drawn, want 8 | series R1-260326-1: y range 193.4..1843, want 0.105..1 | series R1-260711-1: not drawn | series R1-260716-1: not drawn | series R2-2606",
+     "free_failed": ""
+    },
+    {
+     "item": "D006",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D006_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D006_r3",
+     "cd_failed": "lines: 1 drawn, want 8 | series R1-260326-1: y range 193.4..1843, want 0.105..1 | series R1-260711-1: not drawn | series R1-260716-1: not drawn | series R2-2606",
+     "free_failed": ""
+    },
+    {
+     "item": "D008",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D008_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D008_r1",
+     "cd_failed": "series CNT수율: 182 points, want 26 | series CNT수율: y range 19.81..30.25, want 22.58..28.06 | series CNT수율: 26 of 26 points off",
+     "free_failed": ""
+    },
+    {
+     "item": "D008",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D008_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D008_r2",
+     "cd_failed": "series CNT수율: 182 points, want 26 | series CNT수율: y range 19.81..30.25, want 22.58..28.06 | series CNT수율: 26 of 26 points off",
+     "free_failed": ""
+    },
+    {
+     "item": "D008",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D008_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D008_r3",
+     "cd_failed": "series CNT수율: 182 points, want 26 | series CNT수율: y range 19.81..30.25, want 22.58..28.06 | series CNT수율: 26 of 26 points off",
+     "free_failed": ""
+    },
+    {
+     "item": "D009",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D009_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D009_r1",
+     "cd_failed": "kind: drawn ['line'], want scatter | scatter: no points drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "D009",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D009_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D009_r2",
+     "cd_failed": "kind: drawn ['line'], want scatter | scatter: no points drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "D009",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D009_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D009_r3",
+     "cd_failed": "kind: drawn ['line'], want scatter | scatter: no points drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "D010",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D010_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D010_r1",
+     "cd_failed": "kind: drawn ['line'], want scatter | scatter: no points drawn | colors: C: not found; A/B: not found",
+     "free_failed": ""
+    },
+    {
+     "item": "D011",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D011_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D011_r1",
+     "cd_failed": "kind: drawn ['line'], want scatter | scatter: no points drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "D011",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D011_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D011_r3",
+     "cd_failed": "kind: drawn ['line'], want scatter | scatter: no points drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "D012",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D012_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D012_r1",
+     "cd_failed": "kind: drawn ['line'], want scatter | scatter: no points drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "D012",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D012_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D012_r2",
+     "cd_failed": "kind: drawn ['line'], want scatter | scatter: no points drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "D012",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D012_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D012_r3",
+     "cd_failed": "kind: drawn ['line'], want scatter | scatter: no points drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "D013",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D013_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D013_r1",
+     "cd_failed": "kind: drawn ['line'], want scatter | scatter: no points drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "D013",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D013_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D013_r2",
+     "cd_failed": "kind: drawn ['line'], want scatter | scatter: no points drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "D013",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D013_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D013_r3",
+     "cd_failed": "kind: drawn ['line'], want scatter | scatter: no points drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "D014",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D014_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D014_r1",
+     "cd_failed": "kind: drawn ['line'], want scatter | scatter: no points drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "D014",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D014_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D014_r2",
+     "cd_failed": "kind: drawn ['line'], want scatter | scatter: no points drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "D014",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D014_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D014_r3",
+     "cd_failed": "kind: drawn ['line'], want scatter | scatter: no points drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "D015",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D015_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D015_r1",
+     "cd_failed": "run: no plot (run_log.xlsx / \"런로그\" x.col: column F has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "D015",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D015_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D015_r2",
+     "cd_failed": "run: no plot (run_log.xlsx / \"런로그\" x.col: column F has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "D015",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D015_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D015_r3",
+     "cd_failed": "run: no plot (run_log.xlsx / \"런로그\" x.col: column F has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "D016",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D016_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D016_r1",
+     "cd_failed": "run: no plot (downtime.xlsx / \"정지이력\" x.col: column D has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "D016",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D016_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D016_r2",
+     "cd_failed": "run: no plot (downtime.xlsx / \"정지이력\" x.col: column D has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "D016",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D016_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D016_r3",
+     "cd_failed": "run: no plot (downtime.xlsx / \"정지이력\" x.col: column D has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "D017",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D017_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D017_r1",
+     "cd_failed": "run: no plot (run_log.xlsx / \"런로그\" x.col: column E has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "D017",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D017_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D017_r2",
+     "cd_failed": "run: no plot (run_log.xlsx / \"런로그\" x.col: column E has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "D017",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D017_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D017_r3",
+     "cd_failed": "run: no plot (run_log.xlsx / \"런로그\" x.col: column E has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "D018",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D018_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D018_r1",
+     "cd_failed": "run: no plot (TypeError: Could not convert '10:43' to numeric)",
+     "free_failed": ""
+    },
+    {
+     "item": "D018",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D018_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D018_r2",
+     "cd_failed": "run: no plot (TypeError: Could not convert '10:43' to numeric)",
+     "free_failed": ""
+    },
+    {
+     "item": "D018",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D018_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D018_r3",
+     "cd_failed": "run: no plot (TypeError: Could not convert '10:43' to numeric)",
+     "free_failed": ""
+    },
+    {
+     "item": "D019",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D019_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D019_r1",
+     "cd_failed": "kind: drawn ['line'], want stacked_bar | values: 0 bar series drawn, want 5",
+     "free_failed": ""
+    },
+    {
+     "item": "D019",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D019_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D019_r2",
+     "cd_failed": "kind: drawn ['line'], want stacked_bar | values: 0 bar series drawn, want 5",
+     "free_failed": ""
+    },
+    {
+     "item": "D019",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D019_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D019_r3",
+     "cd_failed": "kind: drawn ['line'], want stacked_bar | values: 0 bar series drawn, want 5",
+     "free_failed": ""
+    },
+    {
+     "item": "D020",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D020_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D020_r1",
+     "cd_failed": "run: no plot (run_log.xlsx / \"런로그\" x.col: column E has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "D020",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D020_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D020_r2",
+     "cd_failed": "run: no plot (run_log.xlsx / \"런로그\" x.col: column E has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "D020",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D020_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D020_r3",
+     "cd_failed": "run: no plot (run_log.xlsx / \"런로그\" x.col: column E has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "D021",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D021_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D021_r1",
+     "cd_failed": "run: no plot (run_log.xlsx / \"런로그\" x.col: column G has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "D021",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D021_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D021_r2",
+     "cd_failed": "run: no plot (run_log.xlsx / \"런로그\" x.col: column G has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "D021",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D021_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D021_r3",
+     "cd_failed": "run: no plot (run_log.xlsx / \"런로그\" x.col: column G has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "D022",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D022_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D022_r1",
+     "cd_failed": "kind: drawn ['line'], want histogram | histogram: no bars drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "D022",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D022_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D022_r2",
+     "cd_failed": "kind: drawn ['line'], want histogram | histogram: no bars drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "D022",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D022_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D022_r3",
+     "cd_failed": "kind: drawn ['line'], want histogram | histogram: no bars drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "D023",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D023_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D023_r1",
+     "cd_failed": "kind: drawn ['line'], want histogram | histogram: no bars drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "D023",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D023_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D023_r2",
+     "cd_failed": "run: no plot (run_log.xlsx / \"런로그\" x.col: no column matches \"CNT수율 (g/g-cat)\")",
+     "free_failed": ""
+    },
+    {
+     "item": "D023",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D023_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D023_r3",
+     "cd_failed": "kind: drawn ['line'], want histogram | histogram: no bars drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "D024",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D024_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D024_r1",
+     "cd_failed": "kind: drawn ['line'], want heatmap | heatmap: none drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "D024",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D024_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D024_r2",
+     "cd_failed": "kind: drawn ['line'], want heatmap | heatmap: none drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "D024",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D024_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D024_r3",
+     "cd_failed": "kind: drawn ['line'], want heatmap | heatmap: none drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "D025",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D025_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D025_r1",
+     "cd_failed": "run: no plot (run_log.xlsx / \"런로그\" y1.col: column E has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "D025",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D025_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D025_r2",
+     "cd_failed": "kind: drawn ['line'], want heatmap | heatmap: none drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "D025",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D025_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D025_r3",
+     "cd_failed": "run: no plot (run_log.xlsx / \"런로그\" y1.col: column E has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "D026",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D026_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D026_r1",
+     "cd_failed": "run: no plot (downtime.xlsx / \"정지이력\" x.col: column B has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "D026",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D026_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D026_r3",
+     "cd_failed": "run: no plot (downtime.xlsx / \"정지이력\" x.col: column B has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "D027",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D027_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D027_r1",
+     "cd_failed": "kind: drawn ['line'], want heatmap | heatmap: none drawn | colormap: no heatmap | clim: None, want [-1, 1]",
+     "free_failed": ""
+    },
+    {
+     "item": "D027",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D027_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D027_r2",
+     "cd_failed": "kind: drawn ['line'], want heatmap | heatmap: none drawn | colormap: no heatmap | clim: None, want [-1, 1]",
+     "free_failed": ""
+    },
+    {
+     "item": "D027",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D027_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D027_r3",
+     "cd_failed": "kind: drawn ['line'], want heatmap | heatmap: none drawn | colormap: no heatmap | clim: None, want [-1, 1]",
+     "free_failed": ""
+    },
+    {
+     "item": "D028",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D028_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D028_r1",
+     "cd_failed": "run: no plot (downtime.xlsx / \"정지이력\" x.col: column D has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "D028",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D028_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D028_r2",
+     "cd_failed": "run: no plot (downtime.xlsx / \"정지이력\" x.col: column D has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "D028",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D028_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D028_r3",
+     "cd_failed": "run: no plot (downtime.xlsx / \"정지이력\" x.col: column D has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "D029",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D029_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D029_r1",
+     "cd_failed": "run: no plot (run_log.xlsx / \"런로그\" x.col: no column matches \"V\")",
+     "free_failed": ""
+    },
+    {
+     "item": "D029",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D029_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D029_r2",
+     "cd_failed": "run: no plot (run_log.xlsx / \"런로그\" x.col: no column matches \"V\")",
+     "free_failed": ""
+    },
+    {
+     "item": "D029",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D029_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D029_r3",
+     "cd_failed": "run: no plot (run_log.xlsx / \"런로그\" x.col: no column matches \"등급\")",
+     "free_failed": ""
+    },
+    {
+     "item": "D030",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D030_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D030_r1",
+     "cd_failed": "run: no plot (downtime.xlsx / \"정지이력\" x.col: column D has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "D030",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D030_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D030_r2",
+     "cd_failed": "run: no plot (downtime.xlsx / \"정지이력\" y1.col: column D has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "D030",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/D030_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D030_r3",
+     "cd_failed": "run: no plot (downtime.xlsx / \"정지이력\" y1.col: column D has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "DS01",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS01_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS01_r1",
+     "cd_failed": "kind: drawn ['line'], want scatter | scatter: no points drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "DS01",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS01_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS01_r2",
+     "cd_failed": "kind: drawn ['line'], want scatter | scatter: no points drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "DS01",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS01_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS01_r3",
+     "cd_failed": "kind: drawn ['line'], want scatter | scatter: no points drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "DS01",
+     "turn": "2",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS01_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS01_r1",
+     "cd_failed": "kind: drawn ['line'], want bar | values: no bars drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "DS01",
+     "turn": "2",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS01_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS01_r2",
+     "cd_failed": "kind: drawn ['line'], want bar | values: no bars drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "DS01",
+     "turn": "2",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS01_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS01_r3",
+     "cd_failed": "kind: drawn ['line'], want bar | values: no bars drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "DS01",
+     "turn": "3",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS01_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS01_r1",
+     "cd_failed": "kind: drawn ['line'], want bar | values: no bars drawn | bar_annotations: values not shown for ['2.5–3', '3–3.5', '3.5–4', '4–4.5', '4.5–5']",
+     "free_failed": ""
+    },
+    {
+     "item": "DS01",
+     "turn": "3",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS01_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS01_r2",
+     "cd_failed": "kind: drawn ['line'], want bar | values: no bars drawn | bar_annotations: values not shown for ['2.5–3', '3–3.5', '3.5–4', '4–4.5', '4.5–5']",
+     "free_failed": ""
+    },
+    {
+     "item": "DS01",
+     "turn": "3",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS01_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS01_r3",
+     "cd_failed": "kind: drawn ['line'], want bar | values: no bars drawn | bar_annotations: values not shown for ['2.5–3', '3–3.5', '3.5–4', '4–4.5', '4.5–5']",
+     "free_failed": ""
+    },
+    {
+     "item": "DS01",
+     "turn": "4",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS01_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS01_r1",
+     "cd_failed": "kind: drawn ['line'], want heatmap | heatmap: none drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "DS01",
+     "turn": "4",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS01_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS01_r2",
+     "cd_failed": "kind: drawn ['line'], want heatmap | heatmap: none drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "DS01",
+     "turn": "4",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS01_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS01_r3",
+     "cd_failed": "kind: drawn ['line'], want heatmap | heatmap: none drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "DS02",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS02_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS02_r1",
+     "cd_failed": "lines: 1 drawn, want 10 | series R1-260711-1: not drawn | series R1-260716-1: not drawn | series R2-260312-1: not drawn | series R2-260616-1: not drawn | series",
+     "free_failed": ""
+    },
+    {
+     "item": "DS02",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS02_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS02_r2",
+     "cd_failed": "lines: 1 drawn, want 10 | series R1-260711-1: not drawn | series R1-260716-1: not drawn | series R2-260312-1: not drawn | series R2-260616-1: not drawn | series",
+     "free_failed": ""
+    },
+    {
+     "item": "DS02",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS02_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS02_r3",
+     "cd_failed": "lines: 1 drawn, want 10 | series R1-260711-1: not drawn | series R1-260716-1: not drawn | series R2-260312-1: not drawn | series R2-260616-1: not drawn | series",
+     "free_failed": ""
+    },
+    {
+     "item": "DS02",
+     "turn": "2",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS02_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS02_r1",
+     "cd_failed": "lines: 1 drawn, want 3 | series R4-260407-1: not drawn | series R4-260721-1: not drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "DS02",
+     "turn": "2",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS02_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS02_r2",
+     "cd_failed": "lines: 1 drawn, want 3 | series R4-260407-1: not drawn | series R4-260721-1: not drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "DS02",
+     "turn": "2",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS02_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS02_r3",
+     "cd_failed": "lines: 1 drawn, want 3 | series R4-260407-1: not drawn | series R4-260721-1: not drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "DS02",
+     "turn": "3",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS02_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS02_r1",
+     "cd_failed": "lines: 1 drawn, want 3 | series R4-260407-1: not drawn | series R4-260721-1: not drawn | ylim: 0.0..111.69059999999999, want [0, 105] | title: 'R1-260326-1', wa",
+     "free_failed": ""
+    },
+    {
+     "item": "DS02",
+     "turn": "3",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS02_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS02_r2",
+     "cd_failed": "lines: 1 drawn, want 3 | series R4-260407-1: not drawn | series R4-260721-1: not drawn | ylim: 0.0..111.69059999999999, want [0, 105] | title: 'R1-260326-1', wa",
+     "free_failed": ""
+    },
+    {
+     "item": "DS02",
+     "turn": "3",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS02_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS02_r3",
+     "cd_failed": "lines: 1 drawn, want 3 | series R4-260407-1: not drawn | series R4-260721-1: not drawn | ylim: 0.0..111.69059999999999, want [0, 105] | title: 'R1-260326-1', wa",
+     "free_failed": ""
+    },
+    {
+     "item": "DS03",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS03_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS03_r1",
+     "cd_failed": "run: no plot (downtime.xlsx / \"정지이력\" x.col: column C has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "DS03",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS03_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS03_r2",
+     "cd_failed": "run: no plot (downtime.xlsx / \"정지이력\" x.col: column C has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "DS03",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS03_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS03_r3",
+     "cd_failed": "run: no plot (downtime.xlsx / \"정지이력\" x.col: column C has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "DS03",
+     "turn": "2",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS03_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS03_r1",
+     "cd_failed": "run: no plot (downtime.xlsx / \"정지이력\" x.col: column C has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "DS03",
+     "turn": "2",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS03_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS03_r2",
+     "cd_failed": "run: no plot (downtime.xlsx / \"정지이력\" x.col: column C has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "DS03",
+     "turn": "2",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS03_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS03_r3",
+     "cd_failed": "run: no plot (downtime.xlsx / \"정지이력\" x.col: column C has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "DS03",
+     "turn": "3",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS03_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS03_r1",
+     "cd_failed": "run: no plot (downtime.xlsx / \"정지이력\" x.col: column C has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "DS03",
+     "turn": "3",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS03_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS03_r2",
+     "cd_failed": "run: no plot (downtime.xlsx / \"정지이력\" x.col: column D has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "DS03",
+     "turn": "3",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS03_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS03_r3",
+     "cd_failed": "run: no plot (downtime.xlsx / \"정지이력\" x.col: column D has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "DS03",
+     "turn": "4",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS03_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS03_r1",
+     "cd_failed": "run: no plot (downtime.xlsx / \"정지이력\" x.col: column C has no numbers)",
+     "free_failed": ""
+    },
+    {
+     "item": "DS03",
+     "turn": "4",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS03_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS03_r2",
+     "cd_failed": "series 노즐 막힘 건수: 135 points, want 6 | series 노즐 막힘 건수: y range 5..483, want 5..23 | series 노즐 막힘 건수: 6 of 6 points off",
+     "free_failed": ""
+    },
+    {
+     "item": "DS03",
+     "turn": "4",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS03_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS03_r3",
+     "cd_failed": "series 노즐 막힘 건수: 135 points, want 6 | series 노즐 막힘 건수: y range 5..483, want 5..23 | series 노즐 막힘 건수: 6 of 6 points off",
+     "free_failed": ""
+    },
+    {
+     "item": "DS04",
+     "turn": "2",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS04_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS04_r1",
+     "cd_failed": "series 2존(°C): 8640 points, want 721",
+     "free_failed": ""
+    },
+    {
+     "item": "DS04",
+     "turn": "2",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS04_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS04_r2",
+     "cd_failed": "series 2존(°C): 8640 points, want 721",
+     "free_failed": ""
+    },
+    {
+     "item": "DS04",
+     "turn": "2",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS04_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS04_r3",
+     "cd_failed": "series 2존(°C): 8640 points, want 721",
+     "free_failed": ""
+    },
+    {
+     "item": "DS04",
+     "turn": "3",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS04_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS04_r1",
+     "cd_failed": "kind: drawn ['line'], want histogram | histogram: no bars drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "DS04",
+     "turn": "3",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS04_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS04_r2",
+     "cd_failed": "kind: drawn ['line'], want histogram | histogram: no bars drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "DS04",
+     "turn": "3",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cd/DS04_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS04_r3",
+     "cd_failed": "kind: drawn ['line'], want histogram | histogram: no bars drawn",
+     "free_failed": ""
+    }
+   ]
+  },
+  "P-mpl+cdabc vs P-mpl": {
+   "pairs": 132,
+   "delta": -25.8,
+   "ci": [
+    -37.6,
+    -15.5
+   ],
+   "only_cd_passed": 0,
+   "only_free_passed": 34,
+   "mcnemar_p": 0.0,
+   "differ": [
+    {
+     "item": "D001",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/D001_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D001_r1",
+     "cd_failed": "lines: 1 drawn, want 4 | series R1: y range 22.58..28.06, want 22.72..28.71 | series R1: 24 of 26 points off | series R2: not drawn | series R3: not drawn | ser",
+     "free_failed": ""
+    },
+    {
+     "item": "D001",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/D001_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D001_r2",
+     "cd_failed": "lines: 1 drawn, want 4 | series R1: y range 22.58..28.06, want 22.72..28.71 | series R1: 24 of 26 points off | series R2: not drawn | series R3: not drawn | ser",
+     "free_failed": ""
+    },
+    {
+     "item": "D001",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/D001_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D001_r3",
+     "cd_failed": "lines: 1 drawn, want 4 | series R1: y range 22.58..28.06, want 22.72..28.71 | series R1: 24 of 26 points off | series R2: not drawn | series R3: not drawn | ser",
+     "free_failed": ""
+    },
+    {
+     "item": "D002",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/D002_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D002_r1",
+     "cd_failed": "series 2존 10분 이동평균: y range 580.7..1176, want 1149..1176",
+     "free_failed": ""
+    },
+    {
+     "item": "D008",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/D008_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D008_r1",
+     "cd_failed": "series CNT수율: 182 points, want 26 | series CNT수율: y range 19.81..30.25, want 22.58..28.06 | series CNT수율: 26 of 26 points off",
+     "free_failed": ""
+    },
+    {
+     "item": "D008",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/D008_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D008_r2",
+     "cd_failed": "series CNT수율: 182 points, want 26 | series CNT수율: y range 19.81..30.25, want 22.58..28.06 | series CNT수율: 26 of 26 points off",
+     "free_failed": ""
+    },
+    {
+     "item": "D010",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/D010_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D010_r1",
+     "cd_failed": "scatter: groups of [997] points, want [126, 871] | colors: C: not found; A/B: not found",
+     "free_failed": ""
+    },
+    {
+     "item": "D014",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/D014_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D014_r3",
+     "cd_failed": "scatter: groups of [90] points, want [18, 18, 18, 18, 18]",
+     "free_failed": ""
+    },
+    {
+     "item": "D015",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/D015_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D015_r3",
+     "cd_failed": "value_labels: no value labels",
+     "free_failed": ""
+    },
+    {
+     "item": "D018",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/D018_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D018_r1",
+     "cd_failed": "kind: drawn ['bar'], want grouped_bar | values: 1 bar series drawn, want 4",
+     "free_failed": ""
+    },
+    {
+     "item": "D018",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/D018_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D018_r2",
+     "cd_failed": "kind: drawn ['bar'], want grouped_bar | values: 1 bar series drawn, want 4",
+     "free_failed": ""
+    },
+    {
+     "item": "D018",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/D018_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D018_r3",
+     "cd_failed": "kind: drawn ['bar'], want grouped_bar | values: 1 bar series drawn, want 4",
+     "free_failed": ""
+    },
+    {
+     "item": "D019",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/D019_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D019_r1",
+     "cd_failed": "kind: drawn ['bar'], want stacked_bar | values: 1 bar series drawn, want 5",
+     "free_failed": ""
+    },
+    {
+     "item": "D020",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/D020_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D020_r2",
+     "cd_failed": "kind: drawn ['bar'], want stacked_bar | values: 1 bar series drawn, want 3",
+     "free_failed": ""
+    },
+    {
+     "item": "D020",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/D020_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D020_r3",
+     "cd_failed": "kind: drawn ['bar'], want stacked_bar | values: 1 bar series drawn, want 3",
+     "free_failed": ""
+    },
+    {
+     "item": "D021",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/D021_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D021_r1",
+     "cd_failed": "order: drawn ['강하늘', '김도현', '박지훈', '윤재원', '이서준', '정민호', '최유진', '한수빈'], want ['김도현', '최유진', '한수빈', '강하늘', '이서준', '박지훈', '정민호', '윤재원']",
+     "free_failed": ""
+    },
+    {
+     "item": "D022",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/D022_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D022_r1",
+     "cd_failed": "histogram TEM-01: bins/counts differ | histogram TEM-02: bins/counts differ",
+     "free_failed": ""
+    },
+    {
+     "item": "D022",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/D022_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D022_r2",
+     "cd_failed": "histogram TEM-01: bins/counts differ | histogram TEM-02: bins/counts differ",
+     "free_failed": ""
+    },
+    {
+     "item": "D022",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/D022_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D022_r3",
+     "cd_failed": "histogram TEM-01: bins/counts differ | histogram TEM-02: bins/counts differ",
+     "free_failed": ""
+    },
+    {
+     "item": "D026",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/D026_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D026_r1",
+     "cd_failed": "heatmap: rows/columns differ (drawn ['0-3시', '4-7시', '8-11시', '12-15시', '16-19시'] x ['월', '화', '수', '목', '금'], want ['월', '화', '수', '목', '금'] x ['0', '1', '2', ",
+     "free_failed": ""
+    },
+    {
+     "item": "D026",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/D026_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D026_r3",
+     "cd_failed": "heatmap: rows/columns differ (drawn ['00-03', '03-06', '06-09', '09-12', '12-15'] x ['월', '화', '수', '목', '금'], want ['월', '화', '수', '목', '금'] x ['0', '1', '2', ",
+     "free_failed": ""
+    },
+    {
+     "item": "D028",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/D028_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D028_r2",
+     "cd_failed": "pie: 기타: 11.25%, want 23.81%; 노즐 막힘: 18.22%, want 28.57%; 전력: 6.72%, want 9.52%; 히터 고장: 40.70%, want 14.97%",
+     "free_failed": ""
+    },
+    {
+     "item": "D029",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/D029_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D029_r1",
+     "cd_failed": "colors: A: ['#e07b1f'] not green; B: ['#2e8b57'] not orange",
+     "free_failed": ""
+    },
+    {
+     "item": "D029",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/D029_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D029_r2",
+     "cd_failed": "colors: A: ['#e07b1f'] not green; B: ['#2e8b57'] not orange",
+     "free_failed": ""
+    },
+    {
+     "item": "D029",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/D029_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D029_r3",
+     "cd_failed": "colors: A: ['#e07b1f'] not green; B: ['#2e8b57'] not orange",
+     "free_failed": ""
+    },
+    {
+     "item": "DS01",
+     "turn": "2",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/DS01_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS01_r2",
+     "cd_failed": "values: categories not drawn: ['2.5–3', '3–3.5', '3.5–4', '4–4.5', '4.5–5', '5–5.5'] (drawn: ['2.49', '2.62', '2.64', '2.66', '2.68', '2.72', '2.75', '2.77']) |",
+     "free_failed": ""
+    },
+    {
+     "item": "DS01",
+     "turn": "3",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/DS01_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS01_r2",
+     "cd_failed": "values: categories not drawn: ['2.5–3', '3–3.5', '3.5–4', '4–4.5', '4.5–5', '5–5.5'] (drawn: ['2.49', '2.62', '2.64', '2.66', '2.68', '2.72', '2.75', '2.77']) |",
+     "free_failed": ""
+    },
+    {
+     "item": "DS01",
+     "turn": "4",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/DS01_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS01_r2",
+     "cd_failed": "heatmap: rows/columns differ (drawn ['R1', 'R2', 'R3', 'R4'] x ['2.49', '2.62', '2.64', '2.66', '2.68'], want ['R1', 'R2', 'R3', 'R4'] x ['2.5–3', '3–3.5', '3.5",
+     "free_failed": ""
+    },
+    {
+     "item": "DS04",
+     "turn": "2",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/DS04_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS04_r1",
+     "cd_failed": "series 2존(°C): 8640 points, want 721",
+     "free_failed": ""
+    },
+    {
+     "item": "DS04",
+     "turn": "2",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/DS04_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS04_r2",
+     "cd_failed": "series 2존(°C): 8640 points, want 721",
+     "free_failed": ""
+    },
+    {
+     "item": "DS04",
+     "turn": "2",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/DS04_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS04_r3",
+     "cd_failed": "series 2존(°C): 8640 points, want 721",
+     "free_failed": ""
+    },
+    {
+     "item": "DS04",
+     "turn": "3",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/DS04_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS04_r1",
+     "cd_failed": "histogram: 720 values counted, want 721 | histogram _: bins/counts differ (edges differ)",
+     "free_failed": ""
+    },
+    {
+     "item": "DS04",
+     "turn": "3",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/DS04_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS04_r2",
+     "cd_failed": "histogram: 720 values counted, want 721 | histogram _: bins/counts differ (edges differ)",
+     "free_failed": ""
+    },
+    {
+     "item": "DS04",
+     "turn": "3",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdabc/DS04_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS04_r3",
+     "cd_failed": "histogram: 720 values counted, want 721 | histogram _: bins/counts differ (edges differ)",
+     "free_failed": ""
+    }
+   ]
+  },
+  "P-mpl+cdflat vs P-mpl": {
+   "pairs": 132,
+   "delta": -15.9,
+   "ci": [
+    -25.2,
+    -8.1
+   ],
+   "only_cd_passed": 0,
+   "only_free_passed": 21,
+   "mcnemar_p": 0.0,
+   "differ": [
+    {
+     "item": "D001",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdflat/D001_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D001_r2",
+     "cd_failed": "run: no plot (x: no column matches \"주차_정수\" (closest: 주차))",
+     "free_failed": ""
+    },
+    {
+     "item": "D002",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdflat/D002_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D002_r1",
+     "cd_failed": "run: no plot (x: no column matches \"시각_dt\" (closest: 시각))",
+     "free_failed": ""
+    },
+    {
+     "item": "D002",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdflat/D002_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D002_r2",
+     "cd_failed": "run: no plot (y: no column matches \"2존_PV_이동평균\")",
+     "free_failed": ""
+    },
+    {
+     "item": "D010",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdflat/D010_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D010_r1",
+     "cd_failed": "scatter: groups of [997] points, want [126, 871] | colors: C: not found; A/B: not found",
+     "free_failed": ""
+    },
+    {
+     "item": "D018",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdflat/D018_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D018_r1",
+     "cd_failed": "run: no plot (x: no column matches \"월\")",
+     "free_failed": ""
+    },
+    {
+     "item": "D019",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdflat/D019_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D019_r2",
+     "cd_failed": "values: 3/기타: drawn 444.0, want 7.4; 4/기타: drawn 710.0, want 11.833; 5/기타: drawn 221.0, want 3.683; 6/기타: drawn 578.0, want 9.633; 7/기타: drawn 471.0, want 7.85",
+     "free_failed": ""
+    },
+    {
+     "item": "D019",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdflat/D019_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D019_r3",
+     "cd_failed": "values: not drawn: ['3/기타', '4/기타', '5/기타', '6/기타', '7/기타', '8/기타']",
+     "free_failed": ""
+    },
+    {
+     "item": "D020",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdflat/D020_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D020_r2",
+     "cd_failed": "kind: drawn ['bar'], want stacked_bar | values: 1 bar series drawn, want 3",
+     "free_failed": ""
+    },
+    {
+     "item": "D022",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdflat/D022_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D022_r1",
+     "cd_failed": "run: no plot (filter: no column matches \"[\"시료\" (closest: 시료))",
+     "free_failed": ""
+    },
+    {
+     "item": "D022",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdflat/D022_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D022_r3",
+     "cd_failed": "run: no plot (by: no column matches \"hist_by\")",
+     "free_failed": ""
+    },
+    {
+     "item": "D026",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdflat/D026_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D026_r1",
+     "cd_failed": "run: no plot (x: no column matches \"요일\" (closest: 일자))",
+     "free_failed": ""
+    },
+    {
+     "item": "D026",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdflat/D026_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D026_r3",
+     "cd_failed": "run: no plot (x: no column matches \"요일\" (closest: 일자))",
+     "free_failed": ""
+    },
+    {
+     "item": "D028",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdflat/D028_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D028_r1",
+     "cd_failed": "pie: 기타: 11.25%, want 23.81%; 노즐 막힘: 18.22%, want 28.57%; 전력: 6.72%, want 9.52%; 히터 고장: 40.70%, want 14.97%",
+     "free_failed": ""
+    },
+    {
+     "item": "D028",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdflat/D028_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D028_r2",
+     "cd_failed": "pie: 기타: 11.25%, want 23.81%; 노즐 막힘: 18.22%, want 28.57%; 전력: 6.72%, want 9.52%; 히터 고장: 40.70%, want 14.97%",
+     "free_failed": ""
+    },
+    {
+     "item": "D029",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdflat/D029_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D029_r1",
+     "cd_failed": "colors: A: ['#e07b1f'] not green; B: ['#2e8b57'] not orange",
+     "free_failed": ""
+    },
+    {
+     "item": "D029",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdflat/D029_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D029_r2",
+     "cd_failed": "run: no plot (x: no column matches \"등급_순서\")",
+     "free_failed": ""
+    },
+    {
+     "item": "D029",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdflat/D029_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D029_r3",
+     "cd_failed": "colors: A: ['#e07b1f'] not green; B: ['#c0392b'] not orange; C: ['#2e8b57'] not red",
+     "free_failed": ""
+    },
+    {
+     "item": "D030",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdflat/D030_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/D030_r1",
+     "cd_failed": "pie: slices ['285', '401', '362', '323', '68', '267', '113', '223'], want ['기타', '노즐 막힘', '전력', '촉매 공급 이상', '히터 고장']",
+     "free_failed": ""
+    },
+    {
+     "item": "DS04",
+     "turn": "3",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdflat/DS04_r1",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS04_r1",
+     "cd_failed": "kind: drawn ['bar'], want histogram | histogram _: bins/counts differ (edges differ)",
+     "free_failed": ""
+    },
+    {
+     "item": "DS04",
+     "turn": "3",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdflat/DS04_r2",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS04_r2",
+     "cd_failed": "histogram _: bins/counts differ (edges differ)",
+     "free_failed": ""
+    },
+    {
+     "item": "DS04",
+     "turn": "3",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_go/P-mpl+cdflat/DS04_r3",
+     "free_run": "results/runs/cnt_cd_go/P-mpl/DS04_r3",
+     "cd_failed": "kind: drawn ['bar'], want histogram | histogram: 720 values counted, want 721 | histogram _: bins/counts differ (edges differ)",
+     "free_failed": ""
+    }
+   ]
+  }
+ }
+}

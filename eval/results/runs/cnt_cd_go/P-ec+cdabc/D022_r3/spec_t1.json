@@ -1,0 +1,32 @@
+{
+ "asks": [
+  {
+   "ask": "TEM-01, TEM-02만 필터",
+   "how": "key"
+  },
+  {
+   "ask": "직경 histogram overlay",
+   "how": "key"
+  },
+  {
+   "ask": "bin 1nm 간격, 3~28nm",
+   "how": "key"
+  }
+ ],
+ "bins": {
+  "width": 1
+ },
+ "chart": "histogram",
+ "file": "data/diameters.csv",
+ "filter": [
+  "시료 in [TEM-01, TEM-02]"
+ ],
+ "x": {
+  "col": "직경(nm)",
+  "max": 28,
+  "min": 3
+ },
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-ec+cdabc/D022_r3/out/t1"
+ }
+}

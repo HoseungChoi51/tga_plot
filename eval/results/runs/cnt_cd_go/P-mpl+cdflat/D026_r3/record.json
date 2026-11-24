@@ -1,0 +1,236 @@
+{
+ "arm": "P-mpl+cdflat",
+ "item": "D026",
+ "repeat": 3,
+ "split": "dev",
+ "persona": "라인 작업자",
+ "type": "single",
+ "cd": "flat",
+ "backend": "anthropic",
+ "model": "qwen3.8-flash",
+ "effort": "",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "설비 정지 언제 많이나는지 요일이랑 시간대로 히트맵 해줘",
+   "calls": [
+    {
+     "reply": "{\n  \"asks\": [\n    {\n      \"ask\": \"요일별 정지 건수\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"시간대별 정지 건수\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"히트맵으로 표시\",\n      \"how\": \"key\"\n    }\n  ],\n  \"chart\": \"heatmap\",\n  \"file\": \"data/downtime.xlsx\",\n  \"settings\": [\n    {\n      \"key\": \"x.col\",\n      \"new_column\": \"요일\"\n    },\n    {\n      \"key\": \"y.col\",\n      \"new_column\": \"시간대\"\n    },\n    {\n      \"key\": \"z.agg\",\n      \"value\": \"count\"\n    },\n    {\n      \"key\": \"values\",\n      \"value\": true\n    },\n    {\n      \"key\": \"title.text\",\n      \"value\": \"설비 정지 발생 빈도 (요일 × 시간대)\"\n    },\n    {\n      \"key\": \"cmap\",\n      \"value\": \"YlOrRd\"\n    }\n  ]\n}",
+     "llm_s": 5.298,
+     "prompt_tokens": 6010,
+     "output_tokens": 279,
+     "cached_tokens": 5644,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": "",
+     "flat": {
+      "asks": [
+       {
+        "ask": "요일별 정지 건수",
+        "how": "data_code"
+       },
+       {
+        "ask": "시간대별 정지 건수",
+        "how": "data_code"
+       },
+       {
+        "ask": "히트맵으로 표시",
+        "how": "key"
+       }
+      ],
+      "chart": "heatmap",
+      "file": "data/downtime.xlsx",
+      "settings": [
+       {
+        "key": "x.col",
+        "new_column": "요일"
+       },
+       {
+        "key": "y.col",
+        "new_column": "시간대"
+       },
+       {
+        "key": "z.agg",
+        "value": "count"
+       },
+       {
+        "key": "values",
+        "value": true
+       },
+       {
+        "key": "title.text",
+        "value": "설비 정지 발생 빈도 (요일 × 시간대)"
+       },
+       {
+        "key": "cmap",
+        "value": "YlOrRd"
+       }
+      ]
+     }
+    },
+    {
+     "reply": "{\n  \"asks\": [\n    {\n      \"ask\": \"요일별 정지 건수\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"시간대별 정지 건수\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"히트맵으로 표시\",\n      \"how\": \"key\"\n    }\n  ],\n  \"chart\": \"heatmap\",\n  \"file\": \"data/downtime.xlsx\",\n  \"settings\": [\n    {\n      \"key\": \"x.col\",\n      \"new_column\": \"요일\"\n    },\n    {\n      \"key\": \"y.col\",\n      \"new_column\": \"시간대\"\n    },\n    {\n      \"key\": \"z.agg\",\n      \"value\": \"count\"\n    },\n    {\n      \"key\": \"values\",\n      \"value\": true\n    },\n    {\n      \"key\": \"title.text\",\n      \"value\": \"설비 정지 발생 빈도 (요일 × 시간대)\"\n    },\n    {\n      \"key\": \"cmap\",\n      \"value\": \"YlOrRd\"\n    }\n  ]\n}",
+     "llm_s": 4.776,
+     "prompt_tokens": 6367,
+     "output_tokens": 278,
+     "cached_tokens": 5644,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": "",
+     "flat": {
+      "asks": [
+       {
+        "ask": "요일별 정지 건수",
+        "how": "data_code"
+       },
+       {
+        "ask": "시간대별 정지 건수",
+        "how": "data_code"
+       },
+       {
+        "ask": "히트맵으로 표시",
+        "how": "key"
+       }
+      ],
+      "chart": "heatmap",
+      "file": "data/downtime.xlsx",
+      "settings": [
+       {
+        "key": "x.col",
+        "new_column": "요일"
+       },
+       {
+        "key": "y.col",
+        "new_column": "시간대"
+       },
+       {
+        "key": "z.agg",
+        "value": "count"
+       },
+       {
+        "key": "values",
+        "value": true
+       },
+       {
+        "key": "title.text",
+        "value": "설비 정지 발생 빈도 (요일 × 시간대)"
+       },
+       {
+        "key": "cmap",
+        "value": "YlOrRd"
+       }
+      ]
+     }
+    },
+    {
+     "reply": "{\n  \"asks\": [\n    {\n      \"ask\": \"요일별 정지 건수\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"시간대별 정지 건수\",\n      \"how\": \"data_code\"\n    },\n    {\n      \"ask\": \"히트맵으로 표시\",\n      \"how\": \"key\"\n    }\n  ],\n  \"chart\": \"heatmap\",\n  \"file\": \"data/downtime.xlsx\",\n  \"settings\": [\n    {\n      \"key\": \"x.col\",\n      \"new_column\": \"요일\"\n    },\n    {\n      \"key\": \"y.col\",\n      \"new_column\": \"시간대\"\n    },\n    {\n      \"key\": \"z.agg\",\n      \"value\": \"count\"\n    },\n    {\n      \"key\": \"values\",\n      \"value\": true\n    },\n    {\n      \"key\": \"title.text\",\n      \"value\": \"설비 정지 발생 빈도 (요일 × 시간대)\"\n    },\n    {\n      \"key\": \"cmap\",\n      \"value\": \"YlOrRd\"\n    }\n  ]\n}",
+     "llm_s": 5.694,
+     "prompt_tokens": 6724,
+     "output_tokens": 278,
+     "cached_tokens": 5644,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": "",
+     "flat": {
+      "asks": [
+       {
+        "ask": "요일별 정지 건수",
+        "how": "data_code"
+       },
+       {
+        "ask": "시간대별 정지 건수",
+        "how": "data_code"
+       },
+       {
+        "ask": "히트맵으로 표시",
+        "how": "key"
+       }
+      ],
+      "chart": "heatmap",
+      "file": "data/downtime.xlsx",
+      "settings": [
+       {
+        "key": "x.col",
+        "new_column": "요일"
+       },
+       {
+        "key": "y.col",
+        "new_column": "시간대"
+       },
+       {
+        "key": "z.agg",
+        "value": "count"
+       },
+       {
+        "key": "values",
+        "value": true
+       },
+       {
+        "key": "title.text",
+        "value": "설비 정지 발생 빈도 (요일 × 시간대)"
+       },
+       {
+        "key": "cmap",
+        "value": "YlOrRd"
+       }
+      ]
+     }
+    }
+   ],
+   "spec": {
+    "file": "data/downtime.xlsx",
+    "chart": "heatmap",
+    "x": "요일",
+    "y": "시간대",
+    "z": {
+     "agg": "count"
+    },
+    "values": true,
+    "title": "설비 정지 발생 빈도 (요일 × 시간대)",
+    "cmap": "YlOrRd",
+    "asks": [
+     {
+      "ask": "요일별 정지 건수",
+      "how": "data_code"
+     },
+     {
+      "ask": "시간대별 정지 건수",
+      "how": "data_code"
+     },
+     {
+      "ask": "히트맵으로 표시",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": false,
+    "error": "x: no column matches \"요일\" (closest: 일자)",
+    "hint": "columns: A \"일자\", B \"시작시각\", C \"반응기\", D \"원인\", E \"정지시간(분)\", F \"비고\""
+   },
+   "facts": [],
+   "draw_s": 0.4060509204864502,
+   "check": {
+    "kind_expected": "heatmap",
+    "failed": [
+     "run: no plot (x: no column matches \"요일\" (closest: 일자))"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 17.32
+  }
+ ]
+}

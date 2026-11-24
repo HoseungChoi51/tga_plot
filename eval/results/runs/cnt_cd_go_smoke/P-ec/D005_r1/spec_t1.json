@@ -1,0 +1,21 @@
+{
+ "file": "data/tga_batches.xlsx",
+ "sheets": [
+  "R4-260407-1",
+  "R4-260721-1"
+ ],
+ "combine": true,
+ "names": [
+  "R4-260407-1",
+  "R4-260721-1"
+ ],
+ "asks": [
+  {
+   "ask": "R4 두 시트 DTG 비교",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go_smoke/P-ec/D005_r1/out/t1"
+ }
+}

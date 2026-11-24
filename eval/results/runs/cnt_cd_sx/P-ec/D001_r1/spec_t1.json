@@ -1,0 +1,32 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheets": "런로그",
+ "chart": "line",
+ "x": {
+  "col": "주차",
+  "min": 1,
+  "max": 26
+ },
+ "y": {
+  "col": "CNT수율 (g/g-cat)",
+  "agg": "mean"
+ },
+ "by": "반응기",
+ "asks": [
+  {
+   "ask": "주차별 평균 CNT수율 추이",
+   "how": "key"
+  },
+  {
+   "ask": "반응기(R1~R4)별 line 4개",
+   "how": "key"
+  },
+  {
+   "ask": "x축 주차 1~26",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_sx/P-ec/D001_r1/out/t1"
+ }
+}

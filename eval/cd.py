@@ -27,29 +27,39 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 import spec_schema as ss  # noqa: E402
 
-PROFILES = {"cd": "full", "cdflat": "flat"}
+PROFILES = {"cd": "full", "cd2": "full2", "cdabc": "fullabc", "cdflat": "flat"}
+# cd2: full + sheets-before-chart branches, for engines that keep the schema's order (untested: OpenCode Go sorts keys).
+# cdabc: the full schema + a prompt note to write keys alphabetically: OpenCode Go's structured outputs accept object
+#        keys only in alphabetical order, so an optional key that sorts before one already written is dropped.
 CD_NOTE = "\n\nYour reply is decoded under a JSON schema: write the JSON object itself, without the ```json fence."
+ABC_NOTE = ("\n\n## Reply format (key order)\nWrite the JSON object itself, without the ```json fence, and write the keys of "
+            "every object in alphabetical order, at every level: for example {\"asks\": [...], \"by\": ..., \"chart\": ..., "
+            "\"file\": ..., \"sheets\": ..., \"title\": ..., \"x\": {\"col\": ..., \"max\": ..., \"min\": ...}, \"y\": {...}}. "
+            "The reply is decoded under a schema that accepts keys only in that order; a key written out of order is lost.")
 
 
 def parse_arm(arm):
     """'P-mpl+cdflat' -> ('P-mpl', 'flat'); 'P-mpl' -> ('P-mpl', None)."""
     base, _, suf = arm.partition("+")
     if suf and suf not in PROFILES:
-        raise ValueError(f"unknown arm suffix +{suf} (use +cd or +cdflat)")
+        raise ValueError(f"unknown arm suffix +{suf} (use +cd, +cd2, +cdabc or +cdflat)")
     return base, PROFILES.get(suf)
 
 
 def prompt_suffix(profile, note=False):
-    """What a constrained arm adds to the system prompt: the flat format (needed), the no-fence note (optional)."""
+    """What a constrained arm adds to the system prompt: the flat format (needed), the alphabetical-order note
+    (cdabc), the no-fence note (optional)."""
+    if profile == "fullabc":
+        return ABC_NOTE
     return (ss.FLAT_NOTE if profile == "flat" else "") + (CD_NOTE if (profile and note) else "")
 
 
-def openai_fields(schema, param="response_format"):
+def openai_fields(schema, param="response_format", strict=True):
     if schema is None:
         return {}
     if param == "json_schema":
         return {"json_schema": schema}
-    return {"response_format": {"type": "json_schema", "json_schema": {"name": "plot_spec", "strict": True, "schema": schema}}}
+    return {"response_format": {"type": "json_schema", "json_schema": {"name": "plot_spec", "strict": strict, "schema": schema}}}
 
 
 def first_json(text):
@@ -75,6 +85,8 @@ def conformance(text, schema):
 # =================================================================== Anthropic Messages API
 ANTHROPIC_URL = os.environ.get("ANTHROPIC_BASE_URL", "https://api.anthropic.com")
 ANTHROPIC_VERSION = os.environ.get("ANTHROPIC_VERSION", "2026-10-21")      # as in the effort docs
+# some gateways (Cloudflare) refuse Python's default "Python-urllib" agent with HTTP 403 / error code 1010
+USER_AGENT = os.environ.get("EVAL_USER_AGENT", "plotkit-eval/1.0")
 
 
 def call_anthropic(model, key, messages, temperature, max_tokens, schema=None, effort=None, think=False,
@@ -95,9 +107,15 @@ def call_anthropic(model, key, messages, temperature, max_tokens, schema=None, e
     if oc:
         body["output_config"] = oc
     url = (base or ANTHROPIC_URL).rstrip("/") + "/v1/messages"
-    req = urllib.request.Request(url, data=json.dumps(body, ensure_ascii=False).encode(),
-                                 headers={"content-type": "application/json", "x-api-key": key,
-                                          "anthropic-version": ANTHROPIC_VERSION})
+    headers = {"content-type": "application/json", "x-api-key": key,
+               "anthropic-version": ANTHROPIC_VERSION, "user-agent": USER_AGENT}
+    if "opencode.ai" in url:
+        # OpenCode Go asks for a stable session id per conversation (routing, prompt caching): one id for all turns
+        # and retries of a conversation, from its system prompt and first user message
+        import uuid
+        first = next((m["content"] for m in chat if m["role"] == "user"), "")
+        headers["x-opencode-session"] = str(uuid.uuid5(uuid.NAMESPACE_URL, f"{model}\n{system}\n{first}"))
+    req = urllib.request.Request(url, data=json.dumps(body, ensure_ascii=False).encode(), headers=headers)
     waits = [2, 5, 10, 20, 40, 60, 90]
     t0 = time.time()
     for i in range(len(waits) + 1):
@@ -137,7 +155,7 @@ def schemas(files, root, kinds, hatch, profile, asks="last", inspect=False, base
         if base_names:
             info["files"] = list(dict.fromkeys(Path(f).name for f in info["files"]))
         full = ss.build(info, kinds, hatch, "full", asks)
-        con = None if profile is None else full if profile == "full" else ss.build(info, kinds, hatch, "flat", asks)
+        con = None if profile is None else full if profile in ("full", "fullabc") else ss.build(info, kinds, hatch, profile, asks)
         _CACHE[key] = (con, full)
     return _CACHE[key]
 

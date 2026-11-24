@@ -1,0 +1,24 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "bar",
+ "x": "반응기",
+ "y": {
+  "col": "IG/ID",
+  "agg": "mean"
+ },
+ "by": "근무조",
+ "asks": [
+  {
+   "ask": "반응기별 평균 IG/ID grouped bar",
+   "how": "key"
+  },
+  {
+   "ask": "주간/야간 구분",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-ec/D017_r3/out/t1"
+ }
+}

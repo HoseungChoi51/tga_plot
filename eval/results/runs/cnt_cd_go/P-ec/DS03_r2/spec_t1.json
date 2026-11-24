@@ -1,0 +1,15 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "bar",
+ "x": "반응기",
+ "y": "count",
+ "asks": [
+  {
+   "ask": "정지이력 반응기별 정지 횟수 막대",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-ec/DS03_r2/out/t1"
+ }
+}

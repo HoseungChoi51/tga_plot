@@ -1,0 +1,281 @@
+{
+ "files": [
+  "eval/results/cnt_cd_sx.csv"
+ ],
+ "arms": {
+  "P-ec": {
+   "n": 60,
+   "pass": 86.7,
+   "ci": [
+    66.7,
+    100.0
+   ],
+   "first_try": 85.0,
+   "retry": 6.7,
+   "no_plot": 3.3,
+   "fits_schema": 85.0,
+   "llm_s": 5.36,
+   "out_tok": 139.0
+  },
+  "P-ec+cdflat": {
+   "n": 60,
+   "pass": 83.3,
+   "ci": [
+    62.7,
+    96.1
+   ],
+   "first_try": 83.3,
+   "retry": 0.0,
+   "no_plot": 0.0,
+   "fits_schema": 100.0,
+   "llm_s": 6.91,
+   "out_tok": 251.5
+  },
+  "P-mpl": {
+   "n": 60,
+   "pass": 95.0,
+   "ci": [
+    86.0,
+    100.0
+   ],
+   "first_try": 93.3,
+   "retry": 1.7,
+   "no_plot": 0.0,
+   "fits_schema": 88.3,
+   "llm_s": 4.29,
+   "out_tok": 134.0
+  },
+  "P-mpl+cdflat": {
+   "n": 60,
+   "pass": 90.0,
+   "ci": [
+    73.7,
+    100.0
+   ],
+   "first_try": 90.0,
+   "retry": 0.0,
+   "no_plot": 0.0,
+   "fits_schema": 100.0,
+   "llm_s": 7.01,
+   "out_tok": 252.0
+  }
+ },
+ "paired": {
+  "P-ec+cdflat vs P-ec": {
+   "pairs": 60,
+   "delta": -3.3,
+   "ci": [
+    -20.4,
+    12.7
+   ],
+   "only_cd_passed": 4,
+   "only_free_passed": 6,
+   "mcnemar_p": 0.7539,
+   "differ": [
+    {
+     "item": "D005",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 1,
+     "cd_run": "results/runs/cnt_cd_sx/P-ec+cdflat/D005_r1",
+     "free_run": "results/runs/cnt_cd_sx/P-ec/D005_r1",
+     "cd_failed": "",
+     "free_failed": "series R4-260407-1: y range 7.252..100.2, want -0.017..1.752 | series R4-260721-1: y range 7.867..100.5, want -0.019..1.644"
+    },
+    {
+     "item": "D005",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 1,
+     "cd_run": "results/runs/cnt_cd_sx/P-ec+cdflat/D005_r3",
+     "free_run": "results/runs/cnt_cd_sx/P-ec/D005_r3",
+     "cd_failed": "",
+     "free_failed": "series R4-260407-1: y range 7.252..100.2, want -0.017..1.752 | series R4-260721-1: y range 7.867..100.5, want -0.019..1.644"
+    },
+    {
+     "item": "D008",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_sx/P-ec+cdflat/D008_r1",
+     "free_run": "results/runs/cnt_cd_sx/P-ec/D008_r1",
+     "cd_failed": "series CNT수율: 182 points, want 26 | series CNT수율: y range 19.81..30.25, want 22.58..28.06 | series CNT수율: 26 of 26 points off",
+     "free_failed": ""
+    },
+    {
+     "item": "D008",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_sx/P-ec+cdflat/D008_r2",
+     "free_run": "results/runs/cnt_cd_sx/P-ec/D008_r2",
+     "cd_failed": "series CNT수율: 182 points, want 26 | series CNT수율: y range 19.81..30.25, want 22.58..28.06 | series CNT수율: 26 of 26 points off",
+     "free_failed": ""
+    },
+    {
+     "item": "D008",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_sx/P-ec+cdflat/D008_r3",
+     "free_run": "results/runs/cnt_cd_sx/P-ec/D008_r3",
+     "cd_failed": "series CNT수율: 182 points, want 26 | series CNT수율: y range 19.81..30.25, want 22.58..28.06 | series CNT수율: 26 of 26 points off",
+     "free_failed": ""
+    },
+    {
+     "item": "D019",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_sx/P-ec+cdflat/D019_r3",
+     "free_run": "results/runs/cnt_cd_sx/P-ec/D019_r3",
+     "cd_failed": "values: not drawn: ['3/기타', '4/기타', '5/기타', '6/기타', '7/기타', '8/기타']",
+     "free_failed": ""
+    },
+    {
+     "item": "D022",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_sx/P-ec+cdflat/D022_r1",
+     "free_run": "results/runs/cnt_cd_sx/P-ec/D022_r1",
+     "cd_failed": "histogram TEM-01: bins/counts differ | histogram TEM-02: bins/counts differ",
+     "free_failed": ""
+    },
+    {
+     "item": "D022",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_sx/P-ec+cdflat/D022_r3",
+     "free_run": "results/runs/cnt_cd_sx/P-ec/D022_r3",
+     "cd_failed": "histogram TEM-01: bins/counts differ | histogram TEM-02: bins/counts differ",
+     "free_failed": ""
+    },
+    {
+     "item": "D026",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 1,
+     "cd_run": "results/runs/cnt_cd_sx/P-ec+cdflat/D026_r1",
+     "free_run": "results/runs/cnt_cd_sx/P-ec/D026_r1",
+     "cd_failed": "",
+     "free_failed": "heatmap: rows/columns differ (drawn ['월', '화', '수', '목', '금'] x ['00-03', '04-07', '08-11', '12-15', '16-19'], want ['월', '화', '수', '목', '금'] x ['0', '1', '2', "
+    },
+    {
+     "item": "D026",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 1,
+     "cd_run": "results/runs/cnt_cd_sx/P-ec+cdflat/D026_r2",
+     "free_run": "results/runs/cnt_cd_sx/P-ec/D026_r2",
+     "cd_failed": "",
+     "free_failed": "heatmap: rows/columns differ (drawn ['0:00', '1:00', '2:00', '3:00', '4:00'] x ['월', '화', '수', '목', '금'], want ['월', '화', '수', '목', '금'] x ['0', '1', '2', '3', "
+    }
+   ]
+  },
+  "P-mpl+cdflat vs P-mpl": {
+   "pairs": 60,
+   "delta": -5.0,
+   "ci": [
+    -22.2,
+    8.8
+   ],
+   "only_cd_passed": 3,
+   "only_free_passed": 6,
+   "mcnemar_p": 0.5078,
+   "differ": [
+    {
+     "item": "D002",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_sx/P-mpl+cdflat/D002_r1",
+     "free_run": "results/runs/cnt_cd_sx/P-mpl/D002_r1",
+     "cd_failed": "lines: 1 drawn, want 3 | series 2존(°C): y range 1149..1176, want 1147..1184 | series 2존 SP(°C): not drawn | series 2존 10분 이동평균: not drawn",
+     "free_failed": ""
+    },
+    {
+     "item": "D005",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 1,
+     "cd_run": "results/runs/cnt_cd_sx/P-mpl+cdflat/D005_r1",
+     "free_run": "results/runs/cnt_cd_sx/P-mpl/D005_r1",
+     "cd_failed": "",
+     "free_failed": "series R4-260407-1: y range 7.252..100.2, want -0.017..1.752 | series R4-260721-1: y range 7.867..100.5, want -0.019..1.644"
+    },
+    {
+     "item": "D005",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 1,
+     "cd_run": "results/runs/cnt_cd_sx/P-mpl+cdflat/D005_r2",
+     "free_run": "results/runs/cnt_cd_sx/P-mpl/D005_r2",
+     "cd_failed": "",
+     "free_failed": "series R4-260407-1: y range 7.252..100.2, want -0.017..1.752 | series R4-260721-1: y range 7.867..100.5, want -0.019..1.644"
+    },
+    {
+     "item": "D008",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_sx/P-mpl+cdflat/D008_r1",
+     "free_run": "results/runs/cnt_cd_sx/P-mpl/D008_r1",
+     "cd_failed": "series CNT수율: 182 points, want 26 | series CNT수율: y range 19.81..30.25, want 22.58..28.06 | series CNT수율: 26 of 26 points off",
+     "free_failed": ""
+    },
+    {
+     "item": "D008",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_sx/P-mpl+cdflat/D008_r2",
+     "free_run": "results/runs/cnt_cd_sx/P-mpl/D008_r2",
+     "cd_failed": "series CNT수율: 182 points, want 26 | series CNT수율: y range 19.81..30.25, want 22.58..28.06 | series CNT수율: 26 of 26 points off",
+     "free_failed": ""
+    },
+    {
+     "item": "D008",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_sx/P-mpl+cdflat/D008_r3",
+     "free_run": "results/runs/cnt_cd_sx/P-mpl/D008_r3",
+     "cd_failed": "series CNT수율: 182 points, want 26 | series CNT수율: y range 19.81..30.25, want 22.58..28.06 | series CNT수율: 26 of 26 points off",
+     "free_failed": ""
+    },
+    {
+     "item": "D022",
+     "turn": "1",
+     "repeat": "1",
+     "cd_passed": 1,
+     "cd_run": "results/runs/cnt_cd_sx/P-mpl+cdflat/D022_r1",
+     "free_run": "results/runs/cnt_cd_sx/P-mpl/D022_r1",
+     "cd_failed": "",
+     "free_failed": "histogram TEM-01: bins/counts differ | histogram TEM-02: bins/counts differ"
+    },
+    {
+     "item": "D026",
+     "turn": "1",
+     "repeat": "2",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_sx/P-mpl+cdflat/D026_r2",
+     "free_run": "results/runs/cnt_cd_sx/P-mpl/D026_r2",
+     "cd_failed": "heatmap: rows/columns differ (drawn ['새벽(0-5)', '오전(6-9)', '낮(10-13)', '오후(14-17)', '저녁(18-21)'] x ['월', '화', '수', '목', '금'], want ['월', '화', '수', '목', '금'] x [",
+     "free_failed": ""
+    },
+    {
+     "item": "D026",
+     "turn": "1",
+     "repeat": "3",
+     "cd_passed": 0,
+     "cd_run": "results/runs/cnt_cd_sx/P-mpl+cdflat/D026_r3",
+     "free_run": "results/runs/cnt_cd_sx/P-mpl/D026_r3",
+     "cd_failed": "heatmap: rows/columns differ (drawn ['심야(0-5)', '아침(6-9)', '오전(10-13)', '오후(14-17)', '저녁(18-21)'] x ['월', '화', '수', '목', '금'], want ['월', '화', '수', '목', '금'] x ",
+     "free_failed": ""
+    }
+   ]
+  }
+ }
+}
