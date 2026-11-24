@@ -1548,6 +1548,19 @@ def engine_name(engine=None):
     return e
 
 
+def route(user_spec):
+    """Where a spec goes: ("chart", spec) when it names a chart (under "chart" or an alias), ("chart", the same plot
+    as a chart line) for a curve whose x is a date column (a sensor log), else ("curve", spec)."""
+    from . import charts
+    if charts.is_chart_spec(user_spec):
+        return "chart", user_spec
+    if isinstance(user_spec, dict) and user_spec.get("file"):
+        alt = charts.curve_as_chart(user_spec)
+        if alt:
+            return "chart", alt
+    return "curve", user_spec
+
+
 def plot(user_spec, engine=None, *, out_dir=None, formats=None, summary_csv=True):
     """Make the plots. Returns a result dict (also printed as JSON by the CLI).
 
@@ -1559,13 +1572,10 @@ def plot(user_spec, engine=None, *, out_dir=None, formats=None, summary_csv=True
     Every result has ok, kind ("curve" | "chart"), engine, saved (the files written), warnings, not_done (the asks
     marked unsupported) and values (the numbers drawn or computed). Curves add output_dir and plots (one entry per
     figure); charts add chart (the chart kind), rows_used, rows_total and summary (Korean)."""
-    from . import charts
-    if charts.is_chart_spec(user_spec):
+    kind, user_spec = route(user_spec)
+    if kind == "chart":
+        from . import charts
         return charts.plot(user_spec, engine=engine, out_dir=out_dir, formats=formats)
-    if isinstance(user_spec, dict) and user_spec.get("file"):
-        alt = charts.curve_as_chart(user_spec)     # a log with a date/time x is drawn as a chart line
-        if alt:
-            return charts.plot(alt, engine=engine, out_dir=out_dir, formats=formats)
     if engine_name(engine) == "echarts":
         from .echarts import plot_echarts
         return plot_echarts(user_spec, out_dir=out_dir, formats=formats, summary_csv=summary_csv)

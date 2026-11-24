@@ -22,6 +22,12 @@ File names inside requests, reference specs and run records keep the form the st
 `eval/inputs_b/caox.csv`). `eval/paths.py` resolves both forms. The CSV `run_dir` column is relative to `eval/`, as
 before.
 
+The library modules are imported from the package (`from plotkit import core as plotkit`, `charts as chartkit`,
+`echarts as plotkit_echarts`); the study's `prompts/v2` is `plotkit/prompts` (`eval/paths.py` maps the old name and
+both hatch file names). `eval/cnt_runs.py` takes the data preview, the first and follow-up messages, the reply
+parser, the retry turn and the thinking switch from `plotkit.agent`, so the app and the harness share one copy; the
+messages it builds are byte-identical to before.
+
 ## Offline self-tests (no model calls)
 
 | command | expected |

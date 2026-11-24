@@ -40,6 +40,7 @@ sys.path.insert(0, str(REPO))
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(HERE))
 import paths  # noqa: E402
+from plotkit import agent as plotkit_agent  # noqa: E402  (the messages, one copy)
 import cd  # noqa: E402
 
 CNT = HERE / "cnt"
@@ -90,59 +91,25 @@ _PREVIEWS = {}
 
 
 def preview_text(files):
-    """The same data preview for every arm: sheets, rows, columns with letter, type and values."""
-    from plotkit import charts as chartkit
-    parts = []
-    for f in files:
-        if f in _PREVIEWS:
-            parts.append(_PREVIEWS[f])
-            continue
-        p = CNT / f
-        paths = sorted(p.parent.glob(p.name)) if any(c in f for c in "*?") else [p]
-        lines = []
-        for path in paths:
-            rel = path.relative_to(CNT).as_posix()
-            try:
-                pv = chartkit.preview(str(path))
-            except Exception as e:  # noqa: BLE001
-                lines.append(f"파일 {rel}: 읽기 실패 ({e})")
-                continue
-            sheets = pv["sheets"]
-            lines.append(f"파일 {rel}" + (f" (시트 {len(sheets)}개)" if len(sheets) > 1 else ""))
-            for sh in sheets[:12]:
-                if "error" in sh:
-                    lines.append(f"  시트 '{sh['sheet']}': {sh['error']}")
-                    continue
-                cols = []
-                for c in sh["columns"]:
-                    if c["type"] == "number":
-                        d = f"{c['col']} {c['name']} [수치 {c['min']}~{c['max']}" + (f"; 값 {c['values']}" if c.get("values") else "") + "]"
-                    elif c["type"] == "date":
-                        d = f"{c['col']} {c['name']} [날짜 {c['min']}~{c['max']}]"
-                    else:
-                        d = f"{c['col']} {c['name']} [텍스트 {c['n_values']}종: {', '.join(map(str, c['values']))}]"
-                    cols.append(d)
-                lines.append(f"  시트 '{sh['sheet']}' ({sh['rows']}행): " + " | ".join(cols))
-            if len(sheets) > 12:
-                lines.append(f"  … 시트 {len(sheets) - 12}개 더: " + ", ".join(s["sheet"] for s in sheets[12:]))
-        txt = "\n".join(lines)
-        _PREVIEWS[f] = txt
-        parts.append(txt)
-    return "데이터 미리보기:\n" + "\n".join(parts)
+    """The same data preview for every arm: sheets, rows, columns with letter, type and values (plotkit.preview,
+    file names relative to eval/cnt/)."""
+    key = tuple(files)
+    if key not in _PREVIEWS:
+        _PREVIEWS[key] = plotkit_agent.preview(list(files), base=CNT)
+    return _PREVIEWS[key]
 
 
 def first_message(arm, item, text):
-    msg = f"{preview_text(item['files'])}\n\n"
-    if arm == "R-mpl":
-        msg += 'OUT_DIR = "out"\n\n'
-    return msg + f"사용자 요청:\n{text}"
+    if arm != "R-mpl":
+        return f"{preview_text(item['files'])}\n\n사용자 요청:\n{text}"      # = plotkit.first_message
+    return f"{preview_text(item['files'])}\n\nOUT_DIR = \"out\"\n\n사용자 요청:\n{text}"
 
 
 # =================================================================== the model
 def call_llm(base, model, key, messages, temperature, max_tokens, timeout=900, think=False, schema=None,
              cd_param="response_format", strict=True):
     body = {"model": model, "messages": messages, "temperature": temperature, "max_tokens": max_tokens,
-            "chat_template_kwargs": {"enable_thinking": think}, "cache_prompt": True,
+            **plotkit_agent.request_options(think), "cache_prompt": True,
             **cd.openai_fields(schema, cd_param, strict)}
     req = urllib.request.Request(base.rstrip("/") + "/chat/completions", data=json.dumps(body).encode(),
                                  headers={"Content-Type": "application/json", **({"Authorization": f"Bearer {key}"} if key else {})})
@@ -164,10 +131,7 @@ def call_llm(base, model, key, messages, temperature, max_tokens, timeout=900, t
 
 
 def extract_json(reply):
-    reply = re.sub(r"<think>.*?</think>", "", reply, flags=re.S)
-    m = re.search(r"```(?:json)?\s*\n(.*?)```", reply, flags=re.S)
-    txt = m.group(1) if m else reply[reply.find("{"): reply.rfind("}") + 1]
-    return json.loads(txt)
+    return json.loads(plotkit_agent.reply_json(reply))      # plotkit.parse_reply without its object check
 
 
 def extract_code(reply):
@@ -259,7 +223,7 @@ def run_item(arm, item, rep, args, key):
     turns_out = []
     for ti, turn in enumerate(item["turns"], 1):
         t_turn = time.time()
-        user = first_message(arm, item, turn["text"]) if ti == 1 else f"사용자 요청 (이어서):\n{turn['text']}"
+        user = first_message(arm, item, turn["text"]) if ti == 1 else plotkit_agent.followup_message(turn["text"])
         messages.append({"role": "user", "content": user})
         calls, result, facts, spec, draw_s, engine = [], None, [], None, 0.0, None
         for attempt in range(args.retries + 1):
@@ -300,9 +264,9 @@ def run_item(arm, item, rep, args, key):
             if result.get("ok"):
                 break
             if attempt < args.retries:
-                fb = (f"plotkit error: {result.get('error')}" + (f"\nhint: {result.get('hint')}" if result.get("hint") else "")) \
-                    if arm.startswith("P-") else result.get("error", "")
-                messages.append({"role": "user", "content": fb + "\n\n고쳐서 다시 보내 주세요."})
+                fb = plotkit_agent.retry_message(result) if arm.startswith("P-") else \
+                    result.get("error", "") + "\n\n고쳐서 다시 보내 주세요."
+                messages.append({"role": "user", "content": fb})
         expect = turn.get("expect") or {}
         chk = {"pass": None}
         try:

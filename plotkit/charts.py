@@ -1987,10 +1987,15 @@ def _merge(a, b):
     return b
 
 
-def live_options(user_spec):
-    """The chart as an ECharts option for a live chart in the browser (tooltip, zoom; labels belong to the data).
-    Number formats are left as "__fmt__..." markers: the page revives them like plotkit/js/render_chart.mjs."""
+def live_result(user_spec):
+    """The chart as an ECharts option for a live chart in the browser (tooltip, zoom; labels belong to the data), in
+    the shared result shape (see plotkit.core.plot) with "options" and nothing saved. Number formats and custom
+    series are left as "__fmt__..." / "__histbar__" / "__errorbar__" markers: the page revives them with
+    plotkit/js/revive.mjs."""
     spec = normalize(user_spec)
+    if spec.get("code"):
+        raise PlotkitError('"code" only works with the matplotlib engine',
+                           'use "data_code" for data changes (both engines), or an "echarts" patch for drawing changes')
     model = layout(spec, build_model(spec, load_frame(spec)))
     opt, _ = echarts_option(spec, model, live=True)
     if spec.get("echarts"):
@@ -2000,7 +2005,14 @@ def live_options(user_spec):
             if isinstance(patch.get(k), list):
                 patch[k] = patch[k][0] if patch[k] else {}
         opt = _merge(opt, patch)
-    return [opt]
+    return {"ok": True, "kind": "chart", "engine": "echarts", "options": [opt], "saved": [],
+            "warnings": list(model["notes"]), "not_done": pk.not_done(spec), "values": summary_values(model),
+            "chart": model["kind"], "rows_used": model["rows_used"], "rows_total": model["rows_total"]}
+
+
+def live_options(user_spec):
+    """The chart's live ECharts options (a list of one; see live_result)."""
+    return live_result(user_spec)["options"]
 
 
 def curve_as_chart(user):

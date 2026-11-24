@@ -9,8 +9,8 @@ import { createRequire } from "node:module";
 const require = createRequire(new URL("../../plotkit/js/package.json", import.meta.url));
 const { chromium } = require("playwright-core");
 const echartsJs = readFileSync(require.resolve("echarts/dist/echarts.min.js"), "utf8");
-const rc = readFileSync(new URL("../../plotkit/js/render_chart.mjs", import.meta.url), "utf8");
-const reviveJs = rc.slice(rc.indexOf("export function formatPy"), rc.indexOf("async function main")).replace(/export function /g, "function ");
+const rc = readFileSync(new URL("../../plotkit/js/revive.mjs", import.meta.url), "utf8");
+const reviveJs = rc.replace(/export function /g, "function ");
 
 const [casesPath, outPath] = process.argv.slice(2);
 const cases = JSON.parse(readFileSync(casesPath, "utf8"));

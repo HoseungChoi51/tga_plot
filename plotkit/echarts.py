@@ -444,17 +444,37 @@ def render(figures, timeout=180):
     return reply
 
 
-def live_options(user_spec):
-    """ECharts options for a live chart in the browser (labels tied to the data, zoom, tooltip), one per figure."""
+def live_result(user_spec):
+    """ECharts options for a live chart in the browser (labels tied to the data, zoom, tooltip), one per figure, in
+    the shared result shape (see plotkit.core.plot) with "options" and nothing saved. Node builds them (js/live.mjs)."""
     spec = pk.normalize_spec(user_spec)
-    jobs, _ = pk.build_jobs(spec)
-    figs = [fig for _, fig, _ in resolve(spec, jobs)]
-    p = subprocess.run([_node(), str(NODE_DIR / "live.mjs")], input=json.dumps({"figures": figs}, ensure_ascii=False).encode("utf-8"),
-                       capture_output=True, timeout=60)
-    reply = json.loads(p.stdout.decode("utf-8").strip().splitlines()[-1])
-    if not reply.get("ok"):
-        raise PlotkitError("live option failed: " + reply.get("error", "?"))
-    return reply["options"]
+    if spec["code"]:
+        raise PlotkitError('"code" (Python) does not work with the ECharts engine',
+                           'use a key (e.g. annotate band for shading), or put ECharts settings in "echarts"')
+    jobs, warnings = pk.build_jobs(spec)
+    figs = resolve(spec, jobs)
+    try:
+        p = subprocess.run([_node(), str(NODE_DIR / "live.mjs")],
+                           input=json.dumps({"figures": [f for _, f, _ in figs]}, ensure_ascii=False).encode("utf-8"),
+                           capture_output=True, timeout=60)
+    except subprocess.TimeoutExpired:
+        raise PlotkitError("the live ECharts option took longer than 60 s", "try fewer sheets")
+    out = p.stdout.decode("utf-8", "replace").strip()
+    try:
+        reply = json.loads(out.splitlines()[-1]) if out else None
+    except json.JSONDecodeError:
+        reply = None
+    if not reply or not reply.get("ok"):
+        err = (reply or {}).get("error") or (p.stderr.decode("utf-8", "replace").strip().splitlines() or ["?"])[-1]
+        raise PlotkitError("live option failed: " + err, f'check Node and run: npm install --prefix "{NODE_DIR}"')
+    return {"ok": True, "kind": "curve", "engine": "echarts", "options": reply["options"], "saved": [],
+            "warnings": warnings, "not_done": pk.not_done(spec),
+            "values": pk.curve_values([{"annotations": ann} for _, _, ann in figs])}
+
+
+def live_options(user_spec):
+    """The curve's live ECharts options, one per figure (see live_result)."""
+    return live_result(user_spec)["options"]
 
 
 def plot_echarts(user_spec, out_dir=None, formats=None, summary_csv=True):
