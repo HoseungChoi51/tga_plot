@@ -45,3 +45,7 @@ report/luna/
 report/cnt/
 eval/results/runs/**/schema.json
 report/cd/
+report/final/
+report/plotkit_report.zip
+report/plotkit_report.html
+report/plotkit_report/
