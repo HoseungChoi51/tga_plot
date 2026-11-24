@@ -179,14 +179,22 @@ export function pyCompare(a: string, b: string): number {
   return (a.length - i) - (b.length - j);
 }
 
-/** "\n".join(lines): Python raises TypeError on a line that is not text. */
-function joinLines(lines: unknown[], key: string): string {
-  const bad = lines.find(x => typeof x !== "string");
-  if (bad !== undefined) {
-    throw new PlotkitError(`"${key}" must be text or a list of text lines, got ${pyReprValue(bad)} in the list`,
-      "write each line as a string");
+/** _code_text: code / data_code as text, or a list of lines of text. */
+function codeText(v: unknown, key: string): unknown {
+  if (!Array.isArray(v)) return v;
+  const bad = v.filter(x => typeof x !== "string");
+  if (bad.length) {
+    throw new PlotkitError(`"${key}" must be text or a list of text lines, got ${pyReprValue(bad[0])} in the list`,
+      "write the code as one string, or as a list of strings (one per line)");
   }
-  return lines.join("\n");
+  return v.join("\n");
+}
+
+/** _given_twice: key a given as a plain value and again through a dotted key or alias for a.b ("x": "B", "x.min"). */
+export function givenTwice(a: string, b: string, value: unknown, key: string): PlotkitError {
+  const col = ["x", "y1", "y2"].includes(a) && typeof value === "string" ? '"col": ..., ' : "";
+  return new PlotkitError(`"${a}" is given twice: as ${pyReprValue(value)} and through "${key}"`,
+    `write "${a}" once, as one object, e.g. "${a}": {${col}"${b}": ...}`);
 }
 
 // =================================================================== spec
@@ -220,13 +228,33 @@ export function linestyleName(v: unknown, where: string): string {
   return get(LINESTYLE_NAMES, get(LINESTYLES, ls, "-"), "solid");
 }
 
-/** _num: a number from a number or text ("1,5" -> 1.5); None and booleans stay as they are. */
+const THOUSANDS = /^[+-]?[1-9][0-9]{0,2}(,[0-9]{3})+$/;
+
+/** _num: a number from a number or text ("1,5" -> 1.5, "1,000" -> 1000); None and booleans stay as they are. */
 export function num(v: unknown, where: string): any {
   if (v === null || v === undefined || typeof v === "boolean") return v;
   if (typeof v === "number") return v;
-  const f = pyFloatOfStr(pyStrip(pyStrValue(v)).replaceAll(",", "."));
+  const s = pyStrip(pyStrValue(v));
+  // "1,000" and "12,345,678" have thousands separators; any other comma is a decimal comma ("1,5", "0,125")
+  const f = pyFloatOfStr(THOUSANDS.test(s) ? s.replaceAll(",", "") : s.replaceAll(",", "."));
   if (f === undefined) throw new PlotkitError(`${where} must be a number, got ${pyReprValue(v)}`, "write a plain number, e.g. 200");
   return f;
+}
+
+/** _count: a whole number of 1 or more ("count": 2, 2.0 or "2"). */
+export function count(v: unknown, where: string): number {
+  let n: unknown = null;
+  if (typeof v !== "boolean") {
+    try {
+      n = num(v, where);
+    } catch (e) {
+      if (!(e instanceof PlotkitError)) throw e;
+    }
+  }
+  if (typeof n !== "number" || !(Number.isFinite(n) && n >= 1 && Number.isInteger(n))) {
+    throw new PlotkitError(`${where} must be a whole number of 1 or more, got ${pyReprValue(v)}`, 'e.g. "count": 2');
+  }
+  return n;
 }
 
 /** _color: a colour name (also Korean), hex code (with or without #) or anything matplotlib reads. */
@@ -287,7 +315,7 @@ function normalizeAxis(name: Axis, d: unknown): Dict {
   if (Object.hasOwn(out, "flip")) {
     const f0: unknown = out.flip;
     const bad = () => new PlotkitError(`${name}.flip ${pyReprValue(f0)} unknown`, "use none, flip, peaks_up or peaks_down");
-    if (Array.isArray(f0) || isDict(f0)) throw bad();         // Python: TypeError (unhashable) in the dict lookup
+    if (Array.isArray(f0) || isDict(f0)) throw bad();         // (a list or dict can not be looked up)
     const f = pyEq(f0, true) ? "flip" : pyEq(f0, false) || f0 === null ? "none" :
       f0 === "up" ? "peaks_up" : f0 === "down" ? "peaks_down" : f0;
     if (!pyIn(f, ["none", "flip", "peaks_up", "peaks_down"])) throw bad();
@@ -306,7 +334,8 @@ function guessAnnotType(name: string): string | null {
   return null;
 }
 
-function normalizeAnnotations(a: unknown): [Record<string, Dict | null>, boolean] {
+/** _normalize_annotations: {name: annotation, or null to remove it} and whether the list form replaces the preset's. */
+export function normalizeAnnotations(a: unknown): [Record<string, Dict | null>, boolean] {
   if (a === null || a === undefined || a === false) return [{}, true];
   let replace = false;
   if (Array.isArray(a)) {                          // a list replaces the preset labels completely
@@ -339,13 +368,7 @@ function normalizeAnnotations(a: unknown): [Record<string, Dict | null>, boolean
     for (const k of ["x", "y", "x_min", "x_max", "min_rel", "size", "alpha"]) {
       if (Object.hasOwn(dd, k)) dd[k] = num(dd[k], `annotate.${name}.${k}`);
     }
-    if (Object.hasOwn(dd, "count")) {
-      const c = pyInt(num(dd.count, `annotate.${name}.count`));
-      if (c === undefined) {                       // Python: int(None) / int(inf) raise
-        throw new PlotkitError(`annotate.${name}.count must be a number, got ${pyReprValue(dd.count)}`, "write a plain number, e.g. 2");
-      }
-      dd.count = c;
-    }
+    if (Object.hasOwn(dd, "count")) dd.count = count(dd.count, `annotate.${name}.count`);
     if (Object.hasOwn(dd, "linestyle")) dd.linestyle = linestyleName(dd.linestyle, `annotate.${name}.linestyle`);
     if (Object.hasOwn(dd, "on")) {
       let on = pyStrValue(dd.on).toLowerCase();
@@ -354,7 +377,7 @@ function normalizeAnnotations(a: unknown): [Record<string, Dict | null>, boolean
       dd.on = on;
     }
     if (Object.hasOwn(dd, "color") && dd.color !== null) dd.color = color(dd.color, `annotate.${name}.color`);
-    if (Object.hasOwn(dd, "type") && !ANNOT_TYPE_LIST.includes(dd.type)) {   // (Python: TypeError for a list or dict)
+    if (Object.hasOwn(dd, "type") && !ANNOT_TYPE_LIST.includes(dd.type)) {
       throw new PlotkitError(`annotate.${name}.type ${pyReprValue(dd.type)} unknown.${suggest(pyStrValue(dd.type), ANNOT_TYPE_LIST)}`,
         `types: ${ANNOT_TYPE_LIST.join(", ")}`);
     }
@@ -368,23 +391,24 @@ function normalizeAnnotations(a: unknown): [Record<string, Dict | null>, boolean
 export function normalizeSpec(user: unknown, names: readonly string[] = []): Dict {
   if (typeof user === "string") user = { file: user };
   if (!isDict(user)) throw new PlotkitError("the spec must be a JSON object");
-  user = structuredClone(user);                    // (Python shares, and may change, the caller's objects)
+  user = structuredClone(user);                    // the caller's dicts stay as they are
   // map aliases / dotted keys at the top level
   const u: Dict = {};
+  const dotted = new Map<string, [string, string]>();
   for (const [k, v] of Object.entries(user as Dict)) {
     const kl = k.toLowerCase();
     const k2: string = get(TOP_ALIASES, kl, kl);
     if (k2.includes(".")) {
       const i = k2.indexOf(".");
       const a = k2.slice(0, i), b = k2.slice(i + 1);
+      if (Object.hasOwn(u, a) && !isDict(u[a])) throw givenTwice(a, b, u[a], k);
       if (!Object.hasOwn(u, a)) put(u, a, {});
-      if (!isDict(u[a])) {                         // Python: TypeError (u[a][b] = v on a non-dict)
-        throw new PlotkitError(`"${a}" is given both as ${pyReprValue(u[a])} and through "${k}"`,
-          `write it once, e.g. "${a}": {"${b}": ...}`);
-      }
       put(u[a], b, v);
+      if (!dotted.has(a)) dotted.set(a, [b, k]);
     } else if (Object.hasOwn(u, k2) && isDict(u[k2]) && isDict(v)) {
       for (const [kk, vv] of Object.entries(v)) put(u[k2], kk, vv);
+    } else if (dotted.has(k2)) {                   // "x.min" first, then "x": "B"
+      throw givenTwice(k2, dotted.get(k2)![0], v, dotted.get(k2)![1]);
     } else {
       put(u, k2, v);
     }
@@ -494,7 +518,7 @@ export function normalizeSpec(user: unknown, names: readonly string[] = []): Dic
   } else {
     spec.panels = null;
   }
-  if (Array.isArray(spec.data_code)) spec.data_code = joinLines(spec.data_code, "data_code");
+  spec.data_code = codeText(spec.data_code, "data_code");
   if (!Array.isArray(spec.asks)) spec.asks = [spec.asks];
   if (!pyIn(Object.hasOwn(u, "echarts") ? u.echarts : null, [null, {}, false])) {
     spec.echarts = validatePatch(u.echarts);       // the allowlist lives with the engine
@@ -531,7 +555,7 @@ export function normalizeSpec(user: unknown, names: readonly string[] = []): Dic
   const where0: unknown = spec.legend.where;
   const badPlace = () => new PlotkitError(`legend position ${pyReprValue(spec.legend.where)} unknown`,
     "use one of: " + LEGEND_PLACE_LIST.join(", "));
-  if (Array.isArray(where0) || isDict(where0)) throw badPlace();      // Python: TypeError (unhashable) in the lookup
+  if (Array.isArray(where0) || isDict(where0)) throw badPlace();      // (a list or dict can not be looked up)
   spec.legend.where = typeof where0 === "string" ? get(KOREAN_PLACES, where0, where0) : where0;
   if (spec.legend.where === "none") spec.legend.show = false;
   if (!LEGEND_PLACE_LIST.includes(spec.legend.where)) throw badPlace();
@@ -544,7 +568,7 @@ export function normalizeSpec(user: unknown, names: readonly string[] = []): Dic
     throw new PlotkitError(`tick_direction ${pyReprValue(spec.tick_direction)} unknown`, "use in, out or inout");
   }
   spec.tick_direction = td;
-  if (Array.isArray(spec.code)) spec.code = joinLines(spec.code, "code");
+  spec.code = codeText(spec.code, "code");
   spec.file = expandFiles(Array.isArray(spec.file) ? spec.file : [spec.file], names);
   spec.output.format = outputFormats(spec.output.format);
   return spec;
@@ -553,7 +577,7 @@ export function normalizeSpec(user: unknown, names: readonly string[] = []): Dic
 /** A format or list of formats, checked: ["png", "pdf", ...] (jpeg -> jpg, tiff -> tif). */
 export function outputFormats(fmts: unknown, key = "output.format"): string[] {
   const list = typeof fmts === "string" ? [fmts] : pyList(fmts);
-  if (list === undefined) throw new PlotkitError(`${key} ${pyReprValue(fmts)} not supported`, "use png, pdf, svg, jpg or tif");   // Python: TypeError
+  if (list === undefined) throw new PlotkitError(`${key} ${pyReprValue(fmts)} not supported`, "use png, pdf, svg, jpg or tif");   // None, a number, true/false
   const out = list.map(f => pyStrValue(f).toLowerCase().replace(/^\.+/, "").replaceAll("jpeg", "jpg").replaceAll("tiff", "tif"));
   for (const f of out) {
     if (!FORMAT_LIST.includes(f)) throw new PlotkitError(`${key} ${pyReprValue(f)} not supported`, "use png, pdf, svg, jpg or tif");
@@ -564,10 +588,7 @@ export function outputFormats(fmts: unknown, key = "output.format"): string[] {
 /** The asks the model marked unsupported, to tell the user (curves and charts alike). */
 export function notDone(spec: Dict): string[] {
   const asks: unknown = Object.hasOwn(spec, "asks") && truthy(spec.asks) ? spec.asks : [];
-  const items = pyList(asks);
-  if (items === undefined) {                       // Python: TypeError (not iterable)
-    throw new PlotkitError(`"asks" must be a list, got ${pyReprValue(asks)}`, 'e.g. "asks": [{"ask": "...", "how": "key"}]');
-  }
+  const items: unknown[] = Array.isArray(asks) ? asks : [asks];        // one ask given without a list
   return items.filter((a): a is Dict => isDict(a) &&
     ["unsupported", "no", "none", "not_done"].includes(pyStrValue(get(a, "how", "")).toLowerCase()))
     .map(a => pyStrValue(get(a, "ask", "")));

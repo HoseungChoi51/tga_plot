@@ -165,16 +165,20 @@ export function pyTruthy(v: unknown): boolean {
   return true;
 }
 
-/** int(v) for the row numbers of spec["read"]. */
-export function pyInt(v: unknown, what = "value"): number {
-  if (typeof v === "number" && Number.isFinite(v)) return Math.trunc(v);
-  if (typeof v === "boolean") return v ? 1 : 0;
-  if (typeof v === "string") {
-    const s = asciiDigits(pyStrip(v)).replace(/_/g, "");
-    if (/^[+-]?\d+$/.test(s)) return parseInt(s, 10);
+/** _row_number: read.header_row / read.data_start_row as a 1-based row number, as Python's int() reads it (nRows:
+ *  the row must be in the sheet). */
+export function rowNumber(v: unknown, key: string, nRows: number | null = null): number {
+  let n: number | null = null;
+  if (typeof v === "number") n = Number.isFinite(v) ? Math.trunc(v) : null;
+  else if (typeof v === "string") {
+    const t = asciiDigits(pyStrip(v));
+    if (/^[+-]?\d+(_\d+)*$/.test(t)) n = parseInt(t.replace(/_/g, ""), 10);
   }
-  // Python raises ValueError / TypeError here (a crash); the port answers with a PlotkitError
-  throw new PlotkitError(`${what} must be a whole number, not ${pyReprOf(v)}`, `use a row number like 3`);
+  if (n === null || n < 1) {
+    throw new PlotkitError(`read.${key} must be a row number from 1, not ${pyReprOf(v)}`, "rows count from 1 at the top of the sheet, e.g. 3");
+  }
+  if (nRows !== null && n > nRows) throw new PlotkitError(`read.${key} ${n} is after the end of the sheet (it has ${nRows} rows)`, `check read.${key}`);
+  return n;
 }
 
 // The order CPython iterates a set of small non-negative ints (hash(n) == n): max(set(xs), key=xs.count) keeps the
@@ -348,8 +352,9 @@ function uhcIndex(b: number, t: number): number {
   return 32 * 178 + (b - 0xa1) * 84 + k;
 }
 
-/** bytes.decode("cp949"); throws on bytes Python's codec rejects. */
-export function decodeCp949(raw: Uint8Array): string {
+/** bytes.decode("cp949"), or with ksOnly bytes.decode("euc_kr") (KS X 1001 only; its 8-byte A4D4 make-up
+ *  sequences are not decoded); throws on bytes Python's codec rejects. */
+export function decodeCp949(raw: Uint8Array, ksOnly = false): string {
   const [ks, ext] = cp949Tables();
   const out: number[] = [];
   let s = "";
@@ -360,8 +365,8 @@ export function decodeCp949(raw: Uint8Array): string {
       const t = raw[i + 1];
       if (t === undefined) throw new TypeError("truncated cp949 data");
       let cp = 0;
-      if (b >= 0xa1 && b <= 0xfe && t >= 0xa1 && t <= 0xfe) cp = ks[(b - 0xa1) * 94 + (t - 0xa1)];
-      else {
+      if (b >= 0xa1 && b <= 0xfe && t >= 0xa1 && t <= 0xfe) cp = ksOnly && b === 0xa4 && t === 0xd4 ? 0 : ks[(b - 0xa1) * 94 + (t - 0xa1)];
+      else if (!ksOnly) {
         const k = uhcIndex(b, t);
         if (k >= 0 && k < ext.length) cp = ext[k];
       }
@@ -380,61 +385,91 @@ function latin1(bytes: Uint8Array): string {
   return s;
 }
 
-/** bytes.decode(encoding) for the encodings a user may name in read.encoding (Python codec names). */
-function decodeAs(raw: Uint8Array, encoding: string): string {
-  const e = encoding.toLowerCase().replace(/_/g, "-").trim();
-  try {
-    if (["utf-8", "utf8", "u8", "utf"].includes(e)) return textDecode("utf-8", raw);
-    if (["utf-8-sig", "utf8-sig"].includes(e)) {
-      return textDecode("utf-8", raw[0] === 0xef && raw[1] === 0xbb && raw[2] === 0xbf ? raw.subarray(3) : raw);
+// Python's codec names (encodings.aliases, after normalize_encoding) for the encodings decoded here.
+const CODECS: Record<string, string[]> = {
+  "utf-8": ["utf_8", "u8", "utf", "utf8", "utf8_ucs2", "utf8_ucs4", "cp65001"],
+  "utf-8-sig": ["utf_8_sig"],
+  "utf-16": ["utf_16", "u16", "utf16"],
+  "utf-16le": ["utf_16_le", "utf_16le", "unicodelittleunmarked"],
+  "utf-16be": ["utf_16_be", "utf_16be", "unicodebigunmarked"],
+  "cp949": ["cp949", "949", "ms949", "uhc"],
+  "euc-kr": ["euc_kr", "euckr", "korean", "ksc5601", "ks_c_5601", "ks_c_5601_1987", "ksx1001", "ks_x_1001"],
+  "latin-1": ["latin_1", "iso8859_1", "8859", "cp819", "csisolatin1", "ibm819", "iso8859", "iso_8859_1", "iso_8859_1_1987",
+    "iso_ir_100", "l1", "latin", "latin1"],
+  "ascii": ["ascii", "646", "ansi_x3.4_1968", "ansi_x3_4_1968", "ansi_x3.4_1986", "cp367", "csascii", "ibm367", "iso646_us",
+    "iso_646.irv_1991", "iso_ir_6", "us", "us_ascii"],
+  "cp1252": ["cp1252", "windows_1252"],
+};
+
+/** Python's normalize_encoding (after lower()): runs of other characters than ASCII letters, digits and "." become
+ *  one "_", none at the ends. */
+function codecKey(name: string): string {
+  return name.toLowerCase().split(/[^a-z0-9.]+/).filter(Boolean).join("_");
+}
+
+/** bytes.decode(encoding) for read.encoding: Python's codecs for the encodings above, else the platform's decoder
+ *  for that label. Errors as plotkit.core._decode raises them. */
+function decodeAs(raw: Uint8Array, encoding: string, name: string): string {
+  const key = codecKey(encoding);
+  const codec = Object.keys(CODECS).find(c => CODECS[c].includes(key));
+  const notText = () => new PlotkitError(`${name} is not ${encoding} text`,
+    'check read.encoding (e.g. "utf-8" or "cp949"), or leave it out to detect the encoding');
+  let dec: InstanceType<typeof TextDecoder> | null = null;
+  if (!codec) {
+    for (const label of [encoding.trim().toLowerCase(), key.replace(/_/g, "-")]) {
+      try {
+        dec = new TextDecoder(label, { fatal: true, ignoreBOM: true });
+        break;
+      } catch { /* next */ }
     }
-    if (["utf-16", "utf16", "u16"].includes(e)) {
-      if (raw[0] === 0xfe && raw[1] === 0xff) return textDecode("utf-16be", raw.subarray(2));
-      return textDecode("utf-16le", raw[0] === 0xff && raw[1] === 0xfe ? raw.subarray(2) : raw);
-    }
-    if (["utf-16-le", "utf-16le", "utf16le"].includes(e)) return textDecode("utf-16le", raw);
-    if (["utf-16-be", "utf-16be", "utf16be"].includes(e)) return textDecode("utf-16be", raw);
-    if (["cp949", "949", "ms949", "uhc"].includes(e)) return decodeCp949(raw);
-    if (["latin-1", "latin1", "l1", "iso-8859-1", "iso8859-1", "8859", "cp819", "iso-ir-100"].includes(e)) return latin1(raw);
-    if (["ascii", "us-ascii", "646"].includes(e)) {
-      if (raw.some(b => b > 0x7f)) throw new TypeError("not ascii");
-      return latin1(raw);
-    }
-    if (["cp1252", "windows-1252"].includes(e)) {
-      if (raw.some(b => b === 0x81 || b === 0x8d || b === 0x8f || b === 0x90 || b === 0x9d)) throw new TypeError("undefined byte");
-      return textDecode("windows-1252", raw);
-    }
-  } catch {
-    // Python raises UnicodeDecodeError here (a crash); the port answers with a PlotkitError
-    throw new PlotkitError(`the file can not be read as ${encoding} text`, 'check read.encoding (or leave it out to detect it)');
+    if (!dec) throw new PlotkitError(`unknown encoding "${encoding}"`, 'use "utf-8", "cp949", "utf-16" or "latin-1", or leave read.encoding out');
   }
-  let dec: InstanceType<typeof TextDecoder>;
   try {
-    dec = new TextDecoder(e, { fatal: true, ignoreBOM: true });
+    switch (codec) {
+      case "utf-8": return textDecode("utf-8", raw);
+      case "utf-8-sig": return textDecode("utf-8", raw[0] === 0xef && raw[1] === 0xbb && raw[2] === 0xbf ? raw.subarray(3) : raw);
+      case "utf-16":
+        if (raw[0] === 0xfe && raw[1] === 0xff) return textDecode("utf-16be", raw.subarray(2));
+        return textDecode("utf-16le", raw[0] === 0xff && raw[1] === 0xfe ? raw.subarray(2) : raw);
+      case "utf-16le": return textDecode("utf-16le", raw);
+      case "utf-16be": return textDecode("utf-16be", raw);
+      case "cp949": return decodeCp949(raw);
+      case "euc-kr": return decodeCp949(raw, true);
+      case "latin-1": return latin1(raw);
+      case "ascii":
+        if (raw.some(b => b > 0x7f)) throw new TypeError("not ascii");
+        return latin1(raw);
+      case "cp1252":
+        if (raw.some(b => b === 0x81 || b === 0x8d || b === 0x8f || b === 0x90 || b === 0x9d)) throw new TypeError("undefined byte");
+        return textDecode("windows-1252", raw);
+      default: return dec!.decode(raw);
+    }
   } catch {
-    throw new PlotkitError(`unknown encoding: ${encoding}`, 'use utf-8, cp949, utf-16 or latin-1, or leave read.encoding out');
-  }
-  try {
-    return dec.decode(raw);
-  } catch {
-    throw new PlotkitError(`the file can not be read as ${encoding} text`, 'check read.encoding (or leave it out to detect it)');
+    throw notText();
   }
 }
 
-/** _decode: UTF-8 with or without BOM, UTF-16 with BOM or detected, cp949, else latin-1. */
-export function decodeText(raw: Uint8Array, encoding?: unknown): string {
-  if (pyTruthy(encoding)) return decodeAs(raw, String(encoding));
-  try {
-    if ((raw[0] === 0xff && raw[1] === 0xfe) || (raw[0] === 0xfe && raw[1] === 0xff)) return decodeAs(raw, "utf-16");
-    if (raw[0] === 0xef && raw[1] === 0xbb && raw[2] === 0xbf) return textDecode("utf-8", raw.subarray(3));
-    const head = raw.subarray(0, 2000);
-    let zeros = 0;
-    for (const b of head) if (b === 0) zeros++;
-    if (zeros > Math.floor(head.length / 4)) return textDecode(head[1] === 0 ? "utf-16le" : "utf-16be", raw);
-  } catch (e) {
-    if (e instanceof PlotkitError) throw e;
-    // Python raises UnicodeDecodeError here (a crash); the port answers with a PlotkitError
-    throw new PlotkitError("the file looks like UTF-16 text but can not be decoded", 'set read.encoding');
+/** _decode: read.encoding if set; else UTF-16 (BOM or many zero bytes), UTF-8 with BOM, UTF-8, cp949, latin-1.
+ *  name: the file, for the errors. */
+export function decodeText(raw: Uint8Array, encoding?: unknown, name = "the file"): string {
+  if (pyTruthy(encoding)) return decodeAs(raw, String(encoding), name);
+  const head = raw.subarray(0, 2000);
+  let zeros = 0;
+  for (const b of head) if (b === 0) zeros++;
+  let detected: [string, () => string] | null = null;
+  if ((raw[0] === 0xff && raw[1] === 0xfe) || (raw[0] === 0xfe && raw[1] === 0xff)) {
+    detected = ["UTF-16", () => textDecode(raw[0] === 0xff ? "utf-16le" : "utf-16be", raw.subarray(2))];
+  } else if (raw[0] === 0xef && raw[1] === 0xbb && raw[2] === 0xbf) {
+    detected = ["UTF-8", () => textDecode("utf-8", raw.subarray(3))];
+  } else if (zeros > Math.floor(head.length / 4)) {                 // UTF-16 without BOM
+    detected = ["UTF-16", () => textDecode(head[1] === 0 ? "utf-16le" : "utf-16be", raw)];
+  }
+  if (detected) {
+    try {
+      return detected[1]();
+    } catch {
+      throw new PlotkitError(`${name} looks like ${detected[0]} text but could not be decoded`, "set read.encoding, or save the file again as UTF-8");
+    }
   }
   try {
     return textDecode("utf-8", raw);
@@ -454,12 +489,15 @@ const HEADER_SPLIT = new RegExp(`[${PY_WS}]{2,}|\\t`, "u");
 
 /** _read_text: {stem: rows of str}, decimal mark. Separator and decimal mark are detected unless read sets them. */
 export function readText(name: string, bytes: Uint8Array, ro: ReadOptions = {}): [Map<string, Cell[][]>, string] {
-  const text = decodeText(bytes, ro.encoding);
+  let sep: unknown = ro.sep ?? null;
+  if (sep !== null && (typeof sep !== "string" || sep === "")) {
+    throw new PlotkitError(`read.sep must be a separator like "," or "tab", not ${pyReprOf(sep)}`, 'use ",", ";", "tab" or "space", or leave it out');
+  }
+  const text = decodeText(bytes, ro.encoding, pathName(name));
   const lines = splitLines(text);
   const nonblank = lines.filter(ln => pyStrip(ln));
   const tail = nonblank.length > 60 ? nonblank.slice(-60) : nonblank;
-  let sep: unknown = ro.sep ?? null;
-  if (typeof sep === "string" && sep in SEP_NAMES) sep = SEP_NAMES[sep];
+  if (typeof sep === "string" && Object.hasOwn(SEP_NAMES, sep)) sep = SEP_NAMES[sep];
   if (sep === null) {                // the most lines with the same count wins (preamble/footer lines may differ)
     for (const cand of ["\t", ";", ",", "|"]) {
       const counts = tail.map(ln => ln.split(cand).length - 1);
@@ -472,10 +510,6 @@ export function readText(name: string, bytes: Uint8Array, ro: ReadOptions = {}):
       }
     }
     sep = sep || "space";
-  }
-  if (typeof sep !== "string" || sep === "") {
-    // Python raises (TypeError / "empty separator") here; the port answers with a PlotkitError
-    throw new PlotkitError(`read.sep must be a separator like "," or "tab", not ${pyReprOf(sep)}`, 'use ",", ";", "tab" or "space", or leave it out');
   }
   let decimal: unknown = ro.decimal ?? null;
   if (decimal === null) {
@@ -495,7 +529,7 @@ export function readText(name: string, bytes: Uint8Array, ro: ReadOptions = {}):
       const nums = parts.filter(p => toNum(p, dec) !== null).length;
       if (nums < parts.length) parts = pyStrip(ln).split(HEADER_SPLIT);   // header line: split on 2+ spaces
     } else {
-      parts = ln.split(sep).map(p => pyStrip(pyStrip(p), '"'));
+      parts = ln.split(sep as string).map(p => pyStrip(pyStrip(p), '"'));
     }
     rows.push(parts);
   }
@@ -779,9 +813,8 @@ export async function readXlsx(name: string, bytes: Uint8Array): Promise<Map<str
   };
   try {
     await xlsx.load(bytes);
-  } catch (e) {
-    // openpyxl raises here (BadZipFile, ...): a crash in Python; the port answers with a PlotkitError
-    throw new PlotkitError(`${pathName(name)} could not be read as an .xlsx file (${(e as Error)?.message ?? e})`,
+  } catch {
+    throw new PlotkitError(`${pathName(name)} could not be read as an .xlsx file`,
       "check that it is an Excel workbook; open it in Excel and save it again as .xlsx");
   }
   const number = (v: number, styleId: number | undefined): Cell => {
@@ -898,13 +931,15 @@ export function analyzeTable(rowsIn: Cell[][], decimal = ".", headerRow: unknown
   const nums = rows.map(r => r.map(c => toNum(c, decimal)));
   const ncount = nums.map(r => r.filter(n => n !== null).length);
   if (!rows.length || !ncount.some(n => n > 0)) throw new PlotkitError("no numbers found in this sheet");
+  const hr = pyTruthy(headerRow) ? rowNumber(headerRow, "header_row", rows.length) : null;
+  const dsr = pyTruthy(dataStartRow) ? rowNumber(dataStartRow, "data_start_row") : null;
 
   let ds: number;
-  if (pyTruthy(dataStartRow)) {
-    ds = pyInt(dataStartRow, "read.data_start_row") - 1;
-  } else if (pyTruthy(headerRow)) {
-    ds = pyInt(headerRow, "read.header_row");
-    while (ds < rows.length && (ncount.at(ds) ?? 0) < 2) ds++;
+  if (dsr !== null) {
+    ds = dsr - 1;
+  } else if (hr !== null) {
+    ds = hr;
+    while (ds < rows.length && ncount[ds] < 2) ds++;
   } else {
     let wide = ncount.filter(c => c >= 2);
     if (!wide.length) wide = ncount.filter(c => c >= 1);
@@ -942,8 +977,8 @@ export function analyzeTable(rowsIn: Cell[][], decimal = ".", headerRow: unknown
   };
 
   let hdrRows: number[] = [];
-  if (pyTruthy(headerRow)) {
-    hdrRows = [pyInt(headerRow, "read.header_row") - 1];
+  if (hr !== null) {
+    hdrRows = [hr - 1];
   } else {
     let i = ds - 1;
     while (i >= 0 && hdrRows.length < 2) {
@@ -964,9 +999,7 @@ export function analyzeTable(rowsIn: Cell[][], decimal = ".", headerRow: unknown
   for (const j of dataCols) {
     const parts: string[] = [];
     for (const r of hdrRows) {
-      const row = rows.at(r);
-      if (!row) throw new PlotkitError(`header row ${r + 1} is outside the sheet`, "check read.header_row");
-      const c = row[j];
+      const c = rows[r][j];
       if (c !== null && pyStrip(cellStr(c))) parts.push(pyStrip(cellStr(c)));
     }
     columns.push({ letter: colLetter(j), index: j, name: parts.join(" "), values: body.map(r => r[j] ?? NaN) });
@@ -1231,11 +1264,11 @@ export function selectSheets(names: string[], sel: unknown, f: string): string[]
   const list = Array.isArray(sel) ? sel : [sel];
   const chosen: string[] = [];
   for (let s of list as unknown[]) {
-    if (typeof s === "string" && /^\p{Nd}+$/u.test(pyStrip(s)) && !names.includes(s)) s = parseInt(asciiDigits(pyStrip(s)), 10);
+    if (typeof s === "string" && /^[0-9]+$/.test(pyStrip(s)) && !names.includes(s)) s = parseInt(pyStrip(s), 10);   // ASCII digits only
     if (typeof s === "number") {
-      const i = Math.trunc(s);
+      const i = Number.isFinite(s) ? Math.trunc(s) : s;
       if (!(i >= 1 && i <= names.length)) {
-        throw new PlotkitError(`sheet number ${i} does not exist in ${pathName(f)}`, `it has ${names.length} sheet(s): ${pyReprOf(names)}`);
+        throw new PlotkitError(`sheet number ${pyStrOf(i)} does not exist in ${pathName(f)}`, `it has ${names.length} sheet(s): ${pyReprOf(names)}`);
       }
       chosen.push(names[i - 1]);
       continue;

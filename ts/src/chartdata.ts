@@ -105,22 +105,30 @@ export function strRepr(s: string): string {
 const DIGITS = "\\d(?:_?\\d)*";
 const FLOAT_RE = new RegExp(`^[+-]?(?:(?:${DIGITS}(?:\\.(?:${DIGITS})?)?|\\.${DIGITS})(?:[eE][+-]?${DIGITS})?|inf|infinity|nan)$`, "i");
 
-/** Python float(x) (ValueError / TypeError -> PlotkitError). where: the spec key the value came from, if any. */
-export function pyFloat(v: unknown, where?: string): number {
-  if (typeof v === "number") return v;
-  if (typeof v === "boolean") return v ? 1 : 0;
-  const at = where ? `${where}: ` : "";
-  const hint = where ? `"${where}" must be a number` : "the column holds text where numbers are needed; pick a numeric column";
-  if (typeof v !== "string") {
-    const t = v === null || v === undefined ? "NoneType" : Array.isArray(v) ? "list" : typeof v === "object" ? "dict" : typeof v;
-    throw new PlotkitError(`${at}float() argument must be a string or a real number, not '${t}'`, hint);
-  }
+/** Python float(text), or null where Python raises ValueError. */
+export function floatText(v: string): number | null {
   const s = v.trim();
-  if (!FLOAT_RE.test(s)) throw new PlotkitError(`${at}could not convert string to float: ${strRepr(v)}`, hint);
+  if (!FLOAT_RE.test(s)) return null;
   const t = s.replace(/_/g, "").toLowerCase();
   if (/^[+-]?nan$/.test(t)) return NaN;
   if (/^[+-]?inf(inity)?$/.test(t)) return t.startsWith("-") ? -Infinity : Infinity;
   return parseFloat(t);
+}
+
+/** Python float(x) of a number, true/false or text (ValueError -> PlotkitError). */
+export function pyFloat(v: unknown): number {
+  if (typeof v === "number") return v;
+  if (typeof v === "boolean") return v ? 1 : 0;
+  const x = typeof v === "string" ? floatText(v) : null;
+  if (x === null) throw new PlotkitError(`could not convert ${specRepr(v)} to a number`, "give a number");
+  return x;
+}
+
+/** _num: a finite number the spec gives (a number or numeric text); anything else is a PlotkitError naming the key. */
+export function specNum(v: unknown, where: string): number {
+  const x = typeof v === "number" ? v : typeof v === "string" ? floatText(v) : null;
+  if (x === null || !Number.isFinite(x)) throw new PlotkitError(`"${where}" must be a number, not ${specRepr(v)}`, "write a number, e.g. 2.5");
+  return x;
 }
 
 /** str.strip("'\"") */

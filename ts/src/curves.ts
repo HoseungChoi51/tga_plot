@@ -606,16 +606,42 @@ export function resolve(spec: CurveSpec, jobs: Job[]): Resolved[] {
   return figs;
 }
 
-/** The shared result of a live curve chart (plotkit.echarts.live_result, after normalize_spec and build_jobs):
- *  {ok, kind, engine, options (one live ECharts option per figure, plain JSON), saved: [], warnings, not_done, values}. */
-export function liveResult(spec: CurveSpec, jobs: Job[], warnings: string[] = []): {
-  ok: true; kind: "curve"; engine: "echarts"; options: Dict[]; saved: string[]; warnings: string[]; not_done: string[];
-  values: Record<string, Record<string, unknown>>;
-} {
+/** "code" is the matplotlib engine's Python hatch: refused on ECharts, before any data is read (plotkit.echarts). */
+export function checkCurveCode(spec: { code?: unknown; [k: string]: unknown }): void {
   if (truthy(get(spec, "code"))) {
     throw new PlotkitError('"code" (Python) does not work with the ECharts engine',
       'use a key (e.g. annotate band for shading), or put ECharts settings in "echarts"');
   }
+}
+
+/** What builds the jobs and their warnings, e.g. () => buildJobs(spec, files, hook) (jobs.ts): given one instead of
+ *  built jobs, liveResult / renderCurves refuse "code" before it runs, in Python's order. */
+export type JobsBuilder = () => Promise<[object[], string[]]> | [object[], string[]];
+
+export interface LiveCurveResult {
+  ok: true; kind: "curve"; engine: "echarts"; options: Dict[]; saved: string[]; warnings: string[]; not_done: string[];
+  values: Record<string, Record<string, unknown>>;
+}
+
+/** The shared result of a live curve chart (plotkit.echarts.live_result after normalize_spec): "code" refused, the
+ *  jobs (built, or a builder run after that check), then {ok, kind, engine, options (one live ECharts option per
+ *  figure, plain JSON), saved: [], warnings, not_done, values}. */
+export function liveResult(spec: CurveSpec, jobs: Job[], warnings?: string[]): LiveCurveResult;
+export function liveResult(spec: CurveSpec, build: JobsBuilder): Promise<LiveCurveResult>;
+export function liveResult(spec: CurveSpec, jobs: Job[] | JobsBuilder, warnings: string[] = []): LiveCurveResult | Promise<LiveCurveResult> {
+  if (typeof jobs === "function") {
+    const build = jobs;
+    return (async () => {
+      checkCurveCode(spec);
+      const [built, w] = await build();
+      return liveFrom(spec, built as Job[], w);
+    })();
+  }
+  checkCurveCode(spec);
+  return liveFrom(spec, jobs, warnings);
+}
+
+function liveFrom(spec: CurveSpec, jobs: Job[], warnings: string[]): LiveCurveResult {
   const figs = resolve(spec, jobs);
   return { ok: true, kind: "curve", engine: "echarts", options: liveOptions(figs.map(f => f.figure)), saved: [],
     warnings, not_done: notDone(spec), values: curveValues(figs.map(f => ({ annotations: f.annotations }))) };

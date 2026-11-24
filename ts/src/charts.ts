@@ -8,12 +8,12 @@ import { formatValue, pyFormat, pyRepr, pyRound, PyFormatError, type PyValue } f
 import { getCloseMatches } from "./difflib.ts";
 import { isColorLike, colormap, colormapNames, type Colormap } from "./colors.ts";
 import { tickValues } from "./ticks.ts";
-import { CHART_GRAYS, CHART_HIGHLIGHT_GRAY, CHART_PALETTE, CHART_PERIODS, KOREAN_COLORS, LINESTYLES, LINESTYLE_NAMES } from "./tables.ts";
+import { CHART_AGGS, CHART_GRAYS, CHART_HIGHLIGHT_GRAY, CHART_PALETTE, CHART_PERIODS, KOREAN_COLORS, LINESTYLES, LINESTYLE_NAMES } from "./tables.ts";
 import {
   type Kind, type Ser, type Table, type Val, allclose, amax, amin, arange, cmpStr, col, corrcoef, cut, dateStr, datetimeStrs,
-  fromFrame, groupVar, histogram, histogramBinEdges, intStr, isMidnight, isNA, isoFormat, isoToMs, linspace, msToDays,
+  floatText, fromFrame, groupVar, histogram, histogramBinEdges, intStr, isMidnight, isNA, isoFormat, isoToMs, linspace, msToDays,
   nancorr, npAround, npMean, npMedian, npStd, npSum, parseTimestamp, periodStart, polyfit1, pyFloat, pyLen, pyMax, pyMin,
-  rint, rollingMean, setCol, specRepr, specStr, stripQuotes, sub, take, truthy, tsStr,
+  rint, rollingMean, setCol, specNum, specRepr, specStr, stripQuotes, sub, take, truthy, tsStr,
 } from "./chartdata.ts";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -176,10 +176,51 @@ function mapLabels(s: Ser): Ser {
   return { kind: "O", v: s.v.map(v => catLabel(s.kind, v)) };
 }
 
-/** Series.astype(float) */
-function asFloat(s: Ser, name: string): number[] {
-  if (s.kind === "M") throw new PlotkitError(`"${name}" holds dates, not numbers`, "pick a numeric column");
-  return s.v.map(v => v === null ? NaN : typeof v === "number" ? v : typeof v === "boolean" ? (v ? 1 : 0) : pyFloat(v));
+/** _floats: the column as floats (text that holds numbers too); other text is a PlotkitError naming the column. */
+function floats(s: Ser, col: string): number[] {
+  if (s.kind === "M") throw new PlotkitError(`"${col}" holds dates, not numbers`, "pick a numeric column");
+  return s.v.map(v => {
+    if (v === null) return NaN;
+    if (typeof v === "number") return v;
+    if (typeof v === "boolean") return v ? 1 : 0;
+    const x = floatText(v);
+    if (x === null) throw new PlotkitError(`"${col}" holds text, not numbers`, "pick a numeric column, or use count or nunique");
+    return x;
+  });
+}
+
+const AGGS = CHART_AGGS as readonly string[];
+
+/** _check_agg: aggregates other than count and nunique need numbers; on text (first / last aside: they may hold
+ *  numbers) or dates they are a PlotkitError naming the aggregate and the column. */
+function checkAgg(s: Ser, how: string, col: string): void {
+  if (!AGGS.includes(how)) throw new PlotkitError(`unknown aggregate "${how}"`, "use one of: " + AGGS.join(", "));
+  const k = s.kind;
+  if (how === "count" || how === "nunique" || k === "f" || k === "i" || k === "b" || (k !== "M" && (how === "first" || how === "last"))) return;
+  throw new PlotkitError(`cannot take the ${how} of "${col}": it holds ${k === "M" ? "dates" : "text"}`, "use count or nunique, or a numeric column");
+}
+
+/** _missing: missing category values: NaN, None, NaT, and blank text. */
+function missing(s: Ser): boolean[] {
+  return s.v.map(v => isNA(s.kind, v) || (s.kind === "O" && typeof v === "string" && v.trim() === ""));
+}
+
+/** _leave_out: rows whose category (x, by, the pie labels, the heatmap rows and columns) is missing are left out, the
+ *  same for every chart: raw is the column, key what it groups by (a period or a bin; null outside the bins). Adds one
+ *  note each for the missing and the out-of-bins rows and counts them out of rows_used. Returns the rows kept. */
+function leaveOut(model: ChartModel, raw: Ser, key: Ser, col: string): number[] {
+  const miss = missing(raw), keyMiss = missing(key);
+  const out = keyMiss.map((m, i) => m && !miss[i]);
+  for (const [n, what] of [[miss.filter(Boolean).length, `with no ${col}`], [out.filter(Boolean).length, `outside the bins of ${col}`]] as const) {
+    if (n) model.notes.push(`${n} ${n === 1 ? "row" : "rows"} ${what} left out`);
+  }
+  const keep = miss.flatMap((m, i) => m || out[i] ? [] : [i]);
+  if (!keep.length) {
+    throw new PlotkitError(`no rows left after leaving out the rows with no ${col}` + (out.some(Boolean) ? " or outside its bins" : ""),
+      "pick another column, or check the filters and bins");
+  }
+  model.rows_used -= raw.v.length - keep.length;
+  return keep;
 }
 
 // =================================================================== filters
@@ -323,15 +364,15 @@ export function applyFilter(frame: Frame, cond: unknown): boolean[] {
 }
 
 // =================================================================== figure model
-/** _agg: one aggregate of a group's values. */
-function agg(s: Ser, how: string, name: string): number {
+/** _agg: one aggregate of a group's values; checkAgg(s, how, col) has accepted the column. */
+function agg(s: Ser, how: string, col: string): number {
   if (how === "count") return s.v.length;
   const vals = s.v.filter(x => !isNA(s.kind, x));
   if (how === "nunique") return new Set(vals).size;
   if (!vals.length) return NaN;
   if (s.kind === "O" || s.kind === "M") {
-    if (s.kind === "O" && (how === "first" || how === "last")) return pyFloat(vals[how === "first" ? 0 : vals.length - 1]);
-    throw new PlotkitError(`cannot take the ${how} of "${name}": it holds ${s.kind === "M" ? "dates" : "text"}`, "aggregate a numeric column, or use count / nunique");
+    if (s.kind === "O" && (how === "first" || how === "last")) return floats({ kind: "O", v: [vals[how === "first" ? 0 : vals.length - 1]] }, col)[0];
+    throw new PlotkitError(`cannot take the ${how} of "${col}": it holds ${s.kind === "M" ? "dates" : "text"}`, "use count or nunique, or a numeric column");
   }
   const x = vals.map(v => typeof v === "boolean" ? (v ? 1 : 0) : v as number);
   switch (how) {
@@ -534,8 +575,7 @@ export function buildModel(spec: ChartSpec, frame: Frame): ChartModel {
   };
   let by: string | null = truthy(spec.by) ? findCol(df, spec.by, "by") : null;
   if (by) {
-    const s = col(df, by), strs = astypeStr(s);
-    df = take(df, s.v.flatMap((v, i) => !isNA(s.kind, v) && (strs[i] === null || strs[i]!.trim() !== "") ? [i] : []));
+    df = take(df, leaveOut(model, col(df, by), col(df, by), by));
     model.legend_title = legendTitle(by);
   }
   if (kind === "heatmap") return heatmapModel(spec, df, model);
@@ -551,9 +591,13 @@ export function buildModel(spec: ChartSpec, frame: Frame): ChartModel {
     const lab = xcol ?? by;
     if (lab === null) throw new PlotkitError('pie needs the slice labels: "x": "<category column>"');
     const how = aggHow ?? (ycolNames.length ? "sum" : "count");
+    if (how !== "count") {
+      if (!ycolNames.length) throw new PlotkitError(`pie: "${how}" needs a y column`, 'add "y": "<value column>"');
+      checkAgg(col(df, ycolNames[0]), how, ycolNames[0]);
+    }
+    df = take(df, leaveOut(model, col(df, lab), col(df, lab), lab));
     const labels0 = mapLabels(col(df, lab)).v as string[];
     const groups = groupSorted(labels0);
-    if (how !== "count" && !ycolNames.length) throw new PlotkitError(`pie: "${how}" needs a y column`, 'add "y": "<value column>"');
     const yser = ycolNames.length ? col(df, ycolNames[0]) : null;
     let vals = groups.map(([k, rows]) => [k, how === "count" ? rows.length : agg(sub(yser!, rows), how, ycolNames[0])] as [string, number]);
     vals = vals.filter(([, v]) => v > 0);
@@ -582,6 +626,11 @@ export function buildModel(spec: ChartSpec, frame: Frame): ChartModel {
     model.x.period = xs.period;
   } else if (truthy(xs.bins) && ["bar", "hbar", "line"].includes(kind)) {
     xser = binSeries(xser, xs.bins);
+  }
+  if (kind !== "scatter") {                          // a scatter leaves out its points without x or y itself
+    const keep = leaveOut(model, col(df, xcol), xser, xcol);
+    df = take(df, keep);
+    xser = sub(xser, keep);
   }
   const isNumX = (xser.kind === "f" || xser.kind === "i") && (kind === "line" || kind === "scatter");
   const isTimeX = xser.kind === "M";
@@ -621,6 +670,7 @@ export function buildModel(spec: ChartSpec, frame: Frame): ChartModel {
     if (dup) notes.push(`several rows per ${xcol}${by ? " and " + by : ""}: the ${how === "mean" ? "mean" : how} is drawn`);
   }
   model.agg = how;
+  for (const c of ycolNames) checkAgg(col(df, c), how, c);
   const allRows = [...Array(df.nrows).keys()];
   let seriesSpecs: [any, number[], string | null][] = [];
   if (by) {
@@ -643,7 +693,7 @@ export function buildModel(spec: ChartSpec, frame: Frame): ChartModel {
     if (!dup && ["first", "last", "mean", "sum", "max", "min", "median"].includes(how) && yc !== null) {
       vals = new Indexed();                         // one row per x: nothing to aggregate
       const cn = new Indexed();
-      const yv = asFloat(sub(ys_!, rows), yc);
+      const yv = floats(sub(ys_!, rows), yc);
       rows.forEach((r, i) => { vals.push(X[r], yv[i]); cn.push(X[r], Number.isNaN(yv[i]) ? 0 : 1); });
       countsN.set(name, cn);
     } else {
@@ -659,7 +709,8 @@ export function buildModel(spec: ChartSpec, frame: Frame): ChartModel {
     let err: [Indexed, Indexed] | Indexed | null = null;
     if (truthy(spec.error) && yc !== null && ["bar", "hbar", "line"].includes(kind) && groups !== null) {
       const e = specStr(spec.error).toLowerCase();
-      const gv = groups.map(g => asFloat(sub(ys_!, g.rows), yc));
+      checkAgg(col(df, yc), ["minmax", "range", "min-max"].includes(e) ? "min" : "std", yc);
+      const gv = groups.map(g => floats(sub(ys_!, g.rows), yc));
       if (["std", "sd", "표준편차"].includes(e) || ["sem", "se", "표준오차"].includes(e)) {
         const w = ["std", "sd", "표준편차"].includes(e) ? "std" : "sem";
         const ix = new Indexed();
@@ -795,7 +846,7 @@ function scatterModel(spec: ChartSpec, df: Table, model: ChartModel, xser: Ser, 
     const ok = idx.map((_, i) => !isNA(sx.kind, sx.v[i]) && !isNA(sy.kind, sy.v[i]));
     const keep = idx.flatMap((_, i) => ok[i] ? [i] : []);
     model.series.push({ name: by ? specStr(k) : ycolNames[0], color: cmap.get(by ? k as string : ycolNames[0]),
-                        x: plain(sub(sx, keep)), y: asFloat(sub(sy, keep), ycolNames[0]) });
+                        x: plain(sub(sx, keep)), y: floats(sub(sy, keep), ycolNames[0]) });
   }
   model.y.label = or(model.y.label, ycolNames[0]);
   model.legend_needed = !!by;
@@ -839,27 +890,51 @@ function fmtNum(v: number): string {
   return fmt(v, ".4g");
 }
 
+const BINS_HINT = 'e.g. "bins": 10, "bins": {"width": 0.5} or "bins": [0, 5, 10]';
+
+/** _edge_list: bin edges given as a list: numbers, two or more, increasing. */
+function edgeList(bins: unknown, where: string): number[] {
+  const edges = Array.isArray(bins) ? bins.map(b => specNum(b, where)) : [];
+  if (edges.length < 2 || edges.slice(1).some((b, i) => b <= edges[i])) {
+    throw new PlotkitError(`"${where}" must be two or more increasing edges, not ${specRepr(bins)}`, BINS_HINT);
+  }
+  return edges;
+}
+
 /** _edges: bin edges from a count, {"width"}, {"edges"} or a list. */
 function binEdges(v: number[], bins: any): number[] {
   v = v.filter(Number.isFinite);
-  if (Array.isArray(bins)) return bins.map(b => pyFloat(b, "bins"));
-  const isDict = !!bins && typeof bins === "object";
-  if (isDict && truthy(bins.edges) && !(bins.edges.length === 2 && (truthy(bins.width) || truthy(bins.step)))) return bins.edges.map((b: unknown) => pyFloat(b, "bins.edges"));
-  if (isDict) {
-    if (truthy(bins.edges)) bins = { ...bins, min: bins.edges[0], max: bins.edges[bins.edges.length - 1] };
-    if (truthy(bins.range) && bins.range.length === 2) bins = { ...bins, min: bins.range[0], max: bins.range[1] };
-    const w = pyFloat(or(bins.width, bins.step), "bins.width");
-    if (!v.length) throw new PlotkitError("zero-size array to reduction operation minimum which has no identity", "no numbers to bin");
-    const lo = Math.floor(pyFloat("min" in bins ? bins.min : amin(v), "bins.min") / w) * w;
-    const hi = pyFloat("max" in bins ? bins.max : amax(v), "bins.max");
-    const n = Math.max(1, Math.trunc(Math.ceil((hi - lo) / w - 1e-9)));
+  if (Array.isArray(bins)) return edgeList(bins, "bins");
+  if (isDict(bins)) {
+    const e = bins.edges;
+    if (truthy(e) && !(Array.isArray(e) && e.length === 2 && (truthy(bins.width) || truthy(bins.step)))) return edgeList(e, "bins.edges");
+    if (truthy(e)) bins = { ...bins, min: e[0], max: e[e.length - 1] };      // {"width": 1, "edges": [3, 28]}: a range cut every width
+    const r = bins.range;
+    if (Array.isArray(r) && r.length === 2) bins = { ...bins, min: r[0], max: r[1] };
+    const w0 = or(bins.width, bins.step);
+    if (!truthy(w0)) throw new PlotkitError('"bins" needs a "width" (or give a number of bins, or a list of edges)', BINS_HINT);
+    if (!(specNum(w0, "bins.width") > 0)) throw new PlotkitError(`"bins.width" must be above 0, not ${specRepr(w0)}`, BINS_HINT);
+    const w = specNum(w0, "bins.width");
+    let lo: unknown = bins.min ?? null, hi: unknown = bins.max ?? null;      // the data's range only where the spec does not give it
+    if (lo === null) lo = v.length ? amin(v) : null;
+    if (hi === null) hi = v.length ? amax(v) : null;
+    if (lo === null || hi === null) throw new PlotkitError("no numbers to bin", 'give "min" and "max" with the width, or check the filters');
+    const lo2 = Math.floor(specNum(lo, "bins.min") / w) * w;
+    const hi2 = specNum(hi, "bins.max");
+    const n = Math.max(1, Math.trunc(Math.ceil((hi2 - lo2) / w - 1e-9)));
     const out: number[] = [];
-    for (let i = 0; i <= n; i++) out.push(lo + i * w);
-    if (lo + n * w < hi) out.push(lo + (n + 1) * w);
+    for (let i = 0; i <= n; i++) out.push(lo2 + i * w);
+    if (lo2 + n * w < hi2) out.push(lo2 + (n + 1) * w);
     return out;
   }
-  const auto = bins === null || bins === undefined || bins === true || bins === 1 || bins === "auto";
-  const n = !auto ? pyInt(bins) : Math.min(30, Math.max(5, Math.trunc(Math.ceil(Math.log2(Math.max(2, v.length)) + 1))));
+  let n: number;
+  if (bins === null || bins === undefined || bins === true || bins === "auto") {      // true, not 1: "bins": 1 is one bin
+    n = Math.min(30, Math.max(5, Math.trunc(Math.ceil(Math.log2(Math.max(2, v.length)) + 1))));
+  } else {
+    const x = specNum(bins, "bins");
+    if (!(x >= 1)) throw new PlotkitError(`"bins" must be a number of bins (1 or more), not ${specRepr(bins)}`, BINS_HINT);
+    n = Math.trunc(x);
+  }
   return histogramBinEdges(v, n);
 }
 
@@ -892,11 +967,17 @@ function histModel(spec: ChartSpec, df: Table, model: ChartModel, by: string | n
 function heatmapModel(spec: ChartSpec, df: Table, model: ChartModel): ChartModel {
   const cmapName = spec.cmap;
   if (truthy(spec.corr)) {
-    let cols: any = spec.corr;
-    if (cols === "all" || cols === true || cols === 1 || cols === "*") cols = df.columns.filter((_, j) => df.kinds[j] === "f");
-    else cols = (typeof cols === "string" ? [...cols] : Array.isArray(cols) ? cols : (() => { throw new PlotkitError('"corr" must be a list of columns or "all"'); })())
-      .map((c: unknown) => findCol(df, c, "corr"));
-    const m = nancorr((cols as string[]).map(c => asFloat(col(df, c), c)));
+    let cols: string[];
+    const given = spec.corr;
+    if (given === true || given === "all" || given === "*") cols = df.columns.filter((_, j) => df.kinds[j] === "f");    // true, not 1
+    else if (Array.isArray(given)) cols = given.map((c: unknown) => findCol(df, c, "corr"));
+    else throw new PlotkitError(`"corr" must be a list of columns or "all", not ${specRepr(given)}`, 'e.g. "corr": ["1존온도", "CNT수율"] or "corr": "all"');
+    if (!cols.length) throw new PlotkitError('"corr" found no numeric columns', 'name the columns: "corr": ["A", "B"]');
+    for (const c of cols) {
+      const k = col(df, c).kind;
+      if (!(k === "f" || k === "i" || k === "b")) throw new PlotkitError(`corr: "${c}" is not a numeric column`, 'give numeric columns, or "corr": "all"');
+    }
+    const m = nancorr(cols.map(c => floats(col(df, c), c)));
     model.heat = { rows: cols.map(String), cols: cols.map(String), z: m, cmap: or(cmapName, "RdBu_r"), vmin: -1.0, vmax: 1.0,
                    label: "r", values: "values" in spec ? spec.values : true };
     model.x = { label: or(spec.x?.label, ""), type: "category", categories: model.heat.cols };
@@ -910,9 +991,16 @@ function heatmapModel(spec: ChartSpec, df: Table, model: ChartModel): ChartModel
   }
   const xc = findCol(df, xs.col, "x"), yc = findCol(df, ys.col, "y");
   const keyOf = (c: string, a: any) => truthy(a.period) ? periodKey(col(df, c), a.period) : truthy(a.bins) ? binSeries(col(df, c), a.bins) : col(df, c);
-  const xk = keyOf(xc, xs), yk = keyOf(yc, ys);
+  let xk = keyOf(xc, xs), yk = keyOf(yc, ys);
+  for (const [c, which] of [[xc, "x"], [yc, "y"]] as const) {
+    const keep = leaveOut(model, col(df, c), which === "x" ? xk : yk, c);
+    df = take(df, keep);
+    xk = sub(xk, keep);
+    yk = sub(yk, keep);
+  }
   const how: string = or(zs.agg, truthy(zs.col) ? "mean" : "count");
   const zc = truthy(zs.col) ? findCol(df, zs.col, "z") : null;
+  if (zc) checkAgg(col(df, zc), how, zc);
   const X = mapLabels(xk).v as string[], Y = mapLabels(yk).v as string[];
   const cells = new Map<string, number[]>();
   for (let i = 0; i < df.nrows; i++) {
@@ -958,13 +1046,13 @@ function refs(spec: ChartSpec, model: ChartModel, df: Table, ycol: string | null
       if (ycol === null) throw new PlotkitError('"mean" needs a y column');
       const fn = ["median", "중앙값"].includes(v.toLowerCase()) ? "median" : "mean";
       const s = col(df, ycol);
-      if (s.kind === "O" || s.kind === "M") throw new PlotkitError(`cannot take the ${fn} of "${ycol}": it holds ${s.kind === "M" ? "dates" : "text"}`);
+      checkAgg(s, fn, ycol);
       const x = (s.v as number[]).filter(q => !Number.isNaN(q));
       val = fn === "median" ? (x.length ? npMedian(x) : NaN) : npMean(x);
       text = or(r.text, `${fn === "mean" ? "평균" : "중앙값"} ${fmt(val, ".3g")}`);
     } else {
       if (typeof v === "string" && (model[ax] ?? {}).type === "category") val = v;
-      else val = !(typeof v === "string" && model.x?.type === "time") ? pyFloat(v, `ref.${ax}`) : v;
+      else val = !(typeof v === "string" && model.x?.type === "time") ? specNum(v, `ref.${ax}`) : v;
       text = r.text ?? null;
     }
     if (axis === "x" && ax === "y" && model.kind === "histogram") ax = "x";     // a histogram's mean line is vertical
@@ -1137,8 +1225,9 @@ export function layout(spec: ChartSpec, model: ChartModel): ChartModel {
   }
   const scale = fs / 11;
   const nPts = kind === "scatter" ? model.series.reduce((a: number, s: any) => a + s.y.length, 0) : 0;
-  model.point_size = truthy(spec.point_size) ? pyFloat(spec.point_size, "point_size") : (nPts > 300 ? 9 : 22) * (scale * scale);
-  model.point_alpha = truthy(spec.alpha) ? pyFloat(spec.alpha, "alpha") : nPts > 300 ? 0.55 : 0.9;
+  const ps = spec.point_size, al = spec.alpha;          // numbers once normalized; checked, never taken raw
+  model.point_size = ps !== null && ps !== undefined ? specNum(ps, "point_size") : (nPts > 300 ? 9 : 22) * (scale * scale);
+  model.point_alpha = al !== null && al !== undefined ? specNum(al, "alpha") : nPts > 300 ? 0.55 : 0.9;     // 0 is a value
   if (kind === "line") {
     const dense = Math.max(0, ...model.series.map((s: any) => s.y.length)) > 500;
     for (const s of model.series) if (!("width" in s)) s.width = dense ? 1.0 : 1.8;
@@ -1174,7 +1263,7 @@ export function layout(spec: ChartSpec, model: ChartModel): ChartModel {
     const room = pw * (kind === "heatmap" ? 0.72 : 0.98);             // a heatmap gives width to its colour bar
     rot = needW > room ? (needW > 2.2 * room ? 90 : 45) : 0;
   }
-  model.rotate_x = pyFloat(or(rot, 0), "x.rotate");
+  model.rotate_x = truthy(rot) ? specNum(rot, "x.rotate") : 0.0;
   if (kind === "heatmap") {
     const h = model.heat;
     const z: number[][] = h.z;
@@ -1275,7 +1364,7 @@ export function echartsOption(spec: ChartSpec, model: ChartModel, live = false):
     const sc = spec.font_size / 11;
     const leg: Record<string, any> = { show: true, data: [...names], textStyle: { ...ts, fontSize: lfs }, itemWidth: 18 * sc,
                                        itemHeight: 10 * sc, orient: "vertical" };
-    if (truthy(model.legend_title) || truthy(lg.title)) {
+    if (kind !== "pie" && (truthy(model.legend_title) || truthy(lg.title))) {      // a pie's legend lists its slices only
       const lt = or(lg.title, model.legend_title);
       leg.data = [{ name: lt, icon: "none", textStyle: { ...ts, fontSize: lfs, fontWeight: "bold" } }, ...leg.data];
       opt._legend_dummy = lt;                    // a name-only series, added after the data series
@@ -1573,12 +1662,12 @@ function axisStyle(a: Record<string, any>, s: Record<string, any>, ts: Record<st
         a[k] = v;
       }
     }
-    if (truthy(s.step)) a.interval = pyFloat(s.step, "step");
+    if (truthy(s.step)) a.interval = specNum(s.step, "step");
     if (truthy(s.log)) a.type = "log";
     if (truthy(s.format)) a.axisLabel.formatter = "__fmt__" + s.format;
   }
   if (truthy(s.flip)) a.inverse = !truthy(a.inverse ?? false);
-  if (s.rotate !== null && s.rotate !== undefined && horizontal) a.axisLabel.rotate = pyFloat(s.rotate, "rotate");
+  if (s.rotate !== null && s.rotate !== undefined && horizontal) a.axisLabel.rotate = specNum(s.rotate, "rotate");
 }
 
 /** Margins from estimated label sizes (SSR has no text metrics). */
@@ -1592,7 +1681,7 @@ function gridFit(grid: Record<string, number>, xa: Record<string, any>, ya: Reco
     xa.axisLabel.rotate = 45;
     rot = 45;
   }
-  const xlabH = fs * 1.2 + (truthy(rot) ? longest * Math.sin(pyFloat(rot) * (Math.PI / 180)) : 0);
+  const xlabH = fs * 1.2 + (truthy(rot) ? longest * Math.sin(Number(rot) * (Math.PI / 180)) : 0);
   const hasY = truthy(ya.name), hasX = truthy(xa.name);
   grid.left += ylabW + 14 + (hasY ? fs * 1.6 : 0);
   ya.nameGap = ylabW + 10;

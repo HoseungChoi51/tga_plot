@@ -1,6 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { golden, decode, diff } from "./golden.ts";
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { golden, decode, diff, REPO } from "./golden.ts";
 import { resolve, curveValues, notDone, fmt, clean, rgba, axisRange, unit, sameUnit, liveResult } from "../src/curves.ts";
 import type { CurveSpec, Job } from "../src/curves.ts";
 import { liveOptions } from "../src/live.ts";
@@ -13,6 +16,15 @@ const CASES = golden("draw_curves").filter(c => c.jobs);
 
 /** Cases whose result is known to differ from Python's, with the reason (none so far). */
 const EXPECTED: Record<string, string> = {};
+
+/** sha256 (24 hex) of the JSON with sorted keys: equal for exactly equal results. */
+function canonHash(v: unknown): string {
+  const canon = (x: any): any => Array.isArray(x) ? x.map(canon)
+    : x && typeof x === "object" ? Object.fromEntries(Object.keys(x).sort().map(k => [k, canon(x[k])])) : x;
+  return createHash("sha256").update(JSON.stringify(canon(v))).digest("hex").slice(0, 24);
+}
+
+const sha = (s: string) => createHash("sha256").update(s).digest("hex").slice(0, 24);
 
 function run(c: any) {
   const spec = decode(c.norm_full) as CurveSpec;
@@ -43,7 +55,7 @@ test("draw_curves: resolve, live options, values and not_done equal Python's", (
     }
     if (out.length) bad.push(`${c.id}: ${out.slice(0, 6).join("\n    ")}`);
   }
-  assert.equal(n, 358);
+  assert.equal(n, 356);
   assert.deepEqual(bad, []);
 });
 
@@ -63,6 +75,70 @@ test("draw_curves: the static SVG equals Python's (render.mjs, echarts 6.1.0)", 
   }
   assert.equal(n, 16);
   assert.deepEqual(bad, []);
+});
+
+// =================================================================== live fixes (tests/test_live_fixes.py)
+// The same specs as the Python tests, end to end through api.ts on tests/inputs/TGA.xlsx. FIX holds what the fixed
+// Python plotkit returned: the live options (canonHash) and the static SVG (sha), or the error and hint.
+const TGA = [{ name: "TGA.xlsx", bytes: new Uint8Array(readFileSync(join(REPO, "tests", "inputs", "TGA.xlsx"))) }];
+const FIX: Record<string, { spec: any; options?: string; svgs?: string[]; error?: [string, string] }> = {
+  patch: { spec: { file: "TGA.xlsx", sheets: 1, echarts: { xAxis: { inverse: true, minorTick: { show: true } }, grid: { right: 120 },
+    series: [{ lineStyle: { type: "dotted" } }, {}], yAxis: [{ name: "TG" }],
+    graphic: [{ type: "text", right: 10, top: 10, style: { text: "note" } }] } },
+  options: "8444282337a9b07677461e8f", svgs: ["70bfb2a781ad9bd9fb20db4d"] },
+  lines: { spec: { file: "TGA.xlsx", sheets: 1, annotate: { onset: { type: "vline", x: 300, text: "onset" },
+    limit: { type: "hline", y: 0.3, on: "y2", text: "limit" }, mass: { type: "hline", y: 0.3, on: "y1", text: "same value" },
+    quiet: { type: "hline", y: 0.5, on: "y2" } } },
+  options: "bc67270bd64d290adcabc3a7", svgs: ["f09ff069cf280f2f1813b0eb"] },
+  rename: { spec: { file: "TGA.xlsx", sheets: 1, echarts: { series: [{ name: "Mass" }, { name: "DTG" }] } },
+    options: "08f300878a1737e6154d16c7", svgs: ["0ad8c287a008424f0b3557a9"] },
+  combined: { spec: { file: "TGA.xlsx", combine: true,
+    echarts: { series: [{ name: "A" }, { name: "B" }, { name: "C" }, { name: "A" }, { name: "B" }, { name: "C" }] } },
+  options: "727a26cc094778bb3b2d9210", svgs: ["ec63eb88bdbbfaa31a6e1a42"] },
+  too_many: { spec: { file: "TGA.xlsx", sheets: 1, echarts: { series: [{}, {}, { name: "x" }] } },
+    error: ["echarts.series has 3 entries but this plot has 2", "series: 0 = y1 1006R1-V normal, 1 = y2 1006R1-V normal"] },
+};
+
+test("live fixes: the patch, line labels and renamed series equal the fixed Python's", async () => {
+  const { echartsOptions, renderSvg } = await import("../src/api.ts");      // end to end (reader, spec, jobs)
+  for (const [name, c] of Object.entries(FIX)) {
+    if (c.error) {
+      for (const run of [() => echartsOptions(c.spec, TGA), () => renderSvg(c.spec, TGA)]) {
+        await assert.rejects(run, (e: unknown) => e instanceof PlotkitError && e.message === c.error![0] && e.hint === c.error![1], name);
+      }
+      continue;
+    }
+    const live = await echartsOptions(c.spec, TGA);
+    assert.equal(canonHash(live.options), c.options, `${name}: live options`);
+    const svg = await renderSvg(c.spec, TGA);
+    assert.deepEqual(svg.files.map((f: { svg: string }) => sha(f.svg)), c.svgs, `${name}: SVG`);
+  }
+  // what the hashes stand for, readably
+  const patch = (await echartsOptions(FIX.patch.spec, TGA)).options[0];
+  assert.equal(patch.xAxis.inverse, true);
+  assert.equal(patch.series[0].lineStyle.type, "dotted");
+  assert.deepEqual(patch.graphic, { elements: FIX.patch.spec.echarts.graphic });
+  const lines = (await echartsOptions(FIX.lines.spec, TGA)).options[0];
+  const marks = (axis: string) => lines.series.find((s: any) => s.name === `__marks_${axis}`).markLine.data
+    .map((d: any) => [d.xAxis ?? null, d.yAxis ?? null, d.label.formatter ?? null]);
+  assert.deepEqual(marks("y1"), [[300, null, "onset"], [null, 0.3, "same value"]]);
+  assert.deepEqual(marks("y2"), [[null, 0.3, "limit"], [null, 0.5, null]]);
+  const rename = (await echartsOptions(FIX.rename.spec, TGA)).options[0];
+  assert.deepEqual(rename.legend.data, ["Mass", "DTG"]);
+});
+
+test("live fixes: \"code\" is refused before the jobs are built", async () => {
+  const spec = { ...decode(CASES[0].norm_full), code: "ax1.set_title('x')" } as CurveSpec;
+  let built = false;
+  const build = async (): Promise<[object[], string[]]> => { built = true; throw new PlotkitError("no such file"); };
+  await assert.rejects(liveResult(spec, build), /"code" \(Python\) does not work/);
+  await assert.rejects(renderCurves(spec, build), /"code" \(Python\) does not work/);
+  assert.equal(built, false);
+  const ok = { ...decode(CASES[0].norm_full) } as CurveSpec;
+  const r = await liveResult(ok, async (): Promise<[object[], string[]]> => [decode(CASES[0].jobs), ["w"]]);
+  assert.deepEqual(r.warnings, ["w"]);
+  const drawn = await renderCurves(ok, (): [object[], string[]] => [decode(CASES[0].jobs), []]);
+  assert.equal(drawn.files.length, CASES[0].figures.length);
 });
 
 // =================================================================== peaks.ts on synthetic data

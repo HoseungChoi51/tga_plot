@@ -1,15 +1,17 @@
 // The live (browser) version of a resolved curve figure: the same option as the static render, but every label is
 // tied to the data (markPoint / markLine on its series), so it moves with zoom, pan and resize, plus a tooltip and
-// zoom. The static render places labels in pixels to avoid collisions; a live chart cannot. A port of
-// plotkit/js/live.mjs (as Python's plotkit, the live option does not merge the spec's "echarts" patch).
-import { buildOption, layout } from "./translate.ts";
+// zoom. The static render places labels in pixels to avoid collisions; a live chart cannot. The model's "echarts"
+// patch is merged last, as in the static render (its graphic elements included). A port of plotkit/js/live.mjs.
+import { buildOption, layout, mergePatch, withPatchNames } from "./translate.ts";
 import type { Figure } from "./curves.ts";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type Option = Record<string, any>;
 
-/** One figure's live ECharts option, as live.mjs builds it (the axis tick formatters are functions). */
-export function liveOption(fig: Figure): Option {
+/** One figure's live ECharts option, as live.mjs builds it (the axis tick formatters are functions). Throws
+ *  PlotkitError when the "echarts" patch names more series than the figure has. */
+export function liveOption(figure: Figure): Option {
+  const fig = withPatchNames(figure);       // series renamed in the "echarts" patch: the legend follows
   const L = layout(fig);
   const o = buildOption(fig, L);
   const seriesFor = (axis: string, sheet?: string) => o.series.findIndex((s: Option, i: number) => i < fig.series.length && fig.series[i].axis === axis &&
@@ -34,17 +36,23 @@ export function liveOption(fig: Figure): Option {
     }
   }
   for (const s of o.series) if (s.markLine?.data) for (const d of s.markLine.data) d.label = { show: false };
+  // each line's text on its own line: buildOption puts vlines on y1's helper series and hlines on their axis's, in
+  // the order of the annotations
+  const next: Record<string, number> = { y1: 0, y2: 0 };
   for (const a of fig.annotations) {
-    if ((a.kind === "vline" || a.kind === "hline") && a.text) {
-      const s = o.series.find((x: Option) => String(x.name).startsWith("__marks_"));
-      const d = s?.markLine?.data?.find((x: Option) => (a.kind === "vline" ? x.xAxis : x.yAxis) === a.value);
-      if (d) d.label = { show: true, formatter: a.text, position: "insideEndTop", color: a.text_color, fontSize: a.size * 96 / 72 };
-    }
+    if (a.kind !== "vline" && a.kind !== "hline") continue;
+    const axis = a.kind === "vline" ? "y1" : a.axis!;
+    const s = o.series.find((x: Option) => x.name === `__marks_${axis}`);
+    const d = s?.markLine?.data?.[next[axis]++];
+    if (d && a.text) d.label = { show: true, formatter: a.text, position: "insideEndTop", color: a.text_color, fontSize: a.size * 96 / 72 };
   }
   o.tooltip = { trigger: "axis", confine: true };
   o.dataZoom = [{ type: "inside", xAxisIndex: L.split ? [0, 1] : 0, filterMode: "none" }];
   o.animation = false;
-  return o;
+  const out = mergePatch(o, fig.echarts, fig);
+  const graphic = fig.echarts && fig.echarts.graphic;
+  if (Array.isArray(graphic) && graphic.length) out.graphic = { elements: structuredClone(graphic) };
+  return out;
 }
 
 /** The live options of resolved figures, as plain JSON: what live.mjs printed and Python's

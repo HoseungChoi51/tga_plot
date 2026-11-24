@@ -5,7 +5,7 @@ import type { Cell, Dtype, Frame, InputFile } from "./types.ts";
 import { PlotkitError } from "./errors.ts";
 import { getCloseMatches } from "./difflib.ts";
 import {
-  base, cellStr, colLetter, daysFromCivil, findFile, isoFromMs, msFromIso, norm, pathName, pathStem, pyInt, pyLen,
+  asciiDigits, base, cellStr, civilFromDays, colLetter, daysFromCivil, findFile, isoFromMs, msFromIso, norm, pathName, pathStem, pyLen, rowNumber,
   pyStrip, pyStrOf, pyTruthy, readTables, selectSheets, toNum, type ReadOptions,
 } from "./reader.ts";
 
@@ -41,7 +41,7 @@ export function frameFromRows(rowsIn: Cell[][], decimal = ".", headerRow: unknow
   const look = Math.min(rows.length, 40);
   let h: number | null = null;
   if (pyTruthy(headerRow)) {
-    h = pyInt(headerRow, "read.header_row") - 1;
+    h = rowNumber(headerRow, "header_row", rows.length) - 1;
   } else {
     for (let i = 0; i < look; i++) {
       if (filled[i] < 2 || kinds[i].some(k => k === "num" || k === "date")) continue;
@@ -56,7 +56,7 @@ export function frameFromRows(rowsIn: Cell[][], decimal = ".", headerRow: unknow
   let units: number | null = null;
   let ds: number;
   if (pyTruthy(dataStartRow)) {
-    ds = pyInt(dataStartRow, "read.data_start_row") - 1;
+    ds = rowNumber(dataStartRow, "data_start_row") - 1;
   } else if (h === null) {
     ds = filled.findIndex(n => n > 0);
   } else {
@@ -76,10 +76,6 @@ export function frameFromRows(rowsIn: Cell[][], decimal = ".", headerRow: unknow
   for (let j = 0; j < width; j++) {
     const vals = body.map(r => r[j]);
     if (vals.every(v => v === null || (typeof v === "string" && !pyStrip(v)))) continue;
-    if (h !== null && !head) {
-      // Python raises IndexError here (a crash); the port answers with a PlotkitError
-      throw new PlotkitError(`header row ${h + 1} is outside the sheet (it has ${rows.length} rows)`, "check read.header_row");
-    }
     let name = head && head[j] !== null ? pyStrip(cellStr(head[j])) : "";
     if (unitRow && unitRow[j] !== null && pyStrip(cellStr(unitRow[j]))) {
       const u = pyStrip(pyStrip(cellStr(unitRow[j])), "()[]");
@@ -110,52 +106,28 @@ export function typed(vals: Cell[], decimal: string): { dtype: Dtype; values: Va
   return { dtype: "object", values: vals.map(v => (v !== null && pyStrip(cellStr(v)) ? pyStrip(cellStr(v)) : null)) };
 }
 
-// ------------------------------------------------------------------- pd.to_datetime(Series, errors="coerce")
-const NAT_STRINGS = new Set(["NaT", "nat", "NAT", "nan", "NaN", "NAN"]);
-const YMD = /^(\d{4})([-./])(\d{1,2})([-./])(\d{1,2})(?:([ T])(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?$/;
+// ------------------------------------------------------------------- _to_date
+const DATE_PARTS = /^(\p{Nd}{4})[-./](\p{Nd}{1,2})[-./](\p{Nd}{1,2})(?:[ T](\p{Nd}{1,2}):(\p{Nd}{1,2})(?::(\p{Nd}{1,2})(?:\.(\p{Nd}{1,6}))?)?)?$/u;
 
-interface DateFormat { sep1: string; sep2: string; tsep: string | null; seconds: boolean }
-
-function ymdMs(m: RegExpExecArray, minYear = 1): number {
-  const y = +m[1], mo = +m[3], d = +m[5], hh = +(m[7] ?? 0), mi = +(m[8] ?? 0), ss = +(m[9] ?? 0);
-  if (y < minYear || mo < 1 || mo > 12 || d < 1 || hh > 23 || mi > 59 || ss > 59) return NaN;
+/** _to_date: a cell of a date column as epoch ms, each cell on its own (a column may mix "2026-03-01" and
+ *  "2026-03-01 08:00"): Excel dates as they are; text in the forms plotkit takes for dates (year first, - . or /,
+ *  an optional time with seconds and fraction); anything else (other text, numbers, times, impossible dates) NaN. */
+export function toDate(v: Cell): number {
+  if (v === null) return NaN;
+  if (isDateCell(v)) return msFromIso(v.date);
+  const m = typeof v === "string" ? DATE_PARTS.exec(pyStrip(v)) : null;
+  if (!m) return NaN;
+  const [y, mo, d, hh, mi, ss] = [1, 2, 3, 4, 5, 6].map(k => (m[k] === undefined ? 0 : parseInt(asciiDigits(m[k]), 10)));
+  const us = m[7] === undefined ? 0 : parseInt(asciiDigits(m[7]).padEnd(6, "0"), 10);
+  if (y < 1 || mo < 1 || mo > 12 || d < 1 || hh > 23 || mi > 59 || ss > 59) return NaN;
   const days = daysFromCivil(y, mo, d);
-  if (isoFromMs(days * 86400000).slice(0, 10) !== `${m[1]}-${String(mo).padStart(2, "0")}-${String(d).padStart(2, "0")}`) return NaN;
-  return days * 86400000 + (hh * 3600 + mi * 60 + ss) * 1000;
+  if (civilFromDays(days)[2] !== d) return NaN;                     // no such day in that month
+  return days * 86400000 + (hh * 3600 + mi * 60 + ss) * 1000 + us / 1000;
 }
 
-/** pandas' guess_datetime_format, for the date-time shapes plotkit takes for dates. */
-function guessFormat(s: string): DateFormat | null {
-  const m = YMD.exec(s);
-  if (!m || Number.isNaN(ymdMs(m, 1000))) return null;
-  return { sep1: m[2], sep2: m[4], tsep: m[6] ?? null, seconds: m[9] !== undefined };
-}
-
-function strictParse(s: string, f: DateFormat): number {
-  const m = YMD.exec(s);
-  if (!m || m[2] !== f.sep1 || m[4] !== f.sep2 || (m[6] ?? null) !== f.tsep || (m[9] !== undefined) !== f.seconds) return NaN;
-  return ymdMs(m);
-}
-
-/** pd.to_datetime(values, errors="coerce") as epoch ms (NaN = NaT). When the first value is text with a date
- *  format, every text must have that format; otherwise each value is parsed on its own (pandas then falls back
- *  to dateutil for text that is not a plain date; here such text is NaT). */
+/** A date column (_typed): every cell through toDate. */
 export function toDatetime(vals: Cell[]): number[] {
-  const skip = (v: Cell) => v === null || (typeof v === "string" && (v === "" || NAT_STRINGS.has(v) || v === "now" || v === "today"));
-  const first = vals.find(v => !skip(v));
-  const fmt = typeof first === "string" ? guessFormat(first) : null;
-  return vals.map(v => {
-    if (v === null) return NaN;
-    if (isDateCell(v)) return msFromIso(v.date);
-    if (typeof v === "string") {
-      if (v === "" || NAT_STRINGS.has(v)) return NaN;
-      if (fmt) return strictParse(v, fmt);
-      const m = YMD.exec(v);
-      return m ? ymdMs(m) : NaN;
-    }
-    if (typeof v === "number" && !fmt) return Math.trunc(v) / 1e6;                         // epoch nanoseconds
-    return NaN;
-  });
+  return vals.map(toDate);
 }
 
 /** str(pd.Timestamp) of epoch ms: "YYYY-MM-DD HH:MM:SS". */
@@ -200,7 +172,7 @@ export async function loadFrame(spec: FrameSpec, files: InputFile[]): Promise<Fr
       frames.push({ columns: d.columns, dtypes: d.dtypes, data: d.data, letters: d.letters });
     }
   }
-  if (!frames.length) throw new PlotkitError("no sheet to read", "check sheets");   // Python: IndexError
+  if (!frames.length) throw new PlotkitError("no sheet to read", 'set "sheets" to a sheet name, a number from 1, or "all"');
   const df = frames.length === 1 ? frames[0] : concat(frames);
   return { columns: df.columns, dtypes: df.dtypes, data: df.data, letters: letters ?? {} };
 }

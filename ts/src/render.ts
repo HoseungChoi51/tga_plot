@@ -1,11 +1,10 @@
 // The static render of resolved curve figures: ECharts server-side SVG, labels laid out in pixels. A port of the
 // SVG step of plotkit/js/render.mjs; the host turns the SVG into PNG or PDF itself (KetchupE: sharp / printToPDF).
 import * as echarts from "echarts";
-import { bestPlace, buildOption, layout, legendOption, lineTexts, mergePatch, placeLabels } from "./translate.ts";
+import { bestPlace, buildOption, layout, legendOption, lineTexts, mergePatch, placeLabels, withPatchNames } from "./translate.ts";
 import type { Box } from "./translate.ts";
-import { curveValues, fileStem, notDone, resolve, truthy } from "./curves.ts";
-import type { AnnotationResult, CurveSpec, Figure, Job } from "./curves.ts";
-import { PlotkitError } from "./errors.ts";
+import { checkCurveCode, curveValues, fileStem, notDone, resolve, truthy } from "./curves.ts";
+import type { AnnotationResult, CurveSpec, Figure, Job, JobsBuilder } from "./curves.ts";
 
 export interface Rendered { svg: string; warnings: string[]; W: number; H: number }
 
@@ -16,7 +15,8 @@ export type OnChart = (chart: echarts.ECharts, info: { W: number; H: number; siz
 /** One figure -> SVG text with zrender's ids as they come (the painter's id: "zrN"). */
 function renderRaw(figure: Figure, onChart?: OnChart, index = 0): Rendered & { zrId: string | null } {
   // Python's plot_echarts tells the renderer how many series the figure has (the "echarts" patch is checked on it)
-  const fig: Figure = figure.n_series === undefined ? { ...figure, n_series: figure.series.length } : figure;
+  // series renamed in the "echarts" patch: the legend follows
+  const fig = withPatchNames(figure.n_series === undefined ? { ...figure, n_series: figure.series.length } : figure);
   const warnings: string[] = [];
   const L = layout(fig);
   if (fig.tick_direction === "inout") warnings.push('tick_direction "inout" has no ECharts setting; drawn as longer outward ticks');
@@ -98,17 +98,32 @@ export interface CurvePlot {
   columns_used: Record<string, Record<string, string>>; column_guess: string; annotations: AnnotationResult[];
 }
 
-/** plotkit.echarts.plot_echarts after normalize_spec and build_jobs, without writing files: every figure's SVG (the
- *  host converts and saves it, e.g. as stem + ".png") and the shared result {ok, kind, engine, saved: [], warnings
- *  (the render's added), not_done, values, plots}. */
-export function renderCurves(spec: CurveSpec, jobs: Job[], warnings: string[] = [], onChart?: OnChart): {
+export interface CurvesRendered {
   ok: true; kind: "curve"; engine: "echarts"; files: CurveFile[]; saved: string[]; warnings: string[];
   not_done: string[]; values: Record<string, Record<string, unknown>>; plots: CurvePlot[];
-} {
-  if (truthy(spec.code)) {
-    throw new PlotkitError('"code" (Python) does not work with the ECharts engine',
-      'use a key (e.g. annotate band for shading), or put ECharts settings in "echarts"');
+}
+
+/** plotkit.echarts.plot_echarts after normalize_spec, without writing files: "code" refused, the jobs (built, or a
+ *  builder run after that check, as Python orders it), then every figure's SVG (the host converts and saves it,
+ *  e.g. as stem + ".png") and the shared result {ok, kind, engine, saved: [], warnings (the render's added),
+ *  not_done, values, plots}. */
+export function renderCurves(spec: CurveSpec, jobs: Job[], warnings?: string[], onChart?: OnChart): CurvesRendered;
+export function renderCurves(spec: CurveSpec, build: JobsBuilder, onChart?: OnChart): Promise<CurvesRendered>;
+export function renderCurves(spec: CurveSpec, jobs: Job[] | JobsBuilder, third?: string[] | OnChart, fourth?: OnChart):
+  CurvesRendered | Promise<CurvesRendered> {
+  if (typeof jobs === "function") {
+    const build = jobs, onChart = typeof third === "function" ? third : undefined;
+    return (async () => {
+      checkCurveCode(spec);
+      const [built, w] = await build();
+      return renderFrom(spec, built as Job[], w, onChart);
+    })();
   }
+  checkCurveCode(spec);
+  return renderFrom(spec, jobs, Array.isArray(third) ? third : [], fourth);
+}
+
+function renderFrom(spec: CurveSpec, jobs: Job[], warnings: string[], onChart?: OnChart): CurvesRendered {
   const out = [...warnings];
   const nameTpl = (truthy(spec.output?.name) ? spec.output!.name : spec.file.length > 1 ? "{file}_{sheet}" : "{sheet}") as string;
   const figs = resolve(spec, jobs);

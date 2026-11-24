@@ -33,6 +33,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "experiments" / "eval"))
+sys.path.insert(0, str(ROOT / "tools"))
 from plotkit import agent, api, charts, core, echarts  # noqa: E402
 from plotkit.core import PlotkitError  # noqa: E402
 
@@ -202,6 +203,10 @@ def reference_specs():
     out += [(f"CNT {k}", v) for k, v in REFS.items()]
     for p in sorted((ROOT / "experiments" / "gallery" / "specs").glob("*.json")):
         out.append((f"G {p.stem[:2]}", json.loads(p.read_text(encoding="utf-8")), "gallery"))
+    import ts_extra                                   # chart paths the study's specs never reach
+    out += [(f"X {i:02d}", s_, "eval/cnt") for i, s_ in enumerate(ts_extra.CHART_X)]
+    out += [(f"Y {i:02d}", s_, "tests/inputs") for i, s_ in enumerate(ts_extra.CHART_Y)]
+    out += [(f"Z {i:02d}", s_, "eval/cnt") for i, s_ in enumerate(ts_extra.CHART_Z)]
     return out
 
 
@@ -264,7 +269,7 @@ def frame_json(df):
 
 
 SVG_IDS = {"A 01", "A 02", "A 09", "A 12", "A 20", "B B02_heat_flow_peaks", "G 03", "G 19", "CNT D001.1", "CNT D010.1",
-           "CNT D018.1", "CNT DS02.1"}
+           "CNT D018.1", "CNT DS02.1", "X 05", "X 18", "X 24", "X 37", "X 54", "X 61", "X 70", "Y 05", "Y 20", "Y 25", "Y 36"}
 
 
 def draw_case(c):
