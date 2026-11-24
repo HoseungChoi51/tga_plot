@@ -9,8 +9,12 @@ import { PlotkitError } from "./errors.ts";
 
 export interface Rendered { svg: string; warnings: string[]; W: number; H: number }
 
+/** Called with the drawn ECharts instance before it is turned into SVG (the experiments' figure-facts checker
+ *  reads it there, as render.mjs's PLOTKIT_DUMP_OPTION did). */
+export type OnChart = (chart: echarts.ECharts, info: { W: number; H: number; size_in: number[]; dpi: number; index: number }) => void;
+
 /** One figure -> SVG text with zrender's ids as they come (the painter's id: "zrN"). */
-function renderRaw(figure: Figure): Rendered & { zrId: string | null } {
+function renderRaw(figure: Figure, onChart?: OnChart, index = 0): Rendered & { zrId: string | null } {
   // Python's plot_echarts tells the renderer how many series the figure has (the "echarts" patch is checked on it)
   const fig: Figure = figure.n_series === undefined ? { ...figure, n_series: figure.series.length } : figure;
   const warnings: string[] = [];
@@ -45,6 +49,7 @@ function renderRaw(figure: Figure): Rendered & { zrId: string | null } {
       ...((fig.echarts && fig.echarts.graphic) || []),
     ];
     if (graphics.length) chart.setOption({ graphic: { elements: graphics } });
+    onChart?.(chart, { W: L.W, H: L.H, size_in: fig.size_in, dpi: fig.dpi, index });
     let svg = chart.renderToSVGString();
     // a real size in the file, so other programs (Word, PowerPoint, Inkscape) open it at the asked inches
     svg = svg.replace(/^<svg /, `<svg data-plotkit-dpi="${fig.dpi}" `);
@@ -71,10 +76,10 @@ function renumber(svg: string, zrId: string | null, index: number, classes: { ne
 
 /** Every figure's SVG (W x H px at 96 px per inch, with data-plotkit-dpi) and warnings, in order: render.mjs's loop
  *  without writing files. The ids are numbered as one render.mjs call numbers them (figure i: "zr<i>-..."). */
-export function renderSvgs(figures: Figure[]): Rendered[] {
+export function renderSvgs(figures: Figure[], onChart?: OnChart): Rendered[] {
   const classes = { next: 0 };
   return figures.map((fig, i) => {
-    const { zrId, ...r } = renderRaw(fig);
+    const { zrId, ...r } = renderRaw(fig, onChart, i);
     return { ...r, svg: renumber(r.svg, zrId, i, classes) };
   });
 }
@@ -96,7 +101,7 @@ export interface CurvePlot {
 /** plotkit.echarts.plot_echarts after normalize_spec and build_jobs, without writing files: every figure's SVG (the
  *  host converts and saves it, e.g. as stem + ".png") and the shared result {ok, kind, engine, saved: [], warnings
  *  (the render's added), not_done, values, plots}. */
-export function renderCurves(spec: CurveSpec, jobs: Job[], warnings: string[] = []): {
+export function renderCurves(spec: CurveSpec, jobs: Job[], warnings: string[] = [], onChart?: OnChart): {
   ok: true; kind: "curve"; engine: "echarts"; files: CurveFile[]; saved: string[]; warnings: string[];
   not_done: string[]; values: Record<string, Record<string, unknown>>; plots: CurvePlot[];
 } {
@@ -107,7 +112,7 @@ export function renderCurves(spec: CurveSpec, jobs: Job[], warnings: string[] = 
   const out = [...warnings];
   const nameTpl = (truthy(spec.output?.name) ? spec.output!.name : spec.file.length > 1 ? "{file}_{sheet}" : "{sheet}") as string;
   const figs = resolve(spec, jobs);
-  const drawn = renderSvgs(figs.map(f => ({ ...f.figure, n_series: f.figure.series.length })));
+  const drawn = renderSvgs(figs.map(f => ({ ...f.figure, n_series: f.figure.series.length })), onChart);
   const files: CurveFile[] = [], plots: CurvePlot[] = [];
   figs.forEach(({ group, figure, annotations }, i) => {
     const first = group[0];
