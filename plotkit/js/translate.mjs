@@ -247,7 +247,7 @@ export function mergePatch(option, patch, fig) {
     if (k === "graphic") continue;
     if (k === "series" || k === "yAxis") {
       const list = Array.isArray(o[k]) ? [...o[k]] : [o[k]];
-      const limit = k === "series" ? fig.n_series : list.length;
+      const limit = k === "series" ? fig.n_series ?? fig.series.length : list.length;
       if (v.length > limit) {
         const what = k === "series" ? fig.series.map((s, i) => `${i} = ${s.axis} ${s.sheet ?? ""}`.trim()).join(", ")
           : "0 = y1 (left)" + (list.length > 1 ? ", 1 = y2 (right)" : "");
@@ -260,6 +260,25 @@ export function mergePatch(option, patch, fig) {
     } else o[k] = isObj(v) ? deepMerge(o[k] ?? {}, v) : structuredClone(v);
   }
   return o;
+}
+
+/** The figure with the series names the model's "echarts" patch gives (series[i].name), so the legend lists the
+ *  names drawn (and is sized for them); the patch still merges as it is. A legend entry follows its series' new
+ *  name (the first series renamed from it), without repeats. */
+export function withPatchNames(fig) {
+  const items = fig.echarts && Array.isArray(fig.echarts.series) ? fig.echarts.series : [];
+  const renamed = new Map();
+  const series = fig.series.map((s, i) => {
+    const it = items[i];
+    if (!isObj(it) || it.name === undefined || it.name === null) return s;
+    const name = String(it.name);
+    if (name === s.name) return s;
+    if (!renamed.has(s.name)) renamed.set(s.name, name);
+    return { ...s, name };
+  });
+  if (!renamed.size) return fig;
+  const names = [...new Set(fig.legend.names.map(n => renamed.get(n) ?? n))];
+  return { ...fig, series, legend: { ...fig.legend, names } };
 }
 
 /* ------------------------------------------------------------------ label layout

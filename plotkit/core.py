@@ -292,15 +292,52 @@ def _deep_merge(base, over):
     return out
 
 
+_THOUSANDS = re.compile(r"[+-]?[1-9][0-9]{0,2}(,[0-9]{3})+")
+
+
 def _num(v, where):
     if v is None or isinstance(v, bool):
         return v
     if isinstance(v, (int, float)):
         return float(v)
+    s = str(v).strip()
+    # "1,000" and "12,345,678" have thousands separators; any other comma is a decimal comma ("1,5", "0,125")
+    s = s.replace(",", "") if _THOUSANDS.fullmatch(s) else s.replace(",", ".")
     try:
-        return float(str(v).strip().replace(",", "."))
+        return float(s)
     except ValueError:
         raise PlotkitError(f"{where} must be a number, got {v!r}", "write a plain number, e.g. 200")
+
+
+def _count(v, where):
+    """A whole number of 1 or more ("count": 2, 2.0 or "2")."""
+    n = None
+    if not isinstance(v, bool):
+        try:
+            n = _num(v, where)
+        except PlotkitError:
+            pass
+    if n is None or not (math.isfinite(n) and n >= 1 and n == int(n)):
+        raise PlotkitError(f"{where} must be a whole number of 1 or more, got {v!r}", 'e.g. "count": 2')
+    return int(n)
+
+
+def _code_text(v, key):
+    """code / data_code: text, or a list of lines of text."""
+    if not isinstance(v, list):
+        return v
+    bad = [x for x in v if not isinstance(x, str)]
+    if bad:
+        raise PlotkitError(f'"{key}" must be text or a list of text lines, got {bad[0]!r} in the list',
+                           "write the code as one string, or as a list of strings (one per line)")
+    return "\n".join(v)
+
+
+def _given_twice(a, b, value, key):
+    """Key a given as a plain value and again through a dotted key or alias for a.b ("x": "B" and "x.min": 0)."""
+    col ='"col": ..., ' if a in ("x", "y1", "y2") and isinstance(value, str) else ""
+    return PlotkitError(f'"{a}" is given twice: as {value!r} and through "{key}"',
+                        f'write "{a}" once, as one object, e.g. "{a}": {{{col}"{b}": ...}}')
 
 
 def _normalize_axis(name, d):
@@ -346,8 +383,9 @@ def _normalize_axis(name, d):
         raise PlotkitError(f"{name}.style {out['style']!r} unknown", "use line, scatter or line+marker")
     if "flip" in out:
         f = out["flip"]
-        f = {True: "flip", False: "none", None: "none", "up": "peaks_up",
-             "down": "peaks_down"}.get(f, f)
+        if not isinstance(f, (list, dict)):      # (a list or dict can not be looked up; it is unknown below)
+            f = {True: "flip", False: "none", None: "none", "up": "peaks_up",
+                 "down": "peaks_down"}.get(f, f)
         if f not in ("none", "flip", "peaks_up", "peaks_down"):
             raise PlotkitError(f"{name}.flip {out['flip']!r} unknown",
                                "use none, flip, peaks_up or peaks_down")
@@ -411,7 +449,7 @@ def _normalize_annotations(a):
             if k in dd:
                 dd[k] = _num(dd[k], f"annotate.{name}.{k}")
         if "count" in dd:
-            dd["count"] = int(_num(dd["count"], f"annotate.{name}.count"))
+            dd["count"] = _count(dd["count"], f"annotate.{name}.count")
         if "linestyle" in dd:
             dd["linestyle"] = linestyle_name(dd["linestyle"], f"annotate.{name}.linestyle")
         if "on" in dd:
@@ -422,7 +460,7 @@ def _normalize_annotations(a):
             dd["on"] = on
         if "color" in dd and dd["color"] is not None:
             dd["color"] = _color(dd["color"], f"annotate.{name}.color")
-        if "type" in dd and dd["type"] not in ANNOT_TYPES:
+        if "type" in dd and (not isinstance(dd["type"], str) or dd["type"] not in ANNOT_TYPES):
             raise PlotkitError(f"annotate.{name}.type {dd['type']!r} unknown.{_suggest(str(dd['type']), ANNOT_TYPES)}",
                                f"types: {', '.join(sorted(ANNOT_TYPES))}")
         out[name] = dd
@@ -435,15 +473,21 @@ def normalize_spec(user):
         user = {"file": user}
     if not isinstance(user, dict):
         raise PlotkitError("the spec must be a JSON object")
+    user = copy.deepcopy(user)                  # the caller's dicts stay as they are
     # map aliases / dotted keys at the top level
-    u = {}
+    u, dotted = {}, {}
     for k, v in user.items():
         k2 = TOP_ALIASES.get(k.lower(), k.lower())
         if "." in k2:
             a, b = k2.split(".", 1)
+            if a in u and not isinstance(u[a], dict):
+                raise _given_twice(a, b, u[a], k)
             u.setdefault(a, {})[b] = v
+            dotted.setdefault(a, (b, k))
         elif k2 in u and isinstance(u[k2], dict) and isinstance(v, dict):
             u[k2].update(v)
+        elif k2 in dotted:                      # "x.min" first, then "x": "B"
+            raise _given_twice(k2, dotted[k2][0], v, dotted[k2][1])
         else:
             u[k2] = v
     unknown = [k for k in u if k not in DEFAULTS]
@@ -543,8 +587,7 @@ def normalize_spec(user):
             raise PlotkitError(f'panels {spec["panels"]!r} unknown', 'use "split" (y1 above, y2 below)')
     else:
         spec["panels"] = None
-    if isinstance(spec["data_code"], list):
-        spec["data_code"] = "\n".join(spec["data_code"])
+    spec["data_code"] = _code_text(spec["data_code"], "data_code")
     if not isinstance(spec["asks"], list):
         spec["asks"] = [spec["asks"]]
     if u.get("echarts") not in (None, {}, False):
@@ -580,7 +623,8 @@ def normalize_spec(user):
             if k not in ("where", "show", "size"):
                 raise PlotkitError(f'unknown key "legend.{k}"', "legend keys: where, show, size")
         spec["legend"].update(lg)
-    spec["legend"]["where"] = KOREAN_PLACES.get(spec["legend"]["where"], spec["legend"]["where"])
+    if isinstance(spec["legend"]["where"], str):   # (a list or dict can not be looked up; it is unknown below)
+        spec["legend"]["where"] = KOREAN_PLACES.get(spec["legend"]["where"], spec["legend"]["where"])
     if spec["legend"]["where"] == "none":
         spec["legend"]["show"] = False
     if spec["legend"]["where"] not in LEGEND_PLACES:
@@ -595,8 +639,7 @@ def normalize_spec(user):
     if td not in ("in", "out", "inout"):
         raise PlotkitError(f"tick_direction {spec['tick_direction']!r} unknown", "use in, out or inout")
     spec["tick_direction"] = td
-    if isinstance(spec["code"], list):
-        spec["code"] = "\n".join(spec["code"])
+    spec["code"] = _code_text(spec["code"], "code")
     spec["file"] = expand_files(spec["file"] if isinstance(spec["file"], list) else [spec["file"]])
     spec["output"]["format"] = output_formats(spec["output"]["format"])
     return spec
@@ -655,16 +698,28 @@ def col_index(letter):
     return n - 1
 
 
-def _decode(raw, encoding=None):
+def _decode(raw, encoding=None, name="the file"):
     if encoding:
-        return raw.decode(encoding)
-    if raw[:2] in (b"\xff\xfe", b"\xfe\xff"):
-        return raw.decode("utf-16")
-    if raw[:3] == b"\xef\xbb\xbf":
-        return raw[3:].decode("utf-8")
+        try:
+            return raw.decode(str(encoding))
+        except LookupError:
+            raise PlotkitError(f'unknown encoding "{encoding}"',
+                               'use "utf-8", "cp949", "utf-16" or "latin-1", or leave read.encoding out') from None
+        except UnicodeDecodeError:
+            raise PlotkitError(f"{name} is not {encoding} text",
+                               'check read.encoding (e.g. "utf-8" or "cp949"), or leave it out to detect the encoding') from None
     head = raw[:2000]
-    if head.count(b"\x00") > len(head) // 4:       # utf-16 without BOM
-        return raw.decode("utf-16-le" if head[1:2] == b"\x00" else "utf-16-be")
+    detected = ("UTF-16", raw.decode, "utf-16") if raw[:2] in (b"\xff\xfe", b"\xfe\xff") else \
+        ("UTF-8", raw[3:].decode, "utf-8") if raw[:3] == b"\xef\xbb\xbf" else \
+        ("UTF-16", raw.decode, "utf-16-le" if head[1:2] == b"\x00" else "utf-16-be") \
+        if head.count(b"\x00") > len(head) // 4 else None       # BOM, or utf-16 without BOM
+    if detected:
+        label, dec, enc = detected
+        try:
+            return dec(enc)
+        except UnicodeDecodeError:
+            raise PlotkitError(f"{name} looks like {label} text but could not be decoded",
+                               "set read.encoding, or save the file again as UTF-8") from None
     for enc in ("utf-8", "cp949", "latin-1"):
         try:
             return raw.decode(enc)
@@ -674,11 +729,14 @@ def _decode(raw, encoding=None):
 
 
 def _read_text(path, ro):
-    text = _decode(Path(path).read_bytes(), ro.get("encoding"))
+    sep = ro.get("sep")
+    if sep is not None and (not isinstance(sep, str) or sep == ""):
+        raise PlotkitError(f'read.sep must be a separator like "," or "tab", not {sep!r}',
+                           'use ",", ";", "tab" or "space", or leave it out')
+    text = _decode(Path(path).read_bytes(), ro.get("encoding"), Path(path).name)
     lines = text.splitlines()
     nonblank = [ln for ln in lines if ln.strip()]
     tail = nonblank[-60:] if len(nonblank) > 60 else nonblank
-    sep = ro.get("sep")
     sep = {"tab": "\t", "\\t": "\t", "space": "space", "whitespace": "space", " ": "space"}.get(sep, sep)
     if sep is None:                                 # the most lines with the same count wins (preamble/footer lines may differ)
         for cand in ("\t", ";", ",", "|"):
@@ -712,11 +770,15 @@ def _read_text(path, ro):
 
 def _read_xlsx(path):
     import openpyxl
-    wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
-    out = {}
-    for ws in wb.worksheets:
-        out[ws.title] = [list(r) for r in ws.iter_rows(values_only=True)]
-    wb.close()
+    try:
+        wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
+        out = {}
+        for ws in wb.worksheets:
+            out[ws.title] = [list(r) for r in ws.iter_rows(values_only=True)]
+        wb.close()
+    except Exception:  # noqa: BLE001 - not a zip, missing parts, broken XML: not a workbook openpyxl can read
+        raise PlotkitError(f"{Path(path).name} could not be read as an .xlsx file",
+                           "check that it is an Excel workbook; open it in Excel and save it again as .xlsx") from None
     return out
 
 
@@ -738,7 +800,7 @@ def read_tables(path, ro=None):
     """Return {sheet_name: raw rows}, decimal mark."""
     ro = ro or {}
     p = Path(path)
-    if not p.exists():
+    if not p.is_file():
         near = [f.name for f in p.parent.glob("*") if f.is_file()][:20] if p.parent.exists() else []
         raise PlotkitError(f"file not found: {path}",
                            f"files in {p.parent}: {', '.join(near)}" if near else "check the path")
@@ -763,11 +825,13 @@ def analyze_table(rows, decimal=".", header_row=None, data_start_row=None):
     ncount = [sum(n is not None for n in r) for r in nums]
     if not rows or max(ncount, default=0) == 0:
         raise PlotkitError("no numbers found in this sheet")
+    header_row = _row_number(header_row, "header_row", len(rows)) if header_row else None
+    data_start_row = _row_number(data_start_row, "data_start_row") if data_start_row else None
 
     if data_start_row:
-        ds = int(data_start_row) - 1
+        ds = data_start_row - 1
     elif header_row:
-        ds = int(header_row)
+        ds = header_row
         while ds < len(rows) and ncount[ds] < 2:
             ds += 1
     else:
@@ -799,7 +863,7 @@ def analyze_table(rows, decimal=".", header_row=None, data_start_row=None):
 
     hdr_rows = []
     if header_row:
-        hdr_rows = [int(header_row) - 1]
+        hdr_rows = [header_row - 1]
     else:
         i = ds - 1
         while i >= 0 and len(hdr_rows) < 2:
@@ -828,6 +892,19 @@ def analyze_table(rows, decimal=".", header_row=None, data_start_row=None):
         columns.append({"letter": col_letter(j), "index": j, "name": name, "values": vals})
     return {"columns": columns, "header_rows": [r + 1 for r in hdr_rows],
             "data_start_row": ds + 1, "n_rows": len(body_rows)}
+
+
+def _row_number(v, key, n_rows=None):
+    """read.header_row / read.data_start_row as a 1-based row number (n_rows: the row must be in the sheet)."""
+    try:
+        n = None if isinstance(v, bool) else int(v)
+    except (TypeError, ValueError, OverflowError):
+        n = None
+    if n is None or n < 1:
+        raise PlotkitError(f"read.{key} must be a row number from 1, not {v!r}", "rows count from 1 at the top of the sheet, e.g. 3")
+    if n_rows is not None and n > n_rows:
+        raise PlotkitError(f"read.{key} {n} is after the end of the sheet (it has {n_rows} rows)", f"check read.{key}")
+    return n
 
 
 def _looks_like_units(row, cols):
@@ -993,10 +1070,10 @@ def _select_sheets(names, sel, f):
     sel = sel if isinstance(sel, list) else [sel]
     chosen = []
     for s in sel:
-        if isinstance(s, str) and s.strip().isdigit() and s not in names:
+        if isinstance(s, str) and re.fullmatch(r"[0-9]+", s.strip()) and s not in names:
             s = int(s)
         if isinstance(s, (int, float)) and not isinstance(s, bool):
-            i = int(s)
+            i = int(s) if math.isfinite(s) else s
             if not 1 <= i <= len(names):
                 raise PlotkitError(f"sheet number {i} does not exist in {Path(f).name}",
                                    f"it has {len(names)} sheet(s): {names}")
@@ -1793,7 +1870,10 @@ FORMATS = ("png", "pdf", "svg", "jpg", "tif")
 
 def output_formats(fmts, key="output.format"):
     """A format or list of formats, checked: ["png", "pdf", ...] (jpeg -> jpg, tiff -> tif)."""
-    fmts = [fmts] if isinstance(fmts, str) else list(fmts)
+    try:
+        fmts = [fmts] if isinstance(fmts, str) else list(fmts)
+    except TypeError:                           # None, a number or true/false
+        raise PlotkitError(f"{key} {fmts!r} not supported", "use png, pdf, svg, jpg or tif") from None
     fmts = [str(f).lower().lstrip(".").replace("jpeg", "jpg").replace("tiff", "tif") for f in fmts]
     for f in fmts:
         if f not in FORMATS:
@@ -1832,7 +1912,9 @@ def fit_outside_legend(fig, leg, where):
 
 def not_done(spec):
     """The asks the model marked unsupported, to tell the user (curves and charts alike)."""
-    return [str(a.get("ask", "")) for a in spec.get("asks") or []
+    asks = spec.get("asks") or []
+    asks = asks if isinstance(asks, list) else [asks]             # one ask given without a list
+    return [str(a.get("ask", "")) for a in asks
             if isinstance(a, dict) and str(a.get("how", "")).lower() in ("unsupported", "no", "none", "not_done")]
 
 

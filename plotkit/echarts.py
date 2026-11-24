@@ -463,6 +463,8 @@ def live_result(user_spec):
         reply = json.loads(out.splitlines()[-1]) if out else None
     except json.JSONDecodeError:
         reply = None
+    if reply and not reply.get("ok") and reply.get("hint") is not None:     # the spec's "echarts" patch, as render() says
+        raise PlotkitError(reply.get("error", "live option failed"), reply["hint"])
     if not reply or not reply.get("ok"):
         err = (reply or {}).get("error") or (p.stderr.decode("utf-8", "replace").strip().splitlines() or ["?"])[-1]
         raise PlotkitError("live option failed: " + err, f'check Node and run: npm install --prefix "{NODE_DIR}"')

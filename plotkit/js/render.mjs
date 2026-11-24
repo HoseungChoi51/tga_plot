@@ -11,7 +11,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import * as echarts from "echarts";
-import { buildOption, layout, mergePatch, placeLabels, lineTexts, legendOption, bestPlace } from "./translate.mjs";
+import { buildOption, layout, mergePatch, placeLabels, lineTexts, legendOption, bestPlace, withPatchNames } from "./translate.mjs";
 import { chartFacts } from "./dump.mjs";
 
 // PLOTKIT_DUMP_OPTION=<file>: also write what was drawn (final option, axis extents, texts) for tests
@@ -27,7 +27,8 @@ function readStdin() {
 }
 
 /** One resolved figure -> SVG text and warnings. */
-export function renderSvg(fig) {
+export function renderSvg(figure) {
+  const fig = withPatchNames(figure);       // series renamed in the "echarts" patch: the legend follows
   const warnings = [];
   const L = layout(fig);
   if (fig.tick_direction === "inout") warnings.push('tick_direction "inout" has no ECharts setting; drawn as longer outward ticks');

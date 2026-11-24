@@ -141,14 +141,33 @@ SCHEMA_DOC = {
 
 # =================================================================== spec
 def _alias_top(user):
-    out = {}
+    out, fmt = {}, None
     for k, v in user.items():
         kk = TOP_ALIASES.get(k, TOP_ALIASES.get(str(k).lower(), k))
         if kk == "output.format":
-            out.setdefault("output", {})["format"] = v
+            fmt = (k, v)
             continue
         out[kk] = v
+    if fmt is not None:                        # "format" goes into "output", before or after it
+        k, v = fmt
+        if "output" not in out:
+            out["output"] = {"format": v}
+        elif isinstance(out["output"], dict):
+            out["output"]["format"] = v
+        else:
+            raise pk._given_twice("output", "format", out["output"], k)
     return out
+
+
+def _number(v):
+    """A finite number from a number or numeric text; None for anything else (true/false, lists, "6in")."""
+    if isinstance(v, bool) or not isinstance(v, (int, float, str)):
+        return None
+    try:
+        f = float(v)
+    except (ValueError, OverflowError):
+        return None
+    return f if math.isfinite(f) else None
 
 
 def _as_axis(v, where):
@@ -167,8 +186,9 @@ def _as_axis(v, where):
         kk = pk.AXIS_ALIASES.get(k, k)
         kk = AXIS_EXTRA_ALIASES.get(kk, kk)
         if kk not in AXIS_KEYS:
-            raise PlotkitError(f'unknown key "{where}.{k}".{pk._suggest(kk, AXIS_KEYS)}',
-                               f"allowed keys for {where}: {', '.join(sorted(AXIS_KEYS))}")
+            public = sorted(x for x in AXIS_KEYS if not x.startswith("_"))     # not the internal _names
+            raise PlotkitError(f'unknown key "{where}.{k}".{pk._suggest(kk, public)}',
+                               f"allowed keys for {where}: {', '.join(public)}")
         d[kk] = val
     return d
 
@@ -204,16 +224,15 @@ def normalize(user):
             s["_by_order"] = by["order"]
         if by.get("colors"):
             s["colors"] = by["colors"]
-    agg = s["y"].get("agg")
-    if agg is not None:
-        a = AGG_ALIASES.get(str(agg).lower(), str(agg).lower())
-        if a not in AGGS:
-            raise PlotkitError(f'unknown y.agg "{agg}"', "use one of: " + ", ".join(AGGS))
-        s["y"]["agg"] = a
+    for role in ("y", "z"):
+        agg = s[role].get("agg")
+        if agg is not None:
+            a = AGG_ALIASES.get(str(agg).lower(), str(agg).lower())
+            if a not in AGGS:
+                raise PlotkitError(f'unknown {role}.agg "{agg}"', "use one of: " + ", ".join(AGGS))
+            s[role]["agg"] = a
     if isinstance(s["y"].get("col"), str) and s["y"]["col"].strip().lower() in ("count", "개수", "건수", "n"):
         s["y"] = {**s["y"], "col": None, "agg": "count"}
-    if s["z"].get("agg"):
-        s["z"]["agg"] = AGG_ALIASES.get(str(s["z"]["agg"]).lower(), str(s["z"]["agg"]).lower())
     if isinstance(s["z"].get("col"), str) and s["z"]["col"].strip().lower() in ("count", "개수", "건수", "n"):
         s["z"] = {"col": None, "agg": "count"}
     filt = s.get("filter") or []
@@ -225,23 +244,51 @@ def normalize(user):
         s["title"] = {"text": title, "size": None, "color": None}
     lg = s.get("legend")
     if lg is None or isinstance(lg, (str, bool)):
-        if lg is False or (isinstance(lg, str) and lg.lower() in ("none", "off", "없음", "숨김")):
+        if lg is False or _legend_off(lg):
             s["legend"] = {"where": "best", "show": False, "size": None, "title": None}
         else:
             s["legend"] = {"where": lg if isinstance(lg, str) else "best", "show": True, "size": None, "title": None}
+    elif isinstance(lg, dict):
+        where = lg.get("where", lg.get("position", lg.get("loc", "best")))
+        s["legend"] = {"where": "best" if _legend_off(where) else where,
+                       "show": False if _legend_off(where) else lg.get("show", True),
+                       "size": lg.get("size"), "title": lg.get("title")}
     else:
-        s["legend"] = {"where": lg.get("where", lg.get("position", lg.get("loc", "best"))),
-                       "show": lg.get("show", True), "size": lg.get("size"), "title": lg.get("title")}
+        raise PlotkitError('"legend" must be a position text, false, or {"where": ..., "show": ..., "size": ...}',
+                           'e.g. "legend": "upper right", "legend": false or "legend": {"where": "outside right"}')
     s["legend"]["where"] = _legend_where(s["legend"]["where"])
-    s["size"] = [float(v) for v in (s.get("size") or [6.4, 4.6])]
-    s["dpi"] = int(s.get("dpi") or 300)
-    s["font_size"] = float(s.get("font_size") or 11)
+    size = s.get("size") or [6.4, 4.6]
+    wh = [_number(v) for v in size] if isinstance(size, (list, tuple)) else []
+    if len(wh) != 2 or any(v is None or v <= 0 for v in wh):
+        raise PlotkitError(f'"size" must be [width, height] in inches, got {size!r}', 'e.g. "size": [6.4, 4.6]')
+    s["size"] = wh
+    dpi = _number(s.get("dpi") or 300)
+    if dpi is None or dpi < 1:
+        raise PlotkitError(f'"dpi" must be a number of 1 or more, got {s.get("dpi")!r}', 'e.g. "dpi": 300')
+    s["dpi"] = int(dpi)
+    fs = _number(s.get("font_size") or 11)
+    if fs is None or fs <= 0:
+        raise PlotkitError(f'"font_size" must be a number above 0, got {s.get("font_size")!r}', 'e.g. "font_size": 11')
+    s["font_size"] = fs
+    if s.get("point_size") is not None:
+        ps = _number(s["point_size"])
+        if ps is None or ps <= 0:
+            raise PlotkitError(f'"point_size" must be a number above 0, got {s["point_size"]!r}',
+                               'e.g. "point_size": 30 (one marker size for all points; sizes from a column are not supported)')
+        s["point_size"] = ps
+    if s.get("alpha") is not None:
+        al = _number(s["alpha"])
+        if al is None or not 0 <= al <= 1:
+            raise PlotkitError(f'"alpha" must be a number from 0 to 1, got {s["alpha"]!r}', 'e.g. "alpha": 0.6 (1 = opaque)')
+        s["alpha"] = al
     s.setdefault("font", None)
     s["_text_color_set"] = "text_color" in s
     s["text_color"] = pk._color(s.get("text_color") or "black", "text_color")
     out = s.get("output") or {}
     if isinstance(out, str):
         out = {"format": out}
+    if not isinstance(out, dict):
+        raise PlotkitError(f'"output" must be an object, got {out!r}', 'e.g. "output": {"format": "png"}')
     fmt = out.get("format", "png")
     fmt = fmt if isinstance(fmt, list) else [fmt]
     fmt = [str(x).lower().lstrip(".").replace("jpeg", "jpg").replace("tiff", "tif") for x in fmt]
@@ -249,8 +296,14 @@ def normalize(user):
         if x not in pk.FORMATS:
             raise PlotkitError(f'unknown output format "{x}"', "use png, pdf, svg, jpg or tif")
     s["output"] = {"dir": out.get("dir"), "format": fmt, "name": out.get("name")}
-    s["asks"] = s.get("asks") or []
+    asks = s.get("asks") or []
+    s["asks"] = asks if isinstance(asks, list) else [asks]          # one ask given without a list
     return s
+
+
+def _legend_off(w):
+    """A legend position that means no legend ("none", "off", "없음", "숨김")."""
+    return isinstance(w, str) and w.strip().lower() in ("none", "off", "없음", "숨김")
 
 
 def _legend_where(w):
@@ -266,6 +319,7 @@ def _legend_where(w):
 
 # =================================================================== reading tables
 _DATE_RE = re.compile(r"^\d{4}[-./]\d{1,2}[-./]\d{1,2}([ T]\d{1,2}:\d{2}(:\d{2})?)?$")
+_DATE_PARTS = re.compile(r"(\d{4})[-./](\d{1,2})[-./](\d{1,2})(?:[ T](\d{1,2}):(\d{1,2})(?::(\d{1,2})(?:\.(\d{1,6}))?)?)?")
 
 
 def _cell_kind(c, decimal):
@@ -291,7 +345,7 @@ def frame_from_rows(rows, decimal=".", header_row=None, data_start_row=None):
         raise PlotkitError("this sheet is empty")
     look = min(len(rows), 40)
     if header_row:
-        h = int(header_row) - 1
+        h = pk._row_number(header_row, "header_row", len(rows)) - 1
     else:
         h = None
         for i in range(look):
@@ -303,7 +357,7 @@ def frame_from_rows(rows, decimal=".", header_row=None, data_start_row=None):
                 break
     units = None
     if data_start_row:
-        ds = int(data_start_row) - 1
+        ds = pk._row_number(data_start_row, "data_start_row") - 1
     elif h is None:
         ds = next(i for i, n in enumerate(filled) if n)
     else:
@@ -352,8 +406,26 @@ def _typed(vals, decimal):
     dates = sum(isinstance(v, (_dt.datetime, _dt.date)) or (isinstance(v, str) and bool(_DATE_RE.match(v.strip())))
                 for v in nonempty)
     if dates >= 0.9 * n:
-        return pd.to_datetime(pd.Series([v if v is not None else None for v in vals]), errors="coerce")
+        return pd.Series([_to_date(v) for v in vals], dtype="datetime64[us]")
     return pd.Series([str(v).strip() if v is not None and str(v).strip() else None for v in vals], dtype=object)
+
+
+def _to_date(v):
+    """A cell of a date column as a datetime, each cell on its own (a column may mix "2026-03-01" and
+    "2026-03-01 08:00"): Excel dates as they are; text in the forms plotkit takes for dates (year first, - . or /,
+    an optional time with seconds and fraction); anything else (other text, numbers, times, impossible dates) None."""
+    if isinstance(v, _dt.datetime):
+        return v
+    if isinstance(v, _dt.date):
+        return _dt.datetime(v.year, v.month, v.day)
+    m = _DATE_PARTS.fullmatch(v.strip()) if isinstance(v, str) else None
+    if not m:
+        return None
+    y, mo, d, hh, mi, ss, frac = m.groups()
+    try:
+        return _dt.datetime(int(y), int(mo), int(d), int(hh or 0), int(mi or 0), int(ss or 0), int((frac or "0").ljust(6, "0")))
+    except ValueError:
+        return None
 
 
 def load_frame(spec):
@@ -379,6 +451,8 @@ def load_frame(spec):
             if many_files:
                 d["file"] = Path(f).stem
             frames.append(d)
+    if not frames:
+        raise PlotkitError("no sheet to read", 'set "sheets" to a sheet name, a number from 1, or "all"')
     letters = frames[0].attrs.get("letters", {})
     df = frames[0] if len(frames) == 1 else pd.concat(frames, ignore_index=True, sort=False)
     df.attrs["letters"] = letters
@@ -566,7 +640,41 @@ def run_data_code(df, code, timeout=60):
 
 
 # =================================================================== figure model
-def _agg(series, how):
+def _num(v, where):
+    """A finite number the spec gives (a number or numeric text); anything else is a PlotkitError naming the key."""
+    try:
+        x = None if v is None or isinstance(v, (bool, list, dict)) else float(v)
+    except (TypeError, ValueError):
+        x = None
+    if x is None or not math.isfinite(x):
+        raise PlotkitError(f'"{where}" must be a number, not {v!r}', "write a number, e.g. 2.5")
+    return x
+
+
+def _check_agg(s, how, col):
+    """Aggregates other than count and nunique need numbers: on text (first / last aside: they may hold numbers) or
+    dates they are a PlotkitError naming the aggregate and the column."""
+    if how not in AGGS:
+        raise PlotkitError(f'unknown aggregate "{how}"', "use one of: " + ", ".join(AGGS))
+    kind = s.dtype.kind
+    if how in ("count", "nunique") or kind in "fiub" or (kind != "M" and how in ("first", "last")):
+        return
+    raise PlotkitError(f'cannot take the {how} of "{col}": it holds {"dates" if kind == "M" else "text"}',
+                       "use count or nunique, or a numeric column")
+
+
+def _floats(s, col):
+    """s as floats (text that holds numbers too); other text is a PlotkitError naming the column."""
+    if s.dtype.kind == "M":
+        raise PlotkitError(f'"{col}" holds dates, not numbers', "pick a numeric column")
+    try:
+        return s.astype(float)
+    except (TypeError, ValueError):
+        raise PlotkitError(f'"{col}" holds text, not numbers', "pick a numeric column, or use count or nunique") from None
+
+
+def _agg(series, how, col):
+    """One aggregate of a group's values; _check_agg(series, how, col) has accepted the column."""
     if how == "count":
         return float(series.size)
     s = series.dropna()
@@ -575,8 +683,37 @@ def _agg(series, how):
     if not len(s):
         return float("nan")
     if how in ("first", "last"):
-        return float(s.iloc[0 if how == "first" else -1])
+        v = s.iloc[0 if how == "first" else -1]
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            raise PlotkitError(f'"{col}" holds text, not numbers', "pick a numeric column, or use count or nunique") from None
     return float(getattr(s, how)())
+
+
+def _missing(s):
+    """Missing category values: NaN, None, NaT, and blank text."""
+    m = s.isna()
+    if s.dtype.kind == "O":
+        m = m | (s.astype(str).str.strip() == "")
+    return m.to_numpy()
+
+
+def _leave_out(model, raw, key, col):
+    """Rows whose category (x, by, the pie labels, the heatmap rows and columns) is missing are left out, the same
+    for every chart: raw is the column, key what it groups by (a period or a bin; None outside the bins). Adds one
+    note each for the missing and the out-of-bins rows and counts them out of rows_used. Returns the rows kept."""
+    miss = _missing(raw)
+    out = _missing(key) & ~miss
+    for n, what in ((int(miss.sum()), f"with no {col}"), (int(out.sum()), f"outside the bins of {col}")):
+        if n:
+            model["notes"].append(f"{n} {'row' if n == 1 else 'rows'} {what} left out")
+    keep = ~(miss | out)
+    if not keep.any():
+        raise PlotkitError(f"no rows left after leaving out the rows with no {col}" + (" or outside its bins" if out.any() else ""),
+                           "pick another column, or check the filters and bins")
+    model["rows_used"] -= int((~keep).sum())
+    return keep
 
 
 def _natural_key(v):
@@ -671,7 +808,7 @@ def build_model(spec, df):
              "refs": []}
     by = find_col(df, spec["by"], "by") if spec.get("by") else None
     if by:
-        df = df[df[by].notna() & (df[by].astype(str).str.strip() != "")]
+        df = df[_leave_out(model, df[by], df[by], by)]
         model["legend_title"] = re.sub(r"\s*[\(\[][^()\[\]]*[\)\]]\s*$", "", str(by))
 
     if kind == "heatmap":
@@ -690,8 +827,13 @@ def build_model(spec, df):
         if lab is None:
             raise PlotkitError('pie needs the slice labels: "x": "<category column>"')
         how = agg or ("sum" if ycol_names else "count")
+        if how != "count":
+            if not ycol_names:
+                raise PlotkitError(f'pie: "{how}" needs a y column', 'add "y": "<value column>"')
+            _check_agg(df[ycol_names[0]], how, ycol_names[0])
+        df = df[_leave_out(model, df[lab], df[lab], lab)]
         g = df.groupby(df[lab].map(_cat_label), dropna=True)
-        vals = g.size().astype(float) if how == "count" else g[ycol_names[0]].agg(lambda s: _agg(s, how))
+        vals = g.size().astype(float) if how == "count" else g[ycol_names[0]].agg(lambda s: _agg(s, how, ycol_names[0]))
         vals = vals[vals > 0]
         order = _order(vals.index, spec.get("sort") or "desc", vals.to_dict())
         labels, values = [str(v) for v in order], [float(vals[v]) for v in order]
@@ -714,6 +856,9 @@ def build_model(spec, df):
         model["x"]["period"] = xs["period"]
     elif xs.get("bins") and kind in ("bar", "hbar", "line"):
         xser = _bin_series(xser, xs["bins"])
+    if kind != "scatter":                          # a scatter leaves out its points without x or y itself
+        keep = _leave_out(model, df[xcol], xser, xcol)
+        df, xser = df[keep], xser[keep]
     is_num_x = xser.dtype.kind in "fiu" and kind in ("line", "scatter")
     is_time_x = xser.dtype.kind == "M"
     model["x"]["type"] = "time" if is_time_x and kind in ("line", "scatter") else ("value" if is_num_x else "category")
@@ -753,7 +898,7 @@ def build_model(spec, df):
             sx, sy = xser.loc[idx], df.loc[idx, ycol_names[0]]
             ok = sx.notna() & sy.notna()
             model["series"].append({"name": str(k) if by else ycol_names[0], "color": cmap[k if by else ycol_names[0]],
-                                    "x": _plain(sx[ok]), "y": sy[ok].astype(float).tolist()})
+                                    "x": _plain(sx[ok]), "y": _floats(sy[ok], ycol_names[0]).tolist()})
         model["y"]["label"] = model["y"]["label"] or ycol_names[0]
         model["legend_needed"] = bool(by)
         if spec.get("trend"):
@@ -781,6 +926,8 @@ def build_model(spec, df):
         if dup:
             notes.append(f"several rows per {xcol}{' and ' + by if by else ''}: the {'mean' if how == 'mean' else how} is drawn")
     model["agg"] = how
+    for c in ycol_names:
+        _check_agg(df[c], how, c)
     series_specs = []
     if by:
         for k, sub in frame.groupby("__s"):
@@ -796,16 +943,17 @@ def build_model(spec, df):
     counts_n = {}
     for name, sub, yc in series_specs:
         if not dup and how in ("first", "last", "mean", "sum", "max", "min", "median") and yc is not None:
-            vals = sub.set_index("__x")[yc].astype(float)      # one row per x: nothing to aggregate
+            vals = _floats(sub.set_index("__x")[yc], yc)      # one row per x: nothing to aggregate
             counts_n[name] = vals.notna().astype(int)
             g = None
         else:
             g = sub.groupby("__x", sort=False)
-            vals = g.size().astype(float) if how == "count" or yc is None else g[yc].agg(lambda s, h=how: _agg(s, h))
+            vals = g.size().astype(float) if how == "count" or yc is None else g[yc].agg(lambda s, h=how, c=yc: _agg(s, h, c))
             counts_n[name] = g.size()
         err = None
         if spec.get("error") and yc is not None and kind in ("bar", "hbar", "line") and g is not None:
             e = str(spec["error"]).lower()
+            _check_agg(df[yc], "min" if e in ("minmax", "range", "min-max") else "std", yc)
             if e in ("std", "sd", "표준편차"):
                 err = g[yc].std()
             elif e in ("sem", "se", "표준오차"):
@@ -925,23 +1073,54 @@ def _fmt_num(v):
     return f"{v:.4g}"
 
 
+BINS_HINT = 'e.g. "bins": 10, "bins": {"width": 0.5} or "bins": [0, 5, 10]'
+
+
+def _edge_list(bins, where):
+    """Bin edges given as a list: numbers, two or more, increasing."""
+    edges = [_num(b, where) for b in bins] if isinstance(bins, list) else []
+    if len(edges) < 2 or any(b <= a for a, b in zip(edges, edges[1:])):
+        raise PlotkitError(f'"{where}" must be two or more increasing edges, not {bins!r}', BINS_HINT)
+    return edges
+
+
 def _edges(v, bins):
     v = v[np.isfinite(v)]
     if isinstance(bins, list):
-        return [float(b) for b in bins]
-    if isinstance(bins, dict) and bins.get("edges") and not (len(bins["edges"]) == 2 and (bins.get("width") or bins.get("step"))):
-        return [float(b) for b in bins["edges"]]
+        return _edge_list(bins, "bins")
     if isinstance(bins, dict):
-        if bins.get("edges"):                       # {"width": 1, "edges": [3, 28]}: a range cut every width
-            bins = {**bins, "min": bins["edges"][0], "max": bins["edges"][-1]}
-        if bins.get("range") and len(bins["range"]) == 2:
-            bins = {**bins, "min": bins["range"][0], "max": bins["range"][1]}
-        w = float(bins.get("width") or bins.get("step"))
-        lo = math.floor(float(bins.get("min", v.min())) / w) * w
-        hi = float(bins.get("max", v.max()))
+        e = bins.get("edges")
+        if e and not (isinstance(e, list) and len(e) == 2 and (bins.get("width") or bins.get("step"))):
+            return _edge_list(e, "bins.edges")
+        if e:                                       # {"width": 1, "edges": [3, 28]}: a range cut every width
+            bins = {**bins, "min": e[0], "max": e[-1]}
+        r = bins.get("range")
+        if isinstance(r, list) and len(r) == 2:
+            bins = {**bins, "min": r[0], "max": r[1]}
+        w = bins.get("width") or bins.get("step")
+        if not w:
+            raise PlotkitError('"bins" needs a "width" (or give a number of bins, or a list of edges)', BINS_HINT)
+        if not _num(w, "bins.width") > 0:
+            raise PlotkitError(f'"bins.width" must be above 0, not {w!r}', BINS_HINT)
+        w = _num(w, "bins.width")
+        lo, hi = bins.get("min"), bins.get("max")       # the data's range only where the spec does not give it
+        if lo is None:
+            lo = v.min() if v.size else None
+        if hi is None:
+            hi = v.max() if v.size else None
+        if lo is None or hi is None:
+            raise PlotkitError("no numbers to bin", 'give "min" and "max" with the width, or check the filters')
+        lo = math.floor(_num(lo, "bins.min") / w) * w
+        hi = _num(hi, "bins.max")
         n = max(1, int(math.ceil((hi - lo) / w - 1e-9)))
         return [lo + i * w for i in range(n + 1)] + ([lo + (n + 1) * w] if lo + n * w < hi else [])
-    n = int(bins) if bins not in (None, True, "auto") else min(30, max(5, int(np.ceil(np.log2(max(2, v.size)) + 1))))
+    if bins is None or bins is True or bins == "auto":     # True, not 1: "bins": 1 is one bin
+        n = min(30, max(5, int(np.ceil(np.log2(max(2, v.size)) + 1))))
+    else:
+        x = _num(bins, "bins")
+        if not x >= 1:
+            raise PlotkitError(f'"bins" must be a number of bins (1 or more), not {bins!r}', BINS_HINT)
+        n = int(x)
     return np.histogram_bin_edges(v, bins=n).tolist()
 
 
@@ -978,7 +1157,18 @@ def _heatmap_model(spec, df, model):
     cmap_name = spec.get("cmap")
     if spec.get("corr"):
         cols = spec["corr"]
-        cols = [c for c in df.columns if df[c].dtype.kind == "f"] if cols in ("all", True, "*") else [find_col(df, c, "corr") for c in cols]
+        if cols is True or cols in ("all", "*"):         # True, not 1
+            cols = [c for c in df.columns if df[c].dtype.kind == "f"]
+        elif isinstance(cols, list):
+            cols = [find_col(df, c, "corr") for c in cols]
+        else:
+            raise PlotkitError(f'"corr" must be a list of columns or "all", not {cols!r}',
+                               'e.g. "corr": ["1존온도", "CNT수율"] or "corr": "all"')
+        if not cols:
+            raise PlotkitError('"corr" found no numeric columns', 'name the columns: "corr": ["A", "B"]')
+        for c in cols:
+            if df[c].dtype.kind not in "fiub":
+                raise PlotkitError(f'corr: "{c}" is not a numeric column', 'give numeric columns, or "corr": "all"')
         m = df[cols].corr()
         rows, colsn = list(m.index), list(m.columns)
         model["heat"] = {"rows": [str(r) for r in rows], "cols": [str(c) for c in colsn], "z": m.to_numpy().tolist(),
@@ -994,13 +1184,18 @@ def _heatmap_model(spec, df, model):
     xc, yc = find_col(df, xs["col"], "x"), find_col(df, ys["col"], "y")
     xk = _period_key(df[xc], xs["period"]) if xs.get("period") else (_bin_series(df[xc], xs["bins"]) if xs.get("bins") else df[xc])
     yk = _period_key(df[yc], ys["period"]) if ys.get("period") else (_bin_series(df[yc], ys["bins"]) if ys.get("bins") else df[yc])
+    for col_, key in ((xc, "x"), (yc, "y")):
+        keep = _leave_out(model, df[col_], xk if key == "x" else yk, col_)
+        df, xk, yk = df[keep], xk[keep], yk[keep]
     how = zs.get("agg") or ("mean" if zs.get("col") else "count")
     zc = find_col(df, zs["col"], "z") if zs.get("col") else None
+    if zc:
+        _check_agg(df[zc], how, zc)
     frame = pd.DataFrame({"__x": xk.map(_cat_label), "__y": yk.map(_cat_label)})
     if zc:
         frame["__z"] = df[zc]
     g = frame.groupby(["__y", "__x"])
-    vals = g.size().astype(float) if how == "count" or zc is None else g["__z"].agg(lambda s: _agg(s, how))
+    vals = g.size().astype(float) if how == "count" or zc is None else g["__z"].agg(lambda s: _agg(s, how, zc))
     xcats = _order(frame["__x"].dropna().unique(), xs.get("order") or "x")
     ycats = _order(frame["__y"].dropna().unique(), ys.get("order") or "x")
     if xs.get("bins"):
@@ -1038,13 +1233,14 @@ def _refs(spec, model, df, ycol, axis="y"):
             if col is None:
                 raise PlotkitError('"mean" needs a y column')
             fn = "median" if v.lower() in ("median", "중앙값") else "mean"
+            _check_agg(df[col], fn, col)
             val = float(getattr(df[col].dropna(), fn)())
             text = r.get("text") or f"{'평균' if fn == 'mean' else '중앙값'} {val:.3g}"
         else:
             if isinstance(v, str) and model.get(ax, {}).get("type") == "category":
                 val = v
             else:
-                val = float(v) if not (isinstance(v, str) and model["x"].get("type") == "time") else v
+                val = _num(v, f"ref.{ax}") if not (isinstance(v, str) and model["x"].get("type") == "time") else v
             text = r.get("text")
         if axis == "x" and ax == "y" and model["kind"] == "histogram":
             ax = "x"                               # a histogram's mean line is vertical
@@ -1193,8 +1389,9 @@ def layout(spec, model):
             lims[k_] = list(_nice(lo, hi))
     scale = fs / 11
     n_pts = sum(len(s_["y"]) for s_ in model["series"]) if kind == "scatter" else 0
-    model["point_size"] = float(spec.get("point_size") or ((9 if n_pts > 300 else 22) * scale ** 2))
-    model["point_alpha"] = float(spec.get("alpha") or (0.55 if n_pts > 300 else 0.9))
+    ps, al = spec.get("point_size"), spec.get("alpha")     # numbers once normalized; checked, never float()ed raw
+    model["point_size"] = _num(ps, "point_size") if ps is not None else (9 if n_pts > 300 else 22) * scale ** 2
+    model["point_alpha"] = _num(al, "alpha") if al is not None else (0.55 if n_pts > 300 else 0.9)     # 0 is a value
     if kind == "line":
         dense = max((len(s_["y"]) for s_ in model["series"]), default=0) > 500
         for s_ in model["series"]:
@@ -1226,7 +1423,7 @@ def layout(spec, model):
         need_w = sum(_tw(c, tick) / PT + tick * 0.8 for c in cats)
         room = pw * (0.72 if kind == "heatmap" else 0.98)          # a heatmap gives width to its colour bar
         rot = (90 if need_w > 2.2 * room else 45) if need_w > room else 0
-    model["rotate_x"] = float(rot or 0)
+    model["rotate_x"] = _num(rot, "x.rotate") if rot else 0.0
     if kind == "heatmap":
         from .colors import colormap, colormap_names
         h = model["heat"]
@@ -1629,7 +1826,7 @@ def echarts_option(spec, model, live=False):
         sc = spec["font_size"] / 11
         leg = {"show": True, "data": list(names), "textStyle": {**ts, "fontSize": lfs}, "itemWidth": 18 * sc, "itemHeight": 10 * sc,
                "orient": "vertical"}
-        if model.get("legend_title") or lg.get("title"):
+        if kind != "pie" and (model.get("legend_title") or lg.get("title")):    # a pie's legend lists its slices only
             lt = lg.get("title") or model["legend_title"]
             leg["data"] = [{"name": lt, "icon": "none", "textStyle": {**ts, "fontSize": lfs, "fontWeight": "bold"}}] + leg["data"]
             opt["_legend_dummy"] = lt               # a name-only series, added after the data series
@@ -1920,7 +2117,7 @@ def _axis_style(a, s, ts, fs, label, horizontal):
                     v = float(_as_float([v])[0] * 86400e3)        # the data is UTC milliseconds too
                 a[k] = v
         if s.get("step"):
-            a["interval"] = float(s["step"])
+            a["interval"] = _num(s["step"], "step")
         if s.get("log"):
             a["type"] = "log"
         if s.get("format"):
@@ -1928,7 +2125,7 @@ def _axis_style(a, s, ts, fs, label, horizontal):
     if s.get("flip"):
         a["inverse"] = not a.get("inverse", False)
     if s.get("rotate") is not None and horizontal:
-        a["axisLabel"]["rotate"] = float(s["rotate"])
+        a["axisLabel"]["rotate"] = _num(s["rotate"], "rotate")
 
 
 def _grid_fit(grid, xa, ya, xcats, ycats, fs, spec):

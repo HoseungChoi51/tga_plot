@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 // The live (browser) version of a resolved curve plot: the same option as the static render, but every label is
 // tied to the data (markPoint / markLine on its series), so it moves with zoom, pan and resize, plus a tooltip,
-// zoom and a toolbox. The static render places labels in pixels to avoid collisions; a live chart cannot.
+// zoom and a toolbox. The static render places labels in pixels to avoid collisions; a live chart cannot. The
+// model's "echarts" patch is merged last, as in the static render (its graphic elements included).
 //
 //   node plotkit/js/live.mjs < resolved.json     (input: {"figures": [...]} from plotkit.echarts.resolve)
-// Prints {"ok": true, "options": [...]}.
-import { buildOption, layout } from "./translate.mjs";
+// Prints {"ok": true, "options": [...]}, or {"ok": false, "error", "hint"} (hint: a problem with the spec's patch).
+import { buildOption, layout, mergePatch, withPatchNames } from "./translate.mjs";
 
-export function liveOption(fig) {
+export function liveOption(figure) {
+  const fig = withPatchNames(figure);       // series renamed in the "echarts" patch: the legend follows
   const L = layout(fig);
   const o = buildOption(fig, L);
   const seriesFor = (axis, sheet) => o.series.findIndex((s, i) => i < fig.series.length && fig.series[i].axis === axis &&
@@ -32,17 +34,23 @@ export function liveOption(fig) {
     }
   }
   for (const s of o.series) if (s.markLine?.data) for (const d of s.markLine.data) d.label = { show: false };
+  // each line's text on its own line: buildOption puts vlines on y1's helper series and hlines on their axis's, in
+  // the order of the annotations
+  const next = { y1: 0, y2: 0 };
   for (const a of fig.annotations) {
-    if ((a.kind === "vline" || a.kind === "hline") && a.text) {
-      const s = o.series.find(x => String(x.name).startsWith("__marks_"));
-      const d = s?.markLine?.data?.find(x => (a.kind === "vline" ? x.xAxis : x.yAxis) === a.value);
-      if (d) d.label = { show: true, formatter: a.text, position: "insideEndTop", color: a.text_color, fontSize: a.size * 96 / 72 };
-    }
+    if (a.kind !== "vline" && a.kind !== "hline") continue;
+    const axis = a.kind === "vline" ? "y1" : a.axis;
+    const s = o.series.find(x => x.name === `__marks_${axis}`);
+    const d = s?.markLine?.data?.[next[axis]++];
+    if (d && a.text) d.label = { show: true, formatter: a.text, position: "insideEndTop", color: a.text_color, fontSize: a.size * 96 / 72 };
   }
   o.tooltip = { trigger: "axis", confine: true };
   o.dataZoom = [{ type: "inside", xAxisIndex: L.split ? [0, 1] : 0, filterMode: "none" }];
   o.animation = false;
-  return o;
+  const out = mergePatch(o, fig.echarts, fig);
+  const graphic = fig.echarts && fig.echarts.graphic;
+  if (Array.isArray(graphic) && graphic.length) out.graphic = { elements: structuredClone(graphic) };
+  return out;
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
@@ -52,7 +60,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   try {
     process.stdout.write(JSON.stringify({ ok: true, options: input.figures.map(liveOption) }) + "\n");
   } catch (e) {
-    process.stdout.write(JSON.stringify({ ok: false, error: String(e?.message ?? e) }) + "\n");
+    process.stdout.write(JSON.stringify({ ok: false, error: String(e?.message ?? e), hint: e?.hint }) + "\n");
     process.exitCode = 1;
   }
 }
