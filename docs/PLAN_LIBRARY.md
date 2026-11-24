@@ -17,6 +17,9 @@
 > - Step 10: the fresh venv was Python 3.13 (the offline wheel cache had none for 3.12); it found that bubblewrap
 >   hid a Python installed under `/tmp` (a venv there, or a PyInstaller one-file build), now bound back read-only.
 >
+> - After review: ECharts is the default engine and matplotlib an optional extra (colours, colormaps and ticks are
+>   ported, `plotkit/colors.py`, `plotkit/ticks.py`); the line-style parity bug is fixed.
+>
 > Read [INTEGRATION.md](INTEGRATION.md) and [EXPERIMENTS.md](EXPERIMENTS.md) for the result. Paths below are as
 > they were before the move.
 

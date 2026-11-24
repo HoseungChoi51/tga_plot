@@ -1050,7 +1050,7 @@ def _refs(spec, model, df, ycol, axis="y"):
             ax = "x"                               # a histogram's mean line is vertical
         model["refs"].append({"axis": ax, "value": val, "text": text,
                               "color": pk._color(r.get("color") or "#555555", "ref.color"),
-                              "style": r.get("linestyle", r.get("style", "dashed"))})
+                              "style": pk.linestyle_name(r.get("linestyle", r.get("style", "dashed")), "ref.linestyle")})
 
 
 # =================================================================== layout (shared by both engines)
@@ -1589,6 +1589,12 @@ def _font_family(spec, texts):
     return "DejaVu Sans, Arial, Helvetica, sans-serif"
 
 
+def _echarts_dash(style, width):
+    """ECharts lineStyle.type for solid / dashed / dotted / dashdot (dashdot has no keyword: a dash pattern, as in
+    plotkit/js/translate.mjs)."""
+    return [round(v * max(width, 1), 2) for v in (6.4, 1.6, 1, 1.6)] if style == "dashdot" else style
+
+
 def _tw(text, size_px):
     """Rough text width in px (CJK counts double)."""
     return sum(2 if ord(ch) > 0x2e80 else 1 for ch in str(text)) * size_px * 0.56
@@ -1866,7 +1872,7 @@ def echarts_option(spec, model, live=False):
             tgt = {"type": "line", "data": [], "name": "_ref"}
             opt["series"].append(tgt)
         ml = tgt.setdefault("markLine", {"silent": True, "symbol": "none", "data": []})
-        ml["data"].append({**item, "lineStyle": {"color": r["color"], "type": {"dashed": "dashed", "dotted": "dotted"}.get(r["style"], "solid"),
+        ml["data"].append({**item, "lineStyle": {"color": r["color"], "type": _echarts_dash(r["style"], 1.2 * PT),
                                                   "width": 1.2 * PT}})
     if spec.get("grid"):
         (ya if kind != "hbar" else xa).setdefault("splitLine", {})["show"] = True

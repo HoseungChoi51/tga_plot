@@ -16,9 +16,9 @@ Claude Haiku appear in the evidence only as stand-ins for quick tests.
   lab's own terms, tripped on awkward files, and its plots were rejected far more often in blind review (clutter,
   overlapping text).
 - **ECharts is the engine.** The app (KetchupE) shows charts with ECharts, and the library gives it live options
-  (labels tied to the data, zoom, tooltip) plus SVG/PNG/PDF exports from the same spec. matplotlib stays as the
-  second engine. The report recommended matplotlib for exports; the plan chose one engine for both, with the known
-  parity bugs listed below.
+  (labels tied to the data, zoom, tooltip) plus SVG/PNG/PDF exports from the same spec. matplotlib is an optional
+  second engine, not installed by default. The report recommended matplotlib for exports; the library uses one
+  engine for both, with the parity gaps listed below.
 - **Reasoning is off by default; the user can turn it on.** Reasoning helped the spec path by 13–16 points on keyed
   asks, but costs time and tokens on every request, and on ECharts a no-key ask could trap the model (46k tokens,
   nothing drawn). Off by default with a "think harder" toggle keeps the common case fast. Raw code with thinking on
@@ -57,6 +57,6 @@ Reviewers and personas were Claude sessions.
 - No keys yet for: percent-stacked bars (`percent` is accepted and ignored), box plots, colour rules, unit
   conversions and computed curves (onset, mass loss, dry basis, DTG from weight).
 - Asks with no key are not refused by plotkit; only the model's `asks` list reports them.
-- Engine parity: line-style aliases such as `"--"` and `"점선"` draw solid on ECharts; a residue label beyond `x.max`
-  is drawn outside the plot on ECharts (matplotlib leaves it out); automatic ticks differ on small or large-font
-  figures; `inout` ticks are approximated on ECharts.
+- Engine parity: a residue label beyond `x.max` is drawn outside the plot on ECharts (matplotlib leaves it out);
+  automatic ticks differ on small or large-font figures; `inout` ticks are approximated on ECharts. The parity study
+  also found line-style spellings such as `"--"` and `"점선"` drawing solid on ECharts; the library fixes that.

@@ -247,6 +247,18 @@ KOREAN_COLORS = {"빨강": "red", "빨간색": "red", "빨간": "red", "적색":
 LINESTYLES = {"solid": "-", "실선": "-", "-": "-", "dashed": "--", "파선": "--", "--": "--",
               "dotted": ":", "점선": ":", ":": ":", "dashdot": "-.", "일점쇄선": "-.", "-.": "-."}
 
+LINESTYLE_NAMES = {"-": "solid", "--": "dashed", ":": "dotted", "-.": "dashdot"}
+
+
+def linestyle_name(v, where):
+    """A line style in any spelling plotkit accepts ("--", "점선", "dotted", ...) as solid, dashed, dotted or dashdot.
+    Both engines read only these four names, so a spelling draws the same everywhere."""
+    ls = str(v).strip().lower()
+    if ls not in LINESTYLES:
+        raise PlotkitError(f"{where} {v!r} unknown", "use solid, dashed, dotted or dashdot")
+    return LINESTYLE_NAMES[LINESTYLES[ls]]
+
+
 LEGEND_PLACES = ["best", "upper right", "upper left", "lower left", "lower right", "right",
                  "center left", "center right", "lower center", "upper center", "center", "none",
                  "outside right", "outside bottom"]
@@ -329,11 +341,7 @@ def _normalize_axis(name, d):
     if "color" in out and out["color"] is not None:
         out["color"] = _color(out["color"], f"{name}.color")
     if "linestyle" in out:
-        ls = str(out["linestyle"]).lower()
-        if ls not in LINESTYLES:
-            raise PlotkitError(f"{name}.linestyle {out['linestyle']!r} unknown",
-                               "use solid, dashed, dotted or dashdot")
-        out["linestyle"] = ls
+        out["linestyle"] = linestyle_name(out["linestyle"], f"{name}.linestyle")
     if "style" in out and out["style"] not in ("line", "scatter", "line+marker"):
         raise PlotkitError(f"{name}.style {out['style']!r} unknown", "use line, scatter or line+marker")
     if "flip" in out:
@@ -404,6 +412,8 @@ def _normalize_annotations(a):
                 dd[k] = _num(dd[k], f"annotate.{name}.{k}")
         if "count" in dd:
             dd["count"] = int(_num(dd["count"], f"annotate.{name}.count"))
+        if "linestyle" in dd:
+            dd["linestyle"] = linestyle_name(dd["linestyle"], f"annotate.{name}.linestyle")
         if "on" in dd:
             on = str(dd["on"]).lower()
             on = {"left": "y1", "right": "y2", "y": "y1", "1": "y1", "2": "y2"}.get(on, on)

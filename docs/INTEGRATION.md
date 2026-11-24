@@ -174,7 +174,7 @@ and the engine refuses it; do not use `render(..., engine="matplotlib")` on spec
   (returned as `not_done`) is the only signal; show it to the user.
 - No keys yet for percent-stacked bars (`percent` is accepted and ignored), box plots, colour rules, unit conversion
   and computed curves (onset, mass loss, DTG from weight).
-- ECharts vs matplotlib: line-style aliases (`"--"`, `"점선"`) draw solid on ECharts; a residue label beyond `x.max`
-  is drawn outside the plot on ECharts; automatic ticks differ on small or large-font figures; `inout` ticks are
-  approximated.
+- ECharts vs matplotlib: a residue label beyond `x.max` is drawn outside the plot on ECharts; automatic ticks
+  differ on small or large-font figures; `inout` ticks are approximated. (Line-style spellings such as `"--"` and
+  `"점선"` used to draw solid on ECharts; fixed.)
 - Paths in a spec are file names; resolve them against the folder you pass as `base` (the attachments folder).
