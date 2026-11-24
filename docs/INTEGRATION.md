@@ -23,7 +23,10 @@ npm install --prefix plotkit/js        # echarts (live options, SVG), sharp (PNG
 npx --prefix plotkit/js playwright install chromium     # only for PDF; or set PLOTKIT_CHROMIUM
 ```
 
-matplotlib is needed even with ECharts (colour parsing, tick choice). Node 20 or newer.
+matplotlib is needed even with ECharts (colour parsing, tick choice). Node 20 or newer. With a regular (not
+editable) install, run `npm install` in the installed package's `js` folder instead: the ECharts engine's error
+names the exact folder (`python -c "import plotkit, pathlib; print(pathlib.Path(plotkit.__file__).parent / 'js')"`).
+`PLOTKIT_NODE` points plotkit at a Node binary that is not on `PATH`.
 
 ## One request, step by step
 

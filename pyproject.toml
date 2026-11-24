@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "plotkit"
+dynamic = ["version"]
+description = "A language model writes a small JSON spec; plotkit checks it against the data and draws it (ECharts or matplotlib)."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "pandas",
+    "matplotlib",       # also needed with ECharts: colours, tick choice
+    "scipy",            # curve peaks
+    "openpyxl",
+]
+
+[project.optional-dependencies]
+xls = ["xlrd"]                      # old .xls files
+schema = ["jsonschema"]             # only for checking specs against schema/ in your own code
+test = ["pytest", "jsonschema"]
+
+[project.scripts]
+plotkit = "plotkit.__main__:main"
+
+[tool.setuptools.dynamic]
+version = { attr = "plotkit.core.__version__" }
+
+[tool.setuptools.packages.find]
+include = ["plotkit*"]
+
+[tool.setuptools.package-data]
+plotkit = ["prompts/*.md", "js/*.mjs", "js/package.json", "js/package-lock.json", "js/README.md"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

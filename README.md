@@ -20,7 +20,7 @@ The design comes from a study of about 6,800 scored runs: see [docs/EXPERIMENTS.
 ## Install
 
 ```
-pip install -e .                       # Python 3.10+: numpy, pandas, matplotlib, scipy, openpyxl
+pip install -e .                       # Python 3.10+ (tested on 3.13): numpy, pandas, matplotlib, scipy, openpyxl
 pip install -e ".[xls]"                # also old .xls files
 npm install --prefix plotkit/js        # Node 20+: ECharts (live options, SVG), sharp (PNG/JPG/TIF)
 npx --prefix plotkit/js playwright install chromium     # only for PDF from ECharts

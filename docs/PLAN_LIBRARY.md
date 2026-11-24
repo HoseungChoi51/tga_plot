@@ -1,6 +1,24 @@
-> Handoff (2026-11-24): the approved plan for turning this repo into a library. Pick it up on x870e at step 1.
-> The report builders committed with it (report/build_final.py, cases.py, final_cards.py, input_pages.py,
-> single_html.py) rebuild the consolidated report from eval/results (run outputs are not in git; sync them first).
+> **Status (2026-11-24, branch `lib/plotkit`): steps 1–10 done; step 11 is the pull request.** This was the approved plan; it is
+> kept for the record. Where the result differs from the plan:
+>
+> - Step 3: `experiments/eval/paths.py` resolves the file names that requests and reference specs carry
+>   (`tests/inputs/...` at the repo root, `eval/...` under `experiments/`), so the study's data keeps its form.
+> - Step 4: the experiments import the package directly (`from plotkit import core as plotkit`, `charts as
+>   chartkit`); no shims. The Pi harness writes a `plotkit.py` shim into its workspaces, since `AGENT.md` (v1) says
+>   `python plotkit.py`.
+> - Step 5: the shared result has `options` only from `echarts_options(full=True)`; `plot()`/`render()` return
+>   `saved`.
+> - Step 6: inputs still go into the sandbox as a pickle the host writes; only the outputs (what the model's code
+>   wrote) changed to JSON/`.npy`.
+> - Step 7: the schema is the canonical spec; aliases are annotations (`x-plotkit-aliases`,
+>   `x-plotkit-value-aliases`), and `plotkit.validate()` judges model replies.
+> - Step 8: `request_options(provider="anthropic")` takes the model id: how thinking is switched off differs per
+>   Claude model. `revive()` moved to `plotkit/js/revive.mjs` (no imports) so the renderer can import it.
+> - Step 10: the fresh venv was Python 3.13 (the offline wheel cache had none for 3.12); it found that bubblewrap
+>   hid a Python installed under `/tmp` (a venv there, or a PyInstaller one-file build), now bound back read-only.
+>
+> Read [INTEGRATION.md](INTEGRATION.md) and [EXPERIMENTS.md](EXPERIMENTS.md) for the result. Paths below are as
+> they were before the move.
 
 # Plan: turn the plotkit experiment repo into a library for an Electron AI chat app
 

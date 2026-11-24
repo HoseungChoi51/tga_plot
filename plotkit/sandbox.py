@@ -235,6 +235,17 @@ class _Bad(str):
     """An output the code left as something that is not numbers (the caller reports it)."""
 
 
+def _python_binds():
+    """bwrap arguments that keep this Python visible when it lives under /tmp (a venv there, a PyInstaller one-file
+    build), which the sandbox otherwise covers with an empty tmpfs. Read-only."""
+    out = []
+    paths = (sys.prefix, sys.base_prefix, str(Path(sys.executable).parent))
+    for p in dict.fromkeys([*paths, *(str(Path(x).resolve()) for x in paths)]):
+        if p == "/tmp" or p.startswith("/tmp/"):
+            out += ["--ro-bind", p, p]
+    return out
+
+
 def run(code, inputs, outputs, timeout=60, hint=""):
     m = mode()
     if m == "refused":
@@ -249,7 +260,7 @@ def run(code, inputs, outputs, timeout=60, hint=""):
             pickle.dump(inputs, fh)
         cmd = [sys.executable, "-I", str(td / "runner.py"), str(td), ",".join(outputs)]
         if m == "bwrap":
-            cmd = ["bwrap", "--ro-bind", "/", "/", "--dev", "/dev", "--proc", "/proc", "--tmpfs", "/tmp",
+            cmd = ["bwrap", "--ro-bind", "/", "/", "--dev", "/dev", "--proc", "/proc", "--tmpfs", "/tmp", *_python_binds(),
                    "--bind", str(td), str(td), "--unshare-net", "--die-with-parent", "--chdir", str(td), *cmd]
         try:
             p = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout,

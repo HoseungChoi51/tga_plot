@@ -130,3 +130,10 @@ def test_round_trip_in_bubblewrap(monkeypatch):
     out = sandbox.run("df['k'] = df['n'] * 2", {"df": df}, ["df"])["df"]
     pd.testing.assert_frame_equal(out.drop(columns="k"), df, check_dtype=False)
     assert out["k"].tolist() == [2, 4, 8]
+
+
+def test_a_python_under_tmp_stays_visible(monkeypatch):
+    """/tmp is an empty tmpfs inside bubblewrap; a venv or a PyInstaller build there is bound back, read-only."""
+    monkeypatch.setattr(sandbox.sys, "prefix", "/tmp/somewhere/venv")
+    binds = sandbox._python_binds()
+    assert binds[:3] == ["--ro-bind", "/tmp/somewhere/venv", "/tmp/somewhere/venv"]

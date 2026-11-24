@@ -49,3 +49,7 @@ experiments/report/final/
 experiments/report/plotkit_report.zip
 experiments/report/plotkit_report.html
 experiments/report/plotkit_report/
+# packaging
+*.egg-info/
+build/
+dist/
