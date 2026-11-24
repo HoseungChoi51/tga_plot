@@ -1,0 +1,7 @@
+```json
+{
+  "file": "polymers.xlsx",
+  "combine": true,
+  "code": "fig.subplots_adjust(right=0.8); [leg.set_bbox_to_anchor((1.02, 1)) for leg in (ax1.get_legend(), ax2.get_legend() if ax2 is not None else None) if leg is not None]"
+}
+```

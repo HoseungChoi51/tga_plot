@@ -1,0 +1,116 @@
+```python
+import pandas as pd
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/korean_excel.csv"
+
+# Read the CSV file
+df = pd.read_csv(DATA_FILE)
+
+# Extract columns based on the preview
+x_data = df['온도(°C)'].tolist()
+y1_data = df['무게(%)'].tolist()
+y2_data = df['미분무게(%/°C)'].tolist()
+
+# Prepare ECharts option for TGA plot (Weight % vs Temperature, and DTG vs Temperature)
+option = {
+    "title": {
+        "text": "TGA 분석 결과",
+        "left": "center",
+        "top": 10,
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR",
+            "fontSize": 16
+        }
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {
+            "type": "cross"
+        }
+    },
+    "legend": {
+        "data": ["무게(%)", "미분무게(%/°C)"],
+        "top": 40,
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR"
+        }
+    },
+    "grid": {
+        "left": "10%",
+        "right": "10%",
+        "bottom": "15%",
+        "containLabel": True
+    },
+    "xAxis": {
+        "name": "온도(°C)",
+        "type": "value",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "nameTextStyle": {
+            "fontFamily": "Noto Sans CJK KR"
+        },
+        "axisLabel": {
+            "formatter": "{value}"
+        }
+    },
+    "yAxis": [
+        {
+            "name": "무게(%)",
+            "type": "value",
+            "position": "left",
+            "nameTextStyle": {
+                "fontFamily": "Noto Sans CJK KR"
+            },
+            "min": 0,
+            "max": 105
+        },
+        {
+            "name": "미분무게(%/°C)",
+            "type": "value",
+            "position": "right",
+            "nameTextStyle": {
+                "fontFamily": "Noto Sans CJK KR"
+            }
+        }
+    ],
+    "series": [
+        {
+            "name": "무게(%)",
+            "type": "line",
+            "data": [[x, y] for x, y in zip(x_data, y1_data)],
+            "smooth": False,
+            "showSymbol": False,
+            "lineStyle": {
+                "width": 2,
+                "color": "#5470c6"
+            },
+            "yAxisIndex": 0
+        },
+        {
+            "name": "미분무게(%/°C)",
+            "type": "line",
+            "data": [[x, y] for x, y in zip(x_data, y2_data)],
+            "smooth": False,
+            "showSymbol": False,
+            "lineStyle": {
+                "width": 2,
+                "color": "#ee6666"
+            },
+            "yAxisIndex": 1
+        }
+    ]
+}
+
+figure = {
+    "name": "tga_plot",
+    "option": option,
+    "width": 800,
+    "height": 600,
+    "dpi": 300,
+    "formats": ["png", "pdf"]
+}
+
+output = {"figures": [figure]}
+print(json.dumps(output, ensure_ascii=False))
+```

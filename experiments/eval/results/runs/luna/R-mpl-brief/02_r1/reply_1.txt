@@ -1,0 +1,116 @@
+```python
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+from matplotlib.ticker import MultipleLocator
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/02_r1/out")
+SHEET_NAME = "1006R1-V normal"
+
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+# Read the requested sheet and identify columns from their names, with B/C/D as fallbacks.
+df = pd.read_excel(DATA_FILE, sheet_name=SHEET_NAME)
+df.columns = [str(col).strip() for col in df.columns]
+
+def find_column(candidates, fallback_index):
+    for col in df.columns:
+        normalized = col.lower().replace(" ", "").replace("_", "")
+        if any(candidate in normalized for candidate in candidates):
+            return col
+    return df.columns[fallback_index]
+
+temperature_col = find_column(("temperature", "temp"), 1)
+weight_col = find_column(("weight",), 2)
+deriv_col = find_column(("d.w", "deriv", "dtg"), 3)
+
+data = df[[temperature_col, weight_col, deriv_col]].copy()
+for col in data.columns:
+    data[col] = pd.to_numeric(data[col], errors="coerce")
+data = data.dropna().sort_values(temperature_col)
+
+temperature = data[temperature_col].to_numpy()
+weight = data[weight_col].to_numpy()
+deriv = data[deriv_col].to_numpy()
+
+if len(data) == 0:
+    raise ValueError(f"No valid numeric data found in sheet {SHEET_NAME!r}.")
+
+# Highest positive-up DTG peak: the original derivative is negative during mass loss.
+peak_mask = temperature > 150
+if peak_mask.any():
+    peak_idx = np.flatnonzero(peak_mask)[np.argmax(-deriv[peak_mask])]
+else:
+    peak_idx = np.argmax(-deriv)
+peak_temp = temperature[peak_idx]
+peak_value = -deriv[peak_idx]
+
+# Residue is the weight at the measured point nearest 800 °C.
+residue_idx = int(np.argmin(np.abs(temperature - 800)))
+residue_temp = temperature[residue_idx]
+residue_weight = weight[residue_idx]
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+fig, ax1 = plt.subplots(figsize=(10, 6))
+ax2 = ax1.twinx()
+
+weight_line, = ax1.plot(
+    temperature, weight, color="#1f4e9c", linewidth=1.8, label="Weight"
+)
+dtg_up = -deriv
+dtg_line, = ax2.plot(
+    temperature, dtg_up, color="#c0392b", linewidth=1.5, label="Deriv.Weight"
+)
+
+ax1.set_title(SHEET_NAME)
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)", color="#1f4e9c")
+ax2.set_ylabel("Deriv.Weight (%/°C)", color="#c0392b")
+ax1.tick_params(axis="y", labelcolor="#1f4e9c")
+ax2.tick_params(axis="y", labelcolor="#c0392b")
+
+# Temperature ticks start at 0 °C and increase by 200 °C.
+ax1.set_xlim(left=0, right=max(900, float(np.ceil(temperature.max() / 200) * 200)))
+ax1.xaxis.set_major_locator(MultipleLocator(200))
+ax1.yaxis.set_major_locator(MultipleLocator(20))
+ax2.yaxis.set_major_locator(MultipleLocator(0.2))
+
+# Mark and label the highest DTG peak.
+ax2.scatter([peak_temp], [peak_value], color="#c0392b", edgecolor="white", zorder=5)
+ax2.annotate(
+    f"{peak_temp:.0f} °C",
+    (peak_temp, peak_value),
+    xytext=(8, 9),
+    textcoords="offset points",
+    color="#c0392b",
+    fontsize=10,
+)
+
+# Mark and label residue at the measurement nearest 800 °C.
+ax1.scatter(
+    [residue_temp], [residue_weight], color="#1f4e9c", edgecolor="white", zorder=5
+)
+ax1.annotate(
+    f"Residue {residue_weight:.1f}%",
+    (residue_temp, residue_weight),
+    xytext=(8, -18),
+    textcoords="offset points",
+    color="#1f4e9c",
+    fontsize=10,
+)
+
+ax1.legend([weight_line, dtg_line], ["Weight", "Deriv.Weight"], loc="center left")
+ax1.grid(True, which="major", linestyle="--", alpha=0.35)
+fig.tight_layout()
+
+output_path = OUT_DIR / "1006R1-V_normal.png"
+fig.savefig(output_path, dpi=300, format="png", bbox_inches="tight")
+plt.close(fig)
+```

@@ -1,0 +1,114 @@
+import os
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Configure matplotlib for Korean text
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/15_r1/out"
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+def plot_tga_combined(file_path, out_dir):
+    # Read all sheets
+    xls = pd.ExcelFile(file_path)
+    sheet_names = xls.sheet_names
+    
+    if not sheet_names:
+        return
+
+    fig, ax1 = plt.subplots(figsize=(10, 6))
+    
+    # Define colors for different sheets to distinguish them in the combined plot
+    # Using a standard colormap or predefined list
+    cmap = plt.get_cmap('tab10')
+    colors_weight = [cmap(i % 10) for i in range(len(sheet_names))]
+    colors_dtg = ['#c0392b', '#e74c3c', '#d35400', '#a04000', '#8e44ad', '#9b59b6', '#2ecc71', '#27ae60', '#f1c40f', '#f39c12']
+    
+    handles_1 = []
+    labels_1 = []
+    handles_2 = []
+    labels_2 = []
+    
+    # We will use twin axes for DTG
+    ax2 = ax1.twinx()
+    
+    # To handle legend properly with two axes, we collect handles and labels separately
+    
+    for idx, sheet_name in enumerate(sheet_names):
+        df = pd.read_excel(file_path, sheet_name=sheet_name)
+        
+        # Identify columns based on typical TGA structure from preview
+        # Time (A), Temperature (B), Weight% (C), D.W (%/C) (D)
+        try:
+            temp_col = 'Temperature'
+            weight_col = 'Weight(%)'
+            dtg_col = 'D.W(%/C)'
+            
+            # Fallback if names are slightly different but order is same
+            if temp_col not in df.columns:
+                temp_col = df.columns[1]
+            if weight_col not in df.columns:
+                weight_col = df.columns[2]
+            if dtg_col not in df.columns:
+                dtg_col = df.columns[3]
+                
+        except Exception as e:
+            print(f"Skipping sheet {sheet_name} due to column error: {e}")
+            continue
+            
+        # Clean data: drop NaNs
+        df_clean = df[[temp_col, weight_col, dtg_col]].dropna()
+        
+        if df_clean.empty:
+            continue
+            
+        x = df_clean[temp_col].values
+        y1 = df_clean[weight_col].values
+        y2 = df_clean[dtg_col].values
+        
+        # Plot Weight (%) on left axis (ax1)
+        line1, = ax1.plot(x, y1, color=colors_weight[idx], label=f'{sheet_name} - Weight', linewidth=1.5)
+        
+        # Plot DTG on right axis (ax2), multiplied by -1 so peaks point up
+        line2, = ax2.plot(x, -y2, color=colors_dtg[idx], linestyle='--', label=f'{sheet_name} - DTG', linewidth=1.5)
+        
+        handles_1.append(line1)
+        labels_1.append(f'{sheet_name}')
+        handles_2.append(line2)
+        labels_2.append(f'{sheet_name}')
+
+    # Set Axis Labels
+    ax1.set_xlabel('Temperature (°C)', fontsize=12)
+    ax1.set_ylabel('Weight (%)', fontsize=12, color='black')
+    ax2.set_ylabel('DTG (-%/°C)', fontsize=12, color='black')
+    
+    # Title
+    ax1.set_title('TGA Overlay Plot (All Sheets)', fontsize=14)
+    
+    # Combine legends
+    lines = handles_1 + handles_2
+    labels = labels_1 + labels_2
+    
+    # Create a custom legend that distinguishes between Weight and DTG clearly
+    # Since we have multiple sheets, simple legend might be cluttered. 
+    # Let's group them logically or just list them.
+    # The request asks to overlay them in one figure.
+    
+    # To make it readable, let's put the legend outside or adjust location
+    ax1.legend(lines, labels, loc='center left', bbox_to_anchor=(1, 0.5), fontsize=9)
+    
+    # Adjust layout to prevent overlap
+    plt.tight_layout(rect=[0, 0, 0.85, 1]) # Leave space for legend on the right
+    
+    # Save figure
+    output_filename = "TGA_overlay_all_sheets.png"
+    output_path = os.path.join(out_dir, output_filename)
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.close(fig)
+
+if __name__ == "__main__":
+    plot_tga_combined(DATA_FILE, OUT_DIR)

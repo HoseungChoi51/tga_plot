@@ -1,0 +1,177 @@
+draw_s,engine,error,failed,ok,pass,pdf_font_names,pdf_fonts,pdf_fonts_not_embedded,pdf_images,pdf_page_in,pdf_size_ok,pdf_vector,png_px,png_px_ok,ref,style
+0.45,matplotlib,,,1,1,BYOHBO+NotoSansCJKkr-Regular CMUQUX+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,D001.1,journal
+0.77,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular BAAAAA+NotoSansCJKkr-Bold,9,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,D001.1,journal
+0.34,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,D001.1,slide
+0.56,echarts,,,1,1,,,,,,,,"[1500, 840]",1,D001.1,slide
+3.39,matplotlib,,,1,1,EROEKS+NotoSansCJKkr-Regular XKPYJW+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,D002.1,journal
+3.76,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,10,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,D002.1,journal
+3.48,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,D002.1,slide
+3.5,echarts,,,1,1,,,,,,,,"[1500, 840]",1,D002.1,slide
+0.43,matplotlib,,,1,1,ELXQCM+NotoSansCJKkr-Regular UYOJMP+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,D004.1,journal
+0.77,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,D004.1,journal
+0.37,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,D004.1,slide
+0.5,echarts,,,1,1,,,,,,,,"[1500, 840]",1,D004.1,slide
+0.43,matplotlib,,,1,1,EHIZIF+NotoSansCJKkr-Regular FTNKAX+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,D005.1,journal
+0.72,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,8,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,D005.1,journal
+0.35,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,D005.1,slide
+0.5,echarts,,,1,1,,,,,,,,"[1500, 840]",1,D005.1,slide
+1.46,matplotlib,,,1,1,FSVESO+NotoSansCJKkr-Regular GNSZTA+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,D006.1,journal
+1.76,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,7,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,D006.1,journal
+1.36,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,D006.1,slide
+1.51,echarts,,,1,1,,,,,,,,"[1500, 840]",1,D006.1,slide
+0.39,matplotlib,,,1,1,EDEWDB+NotoSansCJKkr-Regular GYQGKL+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,D007.1,journal
+0.74,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,7,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,D007.1,journal
+0.31,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,D007.1,slide
+0.52,echarts,,,1,1,,,,,,,,"[1500, 840]",1,D007.1,slide
+0.41,matplotlib,,,1,1,BJDCBC+NotoSansCJKkr-Regular EIMLFA+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,D008.1,journal
+0.79,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,6,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,D008.1,journal
+0.33,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,D008.1,slide
+0.52,echarts,,,1,1,,,,,,,,"[1500, 840]",1,D008.1,slide
+0.51,matplotlib,,,1,1,EYQKVR+NotoSansCJKkr-Regular HJUMNW+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,D003.1,journal
+1.22,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,3,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,D003.1,journal
+0.34,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,D003.1,slide
+0.76,echarts,,,1,1,,,,,,,,"[1500, 840]",1,D003.1,slide
+0.45,matplotlib,,,1,1,BHLUBD+NotoSansCJKkr-Regular DPDLWC+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,D009.1,journal
+0.82,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular BAAAAA+NotoSansCJKkr-Bold,11,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,D009.1,journal
+0.34,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,D009.1,slide
+0.58,echarts,,,1,1,,,,,,,,"[1500, 840]",1,D009.1,slide
+0.57,matplotlib,,,1,1,BDVSUR+NotoSansCJKkr-Regular CWJHTJ+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,D010.1,journal
+0.98,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular BAAAAA+NotoSansCJKkr-Bold,9,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,D010.1,journal
+0.47,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,D010.1,slide
+0.71,echarts,,,1,1,,,,,,,,"[1500, 840]",1,D010.1,slide
+0.42,matplotlib,,,1,1,DPVOLI+NotoSansCJKkr-Regular FTEAHN+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,D011.1,journal
+0.8,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,9,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,D011.1,journal
+0.33,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,D011.1,slide
+0.57,echarts,,,1,1,,,,,,,,"[1500, 840]",1,D011.1,slide
+0.41,matplotlib,,,1,1,HLFTZM+NotoSansCJKkr-Regular KJAKTF+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,D012.1,journal
+0.76,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,5,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,D012.1,journal
+0.35,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,D012.1,slide
+0.53,echarts,,,1,1,,,,,,,,"[1500, 840]",1,D012.1,slide
+0.35,matplotlib,,,1,1,CBUBMP+NotoSansCJKkr-Regular EESDWF+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,D013.1,journal
+0.7,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular BAAAAA+NotoSansCJKkr-Bold,10,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,D013.1,journal
+0.26,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,D013.1,slide
+0.46,echarts,,,1,1,,,,,,,,"[1500, 840]",1,D013.1,slide
+0.35,matplotlib,,,1,1,BQXHFL+NotoSansCJKkr-Regular HJOZJZ+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,D014.1,journal
+0.69,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular BAAAAA+NotoSansCJKkr-Bold,9,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,D014.1,journal
+0.27,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,D014.1,slide
+0.46,echarts,,,1,1,,,,,,,,"[1500, 840]",1,D014.1,slide
+0.41,matplotlib,,,1,1,EJHAWC+NotoSansCJKkr-Regular FUUFAM+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,D015.1,journal
+0.76,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,8,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,D015.1,journal
+0.33,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,D015.1,slide
+0.52,echarts,,,1,1,,,,,,,,"[1500, 840]",1,D015.1,slide
+0.35,matplotlib,,,1,1,DFUAXV+NotoSansCJKkr-Regular GHBQYK+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,D016.1,journal
+0.71,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,18,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,D016.1,journal
+0.28,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,D016.1,slide
+0.48,echarts,,,1,1,,,,,,,,"[1500, 840]",1,D016.1,slide
+0.4,matplotlib,,,1,1,CNSRPO+NotoSansCJKkr-Regular FOPTNG+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,D017.1,journal
+0.76,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular BAAAAA+NotoSansCJKkr-Bold,11,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,D017.1,journal
+0.33,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,D017.1,slide
+0.53,echarts,,,1,1,,,,,,,,"[1500, 840]",1,D017.1,slide
+0.5,matplotlib,,,1,1,BBDYZB+NotoSansCJKkr-Regular CVXQEI+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,D018.1,journal
+0.86,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular BAAAAA+NotoSansCJKkr-Bold,6,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,D018.1,journal
+0.42,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,D018.1,slide
+0.62,echarts,,,1,1,,,,,,,,"[1500, 840]",1,D018.1,slide
+0.51,matplotlib,,,1,1,EUTKHF+NotoSansCJKkr-Regular GUKSCK+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,D019.1,journal
+0.89,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular BAAAAA+NotoSansCJKkr-Bold,20,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,D019.1,journal
+0.44,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,D019.1,slide
+0.62,echarts,,,1,1,,,,,,,,"[1500, 840]",1,D019.1,slide
+0.44,matplotlib,,,1,1,BEYAWL+NotoSansCJKkr-Regular EOHQII+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,D020.1,journal
+0.76,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular BAAAAA+NotoSansCJKkr-Bold,7,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,D020.1,journal
+0.33,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,D020.1,slide
+0.53,echarts,,,1,1,,,,,,,,"[1500, 840]",1,D020.1,slide
+0.4,matplotlib,,,1,1,BJPZYU+NotoSansCJKkr-Regular CVAMEE+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,D021.1,journal
+0.77,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,18,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,D021.1,journal
+0.35,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,D021.1,slide
+0.53,echarts,,,1,1,,,,,,,,"[1500, 840]",1,D021.1,slide
+0.37,matplotlib,,,1,1,EXRFOV+NotoSansCJKkr-Regular GGGHXF+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,D022.1,journal
+0.7,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular BAAAAA+NotoSansCJKkr-Bold,6,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,D022.1,journal
+0.27,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,D022.1,slide
+0.46,echarts,,,1,1,,,,,,,,"[1500, 840]",1,D022.1,slide
+0.39,matplotlib,,,1,1,DCGUNS+NotoSansCJKkr-Regular GKEKJB+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,D023.1,journal
+0.74,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,4,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,D023.1,journal
+0.32,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,D023.1,slide
+0.52,echarts,,,1,1,,,,,,,,"[1500, 840]",1,D023.1,slide
+0.35,matplotlib,,,1,1,CRFVZQ+NotoSansCJKkr-Regular HJOZJZ+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,D024.1,journal
+0.69,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,8,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,D024.1,journal
+0.26,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,D024.1,slide
+0.46,echarts,,,1,1,,,,,,,,"[1500, 840]",1,D024.1,slide
+0.45,matplotlib,,,1,1,ETFONL+NotoSansCJKkr-Regular GDHGCJ+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,D025.1,journal
+0.79,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,9,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,D025.1,journal
+0.35,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,D025.1,slide
+0.53,echarts,,,1,1,,,,,,,,"[1500, 840]",1,D025.1,slide
+0.54,matplotlib,,,1,1,BGCTEL+NotoSansCJKkr-Regular EXDFNC+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,D026.1,journal
+0.86,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,10,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,D026.1,journal
+0.44,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,D026.1,slide
+0.62,echarts,,,1,1,,,,,,,,"[1500, 840]",1,D026.1,slide
+0.57,matplotlib,,,1,1,EKHZSA+NotoSansCJKkr-Regular FQBFPC+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,D027.1,journal
+0.8,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,17,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,D027.1,journal
+0.42,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,D027.1,slide
+0.56,echarts,,,1,1,,,,,,,,"[1500, 840]",1,D027.1,slide
+0.35,matplotlib,,,1,1,BRHGPR+NotoSansCJKkr-Regular FHBOPE+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,D028.1,journal
+0.71,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,14,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,D028.1,journal
+0.27,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,D028.1,slide
+0.48,echarts,,,1,1,,,,,,,,"[1500, 840]",1,D028.1,slide
+0.38,matplotlib,,,1,1,EAWJGB+DejaVuSans,1,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,D029.1,journal
+0.74,echarts,,,1,1,AAAAAA+DejaVuSans,1,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,D029.1,journal
+0.32,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,D029.1,slide
+0.52,echarts,,,1,1,,,,,,,,"[1500, 840]",1,D029.1,slide
+0.35,matplotlib,,,1,1,BRHGPR+NotoSansCJKkr-Regular DWREQI+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,D030.1,journal
+0.7,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,14,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,D030.1,journal
+0.28,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,D030.1,slide
+0.48,echarts,,,1,1,,,,,,,,"[1500, 840]",1,D030.1,slide
+0.42,matplotlib,,,1,1,DGQFFU+NotoSansCJKkr-Regular MUFHRI+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,DS01.1,journal
+0.8,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,8,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,DS01.1,journal
+0.33,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,DS01.1,slide
+0.56,echarts,,,1,1,,,,,,,,"[1500, 840]",1,DS01.1,slide
+0.4,matplotlib,,,1,1,ETBUWP+NotoSansCJKkr-Regular GDHKKQ+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,DS01.2,journal
+0.77,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,9,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,DS01.2,journal
+0.33,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,DS01.2,slide
+0.53,echarts,,,1,1,,,,,,,,"[1500, 840]",1,DS01.2,slide
+0.43,matplotlib,,,1,1,ETIVPR+NotoSansCJKkr-Regular GLTHDD+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,DS01.3,journal
+0.75,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,9,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,DS01.3,journal
+0.34,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,DS01.3,slide
+0.54,echarts,,,1,1,,,,,,,,"[1500, 840]",1,DS01.3,slide
+0.43,matplotlib,,,1,1,BBWWCX+NotoSansCJKkr-Regular EZUJBM+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,DS01.4,journal
+0.76,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,12,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,DS01.4,journal
+0.34,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,DS01.4,slide
+0.53,echarts,,,1,1,,,,,,,,"[1500, 840]",1,DS01.4,slide
+0.54,matplotlib,,,1,1,CIRDLN+NotoSansCJKkr-Regular UYOJMP+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,DS02.1,journal
+0.78,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,DS02.1,journal
+0.41,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,DS02.1,slide
+0.56,echarts,,,1,1,,,,,,,,"[1500, 840]",1,DS02.1,slide
+0.44,matplotlib,,,1,1,ELXQCM+NotoSansCJKkr-Regular UYOJMP+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,DS02.2,journal
+0.74,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,DS02.2,journal
+0.35,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,DS02.2,slide
+0.51,echarts,,,1,1,,,,,,,,"[1500, 840]",1,DS02.2,slide
+0.46,matplotlib,,,1,1,DNJBSE+NotoSansCJKkr-Regular ETUKEU+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,DS02.3,journal
+0.74,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,DS02.3,journal
+0.36,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,DS02.3,slide
+0.51,echarts,,,1,1,,,,,,,,"[1500, 840]",1,DS02.3,slide
+0.34,matplotlib,,,1,1,BAYHDH+NotoSansCJKkr-Regular BYQVTM+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,DS03.1,journal
+0.71,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,5,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,DS03.1,journal
+0.28,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,DS03.1,slide
+0.51,echarts,,,1,1,,,,,,,,"[1500, 840]",1,DS03.1,slide
+0.37,matplotlib,,,1,1,BTWEJQ+NotoSansCJKkr-Regular EEVDIO+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,DS03.2,journal
+0.72,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular BAAAAA+NotoSansCJKkr-Bold,17,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,DS03.2,journal
+0.29,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,DS03.2,slide
+0.49,echarts,,,1,1,,,,,,,,"[1500, 840]",1,DS03.2,slide
+0.35,matplotlib,,,1,1,BRHGPR+NotoSansCJKkr-Regular FHBOPE+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,DS03.3,journal
+0.71,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,14,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,DS03.3,journal
+0.28,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,DS03.3,slide
+0.5,echarts,,,1,1,,,,,,,,"[1500, 840]",1,DS03.3,slide
+0.48,matplotlib,,,1,1,BNQTAX+NotoSansCJKkr-Regular CLKZJN+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,DS03.4,journal
+0.84,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,3,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,DS03.4,journal
+0.41,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,DS03.4,slide
+0.62,echarts,,,1,1,,,,,,,,"[1500, 840]",1,DS03.4,slide
+0.46,matplotlib,,,1,1,ELJMNR+NotoSansCJKkr-Regular GSIQFM+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,DS04.1,journal
+0.86,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,5,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,DS04.1,journal
+0.37,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,DS04.1,slide
+0.6,echarts,,,1,1,,,,,,,,"[1500, 840]",1,DS04.1,slide
+0.4,matplotlib,,,1,1,CZEHMV+NotoSansCJKkr-Regular TFPTAL+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,DS04.2,journal
+0.73,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,5,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,DS04.2,journal
+0.32,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,DS04.2,slide
+0.52,echarts,,,1,1,,,,,,,,"[1500, 840]",1,DS04.2,slide
+0.51,matplotlib,,,1,1,DOEOUO+NotoSansCJKkr-Regular HFHEAT+NotoSansCJKkr-Regular,2,0,0,"[3.5, 2.6]",1,1,"[2100, 1560]",1,DS04.3,journal
+0.88,echarts,,,1,1,AAAAAA+NotoSansCJKkr-Regular,4,0,0,"[3.5, 2.61]",1,1,"[2100, 1560]",1,DS04.3,journal
+0.46,matplotlib,,,1,1,,,,,,,,"[1500, 840]",1,DS04.3,slide
+0.65,echarts,,,1,1,,,,,,,,"[1500, 840]",1,DS04.3,slide

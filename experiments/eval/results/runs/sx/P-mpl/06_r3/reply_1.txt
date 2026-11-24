@@ -1,0 +1,3 @@
+```json
+{"file": "TGA.xlsx", "legend": "none", "grid": true}
+```

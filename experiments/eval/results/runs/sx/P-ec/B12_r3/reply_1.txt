@@ -1,0 +1,3 @@
+```json
+{"file": "caox.csv", "x": {"min": 100, "max": 900}, "y2": false, "annotate": {"residue": {"x": 900}}}
+```

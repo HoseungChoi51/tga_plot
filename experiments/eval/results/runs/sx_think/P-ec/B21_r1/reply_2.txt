@@ -1,0 +1,11 @@
+```json
+{
+  "file": "cnt_batches.xlsx",
+  "sheets": "Raw",
+  "echarts": {
+    "xAxis": {
+      "inverse": true
+    }
+  }
+}
+```

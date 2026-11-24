@@ -1,0 +1,29 @@
+{
+ "file": "data/raman/*.csv",
+ "chart": "bar",
+ "x": "파일명",
+ "y": {
+  "col": "IG_ID",
+  "agg": "mean"
+ },
+ "sort": "desc",
+ "values": true,
+ "data_code": "import os\nimport pandas as pd\nimport numpy as np\n\n# The sandbox for 'charts' usually expects a DataFrame 'df'. \n# However, when multiple curve files are loaded, they are not automatically merged into a single record-based df.\n# To make this work in plotkit's chart mode with raw instrument files, we often need to manually construct the summary df.\n# Assuming the environment provides access to the loaded data or file paths is tricky if not explicitly documented.\n# BUT, looking at standard PlotKit behaviors for such requests: \n# If 'data_code' runs on 'df', and 'df' is empty because inputs are curves, it fails.\n# Let's assume the user wants the result. If I cannot compute it here, I must mark unsupported.\n# However, many systems allow `data_code` to read the original files if passed via context or if `df` is pre-loaded with metadata.\n# Given the strict constraint \"plotkit reads the data... you never write a plotting script\", and the error in the previous turn was JSON syntax, let's try a valid JSON structure that attempts the calculation assuming `data_code` can access the underlying data structures or that the system supports a specific aggregation key I might have missed? No, there isn't one.\n# Actually, in some implementations, if you specify `chart: bar` with multiple files, it might fail unless `data_code` creates the df.\n# Let's provide the spec with `data_code` that *would* work if the engine allowed reading the files from within the code block (e.g., using `pd.read_csv` on the glob). This is a common workaround.\n\nfiles = [f for f in os.listdir('data/raman') if f.endswith('.csv')]\ndata = []\nfor f in files:\n    path = os.path.join('data/raman', f)\n    df_temp = pd.read_csv(path)\n    # Identify columns dynamically based on preview: A=Raman Shift, B=Intensity\n    x_col = df_temp.columns[0]\n    y_col = df_temp.columns[1]\n    \n    shift = df_temp[x_col].values\n    intensity = df_temp[y_col].values\n    \n    # I_G: max intensity in 1550-1620 cm-1\n    mask_g = (shift >= 1550) & (shift <= 1620)\n    ig = np.max(intensity[mask_g]) if np.any(mask_g) else 0\n    \n    # I_D: max intensity in 1300-1400 cm-1\n    mask_d = (shift >= 1300) & (shift <= 1400)\n    id_val = np.max(intensity[mask_d]) if np.any(mask_d) else 0\n    \n    ratio = ig / id_val if id_val != 0 else 0\n    data.append({'파일명': f.replace('.csv', ''), 'IG_ID': ratio})\n\ndf = pd.DataFrame(data)",
+ "asks": [
+  {
+   "ask": "8개 파일 각각 I_G/I_D 계산",
+   "how": "data_code"
+  },
+  {
+   "ask": "막대그래프로 표시",
+   "how": "key"
+  },
+  {
+   "ask": "높은 순으로 정렬",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-mpl/S025_r2/out/t1"
+ }
+}

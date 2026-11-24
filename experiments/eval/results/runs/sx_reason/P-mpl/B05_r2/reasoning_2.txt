@@ -1,0 +1,48 @@
+We need answer user's request: They gave plotkit error: unknown key "legend.labels" hint legend keys: where, show, size. Need reply corrected JSON spec only. Need think about how to set legend labels for two files combined. The guide says legend key: legend (where, show, size), <axis>.legend (name shown). For TGA preset y1/y2? But need labels for Lot A, Lot B when combining files. How to specify per file legend names? Spec likely supports files? We only have one file key? User requested two files one plot. plotkit maybe supports "files"? The previous spec used "file": ["cnt_lot_A.csv", "cnt_lot_B.txt"] and legend labels. Error only unknown key legend.labels. Need infer correct way to set legend labels for multiple files. Could use "sheets"? Not. Maybe combine multiple files with "files": [{"file":"cnt_lot_A.csv", "y1":{"legend":"Lot A"}, ...}]? Need know plotkit schema. We can't run. Need reason from guide. It says `legend` (`where`, `show`, `size`), `<axis>.legend` (name shown). So legend names are set by axis legend. For TGA preset, y1 and y2 lines. If combine two files? Maybe each file's y1 legend should be Lot A/B. But if combine multiple files, maybe spec can have "files": [{...}]? The guide only examples single file. Error says unknown key legend.labels, so use axis legend? For combined two files, maybe need `files` list where each entry has file and y1.legend. But we need correct JSON spec only. Need avoid unknown keys. Could maybe use `legend`: {"where":"best","show":true} but labels default file/sheet names? User wants Lot A, Lot B. How to label each file? There may be `files` key? Need know from plotkit? Let's infer from tool behavior.
+
+We are in test mode, must output JSON only. We need fix previous spec. The error only mentions unknown key "legend.labels". If we remove legend.labels, plot may combine files but legend names likely file names? Need include labels somehow. Could use `sheets`? no.
+
+Maybe spec supports `files` array: {"files":[{"file":"cnt_lot_A.csv","legend":"Lot A"}, ...]}? But unknown top-level key? Need schema. The guide: All keys run schema. It doesn't mention files. It says file name exactly as shown in inspect. For two files? Maybe spec can have "files": [...]? But not in guide. Could be "file" accepts list? The previous used list; error only legend.labels, so file list accepted. Need set legend for each file maybe via "files" or "datasets". Let's think plotkit likely Python tool for lab data. It may support multiple files with `files` list, each with per-file overrides. But guide only says file. However user requested two files. The previous assistant used file list and legend.labels. Error only legend.labels. Maybe file list is valid. How does legend labels work? Maybe `legend` can be string position or dict with where/show/size. To name series, use `<axis>.legend`. For each file? If combine multiple files, maybe `y1.legend` could be list of names? Example: `"y1": {"legend": ["Lot A", "Lot B"]}`? But guide says `<
+[...]
+derivative, wrong. But likely not. Could filter by label containing 'Weight' or not 'Deriv'. Maybe better:
+`lines = [l for l in ax1.get_lines() if not l.get_label().startswith('_') and 'Deriv' not in l.get_label()][:2]`
+If labels include Weight. If labels are file names, no Deriv. Good. But if labels are default y1 header "Weight (%)", contains Weight. Use filter to exclude derivative. If labels are file names, no derivative. Good. But if y2 lines are on ax1 with labels containing Deriv, exclude. Let's add:
+`lines = [l for l in ax1.get_lines() if not l.get_label().startswith('_') and 'Deriv' not in l.get_label()][:2]`
+If labels are "Deriv. Weight" exclude. If labels are "DTG" maybe not. But default header is Deriv. Weight. Good. Could also exclude 'DTG'. Not necessary.
+
+But if y1 lines labels are file names "cnt_lot_A" and y2 lines labels "cnt_lot_A Deriv. Weight", filter works. If labels are "Lot A" after previous? no.
+
+Could filter by axis? ax1.get_lines only. Good.
+
+Let's update code:
+"lines = [l for l in ax1.get_lines() if not l.get_label().startswith('_') and 'Deriv' not in l.get_label()][:2]; ax1.legend(lines, ['Lot A', 'Lot B'][:len(lines)]) if lines else None; ax2 and ax2.get_legend() and ax2.get_legend().remove()"
+
+If y1 line label is empty? not startswith _, no Deriv, included. Good.
+
+But if there are annotation lines with label '' on ax1, they may be included before data? Annotations likely not lines or have no label. Could be residue marker line? Maybe not. If included, first two could be wrong. Could filter lines with `line.get_marker()`? Data lines may have marker none. Not. Could filter by `line.get_label()` nonempty? Data lines likely have labels. Annotation lines may have labels? vline text maybe no. Use `l.get_label().strip()`? If empty, exclude. But if data line label empty? In plotkit, likely sets label. So:
+`lines = [l for l in ax1.get_lines() if l.get_label().strip() and not l.get_label().startswith('_') and 'Deriv' not in l.get_label()][:2]`
+Good. If labels are file names, ok. If default labels are Weight, ok.
+
+Could there be y1 lines with label "Weight (%)" and y2 with label "Deriv. Weight (%/°C)" on ax1? filter excludes y2. Good.
+
+If labels are sheet names for both y1 and y2? e.g. y1 label "cnt_lot_A", y2 label "cnt_lot_A" (no Deriv), filter includes y2 too. But if y2 on ax2, not. If on ax1, maybe labels same. Hard.
+
+Maybe simpler to use `ax1.get_legend_handles_labels()` and existing legend labels to identify? If existing legend has labels, we can map. But no.
+
+Could set labels via `ax1.legend(handles=lines, labels=...)` with lines from `ax1.lines` that have label in file stems? We know file stems: cnt_lot_A, cnt_lot_B. Could filter labels containing 'cnt_lot_A' or 'cnt_lot_B'. But if default labels are Weight, no. Could combine: if any lines with file stems, use them; else use non-Deriv. Code too complex.
+
+Maybe use `ax1.legend(['Lot A','Lot B'])` relies on number of lines. If ax1 has extra annotation lines, error. But likely no extra lines. Keep robust enough.
+
+Need final only JSON block. Ensure no extra text. final can include ```json? User says corrected JSON spec only. Previous says inside one json block. We can output code block. Good.
+
+Double-check if "file" list accepted. Yes. If not, maybe need "files". But previous error only legend, so ok.
+
+Let's consider if plotkit expects `combine`: true and multiple files. If file list accepted, combine maybe not needed? But keep.
+
+Could there be a key `legend.show` needed? If code creates legend, no. But if plotkit suppresses legend after code? Code runs after drawing and before saving, so final legend from code. Good.
+
+Potential issue: If `ax1.legend(lines, labels)` with `lines` being a list of Line2D and labels list, but if lines length 0, guarded. If lines length 1, labels length 1. Good. If lines length 2, ok.
+
+Potential issue: If `ax2.get_legend()` returns a legend but `remove()` returns None, expression ok. If `ax2` is a property? no.
+
+Let's final.

@@ -1,0 +1,25 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "scatter",
+ "x": "외기습도 (%)",
+ "y": "잔류금속 (wt%)",
+ "by": "B",
+ "asks": [
+  {
+   "ask": "Scatter 외기습도 vs 잔류금속",
+   "how": "key"
+  },
+  {
+   "ask": "all runs",
+   "how": "key"
+  },
+  {
+   "ask": "colored by calendar month (3-8)",
+   "how": "code"
+  }
+ ],
+ "data_code": "df['month'] = df['일자'].dt.month.astype(str) + '월'",
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-hyb/S049_r3/out/t1"
+ }
+}

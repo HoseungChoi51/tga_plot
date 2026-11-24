@@ -1,0 +1,97 @@
+```python
+import pandas as pd
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/blank_rows_on_top.xlsx"
+
+# Read the Excel file, skipping the first 8 rows (header at row 9, data starts at row 10)
+df = pd.read_excel(DATA_FILE, sheet_name="Sheet1", header=7)
+
+# Clean column names if needed and drop NaN rows
+df.columns = [str(c).strip() for c in df.columns]
+df = df.dropna(subset=["Time", "Temperature", "Weight(%)", "D.W(%/C)"])
+
+# Extract data
+x_data = df["Temperature"].tolist()
+y1_data = df["Weight(%)"].tolist()
+y2_data = df["D.W(%/C)"].tolist()
+
+option = {
+    "title": {
+        "text": "TGA Curve",
+        "left": "center"
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {
+            "type": "cross"
+        }
+    },
+    "legend": {
+        "data": ["Weight (%)", "Derivative Weight (%/°C)"],
+        "top": "bottom"
+    },
+    "grid": {
+        "left": "3%",
+        "right": "4%",
+        "bottom": "15%",
+        "containLabel": True
+    },
+    "xAxis": [
+        {
+            "name": "Temperature (°C)",
+            "type": "value",
+            "position": "bottom"
+        }
+    ],
+    "yAxis": [
+        {
+            "name": "Weight (%)",
+            "type": "value",
+            "min": 0,
+            "max": 105,
+            "position": "left"
+        },
+        {
+            "name": "Derivative Weight (%/°C)",
+            "type": "value",
+            "position": "right"
+        }
+    ],
+    "series": [
+        {
+            "name": "Weight (%)",
+            "type": "line",
+            "smooth": False,
+            "showSymbol": False,
+            "yAxisIndex": 0,
+            "data": [[x, y] for x, y in zip(x_data, y1_data)],
+            "itemStyle": {"color": "#5470c6"}
+        },
+        {
+            "name": "Derivative Weight (%/°C)",
+            "type": "line",
+            "smooth": False,
+            "showSymbol": False,
+            "yAxisIndex": 1,
+            "data": [[x, y] for x, y in zip(x_data, y2_data)],
+            "itemStyle": {"color": "#ee6666"}
+        }
+    ]
+}
+
+result = {
+    "figures": [
+        {
+            "name": "tga_curve",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+    ]
+}
+
+print(json.dumps(result))
+```

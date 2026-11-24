@@ -1,0 +1,31 @@
+{
+ "chart": "scatter",
+ "file": [
+  "data/downtime.xlsx",
+  "data/run_log.xlsx"
+ ],
+ "asks": [
+  {
+   "ask": "주차별 총 정지시간(분->시간)과 총생산량 산점도",
+   "how": "data_code"
+  },
+  {
+   "ask": "3월 2일 기준 주차 계산 및 데이터 병합",
+   "how": "data_code"
+  }
+ ],
+ "data_code": "import pandas as pd\n\ndf_dt = pd.read_excel('data/downtime.xlsx', sheet_name='정지이력')\ndf_rl = pd.read_excel('data/run_log.xlsx', sheet_name='주간요약')\n\ndf_dt['일자'] = pd.to_datetime(df_dt['일자'])\nstart_date = pd.Timestamp('2026-03-02')\ndf_dt['주차'] = ((df_dt['일자'] - start_date).dt.days // 7) + 1\n\ndt_weekly = df_dt.groupby('주차')['정지시간(분)'].sum().reset_index()\ndt_weekly['총정지시간(h)'] = dt_weekly['정지시간(분)'] / 60\n\ndf_rl['주차'] = pd.to_numeric(df_rl['주차'], errors='coerce').dropna().astype(int)\nprod_weekly = df_rl[['주차', '총생산량(kg)']].rename(columns={'총생산량(kg)': '총생산량'})\n\nmerged = pd.merge(dt_weekly[['주차', '총정지시간(h)']], prod_weekly, on='주차', how='inner')\ndf = merged\n",
+ "x": {
+  "col": "총정지시간(h)",
+  "label": "주당 총 정지 시간 (h)"
+ },
+ "y": {
+  "col": "총생산량",
+  "label": "주당 총 생산량 (kg)",
+  "agg": null
+ },
+ "title": "주차별 총 정지시간 vs 총생산량 상관관계",
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/S014_r3/out/t1"
+ }
+}

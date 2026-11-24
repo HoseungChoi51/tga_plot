@@ -1,0 +1,88 @@
+{
+ "arm": "P-mpl+cd",
+ "item": "D020",
+ "repeat": 3,
+ "split": "dev",
+ "persona": "라인 작업자",
+ "type": "single",
+ "cd": "full",
+ "backend": "anthropic",
+ "model": "qwen3.8-flash",
+ "effort": "",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "반응기마다 등급 A B C 몇개씩인지 쌓아서 보여줘",
+   "calls": [
+    {
+     "reply": "{\"file\": \"data/run_log.xlsx\", \"sheets\": \"런로그\", \"x\": \"반응기\", \"y1\": {\"col\": \"등급\", \"label\": \"런 수\"}, \"y2\": false}",
+     "llm_s": 2.644,
+     "prompt_tokens": 6260,
+     "output_tokens": 48,
+     "cached_tokens": 5297,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": ""
+    },
+    {
+     "reply": "{\n \"file\": \"data/run_log.xlsx\",\n \"sheets\": \"런로그\",\n \"x\": \"E\",\n \"y1\": {\n  \"col\": \"V\",\n  \"label\": \"런 수\"\n },\n \"y2\": false\n}",
+     "llm_s": 2.876,
+     "prompt_tokens": 6430,
+     "output_tokens": 59,
+     "cached_tokens": 5297,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": ""
+    },
+    {
+     "reply": "{\n \"file\": \"data/run_log.xlsx\",\n \"sheets\": \"런로그\",\n \"x\": \"E\",\n \"y1\": {\n  \"col\": \"V\",\n  \"label\": \"런 수\"\n },\n \"y2\": false\n}",
+     "llm_s": 2.43,
+     "prompt_tokens": 6602,
+     "output_tokens": 59,
+     "cached_tokens": 5297,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": ""
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheets": "런로그",
+    "x": "E",
+    "y1": {
+     "col": "V",
+     "label": "런 수"
+    },
+    "y2": false
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": false,
+    "error": "run_log.xlsx / \"런로그\" x.col: column E has no numbers",
+    "hint": "columns with numbers: C \"-\", H \"°C\", I \"°C\", J \"°C\", K \"sccm\", L \"sccm\", M \"-\", N \"s\", O \"%\", P \"h\", Q \"g/g-cat\", R \"g/h\", S \"wt%\", T \"°C\", U \"-\""
+   },
+   "facts": [],
+   "draw_s": 0.5193347930908203,
+   "check": {
+    "kind_expected": "stacked_bar",
+    "failed": [
+     "run: no plot (run_log.xlsx / \"런로그\" x.col: column E has no numbers)"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 9.847
+  }
+ ]
+}

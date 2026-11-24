@@ -1,0 +1,94 @@
+{
+ "arm": "P-hyb",
+ "item": "S025",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "raman 폴더 8개 파일 각각 I_G/I_D를 계산해서 막대그래프로, 높은 순으로 정렬해 주세요. 베이스라인 보정 없이 피크 높이비로요: I_G는 1550–1620 cm⁻¹ 최대값, I_D는 1300–1400 cm⁻¹ 최대값입니다.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/raman/*.csv\",\n  \"chart\": \"bar\",\n  \"x\": \"파일명\",\n  \"y\": {\"col\": \"IG_ID\", \"agg\": \"mean\"},\n  \"sort\": \"desc\",\n  \"values\": true,\n  \"data_code\": \"import os\\nimport numpy as np\\n\\n# This data_code runs on the combined DataFrame of all files.\\n# However, for Raman curves, we need to process each file individually to compute ratios.\\n# The 'df' here is not directly available in the same way as charts if we are treating them as separate curves.\\n# But the user wants a BAR chart of ratios. This implies we need to aggregate the result of a calculation per file into a table.\\n# plotkit's standard flow for 'curves' doesn't produce a bar chart of derived metrics across files easily via simple keys.\\n# We must use 'code' or a specific approach. \\n# Actually, looking at the rules: 'Charts (tables of records)' vs 'Curves'.\\n# These are instrument exports (Curves). But the output requested is a Bar Chart of a metric calculated from each curve.\\n# Standard 'chart' keys expect a dataframe of records. Here we have multiple files, each a curve.\\n# To get a bar chart of I_G/I_D, we effectively need to create a summary table first.\\n# Since 'data_code' modifies the data before drawing, and we are in a 'curve' context by default for these files,\\n# but the user explicitly asks for a 'bar graph', this is a hybrid request.\\n# If we treat it as a chart, we need a dataframe with columns [File, Ratio].\\n# Let's assume we can construct this summary in data_code if the engine supports it, or we might need to rely on 'code' to draw the bar chart manually if the automatic pipeline fails.\\n# However, usually, for such specific cross-file calculations resulting in a single bar chart, 'code' is safer if 'chart' expects raw row data.\\n# BUT, let's look at the 'asks'. The user wants a bar chart. \\n# If I set \\\"chart\\\": \\\"bar\\\", plotkit expects a dataframe. The input is 8 CSVs. Plotkit might concatenate them? No, they are separate sheets/files.\\n# The most robust way to handle \\\"Calculate X from each file, then plot Y\\\" where X is a scalar per file is often done via `code` if the library doesn't auto-aggregate curves to scalars for charts.\\n# Let's try to provide the spec that *would* work if plotkit had an aggregation step, but given the constraints, I will use `code` to generate the bar chart from the loaded data objects if possible, or more likely, I should check if I can force a chart mode.\\n# Wait, the prompt says: \\\"There are two kinds of spec... Charts of a table of records... Give 'chart'\\\".\\n# These are NOT tables of records in the sense of one row per run. They are spectra.\\n# So strictly speaking, this is a Curve task. But the OUTPUT is a Bar Chart.\\n# This requires computing a value per file and plotting those values.\\n# I will use `code` to perform the calculation and plotting because standard keys don't support \\\"compute ratio from spectrum range and plot as bar across files\\\".\\n\\n# Re-evaluating: Can I do this with just keys?\\n# No key computes I_G/I_D from ranges.\\n# So `data_code` or `code` is needed.\\n# `data_code` changes data. `code` draws.\\n# If I use `chart: bar`, I need a dataframe. I don't have one.\\n# I will use `code` to load the files, calculate, and plot.\\n\\n\\\"code\\\": \\\"import matplotlib.pyplot as plt\\\\nimport pandas as pd\\\\nimport numpy as np\\\\nimport glob\\\\nimport os\\\\n\\\\nfiles = sorted(glob.glob('data/raman/*.csv'))\\\\nlabels = []\\\\nratios = []\\\\n\\\\nfor f in files:\\\\n    df = pd.read_csv(f)\\\\n    # Identify columns dynamically or assume A/B based on preview\\\\n    # Preview says A is Shift, B is Intensity\\\\n    shift_col = df.columns[0]\\\\n    int_col = df.columns[1]\\\\n    \\\\n    x = df[shift_col].values\\\\n    y = df[int_col].values\\\\n    \\\\n    # I_G: max intensity in 1550-1620\\\\n    mask_g = (x >= 1550) & (x <= 1620)\\\\n    ig = np.max(y[mask_g]) if np.any(mask_g) else 0\\\\n    \\\\n    # I_D: max intensity in 1300-1400\\\\n    mask_d = (x >= 1300) & (x <= 1400)\\\\n    id_val = np.max(y[mask_d]) if np.any(mask_d) else 0\\\\n    \\\\n    ratio = ig / id_val if id_val != 0 else 0\\\\n    \\\\n    labels.append(os.path.basename(f))\\\\n    ratios.append(ratio)\\\\n\\\\nfig, ax = plt.subplots(figsize=(10, 6))\\\\nax.bar(labels, ratios, color='steelblue')\\\\nax.set_ylabel('I_G / I_D')\\\\nax.set_title('Raman I_G/I_D Ratio by Sample')\\\\nax.tick_params(axis='x', rotation=45)\\\\nplt.tight_layout()\\\",\\n  \"asks\": [\n    {\"ask\": \"8개 파일 각각 I_G/I_D 계산\", \"how\": \"code\"},\n    {\"ask\": \"막대그래프로 표시\", \"how\": \"code\"},\n    {\"ask\": \"높은 순으로 정렬\", \"how\": \"code\"}\n  ]\n}\n```",
+     "llm_s": 53.54,
+     "prompt_tokens": 6116,
+     "output_tokens": 1312,
+     "cached_tokens": 5308,
+     "prompt_n": 808,
+     "prefill_ms": 1026.73804,
+     "decode_ms": 51690.22630300004,
+     "finish": "stop"
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/raman/*.csv\",\n  \"chart\": \"bar\",\n  \"x\": \"파일명\",\n  \"y\": {\"col\": \"IG_ID\", \"agg\": \"mean\"},\n  \"sort\": \"desc\",\n  \"values\": true,\n  \"data_code\": \"import os\\nimport numpy as np\\nimport pandas as pd\\nimport glob\\n\\n# Load all Raman files and calculate I_G/I_D ratio for each\\nfiles = sorted(glob.glob('data/raman/*.csv'))\\nrecords = []\\nfor f in files:\\n    df_file = pd.read_csv(f)\\n    # Assume first column is Shift, second is Intensity based on preview\\n    shift_col = df_file.columns[0]\\n    int_col = df_file.columns[1]\\n    \\n    x = df_file[shift_col].values\\n    y = df_file[int_col].values\\n    \\n    # I_G: max intensity in 1550-1620 cm-1\\n    mask_g = (x >= 1550) & (x <= 1620)\\n    ig = np.max(y[mask_g]) if np.any(mask_g) else 0.0\\n    \\n    # I_D: max intensity in 1300-1400 cm-1\\n    mask_d = (x >= 1300) & (x <= 1400)\\n    id_val = np.max(y[mask_d]) if np.any(mask_d) else 0.0\\n    \\n    ratio = ig / id_val if id_val != 0 else 0.0\\n    \\n    records.append({\\n        '파일명': os.path.basename(f),\\n        'IG_ID': ratio\\n    })\\n\\n# Replace the dataframe with the summary table so the bar chart can use it\\ndf = pd.DataFrame(records)\",\n  \"asks\": [\n    {\"ask\": \"8개 파일 각각 I_G/I_D 계산\", \"how\": \"data_code\"},\n    {\"ask\": \"막대그래프로 표시\", \"how\": \"key\"},\n    {\"ask\": \"높은 순으로 정렬\", \"how\": \"key\"}\n  ]\n}\n```",
+     "llm_s": 17.119,
+     "prompt_tokens": 7492,
+     "output_tokens": 498,
+     "cached_tokens": 5308,
+     "prompt_n": 2184,
+     "prefill_ms": 2671.783532,
+     "decode_ms": 12849.049387,
+     "finish": "stop"
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/raman/*.csv\",\n  \"chart\": \"bar\",\n  \"x\": \"파일명\",\n  \"y\": {\"col\": \"IG_ID\", \"agg\": \"mean\"},\n  \"sort\": \"desc\",\n  \"values\": true,\n  \"data_code\": \"import os\\nimport numpy as np\\nimport pandas as pd\\nimport glob\\n\\n# Load all Raman files and calculate I_G/I_D ratio for each\\nfiles = sorted(glob.glob('data/raman/*.csv'))\\nrecords = []\\nfor f in files:\\n    df_file = pd.read_csv(f)\\n    # Assume first column is Shift, second is Intensity based on preview\\n    shift_col = df_file.columns[0]\\n    int_col = df_file.columns[1]\\n    \\n    x = df_file[shift_col].values\\n    y = df_file[int_col].values\\n    \\n    # I_G: max intensity in 1550-1620 cm-1\\n    mask_g = (x >= 1550) & (x <= 1620)\\n    ig = np.max(y[mask_g]) if np.any(mask_g) else 0.0\\n    \\n    # I_D: max intensity in 1300-1400 cm-1\\n    mask_d = (x >= 1300) & (x <= 1400)\\n    id_val = np.max(y[mask_d]) if np.any(mask_d) else 0.0\\n    \\n    ratio = ig / id_val if id_val != 0 else 0.0\\n    \\n    records.append({\\n        '파일명': os.path.basename(f),\\n        'IG_ID': ratio\\n    })\\n\\n# Replace the dataframe with the summary table so the bar chart can use it\\ndf = pd.DataFrame(records)\",\n  \"asks\": [\n    {\"ask\": \"8개 파일 각각 I_G/I_D 계산\", \"how\": \"data_code\"},\n    {\"ask\": \"막대그래프로 표시\", \"how\": \"key\"},\n    {\"ask\": \"높은 순으로 정렬\", \"how\": \"key\"}\n  ]\n}\n```",
+     "llm_s": 11.555,
+     "prompt_tokens": 8033,
+     "output_tokens": 498,
+     "cached_tokens": 7990,
+     "prompt_n": 43,
+     "prefill_ms": 284.214464,
+     "decode_ms": 10289.799716000007,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": "data/raman/*.csv",
+    "chart": "bar",
+    "x": "파일명",
+    "y": {
+     "col": "IG_ID",
+     "agg": "mean"
+    },
+    "sort": "desc",
+    "values": true,
+    "data_code": "import os\nimport numpy as np\nimport pandas as pd\nimport glob\n\n# Load all Raman files and calculate I_G/I_D ratio for each\nfiles = sorted(glob.glob('data/raman/*.csv'))\nrecords = []\nfor f in files:\n    df_file = pd.read_csv(f)\n    # Assume first column is Shift, second is Intensity based on preview\n    shift_col = df_file.columns[0]\n    int_col = df_file.columns[1]\n    \n    x = df_file[shift_col].values\n    y = df_file[int_col].values\n    \n    # I_G: max intensity in 1550-1620 cm-1\n    mask_g = (x >= 1550) & (x <= 1620)\n    ig = np.max(y[mask_g]) if np.any(mask_g) else 0.0\n    \n    # I_D: max intensity in 1300-1400 cm-1\n    mask_d = (x >= 1300) & (x <= 1400)\n    id_val = np.max(y[mask_d]) if np.any(mask_d) else 0.0\n    \n    ratio = ig / id_val if id_val != 0 else 0.0\n    \n    records.append({\n        '파일명': os.path.basename(f),\n        'IG_ID': ratio\n    })\n\n# Replace the dataframe with the summary table so the bar chart can use it\ndf = pd.DataFrame(records)",
+    "asks": [
+     {
+      "ask": "8개 파일 각각 I_G/I_D 계산",
+      "how": "data_code"
+     },
+     {
+      "ask": "막대그래프로 표시",
+      "how": "key"
+     },
+     {
+      "ask": "높은 순으로 정렬",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": false,
+    "error": "no rows left after the filters",
+    "hint": "filters: []; check the values with preview"
+   },
+   "facts": [],
+   "draw_s": 0.40912365913391113,
+   "check": {
+    "kind_expected": "bar",
+    "failed": [
+     "run: no plot (no rows left after the filters)"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 83.214
+  }
+ ]
+}

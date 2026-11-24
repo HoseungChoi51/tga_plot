@@ -1,0 +1,62 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "heatmap",
+ "data_code": "import pandas as pd\ndf['요일'] = pd.to_datetime(df['일자']).dt.day_name().map({'Monday':'월','Tuesday':'화','Wednesday':'수','Thursday':'목','Friday':'금','Saturday':'토','Sunday':'일'})\ndf['시간대'] = df['시작시각'].str.split(':').str[0].astype(int)\ndf['시간대'] = df['시간대'].apply(lambda x: f'{x:02d}')",
+ "x": {
+  "col": "시간대",
+  "order": [
+   "00",
+   "01",
+   "02",
+   "03",
+   "04",
+   "05",
+   "06",
+   "07",
+   "08",
+   "09",
+   "10",
+   "11",
+   "12",
+   "13",
+   "14",
+   "15",
+   "16",
+   "17",
+   "18",
+   "19",
+   "20",
+   "21",
+   "22",
+   "23"
+  ]
+ },
+ "y": {
+  "col": "요일",
+  "order": [
+   "월",
+   "화",
+   "수",
+   "목",
+   "금",
+   "토",
+   "일"
+  ]
+ },
+ "z": {
+  "agg": "count"
+ },
+ "asks": [
+  {
+   "ask": "요일별/시간대별 정지 빈도 히트맵",
+   "how": "key"
+  },
+  {
+   "ask": "요일 및 시간대 데이터 가공",
+   "how": "data_code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_sx/P-mpl/D026_r3/out/t1"
+ }
+}

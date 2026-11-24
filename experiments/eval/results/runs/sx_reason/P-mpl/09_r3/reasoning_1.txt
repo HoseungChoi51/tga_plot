@@ -1,0 +1,15 @@
+We need answer user's request with JSON spec only in ```json block. Need analyze in Korean? User Korean. Need produce spec.
+
+Request: "틱 방향 바깥쪽으로, 틱 라벨 크기 9"
+From guide: tick direction out. Tick label size 9: "A setting that names no axis applies to x, y1 and y2." But table: 6 틱 라벨 `<axis>.tick_size`, `<axis>.tick_color`. "틱 라벨 크기 9" no axis -> applies to x, y1, y2. So spec include tick_direction: "out", x.tick_size:9, y1.tick_size:9, y2.tick_size:9. Also file TGA.xlsx. Do we include preset? Default TGA. Keep default. Need output only JSON block. Ensure no extra keys. Could there be global tick_size? Guide says setting names no axis applies to x, y1, y2. So yes.
+
+Need maybe use exact file name. JSON:
+{
+ "file": "TGA.xlsx",
+ "tick_direction": "out",
+ "x": {"tick_size": 9},
+ "y1": {"tick_size": 9},
+ "y2": {"tick_size": 9}
+}
+
+Need final only.

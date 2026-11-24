@@ -1,0 +1,30 @@
+{
+ "file": "data/tga_batches.xlsx",
+ "sheets": "all",
+ "combine": true,
+ "preset": "none",
+ "x": {
+  "col": "B",
+  "min": 500,
+  "max": 700,
+  "label": "Temperature (°C)"
+ },
+ "y1": {
+  "col": "D",
+  "legend": "DTG (%/°C)"
+ },
+ "y2": false,
+ "asks": [
+  {
+   "ask": "DTG 곡선(미분중량) 10개 배치 겹치기",
+   "how": "key"
+  },
+  {
+   "ask": "500–700 °C 구간만 표시",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-ec/S019_r1/out/t1"
+ }
+}

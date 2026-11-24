@@ -1,0 +1,22 @@
+We need answer user's request with JSON spec only inside ```json block. Need analyze request. User: "Raw 시트에 무게 50% 위치에 가로 보조선 넣고, 오른쪽 위에 '공기, 10 °C/min'이라고 메모해줘"
+
+We have inspect file cnt_batches.xlsx sheets Raw, Acid-washed, Annealed. TGA data. Request: Raw sheet only, horizontal guide line at weight 50%, note upper right '공기, 10 °C/min'. Need spec.
+
+Rules:
+- Sheets: "Raw".
+- TGA preset default x temp y1 weight y2 deriv. Keep default.
+- annotate horizontal line: type hline on y1 y=50. Need maybe text? User didn't ask text for line. Could include? They said 가로 보조선 at weight 50% location. Could set text maybe "50%"? But only include what asked. For hline maybe text optional. If no text, maybe no label. But might be okay. Need maybe name hline1.
+- note: annotate note1 type text text "공기, 10 °C/min" where "upper right". In guide: "note1": {"type": "text", "text": "...", "where": "upper right"}. Need ensure where? yes.
+- Do not mention residue. If user doesn't mention residue, leave out. Default residue? The default TGA preset draws residue? In guide says default TGA preset already draws residue at 800 and highest DTG peak. But if user doesn't mention, maybe still default? Wait: "Leave out every key the user did not mention. Do not repeat default values. Exception: if user mentions 잔류량 표시 at all, include annotate.residue". So don't include residue. But default preset might draw residue? The user didn't ask to remove. So default remains. But for this request maybe they want only guide and note? "무게 50% 위치에 가로 보조선 넣고, 오른쪽 위에 ... 메모" means add these annotations. It doesn't say remove default peak/residue. Keep default.
+- Should we set y1 col? No, default TGA guess.
+- Need output JSON only.
+
+Potential issue: horizontal line at weight 50% on Raw sheet. y1 is Weight (%). hline on y1. Use "annotate": {"hline1": {"type": "hline", "on": "y1", "y": 50}, "note1": {"type": "text", "text": "공기, 10 °C/min", "where": "upper right"}}.
+
+Need maybe line color? not asked.
+
+Need consider "오른쪽 위에" for note maybe text placement. The guide says where. Good.
+
+Need maybe if multiple sheets? only Raw.
+
+Need final only ```json ...```. Ensure no extra.

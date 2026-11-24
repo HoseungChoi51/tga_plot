@@ -1,0 +1,42 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "heatmap",
+ "x": {
+  "col": "시작시각",
+  "label": "시간대"
+ },
+ "y": {
+  "col": "일자",
+  "period": "day",
+  "label": "요일",
+  "order": [
+   "월",
+   "화",
+   "수",
+   "목",
+   "금",
+   "토",
+   "일"
+  ]
+ },
+ "z": {
+  "agg": "count",
+  "label": "정지 건수"
+ },
+ "values": true,
+ "cmap": "YlOrRd",
+ "title": "설비 정지 발생 분포 (요일 × 시간대)",
+ "asks": [
+  {
+   "ask": "요일별 히트맵",
+   "how": "key"
+  },
+  {
+   "ask": "시간대별 히트맵",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-ec/D026_r1/out/t1"
+ }
+}

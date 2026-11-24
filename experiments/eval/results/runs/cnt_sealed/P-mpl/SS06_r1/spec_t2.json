@@ -1,0 +1,27 @@
+{
+ "file": "data/raman/*.csv",
+ "combine": true,
+ "preset": "none",
+ "x": {
+  "col": "A",
+  "min": 1200,
+  "max": 1700
+ },
+ "y1": {
+  "col": "B"
+ },
+ "data_code": "mask = (x >= 1550) & (x <= 1620); g_max = np.max(y1[mask]) if np.any(mask) else 1.0; y1 = y1 / g_max",
+ "asks": [
+  {
+   "ask": "1200–1700 cm⁻¹ 구간만 표시",
+   "how": "key"
+  },
+  {
+   "ask": "G 밴드(1550–1620 cm⁻¹) 최대값 기준으로 정규화",
+   "how": "data_code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-mpl/SS06_r1/out/t2"
+ }
+}

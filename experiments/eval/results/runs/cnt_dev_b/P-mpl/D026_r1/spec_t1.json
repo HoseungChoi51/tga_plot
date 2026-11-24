@@ -1,0 +1,37 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "heatmap",
+ "x": {
+  "col": "시간대",
+  "bins": {
+   "width": 1,
+   "min": 0,
+   "max": 24
+  }
+ },
+ "y": {
+  "col": "요일명",
+  "order": [
+   "월",
+   "화",
+   "수",
+   "목",
+   "금",
+   "토",
+   "일"
+  ]
+ },
+ "z": {
+  "agg": "count"
+ },
+ "asks": [
+  {
+   "ask": "요일별/시간대별 정지 빈도 히트맵",
+   "how": "key"
+  }
+ ],
+ "data_code": "df['요일'] = pd.to_datetime(df['일자']).dt.dayofweek\ndf['요일명'] = df['요일'].map({0: '월', 1: '화', 2: '수', 3: '목', 4: '금', 5: '토', 6: '일'})\ndf['시간대'] = pd.to_datetime(df['일자'].astype(str) + ' ' + df['시작시각'], format='%Y-%m-%d %H:%M').dt.hour",
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_b/P-mpl/D026_r1/out/t1"
+ }
+}

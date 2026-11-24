@@ -1,0 +1,113 @@
+```python
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+DATA_FILES = [
+    "/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_A.csv",
+    "/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_B.txt",
+]
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/B05_r2/out"
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+
+def read_data(path):
+    if Path(path).suffix.lower() == ".csv":
+        return pd.read_csv(path)
+
+    # Try common text delimiters; fall back to whitespace-separated data.
+    for sep in ("\t", ",", ";", r"\s+"):
+        try:
+            frame = pd.read_csv(path, sep=sep, engine="python")
+            if frame.shape[1] >= 2:
+                return frame
+        except Exception:
+            pass
+    return pd.read_csv(path, sep=None, engine="python")
+
+
+def find_column(frame, terms):
+    for col in frame.columns:
+        name = str(col).strip().lower()
+        if any(term in name for term in terms):
+            return col
+    raise KeyError(f"Required column not found. Available columns: {list(frame.columns)}")
+
+
+def get_numeric(frame, column):
+    return pd.to_numeric(frame[column], errors="coerce")
+
+
+fig, ax1 = plt.subplots(figsize=(9, 6))
+ax2 = ax1.twinx()
+colors = ("#1f4e9c", "#c0392b")
+styles = ("-", "--")
+
+for path, label, color, style in zip(DATA_FILES, ("Lot A", "Lot B"), colors, styles):
+    data = read_data(path)
+    x_col = find_column(data, ("temperature", "temp"))
+    weight_col = find_column(data, ("weight", "mass"))
+    dtg_col = find_column(data, ("deriv", "dtg"))
+
+    x = get_numeric(data, x_col).to_numpy()
+    weight = get_numeric(data, weight_col).to_numpy()
+    dtg = get_numeric(data, dtg_col).to_numpy()
+
+    valid = np.isfinite(x) & np.isfinite(weight) & np.isfinite(dtg)
+    x, weight, dtg = x[valid], weight[valid], dtg[valid]
+    if x.size == 0:
+        raise ValueError(f"No valid numeric rows found in {path}")
+
+    order = np.argsort(x)
+    x, weight, dtg = x[order], weight[order], dtg[order]
+
+    ax1.plot(x, weight, color=color, linestyle=style, linewidth=1.8, label=label)
+    ax2.plot(x, -dtg, color=color, linestyle=style, linewidth=1.5, alpha=0.7,
+             label=f"{label} DTG")
+
+    # Mark the measured point nearest 800 °C when the run reaches that range.
+    if np.nanmin(x) <= 800:
+        residue_idx = int(np.nanargmin(np.abs(x - 800)))
+        ax1.plot(x[residue_idx], weight[residue_idx], marker="o", color=color,
+                 markersize=5, linestyle="None")
+        ax1.annotate(
+            f"{label} residue {weight[residue_idx]:.1f}%",
+            (x[residue_idx], weight[residue_idx]),
+            xytext=(6, 7), textcoords="offset points", color=color, fontsize=9,
+        )
+
+    # Mark the highest upward-pointing DTG peak above 150 °C.
+    peak_mask = x > 150
+    if np.any(peak_mask):
+        peak_indices = np.flatnonzero(peak_mask)
+        peak_idx = peak_indices[int(np.argmax((-dtg)[peak_mask]))]
+        ax2.plot(x[peak_idx], -dtg[peak_idx], marker="^", color=color,
+                 markersize=6, linestyle="None")
+        ax2.annotate(
+            f"{x[peak_idx]:.0f} °C",
+            (x[peak_idx], -dtg[peak_idx]),
+            xytext=(6, -13), textcoords="offset points", color=color, fontsize=9,
+        )
+
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)")
+ax2.set_ylabel("DTG (-dWeight/dT, %/°C)")
+ax1.set_title("Lot A and Lot B")
+ax1.grid(True, alpha=0.25)
+
+handles1, labels1 = ax1.get_legend_handles_labels()
+handles2, labels2 = ax2.get_legend_handles_labels()
+ax1.legend(handles1 + handles2, labels1 + labels2, loc="center left", frameon=True)
+
+fig.tight_layout()
+out_dir = Path(OUT_DIR)
+out_dir.mkdir(parents=True, exist_ok=True)
+fig.savefig(out_dir / "cnt_lot_A_vs_B.png", dpi=300, bbox_inches="tight")
+plt.close(fig)
+```

@@ -1,0 +1,92 @@
+```python
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/eval/inputs_b/caox.csv")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/B02_r1/out")
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+# Load the CSV and identify columns by their names.
+df = pd.read_csv(DATA_FILE)
+temperature_col = next(c for c in df.columns if "Temperature" in str(c))
+weight_col = next(c for c in df.columns if "Weight" in str(c) and "Deriv" not in str(c))
+heat_flow_col = next(c for c in df.columns if "Heat Flow" in str(c))
+
+data = df[[temperature_col, weight_col, heat_flow_col]].apply(pd.to_numeric, errors="coerce").dropna()
+temperature = data[temperature_col].to_numpy()
+weight = data[weight_col].to_numpy()
+heat_flow = data[heat_flow_col].to_numpy()
+
+# Heat-flow convention: positive values are exothermic and negative values endothermic.
+# Select two strongest endothermic minima and the strongest exothermic maximum.
+endothermic_candidates = np.flatnonzero(
+    (heat_flow[1:-1] < heat_flow[:-2]) & (heat_flow[1:-1] <= heat_flow[2:])
+) + 1
+exothermic_candidates = np.flatnonzero(
+    (heat_flow[1:-1] > heat_flow[:-2]) & (heat_flow[1:-1] >= heat_flow[2:])
+) + 1
+
+# Include the global extrema as candidates in case a peak lies at a boundary or is flat.
+endothermic_candidates = np.unique(
+    np.append(endothermic_candidates, int(np.argmin(heat_flow)))
+)
+exothermic_candidates = np.unique(
+    np.append(exothermic_candidates, int(np.argmax(heat_flow)))
+)
+
+endothermic_peaks = sorted(endothermic_candidates, key=lambda i: heat_flow[i])[:2]
+exothermic_peak = int(exothermic_candidates[np.argmax(heat_flow[exothermic_candidates])])
+
+fig, ax1 = plt.subplots(figsize=(9, 6))
+ax2 = ax1.twinx()
+
+ax1.plot(temperature, weight, color="#1f4e9c", linewidth=1.8, label="Weight (%)")
+ax2.plot(temperature, heat_flow, color="#c0392b", linewidth=1.5, label="Heat Flow (W/g)")
+
+ax1.set_title(DATA_FILE.stem)
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)", color="#1f4e9c")
+ax2.set_ylabel("Heat Flow (W/g)", color="#c0392b")
+ax1.tick_params(axis="y", labelcolor="#1f4e9c")
+ax2.tick_params(axis="y", labelcolor="#c0392b")
+ax1.grid(True, alpha=0.25)
+
+# Mark and label the two endothermic peaks and one exothermic peak.
+for number, idx in enumerate(endothermic_peaks, start=1):
+    ax2.scatter(temperature[idx], heat_flow[idx], color="#c0392b", marker="v", zorder=5)
+    ax2.annotate(
+        f"흡열 {number}: {temperature[idx]:.0f} °C",
+        (temperature[idx], heat_flow[idx]),
+        xytext=(7, -18),
+        textcoords="offset points",
+        color="#c0392b",
+        fontsize=9,
+        ha="left",
+    )
+
+ax2.scatter(temperature[exothermic_peak], heat_flow[exothermic_peak],
+            color="#c0392b", marker="^", zorder=5)
+ax2.annotate(
+    f"발열: {temperature[exothermic_peak]:.0f} °C",
+    (temperature[exothermic_peak], heat_flow[exothermic_peak]),
+    xytext=(7, 9),
+    textcoords="offset points",
+    color="#c0392b",
+    fontsize=9,
+    ha="left",
+)
+
+handles1, labels1 = ax1.get_legend_handles_labels()
+handles2, labels2 = ax2.get_legend_handles_labels()
+ax1.legend(handles1 + handles2, labels1 + labels2, loc="center left")
+
+fig.tight_layout()
+fig.savefig(OUT_DIR / "caox_heat_flow.png", dpi=300, bbox_inches="tight")
+plt.close(fig)
+```

@@ -1,0 +1,192 @@
+{
+ "arm": "R-mpl",
+ "item": "S045",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "신입 연구원",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "작업자분들이 여러 명이시던데 각자 런을 몇 번씩 맡으셨는지 비율로 보고 싶어요. 원그래프로 부탁드립니다.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\nsheet_name = \"런로그\"\n\ntry:\n    df = pd.read_excel(file_path, sheet_name=sheet_name)\nexcept Exception as e:\n    print(f\"Error reading file: {e}\")\n    exit()\n\n# 작업자별 런 수 계산\nworker_counts = df['작업자'].value_counts()\n\n# 원그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 8))\n\n# 비율이므로 pie chart 사용\nwedges, texts, autotexts = ax.pie(\n    worker_counts.values, \n    labels=worker_counts.index, \n    autopct='%1.1f%%',\n    startangle=90,\n    textprops={'fontsize': 12}\n)\n\n# 제목 및 축 레이블 설정\nax.set_title(\"작업자별 런 수행 비율\", fontsize=16, pad=20)\n\n# 그래프 모양을 동그랗게 유지\nax.axis('equal')\n\n# 저장\noutput_filename = os.path.join(OUT_DIR, \"worker_run_ratio_pie.png\")\nplt.tight_layout()\nplt.savefig(output_filename, dpi=300)\nplt.close()\n\nprint(f\"Plot saved to {output_filename}\")\n```",
+     "llm_s": 4.685,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 3783,
+     "output_chars": 1011,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\nsheet_name = \"런로그\"\n\ntry:\n    df = pd.read_excel(file_path, sheet_name=sheet_name)\nexcept Exception as e:\n    print(f\"Error reading file: {e}\")\n    exit()\n\n# 작업자별 런 수 계산\nworker_counts = df['작업자'].value_counts()\n\n# 원그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 8))\n\n# 비율이므로 pie chart 사용\nwedges, texts, autotexts = ax.pie(\n    worker_counts.values, \n    labels=worker_counts.index, \n    autopct='%1.1f%%',\n    startangle=90,\n    textprops={'fontsize': 12}\n)\n\n# 제목 및 축 레이블 설정\nax.set_title(\"작업자별 런 수행 비율\", fontsize=16, pad=20)\n\n# 그래프 모양을 동그랗게 유지\nax.axis('equal')\n\n# 저장\noutput_filename = os.path.join(OUT_DIR, \"worker_run_ratio_pie.png\")\nplt.tight_layout()\nplt.savefig(output_filename, dpi=300)\nplt.close()\n\nprint(f\"Plot saved to {output_filename}\")\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      8.0
+     ],
+     "dpi": null,
+     "title": "작업자별 런 수행 비율",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": {
+        "labels": [
+         "이서준",
+         "정민호",
+         "박지훈",
+         "윤재원",
+         "최유진",
+         "한수빈",
+         "김도현",
+         "강하늘",
+         "-"
+        ],
+        "shares": [
+         0.13627254509018036,
+         0.13527054108216435,
+         0.13026052104208416,
+         0.12925851703406815,
+         0.12424849699398789,
+         0.1192384769539078,
+         0.11523046092184377,
+         0.10921843687374744,
+         0.0010020040080160836
+        ],
+        "values": null,
+        "colors": [
+         "#1f77b4",
+         "#ff7f0e",
+         "#2ca02c",
+         "#d62728",
+         "#9467bd",
+         "#8c564b",
+         "#e377c2",
+         "#7f7f7f",
+         "#bcbd22"
+        ]
+       },
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 9,
+       "texts": [
+        "이서준",
+        "정민호",
+        "박지훈",
+        "윤재원",
+        "최유진",
+        "한수빈",
+        "김도현",
+        "강하늘",
+        "-",
+        "13.6%",
+        "13.5%",
+        "13.0%",
+        "12.9%",
+        "12.4%",
+        "11.9%",
+        "11.5%",
+        "10.9%",
+        "0.1%"
+       ],
+       "x": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.4795694424404346,
+        "max": 1.4795696069908457,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.0999994249443246,
+        "max": 1.0999999726163965,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "title": "작업자별 런 수행 비율"
+      }
+     ],
+     "texts": [
+      "이서준",
+      "정민호",
+      "박지훈",
+      "윤재원",
+      "최유진",
+      "한수빈",
+      "김도현",
+      "강하늘",
+      "-",
+      "13.6%",
+      "13.5%",
+      "13.0%",
+      "12.9%",
+      "12.4%",
+      "11.9%",
+      "11.5%",
+      "10.9%",
+      "0.1%"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t1/worker_run_ratio_pie.png",
+       "format": "png",
+       "px": [
+        3000,
+        2400
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5774216651916504,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [
+     "pie: extra slices ['-']"
+    ],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 1,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 5.263
+  }
+ ]
+}

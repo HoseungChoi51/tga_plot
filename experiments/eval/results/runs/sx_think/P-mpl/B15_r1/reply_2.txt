@@ -1,0 +1,5 @@
+{
+  "file": "polymers.xlsx",
+  "combine": true,
+  "legend": "right"
+}

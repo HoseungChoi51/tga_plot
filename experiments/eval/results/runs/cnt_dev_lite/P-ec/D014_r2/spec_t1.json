@@ -1,0 +1,10 @@
+{
+ "file": "data/doe_temp_h2.csv",
+ "chart": "scatter",
+ "x": "H2/C2H4비",
+ "y": "수율(g/g-cat)",
+ "by": "2존온도(°C)",
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_lite/P-ec/D014_r2/out/t1"
+ }
+}

@@ -1,0 +1,165 @@
+import pandas as pd
+import numpy as np
+import json
+
+# Load data
+file_path = "/home/chs/Work/tga_plot/tests/inputs/instrument_export.txt"
+
+# The file appears to have encoding issues (UTF-16 or similar based on 0xff BOM and 0xb0).
+# We will try to read it with different encodings. 'utf-16' is a common candidate for files starting with 0xff.
+try:
+    # Try UTF-16 first due to the 0xff byte at position 0
+    df = pd.read_csv(file_path, sep='\t', header=None, skiprows=10, encoding='utf-16')
+except Exception:
+    try:
+        # Fallback to latin-1 which handles most bytes without error
+        df = pd.read_csv(file_path, sep='\t', header=None, skiprows=10, encoding='latin-1')
+    except Exception:
+        # Last resort: manual reading with binary mode and decoding attempts
+        data_rows = []
+        with open(file_path, 'rb') as f:
+            lines = f.readlines()
+        
+        # Data starts at index 10 (row 11)
+        for i, line in enumerate(lines[10:], start=10):
+            try:
+                # Try utf-16 decode
+                decoded_line = line.decode('utf-16').strip()
+            except UnicodeDecodeError:
+                try:
+                    # Try utf-8 decode
+                    decoded_line = line.decode('utf-8').strip()
+                except UnicodeDecodeError:
+                    try:
+                        # Try latin-1 decode
+                        decoded_line = line.decode('latin-1').strip()
+                    except Exception:
+                        continue
+            
+            if not decoded_line:
+                continue
+            
+            parts = decoded_line.split('\t')
+            if len(parts) >= 4:
+                try:
+                    row = [float(p) for p in parts[:4]]
+                    data_rows.append(row)
+                except ValueError:
+                    pass
+        
+        if data_rows:
+            df = pd.DataFrame(data_rows)
+        else:
+            raise ValueError("No valid data rows found")
+
+# Ensure we have at least 4 columns
+if df.shape[1] < 4:
+    raise ValueError(f"Data has only {df.shape[1]} columns, expected at least 4")
+
+# Assign column names based on TGA guess
+# Col A: Index/Time?, Col B: Temperature, Col C: Mass (%), Col D: Derivative (DTG)
+x_data = df.iloc[:, 1].values  # Column B
+y_mass = df.iloc[:, 2].values  # Column C
+y_dtg = df.iloc[:, 3].values   # Column D
+
+# Format the series data for ECharts
+series_tga = []
+for x, y in zip(x_data, y_mass):
+    if not (np.isnan(x) or np.isnan(y)):
+        series_tga.append([float(x), float(y)])
+
+series_dtg = []
+for x, y in zip(x_data, y_dtg):
+    if not (np.isnan(x) or np.isnan(y)):
+        series_dtg.append([float(x), float(y)])
+
+# Construct the ECharts option
+option = {
+    "title": {
+        "text": "TGA Analysis",
+        "subtext": "Residual Mass and Derivative",
+        "left": "center"
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "formatter": "{a}: {c}<br/>{b}" 
+    },
+    "legend": {
+        "data": ["Mass (%)", "DTG"],
+        "top": "10%"
+    },
+    "grid": {
+        "left": "10%",
+        "right": "15%",
+        "bottom": "15%",
+        "containLabel": True
+    },
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "splitLine": {"show": False}
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Mass (%)",
+            "min": 0,
+            "max": 100,
+            "position": "left"
+        },
+        {
+            "type": "value",
+            "name": "DTG",
+            "position": "right",
+            "splitLine": {"show": False}
+        }
+    ],
+    "series": [
+        {
+            "name": "Mass (%)",
+            "type": "line",
+            "smooth": True,
+            "symbol": "none",
+            "data": series_tga,
+            "itemStyle": {"color": "#5470c6"}
+        },
+        {
+            "name": "DTG",
+            "type": "line",
+            "yAxisIndex": 1,
+            "smooth": True,
+            "symbol": "none",
+            "data": series_dtg,
+            "itemStyle": {"color": "#ee6666"},
+            "markPoint": {
+                "data": [
+                    {
+                        "type": "max", 
+                        "name": "Max Residue",
+                        "label": {
+                            "formatter": "Residue: {c}%",
+                            "fontSize": 12
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
+
+output = {
+    "figures": [
+        {
+            "name": "plot1",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+    ]
+}
+
+print(json.dumps(output))

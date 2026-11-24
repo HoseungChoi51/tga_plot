@@ -1,0 +1,20 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheets": "주간요약",
+ "chart": "line",
+ "x": "주차",
+ "y": "합격률(%)",
+ "asks": [
+  {
+   "ask": "주간요약 시트",
+   "how": "key"
+  },
+  {
+   "ask": "합격률(%) 주차별 꺾은선",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_t07/P-mpl/D007_r1/out/t1"
+ }
+}

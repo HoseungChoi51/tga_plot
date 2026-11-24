@@ -1,0 +1,179 @@
+import pandas as pd
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/isothermal.txt"
+
+# Read the file, assuming whitespace separation and header in the first row
+df = pd.read_csv(DATA_FILE, sep=r'\s+', header=0)
+
+# Clean column names: strip whitespace and handle potential encoding issues
+df.columns = [col.strip() for col in df.columns]
+
+# Identify columns by name or position if names don't match exactly
+time_col = None
+temp_col = None
+weight_col = None
+
+for col in df.columns:
+    if 'Time' in col:
+        time_col = col
+    elif 'Temperature' in col:
+        temp_col = col
+    elif 'Weight' in col:
+        weight_col = col
+
+# Fallback to positional indexing if names are not found
+if time_col is None:
+    time_col = df.columns[0]
+if temp_col is None:
+    temp_col = df.columns[1]
+if weight_col is None:
+    weight_col = df.columns[2]
+
+x_data = df[time_col].tolist()
+y_weight = df[weight_col].tolist()
+y_temp = df[temp_col].tolist()
+
+# Find weight at 140 min
+idx_140 = df[df[time_col] == 140.0].index
+if len(idx_140) > 0:
+    w_at_140 = df.loc[idx_140[0], weight_col]
+else:
+    # If exact match not found, take the last point or interpolate
+    w_at_140 = y_weight[-1] if x_data[-1] >= 140 else None
+
+mark_point_data = []
+if w_at_140 is not None:
+    mark_point_data.append({
+        "coord": [140, float(w_at_140)],
+        "name": f"140분 무게: {w_at_140:.2f}%",
+        "symbolSize": 8,
+        "label": {
+            "show": True,
+            "position": "top",
+            "formatter": "{b}",
+            "fontSize": 12,
+            "color": "#d62728"
+        },
+        "itemStyle": {
+            "color": "#d62728"
+        }
+    })
+
+option = {
+    "title": {
+        "text": "등온 TGA 데이터",
+        "left": "center",
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR",
+            "fontSize": 16
+        }
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {
+            "type": "cross"
+        },
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR"
+        }
+    },
+    "legend": {
+        "data": ["무게 (%)", "온도 (°C)"],
+        "bottom": 10,
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR"
+        }
+    },
+    "grid": {
+        "left": "10%",
+        "right": "10%",
+        "bottom": "15%",
+        "containLabel": True
+    },
+    "xAxis": {
+        "type": "value",
+        "name": "시간 (min)",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "nameTextStyle": {
+            "fontFamily": "Noto Sans CJK KR"
+        },
+        "axisLabel": {
+            "fontFamily": "Noto Sans CJK KR"
+        }
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "무게 (%)",
+            "position": "left",
+            "nameTextStyle": {
+                "fontFamily": "Noto Sans CJK KR"
+            },
+            "axisLabel": {
+                "fontFamily": "Noto Sans CJK KR"
+            }
+        },
+        {
+            "type": "value",
+            "name": "온도 (°C)",
+            "position": "right",
+            "nameTextStyle": {
+                "fontFamily": "Noto Sans CJK KR"
+            },
+            "axisLabel": {
+                "fontFamily": "Noto Sans CJK KR"
+            }
+        }
+    ],
+    "series": [
+        {
+            "name": "무게 (%)",
+            "type": "line",
+            "data": [[float(x), float(y)] for x, y in zip(x_data, y_weight)],
+            "yAxisIndex": 0,
+            "smooth": False,
+            "lineStyle": {
+                "width": 2,
+                "color": "#1f77b4"
+            },
+            "itemStyle": {
+                "color": "#1f77b4"
+            },
+            "markPoint": {
+                "data": mark_point_data
+            }
+        },
+        {
+            "name": "온도 (°C)",
+            "type": "line",
+            "data": [[float(x), float(y)] for x, y in zip(x_data, y_temp)],
+            "yAxisIndex": 1,
+            "smooth": False,
+            "lineStyle": {
+                "width": 2,
+                "color": "#ff7f0e",
+                "type": "dashed"
+            },
+            "itemStyle": {
+                "color": "#ff7f0e"
+            }
+        }
+    ]
+}
+
+result = {
+    "figures": [
+        {
+            "name": "isothermal_tga",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+    ]
+}
+
+print(json.dumps(result, ensure_ascii=False))

@@ -1,0 +1,140 @@
+import json
+import os
+import re
+import numpy as np
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+def clean_number(value):
+    try:
+        number = float(value)
+        return number if np.isfinite(number) else None
+    except (TypeError, ValueError):
+        return None
+
+def series_data(x_values, y_values):
+    return [
+        [clean_number(x), clean_number(y)]
+        for x, y in zip(x_values, y_values)
+        if clean_number(x) is not None and clean_number(y) is not None
+    ]
+
+excel = pd.ExcelFile(DATA_FILE)
+colors = ["#1f4e9c", "#159879", "#e67e22"]
+series = []
+legend = []
+
+for index, sheet in enumerate(excel.sheet_names):
+    df = pd.read_excel(DATA_FILE, sheet_name=sheet)
+    normalized = {str(col).strip().lower(): col for col in df.columns}
+
+    def find_column(candidates, fallback_index):
+        for name in candidates:
+            for norm, original in normalized.items():
+                if name in norm:
+                    return original
+        return df.columns[fallback_index] if len(df.columns) > fallback_index else None
+
+    x_col = find_column(["temperature", "temp"], 1)
+    weight_col = find_column(["weight"], 2)
+    dtg_col = find_column(["d.w", "dtg", "derivative"], 3)
+
+    if x_col is None or weight_col is None or dtg_col is None:
+        continue
+
+    x = pd.to_numeric(df[x_col], errors="coerce")
+    weight = pd.to_numeric(df[weight_col], errors="coerce")
+    dtg = pd.to_numeric(df[dtg_col], errors="coerce")
+    valid = x.notna() & weight.notna() & dtg.notna()
+    x, weight, dtg = x[valid].to_numpy(), weight[valid].to_numpy(), dtg[valid].to_numpy()
+    if len(x) == 0:
+        continue
+
+    color = colors[index % len(colors)]
+    legend.extend([f"{sheet} Weight", f"{sheet} DTG"])
+    series.append({
+        "name": f"{sheet} Weight",
+        "type": "line",
+        "yAxisIndex": 0,
+        "showSymbol": False,
+        "connectNulls": True,
+        "lineStyle": {"width": 2, "color": color},
+        "itemStyle": {"color": color},
+        "data": series_data(x, weight),
+    })
+    series.append({
+        "name": f"{sheet} DTG",
+        "type": "line",
+        "yAxisIndex": 1,
+        "showSymbol": False,
+        "connectNulls": True,
+        "lineStyle": {"width": 1.8, "type": "dashed", "color": color},
+        "itemStyle": {"color": color},
+        "data": series_data(x, -dtg),
+    })
+
+option = {
+    "animation": False,
+    "title": {
+        "text": "TGA 시트 전체 비교",
+        "left": "center",
+        "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 16},
+    },
+    "tooltip": {"trigger": "axis"},
+    "legend": {
+        "data": legend,
+        "left": "center",
+        "bottom": 4,
+        "type": "scroll",
+        "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 10},
+    },
+    "grid": {"left": 68, "right": 68, "top": 62, "bottom": 88},
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 32,
+        "min": 30,
+        "max": 900,
+        "axisLine": {"lineStyle": {"color": "#555"}},
+        "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+        "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Weight (%)",
+            "nameLocation": "middle",
+            "nameGap": 48,
+            "min": 0,
+            "max": 105,
+            "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+            "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+            "splitLine": {"lineStyle": {"color": "#dddddd"}},
+        },
+        {
+            "type": "value",
+            "name": "-DTG (%/°C)",
+            "nameLocation": "middle",
+            "nameGap": 48,
+            "inverse": False,
+            "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+            "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+            "splitLine": {"show": False},
+        },
+    ],
+    "series": series,
+}
+
+result = {
+    "figures": [{
+        "name": "tga_all_sheets_overlay",
+        "option": option,
+        "width": 900,
+        "height": 600,
+        "dpi": 300,
+        "formats": ["png"],
+    }]
+}
+print(json.dumps(result, ensure_ascii=False, allow_nan=False))

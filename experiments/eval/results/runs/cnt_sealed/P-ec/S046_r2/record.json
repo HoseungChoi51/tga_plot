@@ -1,0 +1,239 @@
+{
+ "arm": "P-ec",
+ "item": "S046",
+ "repeat": 2,
+ "split": "sealed",
+ "persona": "데이터 분석가",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "Weekly mean CNT수율 (all reactors pooled) vs 주차, plus a 4-week trailing rolling mean as a second line.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"chart\": \"line\",\n  \"x\": {\n    \"col\": \"주차\"\n  },\n  \"y\": [\n    {\n      \"col\": \"CNT수율 (g/g-cat)\",\n      \"agg\": \"mean\",\n      \"label\": \"Weekly Mean Yield\"\n    }\n  ],\n  \"data_code\": \"df['rolling_mean'] = df.groupby('주차')['CNT수율 (g/g-cat)'].transform('mean').rolling(window=4, min_periods=1).mean()\",\n  \"asks\": [\n    {\n      \"ask\": \"Weekly mean CNT수율 vs 주차\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"4-week trailing rolling mean\",\n      \"how\": \"data_code\"\n    }\n  ]\n}\n```",
+     "llm_s": 5.655,
+     "prompt_tokens": 6324,
+     "output_tokens": 198,
+     "cached_tokens": 6289,
+     "prompt_n": 35,
+     "prefill_ms": 240.501593,
+     "decode_ms": 5046.517952,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "chart": "line",
+    "x": {
+     "col": "주차"
+    },
+    "y": [
+     {
+      "col": "CNT수율 (g/g-cat)",
+      "agg": "mean",
+      "label": "Weekly Mean Yield"
+     }
+    ],
+    "data_code": "df['rolling_mean'] = df.groupby('주차')['CNT수율 (g/g-cat)'].transform('mean').rolling(window=4, min_periods=1).mean()",
+    "asks": [
+     {
+      "ask": "Weekly mean CNT수율 vs 주차",
+      "how": "key"
+     },
+     {
+      "ask": "4-week trailing rolling mean",
+      "how": "data_code"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": true,
+    "engine": "echarts",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-ec/S046_r2/out/t1/line__CNT수율_g_g_cat.png"
+    ],
+    "chart": "line",
+    "rows_used": 997,
+    "rows_total": 997,
+    "values": {
+     "series": {
+      "CNT수율 (g/g-cat)": {
+       "n": 26,
+       "min": 22.5841,
+       "max": 28.0569
+      }
+     }
+    },
+    "warnings": [
+     "several rows per 주차: the mean is drawn"
+    ],
+    "not_done": [],
+    "summary": "선 그래프를 저장했습니다: line__CNT수율_g_g_cat.png\n사용한 행: 997 / 997\nCNT수율 (g/g-cat): 26점, 22.58 ~ 28.06\n참고: several rows per 주차: the mean is drawn"
+   },
+   "facts": [
+    {
+     "engine": "echarts",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": 300,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [
+        {
+         "name": "CNT수율 (g/g-cat)",
+         "n": 26,
+         "x": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26
+         ],
+         "y": [
+          27.334594594594595,
+          28.056923076923077,
+          27.945675675675677,
+          27.54578947368421,
+          26.965263157894732,
+          27.700270270270273,
+          27.275263157894738,
+          27.317027027027024,
+          27.730540540540538,
+          27.854594594594598,
+          28.01846153846154,
+          27.799459459459456,
+          27.164736842105263,
+          25.841842105263158,
+          24.11405405405405,
+          23.061463414634147,
+          23.15105263157895,
+          23.709285714285716,
+          23.39921052631579,
+          23.483947368421052,
+          23.752631578947362,
+          24.259,
+          22.61951219512195,
+          22.871052631578944,
+          22.584102564102565,
+          22.979000000000003
+         ],
+         "color": "#1f4e9c",
+         "style": "solid"
+        }
+       ],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "주차",
+        "type": "value",
+        "ticks": [
+         5.0,
+         10.0,
+         15.0,
+         20.0,
+         25.0
+        ],
+        "step": 5.0,
+        "categories": null,
+        "min": 1.0,
+        "max": 26.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "CNT수율 (g/g-cat) (mean)",
+        "type": "value",
+        "ticks": [
+         22.0,
+         23.0,
+         24.0,
+         25.0,
+         26.0,
+         27.0,
+         28.0,
+         29.0
+        ],
+        "step": 1.0,
+        "categories": null,
+        "min": 22.0,
+        "max": 29.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       }
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-ec/S046_r2/out/t1/line__CNT수율_g_g_cat.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.7482450008392334,
+   "check": {
+    "kind_expected": "line",
+    "failed": [
+     "lines: 1 drawn, want 2",
+     "series 주차 평균 CNT수율 4주 이동평균: not drawn"
+    ],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 2,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 6.483
+  }
+ ]
+}

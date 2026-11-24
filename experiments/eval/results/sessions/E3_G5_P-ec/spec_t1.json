@@ -1,0 +1,19 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "scatter",
+ "x": {
+  "col": "체류시간 (s)"
+ },
+ "y": {
+  "col": "CNT수율 (g/g-cat)"
+ },
+ "asks": [
+  {
+   "ask": "체류시간별 CNT수율 산점도",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/sessions/E3_G5_P-ec/out/t1"
+ }
+}

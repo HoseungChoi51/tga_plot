@@ -1,0 +1,7 @@
+```json
+{
+  "file": "cnt_batches.xlsx",
+  "sheets": "Acid-washed",
+  "code": "from matplotlib.ticker import AutoMinorLocator; ax1.xaxis.set_minor_locator(AutoMinorLocator())"
+}
+```

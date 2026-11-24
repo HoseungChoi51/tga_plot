@@ -1,0 +1,185 @@
+```python
+import json
+import re
+import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+
+def clean_number(value):
+    try:
+        number = float(value)
+        return number if np.isfinite(number) else None
+    except (TypeError, ValueError):
+        return None
+
+
+def find_column(columns, pattern, fallback):
+    for i, name in enumerate(columns):
+        if re.search(pattern, str(name), re.I):
+            return i
+    return fallback
+
+
+def main():
+    path = Path(DATA_FILE)
+    book = pd.ExcelFile(path)
+    figures = []
+
+    for sheet in book.sheet_names:
+        df = pd.read_excel(path, sheet_name=sheet)
+        if df.empty:
+            continue
+
+        cols = list(df.columns)
+        x_idx = find_column(cols, r"temperature|temp|온도", 1 if len(cols) > 1 else 0)
+        weight_idx = find_column(cols, r"weight|wt|중량|무게", 2 if len(cols) > 2 else 1)
+        dtg_idx = find_column(cols, r"dtg|d\.?\s*w|derivative", 3 if len(cols) > 3 else -1)
+
+        x = pd.to_numeric(df.iloc[:, x_idx], errors="coerce")
+        weight = pd.to_numeric(df.iloc[:, weight_idx], errors="coerce")
+        valid = x.notna() & weight.notna()
+        xvals = x[valid].to_numpy(dtype=float)
+        wvals = weight[valid].to_numpy(dtype=float)
+        if not len(xvals):
+            continue
+
+        order = np.argsort(xvals)
+        xvals, wvals = xvals[order], wvals[order]
+
+        series = [{
+            "name": str(cols[weight_idx]),
+            "type": "line",
+            "xAxisIndex": 0,
+            "yAxisIndex": 0,
+            "data": [[round(float(a), 6), round(float(b), 6)] for a, b in zip(xvals, wvals)],
+            "showSymbol": False,
+            "connectNulls": True,
+            "lineStyle": {"color": "#1f4e9c", "width": 2},
+            "itemStyle": {"color": "#1f4e9c"},
+        }]
+
+        residue_target = 800.0
+        residue_idx = int(np.argmin(np.abs(xvals - residue_target)))
+        residue_x, residue_y = float(xvals[residue_idx]), float(wvals[residue_idx])
+        series[0]["markPoint"] = {
+            "symbol": "circle",
+            "symbolSize": 8,
+            "itemStyle": {"color": "#1f4e9c"},
+            "label": {
+                "show": True,
+                "formatter": f"Residue {residue_y:.1f}%",
+                "position": "right",
+                "fontFamily": "Noto Sans CJK KR",
+            },
+            "data": [{"coord": [residue_x, residue_y]}],
+        }
+
+        if dtg_idx >= 0:
+            dtg = pd.to_numeric(df.iloc[:, dtg_idx], errors="coerce")
+            dtg_valid = x.notna() & dtg.notna()
+            dx = x[dtg_valid].to_numpy(dtype=float)
+            dy = dtg[dtg_valid].to_numpy(dtype=float)
+            if len(dx):
+                dorder = np.argsort(dx)
+                dx, dy = dx[dorder], dy[dorder]
+                dtg_up = -dy
+                eligible = dx > 150
+                if eligible.any():
+                    peak_local = int(np.argmax(dtg_up[eligible]))
+                    peak_idx = int(np.flatnonzero(eligible)[peak_local])
+                    peak_x = float(dx[peak_idx])
+                    peak_y = float(dtg_up[peak_idx])
+                    series.append({
+                        "name": str(cols[dtg_idx]),
+                        "type": "line",
+                        "xAxisIndex": 0,
+                        "yAxisIndex": 1,
+                        "data": [[round(float(a), 6), round(float(b), 6)] for a, b in zip(dx, dtg_up)],
+                        "showSymbol": False,
+                        "connectNulls": True,
+                        "lineStyle": {"color": "#c0392b", "width": 2},
+                        "itemStyle": {"color": "#c0392b"},
+                        "markPoint": {
+                            "symbol": "circle",
+                            "symbolSize": 8,
+                            "itemStyle": {"color": "#c0392b"},
+                            "label": {
+                                "show": True,
+                                "formatter": f"{peak_x:.0f} °C",
+                                "position": "top",
+                                "fontFamily": "Noto Sans CJK KR",
+                            },
+                            "data": [{"coord": [peak_x, peak_y]}],
+                        },
+                    })
+
+        option = {
+            "animation": False,
+            "title": {
+                "text": str(sheet),
+                "left": "center",
+                "textStyle": {"fontFamily": "Noto Sans CJK KR"},
+            },
+            "tooltip": {"trigger": "axis"},
+            "legend": {
+                "data": [str(cols[weight_idx])] + ([str(cols[dtg_idx])] if dtg_idx >= 0 else []),
+                "left": "center",
+                "top": 34,
+                "textStyle": {"fontFamily": "Noto Sans CJK KR"},
+            },
+            "grid": {"left": 72, "right": 72, "top": 84, "bottom": 58},
+            "xAxis": {
+                "type": "value",
+                "name": str(cols[x_idx]),
+                "nameLocation": "middle",
+                "nameGap": 34,
+                "axisTick": {"inside": False},
+                "axisLabel": {"fontSize": 9, "fontFamily": "Noto Sans CJK KR"},
+                "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+            },
+            "yAxis": [
+                {
+                    "type": "value",
+                    "name": str(cols[weight_idx]),
+                    "nameLocation": "middle",
+                    "nameGap": 52,
+                    "axisTick": {"inside": False},
+                    "axisLabel": {"fontSize": 9, "fontFamily": "Noto Sans CJK KR"},
+                    "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+                    "axisLine": {"show": True, "lineStyle": {"color": "#1f4e9c"}},
+                },
+                {
+                    "type": "value",
+                    "name": f"-{cols[dtg_idx]}" if dtg_idx >= 0 else "DTG",
+                    "nameLocation": "middle",
+                    "nameGap": 52,
+                    "axisTick": {"inside": False},
+                    "axisLabel": {"fontSize": 9, "fontFamily": "Noto Sans CJK KR"},
+                    "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+                    "axisLine": {"show": True, "lineStyle": {"color": "#c0392b"}},
+                },
+            ],
+            "series": series,
+        }
+
+        figures.append({
+            "name": re.sub(r"[^A-Za-z0-9_-]+", "_", str(sheet)).strip("_") or f"plot{len(figures)+1}",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"],
+        })
+
+    print(json.dumps({"figures": figures}, ensure_ascii=False, allow_nan=False))
+
+
+if __name__ == "__main__":
+    main()
+```

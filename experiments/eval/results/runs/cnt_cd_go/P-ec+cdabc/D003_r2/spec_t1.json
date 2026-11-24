@@ -1,0 +1,15 @@
+{
+ "asks": [
+  {
+   "ask": "1존과 2존 온도 상관관계 산점도",
+   "how": "key"
+  }
+ ],
+ "chart": "scatter",
+ "file": "data/r2_zone_temps.csv",
+ "x": "1존(°C)",
+ "y": "2존(°C)",
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-ec+cdabc/D003_r2/out/t1"
+ }
+}

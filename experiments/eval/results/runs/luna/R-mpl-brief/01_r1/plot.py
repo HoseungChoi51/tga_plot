@@ -1,0 +1,121 @@
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib import font_manager
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/01_r1/out")
+
+# 한글 표시를 위한 글꼴
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def find_column(columns, keywords):
+    """열 이름에서 지정한 키워드에 맞는 열을 찾습니다."""
+    for column in columns:
+        name = str(column).strip().lower()
+        if any(keyword in name for keyword in keywords):
+            return column
+    return None
+
+
+def safe_filename(name):
+    return "".join(ch if ch.isalnum() or ch in "-_ ." else "_" for ch in str(name)).strip()
+
+
+sheets = pd.read_excel(DATA_FILE, sheet_name=None)
+
+for sheet_name, data in sheets.items():
+    data = data.dropna(how="all")
+    if data.empty:
+        continue
+
+    x_col = find_column(data.columns, ["temperature", "temp", "온도"])
+    weight_col = find_column(data.columns, ["weight", "mass", "무게", "중량"])
+    dtg_col = find_column(data.columns, ["d.w", "dtg", "derivative", "미분"])
+
+    # 이름으로 열을 확인할 수 없을 때 TGA 표준 열 순서를 사용합니다.
+    if x_col is None and len(data.columns) >= 2:
+        x_col = data.columns[1]
+    if weight_col is None and len(data.columns) >= 3:
+        weight_col = data.columns[2]
+    if dtg_col is None and len(data.columns) >= 4:
+        dtg_col = data.columns[3]
+
+    if x_col is None or weight_col is None or dtg_col is None:
+        continue
+
+    x = pd.to_numeric(data[x_col], errors="coerce")
+    weight = pd.to_numeric(data[weight_col], errors="coerce")
+    dtg = pd.to_numeric(data[dtg_col], errors="coerce")
+    valid = x.notna() & weight.notna() & dtg.notna()
+    x, weight, dtg = x[valid], weight[valid], dtg[valid]
+
+    if x.empty:
+        continue
+
+    order = np.argsort(x.to_numpy())
+    x = x.iloc[order].reset_index(drop=True)
+    weight = weight.iloc[order].reset_index(drop=True)
+    dtg = dtg.iloc[order].reset_index(drop=True)
+
+    fig, ax1 = plt.subplots(figsize=(9, 6))
+    ax2 = ax1.twinx()
+
+    weight_line, = ax1.plot(
+        x, weight, color="#1f4e9c", linewidth=1.8, label="Weight (%)"
+    )
+    dtg_line, = ax2.plot(
+        x, -dtg, color="#c0392b", linewidth=1.6, label="-DTG"
+    )
+
+    # 800 °C에 가장 가까운 측정점의 잔류량
+    residue_idx = int(np.abs(x.to_numpy() - 800).argmin())
+    residue_temp = float(x.iloc[residue_idx])
+    residue_value = float(weight.iloc[residue_idx])
+    ax1.scatter(
+        [residue_temp], [residue_value], color="#1f4e9c", s=38, zorder=5
+    )
+    ax1.annotate(
+        f"Residue {residue_value:.1f}%",
+        xy=(residue_temp, residue_value),
+        xytext=(8, 10),
+        textcoords="offset points",
+        color="#1f4e9c",
+        fontsize=9,
+    )
+
+    # 150 °C 초과 구간에서 -DTG가 가장 큰 지점
+    peak_candidates = np.flatnonzero(x.to_numpy() > 150)
+    if len(peak_candidates):
+        peak_idx = peak_candidates[int(np.argmax((-dtg).to_numpy()[peak_candidates]))]
+        peak_temp = float(x.iloc[peak_idx])
+        peak_value = float((-dtg).iloc[peak_idx])
+        ax2.scatter([peak_temp], [peak_value], color="#c0392b", s=38, zorder=5)
+        ax2.annotate(
+            f"{peak_temp:.0f} °C",
+            xy=(peak_temp, peak_value),
+            xytext=(8, 10),
+            textcoords="offset points",
+            color="#c0392b",
+            fontsize=9,
+        )
+
+    ax1.set_title(str(sheet_name))
+    ax1.set_xlabel("Temperature (°C)")
+    ax1.set_ylabel("Weight (%)", color="#1f4e9c")
+    ax2.set_ylabel("-DTG (%/°C)", color="#c0392b")
+    ax1.tick_params(axis="y", labelcolor="#1f4e9c")
+    ax2.tick_params(axis="y", labelcolor="#c0392b")
+    ax1.grid(True, linestyle="--", alpha=0.35)
+    ax1.legend([weight_line, dtg_line], ["Weight (%)", "-DTG"], loc="center left")
+
+    fig.tight_layout()
+    output_path = OUT_DIR / f"{safe_filename(sheet_name)}.png"
+    fig.savefig(output_path, dpi=300, bbox_inches="tight")
+    plt.close(fig)

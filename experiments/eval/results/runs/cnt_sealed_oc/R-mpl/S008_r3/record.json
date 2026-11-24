@@ -1,0 +1,251 @@
+{
+ "arm": "R-mpl",
+ "item": "S008",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "생산팀장",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "주차별 평균 수율 선그래프 만들어 주시고 14주차 자리에 세로 점선 넣어서 'FC-2606 투입'이라고 적어 주세요. 반응기 구분 없이 전체 평균으로요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the data file\nfile_path = \"data/run_log.xlsx\"\n# We need the '런로그' sheet which contains detailed run data to calculate averages if needed, \n# or we can use the '주간요약' sheet which already has '평균수율(g/g-cat)'.\n# The request asks for \"average yield per week\". The '주간요약' sheet has column D: '평균수율(g/g-cat)'.\n# However, it's safer to verify if the user wants us to re-calculate from raw runs or use the summary.\n# Given the explicit request \"반응기 구분 없이 전체 평균으로\" (Overall average without distinguishing reactors),\n# and the presence of a summary sheet, using the summary is direct. \n# But often, calculating from raw data ensures consistency with any filters. \n# Let's look at the columns in '주간요약': A 주차, B 시작일, C 런수, D 평균수율...\n# I will read both sheets. Using the raw data ('런로그') to compute the weekly mean is more robust \n# if the summary might be outdated or defined differently, but usually summary sheets are accurate.\n# Let's try reading the raw data first to ensure we have full control over the aggregation.\n\ndf_runs = pd.read_excel(file_path, sheet_name='런로그')\n\n# Ensure date/week columns are correct types\n# Column C is '주차'\nif '주차' not in df_runs.columns:\n    # Fallback to summary if structure differs, but preview says '주차' exists\n    pass\n\n# Group by Week ('주차') and calculate mean Yield ('CNT수율 (g/g-cat)')\nweekly_avg = df_runs.groupby('주차')['CNT수율 (g/g-cat)'].mean().reset_index()\nweekly_avg.columns = ['Week', 'Avg_Yield']\n\n# Sort by Week just in case\nweekly_avg = weekly_avg.sort_values('Week')\n\n# Create the plot\nfig, ax = plt.subplots(figsize=(12, 6))\n\nax.plot(weekly_avg['Week'], weekly_avg['Avg_Yield'], marker='o', linestyle='-', color='#1f77b4', label='주차별 평균 수율')\n\n# Add vertical dashed line at Week 14\nax.axvline(x=14, color='red', linestyle='--', linewidth=1.5)\n\n# Add text annotation near the line\n# Place text slightly above the average yield at week 14 or generally in the upper area\ny_val_at_14 = weekly_avg.loc[weekly_avg['Week'] == 14, 'Avg_Yield'].values[0]\nax.text(14, y_val_at_14 + 0.5, 'FC-2606 투입', color='red', ha='center', va='bottom', fontsize=12, weight='bold')\n\n# Labels and Title\nax.set_xlabel('주차 (Week)', fontsize=12)\nax.set_ylabel('평균 CNT 수율 (g/g-cat)', fontsize=12)\nax.set_title('주차별 평균 CNT 수율 추이', fontsize=14, weight='bold')\n\n# Grid and Legend\nax.grid(True, linestyle=':', alpha=0.6)\nax.legend(loc='best')\n\n# Adjust layout\nplt.tight_layout()\n\n# Save figure\noutput_filename = os.path.join(OUT_DIR, \"weekly_yield_trend.png\")\nplt.savefig(output_filename, dpi=300)\nplt.close()\n```",
+     "llm_s": 12.408,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 3828,
+     "output_chars": 2791,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the data file\nfile_path = \"data/run_log.xlsx\"\n\n# The error indicates column name mismatch. \n# Preview says: Q CNT수율 (g/g-cat)\n# Sometimes Excel headers have extra spaces or different unicode characters.\n# Let's read with header=0 and then strip columns to be safe, or check exact keys.\ndf_runs = pd.read_excel(file_path, sheet_name='런로그')\n\n# Strip whitespace from all column names to handle potential trailing/leading spaces\ndf_runs.columns = df_runs.columns.str.strip()\n\n# Find the yield column more robustly\nyield_col = None\nfor col in df_runs.columns:\n    if 'CNT수율' in str(col):\n        yield_col = col\n        break\n\nif yield_col is None:\n    raise ValueError(\"Could not find CNT yield column in the dataframe\")\n\nweek_col = None\nfor col in df_runs.columns:\n    if '주차' in str(col):\n        week_col = col\n        break\n\nif week_col is None:\n    raise ValueError(\"Could not find Week column in the dataframe\")\n\n# Group by Week and calculate mean Yield\nweekly_avg = df_runs.groupby(week_col)[yield_col].mean().reset_index()\nweekly_avg.columns = ['Week', 'Avg_Yield']\n\n# Sort by Week just in case\nweekly_avg = weekly_avg.sort_values('Week')\n\n# Create the plot\nfig, ax = plt.subplots(figsize=(12, 6))\n\nax.plot(weekly_avg['Week'], weekly_avg['Avg_Yield'], marker='o', linestyle='-', color='#1f77b4', label='주차별 평균 수율')\n\n# Add vertical dashed line at Week 14\nax.axvline(x=14, color='red', linestyle='--', linewidth=1.5)\n\n# Add text annotation near the line\n# Place text slightly above the average yield at week 14 or generally in the upper area\ny_val_at_14 = weekly_avg.loc[weekly_avg['Week'] == 14, 'Avg_Yield'].values[0]\nax.text(14, y_val_at_14 + 0.5, 'FC-2606 투입', color='red', ha='center', va='bottom', fontsize=12, weight='bold')\n\n# Labels and Title\nax.set_xlabel('주차 (Week)', fontsize=12)\nax.set_ylabel('평균 CNT 수율 (g/g-cat)', fontsize=12)\nax.set_title('주차별 평균 CNT 수율 추이', fontsize=14, weight='bold')\n\n# Grid and Legend\nax.grid(True, linestyle=':', alpha=0.6)\nax.legend(loc='best')\n\n# Adjust layout\nplt.tight_layout()\n\n# Save figure\noutput_filename = os.path.join(OUT_DIR, \"weekly_yield_trend.png\")\nplt.savefig(output_filename, dpi=300)\nplt.close()\n```",
+     "llm_s": 12.006,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 8188,
+     "output_chars": 2426,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the data file\nfile_path = \"data/run_log.xlsx\"\n\n# The previous error 'dtype->object' during mean calculation suggests that the column\n# contains non-numeric values (e.g., strings or mixed types).\n# We need to read the sheet and ensure numeric columns are converted to float.\n\ndf_runs = pd.read_excel(file_path, sheet_name='런로그')\n\n# Strip whitespace from all column names\ndf_runs.columns = df_runs.columns.str.strip()\n\n# Identify columns by searching for keywords in column names\nweek_col = None\nyield_col = None\n\nfor col in df_runs.columns:\n    col_str = str(col)\n    if '주차' in col_str:\n        week_col = col\n    if 'CNT수율' in col_str:\n        yield_col = col\n\nif week_col is None or yield_col is None:\n    raise ValueError(f\"Could not find required columns. Week: {week_col}, Yield: {yield_col}\")\n\n# Convert yield column to numeric, forcing errors to NaN to handle any string artifacts\ndf_runs[yield_col] = pd.to_numeric(df_runs[yield_col], errors='coerce')\n\n# Drop rows where yield is NaN just to be safe for the groupby mean, \n# though pandas groupby.mean usually skips NaNs automatically.\ndf_clean = df_runs.dropna(subset=[week_col, yield_col])\n\n# Ensure week column is numeric for plotting order if it's stored as text/object\ndf_clean[week_col] = pd.to_numeric(df_clean[week_col], errors='coerce')\ndf_clean = df_clean.dropna(subset=[week_col])\n\n# Group by Week and calculate mean Yield\nweekly_avg = df_clean.groupby(week_col)[yield_col].mean().reset_index()\n\n# Rename columns for easier handling\nweekly_avg.columns = ['Week', 'Avg_Yield']\n\n# Sort by Week\nweekly_avg = weekly_avg.sort_values('Week')\n\n# Create the plot\nfig, ax = plt.subplots(figsize=(12, 6))\n\nax.plot(weekly_avg['Week'], weekly_avg['Avg_Yield'], marker='o', linestyle='-', color='#1f77b4', label='주차별 평균 수율')\n\n# Add vertical dashed line at Week 14\nax.axvline(x=14, color='red', linestyle='--', linewidth=1.5)\n\n# Add text annotation near the line\n# Check if week 14 exists in our calculated averages to get the Y position\ny_val_at_14 = weekly_avg.loc[weekly_avg['Week'] == 14, 'Avg_Yield'].values\nif len(y_val_at_14) > 0:\n    y_pos = y_val_at_14[0] + 0.5\nelse:\n    # Fallback if week 14 is missing (unlikely given data preview), use overall max/median\n    y_pos = weekly_avg['Avg_Yield'].max() * 0.8 \n\nax.text(14, y_pos, 'FC-2606 투입', color='red', ha='center', va='bottom', fontsize=12, weight='bold')\n\n# Labels and Title\nax.set_xlabel('주차 (Week)', fontsize=12)\nax.set_ylabel('평균 CNT 수율 (g/g-cat)', fontsize=12)\nax.set_title('주차별 평균 CNT 수율 추이', fontsize=14, weight='bold')\n\n# Grid and Legend\nax.grid(True, linestyle=':', alpha=0.6)\nax.legend(loc='best')\n\n# Adjust layout\nplt.tight_layout()\n\n# Save figure\noutput_filename = os.path.join(OUT_DIR, \"weekly_yield_trend.png\")\nplt.savefig(output_filename, dpi=300)\nplt.close()\n```",
+     "llm_s": 14.393,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 12018,
+     "output_chars": 3065,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read the data file\nfile_path = \"data/run_log.xlsx\"\n\n# The previous error 'dtype->object' during mean calculation suggests that the column\n# contains non-numeric values (e.g., strings or mixed types).\n# We need to read the sheet and ensure numeric columns are converted to float.\n\ndf_runs = pd.read_excel(file_path, sheet_name='런로그')\n\n# Strip whitespace from all column names\ndf_runs.columns = df_runs.columns.str.strip()\n\n# Identify columns by searching for keywords in column names\nweek_col = None\nyield_col = None\n\nfor col in df_runs.columns:\n    col_str = str(col)\n    if '주차' in col_str:\n        week_col = col\n    if 'CNT수율' in col_str:\n        yield_col = col\n\nif week_col is None or yield_col is None:\n    raise ValueError(f\"Could not find required columns. Week: {week_col}, Yield: {yield_col}\")\n\n# Convert yield column to numeric, forcing errors to NaN to handle any string artifacts\ndf_runs[yield_col] = pd.to_numeric(df_runs[yield_col], errors='coerce')\n\n# Drop rows where yield is NaN just to be safe for the groupby mean, \n# though pandas groupby.mean usually skips NaNs automatically.\ndf_clean = df_runs.dropna(subset=[week_col, yield_col])\n\n# Ensure week column is numeric for plotting order if it's stored as text/object\ndf_clean[week_col] = pd.to_numeric(df_clean[week_col], errors='coerce')\ndf_clean = df_clean.dropna(subset=[week_col])\n\n# Group by Week and calculate mean Yield\nweekly_avg = df_clean.groupby(week_col)[yield_col].mean().reset_index()\n\n# Rename columns for easier handling\nweekly_avg.columns = ['Week', 'Avg_Yield']\n\n# Sort by Week\nweekly_avg = weekly_avg.sort_values('Week')\n\n# Create the plot\nfig, ax = plt.subplots(figsize=(12, 6))\n\nax.plot(weekly_avg['Week'], weekly_avg['Avg_Yield'], marker='o', linestyle='-', color='#1f77b4', label='주차별 평균 수율')\n\n# Add vertical dashed line at Week 14\nax.axvline(x=14, color='red', linestyle='--', linewidth=1.5)\n\n# Add text annotation near the line\n# Check if week 14 exists in our calculated averages to get the Y position\ny_val_at_14 = weekly_avg.loc[weekly_avg['Week'] == 14, 'Avg_Yield'].values\nif len(y_val_at_14) > 0:\n    y_pos = y_val_at_14[0] + 0.5\nelse:\n    # Fallback if week 14 is missing (unlikely given data preview), use overall max/median\n    y_pos = weekly_avg['Avg_Yield'].max() * 0.8 \n\nax.text(14, y_pos, 'FC-2606 투입', color='red', ha='center', va='bottom', fontsize=12, weight='bold')\n\n# Labels and Title\nax.set_xlabel('주차 (Week)', fontsize=12)\nax.set_ylabel('평균 CNT 수율 (g/g-cat)', fontsize=12)\nax.set_title('주차별 평균 CNT 수율 추이', fontsize=14, weight='bold')\n\n# Grid and Legend\nax.grid(True, linestyle=':', alpha=0.6)\nax.legend(loc='best')\n\n# Adjust layout\nplt.tight_layout()\n\n# Save figure\noutput_filename = os.path.join(OUT_DIR, \"weekly_yield_trend.png\")\nplt.savefig(output_filename, dpi=300)\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      12.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "주차별 평균 CNT 수율 추이",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [
+        {
+         "name": "주차별 평균 수율",
+         "n": 26,
+         "x": [
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0,
+          7.0,
+          8.0,
+          9.0,
+          10.0,
+          11.0,
+          12.0,
+          13.0,
+          14.0,
+          15.0,
+          16.0,
+          17.0,
+          18.0,
+          19.0,
+          20.0,
+          21.0,
+          22.0,
+          23.0,
+          24.0,
+          25.0,
+          26.0
+         ],
+         "y": [
+          27.334594594594595,
+          28.056923076923074,
+          27.945675675675677,
+          27.54578947368421,
+          26.965263157894732,
+          27.700270270270266,
+          27.275263157894738,
+          27.317027027027024,
+          27.730540540540545,
+          27.854594594594598,
+          28.01846153846154,
+          27.799459459459456,
+          27.164736842105263,
+          25.84184210526316,
+          24.114054054054055,
+          23.061463414634144,
+          23.15105263157895,
+          23.709285714285716,
+          23.39921052631579,
+          23.483947368421052,
+          23.752631578947366,
+          24.259,
+          22.61951219512195,
+          22.871052631578944,
+          22.584102564102565,
+          22.979
+         ],
+         "color": "#1f77b4",
+         "style": "-",
+         "width": 1.5
+        }
+       ],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [
+        14.0
+       ],
+       "value_labels": 0,
+       "texts": [
+        "FC-2606 투입"
+       ],
+       "x": {
+        "label": "주차 (Week)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         5.0,
+         10.0,
+         15.0,
+         20.0,
+         25.0
+        ],
+        "step": 5.0,
+        "categories": null,
+        "min": -0.25,
+        "max": 27.25,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "-5",
+         "0",
+         "5",
+         "10",
+         "15",
+         "20",
+         "25",
+         "30"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "평균 CNT 수율 (g/g-cat)",
+        "type": "value",
+        "ticks": [
+         23.0,
+         24.0,
+         25.0,
+         26.0,
+         27.0,
+         28.0
+        ],
+        "step": 1.0,
+        "categories": null,
+        "min": 22.31046153846154,
+        "max": 28.3305641025641,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "22",
+         "23",
+         "24",
+         "25",
+         "26",
+         "27",
+         "28",
+         "29"
+        ],
+        "rotate": 0.0
+       },
+       "title": "주차별 평균 CNT 수율 추이"
+      }
+     ],
+     "texts": [
+      "FC-2606 투입"
+     ],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "주차별 평균 수율"
+      ],
+      "inside": true,
+      "where": "upper right"
+     },
+     "files": [
+      {
+       "path": "out/t1/weekly_yield_trend.png",
+       "format": "png",
+       "px": [
+        3600,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.6128642559051514,
+   "check": {
+    "kind_expected": "line",
+    "failed": [],
+    "unchecked": [
+     "ref_line=14"
+    ],
+    "n_checks": 3,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 40.181
+  }
+ ]
+}

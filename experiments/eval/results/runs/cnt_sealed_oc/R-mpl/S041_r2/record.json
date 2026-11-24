@@ -1,0 +1,240 @@
+{
+ "arm": "R-mpl",
+ "item": "S041",
+ "repeat": 2,
+ "split": "sealed",
+ "persona": "신입 연구원",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "촉매 로트가 여러 개던데, 로트별로 런이 몇 번 돌았는지 가로 막대로 보여 주실 수 있나요?",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 환경 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 한글 폰트 설정\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\nsheet_name = \"런로그\"\ndf = pd.read_excel(file_path, sheet_name=sheet_name)\n\n# 로트별 런 수 집계\nlot_counts = df['촉매로트'].value_counts().sort_index()\n\n# 막대 차트 생성\nfig, ax = plt.subplots(figsize=(10, 6))\nbars = ax.bar(lot_counts.index, lot_counts.values, color='skyblue', edgecolor='black')\n\n# 라벨 및 제목 설정\nax.set_title('촉매 로트별 런 수', fontsize=14)\nax.set_xlabel('촉매 로트', fontsize=12)\nax.set_ylabel('런 수 (개)', fontsize=12)\n\n# x축 레이블 회전 방지 및 정렬\nax.tick_params(axis='x', rotation=0)\n\n# 각 막대 위에 값 표시\nfor bar in bars:\n    height = bar.get_height()\n    ax.text(bar.get_x() + bar.get_width()/2., height,\n            f'{int(height)}',\n            ha='center', va='bottom', fontsize=10)\n\nplt.tight_layout()\n\n# 파일 저장\noutput_file = os.path.join(OUT_DIR, \"cnt_lot_run_count.png\")\nplt.savefig(output_file, dpi=300)\nplt.close()\n```",
+     "llm_s": 4.954,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 3758,
+     "output_chars": 1079,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 환경 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 한글 폰트 설정\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\nsheet_name = \"런로그\"\ndf = pd.read_excel(file_path, sheet_name=sheet_name)\n\n# 로트별 런 수 집계\nlot_counts = df['촉매로트'].value_counts().sort_index()\n\n# 막대 차트 생성\nfig, ax = plt.subplots(figsize=(10, 6))\nbars = ax.bar(lot_counts.index, lot_counts.values, color='skyblue', edgecolor='black')\n\n# 라벨 및 제목 설정\nax.set_title('촉매 로트별 런 수', fontsize=14)\nax.set_xlabel('촉매 로트', fontsize=12)\nax.set_ylabel('런 수 (개)', fontsize=12)\n\n# x축 레이블 회전 방지 및 정렬\nax.tick_params(axis='x', rotation=0)\n\n# 각 막대 위에 값 표시\nfor bar in bars:\n    height = bar.get_height()\n    ax.text(bar.get_x() + bar.get_width()/2., height,\n            f'{int(height)}',\n            ha='center', va='bottom', fontsize=10)\n\nplt.tight_layout()\n\n# 파일 저장\noutput_file = os.path.join(OUT_DIR, \"cnt_lot_run_count.png\")\nplt.savefig(output_file, dpi=300)\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "촉매 로트별 런 수",
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "",
+         "orient": "v",
+         "cats": [
+          "-",
+          "FC-2602",
+          "FC-2603",
+          "FC-2604",
+          "FC-2605",
+          "FC-2606",
+          "FC-2607",
+          "FC-2608"
+         ],
+         "values": [
+          1.0,
+          148.0,
+          150.0,
+          113.0,
+          101.0,
+          170.0,
+          160.0,
+          155.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb",
+          "#87ceeb"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0,
+          7.0
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 8,
+       "texts": [
+        "1",
+        "148",
+        "150",
+        "113",
+        "101",
+        "170",
+        "160",
+        "155"
+       ],
+       "x": {
+        "label": "촉매 로트",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0,
+         5.0,
+         6.0,
+         7.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "-",
+         "FC-2602",
+         "FC-2603",
+         "FC-2604",
+         "FC-2605",
+         "FC-2606",
+         "FC-2607",
+         "FC-2608"
+        ],
+        "min": -0.79,
+        "max": 7.789999999999999,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "-",
+         "FC-2602",
+         "FC-2603",
+         "FC-2604",
+         "FC-2605",
+         "FC-2606",
+         "FC-2607",
+         "FC-2608"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "런 수 (개)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         20.0,
+         40.0,
+         60.0,
+         80.0,
+         100.0,
+         120.0,
+         140.0,
+         160.0
+        ],
+        "step": 20.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 178.5,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "20",
+         "40",
+         "60",
+         "80",
+         "100",
+         "120",
+         "140",
+         "160",
+         "180"
+        ],
+        "rotate": 0.0
+       },
+       "title": "촉매 로트별 런 수"
+      }
+     ],
+     "texts": [
+      "1",
+      "148",
+      "150",
+      "113",
+      "101",
+      "170",
+      "160",
+      "155"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t1/cnt_lot_run_count.png",
+       "format": "png",
+       "px": [
+        3000,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5125863552093506,
+   "check": {
+    "kind_expected": "hbar",
+    "failed": [
+     "kind: drawn ['bar'], want hbar"
+    ],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 1,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 5.468
+  }
+ ]
+}

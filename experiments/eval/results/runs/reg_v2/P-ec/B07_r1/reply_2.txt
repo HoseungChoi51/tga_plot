@@ -1,0 +1,30 @@
+```json
+{
+ "file": "polymers.xlsx",
+ "sheets": "PVC",
+ "annotate": {
+  "w300": {
+   "type": "text",
+   "x": 300,
+   "method": "interp",
+   "text": "300 °C: {}%"
+  },
+  "w600": {
+   "type": "text",
+   "x": 600,
+   "method": "interp",
+   "text": "600 °C: {}%"
+  }
+ },
+ "asks": [
+  {
+   "ask": "두 번째 시트(PVC)만 그리기",
+   "how": "key"
+  },
+  {
+   "ask": "300 °C와 600 °C에서의 무게 표시",
+   "how": "key"
+  }
+ ]
+}
+```

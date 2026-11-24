@@ -1,0 +1,99 @@
+```python
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/B11_r1/out")
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+df = pd.read_excel(DATA_FILE, sheet_name="PET")
+df.columns = [str(column).strip() for column in df.columns]
+
+temperature_col = next(
+    column for column in df.columns
+    if "temperature" in column.lower() or "온도" in column
+)
+weight_col = next(
+    column for column in df.columns
+    if "weight" in column.lower() and "deriv" not in column.lower()
+)
+dtg_col = next(
+    column for column in df.columns
+    if "deriv" in column.lower() or "dtg" in column.lower()
+)
+
+temperature = pd.to_numeric(df[temperature_col], errors="coerce")
+weight = pd.to_numeric(df[weight_col], errors="coerce")
+dtg = pd.to_numeric(df[dtg_col], errors="coerce")
+valid = temperature.notna() & weight.notna() & dtg.notna()
+
+temperature = temperature[valid].to_numpy()
+weight = weight[valid].to_numpy()
+dtg = dtg[valid].to_numpy()
+
+fig, ax1 = plt.subplots(figsize=(9, 6))
+ax2 = ax1.twinx()
+
+weight_line, = ax1.plot(
+    temperature, weight, color="#1f4e9c", linewidth=2, label="Weight (%)"
+)
+dtg_line, = ax2.plot(
+    temperature, -dtg, color="#c0392b", linewidth=1.8, label="DTG (%/°C)"
+)
+
+# Residue at the measured point nearest 800 °C
+residue_idx = int(np.argmin(np.abs(temperature - 800)))
+residue_temp = temperature[residue_idx]
+residue_value = weight[residue_idx]
+ax1.scatter(
+    [residue_temp], [residue_value], color="#1f4e9c",
+    edgecolor="white", linewidth=0.8, zorder=5
+)
+ax1.annotate(
+    f"Residue {residue_value:.2f}%",
+    (residue_temp, residue_value),
+    xytext=(8, 10), textcoords="offset points",
+    color="#1f4e9c", fontsize=10
+)
+
+# Highest positive DTG peak above 150 °C
+peak_candidates = np.flatnonzero((temperature > 150) & (-dtg > 0))
+if peak_candidates.size:
+    peak_idx = int(peak_candidates[np.argmax((-dtg)[peak_candidates])])
+    peak_temp = temperature[peak_idx]
+    peak_value = -dtg[peak_idx]
+    ax2.scatter(
+        [peak_temp], [peak_value], color="#c0392b",
+        edgecolor="white", linewidth=0.8, zorder=5
+    )
+    ax2.annotate(
+        f"{peak_temp:.0f} °C",
+        (peak_temp, peak_value),
+        xytext=(8, 10), textcoords="offset points",
+        color="#c0392b", fontsize=10
+    )
+
+ax1.set_title("PET 열분해")
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)", color="#1f4e9c")
+ax2.set_ylabel("-DTG (%/°C)", color="#c0392b")
+ax1.tick_params(axis="y", labelcolor="#1f4e9c")
+ax2.tick_params(axis="y", labelcolor="#c0392b")
+ax1.grid(True, linestyle="--", alpha=0.5)
+
+ax1.legend(
+    [weight_line, dtg_line],
+    [weight_line.get_label(), dtg_line.get_label()],
+    loc="lower left"
+)
+
+fig.tight_layout()
+fig.savefig(OUT_DIR / "PET_열분해.png", dpi=300, bbox_inches="tight")
+plt.close(fig)
+```

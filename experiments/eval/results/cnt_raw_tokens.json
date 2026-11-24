@@ -1,0 +1,8 @@
+{
+ "chars_per_token": 3.194,
+ "replies": 580,
+ "turns": 348,
+ "reply_tokens_p50": 696,
+ "turn_tokens_p50": 927,
+ "turn_tokens_p90": 2523
+}

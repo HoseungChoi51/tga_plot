@@ -1,0 +1,25 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "heatmap",
+ "x": {
+  "col": "시작시각",
+  "label": "시간대"
+ },
+ "y": {
+  "col": "일자",
+  "period": "day",
+  "label": "요일"
+ },
+ "z": {
+  "agg": "count"
+ },
+ "asks": [
+  {
+   "ask": "요일별/시간대별 정지 빈도 히트맵",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl/D026_r2/out/t1"
+ }
+}

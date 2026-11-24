@@ -1,0 +1,71 @@
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/16_r3/out"
+SHEET_NAME = "1006R1-V normal"
+
+# Ensure output directory exists
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# Read the specific sheet
+df = pd.read_excel(DATA_FILE, sheet_name=SHEET_NAME, header=0)
+
+# Identify columns based on the preview and standard TGA structure
+# Assuming: Time, Temperature, Weight(%), D.W(%/C)
+# User request: Only plot weight (y1), no y2 axis (DTG).
+
+x_col = 'Temperature'
+y1_col = 'Weight(%)'
+
+# Extract data
+temperature = df[x_col].values
+weight = df[y1_col].values
+
+# Create figure
+fig, ax1 = plt.subplots(figsize=(8, 6))
+
+# Plot Weight (%) on left y-axis
+ax1.plot(temperature, weight, color='#1f4e9c', linewidth=1.5, label='Weight (%)')
+ax1.set_xlabel('Temperature (°C)', fontsize=12)
+ax1.set_ylabel('Weight (%)', fontsize=12, color='#1f4e9c')
+ax1.tick_params(axis='y', labelcolor='#1f4e9c')
+ax1.grid(True, linestyle='--', alpha=0.5)
+
+# Title
+ax1.set_title(SHEET_NAME, fontsize=14)
+
+# Add Residue Label
+# Find the weight at the temperature nearest to 800 °C
+target_temp = 800
+idx_nearest = np.argmin(np.abs(temperature - target_temp))
+residue_weight = weight[idx_nearest]
+residue_temp = temperature[idx_nearest]
+
+# Plot marker for residue
+ax1.scatter(residue_temp, residue_weight, color='#1f4e9c', s=50, zorder=5)
+ax1.annotate(f'Residue {residue_weight:.1f}%', 
+             xy=(residue_temp, residue_weight), 
+             xytext=(residue_temp + 20, residue_weight + 5),
+             arrowprops=dict(facecolor='black', shrink=0.05, width=1, headwidth=5),
+             fontsize=10, ha='left', va='bottom')
+
+# Legend
+ax1.legend(loc='center left', bbox_to_anchor=(0.02, 0.5))
+
+# Adjust layout
+plt.tight_layout()
+
+# Save figure
+output_filename = f"{SHEET_NAME.replace(' ', '_')}_weight_only.png"
+output_path = os.path.join(OUT_DIR, output_filename)
+plt.savefig(output_path, dpi=300)
+plt.close()
+```

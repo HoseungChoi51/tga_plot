@@ -1,0 +1,89 @@
+time,run,arm,split,item,type,persona,turn,n_turns,repeat,kind,ok_run,pass,n_checks,n_failed,failed,unchecked,model_calls,prompt_tokens,cached_tokens,prefill_ms,output_tokens,decode_ms,llm_s,draw_s,turn_s,route,unsupported,n_asks,error,run_dir
+2026-11-20 14:21:11,dev_c,P-ec,dev,D001,single,공정 엔지니어,1,1,1,line,1,1,2,0,,,1,6339,5052,1723,212,4007,7.43,0.61,8.374,keys,0,3,,results/runs/cnt_dev_c/P-ec/D001_r1
+2026-11-20 14:21:13,dev_c,P-mpl,dev,D001,single,공정 엔지니어,1,1,1,line,1,1,2,0,,,1,6283,5052,1678,212,4917,8.92,0.39,9.646,keys,0,3,,results/runs/cnt_dev_c/P-mpl/D001_r1
+2026-11-20 14:21:18,dev_c,P-mpl,dev,D002,single,공정 엔지니어,1,1,1,line,1,1,3,0,,,1,5535,5052,745,159,3209,4.93,1.89,6.972,keys,0,3,,results/runs/cnt_dev_c/P-mpl/D002_r1
+2026-11-20 14:21:19,dev_c,P-ec,dev,D002,single,공정 엔지니어,1,1,1,line,1,1,3,0,,,1,5591,5052,798,152,3170,4.21,2.15,6.448,keys,0,3,,results/runs/cnt_dev_c/P-ec/D002_r1
+2026-11-20 14:21:25,dev_c,P-mpl,dev,D004,single,공정 엔지니어,1,1,1,line,1,1,2,0,,,1,6538,5052,1196,102,2917,5.88,0.64,6.752,keys,0,1,,results/runs/cnt_dev_c/P-mpl/D004_r1
+2026-11-20 14:21:25,dev_c,P-ec,dev,D004,single,공정 엔지니어,1,1,1,line,1,1,2,0,,,1,6594,5052,1724,103,2575,5.29,0.9,6.286,keys,0,1,,results/runs/cnt_dev_c/P-ec/D004_r1
+2026-11-20 14:21:31,dev_c,P-mpl,dev,D005,single,라인 작업자,1,1,1,line,1,0,2,2,"series R4-260407-1: y range 7.252..100.2, want -0.017..1.752 | series R4-260721-1: y range 7.867..100.5, want -0.019..1.644",,1,6511,5052,1179,113,2902,5.82,0.42,6.289,keys,0,1,,results/runs/cnt_dev_c/P-mpl/D005_r1
+2026-11-20 14:21:34,dev_c,P-ec,dev,D005,single,라인 작업자,1,1,1,line,1,1,2,0,,,1,6567,5052,1698,145,3492,7.47,0.84,8.409,keys,0,1,,results/runs/cnt_dev_c/P-ec/D005_r1
+2026-11-20 14:21:43,dev_c,P-mpl,dev,D006,single,공정 엔지니어,1,1,1,line,1,1,4,0,,,1,6086,5052,1287,265,6661,9.56,1.6,11.286,data_code,0,3,,results/runs/cnt_dev_c/P-mpl/D006_r1
+2026-11-20 14:21:44,dev_c,P-ec,dev,D006,single,공정 엔지니어,1,1,1,line,1,1,4,0,,,1,6142,5052,1376,282,6562,8.24,1.74,10.059,data_code,0,3,,results/runs/cnt_dev_c/P-ec/D006_r1
+2026-11-20 14:21:48,dev_c,P-mpl,dev,D007,single,공정 엔지니어,1,1,1,line,1,1,2,0,,,1,6259,5052,1062,125,2167,4.81,0.39,5.27,keys,0,2,,results/runs/cnt_dev_c/P-mpl/D007_r1
+2026-11-20 14:21:50,dev_c,P-ec,dev,D007,single,공정 엔지니어,1,1,1,line,1,1,2,0,,,1,6315,5052,1523,87,2286,5.4,0.57,6.05,keys,0,2,,results/runs/cnt_dev_c/P-ec/D007_r1
+2026-11-20 14:21:54,dev_c,P-mpl,dev,D008,single,라인 작업자,1,1,1,line,1,1,2,0,,,1,6249,5052,1508,117,2407,5.68,0.41,6.183,keys,0,1,,results/runs/cnt_dev_c/P-mpl/D008_r1
+2026-11-20 14:21:54,dev_c,P-ec,dev,D008,single,라인 작업자,1,1,1,line,1,1,2,0,,,1,6305,5052,1512,75,1750,3.81,0.59,4.484,keys,0,1,,results/runs/cnt_dev_c/P-ec/D008_r1
+2026-11-20 14:21:57,dev_c,P-mpl,dev,D003,single,라인 작업자,1,1,1,scatter,1,1,2,0,,,1,5511,5052,654,70,1470,2.85,0.45,3.381,keys,0,1,,results/runs/cnt_dev_c/P-mpl/D003_r1
+2026-11-20 14:21:58,dev_c,P-ec,dev,D003,single,라인 작업자,1,1,1,scatter,1,1,2,0,,,1,5567,5052,683,70,1470,2.59,0.9,3.57,keys,0,1,,results/runs/cnt_dev_c/P-ec/D003_r1
+2026-11-20 14:22:03,dev_c,P-mpl,dev,D009,single,공정 엔지니어,1,1,1,scatter,1,1,2,0,,,1,6266,5052,1052,130,2796,5.41,0.43,5.923,keys,0,3,,results/runs/cnt_dev_c/P-mpl/D009_r1
+2026-11-20 14:22:04,dev_c,P-ec,dev,D009,single,공정 엔지니어,1,1,1,scatter,1,1,2,0,,,1,6322,5052,1525,130,2853,5.37,0.61,6.054,keys,0,3,,results/runs/cnt_dev_c/P-ec/D009_r1
+2026-11-20 14:22:10,dev_c,P-mpl,dev,D010,single,공정 엔지니어,1,1,1,scatter,1,1,3,0,,,1,6272,5052,1058,156,3633,6.27,0.42,6.8,keys,0,2,,results/runs/cnt_dev_c/P-mpl/D010_r1
+2026-11-20 14:22:10,dev_c,P-ec,dev,D010,single,공정 엔지니어,1,1,1,scatter,1,0,3,5,"scatter: 126 points, want 997 | scatter: ranges x [2.51, 6.26] y [1.44, 2.74], want x [1.94, 6.26] y [1.44, 3.23] | scatter: r = 0.286, want -0.603 | scatter: groups of [126] points, want [126, 871] | colors: C: not found; A/B: not found",,1,6328,5052,1535,160,3583,5.88,0.58,6.536,keys,1,2,,results/runs/cnt_dev_c/P-ec/D010_r1
+2026-11-20 14:22:15,dev_c,P-mpl,dev,D011,single,라인 작업자,1,1,1,scatter,1,1,2,0,,,1,6255,5052,1050,66,2028,4.64,0.4,5.128,keys,0,1,,results/runs/cnt_dev_c/P-mpl/D011_r1
+2026-11-20 14:22:16,dev_c,P-ec,dev,D011,single,라인 작업자,1,1,1,scatter,1,1,2,0,,,1,6311,5052,1521,66,1985,4.43,0.61,5.11,keys,0,1,,results/runs/cnt_dev_c/P-ec/D011_r1
+2026-11-20 14:22:20,dev_c,P-mpl,dev,D012,single,공정 엔지니어,1,1,1,scatter,1,1,2,0,,,1,6261,5052,1049,94,1808,4.42,0.42,4.934,keys,0,2,,results/runs/cnt_dev_c/P-mpl/D012_r1
+2026-11-20 14:22:21,dev_c,P-ec,dev,D012,single,공정 엔지니어,1,1,1,scatter,1,1,2,0,,,1,6317,5052,1529,94,1872,4.44,0.59,5.104,keys,0,2,,results/runs/cnt_dev_c/P-ec/D012_r1
+2026-11-20 14:22:25,dev_c,P-mpl,dev,D013,single,라인 작업자,1,1,1,scatter,1,1,2,0,,,1,5563,5052,681,139,2691,4.28,0.34,4.701,keys,0,2,,results/runs/cnt_dev_c/P-mpl/D013_r1
+2026-11-20 14:22:25,dev_c,P-ec,dev,D013,single,라인 작업자,1,1,1,scatter,1,1,2,0,,,1,5619,5052,862,123,2754,3.88,0.53,4.489,keys,0,2,,results/runs/cnt_dev_c/P-ec/D013_r1
+2026-11-20 14:22:30,dev_c,P-mpl,dev,D014,single,공정 엔지니어,1,1,1,scatter,1,1,2,0,,,1,5661,5052,763,148,3225,4.99,0.32,5.394,keys,0,3,,results/runs/cnt_dev_c/P-mpl/D014_r1
+2026-11-20 14:22:30,dev_c,P-ec,dev,D014,single,공정 엔지니어,1,1,1,scatter,1,1,2,0,,,1,5717,5052,971,148,3127,4.65,0.54,5.266,keys,0,3,,results/runs/cnt_dev_c/P-ec/D014_r1
+2026-11-20 14:22:38,dev_c,P-mpl,dev,D015,single,공정 엔지니어,1,1,1,bar,1,1,3,0,,,1,6286,5052,1057,223,4639,7.31,0.42,7.823,keys,0,3,,results/runs/cnt_dev_c/P-mpl/D015_r1
+2026-11-20 14:22:39,dev_c,P-ec,dev,D015,single,공정 엔지니어,1,1,1,bar,1,1,3,0,,,1,6342,5052,1572,223,4598,7.49,0.58,8.14,keys,0,3,,results/runs/cnt_dev_c/P-ec/D015_r1
+2026-11-20 14:22:43,dev_c,P-ec,dev,D016,single,라인 작업자,1,1,1,hbar,1,1,2,0,,,1,5713,5052,971,83,2048,3.4,0.55,4.022,keys,0,1,,results/runs/cnt_dev_c/P-ec/D016_r1
+2026-11-20 14:22:45,dev_c,P-mpl,dev,D016,single,라인 작업자,1,1,1,hbar,1,1,2,0,,,1,5657,5052,762,142,3078,6.25,0.34,6.686,keys,0,3,,results/runs/cnt_dev_c/P-mpl/D016_r1
+2026-11-20 14:22:50,dev_c,P-mpl,dev,D017,single,공정 엔지니어,1,1,1,grouped_bar,1,1,2,0,,,1,6257,5052,1493,152,3732,7.17,0.39,7.639,keys,0,2,,results/runs/cnt_dev_c/P-mpl/D017_r1
+2026-11-20 14:22:52,dev_c,P-ec,dev,D017,single,공정 엔지니어,1,1,1,grouped_bar,1,1,2,0,,,1,6313,5052,1529,152,3292,6.02,0.56,6.655,keys,0,2,,results/runs/cnt_dev_c/P-ec/D017_r1
+2026-11-20 14:22:57,dev_c,P-mpl,dev,D018,single,라인 작업자,1,1,1,grouped_bar,1,1,2,0,,,1,5665,5052,902,202,3893,5.84,0.36,6.273,keys,0,4,,results/runs/cnt_dev_c/P-mpl/D018_r1
+2026-11-20 14:22:59,dev_c,P-ec,dev,D018,single,라인 작업자,1,1,1,grouped_bar,1,1,2,0,,,1,5721,5052,963,202,4100,6.45,0.55,7.076,keys,0,4,,results/runs/cnt_dev_c/P-ec/D018_r1
+2026-11-20 14:23:03,dev_c,P-mpl,dev,D019,single,공정 엔지니어,1,1,1,stacked_bar,1,1,3,0,,,1,5671,5052,912,198,3545,5.82,0.5,6.398,data_code,0,3,,results/runs/cnt_dev_c/P-mpl/D019_r1
+2026-11-20 14:23:06,dev_c,P-ec,dev,D019,single,공정 엔지니어,1,1,1,stacked_bar,1,1,3,0,,,1,5727,5052,966,198,3582,6.42,0.69,7.186,data_code,0,3,,results/runs/cnt_dev_c/P-ec/D019_r1
+2026-11-20 14:23:09,dev_c,P-mpl,dev,D020,single,라인 작업자,1,1,1,stacked_bar,1,1,2,0,,,1,6258,5052,1505,88,1913,5.38,0.39,5.854,keys,0,2,,results/runs/cnt_dev_c/P-mpl/D020_r1
+2026-11-20 14:23:13,dev_c,P-ec,dev,D020,single,라인 작업자,1,1,1,stacked_bar,1,1,2,0,,,1,6314,5052,1519,128,2798,6.29,0.6,6.958,keys,0,2,,results/runs/cnt_dev_c/P-ec/D020_r1
+2026-11-20 14:23:16,dev_c,P-mpl,dev,D021,single,공정 엔지니어,1,1,1,bar,1,1,2,0,,,1,6257,5052,1500,150,2868,6.31,0.4,6.778,keys,0,2,,results/runs/cnt_dev_c/P-mpl/D021_r1
+2026-11-20 14:23:18,dev_c,P-ec,dev,D021,single,공정 엔지니어,1,1,1,bar,1,1,2,0,,,1,6313,5052,1523,95,1681,4.43,0.58,5.085,keys,0,2,,results/runs/cnt_dev_c/P-ec/D021_r1
+2026-11-20 14:23:22,dev_c,P-mpl,dev,D022,single,공정 엔지니어,1,1,1,histogram,1,0,2,2,histogram TEM-01: bins/counts differ | histogram TEM-02: bins/counts differ,,1,5494,5052,639,208,4548,6.32,0.32,6.718,keys,0,3,,results/runs/cnt_dev_c/P-mpl/D022_r1
+2026-11-20 14:23:25,dev_c,P-ec,dev,D022,single,공정 엔지니어,1,1,1,histogram,1,0,2,2,histogram TEM-01: bins/counts differ | histogram TEM-02: bins/counts differ,,1,5550,5052,664,199,4133,6.56,0.52,7.15,keys,0,3,,results/runs/cnt_dev_c/P-ec/D022_r1
+2026-11-20 14:23:27,dev_c,P-mpl,dev,D023,single,라인 작업자,1,1,1,histogram,1,1,2,0,,,1,6254,5052,1498,56,841,4.31,0.39,4.779,keys,0,1,,results/runs/cnt_dev_c/P-mpl/D023_r1
+2026-11-20 14:23:30,dev_c,P-ec,dev,D023,single,라인 작업자,1,1,1,histogram,1,1,2,0,,,1,6310,5052,1522,75,1644,4.27,0.59,4.933,keys,0,1,,results/runs/cnt_dev_c/P-ec/D023_r1
+2026-11-20 14:23:33,dev_c,P-mpl,dev,D024,single,공정 엔지니어,1,1,1,heatmap,1,1,2,0,,,1,5630,5052,866,118,3011,5.2,0.34,5.599,keys,0,2,,results/runs/cnt_dev_c/P-mpl/D024_r1
+2026-11-20 14:23:37,dev_c,P-ec,dev,D024,single,공정 엔지니어,1,1,1,heatmap,1,1,2,0,,,1,5686,5052,924,182,4178,6.94,0.53,7.537,keys,0,2,,results/runs/cnt_dev_c/P-ec/D024_r1
+2026-11-20 14:23:41,dev_c,P-mpl,dev,D025,single,공정 엔지니어,1,1,1,heatmap,1,1,2,0,,,1,6272,5052,1494,200,4132,7.69,0.43,8.192,keys,0,2,,results/runs/cnt_dev_c/P-mpl/D025_r1
+2026-11-20 14:23:45,dev_c,P-ec,dev,D025,single,공정 엔지니어,1,1,1,heatmap,1,1,2,0,,,1,6328,5052,1525,212,3766,6.61,0.6,7.283,keys,0,2,,results/runs/cnt_dev_c/P-ec/D025_r1
+2026-11-20 14:23:56,dev_c,P-ec,dev,D026,single,라인 작업자,1,1,1,heatmap,1,0,2,1,"heatmap: rows/columns differ (drawn ['월', '화', '수', '목', '금'] x ['00-03', '04-07', '08-11', '12-15', '16-19'], want ['월', '화', '수', '목', '금'] x ['0', '1', '2', '3', '4'])",,1,5717,5052,959,304,8518,10.31,0.72,11.106,data_code,0,1,,results/runs/cnt_dev_c/P-ec/D026_r1
+2026-11-20 14:24:06,dev_c,P-mpl,dev,D026,single,라인 작업자,1,1,1,heatmap,1,0,2,1,"heatmap: rows/columns differ (drawn ['2026-03-02', '2026-03-03', '2026-03-04', '2026-03-05', '2026-03-07'] x ['00:01', '00:07', '00:16', '00:22', '00:34'], want ['월', '화', '수', '목', '금'] x ['0', '1', '2', '3', '4'])",,2,11585,10706,1408,433,9336,12.47,10.66,25.272,keys,0,3,,results/runs/cnt_dev_c/P-mpl/D026_r1
+2026-11-20 14:24:16,dev_c,P-mpl,dev,D027,single,공정 엔지니어,1,1,1,heatmap,1,1,4,0,,,3,20230,18725,1979,877,14615,18.72,0.52,19.985,keys,1,3,,results/runs/cnt_dev_c/P-mpl/D027_r1
+2026-11-20 14:24:19,dev_c,P-mpl,dev,D028,single,라인 작업자,1,1,1,pie,1,1,2,0,,,1,5649,5052,876,48,1212,2.46,0.35,2.894,keys,0,1,,results/runs/cnt_dev_c/P-mpl/D028_r1
+2026-11-20 14:24:22,dev_c,P-ec,dev,D028,single,라인 작업자,1,1,1,pie,1,1,2,0,,,1,5705,5052,966,48,1293,2.56,0.54,3.181,keys,0,1,,results/runs/cnt_dev_c/P-ec/D028_r1
+2026-11-20 14:24:29,dev_c,P-mpl,dev,D029,single,공정 엔지니어,1,1,1,pie,1,1,4,0,,,1,6277,6233,267,190,5823,6.65,0.39,7.12,keys,0,3,,results/runs/cnt_dev_c/P-mpl/D029_r1
+2026-11-20 14:24:31,dev_c,P-ec,dev,D027,single,공정 엔지니어,1,1,1,heatmap,1,1,4,0,,,3,20415,18899,2398,939,17452,23.36,0.63,24.68,keys,1,4,,results/runs/cnt_dev_c/P-ec/D027_r1
+2026-11-20 14:24:35,dev_c,P-ec,dev,D029,single,공정 엔지니어,1,1,1,pie,1,1,4,0,,,1,6333,6289,268,166,3642,5.01,0.58,5.668,keys,0,3,,results/runs/cnt_dev_c/P-ec/D029_r1
+2026-11-20 14:24:37,dev_c,P-mpl,dev,D030,single,공정 엔지니어,1,1,1,pie,1,1,2,0,,,1,5680,5052,928,170,3092,5.36,0.34,5.78,keys,0,2,,results/runs/cnt_dev_c/P-mpl/D030_r1
+2026-11-20 14:24:40,dev_c,P-ec,dev,D030,single,공정 엔지니어,1,1,1,pie,1,1,2,0,,,1,5736,5052,975,171,3172,4.98,0.52,5.573,keys,0,2,,results/runs/cnt_dev_c/P-ec/D030_r1
+2026-11-20 14:24:51,dev_c,P-mpl,dev,DS01,session,공정 엔지니어,1,4,1,scatter,1,1,2,0,,,1,6257,6233,232,68,1427,1.87,0.4,2.339,keys,0,1,,results/runs/cnt_dev_c/P-mpl/DS01_r1
+2026-11-20 14:24:51,dev_c,P-mpl,dev,DS01,session,공정 엔지니어,2,4,1,bar,1,1,2,0,,,1,6383,6325,303,134,3016,3.69,0.39,4.153,keys,0,2,,results/runs/cnt_dev_c/P-mpl/DS01_r1
+2026-11-20 14:24:51,dev_c,P-mpl,dev,DS01,session,공정 엔지니어,3,4,1,bar,1,1,3,0,,,1,6550,6517,268,112,2388,2.83,0.41,3.314,keys,0,1,,results/runs/cnt_dev_c/P-mpl/DS01_r1
+2026-11-20 14:24:51,dev_c,P-mpl,dev,DS01,session,공정 엔지니어,4,4,1,heatmap,1,1,2,0,,,1,6712,6662,313,134,2806,3.68,0.41,4.165,keys,0,2,,results/runs/cnt_dev_c/P-mpl/DS01_r1
+2026-11-20 14:24:56,dev_c,P-ec,dev,DS01,session,공정 엔지니어,1,4,1,scatter,1,1,2,0,,,1,6313,6289,212,68,1509,1.85,0.65,2.579,keys,0,1,,results/runs/cnt_dev_c/P-ec/DS01_r1
+2026-11-20 14:24:56,dev_c,P-ec,dev,DS01,session,공정 엔지니어,2,4,1,bar,1,1,2,0,,,1,6439,6381,304,134,3159,4.08,0.55,4.704,keys,0,2,,results/runs/cnt_dev_c/P-ec/DS01_r1
+2026-11-20 14:24:56,dev_c,P-ec,dev,DS01,session,공정 엔지니어,3,4,1,bar,1,1,3,0,,,1,6606,6573,268,112,2357,3.02,0.54,3.641,keys,0,1,,results/runs/cnt_dev_c/P-ec/DS01_r1
+2026-11-20 14:24:56,dev_c,P-ec,dev,DS01,session,공정 엔지니어,4,4,1,heatmap,1,1,2,0,,,1,6768,6718,292,129,2852,4.06,0.55,4.688,keys,0,1,,results/runs/cnt_dev_c/P-ec/DS01_r1
+2026-11-20 14:25:05,dev_c,P-mpl,dev,DS02,session,공정 엔지니어,1,3,1,line,1,1,2,0,,,1,6520,5052,1174,82,1777,3.31,0.63,4.022,keys,0,1,,results/runs/cnt_dev_c/P-mpl/DS02_r1
+2026-11-20 14:25:05,dev_c,P-mpl,dev,DS02,session,공정 엔지니어,2,3,1,line,1,1,2,0,,,1,6645,6602,281,128,1973,4.27,0.59,4.938,keys,0,1,,results/runs/cnt_dev_c/P-mpl/DS02_r1
+2026-11-20 14:25:05,dev_c,P-mpl,dev,DS02,session,공정 엔지니어,3,3,1,line,1,1,5,0,,,1,6833,6773,306,203,4273,5.26,0.6,5.946,keys,0,3,,results/runs/cnt_dev_c/P-mpl/DS02_r1
+2026-11-20 14:25:13,dev_c,P-ec,dev,DS02,session,공정 엔지니어,1,3,1,line,1,1,2,0,,,1,6576,5052,1700,126,2807,5.43,0.77,6.29,keys,0,1,,results/runs/cnt_dev_c/P-ec/DS02_r1
+2026-11-20 14:25:13,dev_c,P-ec,dev,DS02,session,공정 엔지니어,2,3,1,line,1,1,2,0,,,1,6745,6702,281,172,2990,4.02,0.7,4.805,keys,0,1,,results/runs/cnt_dev_c/P-ec/DS02_r1
+2026-11-20 14:25:13,dev_c,P-ec,dev,DS02,session,공정 엔지니어,3,3,1,line,1,1,5,0,,,1,6977,6917,307,273,4410,5.44,0.71,6.237,keys,0,3,,results/runs/cnt_dev_c/P-ec/DS02_r1
+2026-11-20 14:25:17,dev_c,P-mpl,dev,DS03,session,라인 작업자,1,4,1,bar,1,1,2,0,,,1,5657,5052,871,61,1048,2.48,0.32,2.874,keys,0,1,,results/runs/cnt_dev_c/P-mpl/DS03_r1
+2026-11-20 14:25:17,dev_c,P-mpl,dev,DS03,session,라인 작업자,2,4,1,stacked_bar,1,1,2,0,,,1,5746,5718,245,89,2487,3.08,0.37,3.525,keys,0,2,,results/runs/cnt_dev_c/P-mpl/DS03_r1
+2026-11-20 14:25:17,dev_c,P-mpl,dev,DS03,session,라인 작업자,3,4,1,pie,1,1,2,0,,,1,5864,5835,233,48,649,1.26,0.31,1.648,keys,0,1,,results/runs/cnt_dev_c/P-mpl/DS03_r1
+2026-11-20 14:25:17,dev_c,P-mpl,dev,DS03,session,라인 작업자,4,4,1,line,1,1,2,0,,,1,5944,5912,244,91,2165,2.97,0.35,3.392,keys,0,2,,results/runs/cnt_dev_c/P-mpl/DS03_r1
+2026-11-20 14:25:28,dev_c,P-ec,dev,DS03,session,라인 작업자,1,4,1,bar,1,1,2,0,,,1,5713,5052,806,87,1997,3.11,0.56,3.756,keys,0,1,,results/runs/cnt_dev_c/P-ec/DS03_r1
+2026-11-20 14:25:28,dev_c,P-ec,dev,DS03,session,라인 작업자,2,4,1,stacked_bar,1,1,2,0,,,1,5828,5706,369,129,2334,3.42,0.59,4.083,keys,0,2,,results/runs/cnt_dev_c/P-ec/DS03_r1
+2026-11-20 14:25:28,dev_c,P-ec,dev,DS03,session,라인 작업자,3,4,1,pie,1,1,2,0,,,1,5986,5957,257,72,1434,1.91,0.54,2.55,keys,0,1,,results/runs/cnt_dev_c/P-ec/DS03_r1
+2026-11-20 14:25:28,dev_c,P-ec,dev,DS03,session,라인 작업자,4,4,1,line,1,1,2,0,,,1,6090,6058,249,148,3366,3.97,0.59,4.646,keys,0,2,,results/runs/cnt_dev_c/P-ec/DS03_r1
+2026-11-20 14:25:29,dev_c,P-mpl,dev,DS04,session,라인 작업자,1,3,1,line,1,1,2,0,,,1,5498,5052,637,60,2334,3.47,0.48,4.031,keys,0,1,,results/runs/cnt_dev_c/P-mpl/DS04_r1
+2026-11-20 14:25:29,dev_c,P-mpl,dev,DS04,session,라인 작업자,2,3,1,line,1,1,3,0,,,1,5592,5558,262,108,1981,2.56,0.38,3.006,keys,0,1,,results/runs/cnt_dev_c/P-mpl/DS04_r1
+2026-11-20 14:25:29,dev_c,P-mpl,dev,DS04,session,라인 작업자,3,3,1,histogram,1,1,2,0,,,1,5740,5700,276,155,3504,4.1,0.49,4.653,data_code,0,2,,results/runs/cnt_dev_c/P-mpl/DS04_r1
+2026-11-20 14:25:41,dev_c,P-ec,dev,DS04,session,라인 작업자,1,3,1,line,1,1,2,0,,,1,5554,5052,667,61,1158,1.91,0.66,2.639,keys,0,1,,results/runs/cnt_dev_c/P-ec/DS04_r1
+2026-11-20 14:25:41,dev_c,P-ec,dev,DS04,session,라인 작업자,2,3,1,line,1,0,3,1,"series 2존(°C): 8640 points, want 721",,1,5649,5615,264,110,1927,2.23,0.67,2.971,keys,0,1,,results/runs/cnt_dev_c/P-ec/DS04_r1
+2026-11-20 14:25:41,dev_c,P-ec,dev,DS04,session,라인 작업자,3,3,1,histogram,1,0,2,2,"histogram: 8640 values counted, want 721 | histogram _: bins/counts differ (edges differ)",,2,11822,11732,583,341,5082,5.75,0.71,7.035,data_code,0,3,,results/runs/cnt_dev_c/P-ec/DS04_r1

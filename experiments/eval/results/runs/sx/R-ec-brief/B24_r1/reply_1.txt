@@ -1,0 +1,211 @@
+```python
+import pandas as pd
+import numpy as np
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+
+def main():
+    # Read only the PE sheet
+    df = pd.read_excel(DATA_FILE, sheet_name="PE")
+    
+    # Extract columns based on standard TGA structure
+    temp_c = df["Temperature (°C)"].values
+    weight = df["Weight (%)"].values
+    dtg = df["Deriv. Weight (%/°C)"].values
+    
+    # Convert temperature from Celsius to Kelvin
+    temp_k = temp_c + 273.15
+    
+    # Prepare data for ECharts: [[x, y], ...]
+    # Series 1: Weight vs Temp(K)
+    data_weight = []
+    for t, w in zip(temp_k, weight):
+        if not (np.isnan(t) or np.isnan(w)):
+            data_weight.append([float(t), float(w)])
+            
+    # Series 2: DTG vs Temp(K) (multiplied by -1 so peaks point up)
+    data_dtg = []
+    for t, d in zip(temp_k, dtg):
+        if not (np.isnan(t) or np.isnan(d)):
+            data_dtg.append([float(t), float(-d)])
+            
+    # Find residue at ~800 °C (which is 1073.15 K)
+    target_temp_k = 800.0 + 273.15
+    idx_residue = np.argmin(np.abs(temp_k - target_temp_k))
+    residue_val = weight[idx_residue]
+    residue_temp_k = temp_k[idx_residue]
+    
+    # Find peak DTG above 150 °C (423.15 K)
+    mask_peak = temp_k > (150.0 + 273.15)
+    if np.any(mask_peak):
+        dtg_masked = dtg[mask_peak]
+        temp_masked = temp_k[mask_peak]
+        # Highest DTG peak means most negative derivative, so min value
+        idx_max_peak = np.argmin(dtg_masked)
+        peak_temp_k = temp_masked[idx_max_peak]
+        peak_val = dtg_masked[idx_max_peak]
+    else:
+        peak_temp_k = None
+        peak_val = None
+        
+    # Build markers for labels
+    markers = []
+    if residue_val is not None:
+        markers.append({
+            "coord": [float(residue_temp_k), float(residue_val)],
+            "name": f"Residue {residue_val:.1f}%",
+            "symbolSize": 8,
+            "itemStyle": {"color": "#1f4e9c"},
+            "label": {
+                "show": True,
+                "position": "right",
+                "formatter": f"Residue {residue_val:.1f}%",
+                "fontSize": 12,
+                "color": "#1f4e9c"
+            }
+        })
+        
+    if peak_temp_k is not None and peak_val is not None:
+        # For DTG series, we plotted -dtg, so the marker coord uses -peak_val
+        markers_dtg = [{
+            "coord": [float(peak_temp_k), float(-peak_val)],
+            "name": f"{peak_temp_k - 273.15:.0f} °C",
+            "symbolSize": 8,
+            "itemStyle": {"color": "#c0392b"},
+            "label": {
+                "show": True,
+                "position": "top",
+                "formatter": f"{peak_temp_k - 273.15:.0f} °C",
+                "fontSize": 12,
+                "color": "#c0392b"
+            }
+        }]
+    else:
+        markers_dtg = []
+
+    option = {
+        "title": {
+            "text": "PE",
+            "left": "center",
+            "textStyle": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 16
+            }
+        },
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {
+                "type": "cross"
+            },
+            "formatter": function_placeholder # Will be handled by default tooltip since no custom JS allowed easily in pure JSON without functions, but simple axis trigger works fine.
+        },
+        "legend": {
+            "data": ["Weight (%)", "DTG (-%/°C)"],
+            "orient": "vertical",
+            "left": "left",
+            "top": "middle",
+            "textStyle": {
+                "fontFamily": "Noto Sans CJK KR"
+            }
+        },
+        "grid": {
+            "left": "10%",
+            "right": "10%",
+            "bottom": "15%",
+            "containLabel": True
+        },
+        "xAxis": {
+            "type": "value",
+            "name": "Temperature (K)",
+            "nameLocation": "middle",
+            "nameGap": 30,
+            "axisLabel": {
+                "fontFamily": "Noto Sans CJK KR"
+            },
+            "splitLine": {
+                "show": False
+            }
+        },
+        "yAxis": [
+            {
+                "type": "value",
+                "name": "Weight (%)",
+                "position": "left",
+                "axisLabel": {
+                    "fontFamily": "Noto Sans CJK KR"
+                },
+                "splitLine": {
+                    "show": True,
+                    "lineStyle": {
+                        "type": "dashed"
+                    }
+                }
+            },
+            {
+                "type": "value",
+                "name": "DTG (-%/°C)",
+                "position": "right",
+                "axisLabel": {
+                    "fontFamily": "Noto Sans CJK KR"
+                },
+                "splitLine": {
+                    "show": False
+                }
+            }
+        ],
+        "series": [
+            {
+                "name": "Weight (%)",
+                "type": "line",
+                "data": data_weight,
+                "smooth": True,
+                "showSymbol": False,
+                "lineStyle": {
+                    "color": "#1f4e9c",
+                    "width": 2
+                },
+                "markPoint": {
+                    "data": markers
+                }
+            },
+            {
+                "name": "DTG (-%/°C)",
+                "type": "line",
+                "yAxisIndex": 1,
+                "data": data_dtg,
+                "smooth": True,
+                "showSymbol": False,
+                "lineStyle": {
+                    "color": "#c0392b",
+                    "width": 2
+                },
+                "markPoint": {
+                    "data": markers_dtg
+                }
+            }
+        ]
+    }
+    
+    # Remove the invalid formatter key if it was added accidentally or just ensure clean JSON
+    if "formatter" in option["tooltip"]:
+        del option["tooltip"]["formatter"]
+
+    output = {
+        "figures": [
+            {
+                "name": "plot_PE_Kelvin",
+                "option": option,
+                "width": 614,
+                "height": 442,
+                "dpi": 300,
+                "formats": ["png"]
+            }
+        ]
+    }
+    
+    print(json.dumps(output))
+
+if __name__ == "__main__":
+    main()
+```

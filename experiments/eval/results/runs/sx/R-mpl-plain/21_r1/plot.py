@@ -1,0 +1,81 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/blank_rows_on_top.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/21_r1/out"
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# Read the Excel file
+# Based on preview: header is at row 8 (0-indexed would be 7 if using standard read_excel with header=None logic, 
+# but pandas usually handles this. Let's try reading with skiprows to align data correctly.)
+# The preview says header_rows: [8], data_start_row: 9. This likely means row index 8 in the sheet is the header.
+# In pandas read_excel, if we don't specify header, it assumes row 0. 
+# Let's read without header first to inspect or just use skiprows=8 and set names manually based on column letters/names provided.
+# Columns are B, C, D, E. Pandas reads A, B, C, D... so we need to map them.
+
+df = pd.read_excel(DATA_FILE, sheet_name='Sheet1', header=None)
+
+# Extract columns B, C, D, E which correspond to indices 1, 2, 3, 4
+# Column B -> Time (Index 1)
+# Column C -> Temperature (Index 2)
+# Column D -> Weight(%) (Index 3)
+# Column E -> D.W(%/C) (Index 4)
+
+# Drop rows that are entirely NaN or before the data starts if necessary, 
+# but the preview suggests data starts after row 8.
+# We will drop rows where the key columns (Temperature, Weight) are NaN to clean up top blank/header rows.
+data_df = df.iloc[:, [2, 3, 4]].copy() # C, D, E columns
+data_df.columns = ['Temperature', 'Weight', 'DW']
+
+# Remove non-numeric rows or NaNs
+data_df = data_df.dropna(subset=['Temperature', 'Weight'])
+data_df['Temperature'] = pd.to_numeric(data_df['Temperature'], errors='coerce')
+data_df['Weight'] = pd.to_numeric(data_df['Weight'], errors='coerce')
+data_df['DW'] = pd.to_numeric(data_df['DW'], errors='coerce')
+
+data_df = data_df.dropna()
+
+if data_df.empty:
+    print("No valid data found.")
+else:
+    # Create figure and axis
+    fig, ax1 = plt.subplots(figsize=(10, 6))
+    
+    # Plot Temperature vs Weight (%) on primary Y-axis (left)
+    color1 = 'tab:red'
+    ax1.set_xlabel('Temperature (°C)', fontsize=12)
+    ax1.set_ylabel('Weight (%)', color=color1, fontsize=12)
+    ax1.plot(data_df['Temperature'], data_df['Weight'], color=color1, label='Weight (%)')
+    ax1.tick_params(axis='y', labelcolor=color1)
+    ax1.grid(True, linestyle='--', alpha=0.5)
+    
+    # Instantiate a second axes that shares the same x-axis
+    ax2 = ax1.twinx()  
+    color2 = 'tab:blue'
+    ax2.set_ylabel('D.W (%/°C)', color=color2, fontsize=12)
+    ax2.plot(data_df['Temperature'], data_df['DW'], color=color2, linestyle='--', label='D.W (%/°C)')
+    ax2.tick_params(axis='y', labelcolor=color2)
+    
+    # Title
+    plt.title('TGA Data: Weight and Derivative Weight vs Temperature', fontsize=14)
+    
+    # Combine legends from both axes
+    lines_1, labels_1 = ax1.get_legend_handles_labels()
+    lines_2, labels_2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='best')
+    
+    # Tight layout for better spacing
+    fig.tight_layout()
+    
+    # Save the plot
+    output_path = os.path.join(OUT_DIR, "tga_plot.png")
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.close(fig)
+    print(f"Plot saved to {output_path}")

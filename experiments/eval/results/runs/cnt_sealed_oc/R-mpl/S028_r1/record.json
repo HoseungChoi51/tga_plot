@@ -1,0 +1,299 @@
+{
+ "arm": "R-mpl",
+ "item": "S028",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "산화개시온도 분포를 R4와 나머지(R1–R3) 두 그룹으로 나눠서 겹친 히스토그램으로 보여 주세요. bin은 5 °C 간격, 535–610 °C.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# 데이터 로드\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# 데이터 준비\n# R4 그룹과 나머지(R1-R3) 그룹으로 분리\nmask_r4 = df['반응기'] == 'R4'\ndf_r4 = df[mask_r4]\ndf_others = df[~mask_r4]\n\n# 산화개시온도 추출 (NaN 제거)\ntemp_r4 = df_r4['산화개시온도 (°C)'].dropna()\ntemp_others = df_others['산화개시온도 (°C)'].dropna()\n\n# 히스토그램 그리기\nbins = np.arange(535, 611, 5) # 535부터 610까지 5 간격\n\nfig, ax = plt.subplots(figsize=(10, 6))\n\nax.hist(temp_others, bins=bins, alpha=0.6, label='R1-R3', color='steelblue', edgecolor='black')\nax.hist(temp_r4, bins=bins, alpha=0.6, label='R4', color='darkorange', edgecolor='black')\n\n# 축 라벨 및 제목\nax.set_xlabel('산화개시온도 (°C)', fontsize=12)\nax.set_ylabel('빈도 (Count)', fontsize=12)\nax.set_title('반응기별 산화개시온도 분포 비교', fontsize=14)\n\n# 범례\nax.legend(loc='upper right', fontsize=11)\n\n# 격자선 추가\nax.grid(True, linestyle='--', alpha=0.7)\n\n# 범위 설정\nax.set_xlim(535, 610)\n\n# 저장\noutput_file = os.path.join(OUT_DIR, \"oxidation_onset_temp_histogram.png\")\nplt.tight_layout()\nplt.savefig(output_file, dpi=300)\nplt.close()\n```",
+     "llm_s": 5.81,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 3800,
+     "output_chars": 1220,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# 데이터 로드\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# 컬럼명 공백/특수문자 확인 및 정규화 (KeyError 방지)\n# 실제 컬럼명이 '산화개시온도'만 있거나, 띄어쓰기/단위가 다를 수 있으므로 유연하게 처리합니다.\ncol_target = None\nfor col in df.columns:\n    if '산화개시온도' in str(col):\n        col_target = col\n        break\n\nif col_target is None:\n    raise ValueError(\"데이터에서 '산화개시온도' 관련 컬럼을 찾을 수 없습니다.\")\n\nprint(f\"사용된 컬럼명: {col_target}\")\n\n# 데이터 준비\n# R4 그룹과 나머지(R1-R3) 그룹으로 분리\nmask_r4 = df['반응기'] == 'R4'\ndf_r4 = df[mask_r4]\ndf_others = df[~mask_r4]\n\n# 산화개시온도 추출 (NaN 제거)\ntemp_r4 = df_r4[col_target].dropna()\ntemp_others = df_others[col_target].dropna()\n\n# 히스토그램 그리기\nbins = np.arange(535, 611, 5) # 535부터 610까지 5 간격\n\nfig, ax = plt.subplots(figsize=(10, 6))\n\nax.hist(temp_others, bins=bins, alpha=0.6, label='R1-R3', color='steelblue', edgecolor='black')\nax.hist(temp_r4, bins=bins, alpha=0.6, label='R4', color='darkorange', edgecolor='black')\n\n# 축 라벨 및 제목\nax.set_xlabel('산화개시온도 (°C)', fontsize=12)\nax.set_ylabel('빈도 (Count)', fontsize=12)\nax.set_title('반응기별 산화개시온도 분포 비교', fontsize=14)\n\n# 범례\nax.legend(loc='upper right', fontsize=11)\n\n# 격자선 추가\nax.grid(True, linestyle='--', alpha=0.7)\n\n# 범위 설정\nax.set_xlim(535, 610)\n\n# 저장\noutput_file = os.path.join(OUT_DIR, \"oxidation_onset_temp_histogram.png\")\nplt.tight_layout()\nplt.savefig(output_file, dpi=300)\nplt.close()\n```",
+     "llm_s": 9.11,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 6712,
+     "output_chars": 1531,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# 데이터 로드\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# 컬럼명 확인 및 정규화 (KeyError 방지)\ncol_target = None\nfor col in df.columns:\n    if '산화개시온도' in str(col):\n        col_target = col\n        break\n\nif col_target is None:\n    raise ValueError(\"데이터에서 '산화개시온도' 관련 컬럼을 찾을 수 없습니다.\")\n\n# 반응기 컬럼명 확인\nreactor_col = None\nfor col in df.columns:\n    if '반응기' in str(col):\n        reactor_col = col\n        break\n\nif reactor_col is None:\n    # 기본값으로 시도하거나 오류 처리 가능하지만, 미리보기상 '반응기'가 있음\n    reactor_col = '반응기'\n\n# 데이터 준비\n# R4 그룹과 나머지(R1-R3) 그룹으로 분리\nmask_r4 = df[reactor_col] == 'R4'\ndf_r4 = df[mask_r4]\ndf_others = df[~mask_r4]\n\n# 산화개시온도 추출\n# 중요: 히스토그램을 그리려면 값이 숫자(float/int)여야 합니다.\n# Excel에서 텍스트로 저장되었거나 빈 문자열이 섞여 있을 수 있으므로 pd.to_numeric으로 강제 변환합니다.\ntemp_r4 = pd.to_numeric(df_r4[col_target], errors='coerce').dropna()\ntemp_others = pd.to_numeric(df_others[col_target], errors='coerce').dropna()\n\n# 만약 모든 데이터가 NaN이면 에러 방지용 체크 (선택사항, 정상적인 데이터라면 통과)\nif len(temp_r4) == 0 and len(temp_others) == 0:\n    raise ValueError(\"변환된 산화개시온도 데이터가 비어 있습니다.\")\n\n# 히스토그램 그리기\nbins = np.arange(535, 611, 5) # 535부터 610까지 5 간격\n\nfig, ax = plt.subplots(figsize=(10, 6))\n\nax.hist(temp_others, bins=bins, alpha=0.6, label='R1-R3', color='steelblue', edgecolor='black')\nax.hist(temp_r4, bins=bins, alpha=0.6, label='R4', color='darkorange', edgecolor='black')\n\n# 축 라벨 및 제목\nax.set_xlabel('산화개시온도 (°C)', fontsize=12)\nax.set_ylabel('빈도 (Count)', fontsize=12)\nax.set_title('반응기별 산화개시온도 분포 비교', fontsize=14)\n\n# 범례\nax.legend(loc='upper right', fontsize=11)\n\n# 격자선 추가\nax.grid(True, linestyle='--', alpha=0.7)\n\n# 범위 설정\nax.set_xlim(535, 610)\n\n# 저장\noutput_file = os.path.join(OUT_DIR, \"oxidation_onset_temp_histogram.png\")\nplt.tight_layout()\nplt.savefig(output_file, dpi=300)\nplt.close()\n```",
+     "llm_s": 9.344,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 10063,
+     "output_chars": 1972,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# 데이터 로드\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# 컬럼명 확인 및 정규화 (KeyError 방지)\ncol_target = None\nfor col in df.columns:\n    if '산화개시온도' in str(col):\n        col_target = col\n        break\n\nif col_target is None:\n    raise ValueError(\"데이터에서 '산화개시온도' 관련 컬럼을 찾을 수 없습니다.\")\n\n# 반응기 컬럼명 확인\nreactor_col = None\nfor col in df.columns:\n    if '반응기' in str(col):\n        reactor_col = col\n        break\n\nif reactor_col is None:\n    # 기본값으로 시도하거나 오류 처리 가능하지만, 미리보기상 '반응기'가 있음\n    reactor_col = '반응기'\n\n# 데이터 준비\n# R4 그룹과 나머지(R1-R3) 그룹으로 분리\nmask_r4 = df[reactor_col] == 'R4'\ndf_r4 = df[mask_r4]\ndf_others = df[~mask_r4]\n\n# 산화개시온도 추출\n# 중요: 히스토그램을 그리려면 값이 숫자(float/int)여야 합니다.\n# Excel에서 텍스트로 저장되었거나 빈 문자열이 섞여 있을 수 있으므로 pd.to_numeric으로 강제 변환합니다.\ntemp_r4 = pd.to_numeric(df_r4[col_target], errors='coerce').dropna()\ntemp_others = pd.to_numeric(df_others[col_target], errors='coerce').dropna()\n\n# 만약 모든 데이터가 NaN이면 에러 방지용 체크 (선택사항, 정상적인 데이터라면 통과)\nif len(temp_r4) == 0 and len(temp_others) == 0:\n    raise ValueError(\"변환된 산화개시온도 데이터가 비어 있습니다.\")\n\n# 히스토그램 그리기\nbins = np.arange(535, 611, 5) # 535부터 610까지 5 간격\n\nfig, ax = plt.subplots(figsize=(10, 6))\n\nax.hist(temp_others, bins=bins, alpha=0.6, label='R1-R3', color='steelblue', edgecolor='black')\nax.hist(temp_r4, bins=bins, alpha=0.6, label='R4', color='darkorange', edgecolor='black')\n\n# 축 라벨 및 제목\nax.set_xlabel('산화개시온도 (°C)', fontsize=12)\nax.set_ylabel('빈도 (Count)', fontsize=12)\nax.set_title('반응기별 산화개시온도 분포 비교', fontsize=14)\n\n# 범례\nax.legend(loc='upper right', fontsize=11)\n\n# 격자선 추가\nax.grid(True, linestyle='--', alpha=0.7)\n\n# 범위 설정\nax.set_xlim(535, 610)\n\n# 저장\noutput_file = os.path.join(OUT_DIR, \"oxidation_onset_temp_histogram.png\")\nplt.tight_layout()\nplt.savefig(output_file, dpi=300)\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "반응기별 산화개시온도 분포 비교",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [
+        {
+         "name": "",
+         "edges": [
+          535.0,
+          540.0,
+          545.0,
+          550.0,
+          555.0,
+          560.0,
+          565.0,
+          570.0,
+          575.0,
+          580.0,
+          585.0,
+          590.0,
+          595.0,
+          600.0,
+          605.0,
+          610.0
+         ],
+         "counts": [
+          0.0,
+          0.0,
+          1.0,
+          7.0,
+          10.0,
+          21.0,
+          43.0,
+          45.0,
+          92.0,
+          146.0,
+          186.0,
+          130.0,
+          59.0,
+          6.0,
+          0.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#4682b4"
+        },
+        {
+         "name": "",
+         "edges": [
+          535.0,
+          540.0,
+          545.0,
+          550.0,
+          555.0,
+          560.0,
+          565.0,
+          570.0,
+          575.0,
+          580.0,
+          585.0,
+          590.0,
+          595.0,
+          600.0,
+          605.0,
+          610.0
+         ],
+         "counts": [
+          1.0,
+          2.0,
+          7.0,
+          11.0,
+          10.0,
+          25.0,
+          37.0,
+          67.0,
+          57.0,
+          29.0,
+          5.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#ff8c00"
+        }
+       ],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "산화개시온도 (°C)",
+        "type": "value",
+        "ticks": [
+         540.0,
+         550.0,
+         560.0,
+         570.0,
+         580.0,
+         590.0,
+         600.0,
+         610.0
+        ],
+        "step": 10.0,
+        "categories": null,
+        "min": 535.0,
+        "max": 610.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "530",
+         "540",
+         "550",
+         "560",
+         "570",
+         "580",
+         "590",
+         "600",
+         "610"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "빈도 (Count)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         25.0,
+         50.0,
+         75.0,
+         100.0,
+         125.0,
+         150.0,
+         175.0
+        ],
+        "step": 25.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 195.3,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "25",
+         "50",
+         "75",
+         "100",
+         "125",
+         "150",
+         "175",
+         "200"
+        ],
+        "rotate": 0.0
+       },
+       "title": "반응기별 산화개시온도 분포 비교"
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "R1-R3",
+       "R4"
+      ],
+      "inside": true,
+      "where": "upper right"
+     },
+     "files": [
+      {
+       "path": "out/t1/oxidation_onset_temp_histogram.png",
+       "format": "png",
+       "px": [
+        3000,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.6083846092224121,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 25.837
+  }
+ ]
+}

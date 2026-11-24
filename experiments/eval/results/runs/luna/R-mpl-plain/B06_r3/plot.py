@@ -1,0 +1,71 @@
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/eval/inputs_b/isothermal.txt")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/B06_r3/out")
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+# The text file is tabular with a header row; infer its delimiter.
+df = pd.read_csv(DATA_FILE, sep=None, engine="python", comment="#")
+df.columns = [str(col).strip() for col in df.columns]
+
+time_col = "Time (min)"
+temp_col = "Temperature (°C)"
+weight_col = "Weight (%)"
+
+for col in (time_col, temp_col, weight_col):
+    if col not in df.columns:
+        raise ValueError(f"필수 열을 찾을 수 없습니다: {col}. 열 목록: {df.columns.tolist()}")
+
+for col in (time_col, temp_col, weight_col):
+    df[col] = pd.to_numeric(df[col], errors="coerce")
+df = df.dropna(subset=[time_col, temp_col, weight_col]).sort_values(time_col)
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+fig, ax_weight = plt.subplots(figsize=(9, 5.5))
+ax_temp = ax_weight.twinx()
+
+weight_line, = ax_weight.plot(
+    df[time_col], df[weight_col],
+    color="tab:blue", linewidth=2, label="무게"
+)
+temp_line, = ax_temp.plot(
+    df[time_col], df[temp_col],
+    color="tab:red", linewidth=2, label="온도"
+)
+
+# Mark and annotate the weight at 140 minutes (use the nearest recorded time).
+target_time = 140.0
+idx = (df[time_col] - target_time).abs().idxmin()
+mark_time = df.loc[idx, time_col]
+mark_weight = df.loc[idx, weight_col]
+ax_weight.scatter([mark_time], [mark_weight], color="tab:blue", edgecolor="white",
+                  linewidth=0.8, s=65, zorder=5)
+ax_weight.annotate(
+    f"{mark_time:g}분: {mark_weight:.2f}%",
+    xy=(mark_time, mark_weight),
+    xytext=(-10, 14),
+    textcoords="offset points",
+    ha="right",
+    color="tab:blue",
+    fontsize=10,
+    arrowprops={"arrowstyle": "->", "color": "tab:blue", "lw": 1},
+)
+
+ax_weight.set_xlabel("시간 (분)")
+ax_weight.set_ylabel("무게 (%)", color="tab:blue")
+ax_temp.set_ylabel("온도 (°C)", color="tab:red")
+ax_weight.tick_params(axis="y", labelcolor="tab:blue")
+ax_temp.tick_params(axis="y", labelcolor="tab:red")
+ax_weight.set_xlim(df[time_col].min(), df[time_col].max())
+ax_weight.grid(True, alpha=0.25)
+ax_weight.legend([weight_line, temp_line], ["무게", "온도"], loc="best")
+ax_weight.set_title("시간에 따른 무게 및 온도")
+
+fig.tight_layout()
+fig.savefig(OUT_DIR / "isothermal_weight_temperature.png", dpi=300, bbox_inches="tight")
+plt.close(fig)

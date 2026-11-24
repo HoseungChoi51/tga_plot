@@ -1,0 +1,54 @@
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/caox.csv"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/B01_r1/out"
+
+# Read the CSV and identify the temperature and weight columns.
+df = pd.read_csv(DATA_FILE)
+temperature_col = next(c for c in df.columns if "Temperature" in str(c))
+weight_col = next(c for c in df.columns if "Weight (%)" in str(c) and "Deriv" not in str(c))
+
+temperature = pd.to_numeric(df[temperature_col], errors="coerce")
+weight = pd.to_numeric(df[weight_col], errors="coerce")
+valid = temperature.notna() & weight.notna()
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+fig, ax = plt.subplots(figsize=(10, 6))
+
+ax.plot(temperature[valid], weight[valid], color="black", linewidth=1.6)
+
+regions = [
+    (120, 250, "H2O", "#87CEEB"),
+    (430, 580, "CO", "#F4A261"),
+    (640, 830, "CO2", "#90BE6D"),
+]
+for start, end, label, color in regions:
+    ax.axvspan(start, end, color=color, alpha=0.25, zorder=0)
+    ax.text(
+        (start + end) / 2,
+        1.02,
+        label,
+        transform=ax.get_xaxis_transform(),
+        ha="center",
+        va="bottom",
+        fontsize=12,
+        color=color,
+        fontweight="bold",
+    )
+
+ax.set_xlabel("Temperature (°C)")
+ax.set_ylabel("Weight (%)")
+ax.set_xlim(temperature[valid].min(), temperature[valid].max())
+ax.set_ylim(bottom=0)
+ax.grid(True, alpha=0.25)
+fig.tight_layout()
+
+out_dir = Path(OUT_DIR)
+out_dir.mkdir(parents=True, exist_ok=True)
+fig.savefig(out_dir / "caox_mass_loss_regions.png", dpi=300, bbox_inches="tight")
+plt.close(fig)

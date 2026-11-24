@@ -1,0 +1,62 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+# 파일 경로 및 출력 디렉토리 설정
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/B14_r1/out"
+
+# 한글 폰트 설정
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+# 데이터 로드 (PVC 시트만)
+df = pd.read_excel(DATA_FILE, sheet_name='PVC')
+
+# 컬럼명 정리
+temp_col = 'Temperature (°C)'
+weight_col = 'Weight (%)'
+deriv_col = 'Deriv. Weight (%/°C)'
+
+# 그래프 생성
+fig, ax1 = plt.subplots(figsize=(10, 6)) # 가로 10인치 요청에 맞춰 조절 (가로:세로 비율 고려하여 세로는 6으로 설정하거나 기본값 유지 가능하나, TGA는 보통 정사각형이나 약간 넓은 형태가 좋음. 요청은 가로 10인치이므로 figsize=(10, ?) 형태로 지정. 일반적인 발표용 비율을 위해 (10, 7) 또는 (10, 6) 사용. 여기서는 가독성을 위해 (10, 7) 사용)
+fig.set_size_inches(10, 7)
+
+ax2 = ax1.twinx()
+
+# 데이터 플롯팅
+# TGA 곡선 (Weight %) - 왼쪽 축
+line1, = ax1.plot(df[temp_col], df[weight_col], color='blue', linewidth=2, label='Weight (%)')
+# DTG 곡선 (Deriv. Weight) - 오른쪽 축
+# 시각적 명확성을 위해 음수 값을 양수로 변환하여 플롯하는 경우가 많으나, 원본 데이터를 그대로 사용하는 것이 일반적임. 
+# 다만, 겹치는 부분을 피하기 위해 스케일링이나 위치 조정이 필요할 수 있음. 여기서는 표준적인 TGA/DTG 플롯을 따름.
+line2, = ax2.plot(df[temp_col], df[deriv_col], color='red', linewidth=2, linestyle='--', label='Deriv. Weight (%/°C)')
+
+# 축 레이블 설정
+ax1.set_xlabel('Temperature (°C)', fontsize=16)
+ax1.set_ylabel('Weight (%)', fontsize=16, color='blue')
+ax2.set_ylabel('Deriv. Weight (%/°C)', fontsize=16, color='red')
+
+# 눈금 글자 크기 설정
+ax1.tick_params(axis='both', which='major', labelsize=14)
+ax2.tick_params(axis='both', which='major', labelsize=14)
+
+# 제목 설정
+plt.title('TGA/DTG Analysis of PVC', fontsize=18)
+
+# 범례 설정
+lines = [line1, line2]
+labels = [l.get_label() for l in lines]
+ax1.legend(lines, labels, loc='upper right', fontsize=14)
+
+# 그리드 추가
+ax1.grid(True, linestyle=':', alpha=0.6)
+
+# 레이아웃 조정
+plt.tight_layout()
+
+# 저장
+os.makedirs(OUT_DIR, exist_ok=True)
+output_path = os.path.join(OUT_DIR, "PVC_TGA.png")
+plt.savefig(output_path, dpi=300)
+plt.close()

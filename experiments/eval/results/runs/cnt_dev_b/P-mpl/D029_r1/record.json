@@ -1,0 +1,193 @@
+{
+ "arm": "P-mpl",
+ "item": "D029",
+ "repeat": 1,
+ "split": "dev",
+ "persona": "공정 엔지니어",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "26주 전체 등급(A/B/C) 비율 pie. 색은 A 초록, B 주황, C 빨강, % 라벨 소수 1자리.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"pie\",\n  \"x\": \"등급 (A/B/C)\",\n  \"values\": \"percent\",\n  \"colors\": {\n    \"A\": \"green\",\n    \"B\": \"orange\",\n    \"C\": \"red\"\n  },\n  \"asks\": [\n    {\"ask\": \"26주 전체 등급 비율 pie\", \"how\": \"key\"},\n    {\"ask\": \"색 A 초록, B 주황, C 빨강\", \"how\": \"key\"},\n    {\"ask\": \"% 라벨 소수 1자리\", \"how\": \"code\"}\n  ],\n  \"code\": \"for t in ax.texts:\\n    if '%' in t.get_text():\\n        val = float(t.get_text().replace('%', ''))\\n        t.set_text(f'{val:.1f}%')\"\n}\n```",
+     "llm_s": 5.609,
+     "prompt_tokens": 5924,
+     "output_tokens": 214,
+     "cached_tokens": 5880,
+     "prompt_n": 44,
+     "prefill_ms": 266.926624,
+     "decode_ms": 5028.457716000003,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "pie",
+    "x": "등급 (A/B/C)",
+    "values": "percent",
+    "colors": {
+     "A": "green",
+     "B": "orange",
+     "C": "red"
+    },
+    "asks": [
+     {
+      "ask": "26주 전체 등급 비율 pie",
+      "how": "key"
+     },
+     {
+      "ask": "색 A 초록, B 주황, C 빨강",
+      "how": "key"
+     },
+     {
+      "ask": "% 라벨 소수 1자리",
+      "how": "code"
+     }
+    ],
+    "code": "for t in ax.texts:\n    if '%' in t.get_text():\n        val = float(t.get_text().replace('%', ''))\n        t.set_text(f'{val:.1f}%')"
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_b/P-mpl/D029_r1/out/t1/pie_등급_A_B_C.png"
+    ],
+    "chart": "pie",
+    "rows_used": 997,
+    "rows_total": 997,
+    "values": {
+     "slices": {
+      "B": 522.0,
+      "A": 349.0,
+      "C": 126.0
+     },
+     "shares": {
+      "B": 0.5236,
+      "A": 0.3501,
+      "C": 0.1264
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "원 그래프를 저장했습니다: pie_등급_A_B_C.png\n사용한 행: 997 / 997\nB 52.4%, A 35.0%, C 12.6%"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": {
+        "labels": [
+         "B",
+         "A",
+         "C"
+        ],
+        "shares": [
+         0.5235707121364093,
+         0.35005015045135396,
+         0.12637913741223675
+        ],
+        "values": null,
+        "colors": [
+         "#e07b1f",
+         "#2e8b57",
+         "#c0392b"
+        ]
+       },
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 3,
+       "texts": [
+        "B",
+        "A",
+        "C",
+        "52.4%",
+        "35.0%",
+        "12.6%"
+       ],
+       "x": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.5403708236388134,
+        "max": 1.5403738028001412,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.083589517023766,
+        "max": 1.08358998131138,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [
+      "B",
+      "A",
+      "C",
+      "52.4%",
+      "35.0%",
+      "12.6%"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_b/P-mpl/D029_r1/out/t1/pie_등급_A_B_C.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.3542788028717041,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 4,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 6.035
+  }
+ ]
+}

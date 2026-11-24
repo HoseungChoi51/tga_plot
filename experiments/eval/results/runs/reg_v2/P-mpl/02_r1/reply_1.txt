@@ -1,0 +1,42 @@
+```json
+{
+  "file": "TGA.xlsx",
+  "sheets": "1006R1-V normal",
+  "x": {
+    "col": "B",
+    "min": 0,
+    "step": 200
+  },
+  "y1": {
+    "col": "C",
+    "step": 20
+  },
+  "y2": {
+    "col": "D",
+    "step": 0.2
+  },
+  "annotate": {
+    "peak": {
+      "kind": "max"
+    },
+    "residue": {
+      "x": 800,
+      "method": "nearest",
+      "text": "Residue {}%"
+    }
+  },
+  "output": {
+    "format": "png"
+  },
+  "asks": [
+    {"ask": "1006R1-V normal 시트", "how": "key"},
+    {"ask": "B열 X축, C열 Y1축, D열 Y2축", "how": "key"},
+    {"ask": "Weight(Y1) 20 단위", "how": "key"},
+    {"ask": "Temperature(X) 0부터 200 단위", "how": "key"},
+    {"ask": "Deriv.Weight(Y2) 0.2 단위", "how": "key"},
+    {"ask": "Deriv.Weight max 피크 표시", "how": "key"},
+    {"ask": "800도 근처 Residue 표시 (가장 가까운 값)", "how": "key"},
+    {"ask": "PNG 저장", "how": "key"}
+  ]
+}
+```

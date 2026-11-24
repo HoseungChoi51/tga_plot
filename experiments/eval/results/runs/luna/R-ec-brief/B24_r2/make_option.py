@@ -1,0 +1,168 @@
+import json
+import os
+import re
+
+import numpy as np
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+
+df = pd.read_excel(DATA_FILE, sheet_name="PE", header=0)
+
+def find_column(pattern):
+    for col in df.columns:
+        if re.search(pattern, str(col), re.IGNORECASE):
+            return col
+    raise ValueError(f"Could not find column matching {pattern!r}")
+
+temp_col = find_column(r"temperature")
+weight_col = find_column(r"weight\s*\(")
+dtg_col = find_column(r"deriv")
+
+temperature_c = pd.to_numeric(df[temp_col], errors="coerce").to_numpy(dtype=float)
+weight = pd.to_numeric(df[weight_col], errors="coerce").to_numpy(dtype=float)
+dtg = pd.to_numeric(df[dtg_col], errors="coerce").to_numpy(dtype=float)
+
+valid = np.isfinite(temperature_c) & np.isfinite(weight) & np.isfinite(dtg)
+temperature_c = temperature_c[valid]
+weight = weight[valid]
+dtg = dtg[valid]
+temperature_k = temperature_c + 273.15
+dtg_up = -dtg
+
+residue_index = int(np.argmin(np.abs(temperature_c - 800.0)))
+residue_point = [
+    float(temperature_k[residue_index]),
+    float(weight[residue_index]),
+]
+
+eligible = np.flatnonzero(temperature_c > 150.0)
+if eligible.size:
+    peak_index = int(eligible[np.argmax(dtg_up[eligible])])
+    peak_point = [float(temperature_k[peak_index]), float(dtg_up[peak_index])]
+    peak_label = f"{temperature_k[peak_index]:.0f} K"
+else:
+    peak_point = None
+    peak_label = ""
+
+series = [
+    {
+        "name": "Weight",
+        "type": "line",
+        "yAxisIndex": 0,
+        "showSymbol": False,
+        "symbol": "none",
+        "lineStyle": {"color": "#1f4e9c", "width": 2},
+        "data": [[float(x), float(y)] for x, y in zip(temperature_k, weight)],
+        "markPoint": {
+            "symbol": "circle",
+            "symbolSize": 9,
+            "itemStyle": {"color": "#1f4e9c", "borderColor": "#ffffff", "borderWidth": 1},
+            "label": {
+                "show": True,
+                "position": "top",
+                "color": "#1f4e9c",
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 12,
+                "formatter": f"Residue {weight[residue_index]:.1f}%",
+            },
+            "data": [{"coord": residue_point}],
+        },
+    },
+    {
+        "name": "-DTG",
+        "type": "line",
+        "yAxisIndex": 1,
+        "showSymbol": False,
+        "symbol": "none",
+        "lineStyle": {"color": "#c0392b", "width": 2},
+        "data": [[float(x), float(y)] for x, y in zip(temperature_k, dtg_up)],
+    },
+]
+
+if peak_point is not None:
+    series.append(
+        {
+            "name": "DTG peak",
+            "type": "scatter",
+            "yAxisIndex": 1,
+            "symbol": "circle",
+            "symbolSize": 9,
+            "itemStyle": {"color": "#c0392b", "borderColor": "#ffffff", "borderWidth": 1},
+            "label": {
+                "show": True,
+                "position": "top",
+                "color": "#c0392b",
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 12,
+                "formatter": peak_label,
+            },
+            "data": [peak_point],
+        }
+    )
+
+option = {
+    "animation": False,
+    "title": {
+        "text": "PE",
+        "left": "center",
+        "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 16, "fontWeight": "normal"},
+    },
+    "tooltip": {"trigger": "axis"},
+    "legend": {
+        "data": ["Weight", "-DTG"],
+        "left": 74,
+        "top": "middle",
+        "orient": "vertical",
+        "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 11},
+    },
+    "grid": {"left": 78, "right": 78, "top": 58, "bottom": 62},
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (K)",
+        "nameLocation": "middle",
+        "nameGap": 36,
+        "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+        "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+        "axisLine": {"lineStyle": {"color": "#555555"}},
+        "splitLine": {"show": False},
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Weight (%)",
+            "nameLocation": "middle",
+            "nameGap": 52,
+            "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+            "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+            "axisLine": {"show": True, "lineStyle": {"color": "#1f4e9c"}},
+            "splitLine": {"show": True, "lineStyle": {"color": "#e5e5e5"}},
+        },
+        {
+            "type": "value",
+            "name": "-DTG (%/°C)",
+            "nameLocation": "middle",
+            "nameGap": 52,
+            "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+            "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+            "axisLine": {"show": True, "lineStyle": {"color": "#c0392b"}},
+            "splitLine": {"show": False},
+        },
+    ],
+    "series": series,
+}
+
+result = {
+    "figures": [
+        {
+            "name": "plot1",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"],
+        }
+    ]
+}
+
+print(json.dumps(result, ensure_ascii=False, allow_nan=False))

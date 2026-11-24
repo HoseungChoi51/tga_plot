@@ -1,0 +1,805 @@
+{
+ "arm": "P-mpl",
+ "item": "SS02",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "생산팀장",
+ "type": "session",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "설비 정지 원인별 건수를 막대그래프로 보여 주세요.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/downtime.xlsx\",\n  \"chart\": \"bar\",\n  \"x\": \"원인\",\n  \"y\": \"count\",\n  \"asks\": [\n    {\"ask\": \"설비 정지 원인별 건수 막대그래프\", \"how\": \"key\"}\n  ]\n}\n```",
+     "llm_s": 2.691,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 17138,
+     "output_chars": 158,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/downtime.xlsx",
+    "chart": "bar",
+    "x": "원인",
+    "y": "count",
+    "asks": [
+     {
+      "ask": "설비 정지 원인별 건수 막대그래프",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS02_r1/out/t1/bar_원인.png"
+    ],
+    "chart": "bar",
+    "rows_used": 294,
+    "rows_total": 294,
+    "values": {
+     "categories": [
+      "기타",
+      "노즐 막힘",
+      "전력",
+      "촉매 공급 이상",
+      "히터 고장"
+     ],
+     "series": {
+      "count": [
+       70.0,
+       84.0,
+       28.0,
+       68.0,
+       44.0
+      ]
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "막대 그래프를 저장했습니다: bar_원인.png\n사용한 행: 294 / 294\ncount: 기타 70, 노즐 막힘 84, 전력 28, 촉매 공급 이상 68, 히터 고장 44"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": null,
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "count",
+         "orient": "v",
+         "cats": [
+          "기타",
+          "노즐 막힘",
+          "전력",
+          "촉매 공급 이상",
+          "히터 고장"
+         ],
+         "values": [
+          70.0,
+          84.0,
+          28.0,
+          68.0,
+          44.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "원인",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "기타",
+         "노즐 막힘",
+         "전력",
+         "촉매 공급 이상",
+         "히터 고장"
+        ],
+        "min": -0.6400000000000001,
+        "max": 4.640000000000001,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "기타",
+         "노즐 막힘",
+         "전력",
+         "촉매 공급 이상",
+         "히터 고장"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "count",
+        "type": "value",
+        "ticks": [
+         0.0,
+         20.0,
+         40.0,
+         60.0,
+         80.0,
+         100.0
+        ],
+        "step": 20.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 100.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "-20",
+         "0",
+         "20",
+         "40",
+         "60",
+         "80",
+         "100",
+         "120"
+        ],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS02_r1/out/t1/bar_원인.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.31415700912475586,
+   "check": {
+    "kind_expected": "bar",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 3.099
+  },
+  {
+   "turn": 2,
+   "text": "이걸 파이로 바꿔 주세요.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/downtime.xlsx\",\n  \"chart\": \"pie\",\n  \"x\": \"원인\",\n  \"asks\": [\n    {\"ask\": \"파이로 변경\", \"how\": \"key\"}\n  ]\n}\n```",
+     "llm_s": 1.851,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 17604,
+     "output_chars": 130,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/downtime.xlsx",
+    "chart": "pie",
+    "x": "원인",
+    "asks": [
+     {
+      "ask": "파이로 변경",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS02_r1/out/t2/pie_원인.png"
+    ],
+    "chart": "pie",
+    "rows_used": 294,
+    "rows_total": 294,
+    "values": {
+     "slices": {
+      "노즐 막힘": 84.0,
+      "기타": 70.0,
+      "촉매 공급 이상": 68.0,
+      "히터 고장": 44.0,
+      "전력": 28.0
+     },
+     "shares": {
+      "노즐 막힘": 0.2857,
+      "기타": 0.2381,
+      "촉매 공급 이상": 0.2313,
+      "히터 고장": 0.1497,
+      "전력": 0.0952
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "원 그래프를 저장했습니다: pie_원인.png\n사용한 행: 294 / 294\n노즐 막힘 28.6%, 기타 23.8%, 촉매 공급 이상 23.1%, 히터 고장 15.0%, 전력 9.5%"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": {
+        "labels": [
+         "노즐 막힘",
+         "기타",
+         "촉매 공급 이상",
+         "히터 고장",
+         "전력"
+        ],
+        "shares": [
+         0.28571428571428575,
+         0.2380952380952381,
+         0.23129251700680276,
+         0.14965986394557818,
+         0.09523809523809523
+        ],
+        "values": null,
+        "colors": [
+         "#1f4e9c",
+         "#c0392b",
+         "#2e8b57",
+         "#d4881c",
+         "#7b3fa0"
+        ]
+       },
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 5,
+       "texts": [
+        "노즐 막힘",
+        "기타",
+        "촉매 공급 이상",
+        "히터 고장",
+        "전력",
+        "28.6%",
+        "23.8%",
+        "23.1%",
+        "15.0%",
+        "9.5%"
+       ],
+       "x": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.5403687948362257,
+        "max": 1.5403678763659956,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.0835841366856096,
+        "max": 1.083589765461587,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [
+      "노즐 막힘",
+      "기타",
+      "촉매 공급 이상",
+      "히터 고장",
+      "전력",
+      "28.6%",
+      "23.8%",
+      "23.1%",
+      "15.0%",
+      "9.5%"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS02_r1/out/t2/pie_원인.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.3351445198059082,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 2.279
+  },
+  {
+   "turn": 3,
+   "text": "건수 말고 정지시간 합계 기준으로 다시 보여 주세요.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/downtime.xlsx\",\n  \"chart\": \"pie\",\n  \"x\": \"원인\",\n  \"y\": {\"col\": \"정지시간(분)\", \"agg\": \"sum\"},\n  \"asks\": [\n    {\"ask\": \"정지시간 합계 기준\", \"how\": \"key\"}\n  ]\n}\n```",
+     "llm_s": 3.108,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 17910,
+     "output_chars": 175,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/downtime.xlsx",
+    "chart": "pie",
+    "x": "원인",
+    "y": {
+     "col": "정지시간(분)",
+     "agg": "sum"
+    },
+    "asks": [
+     {
+      "ask": "정지시간 합계 기준",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS02_r1/out/t3/pie_정지시간_분.png"
+    ],
+    "chart": "pie",
+    "rows_used": 294,
+    "rows_total": 294,
+    "values": {
+     "slices": {
+      "히터 고장": 10491.0,
+      "촉매 공급 이상": 5959.0,
+      "노즐 막힘": 4697.0,
+      "기타": 2899.0,
+      "전력": 1733.0
+     },
+     "shares": {
+      "히터 고장": 0.407,
+      "촉매 공급 이상": 0.2312,
+      "노즐 막힘": 0.1822,
+      "기타": 0.1125,
+      "전력": 0.0672
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "원 그래프를 저장했습니다: pie_정지시간_분.png\n사용한 행: 294 / 294\n히터 고장 40.7%, 촉매 공급 이상 23.1%, 노즐 막힘 18.2%, 기타 11.2%, 전력 6.7%"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": {
+        "labels": [
+         "히터 고장",
+         "촉매 공급 이상",
+         "노즐 막힘",
+         "기타",
+         "전력"
+        ],
+        "shares": [
+         0.4069591527987897,
+         0.2311571434113038,
+         0.1822025679816905,
+         0.11245587493696421,
+         0.06722526087125182
+        ],
+        "values": null,
+        "colors": [
+         "#1f4e9c",
+         "#c0392b",
+         "#2e8b57",
+         "#d4881c",
+         "#7b3fa0"
+        ]
+       },
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 5,
+       "texts": [
+        "히터 고장",
+        "촉매 공급 이상",
+        "노즐 막힘",
+        "기타",
+        "전력",
+        "40.7%",
+        "23.1%",
+        "18.2%",
+        "11.2%",
+        "6.7%"
+       ],
+       "x": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.5403726163296478,
+        "max": 1.5403658728975582,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.0631745803188382,
+        "max": 1.0631790288447245,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [
+      "히터 고장",
+      "촉매 공급 이상",
+      "노즐 막힘",
+      "기타",
+      "전력",
+      "40.7%",
+      "23.1%",
+      "18.2%",
+      "11.2%",
+      "6.7%"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS02_r1/out/t3/pie_정지시간_분.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.32309961318969727,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 3.515
+  },
+  {
+   "turn": 4,
+   "text": "R2만 남겨 주세요.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/downtime.xlsx\",\n  \"chart\": \"pie\",\n  \"x\": \"원인\",\n  \"y\": {\"col\": \"정지시간(분)\", \"agg\": \"sum\"},\n  \"filter\": [\"반응기 == R2\"],\n  \"asks\": [\n    {\"ask\": \"R2만 남기기\", \"how\": \"key\"}\n  ]\n}\n```",
+     "llm_s": 2.742,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 18240,
+     "output_chars": 199,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/downtime.xlsx",
+    "chart": "pie",
+    "x": "원인",
+    "y": {
+     "col": "정지시간(분)",
+     "agg": "sum"
+    },
+    "filter": [
+     "반응기 == R2"
+    ],
+    "asks": [
+     {
+      "ask": "R2만 남기기",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS02_r1/out/t4/pie_정지시간_분.png"
+    ],
+    "chart": "pie",
+    "rows_used": 69,
+    "rows_total": 294,
+    "values": {
+     "slices": {
+      "히터 고장": 2567.0,
+      "촉매 공급 이상": 1574.0,
+      "노즐 막힘": 1340.0,
+      "기타": 641.0,
+      "전력": 429.0
+     },
+     "shares": {
+      "히터 고장": 0.3918,
+      "촉매 공급 이상": 0.2403,
+      "노즐 막힘": 0.2045,
+      "기타": 0.0978,
+      "전력": 0.0655
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "원 그래프를 저장했습니다: pie_정지시간_분.png\n사용한 행: 69 / 294\n히터 고장 39.2%, 촉매 공급 이상 24.0%, 노즐 막힘 20.4%, 기타 9.8%, 전력 6.6%"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": {
+        "labels": [
+         "히터 고장",
+         "촉매 공급 이상",
+         "노즐 막힘",
+         "기타",
+         "전력"
+        ],
+        "shares": [
+         0.39184857273698664,
+         0.2402686612730881,
+         0.20454892382842316,
+         0.09784765684628303,
+         0.06548618531521902
+        ],
+        "values": null,
+        "colors": [
+         "#1f4e9c",
+         "#c0392b",
+         "#2e8b57",
+         "#d4881c",
+         "#7b3fa0"
+        ]
+       },
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 5,
+       "texts": [
+        "히터 고장",
+        "촉매 공급 이상",
+        "노즐 막힘",
+        "기타",
+        "전력",
+        "39.2%",
+        "24.0%",
+        "20.5%",
+        "9.8%",
+        "6.5%"
+       ],
+       "x": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.5403745235754522,
+        "max": 1.5403692151298771,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.059446040257393,
+        "max": 1.0594470808559493,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [
+      "히터 고장",
+      "촉매 공급 이상",
+      "노즐 막힘",
+      "기타",
+      "전력",
+      "39.2%",
+      "24.0%",
+      "20.5%",
+      "9.8%",
+      "6.5%"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS02_r1/out/t4/pie_정지시간_분.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.3318295478820801,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 3.148
+  }
+ ]
+}

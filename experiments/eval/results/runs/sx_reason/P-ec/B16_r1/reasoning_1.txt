@@ -1,0 +1,73 @@
+We need answer user's request. Need produce JSON spec only inside ```json block, no extra. Need analyze request in Korean: "무게는 위 그래프, DTG는 아래 그래프로 따로 나눠서 그려줘 (x축은 같이)" Means plot weight as top graph, DTG as bottom graph separately, sharing x-axis. Need map to spec keys? Guide doesn't mention subplot/twin layout except maybe echarts. Need use extra ECharts settings only when no key fits. Need infer ECharts option for two grids with shared xAxis? We need output spec JSON for plotkit. File caox.csv. TGA data default preset draws x temperature, y1 weight, y2 derivative. User wants separate top and bottom with common x. Could use ECharts grid and xAxis/yAxis? Need allowed keys: echarts partial ECharts option merged over finished plot. Allowed: title, legend, grid, xAxis, yAxis (list: 0 = y1 left, 1 = y2 right), series (list: 0 = y1 line, 1 = y2 line; ...), graphic, textStyle, backgroundColor. In series lineStyle etc. Need express two grids? ECharts grid can be list? The allowed says grid (singular?) but likely can be list? It says allowed: title, legend, grid, xAxis, yAxis (list: 0 = y1 left, 1 = y2 right), series (list: 0 = y1 line, 1 = y2 line...). Need maybe set grid as list of two grids, xAxis as list? But yAxis list allowed only 0=y1 left, 1=y2 right. Hmm plotkit default likely uses one grid with dual y axes. To make two subplots sharing x, need ECharts options: grid: [{...top...}, {...bottom...}], xAxis: [{type:'category', gridIndex:0}, {type:'category', gridIndex:1}], yAxis: [{gridIndex:0}, {gridIndex:1}], series: [{xAxisIndex:0,yAxisIndex:0}, {xAxisIndex:1,yAxisIndex:1}]. But allowed yAxis list: 0 = y1 left, 1 = y2 right. If we replace yAxis with two axes? Need maybe allowed? It says yAxis (list: 0 = y1 left, 1 = y2 right). Could use yAxis list with two entries, first for top weight, second for bottom DTG? But then y2 right mapping? Hmm.
+
+Need produce spec only. Could use `"echarts"` with grid list, xAxis list, yAxis list, series list. Need ensure valid JSON no functions. Need maybe include `"y2": false`? If separate graphs, we need both y1 and y2 lines but not on same axes. If we keep default y2, it will draw DTG on right axis same grid. To move to bottom grid, need series[1] with xAxisIndex:1, yAxisIndex:1. But default y2 axis maybe yAxis[1]. We can set yAxis[0] top, yAxis[1] bottom. Need x axes: two x axes? shared x means same data range but separate axis labels maybe only bottom shows labels. ECharts can share by using same xAxis? If two grids, each series needs xAxisIndex. Could set xAxis list two entries with same type and maybe hide top axis labels. But default xAxis? Need maybe specify.
+
+Potential spec:
+{
+ "file": "caox.csv",
+ "echarts": {
+   "grid": [
+     {"top": "10%", "height": "35%", "left": "10%", "right": "5%"},
+     {"top": "55%", "height": "35%", "left": "10%", "right": "5%"}
+   ],
+   "xAxis": [
+     {"type": "value", "gridIndex": 0, "name": "Temperature (°C)", "nameLocation": "middle", "nameGap": 25, "axisLabel": {"show": fa
+[...]
+}]
+ }
+}
+This relies on default axis names and inverse. But if default yAxis[1] position right, bottom grid y axis right. Could set position left? Maybe not necessary? User didn't specify side, but likely left. Could include position left for y2. If default inverse preserved? If deep merge, adding position doesn't remove inverse. If replacement, we need full. Hmm.
+
+What is typical JSON merge in such tools? They might use deep merge for dicts, and for lists maybe merge by index. So providing partial list entries will merge. Then minimal is best to preserve defaults. But if they replace lists, partial loses. The guide says "merged over the finished plot". For lists, ECharts option merge often merges by index if same length? Not sure. In ECharts, setOption merges series by index? It does not replace entire series list? It merges each series by index if not replaceMerge. For axes, likely merges by index. So partial okay.
+
+Could include names? If deep merge, names preserved; if not, needed. But including names may override default names with same. okay. Including inverse uncertain.
+
+Maybe we can set `"y2": {"flip": true}` in spec to ensure peaks up if axis flip is used. But if default transforms data, this would incorrectly invert. Need not.
+
+Let's infer from guide: Part names include "축 뒤집기 / 로그 축" `<axis>.flip`, `<axis>.log`. If default TGA preset wanted peaks up, it could set `y2.flip: true`. They describe "peaks pointing up". So likely default `y2.flip` is true. If user mentions nothing, we leave out. But if we override echarts yAxis, we might need include `inverse: true` to keep. But if plotkit's spec y2.flip is applied to yAxis[1] before echarts merge, and our echarts yAxis[1] partial merges, inverse remains. If we provide full yAxis[1] without inverse, deep merge? If it replaces, lost. If we include inverse, okay if default flip. If default not flip, bad. Which is more likely? I think default flip true. Include inverse? But guide says default preset already draws peaks up; if we don't override y2 axis, no need. But we do override. To preserve, include `inverse: true`. I'd include.
+
+But what if default uses `y2.style`? no.
+
+Need maybe if default y2 axis flip true, peak annotation may choose visual max? It may use axis inverse to convert. If we include inverse, okay.
+
+Need maybe if default y2 axis position right, spec y2.position? no. We set left. Good.
+
+Need maybe if default y2 axis label color? no.
+
+Need maybe if default y1 axis label? no.
+
+Need maybe if x axis shared: top xAxis hidden labels. If default x axis has axisLabel show true, we set false. Good.
+
+Need maybe if bottom xAxis default type value. Good.
+
+Need maybe if default xAxis name? We set bottom. Good.
+
+Need maybe if default xAxis axisTick? set top false. bottom default.
+
+Need maybe if top xAxis axisLine? default true. Good.
+
+Need maybe if top grid has no x labels but has axis line. Good.
+
+Need maybe if bottom grid x axis line. Good.
+
+Need maybe if top grid y axis name. Good.
+
+Potential issue: `series` entries with only indices may not be allowed. Could include `"lineStyle": {}`? no. If strict, any unknown rejected. But indices necessary. Could maybe use `"series": [{"markArea": ...}]` no.
+
+Need maybe if plotkit's series mapping expects series[0] y1, series[1] y2. We set indices. Good.
+
+Need maybe if with two grids, legend series still same. Good.
+
+Could maybe use `"echarts": {"grid": [{"..."}, {"..."}], "xAxis": [{"..."}, {"..."}], "yAxis": [{"..."}, {"..."}], "series": [{"xAxisIndex":0,"yAxisIndex":0}, {"xAxisIndex":1,"yAxisIndex":1}]}`. final.
+
+Need maybe if `nameGap` for y axes with containLabel true could be too large. okay.
+
+Need maybe if `right`: "5%" for both. Good.
+
+Need maybe if `top`: "8%" leaves room for legend. Good.
+
+Need maybe if `height`: "35%" leaves gap. Good.
+
+Need maybe if plotkit default size maybe 8x5, two panels height 35% each ~1.75in, okay.
+
+Need final only JSON. Ensure no analysis in final. final JSON block. Need maybe no extra text. Good.

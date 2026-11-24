@@ -1,0 +1,7 @@
+```json
+{
+  "file": "cnt_batches.xlsx",
+  "sheets": "Annealed",
+  "code": "m=np.isfinite(x)&np.isfinite(y1); xx=x[m]; yy=y1[m]; d=np.gradient(yy,xx); i=int(np.nanargmin(d)); base=float(np.median(yy[:max(5,len(yy)//20)])); onset=float(xx[i]+(base-yy[i])/d[i]) if d[i] < -1e-12 else float(xx[i]); onset=min(max(onset,float(xx.min())),float(xx.max())); ax1.axvline(onset,color='red',linestyle='--',zorder=5); yl=ax1.get_ylim(); ax1.text(onset, yl[0]+0.85*(yl[1]-yl[0]), f'Onset {onset:.0f} °C', color='red', ha='center', va='bottom', zorder=6, clip_on=False)"
+}
+```

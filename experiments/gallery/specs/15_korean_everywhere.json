@@ -1,0 +1,25 @@
+{
+  "file": "data/polymers.xlsx",
+  "sheets": "PET",
+  "font_size": 12,
+  "title": "PET 열분해 (질소, 10 °C/min)",
+  "x": {
+    "label": "온도 (°C)"
+  },
+  "y1": {
+    "label": "무게 (%)",
+    "legend": "무게"
+  },
+  "y2": {
+    "label": "미분 무게 (%/°C)",
+    "legend": "미분 무게"
+  },
+  "annotate": {
+    "residue": {
+      "text": "잔류량 {y:.1f}%"
+    },
+    "peak": {
+      "text": "최대 분해 {x:.0f} °C"
+    }
+  }
+}

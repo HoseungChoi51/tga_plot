@@ -1,0 +1,113 @@
+```python
+import pandas as pd
+import json
+
+def main():
+    file_path = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+    
+    # Read all sheets
+    xls = pd.ExcelFile(file_path)
+    
+    figures = []
+    
+    for sheet_name in xls.sheet_names:
+        df = pd.read_excel(xls, sheet_name=sheet_name)
+        
+        # Identify columns based on the preview info
+        # Col B: Temperature (x), Col C: Weight(%) (y1), Col D: D.W(%/C) (y2)
+        temp_col = 'Temperature'
+        weight_col = 'Weight(%)'
+        dw_col = 'D.W(%/C)'
+        
+        # Prepare data for ECharts series
+        # TGA curve (Weight %)
+        tga_data = [[row[temp_col], row[weight_col]] for _, row in df.iterrows()]
+        # DTG curve (D.W %/C)
+        dtg_data = [[row[temp_col], row[dw_col]] for _, row in df.iterrows()]
+        
+        # Determine axis ranges roughly to set nice min/max if needed, 
+        # but usually auto is fine. We'll let ECharts handle it mostly.
+        
+        option = {
+            "backgroundColor": "#fff",
+            "tooltip": {
+                "trigger": "axis",
+                "axisPointer": {"type": "cross"},
+                "formatter": None # Keep simple or use default
+            },
+            "legend": {
+                "data": ["Weight (%)", "DTG (%/°C)"],
+                "top": 10
+            },
+            "grid": {
+                "left": "10%",
+                "right": "10%",
+                "bottom": "15%",
+                "containLabel": True
+            },
+            "xAxis": {
+                "name": "Temperature (°C)",
+                "type": "value",
+                "nameLocation": "middle",
+                "nameGap": 30,
+                "splitLine": {"show": False}
+            },
+            "yAxis": [
+                {
+                    "type": "value",
+                    "name": "Weight (%)",
+                    "position": "left",
+                    "min": 0,
+                    "max": 105,
+                    "axisLine": {"lineStyle": {"color": "#333"}},
+                    "axisLabel": {"formatter": "{value}%"}
+                },
+                {
+                    "type": "value",
+                    "name": "DTG (%/°C)",
+                    "position": "right",
+                    "offset": 0,
+                    "axisLine": {"lineStyle": {"color": "#d62728"}},
+                    "axisLabel": {"formatter": "{value}"},
+                    "splitLine": {"show": False}
+                }
+            ],
+            "series": [
+                {
+                    "name": "Weight (%)",
+                    "type": "line",
+                    "smooth": True,
+                    "showSymbol": False,
+                    "data": tga_data,
+                    "itemStyle": {"color": "#1f77b4"},
+                    "lineStyle": {"width": 2}
+                },
+                {
+                    "name": "DTG (%/°C)",
+                    "type": "line",
+                    "yAxisIndex": 1,
+                    "smooth": True,
+                    "showSymbol": False,
+                    "data": dtg_data,
+                    "itemStyle": {"color": "#d62728"},
+                    "lineStyle": {"width": 2}
+                }
+            ]
+        }
+        
+        fig_entry = {
+            "name": f"tga_{sheet_name.replace(' ', '_').replace('-', '_')}",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+        figures.append(fig_entry)
+
+    output = {"figures": figures}
+    print(json.dumps(output))
+
+if __name__ == "__main__":
+    main()
+```

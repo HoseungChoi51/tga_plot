@@ -1,0 +1,95 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+
+# Data file and output directory
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/B11_r1/out"
+
+# Ensure output directory exists
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# Read the PET sheet
+df = pd.read_excel(DATA_FILE, sheet_name="PET")
+
+# Extract columns based on preview info
+temp_col = "Temperature (°C)"
+weight_col = "Weight (%)"
+dtg_col = "Deriv. Weight (%/°C)"
+
+temperature = df[temp_col].values
+weight = df[weight_col].values
+dtg = df[dtg_col].values
+
+# Prepare DTG for plotting (multiply by -1 so peaks point up)
+dtg_plot = dtg * -1
+
+# Find residue at 800 °C (nearest measured point)
+idx_800 = np.argmin(np.abs(temperature - 800))
+residue_temp = temperature[idx_800]
+residue_weight = weight[idx_800]
+
+# Find peak: highest DTG peak above 150 °C
+mask_above_150 = temperature > 150
+if np.any(mask_above_150):
+    dtg_filtered = dtg[mask_above_150]
+    temp_filtered = temperature[mask_above_150]
+    # Peak is where DTG is most negative (since original DTG is negative during mass loss)
+    min_dtg_idx = np.argmin(dtg_filtered)
+    peak_temp = temp_filtered[min_dtg_idx]
+else:
+    peak_temp = None
+
+# Create figure with two y-axes
+fig, ax1 = plt.subplots(figsize=(8, 6))
+
+# Plot weight (%) on left y-axis
+color1 = '#1f4e9c'
+ax1.plot(temperature, weight, color=color1, label='Weight (%)')
+ax1.set_xlabel('Temperature (°C)', fontsize=12)
+ax1.set_ylabel('Weight (%)', color=color1, fontsize=12)
+ax1.tick_params(axis='y', labelcolor=color1)
+
+# Create right y-axis for DTG
+ax2 = ax1.twinx()
+color2 = '#c0392b'
+ax2.plot(temperature, dtg_plot, color=color2, label='DTG (%/°C)')
+ax2.set_ylabel('DTG (%/°C)', color=color2, fontsize=12)
+ax2.tick_params(axis='y', labelcolor=color2)
+
+# Title
+ax1.set_title('PET 열분해', fontsize=14)
+
+# Grid
+ax1.grid(True, linestyle='--', alpha=0.7)
+
+# Residue marker and label (two decimal places)
+ax1.plot(residue_temp, residue_weight, 'o', color=color1, markersize=6)
+ax1.annotate(f'Residue {residue_weight:.2f}%', 
+             xy=(residue_temp, residue_weight), 
+             xytext=(residue_temp + 20, residue_weight + 5),
+             fontsize=10, color=color1,
+             arrowprops=dict(arrowstyle='->', color=color1))
+
+# Peak marker and label
+if peak_temp is not None:
+    # Find the corresponding DTG value at peak_temp
+    idx_peak = np.argmin(np.abs(temperature - peak_temp))
+    peak_dtg_val = dtg_plot[idx_peak]
+    ax2.plot(peak_temp, peak_dtg_val, 'o', color=color2, markersize=6)
+    ax2.annotate(f'{peak_temp:.0f} °C', 
+                 xy=(peak_temp, peak_dtg_val), 
+                 xytext=(peak_temp + 20, peak_dtg_val * 0.8),
+                 fontsize=10, color=color2,
+                 arrowprops=dict(arrowstyle='->', color=color2))
+
+# Legend at bottom left
+lines1, labels1 = ax1.get_legend_handles_labels()
+lines2, labels2 = ax2.get_legend_handles_labels()
+ax1.legend(lines1 + lines2, labels1 + labels2, loc='lower left', fontsize=10)
+
+# Save figure
+output_path = os.path.join(OUT_DIR, "PET_열분해.png")
+plt.savefig(output_path, dpi=300, bbox_inches='tight')
+plt.close()

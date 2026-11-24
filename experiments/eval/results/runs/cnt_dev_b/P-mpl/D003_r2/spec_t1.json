@@ -1,0 +1,15 @@
+{
+ "file": "data/r2_zone_temps.csv",
+ "chart": "scatter",
+ "x": "1존(°C)",
+ "y": "2존(°C)",
+ "asks": [
+  {
+   "ask": "1존과 2존 온도 상관관계 점그래프",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_b/P-mpl/D003_r2/out/t1"
+ }
+}

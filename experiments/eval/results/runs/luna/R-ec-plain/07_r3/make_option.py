@@ -1,0 +1,117 @@
+import json
+import os
+import re
+import pandas as pd
+import numpy as np
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+def clean_sheet_name(value):
+    name = re.sub(r"[^A-Za-z0-9_-]+", "_", str(value).strip()).strip("_")
+    return name or "plot"
+
+def main():
+    workbook = pd.ExcelFile(DATA_FILE)
+    figures = []
+
+    for sheet in workbook.sheet_names:
+        df = pd.read_excel(DATA_FILE, sheet_name=sheet)
+        df.columns = [str(c).strip() for c in df.columns]
+
+        temperature_col = next((c for c in df.columns if "temperature" in c.lower()), None)
+        weight_col = next((c for c in df.columns if "weight" in c.lower()), None)
+        derivative_col = next((c for c in df.columns if "d.w" in c.lower() or "dw(" in c.lower()), None)
+        if temperature_col is None or weight_col is None:
+            continue
+
+        selected = [temperature_col, weight_col] + ([derivative_col] if derivative_col else [])
+        data = df[selected].apply(pd.to_numeric, errors="coerce").dropna(subset=[temperature_col, weight_col])
+        if data.empty:
+            continue
+
+        series = [
+            {
+                "name": "Weight(%)",
+                "type": "line",
+                "showSymbol": False,
+                "yAxisIndex": 0,
+                "data": [[float(x), float(y)] for x, y in zip(data[temperature_col], data[weight_col])],
+                "lineStyle": {"width": 1.8},
+            }
+        ]
+
+        y_axes = [
+            {
+                "type": "value",
+                "name": "Weight (%)",
+                "nameLocation": "middle",
+                "nameGap": 48,
+                "min": 0,
+                "max": 105,
+                "axisLine": {"show": True},
+                "splitLine": {"show": True, "lineStyle": {"color": "#e5e7eb"}},
+            }
+        ]
+
+        if derivative_col:
+            derivative_data = data.dropna(subset=[derivative_col])
+            if not derivative_data.empty:
+                series.append({
+                    "name": "D.W (%/°C)",
+                    "type": "line",
+                    "showSymbol": False,
+                    "yAxisIndex": 1,
+                    "data": [[float(x), float(y)] for x, y in zip(derivative_data[temperature_col], derivative_data[derivative_col])],
+                    "lineStyle": {"width": 1.5},
+                })
+                y_axes.append({
+                    "type": "value",
+                    "name": "D.W (%/°C)",
+                    "nameLocation": "middle",
+                    "nameGap": 52,
+                    "axisLine": {"show": True},
+                    "splitLine": {"show": False},
+                })
+
+        option = {
+            "animation": False,
+            "backgroundColor": "#ffffff",
+            "title": {
+                "text": str(sheet),
+                "left": "center",
+                "top": 12,
+                "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 15, "fontWeight": "normal"},
+            },
+            "legend": {
+                "top": 12,
+                "right": 18,
+                "orient": "vertical",
+                "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 9},
+            },
+            "grid": {"left": 76, "right": 76, "top": 62, "bottom": 58, "containLabel": False},
+            "tooltip": {"trigger": "axis"},
+            "xAxis": {
+                "type": "value",
+                "name": "Temperature (°C)",
+                "nameLocation": "middle",
+                "nameGap": 34,
+                "axisLine": {"show": True},
+                "splitLine": {"show": True, "lineStyle": {"color": "#e5e7eb"}},
+            },
+            "yAxis": y_axes,
+            "series": series,
+        }
+
+        figures.append({
+            "name": clean_sheet_name(sheet),
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"],
+        })
+
+    print(json.dumps({"figures": figures}, ensure_ascii=False, allow_nan=False))
+
+if __name__ == "__main__":
+    main()

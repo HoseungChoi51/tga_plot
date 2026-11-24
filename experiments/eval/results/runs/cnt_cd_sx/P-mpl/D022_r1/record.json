@@ -1,0 +1,283 @@
+{
+ "arm": "P-mpl",
+ "item": "D022",
+ "repeat": 1,
+ "split": "dev",
+ "persona": "공정 엔지니어",
+ "type": "single",
+ "cd": "",
+ "backend": "openai",
+ "model": "qwen3.8-flash-next",
+ "effort": "",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "diameters.csv에서 TEM-01, TEM-02만 직경(nm) histogram overlay, bin 1 nm 간격 3~28 nm.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/diameters.csv\",\n  \"chart\": \"histogram\",\n  \"x\": {\n    \"col\": \"직경(nm)\",\n    \"bins\": {\n      \"width\": 1,\n      \"min\": 3,\n      \"max\": 28\n    }\n  },\n  \"filter\": [\n    \"시료 in [TEM-01, TEM-02]\"\n  ],\n  \"asks\": [\n    {\n      \"ask\": \"TEM-01, TEM-02만 필터링\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"직경 histogram overlay\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"bin 1 nm 간격 3~28 nm\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 6.533,
+     "prompt_tokens": 5494,
+     "output_tokens": 208,
+     "cached_tokens": 5052,
+     "prompt_n": 442,
+     "prefill_ms": 620.67616,
+     "decode_ms": 5162.161177,
+     "finish": "stop",
+     "schema_ok": true,
+     "schema_error": ""
+    }
+   ],
+   "spec": {
+    "file": "data/diameters.csv",
+    "chart": "histogram",
+    "x": {
+     "col": "직경(nm)",
+     "bins": {
+      "width": 1,
+      "min": 3,
+      "max": 28
+     }
+    },
+    "filter": [
+     "시료 in [TEM-01, TEM-02]"
+    ],
+    "asks": [
+     {
+      "ask": "TEM-01, TEM-02만 필터링",
+      "how": "key"
+     },
+     {
+      "ask": "직경 histogram overlay",
+      "how": "key"
+     },
+     {
+      "ask": "bin 1 nm 간격 3~28 nm",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_sx/P-mpl/D022_r1/out/t1/histogram_직경_nm.png"
+    ],
+    "chart": "histogram",
+    "rows_used": 400,
+    "rows_total": 1300,
+    "values": {
+     "bins": 25,
+     "series": {
+      "직경(nm)": {
+       "n": 400,
+       "mean": 10.6825
+      }
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "히스토그램 그래프를 저장했습니다: histogram_직경_nm.png\n사용한 행: 400 / 1300\n직경(nm): 400개, 평균 10.68"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [
+        {
+         "name": "",
+         "edges": [
+          3.0,
+          4.0,
+          5.0,
+          6.0,
+          7.0,
+          8.0,
+          9.0,
+          10.0,
+          11.0,
+          12.0,
+          13.0,
+          14.0,
+          15.0,
+          16.0,
+          17.0,
+          18.0,
+          19.0,
+          20.0,
+          21.0,
+          22.0,
+          23.0,
+          24.0,
+          25.0,
+          26.0,
+          27.0,
+          28.0
+         ],
+         "counts": [
+          0.0,
+          0.0,
+          10.0,
+          34.0,
+          33.0,
+          47.0,
+          56.0,
+          64.0,
+          41.0,
+          39.0,
+          13.0,
+          22.0,
+          16.0,
+          10.0,
+          6.0,
+          1.0,
+          2.0,
+          1.0,
+          2.0,
+          1.0,
+          0.0,
+          0.0,
+          2.0,
+          0.0,
+          0.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "color": "#1f4e9c"
+        }
+       ],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "직경(nm)",
+        "type": "value",
+        "ticks": [
+         5.0,
+         10.0,
+         15.0,
+         20.0,
+         25.0
+        ],
+        "step": 5.0,
+        "categories": null,
+        "min": 1.75,
+        "max": 29.25,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "5",
+         "10",
+         "15",
+         "20",
+         "25"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "count",
+        "type": "value",
+        "ticks": [
+         0.0,
+         20.0,
+         40.0,
+         60.0,
+         80.0
+        ],
+        "step": 20.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 80.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "-20",
+         "0",
+         "20",
+         "40",
+         "60",
+         "80",
+         "100"
+        ],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_sx/P-mpl/D022_r1/out/t1/histogram_직경_nm.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.4293503761291504,
+   "check": {
+    "kind_expected": "histogram",
+    "failed": [
+     "histogram TEM-01: bins/counts differ",
+     "histogram TEM-02: bins/counts differ"
+    ],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 2,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 7.083
+  }
+ ]
+}

@@ -1,0 +1,21 @@
+We need answer user in Korean? Test mode: Do step 2 only: reply with JSON spec inside one json block, nothing else. Need produce spec for rheology.csv. Need analyze request.
+
+User: "주파수에 따른 G'(왼쪽 축)와 G''(오른쪽 축)를 그려줘. x축과 두 y축 모두 로그 스케일로"
+Inspect: rheology.csv sheet rheology columns A Angular frequency, B Storage modulus G', C Loss modulus G''. tga_guess incomplete; give x/y1/y2 col explicitly.
+
+Need spec: file rheology.csv, preset none (not TGA). x col A maybe label? User didn't ask label but maybe use default? For other data preset none and give x.col and y1.col. Need y2 col C. Logs: x.log true, y1.log true, y2.log true. Maybe y2 false? no, they want right axis. Legend? Not requested. Keep defaults. Need not include labels? Could include x.label? They didn't ask. But perhaps to clarify G' left and G'' right? Request says G'(왼쪽 축) and G''(오른쪽 축). That's mapping columns to axes, not label text. Could include y1.col B, y2.col C. Maybe legend? Default maybe shows? Not necessary. Need ensure y2 axis exists: by default? For preset none? If y2.col specified, yes. Need maybe x label? Since not asked, omit. But maybe default labels? For preset none likely no labels? The guide says for other data use preset none and give x.col and y1.col. It doesn't say labels required. Could include labels from headers? But rule leave out every key user did not mention. However for other data maybe need labels? It says x.col and y1.col. Could add x.label? Not mentioned. But if no label, plot may have no axis labels. User asked 주파수에 따른 G'... maybe implies labels? But part names not explicit. We should only include requested. Maybe include y1.legend? No.
+
+Need output only JSON block. Ensure valid JSON. Could include "sheets": "rheology"? Not necessary but safe? User didn't mention sheet. There is one sheet. Leave out.
+
+Spec:
+{
+  "file": "rheology.csv",
+  "preset": "none",
+  "x": {"col": "A", "log": true},
+  "y1": {"col": "B", "log": true},
+  "y2": {"col": "C", "log": true}
+}
+
+Need consider log scale for y2: if y2 has min 793 positive okay. x positive. Good.
+
+Need final only json block. Ensure no extra.

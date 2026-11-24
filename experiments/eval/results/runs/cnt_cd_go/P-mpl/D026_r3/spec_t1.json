@@ -1,0 +1,37 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "heatmap",
+ "x": {
+  "col": "hour",
+  "bins": {
+   "width": 1,
+   "min": 0,
+   "max": 24
+  }
+ },
+ "y": {
+  "col": "weekday_name",
+  "order": [
+   "월",
+   "화",
+   "수",
+   "목",
+   "금",
+   "토",
+   "일"
+  ]
+ },
+ "z": {
+  "agg": "count"
+ },
+ "data_code": "import pandas as pd\n# Extract hour from '시작시각' (text like '10:43')\ndf['hour'] = df['시작시각'].str.split(':').str[0].astype(int)\n# Extract weekday name from '일자'\nweekdays_ko = ['월', '화', '수', '목', '금', '토', '일']\ndf['weekday_idx'] = pd.to_datetime(df['일자']).dt.dayofweek\ndf['weekday_name'] = df['weekday_idx'].map(lambda x: weekdays_ko[x] if x < 7 else '')\n# Drop rows with invalid data\ndf = df.dropna(subset=['hour', 'weekday_name'])",
+ "asks": [
+  {
+   "ask": "요일별/시간대별 정지 빈도 히트맵",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl/D026_r3/out/t1"
+ }
+}

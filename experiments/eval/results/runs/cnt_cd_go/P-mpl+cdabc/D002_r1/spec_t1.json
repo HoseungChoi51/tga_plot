@@ -1,0 +1,27 @@
+{
+ "asks": [
+  {
+   "ask": "2존 PV 하루치 트렌드",
+   "how": "key"
+  },
+  {
+   "ask": "2존 SP 겹치기",
+   "how": "key"
+  },
+  {
+   "ask": "2존 PV 10분 이동평균 (60포인트)",
+   "how": "code"
+  }
+ ],
+ "chart": "line",
+ "code": "import numpy as np\n# Identify the raw PV line and add a moving average (window=60)\nfor i, line in enumerate(ax.get_lines()):\n    label = line.get_label()\n    if '2존(°C)' in label or 'PV' in label:\n        y_data = line.get_ydata()\n        # Simple moving average with window 60\n        kernel = np.ones(60) / 60\n        ma = np.convolve(y_data, kernel, mode='same')\n        ax.plot(line.get_xdata(), ma, linestyle='--', linewidth=1.5, label='2존 PV 10분 이동평균')\nax.legend()",
+ "file": "data/r2_zone_temps.csv",
+ "x": "시각",
+ "y": [
+  "2존(°C)",
+  "2존 SP(°C)"
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdabc/D002_r1/out/t1"
+ }
+}

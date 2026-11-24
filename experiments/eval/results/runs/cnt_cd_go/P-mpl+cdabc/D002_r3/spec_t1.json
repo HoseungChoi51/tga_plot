@@ -1,0 +1,29 @@
+{
+ "asks": [
+  {
+   "ask": "2존 PV 하루치 트렌드",
+   "how": "key"
+  },
+  {
+   "ask": "2존 SP 겹치기",
+   "how": "key"
+  },
+  {
+   "ask": "2존 PV 10분 이동평균 (60포인트)",
+   "how": "code"
+  }
+ ],
+ "chart": "line",
+ "code": "import pandas as pd\n# Calculate moving average on the original data frame logic if possible, but 'data' is aggregated.\n# Better to use data_code for calculation and then plot? No, data_code changes df before plotting.\n# Let's use data_code to add the MA column.",
+ "data_code": "df['2존_PV_MA'] = df['2존(°C)'].rolling(window=60, min_periods=1).mean()",
+ "file": "data/r2_zone_temps.csv",
+ "x": "시각",
+ "y": [
+  "2존(°C)",
+  "2존 SP(°C)",
+  "2존_PV_MA"
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdabc/D002_r3/out/t1"
+ }
+}

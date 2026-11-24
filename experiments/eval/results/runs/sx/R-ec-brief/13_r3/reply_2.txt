@@ -1,0 +1,251 @@
+```python
+import pandas as pd
+import numpy as np
+import json
+
+def main():
+    file_path = "/home/chs/Work/tga_plot/tests/inputs/extra_columns.xlsx"
+    
+    # Read the Excel file, assuming first row is header based on preview (header_rows: [1])
+    df = pd.read_excel(file_path, sheet_name=None, header=0)
+    
+    figures = []
+    
+    for sheet_name, data in df.items():
+        # Identify columns based on the user request and standard TGA structure
+        # User requested y1 to be 'Weight (mg)' instead of default 'Weight (%)'
+        # x is Temperature, y2 is Deriv. Weight
+        
+        temp_col = None
+        weight_mg_col = None
+        dtg_col = None
+        
+        cols = data.columns.tolist()
+        
+        for col in cols:
+            col_lower = str(col).lower()
+            if "temperature" in col_lower or "temp" in col_lower:
+                temp_col = col
+            elif "weight (mg)" in col_lower or ("weight" in col_lower and "mg" in col_lower):
+                weight_mg_col = col
+            elif "deriv" in col_lower or "dtg" in col_lower:
+                dtg_col = col
+                
+        # Fallbacks if specific names not found exactly
+        if temp_col is None:
+            # Try to find numeric column with range 30-900 roughly
+            for col in cols:
+                if pd.api.types.is_numeric_dtype(data[col]):
+                    min_val = data[col].min()
+                    max_val = data[col].max()
+                    if 20 <= min_val <= 50 and 800 <= max_val <= 1000:
+                        temp_col = col
+                        break
+        
+        if weight_mg_col is None:
+             # Fallback to any weight column if mg specifically not found but user asked for it
+             # If strictly following user "y1축은 Weight (mg) 열", we look for that name.
+             # If not present, maybe use Weight (%)? But user was specific. 
+             # Let's assume the column exists as per preview.
+             pass
+
+        if dtg_col is None:
+             for col in cols:
+                 if "deriv" in str(col).lower() or "dtg" in str(col).lower():
+                     dtg_col = col
+                     break
+
+        if temp_col is None or weight_mg_col is None or dtg_col is None:
+            continue
+            
+        # Extract data
+        x_data = data[temp_col].dropna().tolist()
+        y1_data = data[weight_mg_col].dropna().tolist()
+        y2_raw = data[dtg_col].dropna().tolist()
+        
+        # Align lengths just in case dropna removed different rows
+        min_len = min(len(x_data), len(y1_data), len(y2_raw))
+        x_data = x_data[:min_len]
+        y1_data = y1_data[:min_len]
+        y2_data = [-val for val in y2_raw[:min_len]] # Multiply by -1 so peaks point up
+        
+        # Calculate Residue at nearest 800 C
+        residue_val = None
+        residue_x = None
+        residue_y = None
+        
+        if len(x_data) > 0:
+            target_temp = 800
+            idx_800 = np.argmin(np.abs(np.array(x_data) - target_temp))
+            residue_val = float(y1_data[idx_800])
+            residue_x = float(x_data[idx_800])
+            residue_y = float(y1_data[idx_800])
+            
+        # Calculate Peak temperature (highest DTG peak above 150 C)
+        # Note: y2_data is already multiplied by -1, so we look for maximum positive value
+        peak_temp = None
+        peak_val = None
+        peak_idx = None
+        
+        if len(x_data) > 0 and len(y2_data) > 0:
+            mask = np.array(x_data) > 150
+            if np.any(mask):
+                masked_temps = np.array(x_data)[mask]
+                masked_dtgs = np.array(y2_data)[mask]
+                
+                max_dtg_idx_local = np.argmax(masked_dtgs)
+                peak_temp = float(masked_temps[max_dtg_idx_local])
+                peak_val = float(masked_dtgs[max_dtg_idx_local])
+                
+                # Find global index for plotting marker
+                peak_idx = np.where((np.array(x_data) == peak_temp) & (np.array(y2_data) == peak_val))[0][0]
+
+        # Prepare ECharts Option
+        option = {
+            "title": {
+                "text": sheet_name,
+                "left": "center",
+                "top": 10,
+                "textStyle": {
+                    "fontFamily": "Noto Sans CJK KR",
+                    "fontSize": 16
+                }
+            },
+            "tooltip": {
+                "trigger": "axis",
+                "axisPointer": {
+                    "type": "cross"
+                }
+            },
+            "legend": {
+                "data": ["Weight (mg)", "DTG"],
+                "orient": "vertical",
+                "left": "left",
+                "top": "middle",
+                "textStyle": {
+                    "fontFamily": "Noto Sans CJK KR"
+                }
+            },
+            "grid": {
+                "left": "10%",
+                "right": "10%",
+                "bottom": "15%",
+                "containLabel": True
+            },
+            "xAxis": {
+                "name": "Temperature (°C)",
+                "nameLocation": "middle",
+                "nameGap": 30,
+                "type": "value",
+                "scale": False,
+                "axisLine": {"lineStyle": {"color": "#333"}},
+                "axisTick": {"alignWithLabel": True},
+                "splitLine": {"show": False}
+            },
+            "yAxis": [
+                {
+                    "name": "Weight (mg)",
+                    "nameLocation": "middle",
+                    "nameGap": 40,
+                    "type": "value",
+                    "position": "left",
+                    "axisLine": {"lineStyle": {"color": "#1f4e9c"}},
+                    "splitLine": {"show": True, "lineStyle": {"color": "#eee"}}
+                },
+                {
+                    "name": "DTG (-dW/dT)",
+                    "nameLocation": "middle",
+                    "nameGap": 40,
+                    "type": "value",
+                    "position": "right",
+                    "axisLine": {"lineStyle": {"color": "#c0392b"}},
+                    "splitLine": {"show": False}
+                }
+            ],
+            "series": [
+                {
+                    "name": "Weight (mg)",
+                    "type": "line",
+                    "data": list(zip(x_data, y1_data)),
+                    "itemStyle": {"color": "#1f4e9c"},
+                    "lineStyle": {"width": 2},
+                    "symbol": "none",
+                    "markPoint": {}
+                },
+                {
+                    "name": "DTG",
+                    "type": "line",
+                    "yAxisIndex": 1,
+                    "data": list(zip(x_data, y2_data)),
+                    "itemStyle": {"color": "#c0392b"},
+                    "lineStyle": {"width": 2},
+                    "symbol": "none",
+                    "markPoint": {}
+                }
+            ]
+        }
+        
+        # Add Markers for Residue and Peak
+        mark_points_weight = []
+        mark_points_dtg = []
+        
+        if residue_val is not None:
+            mark_points_weight.append({
+                "coord": [residue_x, residue_y],
+                "value": f"Residue {residue_val:.1f} mg",
+                "symbolSize": 10,
+                "label": {
+                    "show": True,
+                    "formatter": "{b}",
+                    "position": "top",
+                    "fontFamily": "Noto Sans CJK KR",
+                    "fontSize": 10,
+                    "color": "#1f4e9c"
+                }
+            })
+            
+        if peak_temp is not None:
+            # Peak label goes on DTG series usually, or can be placed on chart. 
+            # Standard practice: label near the peak on the DTG curve.
+            mark_points_dtg.append({
+                "coord": [peak_temp, peak_val],
+                "value": f"{int(peak_temp)} °C",
+                "symbolSize": 10,
+                "label": {
+                    "show": True,
+                    "formatter": "{b}",
+                    "position": "top",
+                    "fontFamily": "Noto Sans CJK KR",
+                    "fontSize": 10,
+                    "color": "#c0392b"
+                }
+            })
+            
+        if mark_points_weight:
+            option["series"][0]["markPoint"] = {
+                "data": mark_points_weight,
+                "symbol": "circle"
+            }
+            
+        if mark_points_dtg:
+            option["series"][1]["markPoint"] = {
+                "data": mark_points_dtg,
+                "symbol": "circle"
+            }
+
+        fig_entry = {
+            "name": f"plot_{sheet_name.replace(' ', '_')}",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+        figures.append(fig_entry)
+
+    output = {"figures": figures}
+    print(json.dumps(output))
+
+if __name__ == "__main__":
+    main()
+```

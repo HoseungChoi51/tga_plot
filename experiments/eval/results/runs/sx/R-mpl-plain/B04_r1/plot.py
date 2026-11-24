@@ -1,0 +1,52 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import find_peaks
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+# Read data
+df = pd.read_csv("/home/chs/Work/tga_plot/eval/inputs_b/xrd.csv")
+
+x = df["2Theta (deg)"].values
+y = df["Intensity (counts)"].values
+
+# Find peaks using scipy
+peaks, properties = find_peaks(y, height=np.percentile(y, 95), distance=10)
+
+# Sort peaks by intensity and get top 5
+peak_intensities = y[peaks]
+sorted_indices = np.argsort(peak_intensities)[::-1][:5]
+top5_peak_indices = peaks[sorted_indices]
+top5_peak_positions = x[top5_peak_indices]
+top5_peak_intensities = y[top5_peak_indices]
+
+# Create plot
+fig, ax = plt.subplots(figsize=(10, 6))
+
+ax.plot(x, y, color='black', linewidth=1)
+
+# Annotate top 5 peaks
+for i, (pos, inten) in enumerate(zip(top5_peak_positions, top5_peak_intensities)):
+    # Offset text slightly above the peak
+    ax.annotate(f'{pos:.2f}°', 
+                xy=(pos, inten), 
+                xytext=(pos, inten + 50), 
+                ha='center', 
+                va='bottom',
+                fontsize=9,
+                arrowprops=dict(arrowstyle='-', color='gray'))
+    ax.plot(pos, inten, 'ro', markersize=6)
+
+ax.set_xlabel('2θ (deg)', fontsize=12)
+ax.set_ylabel('Intensity (counts)', fontsize=12)
+ax.set_title('XRD 패턴 및 주요 피크 표시', fontsize=14)
+
+# Remove right spine
+ax.spines['right'].set_visible(False)
+
+plt.tight_layout()
+plt.savefig("/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/B04_r1/out/xrd_pattern.png", dpi=300)
+plt.close()

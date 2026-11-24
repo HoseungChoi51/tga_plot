@@ -1,0 +1,32 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheets": "주간요약",
+ "chart": "line",
+ "x": "주차",
+ "y": "총생산량(kg)",
+ "ref": [
+  {
+   "y": 17,
+   "text": "목표",
+   "color": "red",
+   "linestyle": "dotted"
+  }
+ ],
+ "asks": [
+  {
+   "ask": "주간요약 시트",
+   "how": "key"
+  },
+  {
+   "ask": "주차별 총생산량 추이 선그래프",
+   "how": "key"
+  },
+  {
+   "ask": "17kg 빨간 점선 기준선",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S006_r1/out/t1"
+ }
+}

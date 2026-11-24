@@ -1,0 +1,78 @@
+{
+ "arm": "R-mpl",
+ "item": "S047",
+ "repeat": 2,
+ "split": "sealed",
+ "persona": "데이터 분석가",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "Cumulative production (kg) per 반응기 over 일자 — per-run production = 생산속도 × 가동시간 / 1000. One line per reactor, daily resolution.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 한글 폰트 설정\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams['axes.unicode_minus'] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name='런로그')\n\n# 일자 컬럼을 datetime 형식으로 변환 (이미 날짜형일 수 있으나 안전장치)\ndf['일자'] = pd.to_datetime(df['일자'])\n\n# 단일 런 생산량(kg) 계산: 생산속도(g/h) * 가동시간(h) / 1000\ndf['런생산량_kg'] = df['생산속도 (g/h)'] * df['가동시간 (h)'] / 1000\n\n# 반응기별, 일자별로 합산하여 일일 총 생산량 구하기\ndaily_prod = df.groupby(['반응기', '일자'])['런생산량_kg'].sum().reset_index()\n\n# 반응기별로 정렬하고 누적합 계산\ndaily_prod = daily_prod.sort_values(by=['반응기', '일자'])\ndaily_prod['누적생산량_kg'] = daily_prod.groupby('반응기')['런생산량_kg'].cumsum()\n\n# 플롯 그리기\nplt.figure(figsize=(12, 7))\n\nreactors = ['R1', 'R2', 'R3', 'R4']\ncolors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728'] # 기본 색상 팔레트 활용 또는 지정\n\nfor reactor, color in zip(reactors, colors):\n    subset = daily_prod[daily_prod['반응기'] == reactor]\n    if not subset.empty:\n        plt.plot(subset['일자'], subset['누적생산량_kg'], label=reactor, color=color, linewidth=2)\n\nplt.title('반응기별 누적 생산량 추이', fontsize=15)\nplt.xlabel('일자', fontsize=12)\nplt.ylabel('누적 생산량 (kg)', fontsize=12)\nplt.legend(title='반응기', fontsize=10)\nplt.grid(True, linestyle='--', alpha=0.7)\nplt.xticks(rotation=45)\nplt.tight_layout()\n\n# 저장\noutput_file = os.path.join(OUT_DIR, \"cumulative_production_by_reactor.png\")\nplt.savefig(output_file, dpi=300)\nplt.close()\n\nprint(f\"Plot saved to {output_file}\")\n```",
+     "llm_s": 9.363,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 3791,
+     "output_chars": 1530,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 한글 폰트 설정\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams['axes.unicode_minus'] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name='런로그')\n\n# 일자 컬럼 변환: 'yyyy-mm-dd' 형식의 문자열 또는 이미 datetime인 경우 모두 처리\nif df['일자'].dtype == object or isinstance(df['일자'].iloc[0], str):\n    # 만약 문자열이고 'yyyy-mm-dd' 같은 패턴이 섞여 있거나 정규 표현식으로 추출해야 한다면\n    # 여기서는 pandas가 자동으로 인식하도록 하되, 실패 시 수동 파싱을 시도합니다.\n    try:\n        df['일자'] = pd.to_datetime(df['일자'], format='mixed', errors='coerce')\n    except:\n        # 포맷 지정이 안 될 때 기본 파싱 시도 (날짜 객체로 저장된 경우 등)\n        df['일자'] = pd.to_datetime(df['일자'], errors='coerce')\nelse:\n    # 이미 datetime64일 가능성에 대비하여 안전하게 변환 시도\n    df['일자'] = pd.to_datetime(df['일자'], errors='coerce')\n\n# 유효한 날짜만 필터링 (파싱 실패로 NaT가 된 행 제거)\ndf = df.dropna(subset=['일자'])\n\n# 단일 런 생산량(kg) 계산: 생산속도(g/h) * 가동시간(h) / 1000\ndf['런생산량_kg'] = df['생산속도 (g/h)'] * df['가동시간 (h)'] / 1000\n\n# 반응기별, 일자별로 합산하여 일일 총 생산량 구하기\ndaily_prod = df.groupby(['반응기', '일자'])['런생산량_kg'].sum().reset_index()\n\n# 반응기별로 정렬하고 누적합 계산\ndaily_prod = daily_prod.sort_values(by=['반응기', '일자'])\ndaily_prod['누적생산량_kg'] = daily_prod.groupby('반응기')['런생산량_kg'].cumsum()\n\n# 플롯 그리기\nplt.figure(figsize=(12, 7))\n\nreactors = ['R1', 'R2', 'R3', 'R4']\ncolors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728'] \n\nfor reactor, color in zip(reactors, colors):\n    subset = daily_prod[daily_prod['반응기'] == reactor]\n    if not subset.empty:\n        plt.plot(subset['일자'], subset['누적생산량_kg'], label=reactor, color=color, linewidth=2)\n\nplt.title('반응기별 누적 생산량 추이', fontsize=15)\nplt.xlabel('일자', fontsize=12)\nplt.ylabel('누적 생산량 (kg)', fontsize=12)\nplt.legend(title='반응기', fontsize=10)\nplt.grid(True, linestyle='--', alpha=0.7)\nplt.xticks(rotation=45)\nplt.tight_layout()\n\n# 저장\noutput_file = os.path.join(OUT_DIR, \"cumulative_production_by_reactor.png\")\nplt.savefig(output_file, dpi=300)\nplt.close()\n\nprint(f\"Plot saved to {output_file}\")\n```",
+     "llm_s": 13.042,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 7119,
+     "output_chars": 2044,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 한글 폰트 설정\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams['axes.unicode_minus'] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name='런로그')\n\n# 컬럼명 공백 및 특수문자 정리 (예: '생산속도 (g/h)' -> '생산속도' 또는 정확한 이름 확인 필요)\n# 미리보기에는 공백이 있는 것으로 보이지만, 실제 Excel 파일의 헤더에 줄바꿈이나 다른 공백이 포함될 수 있어\n# 정규식으로 모든 비숫자/비한글/비알파벳 문자를 제거하거나 매칭하는 방식을 사용합니다.\n# 가장 안전한 방법은 컬럼명을 대조하여 원하는 데이터를 찾습니다.\n\ndef find_column(df, target_keyword):\n    \"\"\"컬럼명에서 키워드를 포함하는 컬럼을 반환합니다.\"\"\"\n    cols = [c for c in df.columns if target_keyword in str(c)]\n    if not cols:\n        raise KeyError(f\"Column containing '{target_keyword}' not found.\")\n    return cols[0]\n\ntry:\n    col_speed = find_column(df, '생산속도')\n    col_time = find_column(df, '가동시간')\nexcept KeyError as e:\n    # 만약 키워드만으로는 부족하다면, 미리보기와 동일한 이름을 시도하되 공백 차이를 고려합니다.\n    # 하지만 find_column이 더 강력하므로 일반적으로 성공할 것입니다.\n    raise e\n\nprint(f\"Found columns: Speed='{col_speed}', Time='{col_time}'\")\n\n# 일자 컬럼 변환\nif df['일자'].dtype == object or isinstance(df['일자'].iloc[0], str):\n    try:\n        df['일자'] = pd.to_datetime(df['일자'], format='mixed', errors='coerce')\n    except:\n        df['일자'] = pd.to_datetime(df['일자'], errors='coerce')\nelse:\n    df['일자'] = pd.to_datetime(df['일자'], errors='coerce')\n\n# 유효한 날짜만 필터링\ndf = df.dropna(subset=['일자'])\n\n# 단일 런 생산량(kg) 계산\ndf['런생산량_kg'] = df[col_speed] * df[col_time] / 1000\n\n# 반응기별, 일자별로 합산하여 일일 총 생산량 구하기\ndaily_prod = df.groupby(['반응기', '일자'])['런생산량_kg'].sum().reset_index()\n\n# 반응기별로 정렬하고 누적합 계산\ndaily_prod = daily_prod.sort_values(by=['반응기', '일자'])\ndaily_prod['누적생산량_kg'] = daily_prod.groupby('반응기')['런생산량_kg'].cumsum()\n\n# 플롯 그리기\nplt.figure(figsize=(12, 7))\n\nreactors = ['R1', 'R2', 'R3', 'R4']\ncolors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728'] \n\nfor reactor, color in zip(reactors, colors):\n    subset = daily_prod[daily_prod['반응기'] == reactor]\n    if not subset.empty:\n        plt.plot(subset['일자'], subset['누적생산량_kg'], label=reactor, color=color, linewidth=2)\n\nplt.title('반응기별 누적 생산량 추이', fontsize=15)\nplt.xlabel('일자', fontsize=12)\nplt.ylabel('누적 생산량 (kg)', fontsize=12)\nplt.legend(title='반응기', fontsize=10)\nplt.grid(True, linestyle='--', alpha=0.7)\nplt.xticks(rotation=45)\nplt.tight_layout()\n\n# 저장\noutput_file = os.path.join(OUT_DIR, \"cumulative_production_by_reactor.png\")\nplt.savefig(output_file, dpi=300)\nplt.close()\n\nprint(f\"Plot saved to {output_file}\")\n```",
+     "llm_s": 12.143,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 11142,
+     "output_chars": 2492,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 한글 폰트 설정\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams['axes.unicode_minus'] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name='런로그')\n\n# 컬럼명 공백 및 특수문자 정리 (예: '생산속도 (g/h)' -> '생산속도' 또는 정확한 이름 확인 필요)\n# 미리보기에는 공백이 있는 것으로 보이지만, 실제 Excel 파일의 헤더에 줄바꿈이나 다른 공백이 포함될 수 있어\n# 정규식으로 모든 비숫자/비한글/비알파벳 문자를 제거하거나 매칭하는 방식을 사용합니다.\n# 가장 안전한 방법은 컬럼명을 대조하여 원하는 데이터를 찾습니다.\n\ndef find_column(df, target_keyword):\n    \"\"\"컬럼명에서 키워드를 포함하는 컬럼을 반환합니다.\"\"\"\n    cols = [c for c in df.columns if target_keyword in str(c)]\n    if not cols:\n        raise KeyError(f\"Column containing '{target_keyword}' not found.\")\n    return cols[0]\n\ntry:\n    col_speed = find_column(df, '생산속도')\n    col_time = find_column(df, '가동시간')\nexcept KeyError as e:\n    # 만약 키워드만으로는 부족하다면, 미리보기와 동일한 이름을 시도하되 공백 차이를 고려합니다.\n    # 하지만 find_column이 더 강력하므로 일반적으로 성공할 것입니다.\n    raise e\n\nprint(f\"Found columns: Speed='{col_speed}', Time='{col_time}'\")\n\n# 일자 컬럼 변환\nif df['일자'].dtype == object or isinstance(df['일자'].iloc[0], str):\n    try:\n        df['일자'] = pd.to_datetime(df['일자'], format='mixed', errors='coerce')\n    except:\n        df['일자'] = pd.to_datetime(df['일자'], errors='coerce')\nelse:\n    df['일자'] = pd.to_datetime(df['일자'], errors='coerce')\n\n# 유효한 날짜만 필터링\ndf = df.dropna(subset=['일자'])\n\n# 단일 런 생산량(kg) 계산\ndf['런생산량_kg'] = df[col_speed] * df[col_time] / 1000\n\n# 반응기별, 일자별로 합산하여 일일 총 생산량 구하기\ndaily_prod = df.groupby(['반응기', '일자'])['런생산량_kg'].sum().reset_index()\n\n# 반응기별로 정렬하고 누적합 계산\ndaily_prod = daily_prod.sort_values(by=['반응기', '일자'])\ndaily_prod['누적생산량_kg'] = daily_prod.groupby('반응기')['런생산량_kg'].cumsum()\n\n# 플롯 그리기\nplt.figure(figsize=(12, 7))\n\nreactors = ['R1', 'R2', 'R3', 'R4']\ncolors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728'] \n\nfor reactor, color in zip(reactors, colors):\n    subset = daily_prod[daily_prod['반응기'] == reactor]\n    if not subset.empty:\n        plt.plot(subset['일자'], subset['누적생산량_kg'], label=reactor, color=color, linewidth=2)\n\nplt.title('반응기별 누적 생산량 추이', fontsize=15)\nplt.xlabel('일자', fontsize=12)\nplt.ylabel('누적 생산량 (kg)', fontsize=12)\nplt.legend(title='반응기', fontsize=10)\nplt.grid(True, linestyle='--', alpha=0.7)\nplt.xticks(rotation=45)\nplt.tight_layout()\n\n# 저장\noutput_file = os.path.join(OUT_DIR, \"cumulative_production_by_reactor.png\")\nplt.savefig(output_file, dpi=300)\nplt.close()\n\nprint(f\"Plot saved to {output_file}\")\n",
+   "engine": null,
+   "result": {
+    "ok": false,
+    "error": "The script failed (exit 1):\nNotImplementedError: function is not implemented for this dtype: [how->cumsum,dtype->object]\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/home/chs/Work/tga_plot/eval/_chart_runner.py\", line 16, in <module>\n    runpy.run_path(script, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/R-mpl/S047_r2/plot_t1.py\", line 59, in <module>\n    daily_prod['누적생산량_kg'] = daily_prod.groupby('반응기')['런생산량_kg'].cumsum()\n                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^\n  File \"/home/chs/Work/tga_plot/.venv/lib/python3.13/site-packages/pandas/core/groupby/groupby.py\", line 4963, in cumsum\n    return self._cython_transform(\"cumsum\", numeric_only, skipna=skipna)\n           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/chs/Work/tga_plot/.venv/lib/python3.13/site-packages/pandas/core/groupby/generic.py\", line 778, in _cython_transform\n    raise TypeError(f\"{how} is not supported for {obj.dtype} dtype\") from err\nTypeError: cumsum is not supported for object dtype",
+    "hint": ""
+   },
+   "facts": [],
+   "draw_s": 0.39096689224243164,
+   "check": {
+    "kind_expected": "line",
+    "failed": [
+     "run: no plot (The script failed (exit 1):\nNotImplementedError: function is not implemented for this dtype: [how->cumsum,dtype->object]\n\nThe above exception was the )"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 35.789
+  }
+ ]
+}

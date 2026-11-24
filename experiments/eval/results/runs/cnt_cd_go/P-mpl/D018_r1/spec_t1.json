@@ -1,0 +1,34 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "bar",
+ "x": {
+  "col": "일자",
+  "period": "month"
+ },
+ "y": "count",
+ "by": "반응기",
+ "filter": [
+  "원인 == 노즐 막힘"
+ ],
+ "asks": [
+  {
+   "ask": "월별 정지 횟수",
+   "how": "key"
+  },
+  {
+   "ask": "노즐 막힘만 필터",
+   "how": "key"
+  },
+  {
+   "ask": "반응기별로 묶어서",
+   "how": "key"
+  },
+  {
+   "ask": "막대 그래프",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl/D018_r1/out/t1"
+ }
+}

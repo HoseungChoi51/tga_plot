@@ -1,0 +1,153 @@
+import json
+import os
+import sys
+
+import numpy as np
+import pandas as pd
+
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+COLORS = ["#2878B5", "#D9534F", "#36A269"]
+WIDTH = 614
+HEIGHT = 442
+
+
+def load_sheet(path, sheet_name):
+    df = pd.read_excel(path, sheet_name=sheet_name)
+    df.columns = [str(c).strip() for c in df.columns]
+
+    def find_column(candidates):
+        for col in df.columns:
+            normalized = col.lower().replace(" ", "")
+            if any(candidate in normalized for candidate in candidates):
+                return col
+        return None
+
+    temperature = find_column(["temperature", "temp"])
+    weight = find_column(["weight"])
+    derivative = find_column(["d.w", "dw(", "derivative"])
+
+    if temperature is None or weight is None:
+        raise ValueError(f"필수 열을 찾을 수 없습니다: {sheet_name}")
+
+    data = {}
+    for key, col in (("temperature", temperature), ("weight", weight), ("derivative", derivative)):
+        if col is not None:
+            values = pd.to_numeric(df[col], errors="coerce")
+            data[key] = values.to_numpy(dtype=float)
+
+    return data
+
+
+def valid_pairs(x, y):
+    mask = np.isfinite(x) & np.isfinite(y)
+    return [[float(a), float(b)] for a, b in zip(x[mask], y[mask])]
+
+
+def main():
+    path = DATA_FILE
+    if not os.path.isfile(path):
+        raise FileNotFoundError(path)
+
+    workbook = pd.ExcelFile(path)
+    figures = []
+
+    for index, sheet_name in enumerate(workbook.sheet_names):
+        data = load_sheet(path, sheet_name)
+        temp = data["temperature"]
+        color = COLORS[index % len(COLORS)]
+
+        series = [
+            {
+                "name": "Weight(%)",
+                "type": "line",
+                "data": valid_pairs(temp, data["weight"]),
+                "showSymbol": False,
+                "lineStyle": {"width": 2, "color": color},
+                "yAxisIndex": 0,
+            }
+        ]
+
+        if "derivative" in data:
+            series.append(
+                {
+                    "name": "D.W(%/C)",
+                    "type": "line",
+                    "data": valid_pairs(temp, data["derivative"]),
+                    "showSymbol": False,
+                    "lineStyle": {"width": 1.6, "color": "#777777"},
+                    "yAxisIndex": 1,
+                }
+            )
+
+        option = {
+            "animation": False,
+            "color": [color, "#777777"],
+            "title": {
+                "text": sheet_name,
+                "left": "center",
+                "top": 8,
+                "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 15, "fontWeight": "normal"},
+            },
+            "tooltip": {"trigger": "axis"},
+            "legend": {
+                "data": [s["name"] for s in series],
+                "top": 34,
+                "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 10},
+            },
+            "grid": {"left": 62, "right": 64, "top": 76, "bottom": 52},
+            "xAxis": {
+                "type": "value",
+                "name": "Temperature (°C)",
+                "nameLocation": "middle",
+                "nameGap": 32,
+                "axisTick": {"inside": False, "length": 5},
+                "axisLabel": {"fontFamily": "Noto Sans CJK KR", "fontSize": 9, "margin": 8},
+                "nameTextStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 11},
+                "axisLine": {"lineStyle": {"color": "#444444"}},
+                "splitLine": {"show": False},
+            },
+            "yAxis": [
+                {
+                    "type": "value",
+                    "name": "Weight (%)",
+                    "nameLocation": "middle",
+                    "nameGap": 43,
+                    "axisTick": {"inside": False, "length": 5},
+                    "axisLabel": {"fontFamily": "Noto Sans CJK KR", "fontSize": 9, "margin": 8},
+                    "nameTextStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 11},
+                    "axisLine": {"show": True, "lineStyle": {"color": color}},
+                    "splitLine": {"show": True, "lineStyle": {"color": "#e6e6e6"}},
+                },
+                {
+                    "type": "value",
+                    "name": "D.W (%/°C)",
+                    "nameLocation": "middle",
+                    "nameGap": 44,
+                    "axisTick": {"inside": False, "length": 5},
+                    "axisLabel": {"fontFamily": "Noto Sans CJK KR", "fontSize": 9, "margin": 8},
+                    "nameTextStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 11},
+                    "axisLine": {"show": True, "lineStyle": {"color": "#777777"}},
+                    "splitLine": {"show": False},
+                },
+            ],
+            "series": series,
+        }
+
+        figures.append(
+            {
+                "name": f"tga_{index + 1}",
+                "option": option,
+                "width": WIDTH,
+                "height": HEIGHT,
+                "dpi": 300,
+                "formats": ["png"],
+            }
+        )
+
+    print(json.dumps({"figures": figures}, ensure_ascii=False, allow_nan=False))
+
+
+if __name__ == "__main__":
+    main()

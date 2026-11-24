@@ -1,0 +1,19 @@
+{
+ "asks": [
+  {
+   "ask": "반응기별 주간/야간 평균 IG/ID grouped bar",
+   "how": "key"
+  }
+ ],
+ "by": "근무조",
+ "chart": "bar",
+ "file": "data/run_log.xlsx",
+ "x": "반응기",
+ "y": {
+  "agg": "mean",
+  "col": "IG/ID"
+ },
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdabc/D017_r1/out/t1"
+ }
+}

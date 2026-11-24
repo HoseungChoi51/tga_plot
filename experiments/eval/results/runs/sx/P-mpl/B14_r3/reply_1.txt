@@ -1,0 +1,3 @@
+```json
+{"file": "polymers.xlsx", "sheets": "PVC", "size": [10, 7.5], "font_size": 16}
+```

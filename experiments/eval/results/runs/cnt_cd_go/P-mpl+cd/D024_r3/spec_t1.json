@@ -1,0 +1,17 @@
+{
+ "file": "data/doe_temp_h2.csv",
+ "sheets": "doe_temp_h2",
+ "x": {
+  "col": "H2/C2H4비"
+ },
+ "y1": {
+  "col": "2존온도(°C)"
+ },
+ "y2": {
+  "col": "수율(g/g-cat)",
+  "label": "평균 수율 (g/g-cat)"
+ },
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cd/D024_r3/out/t1"
+ }
+}

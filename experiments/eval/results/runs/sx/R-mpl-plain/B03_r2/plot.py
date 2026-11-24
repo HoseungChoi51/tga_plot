@@ -1,0 +1,50 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/rheology.csv"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/B03_r2/out"
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+df = pd.read_csv(DATA_FILE)
+
+# Identify columns based on preview info
+x_col = "Angular frequency (rad/s)"
+y1_col = "Storage modulus G' (Pa)"
+y2_col = "Loss modulus G'' (Pa)"
+
+fig, ax1 = plt.subplots(figsize=(8, 6))
+
+# Plot G' on left axis
+color1 = 'tab:blue'
+ax1.set_xlabel('각 주파수 (rad/s)', fontsize=12)
+ax1.set_ylabel("저장 탄성률 G' (Pa)", color=color1, fontsize=12)
+line1 = ax1.plot(df[x_col], df[y1_col], color=color1, label="G'", marker='o', linestyle='-')
+ax1.tick_params(axis='y', labelcolor=color1)
+ax1.set_xscale('log')
+ax1.set_yscale('log')
+
+# Create second y-axis for G''
+ax2 = ax1.twinx()
+color2 = 'tab:red'
+ax2.set_ylabel("손실 탄성률 G'' (Pa)", color=color2, fontsize=12)
+line2 = ax2.plot(df[x_col], df[y2_col], color=color2, label="G''", marker='s', linestyle='--')
+ax2.tick_params(axis='y', labelcolor=color2)
+ax2.set_yscale('log')
+
+# Add legend
+lines = line1 + line2
+labels = [l.get_label() for l in lines]
+ax1.legend(lines, labels, loc='best')
+
+plt.title('주파수에 따른 저장 탄성률 및 손실 탄성률', fontsize=14)
+fig.tight_layout()
+
+output_path = os.path.join(OUT_DIR, "rheology_plot.png")
+plt.savefig(output_path, dpi=300)
+plt.close()

@@ -1,0 +1,167 @@
+```python
+import json
+import os
+import pandas as pd
+import numpy as np
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx"
+
+df = pd.read_excel(DATA_FILE, sheet_name="Raw")
+df.columns = [str(c).strip() for c in df.columns]
+
+x_col = next(c for c in df.columns if "Temperature" in c)
+weight_col = next(c for c in df.columns if "Weight" in c and "Deriv" not in c)
+dtg_col = next(c for c in df.columns if "Deriv" in c)
+
+x = pd.to_numeric(df[x_col], errors="coerce").to_numpy()
+weight = pd.to_numeric(df[weight_col], errors="coerce").to_numpy()
+dtg = pd.to_numeric(df[dtg_col], errors="coerce").to_numpy()
+valid = np.isfinite(x) & np.isfinite(weight) & np.isfinite(dtg)
+x, weight, dtg = x[valid], weight[valid], dtg[valid]
+
+# Residue marker: measured point nearest 800 °C.
+residue_idx = int(np.argmin(np.abs(x - 800)))
+residue_x = float(x[residue_idx])
+residue_y = float(weight[residue_idx])
+
+# DTG peak: largest positive (-DTG) above 150 °C.
+peak_candidates = np.flatnonzero(x > 150)
+peak_idx = int(peak_candidates[np.argmax(-dtg[peak_candidates])])
+peak_x = float(x[peak_idx])
+peak_y = float(-dtg[peak_idx])
+
+option = {
+    "animation": False,
+    "title": {
+        "text": "Raw",
+        "left": "center",
+        "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 16, "color": "#222222"}
+    },
+    "tooltip": {"trigger": "axis"},
+    "legend": {
+        "data": ["Weight (%)", "DTG (-)"],
+        "left": 72,
+        "top": "middle",
+        "orient": "vertical",
+        "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 11}
+    },
+    "grid": {"left": 72, "right": 72, "top": 64, "bottom": 62},
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 36,
+        "min": float(np.nanmin(x)),
+        "max": float(np.nanmax(x)),
+        "axisLine": {"lineStyle": {"color": "#555555"}},
+        "axisLabel": {"fontFamily": "Noto Sans CJK KR", "fontSize": 11},
+        "nameTextStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 12}
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Weight (%)",
+            "nameLocation": "middle",
+            "nameGap": 48,
+            "min": 0,
+            "max": 110,
+            "axisLine": {"show": True, "lineStyle": {"color": "#1f4e9c"}},
+            "axisLabel": {"fontFamily": "Noto Sans CJK KR", "fontSize": 11},
+            "nameTextStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 12}
+        },
+        {
+            "type": "value",
+            "name": "DTG (-, %/°C)",
+            "nameLocation": "middle",
+            "nameGap": 48,
+            "min": 0,
+            "max": max(0.1, float(np.nanmax(-dtg) * 1.1)),
+            "axisLine": {"show": True, "lineStyle": {"color": "#c0392b"}},
+            "axisLabel": {"fontFamily": "Noto Sans CJK KR", "fontSize": 11},
+            "nameTextStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 12}
+        }
+    ],
+    "series": [
+        {
+            "name": "Weight (%)",
+            "type": "line",
+            "yAxisIndex": 0,
+            "showSymbol": False,
+            "lineStyle": {"width": 2, "color": "#1f4e9c"},
+            "data": [[float(a), float(b)] for a, b in zip(x, weight)],
+            "markLine": {
+                "symbol": "none",
+                "silent": True,
+                "lineStyle": {"color": "#888888", "width": 1.5, "type": "dashed"},
+                "label": {
+                    "show": True,
+                    "formatter": "50%",
+                    "position": "insideEndTop",
+                    "fontFamily": "Noto Sans CJK KR",
+                    "fontSize": 11,
+                    "color": "#666666"
+                },
+                "data": [{"yAxis": 50}]
+            },
+            "markPoint": {
+                "symbol": "circle",
+                "symbolSize": 9,
+                "itemStyle": {"color": "#1f4e9c"},
+                "label": {
+                    "show": True,
+                    "formatter": f"Residue {residue_y:.1f}%",
+                    "position": "right",
+                    "fontFamily": "Noto Sans CJK KR",
+                    "fontSize": 11
+                },
+                "data": [{"coord": [residue_x, residue_y]}]
+            }
+        },
+        {
+            "name": "DTG (-)",
+            "type": "line",
+            "yAxisIndex": 1,
+            "showSymbol": False,
+            "lineStyle": {"width": 2, "color": "#c0392b"},
+            "data": [[float(a), float(-b)] for a, b in zip(x, dtg)],
+            "markPoint": {
+                "symbol": "circle",
+                "symbolSize": 9,
+                "itemStyle": {"color": "#c0392b"},
+                "label": {
+                    "show": True,
+                    "formatter": f"{peak_x:.0f} °C",
+                    "position": "top",
+                    "fontFamily": "Noto Sans CJK KR",
+                    "fontSize": 11
+                },
+                "data": [{"coord": [peak_x, peak_y]}]
+            }
+        }
+    ],
+    "graphic": [
+        {
+            "type": "text",
+            "right": 18,
+            "top": 12,
+            "style": {
+                "text": "공기, 10 °C/min",
+                "font": "13px Noto Sans CJK KR",
+                "fill": "#222222",
+                "textAlign": "right"
+            }
+        }
+    ]
+}
+
+print(json.dumps({
+    "figures": [{
+        "name": "Raw",
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"]
+    }]
+}, ensure_ascii=False, allow_nan=False))
+```

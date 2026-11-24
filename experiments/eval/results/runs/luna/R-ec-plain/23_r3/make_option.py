@@ -1,0 +1,163 @@
+import json
+import re
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/instrument_export.txt"
+
+
+def parse_numeric_table(path):
+    # Instrument text exports may use decimal commas, tab/semicolon delimiters,
+    # or fixed whitespace; detect the numeric data rows robustly.
+    lines = Path(path).read_text(encoding="utf-8-sig", errors="replace").splitlines()
+    rows = []
+
+    for line in lines:
+        s = line.strip()
+        if not s:
+            continue
+
+        # Prefer tab, semicolon, or comma-separated parsing when present.
+        if "\t" in s:
+            parts = re.split(r"\t+", s)
+        elif ";" in s:
+            parts = re.split(r"\s*;\s*", s)
+        elif "," in s:
+            parts = re.split(r"\s*,\s*", s)
+        else:
+            parts = re.split(r"\s+", s)
+
+        vals = []
+        for part in parts:
+            token = part.strip().strip('"')
+            if not token:
+                continue
+            # Accept decimal commas when the fields are otherwise whitespace /
+            # semicolon separated.
+            token = token.replace(",", ".")
+            try:
+                vals.append(float(token))
+            except ValueError:
+                vals = []
+                break
+
+        if len(vals) >= 4:
+            rows.append(vals[:4])
+
+    if not rows:
+        # Fallback: scan lines for four numeric tokens, including scientific notation.
+        number = re.compile(r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?")
+        for line in lines:
+            vals = [float(x) for x in number.findall(line)]
+            if len(vals) >= 4:
+                rows.append(vals[:4])
+
+    if not rows:
+        raise ValueError(f"No numeric four-column data found in {path}")
+
+    return np.asarray(rows, dtype=float)
+
+
+data = parse_numeric_table(DATA_FILE)
+
+# Export columns: time, temperature, mass, derivative.
+temperature = data[:, 1]
+mass = data[:, 2]
+valid = np.isfinite(temperature) & np.isfinite(mass)
+temperature = temperature[valid]
+mass = mass[valid]
+
+if not len(mass):
+    raise ValueError("No valid temperature/mass observations found")
+
+residue = float(mass[-1])
+residue_label = f"Residue: {residue:.2f}%"
+
+option = {
+    "animation": False,
+    "backgroundColor": "#ffffff",
+    "textStyle": {
+        "fontFamily": "Noto Sans CJK KR, sans-serif",
+        "color": "#222222",
+    },
+    "title": {
+        "text": "TGA",
+        "left": "center",
+        "top": 12,
+        "textStyle": {"fontSize": 17, "fontWeight": "normal"},
+    },
+    "grid": {"left": 74, "right": 34, "top": 62, "bottom": 68},
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {"type": "line"},
+    },
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 42,
+        "min": float(np.min(temperature)),
+        "max": float(np.max(temperature)),
+        "axisLine": {"lineStyle": {"color": "#555555"}},
+        "axisLabel": {"color": "#444444"},
+        "splitLine": {"show": False},
+    },
+    "yAxis": {
+        "type": "value",
+        "name": "Mass (%)",
+        "nameLocation": "middle",
+        "nameGap": 52,
+        "min": 0,
+        "max": 105,
+        "axisLine": {"lineStyle": {"color": "#555555"}},
+        "axisLabel": {"color": "#444444"},
+        "splitLine": {"lineStyle": {"color": "#e5e5e5"}},
+    },
+    "graphic": [
+        {
+            "type": "text",
+            "right": 36,
+            "top": 38,
+            "style": {
+                "text": residue_label,
+                "font": "14px Noto Sans CJK KR",
+                "fill": "#333333",
+            },
+        }
+    ],
+    "series": [
+        {
+            "name": "Mass",
+            "type": "line",
+            "showSymbol": False,
+            "smooth": False,
+            "lineStyle": {"width": 2, "color": "#2166ac"},
+            "data": [
+                [round(float(x), 6), round(float(y), 6)]
+                for x, y in zip(temperature, mass)
+            ],
+        }
+    ],
+}
+
+print(
+    json.dumps(
+        {
+            "figures": [
+                {
+                    "name": "tga",
+                    "option": option,
+                    "width": 614,
+                    "height": 442,
+                    "dpi": 300,
+                    "formats": ["png"],
+                }
+            ]
+        },
+        ensure_ascii=False,
+        allow_nan=False,
+    )
+)

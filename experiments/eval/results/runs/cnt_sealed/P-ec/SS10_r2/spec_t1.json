@@ -1,0 +1,18 @@
+{
+ "file": "data/diameters.csv",
+ "chart": "bar",
+ "x": "시료",
+ "y": {
+  "col": "직경(nm)",
+  "agg": "mean"
+ },
+ "asks": [
+  {
+   "ask": "시료별 평균 직경 막대그래프",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-ec/SS10_r2/out/t1"
+ }
+}

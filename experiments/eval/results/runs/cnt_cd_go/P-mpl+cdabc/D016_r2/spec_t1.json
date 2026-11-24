@@ -1,0 +1,27 @@
+{
+ "asks": [
+  {
+   "ask": "정지원인별 총 정지시간",
+   "how": "key"
+  },
+  {
+   "ask": "가로막대",
+   "how": "key"
+  },
+  {
+   "ask": "큰거부터",
+   "how": "key"
+  }
+ ],
+ "chart": "hbar",
+ "file": "data/downtime.xlsx",
+ "sort": "desc",
+ "x": "원인",
+ "y": {
+  "agg": "sum",
+  "col": "정지시간(분)"
+ },
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdabc/D016_r2/out/t1"
+ }
+}

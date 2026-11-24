@@ -1,0 +1,35 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "heatmap",
+ "data_code": "import pandas as pd\n# Parse date and time to get weekday and hour\ndf['일자_dt'] = pd.to_datetime(df['일자'])\ndf['요일'] = df['일자_dt'].dt.day_name()\n# Map English day names to Korean for better display, or keep English if preferred. Usually Korean team prefers Korean.\nday_map = {'Monday': '월', 'Tuesday': '화', 'Wednesday': '수', 'Thursday': '목', 'Friday': '금', 'Saturday': '토', 'Sunday': '일'}\ndf['요일'] = df['요일'].map(day_map)\n\n# Extract hour from 시작시각 (text like '10:43')\ndf['시간대'] = df['시작시각'].str.split(':').str[0].astype(int)",
+ "x": {
+  "col": "요일",
+  "order": [
+   "월",
+   "화",
+   "수",
+   "목",
+   "금",
+   "토",
+   "일"
+  ]
+ },
+ "y": "시간대",
+ "z": {
+  "agg": "count"
+ },
+ "title": "설비 정지 발생 빈도 (요일별/시간대별)",
+ "asks": [
+  {
+   "ask": "요일이랑 시간대로 히트맵",
+   "how": "key"
+  },
+  {
+   "ask": "정지 횟수 기반 (언제 많이나는지)",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_sx/P-ec+cdflat/D026_r1/out/t1"
+ }
+}

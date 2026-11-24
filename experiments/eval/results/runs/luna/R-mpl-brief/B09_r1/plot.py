@@ -1,0 +1,85 @@
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/B09_r1/out")
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+sheet_name = "PE"
+df = pd.read_excel(DATA_FILE, sheet_name=sheet_name)
+
+temperature_col = next(
+    col for col in df.columns
+    if "temperature" in str(col).lower() or "온도" in str(col)
+)
+weight_col = next(
+    col for col in df.columns
+    if "weight" in str(col).lower() and "deriv" not in str(col).lower()
+)
+dtg_col = next(
+    col for col in df.columns
+    if "deriv" in str(col).lower() or "dtg" in str(col).lower()
+)
+
+temperature = pd.to_numeric(df[temperature_col], errors="coerce")
+weight = pd.to_numeric(df[weight_col], errors="coerce")
+dtg = pd.to_numeric(df[dtg_col], errors="coerce")
+valid = temperature.notna() & weight.notna() & dtg.notna()
+temperature, weight, dtg = (
+    temperature[valid].to_numpy(),
+    weight[valid].to_numpy(),
+    dtg[valid].to_numpy(),
+)
+
+fig, ax1 = plt.subplots(figsize=(8, 5))
+ax2 = ax1.twinx()
+
+ax1.plot(temperature, weight, color="red", linewidth=3, label="Weight (%)")
+ax2.plot(temperature, -dtg, color="#c0392b", linewidth=1.8, label="DTG (%/°C)")
+
+ax1.set_title(sheet_name)
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)")
+ax2.set_ylabel("-DTG (%/°C)")
+ax1.set_xlim(100, 700)
+ax1.set_xticks(np.arange(100, 701, 100))
+ax1.grid(True, alpha=0.3)
+
+residue_idx = int(np.argmin(np.abs(temperature - 800)))
+ax1.plot(
+    temperature[residue_idx], weight[residue_idx],
+    marker="o", color="red", markersize=6
+)
+ax1.annotate(
+    f"Residue {weight[residue_idx]:.1f}%",
+    (temperature[residue_idx], weight[residue_idx]),
+    xytext=(8, 8), textcoords="offset points",
+)
+
+peak_candidates = np.flatnonzero(temperature > 150)
+peak_idx = peak_candidates[np.argmax(-dtg[peak_candidates])]
+ax2.plot(
+    temperature[peak_idx], -dtg[peak_idx],
+    marker="o", color="#c0392b", markersize=6
+)
+ax2.annotate(
+    f"{temperature[peak_idx]:.0f} °C",
+    (temperature[peak_idx], -dtg[peak_idx]),
+    xytext=(8, 8), textcoords="offset points",
+)
+
+lines1, labels1 = ax1.get_legend_handles_labels()
+lines2, labels2 = ax2.get_legend_handles_labels()
+ax1.legend(lines1 + lines2, labels1 + labels2, loc="center left")
+
+fig.tight_layout()
+fig.savefig(OUT_DIR / "PE.png", dpi=300, bbox_inches="tight")
+plt.close(fig)

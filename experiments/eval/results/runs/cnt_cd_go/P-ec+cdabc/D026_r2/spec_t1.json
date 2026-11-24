@@ -1,0 +1,42 @@
+{
+ "asks": [
+  {
+   "ask": "요일별 정지 건수",
+   "how": "data_code"
+  },
+  {
+   "ask": "시간대별 정지 건수",
+   "how": "data_code"
+  },
+  {
+   "ask": "히트맵",
+   "how": "key"
+  }
+ ],
+ "chart": "heatmap",
+ "data_code": "import pandas as pd\ndf['요일'] = pd.to_datetime(df['일자']).dt.day_name()\norder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']\nkorean_order = ['월', '화', '수', '목', '금', '토', '일']\nmapping = dict(zip(order, korean_order))\ndf['요일_ko'] = df['요일'].map(mapping)\nhour_str = df['시작시각'].astype(str).str.split(':').str[0]\ndf['시간대'] = hour_str.astype(int)",
+ "file": "data/downtime.xlsx",
+ "x": {
+  "col": "시간대",
+  "label": "시작 시각 (시)"
+ },
+ "y": {
+  "col": "요일_ko",
+  "label": "요일",
+  "order": [
+   "월",
+   "화",
+   "수",
+   "목",
+   "금",
+   "토",
+   "일"
+  ]
+ },
+ "z": {
+  "agg": "count"
+ },
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-ec+cdabc/D026_r2/out/t1"
+ }
+}

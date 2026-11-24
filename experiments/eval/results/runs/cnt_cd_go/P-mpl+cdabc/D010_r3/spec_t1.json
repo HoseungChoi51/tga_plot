@@ -1,0 +1,20 @@
+{
+ "asks": [
+  {
+   "ask": "잔류금속 x, IG/ID y 산점도",
+   "how": "key"
+  },
+  {
+   "ask": "등급 C 빨강, 나머지 회색",
+   "how": "code"
+  }
+ ],
+ "chart": "scatter",
+ "file": "data/run_log.xlsx",
+ "sheets": "런로그",
+ "x": "잔류금속 (wt%)",
+ "y": "IG/ID",
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdabc/D010_r3/out/t1"
+ }
+}

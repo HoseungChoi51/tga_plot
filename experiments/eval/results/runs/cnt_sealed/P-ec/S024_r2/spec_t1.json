@@ -1,0 +1,45 @@
+{
+ "file": [
+  "data/tga_batches.xlsx",
+  "data/run_log.xlsx"
+ ],
+ "chart": "scatter",
+ "x": {
+  "col": "TGA_Fe_wt%",
+  "label": "TGA 잔류 Fe (wt%)"
+ },
+ "y": {
+  "col": "잔류금속 (wt%)",
+  "label": "런로그 잔류금속 (wt%)"
+ },
+ "ref": [
+  {
+   "type": "line",
+   "slope": 1,
+   "intercept": 0,
+   "text": "y = x"
+  }
+ ],
+ "data_code": "import pandas as pd\nimport numpy as np\n\n# The 'df' passed in is the merged result of the files listed. \n# Based on the error hint, 'df' contains columns from both TGA sheets and Run Log.\n# However, TGA data is likely stacked or not properly pivoted to match Run IDs directly in a way that allows simple column access for 'Residue at 800C'.\n# The previous attempt failed because 'TGA_Fe_wt%' didn't exist.\n# We need to calculate it. Since we can't read files easily if paths are tricky, let's look at what IS in df.\n# The hint shows columns like '시간 (min)', '온도 (°C)', '중량 (%)', '미분중량 (%/°C)' which are from TGA.\n# And '런ID', '잔류금속 (wt%)' etc from Run Log.\n# It seems plotkit might have concatenated them or joined them poorly.\n# If 'df' has multiple rows per Run ID (one for each TGA point), we need to group by Run ID and find the weight at 800C.\n\nif '런ID' in df.columns and '온도 (°C)' in df.columns and '중량 (%)' in df.columns:\n    # Group by Run ID and interpolate weight at 800 C\n    def get_residue_800(group):\n        temp = group['온도 (°C)'].values\n        weight = group['중량 (%)'].values\n        # Sort by temperature just in case\n        idx = np.argsort(temp)\n        t_sorted = temp[idx]\n        w_sorted = weight[idx]\n        try:\n            res = np.interp(800, t_sorted, w_sorted)\n        except:\n            res = np.nan\n        return res * 0.699 # Convert to Fe\n\n    # Calculate residue for each unique Run ID present in the TGA part of df\n    # Note: df might contain run log rows where TGA cols are NaN. We should filter valid TGA rows first.\n    tga_valid = df.dropna(subset=['온도 (°C)', '중량 (%)'])\n    \n    if not tga_valid.empty:\n        residues = tga_valid.groupby('런ID').apply(get_residue_800).reset_index(name='TGA_Fe_wt%')\n        \n        # Merge this back into the main df (which presumably has the Run Log info)\n        # We want one row per Run ID for the scatter plot.\n        # Let's assume the final df should be the Run Log entries matched with these calculated values.\n        # Filter df to only keep rows that have Run Log data (e.g., check if '잔류금속 (wt%)' exists or similar)\n        # Actually, simpler: Just merge the calculated residues onto the unique Run IDs found in the Run Log part.\n        \n        # Identify the Run Log subset. Usually, if merged, there might be duplicates.\n        # Let's create a clean summary table for plotting.\n        # Get unique Run IDs from the original df that have Run Log metadata\n        run_log_ids = df[df['잔류금속 (wt%)'].notna()]['런ID'].unique()\n        \n        # Create a base dataframe from Run Log unique entries\n        # This is tricky if df is already messy. \n        # Let's try to reconstruct a clean df for plotting:\n        # 1. Take unique Run Log records\n        rl_cols = ['런ID', '잔류금속 (wt%)'] # Add others if needed for coloring\n        # Drop duplicates based on Run ID, keeping first non-null\n        clean_rl = df[['런ID', '잔류금속 (wt%)']].drop_duplicates(subset='런ID').dropna(subset=['잔류금속 (wt%)'])\n        \n        # Merge with calculated TGA residues\n        df_plot = clean_rl.merge(residues, on='런ID', how='inner')\n        \n        # Assign to df\n        df = df_plot\n    else:\n        # Fallback if no TGA data found in df structure expected\n        pass\nelse:\n    # If the structure isn't what we thought, we might need to re-read files if allowed, \n    # but since file reading failed before, we rely on df.\n    # If df doesn't have the right columns, we can't do much.\n    pass",
+ "asks": [
+  {
+   "ask": "TGA 10개 배치 각각 800 °C 잔량(wt%)을 Fe로 환산(Fe₂O₃ → Fe, ×0.699)",
+   "how": "data_code"
+  },
+  {
+   "ask": "런로그 잔류금속(wt%)과 비교하는 산점도",
+   "how": "key"
+  },
+  {
+   "ask": "시트 이름이 런ID입니다 (매칭 기준)",
+   "how": "data_code"
+  },
+  {
+   "ask": "y = x 기준선",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-ec/S024_r2/out/t1"
+ }
+}

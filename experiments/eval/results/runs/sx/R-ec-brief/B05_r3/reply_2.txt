@@ -1,0 +1,244 @@
+```python
+import pandas as pd
+import numpy as np
+import json
+
+def load_data(filepath):
+    if filepath.endswith('.csv'):
+        df = pd.read_csv(filepath)
+    elif filepath.endswith('.txt'):
+        # Try tab or whitespace separated, fallback to comma
+        try:
+            df = pd.read_csv(filepath, sep='\t')
+        except:
+            try:
+                df = pd.read_csv(filepath, sep=r'\s+')
+            except:
+                df = pd.read_csv(filepath)
+    else:
+        raise ValueError("Unsupported file format")
+    
+    # Standardize column names based on the preview structure
+    # A: Time, B: Temp, C: Weight, D: Deriv Weight
+    cols = df.columns.tolist()
+    if len(cols) >= 4:
+        df = df.rename(columns={cols[1]: 'Temperature', cols[2]: 'Weight', cols[3]: 'DTG'})
+    
+    # Ensure we only select existing columns after rename attempt
+    required_cols = ['Temperature', 'Weight', 'DTG']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise KeyError(f"Missing columns {missing} after renaming. Original columns: {df.columns.tolist()}")
+        
+    return df[required_cols].dropna()
+
+def find_residue_and_peak(df):
+    temp = df['Temperature'].values
+    weight = df['Weight'].values
+    dtg = df['DTG'].values
+    
+    # Residue at nearest 800°C
+    idx_800 = np.argmin(np.abs(temp - 800))
+    residue_val = weight[idx_800]
+    residue_temp = temp[idx_800]
+    
+    # Peak DTG above 150°C
+    mask = temp > 150
+    if not np.any(mask):
+        peak_temp = None
+        peak_dtg_val = None
+    else:
+        filtered_dtg = dtg[mask]
+        filtered_temp = temp[mask]
+        # Find max of negative derivative (which is the minimum value, but we want the peak magnitude)
+        # The prompt says "highest DTG peak", usually meaning the most negative value in raw data, 
+        # which becomes positive when multiplied by -1.
+        min_idx = np.argmin(filtered_dtg)
+        peak_temp = filtered_temp[min_idx]
+        peak_dtg_val = filtered_dtg[min_idx]
+        
+    return {
+        'residue': residue_val,
+        'residue_point': [float(residue_temp), float(residue_val)],
+        'peak_temp': peak_temp,
+        'peak_dtg_raw': peak_dtg_val
+    }
+
+files = ["/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_A.csv", "/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_B.txt"]
+labels = ["Lot A", "Lot B"]
+colors_y1 = ["#1f4e9c", "#d62728"] # Blue and Red for Weight lines
+colors_y2 = ["#1f4e9c", "#d62728"] # Same colors for DTG lines, maybe dashed? ECharts default distinguishes by legend marker shape usually, but let's stick to standard line styles.
+
+series_list = []
+scatter_points = []
+annotations = []
+
+for i, fpath in enumerate(files):
+    label = labels[i]
+    df = load_data(fpath)
+    
+    stats = find_residue_and_peak(df)
+    
+    # Prepare TGA data (Weight vs Temp)
+    tga_data = [[float(t), float(w)] for t, w in zip(df['Temperature'], df['Weight'])]
+    
+    # Prepare DTG data (Temp vs -DTG)
+    dtg_data = [[float(t), float(-d)] for t, d in zip(df['Temperature'], df['DTG'])]
+    
+    # Add Weight Series
+    series_list.append({
+        "name": f"{label} Weight",
+        "type": "line",
+        "yAxisIndex": 0,
+        "data": tga_data,
+        "lineStyle": {"color": colors_y1[i], "width": 2},
+        "itemStyle": {"color": colors_y1[i]},
+        "showSymbol": False,
+        "smooth": True
+    })
+    
+    # Add DTG Series
+    series_list.append({
+        "name": f"{label} DTG",
+        "type": "line",
+        "yAxisIndex": 1,
+        "data": dtg_data,
+        "lineStyle": {"color": colors_y2[i], "width": 2, "type": "dashed"},
+        "itemStyle": {"color": colors_y2[i]},
+        "showSymbol": False,
+        "smooth": True
+    })
+    
+    # Annotations for this lot
+    # Residue Marker
+    scatter_points.append({
+        "name": f"{label} Residue",
+        "type": "scatter",
+        "yAxisIndex": 0,
+        "data": [stats['residue_point']],
+        "symbolSize": 8,
+        "itemStyle": {"color": colors_y1[i]},
+        "zlevel": 10
+    })
+    
+    # Residue Label Text
+    annotations.append({
+        "type": "text",
+        "x": stats['residue_point'][0],
+        "y": stats['residue_point'][1],
+        "style": {
+            "text": f"Residue {stats['residue']:.1f}%",
+            "fill": colors_y1[i],
+            "fontSize": 12,
+            "fontWeight": "bold"
+        },
+        "position": "top",
+        "offset": [10, -10]
+    })
+    
+    # Peak Marker (on DTG curve)
+    if stats['peak_temp'] is not None:
+        peak_y_val = -stats['peak_dtg_raw']
+        scatter_points.append({
+            "name": f"{label} Peak",
+            "type": "scatter",
+            "yAxisIndex": 1,
+            "data": [[float(stats['peak_temp']), float(peak_y_val)]],
+            "symbolSize": 8,
+            "itemStyle": {"color": colors_y2[i]},
+            "zlevel": 10
+        })
+        
+        # Peak Label Text
+        annotations.append({
+            "type": "text",
+            "x": stats['peak_temp'],
+            "y": peak_y_val,
+            "style": {
+                "text": f"{stats['peak_temp']:.0f} °C",
+                "fill": colors_y2[i],
+                "fontSize": 12,
+                "fontWeight": "bold"
+            },
+            "position": "top",
+            "offset": [0, -15]
+        })
+
+# Combine all series
+all_series = series_list + scatter_points
+
+option = {
+    "title": {
+        "text": "TGA Comparison: Lot A vs Lot B",
+        "left": "center"
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {
+            "type": "cross"
+        }
+    },
+    "legend": {
+        "data": ["Lot A Weight", "Lot A DTG", "Lot B Weight", "Lot B DTG"],
+        "top": "10%"
+    },
+    "grid": {
+        "left": "10%",
+        "right": "10%",
+        "bottom": "15%",
+        "containLabel": True
+    },
+    "xAxis": {
+        "name": "Temperature (°C)",
+        "type": "value",
+        "min": 30,
+        "max": 900,
+        "splitLine": {
+            "show": True,
+            "lineStyle": {
+                "type": "dashed"
+            }
+        }
+    },
+    "yAxis": [
+        {
+            "name": "Weight (%)",
+            "type": "value",
+            "min": 0,
+            "max": 105,
+            "position": "left",
+            "splitLine": {
+                "show": True,
+                "lineStyle": {
+                    "type": "dashed"
+                }
+            }
+        },
+        {
+            "name": "DTG (%/°C)",
+            "type": "value",
+            "position": "right",
+            "splitLine": {
+                "show": False
+            }
+        }
+    ],
+    "series": all_series,
+    "graphic": annotations
+}
+
+output = {
+    "figures": [
+        {
+            "name": "plot1",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+    ]
+}
+
+print(json.dumps(output))
+```

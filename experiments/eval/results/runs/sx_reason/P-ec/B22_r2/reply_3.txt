@@ -1,0 +1,13 @@
+```json
+{
+  "file": "cnt_batches.xlsx",
+  "sheets": "Raw",
+  "annotate": {
+    "vline1": {
+      "type": "vline",
+      "x": 150,
+      "text": "150 °C"
+    }
+  }
+}
+```

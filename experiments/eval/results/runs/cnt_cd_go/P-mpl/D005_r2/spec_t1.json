@@ -1,0 +1,36 @@
+{
+ "file": "data/tga_batches.xlsx",
+ "sheets": [
+  "R4-260407-1",
+  "R4-260721-1"
+ ],
+ "combine": true,
+ "x": {
+  "col": "B"
+ },
+ "y1": {
+  "col": "C",
+  "legend": "Weight %"
+ },
+ "y2": {
+  "col": "D",
+  "legend": "DTG (%/°C)"
+ },
+ "names": [
+  "R4-260407-1",
+  "R4-260721-1"
+ ],
+ "asks": [
+  {
+   "ask": "TGA R4 두개 시트",
+   "how": "key"
+  },
+  {
+   "ask": "DTG 비교 (겹쳐 그리기)",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl/D005_r2/out/t1"
+ }
+}

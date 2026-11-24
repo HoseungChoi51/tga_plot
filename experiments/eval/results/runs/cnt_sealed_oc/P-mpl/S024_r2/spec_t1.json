@@ -1,0 +1,40 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "scatter",
+ "x": {
+  "col": "TGA_Fe_residue",
+  "label": "TGA 잔류량 (Fe 환산, wt%)"
+ },
+ "y": {
+  "col": "잔류금속 (wt%)",
+  "label": "런로그 잔류금속 (wt%)"
+ },
+ "ref": [
+  {
+   "y": "x",
+   "text": "y = x"
+  }
+ ],
+ "data_code": "import pandas as pd\nimport numpy as np\n\ntga_file = 'data/tga_batches.xlsx'\nfe_factor = 0.699\nresults = []\n\n# Read TGA file to get residue at 800C for each batch (sheet)\nxl_tga = pd.ExcelFile(tga_file)\nfor sheet_name in xl_tga.sheet_names:\n    df_tga = pd.read_excel(xl_tga, sheet_name=sheet_name)\n    # Find temperature column and weight column based on preview\n    temp_col = 'B' # Temperature is col B in preview description? No, preview says: A 시간, B 온도, C 중량. \n                   # Wait, preview: 'A 시간 (min)', 'B 온도 (°C)', 'C 중량 (%)'. So Temp is B, Weight is C.\n    # But column names in pandas read might be the headers '시간 (min)', '온도 (°C)', '중량 (%)'.\n    # Let's use the header names found in the preview.\n    if '온도 (°C)' in df_tga.columns and '중량 (%)' in df_tga.columns:\n        t_col = '온도 (°C)'\n        w_col = '중량 (%)'\n    else:\n        # Fallback to position if names differ slightly\n        t_col = df_tga.columns[1]\n        w_col = df_tga.columns[2]\n        \n    # Calculate residue at 800°C\n    # Use interpolation for accuracy between points\n    residue_800 = np.interp(800, df_tga[t_col], df_tga[w_col])\n    fe_residue = residue_800 * fe_factor\n    results.append({'런ID': sheet_name, 'TGA_Fe_residue': fe_residue})\n\ndf_tga_summary = pd.DataFrame(results)\n\n# Merge with the main run log dataframe 'df'\n# Ensure '런ID' exists in df. In the preview, Column A is '런ID'.\nif '런ID' not in df.columns:\n    # If the first column isn't named exactly '런ID', we might need to check. \n    # Preview says: A 런ID [텍스트...]. So it should be there.\n    pass\n\ndf = df.merge(df_tga_summary, on='런ID', how='left')",
+ "asks": [
+  {
+   "ask": "TGA 10개 배치 각각 800 °C 잔량(wt%)을 Fe로 환산(Fe₂O₃ → Fe, ×0.699)",
+   "how": "data_code"
+  },
+  {
+   "ask": "런로그 잔류금속(wt%)과 비교하는 산점도",
+   "how": "key"
+  },
+  {
+   "ask": "시트 이름이 런ID입니다",
+   "how": "data_code"
+  },
+  {
+   "ask": "y = x 기준선도 넣어 주세요",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S024_r2/out/t1"
+ }
+}

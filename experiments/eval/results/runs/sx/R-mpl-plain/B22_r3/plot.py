@@ -1,0 +1,51 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+
+# 데이터 파일 경로와 출력 디렉토리 설정
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/B22_r3/out"
+
+# 한글 폰트 설정
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+# Raw 시트 데이터 읽기
+df_raw = pd.read_excel(DATA_FILE, sheet_name='Raw')
+
+# Temperature (°C) 와 Weight (%) 컬럼 추출
+temp = df_raw['Temperature (°C)'].values
+weight = df_raw['Weight (%)'].values
+
+# 150 °C에서의 무게를 찾기 위해 가장 가까운 값 또는 보간 사용
+# 여기서는 단순히 150에 가장 가까운 온도 지점의 무게를 기준으로 삼거나,
+# 더 정확하게는 numpy.interp를 사용하여 150도일 때의 무게를 추정합니다.
+w_150 = np.interp(150, temp, weight)
+
+# 150 °C 기준(normalized to 100%)으로 재계산된 무게
+weight_normalized = (weight / w_150) * 100
+
+# 그래프 그리기
+fig, ax = plt.subplots(figsize=(8, 6))
+
+ax.plot(temp, weight_normalized, label='Raw (Normalized at 150°C)', color='blue', linewidth=1.5)
+
+# 축 라벨 및 제목 설정
+ax.set_xlabel('Temperature (°C)', fontsize=12)
+ax.set_ylabel('Weight (%)', fontsize=12)
+ax.set_title('TGA Curve: Raw Sample (Normalized at 150°C)', fontsize=14)
+
+# 범례 표시
+ax.legend()
+
+# 격자 표시
+ax.grid(True, linestyle='--', alpha=0.7)
+
+# 출력 디렉토리가 없으면 생성
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# 파일 저장
+output_path = os.path.join(OUT_DIR, "tga_raw_normalized.png")
+plt.savefig(output_path, dpi=300, bbox_inches='tight')
+plt.close()

@@ -1,0 +1,239 @@
+import pandas as pd
+import numpy as np
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/extra_columns.xlsx"
+
+def main():
+    # Read the Excel file
+    xls = pd.ExcelFile(DATA_FILE)
+    
+    figures = []
+    
+    for sheet_name in xls.sheet_names:
+        df = pd.read_excel(xls, sheet_name=sheet_name, header=0)
+        
+        # Identify columns based on the preview and user request
+        # x: Temperature (°C) -> Column B
+        # y1: Weight (mg) -> Column D (user requested this instead of Weight %)
+        # y2: Deriv. Weight (%/°C) -> Column G
+        
+        temp_col = None
+        weight_mg_col = None
+        dtg_col = None
+        
+        for col in df.columns:
+            if 'temperature' in col.lower() or 'temp' in col.lower():
+                temp_col = col
+            elif 'weight (mg)' in col.lower() or ('weight' in col.lower() and 'mg' in col.lower()):
+                weight_mg_col = col
+            elif 'deriv' in col.lower() or 'dtg' in col.lower():
+                dtg_col = col
+                
+        if temp_col is None or weight_mg_col is None or dtg_col is None:
+            continue
+            
+        # Extract data
+        temps = df[temp_col].values
+        weights_mg = df[weight_mg_col].values
+        dtgs = df[dtg_col].values
+        
+        # Filter out NaN values
+        mask = ~(np.isnan(temps) | np.isnan(weights_mg) | np.isnan(dtgs))
+        temps = temps[mask]
+        weights_mg = weights_mg[mask]
+        dtgs = dtgs[mask]
+        
+        # Prepare series data
+        # Series 1: Weight (mg) on left Y axis (yAxisIndex 0)
+        series_weight_data = [[float(t), float(w)] for t, w in zip(temps, weights_mg)]
+        
+        # Series 2: DTG on right Y axis (yAxisIndex 1), multiplied by -1 so peaks point up
+        series_dtg_data = [[float(t), float(-d)] for t, d in zip(temps, dtgs)]
+        
+        # Find Residue at nearest 800°C
+        idx_800 = np.argmin(np.abs(temps - 800))
+        residue_temp = temps[idx_800]
+        residue_val = weights_mg[idx_800]
+        residue_label = f"Residue {residue_val:.1f} mg"
+        
+        # Find Peak temperature of highest DTG peak above 150°C
+        # We look for the maximum of (-DTG) because we flipped it, which corresponds to minimum DTG (most mass loss rate)
+        # But usually "highest DTG peak" refers to the magnitude of mass loss rate. 
+        # Since we plotted -DTG, the peak is the maximum value of the plotted series.
+        mask_peak = temps > 150
+        if np.any(mask_peak):
+            dtg_flipped = -dtgs[mask_peak]
+            temps_filtered = temps[mask_peak]
+            idx_max = np.argmax(dtg_flipped)
+            peak_temp = temps_filtered[idx_max]
+            peak_val_plotted = dtg_flipped[idx_max] # This is the value on the chart
+            peak_label = f"{peak_temp:.0f} °C"
+            
+            # Marker for peak
+            peak_marker = {"coord": [float(peak_temp), float(peak_val_plotted)], "value": peak_label}
+        else:
+            peak_marker = None
+            
+        # Marker for residue
+        residue_marker = {"coord": [float(residue_temp), float(residue_val)], "value": residue_label}
+
+        # Construct ECharts Option
+        option = {
+            "title": {
+                "text": sheet_name,
+                "left": "center",
+                "top": 10,
+                "textStyle": {
+                    "fontFamily": "Noto Sans CJK KR",
+                    "fontSize": 16
+                }
+            },
+            "tooltip": {
+                "trigger": "axis",
+                "axisPointer": {
+                    "type": "cross"
+                },
+                "formatter": "{a}: {c}<br/>{b}: {c}" # Simplified formatter
+            },
+            "legend": {
+                "data": ["Weight (mg)", "-Deriv. Weight"],
+                "orient": "vertical",
+                "left": "left",
+                "top": "middle",
+                "textStyle": {
+                    "fontFamily": "Noto Sans CJK KR"
+                }
+            },
+            "grid": {
+                "left": "10%",
+                "right": "10%",
+                "bottom": "15%",
+                "containLabel": True
+            },
+            "xAxis": {
+                "type": "value",
+                "name": "Temperature (°C)",
+                "nameLocation": "middle",
+                "nameGap": 30,
+                "axisLabel": {
+                    "fontFamily": "Noto Sans CJK KR"
+                },
+                "splitLine": {
+                    "show": False
+                }
+            },
+            "yAxis": [
+                {
+                    "type": "value",
+                    "name": "Weight (mg)",
+                    "position": "left",
+                    "axisLabel": {
+                        "fontFamily": "Noto Sans CJK KR"
+                    },
+                    "splitLine": {
+                        "show": True,
+                        "lineStyle": {
+                            "color": "#eee"
+                        }
+                    }
+                },
+                {
+                    "type": "value",
+                    "name": "-Deriv. Weight (%/°C)",
+                    "position": "right",
+                    "axisLabel": {
+                        "fontFamily": "Noto Sans CJK KR"
+                    },
+                    "splitLine": {
+                        "show": False
+                    }
+                }
+            ],
+            "series": [
+                {
+                    "name": "Weight (mg)",
+                    "type": "line",
+                    "yAxisIndex": 0,
+                    "data": series_weight_data,
+                    "smooth": False,
+                    "showSymbol": False,
+                    "lineStyle": {
+                        "color": "#1f4e9c",
+                        "width": 2
+                    },
+                    "markPoint": {
+                        "symbolSize": 8,
+                        "itemStyle": {
+                            "color": "#1f4e9c"
+                        },
+                        "label": {
+                            "show": True,
+                            "position": "top",
+                            "formatter": "{@[2]}",
+                            "fontFamily": "Noto Sans CJK KR",
+                            "fontSize": 10,
+                            "color": "#1f4e9c"
+                        },
+                        "data": [
+                            {
+                                "coord": residue_marker["coord"],
+                                "value": residue_marker["value"]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "-Deriv. Weight",
+                    "type": "line",
+                    "yAxisIndex": 1,
+                    "data": series_dtg_data,
+                    "smooth": False,
+                    "showSymbol": False,
+                    "lineStyle": {
+                        "color": "#c0392b",
+                        "width": 2
+                    },
+                    "markPoint": {}
+                }
+            ]
+        }
+        
+        # Add peak marker to DTG series if found
+        if peak_marker:
+            option["series"][1]["markPoint"] = {
+                "symbolSize": 8,
+                "itemStyle": {
+                    "color": "#c0392b"
+                },
+                "label": {
+                    "show": True,
+                    "position": "top",
+                    "formatter": "{@[2]}",
+                    "fontFamily": "Noto Sans CJK KR",
+                    "fontSize": 10,
+                    "color": "#c0392b"
+                },
+                "data": [
+                    {
+                        "coord": peak_marker["coord"],
+                        "value": peak_marker["value"]
+                    }
+                ]
+            }
+
+        fig_entry = {
+            "name": "plot1",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+        figures.append(fig_entry)
+
+    output = {"figures": figures}
+    print(json.dumps(output))
+
+if __name__ == "__main__":
+    main()

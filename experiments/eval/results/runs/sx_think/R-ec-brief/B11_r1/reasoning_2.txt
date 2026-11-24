@@ -1,0 +1,92 @@
+We need answer user's correction: "no ```python block in the reply Reply with the corrected complete script only, inside one ```python block." We must produce final with one python block only. Need likely generate script? Need infer previous? User earlier gave data preview and request: PET sheet, title 'PET 열분해', legend bottom left, grid on, residue two decimals. We need write Python script that reads DATA_FILE and prints JSON with ECharts option. Need satisfy: complete script inside one ```python block and nothing else. Need maybe include Korean font? ECharts server-side maybe font? But option plain JSON. Need no JS functions. Need one figure for PET sheet. Need compute residue nearest 800, peak highest DTG above 150. Need label residue two decimals. Need legend bottom left. Grid on. Title PET 열분해. Need likely axes labels. Need data in series.data. Need width/height/dpi/formats. Need output only JSON. Need script robust. Need use pandas, openpyxl. Need parse Excel. Need choose columns by tga_guess or names. Need for PET sheet only. Need if sheet name specified. Need output {"figures":[{"name":"plot1","option":...}]}
+
+Need think about ECharts option:
+- title: text PET 열분해, left center? maybe top. textStyle fontFamily Noto Sans CJK KR? Since server-side maybe font available? We can set textStyle fontFamily: "Noto Sans CJK KR". But ECharts server-side may need font. We can include.
+- legend: data ["Weight (%)", "DTG"], left: "left", bottom: "left"? ECharts legend left can be 'left', bottom can be 20. "left bottom" means left: 'left', bottom: 20. orient vertical? left bottom usually vertical? Could set orient: 'vertical', left: 10, bottom: 10.
+- grid: show? grid component show true with borderColor. Also axis splitLine show true.
+- xAxis: type value, name "Temperature (°C)", nameLocation middle, nameGap 25. axisLabel formatter? no functions. Could use number format? not needed.
+- yAxis: two axes: y1 left Weight (%), y2 right DTG. Need DTG multiplied by -1 so peaks up. Could set series data with -dtg. y2 axis name "DTG (%/°C)" maybe but values are positive if multiplied? Standard: y2 axis label DTG, values positive? If multiply by -1, y2 values positive peaks, but axis label maybe "DTG (%/°C)"? Could be okay. Or y2 axis inverse? Standard says DTG multiplied by -1 so peaks point up. So series data = -deriv. y2 axis min maybe 0? Need maybe include negative? If all negative derivative, -dtg positive. Good.
+- series: line weight with yAxisIndex 0, lineStyle color #1f4e9c, showSymbol false, smooth false. line dtg with yAxisIndex 1, lineStyle color #c0392b, showSymbol false.
+- labels: residue and peak. Need markers on curves and text. ECharts can use markPoint with coord? But no JS functions. We can compute coordinates. For residue: nearest 800 C weight. markPoint on weight series: coord [temp, weight], label formatter? No JS functions. We can set label.formatter as string? ECharts markPoint label can use formatter string with {b} {c}. But to show custom "
+[...]
+},
+                "splitLine": {"show": True, "lineStyle": {"color": "#eeeeee"}}
+            },
+            {
+                "type": "value",
+                "name": "DTG (%/°C)",
+                "position": "right",
+                "min": float(y2_min),
+                "max": float(y2_max),
+                "axisLine": {"lineStyle": {"color": "#c0392b"}},
+                "axisTick": {"show": True},
+                "axisLabel": {"fontSize": 11, "fontFamily": font},
+                "nameTextStyle": {"fontSize": 12, "fontFamily": font},
+                "splitLine": {"show": False}
+            }
+        ],
+        "series": [weight_series, dtg_series]
+    }
+
+    return {"name": "plot1", "option": option, "width": 614, "height": 442, "dpi": 300, "formats": ["png"]}
+
+def main():
+    figures = []
+    try:
+        if os.path.exists(DATA_FILE):
+            reader = load_reader(DATA_FILE)
+            sheet = get_sheet_name(reader, REQUESTED_SHEET)
+            if sheet is not None:
+                df = parse_sheet(reader, sheet)
+                fig = make_figure(df, TITLE)
+                if fig:
+                    figures.append(fig)
+    except Exception:
+        figures = []
+    out = {"figures": figures}
+    sys.stdout.buffer.write(json.dumps(out, ensure_ascii=False).encode("utf-8"))
+
+if __name__ == "__main__":
+    main()
+
+Need check if load_reader returns DataFrame, get_sheet_name uses isinstance(reader, pd.ExcelFile) else names ["Sheet1"]. parse_sheet returns reader.copy. Good.
+
+Potential issue: pd.ExcelFile.parse may require sheet_name, but if sheet is name. Good.
+
+Potential issue: If file is .xls and xlrd? pd.ExcelFile uses engine? openpyxl for xlsx, xlrd for xls. Good.
+
+Potential issue: If reading CSV, df columns may be numeric? okay.
+
+Potential issue: If requested sheet not found and names[0] maybe not PET. But file has.
+
+Potential issue: If exception in main catches all and outputs empty. If there is a bug in make_figure, output empty. But likely okay.
+
+Potential issue: math.ceil(max(weights)) returns int, max with 100.0 returns float? okay.
+
+Potential issue: If y2_min is negative very tiny, axis min -1e-7. okay.
+
+Potential issue: If y2_max = 0.1 but peak_coord y = -0.0005, visible. Good.
+
+Potential issue: If y2_min = min(0, min(neg_dtg)) and min(neg_dtg) is negative large? okay.
+
+Potential issue: If dtg_col is None, dtgs zeros, neg_dtg zeros, peak label at first candidate? candidates all temps, max key returns first? max with equal returns first? Python max returns first max. It will label 30 °C maybe, but no dtg. Not relevant.
+
+Potential issue: Peak label always drawn even if no meaningful peak. Prompt says always drawn unless user says otherwise. Good.
+
+Potential issue: Residue nearest 800 always drawn. Good.
+
+Potential issue: markPoint label formatter {b} might not show if name is empty? no.
+
+Potential issue: ECharts markPoint label backgroundColor with borderWidth 0.5 maybe okay.
+
+Potential issue: ECharts option JSON contains degree symbol and Korean. ensure_ascii False. Good.
+
+Potential issue: The user's request "no ```python block in the reply" maybe they want no code fence? But then says Reply with corrected complete script only, inside one ```python block. Contradiction? Actually first line "no ```python block in the reply" might be feedback that previous reply lacked code block? It says no ```python block in the reply (meaning there was no block). Then "Reply with the corrected complete script only, inside one ```python block." So final must include code fence. Good.
+
+Need maybe final answer only code block, no explanation. Ensure code block starts ```python and ends ```.
+
+Double-check if any JavaScript functions? no.
+
+Could there be requirement "The option is rendered server-side with ECharts 6.1 (SVG renderer)" maybe markPoint label position 'left' with backgroundColor may produce text. Good.
+
+Need maybe if ECharts 6.1 does not support markPoint label padding array? It does. But to be safe, remove backgroundColor

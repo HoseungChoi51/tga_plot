@@ -1,0 +1,142 @@
+```python
+import json
+import re
+
+import numpy as np
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+
+df = pd.read_excel(DATA_FILE, sheet_name="PVC")
+df.columns = [str(column).strip() for column in df.columns]
+
+
+def find_column(pattern):
+    for column in df.columns:
+        if re.search(pattern, column, re.IGNORECASE):
+            return column
+    raise ValueError(f"Required column not found: {pattern}")
+
+
+temp_col = find_column(r"Temperature")
+weight_col = find_column(r"Weight\s*\(")
+
+data = df[[temp_col, weight_col]].apply(pd.to_numeric, errors="coerce").dropna()
+data = data.sort_values(temp_col)
+
+temperature = data[temp_col].to_numpy(dtype=float)
+weight = data[weight_col].to_numpy(dtype=float)
+
+# Smooth small fluctuations and find two well-separated mass-loss events.
+smooth_weight = (
+    pd.Series(weight)
+    .rolling(window=9, center=True, min_periods=1)
+    .mean()
+    .to_numpy()
+)
+loss_rate = -np.gradient(smooth_weight, temperature)
+
+threshold = np.nanpercentile(loss_rate, 70)
+candidates = np.where(loss_rate >= threshold)[0]
+ranked = candidates[np.argsort(loss_rate[candidates])[::-1]]
+
+selected = []
+for idx in ranked:
+    if all(abs(temperature[idx] - temperature[chosen]) >= 35 for chosen in selected):
+        selected.append(int(idx))
+    if len(selected) == 2:
+        break
+
+if len(selected) < 2:
+    selected = list(np.argsort(loss_rate)[-2:].astype(int))
+
+selected.sort(key=lambda idx: temperature[idx])
+event_temperatures = [float(temperature[idx]) for idx in selected]
+
+series_data = [
+    [float(x), float(y)] for x, y in zip(temperature, weight)
+]
+
+mark_lines = [
+    {
+        "xAxis": t,
+        "name": f"{t:.0f} °C",
+        "label": {
+            "show": True,
+            "formatter": f"{t:.0f} °C",
+            "position": "insideEndTop",
+            "color": "#9b2226",
+            "fontSize": 13,
+            "fontWeight": "bold",
+            "backgroundColor": "rgba(255,255,255,0.85)",
+            "padding": [4, 6],
+        },
+        "lineStyle": {"color": "#d00000", "type": "dashed", "width": 2},
+    }
+    for t in event_temperatures
+]
+
+option = {
+    "animation": False,
+    "title": {
+        "text": "PVC 열중량 분석 (TGA)",
+        "left": "center",
+        "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 18},
+    },
+    "tooltip": {"trigger": "axis", "axisPointer": {"type": "cross"}},
+    "grid": {"left": 75, "right": 35, "top": 75, "bottom": 65},
+    "xAxis": {
+        "type": "value",
+        "name": "온도 (°C)",
+        "nameLocation": "middle",
+        "nameGap": 38,
+        "min": float(np.nanmin(temperature)),
+        "max": float(np.nanmax(temperature)),
+        "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+        "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+    },
+    "yAxis": {
+        "type": "value",
+        "name": "무게 (%)",
+        "nameLocation": "middle",
+        "nameGap": 50,
+        "min": 0,
+        "max": 105,
+        "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+        "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+        "splitLine": {"lineStyle": {"color": "#e5e7eb"}},
+    },
+    "series": [
+        {
+            "name": "무게",
+            "type": "line",
+            "showSymbol": False,
+            "smooth": False,
+            "lineStyle": {"color": "#1769aa", "width": 2},
+            "data": series_data,
+            "markLine": {
+                "symbol": ["none", "none"],
+                "silent": True,
+                "data": mark_lines,
+            },
+        }
+    ],
+}
+
+print(json.dumps(
+    {
+        "figures": [
+            {
+                "name": "pvc_tga_weight",
+                "option": option,
+                "width": 900,
+                "height": 560,
+                "dpi": 300,
+                "formats": ["png"],
+            }
+        ]
+    },
+    ensure_ascii=False,
+    allow_nan=False,
+))
+```

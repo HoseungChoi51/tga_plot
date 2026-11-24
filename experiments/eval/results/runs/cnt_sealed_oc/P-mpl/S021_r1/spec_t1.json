@@ -1,0 +1,62 @@
+{
+ "file": "data/raman/R2-260617-1.csv",
+ "preset": "none",
+ "x": {
+  "col": "Raman Shift (cm-1)",
+  "min": 1000,
+  "max": 3000,
+  "label": "Raman Shift (cm⁻¹)"
+ },
+ "y1": {
+  "col": "Intensity (a.u.)",
+  "label": "Intensity (a.u.)"
+ },
+ "annotate": {
+  "d_band": {
+   "type": "vline",
+   "x": 1350,
+   "text": "D",
+   "linestyle": "dotted"
+  },
+  "g_band": {
+   "type": "vline",
+   "x": 1580,
+   "text": "G",
+   "linestyle": "dotted"
+  },
+  "twod_band": {
+   "type": "vline",
+   "x": 2690,
+   "text": "2D",
+   "linestyle": "dotted"
+  }
+ },
+ "size": [
+  3.5,
+  null
+ ],
+ "dpi": 600,
+ "output": {
+  "format": "tiff",
+  "name": "R2-260617-1_Raman",
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S021_r1/out/t1"
+ },
+ "asks": [
+  {
+   "ask": "Raman 스펙트럼 전체(1000–3000 cm⁻¹) 그려 주세요",
+   "how": "key"
+  },
+  {
+   "ask": "D(1350), G(1580), 2D(2690 cm⁻¹) 위치에 세로 점선과 밴드 이름 라벨 넣어 주세요",
+   "how": "key"
+  },
+  {
+   "ask": "폭 3.5 inch",
+   "how": "key"
+  },
+  {
+   "ask": "600 dpi TIFF로 저장 부탁합니다",
+   "how": "key"
+  }
+ ]
+}

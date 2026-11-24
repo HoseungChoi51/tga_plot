@@ -1,0 +1,103 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+
+# 설정
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/B11_r2/out"
+SHEET_NAME = "PET"
+TITLE_TEXT = "PET 열분해"
+
+# 한글 폰트 설정
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+# 데이터 로드
+df = pd.read_excel(DATA_FILE, sheet_name=SHEET_NAME)
+
+# 컬럼 이름 확인 및 매핑 (미리보기 기준)
+# A: Time, B: Temperature, C: Weight, D: Deriv. Weight
+temp_col = "Temperature (°C)"
+weight_col = "Weight (%)"
+dtg_col = "Deriv. Weight (%/°C)"
+
+x = df[temp_col].values
+y1 = df[weight_col].values
+y2 = df[dtg_col].values
+
+# 그림 생성
+fig, ax1 = plt.subplots(figsize=(8, 6))
+
+# y1 축: Weight (%)
+color1 = '#1f4e9c'
+ax1.plot(x, y1, color=color1, label='Weight (%)')
+ax1.set_xlabel('Temperature (°C)', fontsize=12)
+ax1.set_ylabel('Weight (%)', color=color1, fontsize=12)
+ax1.tick_params(axis='y', labelcolor=color1)
+ax1.grid(True, linestyle='--', alpha=0.7) # 격자 켜기
+
+# y2 축: DTG (-DTG로 그려서 피크가 위로 가도록)
+ax2 = ax1.twinx()
+color2 = '#c0392b'
+ax2.plot(x, -y2, color=color2, label='DTG (%/°C)')
+ax2.set_ylabel('DTG (%/°C)', color=color2, fontsize=12)
+ax2.tick_params(axis='y', labelcolor=color2)
+
+# 제목
+ax1.set_title(TITLE_TEXT, fontsize=14)
+
+# 잔류량 계산 및 표시 (800도 근처의 무게)
+# 가장 가까운 온도 인덱스 찾기
+idx_800 = np.argmin(np.abs(x - 800))
+residue_weight = y1[idx_800]
+residue_temp = x[idx_800]
+
+# 소수 둘째 자리까지 포맷팅
+residue_label = f"Residue {residue_weight:.2f}%"
+
+# 잔류량 마커 및 텍스트 추가
+ax1.plot(residue_temp, residue_weight, 'o', color=color1, markersize=5)
+ax1.annotate(residue_label, 
+             xy=(residue_temp, residue_weight), 
+             xytext=(residue_temp + 20, residue_weight + 5), # 위치 조정
+             arrowprops=dict(facecolor='black', arrowstyle='->'),
+             fontsize=10, color='black')
+
+# 피크 계산 및 표시 (150도 이상의 DTG 중 최대값)
+# DTG 값이 음수이므로, 절대값이 가장 큰 곳 또는 -DTG가 가장 큰 곳을 찾음
+mask = x > 150
+if mask.any():
+    dtg_vals = -y2[mask] # 양수로 변환된 DTG
+    temps = x[mask]
+    
+    peak_idx_local = np.argmax(dtg_vals)
+    peak_temp = temps[peak_idx_local]
+    peak_dtg_val = dtg_vals[peak_idx_local] # 양수 값
+    
+    # 원래 y2 좌표는 음수이므로, plot상에서는 -y2를 사용했으므로 peak_dtg_val 위치가 맞음
+    # ax2의 y좌표는 -y2 이므로 peak_dtg_val 그대로 사용 가능
+    
+    peak_label = f"{peak_temp:.0f} °C"
+    
+    # 피크 마커 및 텍스트 추가
+    ax2.plot(peak_temp, peak_dtg_val, 'o', color=color2, markersize=5)
+    ax2.annotate(peak_label, 
+                 xy=(peak_temp, peak_dtg_val), 
+                 xytext=(peak_temp - 50, peak_dtg_val * 0.8), # 위치 조정
+                 arrowprops=dict(facecolor='black', arrowstyle='->'),
+                 fontsize=10, color='black')
+
+# 범례 왼쪽 아래 배치
+lines1, labels1 = ax1.get_legend_handles_labels()
+lines2, labels2 = ax2.get_legend_handles_labels()
+ax1.legend(lines1 + lines2, labels1 + labels2, loc='lower left', fontsize=10)
+
+# 출력 디렉토리 생성
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# 파일 저장
+output_path = os.path.join(OUT_DIR, f"{SHEET_NAME}_plot.png")
+plt.tight_layout()
+plt.savefig(output_path, dpi=300)
+plt.close()

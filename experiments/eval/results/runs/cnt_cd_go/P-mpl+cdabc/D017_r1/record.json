@@ -1,0 +1,268 @@
+{
+ "arm": "P-mpl+cdabc",
+ "item": "D017",
+ "repeat": 1,
+ "split": "dev",
+ "persona": "공정 엔지니어",
+ "type": "single",
+ "cd": "fullabc",
+ "backend": "anthropic",
+ "model": "qwen3.8-flash",
+ "effort": "",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "반응기별 주간/야간 평균 IG/ID grouped bar.",
+   "calls": [
+    {
+     "reply": "{\n  \"asks\": [\n    {\n      \"ask\": \"반응기별 주간/야간 평균 IG/ID grouped bar\",\n      \"how\": \"key\"\n    }\n  ],\n  \"by\": \"근무조\",\n  \"chart\": \"bar\",\n  \"file\": \"data/run_log.xlsx\",\n  \"x\": \"반응기\",\n  \"y\": {\n    \"agg\": \"mean\",\n    \"col\": \"IG/ID\"\n  }\n}",
+     "llm_s": 3.617,
+     "prompt_tokens": 6368,
+     "output_tokens": 113,
+     "cached_tokens": 5406,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": ""
+    }
+   ],
+   "spec": {
+    "asks": [
+     {
+      "ask": "반응기별 주간/야간 평균 IG/ID grouped bar",
+      "how": "key"
+     }
+    ],
+    "by": "근무조",
+    "chart": "bar",
+    "file": "data/run_log.xlsx",
+    "x": "반응기",
+    "y": {
+     "agg": "mean",
+     "col": "IG/ID"
+    }
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdabc/D017_r1/out/t1/bar_IG_ID.png"
+    ],
+    "chart": "bar",
+    "rows_used": 997,
+    "rows_total": 997,
+    "values": {
+     "categories": [
+      "R1",
+      "R2",
+      "R3",
+      "R4"
+     ],
+     "series": {
+      "야간": [
+       2.6686,
+       2.2999,
+       2.6598,
+       2.4182
+      ],
+      "주간": [
+       2.6776,
+       2.665,
+       2.6771,
+       2.3966
+      ]
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "막대 그래프를 저장했습니다: bar_IG_ID.png\n사용한 행: 997 / 997\n야간: R1 2.67, R2 2.3, R3 2.66, R4 2.42\n주간: R1 2.68, R2 2.66, R3 2.68, R4 2.4"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": null,
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "야간",
+         "orient": "v",
+         "cats": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          2.66860294117647,
+          2.299920634920635,
+          2.6598305084745766,
+          2.4181818181818184
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c"
+         ],
+         "centers": [
+          -0.2,
+          0.8,
+          1.8,
+          2.8
+         ]
+        },
+        {
+         "name": "주간",
+         "orient": "v",
+         "cats": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          2.6775652173913045,
+          2.6649999999999987,
+          2.677086614173228,
+          2.396615384615384
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#c0392b",
+          "#c0392b",
+          "#c0392b",
+          "#c0392b"
+         ],
+         "centers": [
+          0.2,
+          1.2,
+          2.2,
+          3.2
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "반응기",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "R1",
+         "R2",
+         "R3",
+         "R4"
+        ],
+        "min": -0.5900000000000001,
+        "max": 3.59,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "R1",
+         "R2",
+         "R3",
+         "R4"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "IG/ID (mean)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0
+        ],
+        "step": 1.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 4.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "-1",
+         "0",
+         "1",
+         "2",
+         "3",
+         "4",
+         "5"
+        ],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "야간",
+       "주간"
+      ],
+      "inside": true,
+      "where": "upper right"
+     },
+     "files": [
+      {
+       "path": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdabc/D017_r1/out/t1/bar_IG_ID.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5151383876800537,
+   "check": {
+    "kind_expected": "grouped_bar",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 4.218
+  }
+ ]
+}

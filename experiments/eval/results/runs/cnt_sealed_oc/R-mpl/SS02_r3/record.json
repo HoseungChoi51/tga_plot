@@ -1,0 +1,664 @@
+{
+ "arm": "R-mpl",
+ "item": "SS02",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "생산팀장",
+ "type": "session",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "설비 정지 원인별 건수를 막대그래프로 보여 주세요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 한글 폰트 설정\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/downtime.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"정지이력\")\n\n# 원인별 건수 계산\ncause_counts = df['원인'].value_counts()\n\n# 막대그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\nbars = ax.bar(cause_counts.index, cause_counts.values, color='steelblue', edgecolor='black')\n\n# 그래프 스타일링\nax.set_title('설비 정지 원인별 건수', fontsize=16, fontweight='bold')\nax.set_xlabel('정지 원인', fontsize=12)\nax.set_ylabel('건수', fontsize=12)\nax.tick_params(axis='both', which='major', labelsize=10)\n\n# 각 막대 위에 수치 표시\nfor bar in bars:\n    height = bar.get_height()\n    ax.text(bar.get_x() + bar.get_width()/2., height,\n            f'{int(height)}',\n            ha='center', va='bottom', fontsize=10)\n\nplt.tight_layout()\n\n# 저장\nsave_path = os.path.join(OUT_DIR, \"downtime_cause_count.png\")\nplt.savefig(save_path, dpi=300, bbox_inches='tight')\nplt.close()\n```",
+     "llm_s": 6.579,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 2866,
+     "output_chars": 1078,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 한글 폰트 설정\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/downtime.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"정지이력\")\n\n# 원인별 건수 계산\ncause_counts = df['원인'].value_counts()\n\n# 막대그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\nbars = ax.bar(cause_counts.index, cause_counts.values, color='steelblue', edgecolor='black')\n\n# 그래프 스타일링\nax.set_title('설비 정지 원인별 건수', fontsize=16, fontweight='bold')\nax.set_xlabel('정지 원인', fontsize=12)\nax.set_ylabel('건수', fontsize=12)\nax.tick_params(axis='both', which='major', labelsize=10)\n\n# 각 막대 위에 수치 표시\nfor bar in bars:\n    height = bar.get_height()\n    ax.text(bar.get_x() + bar.get_width()/2., height,\n            f'{int(height)}',\n            ha='center', va='bottom', fontsize=10)\n\nplt.tight_layout()\n\n# 저장\nsave_path = os.path.join(OUT_DIR, \"downtime_cause_count.png\")\nplt.savefig(save_path, dpi=300, bbox_inches='tight')\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "설비 정지 원인별 건수",
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "",
+         "orient": "v",
+         "cats": [
+          "노즐 막힘",
+          "기타",
+          "촉매 공급 이상",
+          "히터 고장",
+          "전력"
+         ],
+         "values": [
+          84.0,
+          70.0,
+          68.0,
+          44.0,
+          28.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#4682b4",
+          "#4682b4",
+          "#4682b4",
+          "#4682b4",
+          "#4682b4"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 5,
+       "texts": [
+        "84",
+        "70",
+        "68",
+        "44",
+        "28"
+       ],
+       "x": {
+        "label": "정지 원인",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "노즐 막힘",
+         "기타",
+         "촉매 공급 이상",
+         "히터 고장",
+         "전력"
+        ],
+        "min": -0.6400000000000001,
+        "max": 4.640000000000001,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "노즐 막힘",
+         "기타",
+         "촉매 공급 이상",
+         "히터 고장",
+         "전력"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "건수",
+        "type": "value",
+        "ticks": [
+         0.0,
+         10.0,
+         20.0,
+         30.0,
+         40.0,
+         50.0,
+         60.0,
+         70.0,
+         80.0
+        ],
+        "step": 10.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 88.2,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "10",
+         "20",
+         "30",
+         "40",
+         "50",
+         "60",
+         "70",
+         "80",
+         "90"
+        ],
+        "rotate": 0.0
+       },
+       "title": "설비 정지 원인별 건수"
+      }
+     ],
+     "texts": [
+      "84",
+      "70",
+      "68",
+      "44",
+      "28"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t1/downtime_cause_count.png",
+       "format": "png",
+       "px": [
+        2968,
+        1768
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.49675416946411133,
+   "check": {
+    "kind_expected": "bar",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 7.076
+  },
+  {
+   "turn": 2,
+   "text": "이걸 파이로 바꿔 주세요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 한글 폰트 설정\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/downtime.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"정지이력\")\n\n# 원인별 건수 계산\ncause_counts = df['원인'].value_counts()\n\n# 파이 차트 그리기\nfig, ax = plt.subplots(figsize=(10, 8))\n\n# 색상 팔레트 지정 (가독성을 위해)\ncolors = ['#ff9999','#66b3ff','#99ff99','#ffcc99', '#c2c2f0']\n\nwedges, texts, autotexts = ax.pie(\n    cause_counts.values, \n    labels=cause_counts.index, \n    autopct='%1.1f%%',\n    startangle=140,\n    colors=colors,\n    pctdistance=0.85,\n    textprops={'fontsize': 12}\n)\n\n# 비율 텍스트 굵게 및 검은색으로 변경\nfor autotext in autotexts:\n    autotext.set_color('black')\n    autotext.set_fontweight('bold')\n\nax.set_title('설비 정지 원인별 분포', fontsize=16, fontweight='bold')\n\n# 원형 유지\nax.axis('equal')\n\nplt.tight_layout()\n\n# 저장\nsave_path = os.path.join(OUT_DIR, \"downtime_cause_pie.png\")\nplt.savefig(save_path, dpi=300, bbox_inches='tight')\nplt.close()\n```",
+     "llm_s": 7.464,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 4375,
+     "output_chars": 1088,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 한글 폰트 설정\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/downtime.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"정지이력\")\n\n# 원인별 건수 계산\ncause_counts = df['원인'].value_counts()\n\n# 파이 차트 그리기\nfig, ax = plt.subplots(figsize=(10, 8))\n\n# 색상 팔레트 지정 (가독성을 위해)\ncolors = ['#ff9999','#66b3ff','#99ff99','#ffcc99', '#c2c2f0']\n\nwedges, texts, autotexts = ax.pie(\n    cause_counts.values, \n    labels=cause_counts.index, \n    autopct='%1.1f%%',\n    startangle=140,\n    colors=colors,\n    pctdistance=0.85,\n    textprops={'fontsize': 12}\n)\n\n# 비율 텍스트 굵게 및 검은색으로 변경\nfor autotext in autotexts:\n    autotext.set_color('black')\n    autotext.set_fontweight('bold')\n\nax.set_title('설비 정지 원인별 분포', fontsize=16, fontweight='bold')\n\n# 원형 유지\nax.axis('equal')\n\nplt.tight_layout()\n\n# 저장\nsave_path = os.path.join(OUT_DIR, \"downtime_cause_pie.png\")\nplt.savefig(save_path, dpi=300, bbox_inches='tight')\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      8.0
+     ],
+     "dpi": null,
+     "title": "설비 정지 원인별 분포",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": {
+        "labels": [
+         "노즐 막힘",
+         "기타",
+         "촉매 공급 이상",
+         "히터 고장",
+         "전력"
+        ],
+        "shares": [
+         0.2857142857142857,
+         0.2380952380952382,
+         0.2312925170068027,
+         0.14965986394557815,
+         0.09523809523809522
+        ],
+        "values": null,
+        "colors": [
+         "#ff9999",
+         "#66b3ff",
+         "#99ff99",
+         "#ffcc99",
+         "#c2c2f0"
+        ]
+       },
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 5,
+       "texts": [
+        "노즐 막힘",
+        "기타",
+        "촉매 공급 이상",
+        "히터 고장",
+        "전력",
+        "28.6%",
+        "23.8%",
+        "23.1%",
+        "15.0%",
+        "9.5%"
+       ],
+       "x": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.383918882378944,
+        "max": 1.383912511652113,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.0737434068036658,
+        "max": 1.073759573077734,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "title": "설비 정지 원인별 분포"
+      }
+     ],
+     "texts": [
+      "노즐 막힘",
+      "기타",
+      "촉매 공급 이상",
+      "히터 고장",
+      "전력",
+      "28.6%",
+      "23.8%",
+      "23.1%",
+      "15.0%",
+      "9.5%"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t2/downtime_cause_pie.png",
+       "format": "png",
+       "px": [
+        2929,
+        2379
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5146641731262207,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 7.979
+  },
+  {
+   "turn": 3,
+   "text": "건수 말고 정지시간 합계 기준으로 다시 보여 주세요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 한글 폰트 설정\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/downtime.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"정지이력\")\n\n# 원인별 정지시간 합계 계산\ncause_sums = df.groupby('원인')['정지시간(분)'].sum()\n\n# 파이 차트 그리기\nfig, ax = plt.subplots(figsize=(10, 8))\n\n# 색상 팔레트 지정 (가독성을 위해)\ncolors = ['#ff9999','#66b3ff','#99ff99','#ffcc99', '#c2c2f0']\n\nwedges, texts, autotexts = ax.pie(\n    cause_sums.values, \n    labels=cause_sums.index, \n    autopct='%1.1f%%',\n    startangle=140,\n    colors=colors,\n    pctdistance=0.85,\n    textprops={'fontsize': 12}\n)\n\n# 비율 텍스트 굵게 및 검은색으로 변경\nfor autotext in autotexts:\n    autotext.set_color('black')\n    autotext.set_fontweight('bold')\n\nax.set_title('설비 정지 원인별 정지시간 분포', fontsize=16, fontweight='bold')\n\n# 원형 유지\nax.axis('equal')\n\nplt.tight_layout()\n\n# 저장\nsave_path = os.path.join(OUT_DIR, \"downtime_cause_time_pie.png\")\nplt.savefig(save_path, dpi=300, bbox_inches='tight')\nplt.close()\n```",
+     "llm_s": 7.623,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 5812,
+     "output_chars": 1107,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 한글 폰트 설정\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/downtime.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"정지이력\")\n\n# 원인별 정지시간 합계 계산\ncause_sums = df.groupby('원인')['정지시간(분)'].sum()\n\n# 파이 차트 그리기\nfig, ax = plt.subplots(figsize=(10, 8))\n\n# 색상 팔레트 지정 (가독성을 위해)\ncolors = ['#ff9999','#66b3ff','#99ff99','#ffcc99', '#c2c2f0']\n\nwedges, texts, autotexts = ax.pie(\n    cause_sums.values, \n    labels=cause_sums.index, \n    autopct='%1.1f%%',\n    startangle=140,\n    colors=colors,\n    pctdistance=0.85,\n    textprops={'fontsize': 12}\n)\n\n# 비율 텍스트 굵게 및 검은색으로 변경\nfor autotext in autotexts:\n    autotext.set_color('black')\n    autotext.set_fontweight('bold')\n\nax.set_title('설비 정지 원인별 정지시간 분포', fontsize=16, fontweight='bold')\n\n# 원형 유지\nax.axis('equal')\n\nplt.tight_layout()\n\n# 저장\nsave_path = os.path.join(OUT_DIR, \"downtime_cause_time_pie.png\")\nplt.savefig(save_path, dpi=300, bbox_inches='tight')\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      8.0
+     ],
+     "dpi": null,
+     "title": "설비 정지 원인별 정지시간 분포",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": {
+        "labels": [
+         "기타",
+         "노즐 막힘",
+         "전력",
+         "촉매 공급 이상",
+         "히터 고장"
+        ],
+        "shares": [
+         0.11245587493696421,
+         0.18220256798169057,
+         0.06722526087125189,
+         0.23115714341130375,
+         0.4069591527987896
+        ],
+        "values": null,
+        "colors": [
+         "#ff9999",
+         "#66b3ff",
+         "#99ff99",
+         "#ffcc99",
+         "#c2c2f0"
+        ]
+       },
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 5,
+       "texts": [
+        "기타",
+        "노즐 막힘",
+        "전력",
+        "촉매 공급 이상",
+        "히터 고장",
+        "11.2%",
+        "18.2%",
+        "6.7%",
+        "23.1%",
+        "40.7%"
+       ],
+       "x": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.3839247591351882,
+        "max": 1.3839230949149666,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.0561030160422744,
+        "max": 1.0560963041458127,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "title": "설비 정지 원인별 정지시간 분포"
+      }
+     ],
+     "texts": [
+      "기타",
+      "노즐 막힘",
+      "전력",
+      "촉매 공급 이상",
+      "히터 고장",
+      "11.2%",
+      "18.2%",
+      "6.7%",
+      "23.1%",
+      "40.7%"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t3/downtime_cause_time_pie.png",
+       "format": "png",
+       "px": [
+        2970,
+        2410
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5298595428466797,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 8.154
+  },
+  {
+   "turn": 4,
+   "text": "R2만 남겨 주세요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 한글 폰트 설정\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/downtime.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"정지이력\")\n\n# R2만 필터링\ndf_r2 = df[df['반응기'] == 'R2']\n\n# 원인별 정지시간 합계 계산\ncause_sums = df_r2.groupby('원인')['정지시간(분)'].sum()\n\n# 파이 차트 그리기\nfig, ax = plt.subplots(figsize=(10, 8))\n\n# 색상 팔레트 지정 (가독성을 위해)\n# 원인 종류 수에 맞춰 색상 할당\ncolors = ['#ff9999','#66b3ff','#99ff99','#ffcc99', '#c2c2f0', '#ffb3e6', '#d4a5a5']\nselected_colors = colors[:len(cause_sums)] if len(cause_sums) <= len(colors) else colors * ((len(cause_sums)//len(colors))+1)\n\nwedges, texts, autotexts = ax.pie(\n    cause_sums.values, \n    labels=cause_sums.index, \n    autopct='%1.1f%%',\n    startangle=140,\n    colors=selected_colors,\n    pctdistance=0.85,\n    textprops={'fontsize': 12}\n)\n\n# 비율 텍스트 굵게 및 검은색으로 변경\nfor autotext in autotexts:\n    autotext.set_color('black')\n    autotext.set_fontweight('bold')\n\nax.set_title('R2 반응기 설비 정지 원인별 정지시간 분포', fontsize=16, fontweight='bold')\n\n# 원형 유지\nax.axis('equal')\n\nplt.tight_layout()\n\n# 저장\nsave_path = os.path.join(OUT_DIR, \"downtime_cause_time_pie_R2.png\")\nplt.savefig(save_path, dpi=300, bbox_inches='tight')\nplt.close()\n```",
+     "llm_s": 7.322,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 7246,
+     "output_chars": 1338,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 한글 폰트 설정\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/downtime.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"정지이력\")\n\n# R2만 필터링\ndf_r2 = df[df['반응기'] == 'R2']\n\n# 원인별 정지시간 합계 계산\ncause_sums = df_r2.groupby('원인')['정지시간(분)'].sum()\n\n# 파이 차트 그리기\nfig, ax = plt.subplots(figsize=(10, 8))\n\n# 색상 팔레트 지정 (가독성을 위해)\n# 원인 종류 수에 맞춰 색상 할당\ncolors = ['#ff9999','#66b3ff','#99ff99','#ffcc99', '#c2c2f0', '#ffb3e6', '#d4a5a5']\nselected_colors = colors[:len(cause_sums)] if len(cause_sums) <= len(colors) else colors * ((len(cause_sums)//len(colors))+1)\n\nwedges, texts, autotexts = ax.pie(\n    cause_sums.values, \n    labels=cause_sums.index, \n    autopct='%1.1f%%',\n    startangle=140,\n    colors=selected_colors,\n    pctdistance=0.85,\n    textprops={'fontsize': 12}\n)\n\n# 비율 텍스트 굵게 및 검은색으로 변경\nfor autotext in autotexts:\n    autotext.set_color('black')\n    autotext.set_fontweight('bold')\n\nax.set_title('R2 반응기 설비 정지 원인별 정지시간 분포', fontsize=16, fontweight='bold')\n\n# 원형 유지\nax.axis('equal')\n\nplt.tight_layout()\n\n# 저장\nsave_path = os.path.join(OUT_DIR, \"downtime_cause_time_pie_R2.png\")\nplt.savefig(save_path, dpi=300, bbox_inches='tight')\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      8.0
+     ],
+     "dpi": null,
+     "title": "R2 반응기 설비 정지 원인별 정지시간 분포",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": {
+        "labels": [
+         "기타",
+         "노즐 막힘",
+         "전력",
+         "촉매 공급 이상",
+         "히터 고장"
+        ],
+        "shares": [
+         0.09784765684628303,
+         0.20454892382842316,
+         0.06548618531521902,
+         0.24026866127308813,
+         0.39184857273698664
+        ],
+        "values": null,
+        "colors": [
+         "#ff9999",
+         "#66b3ff",
+         "#99ff99",
+         "#ffcc99",
+         "#c2c2f0"
+        ]
+       },
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 5,
+       "texts": [
+        "기타",
+        "노즐 막힘",
+        "전력",
+        "촉매 공급 이상",
+        "히터 고장",
+        "9.8%",
+        "20.5%",
+        "6.5%",
+        "24.0%",
+        "39.2%"
+       ],
+       "x": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.3839239026236672,
+        "max": 1.383924681810233,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.0526192990329293,
+        "max": 1.0526131201137223,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "title": "R2 반응기 설비 정지 원인별 정지시간 분포"
+      }
+     ],
+     "texts": [
+      "기타",
+      "노즐 막힘",
+      "전력",
+      "촉매 공급 이상",
+      "히터 고장",
+      "9.8%",
+      "20.5%",
+      "6.5%",
+      "24.0%",
+      "39.2%"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t4/downtime_cause_time_pie_R2.png",
+       "format": "png",
+       "px": [
+        2970,
+        2416
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5510475635528564,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 7.873
+  }
+ ]
+}

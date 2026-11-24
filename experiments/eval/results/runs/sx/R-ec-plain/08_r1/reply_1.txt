@@ -1,0 +1,147 @@
+```python
+import pandas as pd
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+def read_tga_sheet(file_path, sheet_name):
+    df = pd.read_excel(file_path, sheet_name=sheet_name, header=0)
+    # Ensure columns are named correctly based on preview
+    cols = df.columns.tolist()
+    # Map expected columns: Time, Temperature, Weight(%), D.W(%/C)
+    # We need Temperature (x), Weight(%) (y1), D.W(%/C) (y2)
+    
+    temp_col = None
+    weight_col = None
+    dtg_col = None
+    
+    for c in cols:
+        if 'Temperature' in str(c):
+            temp_col = c
+        elif 'Weight' in str(c) and '%' in str(c):
+            weight_col = c
+        elif 'D.W' in str(c) or 'DTG' in str(c) or 'dW' in str(c):
+            dtg_col = c
+            
+    if not all([temp_col, weight_col, dtg_col]):
+        # Fallback to positional if names don't match exactly but structure is known from preview
+        # Col B is Temp, C is Weight, D is DTG usually. Index 1, 2, 3 if 0-based after reading with header
+        if len(cols) >= 4:
+             temp_col = cols[1]
+             weight_col = cols[2]
+             dtg_col = cols[3]
+
+    data_temp = df[temp_col].dropna().tolist()
+    data_weight = df[weight_col].dropna().tolist()
+    data_dtg = df[dtg_col].dropna().tolist()
+    
+    return data_temp, data_weight, data_dtg
+
+# Read all sheets
+sheets_info = [
+    {"name": "1006R1-V normal", "label": "Normal"},
+    {"name": "1006R1-V acid", "label": "Acid"},
+    {"name": "1006R1-V 750C", "label": "750C"}
+]
+
+series_list = []
+
+for s_info in sheets_info:
+    sheet_name = s_info["name"]
+    label = s_info["label"]
+    
+    try:
+        temps, weights, dtgs = read_tga_sheet(DATA_FILE, sheet_name)
+        
+        # Series 1: TGA (Weight %) - Left Y Axis
+        series_list.append({
+            "name": f"TGA {label}",
+            "type": "line",
+            "data": [[t, w] for t, w in zip(temps, weights)],
+            "yAxisIndex": 0,
+            "showSymbol": False,
+            "smooth": True,
+            "lineStyle": {"width": 2}
+        })
+        
+        # Series 2: DTG (%/C) - Right Y Axis
+        series_list.append({
+            "name": f"DTG {label}",
+            "type": "line",
+            "data": [[t, d] for t, d in zip(temps, dtgs)],
+            "yAxisIndex": 1,
+            "showSymbol": False,
+            "smooth": True,
+            "lineStyle": {"width": 2, "type": "dashed"}
+        })
+    except Exception as e:
+        pass
+
+option = {
+    "title": {
+        "text": "TGA/DTG Analysis Results",
+        "left": "center"
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {
+            "type": "cross"
+        }
+    },
+    "legend": {
+        "data": [f"TGA {s['label']}" for s in sheets_info] + [f"DTG {s['label']}" for s in sheets_info],
+        "top": "8%"
+    },
+    "grid": {
+        "left": "10%",
+        "right": "10%",
+        "bottom": "15%",
+        "containLabel": True
+    },
+    "xAxis": {
+        "type": "value",
+        "name": "온도 (°C)",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "min": 30,
+        "max": 900
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "무게 (%)",
+            "nameLocation": "middle",
+            "nameGap": 45,
+            "position": "left",
+            "min": 0,
+            "max": 100
+        },
+        {
+            "type": "value",
+            "name": "미분 무게 (%/°C)",
+            "nameLocation": "middle",
+            "nameGap": 45,
+            "position": "right",
+            "splitLine": {
+                "show": False
+            }
+        }
+    ],
+    "series": series_list
+}
+
+output = {
+    "figures": [
+        {
+            "name": "tga_plot",
+            "option": option,
+            "width": 800,
+            "height": 600,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+    ]
+}
+
+print(json.dumps(output))
+```

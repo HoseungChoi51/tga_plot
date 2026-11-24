@@ -1,0 +1,1094 @@
+{
+ "arm": "P-hyb",
+ "item": "SS03",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "생산팀장",
+ "type": "session",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "반응기별 합격률(A·B 등급 비율, %)을 막대로 그려 주세요.",
+   "calls": [
+    {
+     "reply": "```json\n{\"file\": \"data/run_log.xlsx\", \"sheet\": \"런로그\", \"chart\": \"bar\", \"x\": \"반응기\", \"y\": {\"col\": \"등급\", \"agg\": \"count\"}, \"filter\": [\"등급 in [A, B]\"], \"values\": true, \"asks\": [{\"ask\": \"반응기별 합격률(A·B 등급 비율) 막대\", \"how\": \"code\"}]}\n```",
+     "llm_s": 2.392,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 17985,
+     "output_chars": 225,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "bar",
+    "x": "반응기",
+    "y": {
+     "col": "등급",
+     "agg": "count"
+    },
+    "filter": [
+     "등급 in [A, B]"
+    ],
+    "values": true,
+    "asks": [
+     {
+      "ask": "반응기별 합격률(A·B 등급 비율) 막대",
+      "how": "code"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": true,
+    "engine": "echarts",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/SS03_r1/out/t1/bar_등급.png"
+    ],
+    "chart": "bar",
+    "rows_used": 871,
+    "rows_total": 997,
+    "values": {
+     "categories": [
+      "R1",
+      "R2",
+      "R3",
+      "R4"
+     ],
+     "series": {
+      "등급 (A/B/C)": [
+       244.0,
+       205.0,
+       243.0,
+       179.0
+      ]
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "막대 그래프를 저장했습니다: bar_등급.png\n사용한 행: 871 / 997\n등급 (A/B/C): R1 244, R2 205, R3 243, R4 179"
+   },
+   "facts": [
+    {
+     "engine": "echarts",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": 300,
+     "title": null,
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "등급 (A/B/C)",
+         "orient": "v",
+         "cats": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          244.0,
+          205.0,
+          243.0,
+          179.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c"
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 4,
+       "texts": [
+        "244",
+        "205",
+        "243",
+        "179"
+       ],
+       "x": {
+        "label": "반응기",
+        "type": "category",
+        "ticks": [],
+        "step": null,
+        "categories": [
+         "R1",
+         "R2",
+         "R3",
+         "R4"
+        ],
+        "min": 0.0,
+        "max": 3.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "등급 (A/B/C) (count)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         50.0,
+         100.0,
+         150.0,
+         200.0,
+         250.0,
+         300.0
+        ],
+        "step": 50.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 300.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       }
+      }
+     ],
+     "texts": [
+      "244",
+      "205",
+      "243",
+      "179"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/SS03_r1/out/t1/bar_등급.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.589625358581543,
+   "check": {
+    "kind_expected": "bar",
+    "failed": [
+     "values: R1: drawn 244, want 97.21; R2: drawn 205, want 82; R3: drawn 243, want 99.18; R4: drawn 179, want 71.31"
+    ],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 1,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 3.059
+  },
+  {
+   "turn": 2,
+   "text": "월별로 나눠서 반응기별 묶은 막대로 바꿔 주세요.",
+   "calls": [
+    {
+     "reply": "```json\n{\"file\": \"data/run_log.xlsx\", \"sheet\": \"런로그\", \"chart\": \"bar\", \"x\": {\"col\": \"일자\", \"period\": \"month\"}, \"y\": \"count\", \"by\": \"반응기\", \"filter\": [\"등급 in [A, B]\"], \"values\": true, \"asks\": [{\"ask\": \"월별 반응기 묶은 막대\", \"how\": \"code\"}]}\n```",
+     "llm_s": 2.516,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 18574,
+     "output_chars": 233,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "bar",
+    "x": {
+     "col": "일자",
+     "period": "month"
+    },
+    "y": "count",
+    "by": "반응기",
+    "filter": [
+     "등급 in [A, B]"
+    ],
+    "values": true,
+    "asks": [
+     {
+      "ask": "월별 반응기 묶은 막대",
+      "how": "code"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": true,
+    "engine": "echarts",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/SS03_r1/out/t2/bar_일자.png"
+    ],
+    "chart": "bar",
+    "rows_used": 871,
+    "rows_total": 997,
+    "values": {
+     "categories": [
+      "2026-03-01",
+      "2026-04-01",
+      "2026-05-01",
+      "2026-06-01",
+      "2026-07-01",
+      "2026-08-01"
+     ],
+     "series": {
+      "R1": [
+       40.0,
+       41.0,
+       40.0,
+       41.0,
+       40.0,
+       42.0
+      ],
+      "R2": [
+       38.0,
+       35.0,
+       34.0,
+       34.0,
+       32.0,
+       32.0
+      ],
+      "R3": [
+       41.0,
+       39.0,
+       40.0,
+       40.0,
+       42.0,
+       41.0
+      ],
+      "R4": [
+       38.0,
+       33.0,
+       37.0,
+       23.0,
+       21.0,
+       27.0
+      ]
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "막대 그래프를 저장했습니다: bar_일자.png\n사용한 행: 871 / 997\nR1: 2026-03-01 40, 2026-04-01 41, 2026-05-01 40, 2026-06-01 41, 2026-07-01 40, 2026-08-01 42\nR2: 2026-03-01 38, 2026-04-01 35, 2026-05-01 34, 2026-06-01 34, 2026-07-01 32, 2026-08-01 32\nR3: 2026-03-01 41, 2026-04-01 39, 2026-05-01 40, 2026-06-01 40, 2026-07-01 42, 2026-08-01 41\nR4: 2026-03-01 38, 2026-04-01 33, 2026-05-01 37, 2026-06-01 23, 2026-07-01 21, 2026-08-01 27"
+   },
+   "facts": [
+    {
+     "engine": "echarts",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": 300,
+     "title": null,
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "R1",
+         "orient": "v",
+         "cats": [
+          "2026-03-01",
+          "2026-04-01",
+          "2026-05-01",
+          "2026-06-01",
+          "2026-07-01",
+          "2026-08-01"
+         ],
+         "values": [
+          40.0,
+          41.0,
+          40.0,
+          41.0,
+          40.0,
+          42.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c"
+         ]
+        },
+        {
+         "name": "R2",
+         "orient": "v",
+         "cats": [
+          "2026-03-01",
+          "2026-04-01",
+          "2026-05-01",
+          "2026-06-01",
+          "2026-07-01",
+          "2026-08-01"
+         ],
+         "values": [
+          38.0,
+          35.0,
+          34.0,
+          34.0,
+          32.0,
+          32.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#c0392b",
+          "#c0392b",
+          "#c0392b",
+          "#c0392b",
+          "#c0392b",
+          "#c0392b"
+         ]
+        },
+        {
+         "name": "R3",
+         "orient": "v",
+         "cats": [
+          "2026-03-01",
+          "2026-04-01",
+          "2026-05-01",
+          "2026-06-01",
+          "2026-07-01",
+          "2026-08-01"
+         ],
+         "values": [
+          41.0,
+          39.0,
+          40.0,
+          40.0,
+          42.0,
+          41.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#2e8b57",
+          "#2e8b57",
+          "#2e8b57",
+          "#2e8b57",
+          "#2e8b57",
+          "#2e8b57"
+         ]
+        },
+        {
+         "name": "R4",
+         "orient": "v",
+         "cats": [
+          "2026-03-01",
+          "2026-04-01",
+          "2026-05-01",
+          "2026-06-01",
+          "2026-07-01",
+          "2026-08-01"
+         ],
+         "values": [
+          38.0,
+          33.0,
+          37.0,
+          23.0,
+          21.0,
+          27.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#d4881c",
+          "#d4881c",
+          "#d4881c",
+          "#d4881c",
+          "#d4881c",
+          "#d4881c"
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 24,
+       "texts": [
+        "40",
+        "41",
+        "40",
+        "41",
+        "40",
+        "42",
+        "38",
+        "35",
+        "34",
+        "34",
+        "32",
+        "32",
+        "41",
+        "39",
+        "40",
+        "40",
+        "42",
+        "41",
+        "38",
+        "33",
+        "37",
+        "23",
+        "21",
+        "27"
+       ],
+       "x": {
+        "label": "일자 (yyyy-mm-dd)",
+        "type": "category",
+        "ticks": [],
+        "step": null,
+        "categories": [
+         "2026-03-01",
+         "2026-04-01",
+         "2026-05-01",
+         "2026-06-01",
+         "2026-07-01",
+         "2026-08-01"
+        ],
+        "min": 0.0,
+        "max": 5.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 45.0
+       },
+       "y": {
+        "label": "count",
+        "type": "value",
+        "ticks": [
+         0.0,
+         20.0,
+         40.0,
+         60.0,
+         80.0
+        ],
+        "step": 20.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 80.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       }
+      }
+     ],
+     "texts": [
+      "40",
+      "41",
+      "40",
+      "41",
+      "40",
+      "42",
+      "38",
+      "35",
+      "34",
+      "34",
+      "32",
+      "32",
+      "41",
+      "39",
+      "40",
+      "40",
+      "42",
+      "41",
+      "38",
+      "33",
+      "37",
+      "23",
+      "21",
+      "27"
+     ],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "반응기",
+       "R1",
+       "R2",
+       "R3",
+       "R4"
+      ],
+      "inside": true,
+      "where": "upper right"
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/SS03_r1/out/t2/bar_일자.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.6139509677886963,
+   "check": {
+    "kind_expected": "grouped_bar",
+    "failed": [
+     "values: 3/R1: drawn 40.0, want 100.0; 4/R1: drawn 41.0, want 100.0; 5/R1: drawn 40.0, want 100.0; 6/R1: drawn 41.0, want 97.619; 7/R1: drawn 40.0, want 90.909"
+    ],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 1,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 3.224
+  },
+  {
+   "turn": 3,
+   "text": "y축 범위는 40~100으로 하고 목표 90%에 점선 넣어 주세요.",
+   "calls": [
+    {
+     "reply": "```json\n{\"file\": \"data/run_log.xlsx\", \"sheet\": \"런로그\", \"chart\": \"bar\", \"x\": {\"col\": \"일자\", \"period\": \"month\"}, \"y\": \"count\", \"by\": \"반응기\", \"filter\": [\"등급 in [A, B]\"], \"values\": true, \"y_min\": 40, \"y_max\": 100, \"ref\": [{\"y\": 90, \"linestyle\": \"dashed\", \"text\": \"목표\"}], \"asks\": [{\"ask\": \"y축 범위 40~100\", \"how\": \"key\"}, {\"ask\": \"목표 90% 점선\", \"how\": \"key\"}]}\n```",
+     "llm_s": 2.642,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 19026,
+     "output_chars": 352,
+     "attempts": 1
+    },
+    {
+     "reply": "```json\n{\"file\": \"data/run_log.xlsx\", \"sheet\": \"런로그\", \"chart\": \"bar\", \"x\": {\"col\": \"일자\", \"period\": \"month\"}, \"y\": {\"col\": \"등급\", \"agg\": \"count\"}, \"by\": \"반응기\", \"filter\": [\"등급 in [A, B]\"], \"values\": true, \"code\": \"ax.set_ylim(40, 100)\", \"ref\": [{\"y\": 90, \"linestyle\": \"dashed\", \"text\": \"목표\"}], \"asks\": [{\"ask\": \"y축 범위 40~100\", \"how\": \"code\"}, {\"ask\": \"목표 90% 점선\", \"how\": \"key\"}]}\n```",
+     "llm_s": 3.378,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 19906,
+     "output_chars": 380,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "bar",
+    "x": {
+     "col": "일자",
+     "period": "month"
+    },
+    "y": {
+     "col": "등급",
+     "agg": "count"
+    },
+    "by": "반응기",
+    "filter": [
+     "등급 in [A, B]"
+    ],
+    "values": true,
+    "code": "ax.set_ylim(40, 100)",
+    "ref": [
+     {
+      "y": 90,
+      "linestyle": "dashed",
+      "text": "목표"
+     }
+    ],
+    "asks": [
+     {
+      "ask": "y축 범위 40~100",
+      "how": "code"
+     },
+     {
+      "ask": "목표 90% 점선",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/SS03_r1/out/t3/bar_등급.png"
+    ],
+    "chart": "bar",
+    "rows_used": 871,
+    "rows_total": 997,
+    "values": {
+     "categories": [
+      "2026-03-01",
+      "2026-04-01",
+      "2026-05-01",
+      "2026-06-01",
+      "2026-07-01",
+      "2026-08-01"
+     ],
+     "series": {
+      "R1": [
+       40.0,
+       41.0,
+       40.0,
+       41.0,
+       40.0,
+       42.0
+      ],
+      "R2": [
+       38.0,
+       35.0,
+       34.0,
+       34.0,
+       32.0,
+       32.0
+      ],
+      "R3": [
+       41.0,
+       39.0,
+       40.0,
+       40.0,
+       42.0,
+       41.0
+      ],
+      "R4": [
+       38.0,
+       33.0,
+       37.0,
+       23.0,
+       21.0,
+       27.0
+      ]
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "막대 그래프를 저장했습니다: bar_등급.png\n사용한 행: 871 / 997\nR1: 2026-03-01 40, 2026-04-01 41, 2026-05-01 40, 2026-06-01 41, 2026-07-01 40, 2026-08-01 42\nR2: 2026-03-01 38, 2026-04-01 35, 2026-05-01 34, 2026-06-01 34, 2026-07-01 32, 2026-08-01 32\nR3: 2026-03-01 41, 2026-04-01 39, 2026-05-01 40, 2026-06-01 40, 2026-07-01 42, 2026-08-01 41\nR4: 2026-03-01 38, 2026-04-01 33, 2026-05-01 37, 2026-06-01 23, 2026-07-01 21, 2026-08-01 27\n기준선: 목표"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": null,
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "R1",
+         "orient": "v",
+         "cats": [
+          "2026-03-01",
+          "2026-04-01",
+          "2026-05-01",
+          "2026-06-01",
+          "2026-07-01",
+          "2026-08-01"
+         ],
+         "values": [
+          40.0,
+          41.0,
+          40.0,
+          41.0,
+          40.0,
+          42.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c"
+         ],
+         "centers": [
+          -0.30000000000000004,
+          0.7,
+          1.7,
+          2.7,
+          3.7,
+          4.7
+         ]
+        },
+        {
+         "name": "R2",
+         "orient": "v",
+         "cats": [
+          "2026-03-01",
+          "2026-04-01",
+          "2026-05-01",
+          "2026-06-01",
+          "2026-07-01",
+          "2026-08-01"
+         ],
+         "values": [
+          38.0,
+          35.0,
+          34.0,
+          34.0,
+          32.0,
+          32.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#c0392b",
+          "#c0392b",
+          "#c0392b",
+          "#c0392b",
+          "#c0392b",
+          "#c0392b"
+         ],
+         "centers": [
+          -0.1,
+          0.9,
+          1.9,
+          2.9,
+          3.9,
+          4.9
+         ]
+        },
+        {
+         "name": "R3",
+         "orient": "v",
+         "cats": [
+          "2026-03-01",
+          "2026-04-01",
+          "2026-05-01",
+          "2026-06-01",
+          "2026-07-01",
+          "2026-08-01"
+         ],
+         "values": [
+          41.0,
+          39.0,
+          40.0,
+          40.0,
+          42.0,
+          41.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#2e8b57",
+          "#2e8b57",
+          "#2e8b57",
+          "#2e8b57",
+          "#2e8b57",
+          "#2e8b57"
+         ],
+         "centers": [
+          0.1,
+          1.1,
+          2.1,
+          3.1,
+          4.1,
+          5.1
+         ]
+        },
+        {
+         "name": "R4",
+         "orient": "v",
+         "cats": [
+          "2026-03-01",
+          "2026-04-01",
+          "2026-05-01",
+          "2026-06-01",
+          "2026-07-01",
+          "2026-08-01"
+         ],
+         "values": [
+          38.0,
+          33.0,
+          37.0,
+          23.0,
+          21.0,
+          27.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#d4881c",
+          "#d4881c",
+          "#d4881c",
+          "#d4881c",
+          "#d4881c",
+          "#d4881c"
+         ],
+         "centers": [
+          0.30000000000000004,
+          1.3000000000000003,
+          2.3,
+          3.3,
+          4.3,
+          5.3
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [
+        90.0
+       ],
+       "vlines": [],
+       "value_labels": 24,
+       "texts": [
+        "40",
+        "41",
+        "40",
+        "41",
+        "40",
+        "42",
+        "38",
+        "35",
+        "34",
+        "34",
+        "32",
+        "32",
+        "41",
+        "39",
+        "40",
+        "40",
+        "42",
+        "41",
+        "38",
+        "33",
+        "37",
+        "23",
+        "21",
+        "27",
+        "목표"
+       ],
+       "x": {
+        "label": "일자 (yyyy-mm-dd)",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0,
+         5.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "2026-03-01",
+         "2026-04-01",
+         "2026-05-01",
+         "2026-06-01",
+         "2026-07-01",
+         "2026-08-01"
+        ],
+        "min": -0.6900000000000001,
+        "max": 5.69,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "2026-03-01",
+         "2026-04-01",
+         "2026-05-01",
+         "2026-06-01",
+         "2026-07-01",
+         "2026-08-01"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "등급 (A/B/C) (count)",
+        "type": "value",
+        "ticks": [
+         40.0,
+         60.0,
+         80.0,
+         100.0
+        ],
+        "step": 20.0,
+        "categories": null,
+        "min": 40.0,
+        "max": 100.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "20",
+         "40",
+         "60",
+         "80",
+         "100",
+         "120"
+        ],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [
+      "40",
+      "41",
+      "40",
+      "41",
+      "40",
+      "42",
+      "38",
+      "35",
+      "34",
+      "34",
+      "32",
+      "32",
+      "41",
+      "39",
+      "40",
+      "40",
+      "42",
+      "41",
+      "38",
+      "33",
+      "37",
+      "23",
+      "21",
+      "27",
+      "목표"
+     ],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "R1",
+       "R2",
+       "R3",
+       "R4"
+      ],
+      "inside": true,
+      "where": "upper right"
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/SS03_r1/out/t3/bar_등급.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.3994302749633789,
+   "check": {
+    "kind_expected": "grouped_bar",
+    "failed": [
+     "values: 3/R1: drawn 40.0, want 100.0; 4/R1: drawn 41.0, want 100.0; 5/R1: drawn 40.0, want 100.0; 6/R1: drawn 41.0, want 97.619; 7/R1: drawn 40.0, want 90.909"
+    ],
+    "unchecked": [
+     "ref_line=90"
+    ],
+    "n_checks": 4,
+    "n_failed": 1,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 6.718
+  }
+ ]
+}

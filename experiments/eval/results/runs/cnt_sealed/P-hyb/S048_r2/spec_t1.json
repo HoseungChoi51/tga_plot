@@ -1,0 +1,27 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "scatter",
+ "x": "일자",
+ "y": "H2/C2H4비",
+ "by": "근무조",
+ "filter": [
+  "반응기 == R3"
+ ],
+ "asks": [
+  {
+   "ask": "R3만",
+   "how": "key"
+  },
+  {
+   "ask": "일자 vs H2/C2H4비 산점도",
+   "how": "key"
+  },
+  {
+   "ask": "근무조별 색상 구분",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-hyb/S048_r2/out/t1"
+ }
+}

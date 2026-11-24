@@ -1,0 +1,99 @@
+We need answer user's correction: no ```python block in the reply? Wait user says: "no ```python block in the reply
+Reply with the corrected complete script only, inside one ```python block." Contradiction? They likely mean previous reply didn't have python block? We must output complete script inside one ```python block and nothing else. Need produce Python script reading DATA_FILE and printing JSON. Need satisfy request: Raw sheet plotted with x-axis reversed (high temp left). Data has three sheets. User only requested Raw? "Raw 시트를 x축 방향 뒤집어서(높은 온도가 왼쪽) 그려줘" Means plot Raw sheet with x-axis reversed. Could produce one figure for Raw only? Standard says one plot per sheet; when no sheet named, every sheet. Here sheet named Raw, so only Raw. Need TGA plot standard: x=temp, y1 weight %, y2 DTG * -1, title sheet name, legend center left, labels residue and peak. Need axis reversed: xAxis inverse true? In ECharts, inverse: true reverses axis direction. For value axis, high left. Need ensure data sorted? ECharts line series with data pairs [x,y]. If x axis reversed, it will plot accordingly. Could also sort descending? Not necessary but line connects in data order. Original data time increasing temp increasing. If inverse true, line visually reversed but path order still left-to-right? ECharts line connects points in series order along axis coordinates; if x inverse, first point at high? Actually original first x=30, last x=900. With inverse, x=30 at right, x=900 at left. The line connects from right to left following data order, still continuous. Good.
+
+Need produce script robust. Read Excel with pandas. Identify columns. For each sheet? Only Raw. But maybe if sheet name provided. Need use DATA_FILE variable? The script should read data file(s) given as DATA_FILE (or DATA_FILES) in message. Could define DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx". Need output JSON only.
+
+Need include Korean font? ECharts server-side maybe font not needed? But option may include textStyle fontFamily "Noto Sans CJK KR". Since Korean text in title? Sheet name English. Axis labels maybe English? Could use Korean? Standard maybe not. Use English labels? User Korean but plot labels maybe standard. Could use "Temperature (°C)", "Weight (%)", "DTG (%/°C)". Title sheet name "Raw". Legend center left. Need residue marker at nearest 800°C. Peak marker highest DTG peak above 150°C. Need DTG multiplied by -1. Need labels: residue: "Residue 8.0%" with marker on curve. peak: "600 °C" with marker. Need implement.
+
+Need consider ECharts option plain JSON, no functions. Use markPoint? For labels and markers. Could use series.markPoint with coord and label formatter? But formatter cannot be function. Could set label formatter string with placeholder? For markPoint, label formatter can be string with {b}? But we need custom text. Could create separate scatter series with single point and label formatter? Formatter string cannot include dynamic computed value? 
+[...]
+orts not used? okay.
+
+Need maybe use DATA_FILES? Could support environment variable? Not necessary. But robust:
+import os
+DATA_FILE = os.environ.get('DATA_FILE', '/home/...')
+But prompt says DATA_FILE = path. We can set. If DATA_FILES? Could ignore.
+
+Need ensure no markdown outside. final with python block.
+
+Double-check contradiction: "no ```python block in the reply" maybe they mean previous had no python block? They now say reply corrected complete script only inside one ```python block. So final must be one python block.
+
+Need think if x-axis reversed: inverse: True. But if data sorted ascending and inverse true, line will appear reversed but still connect. Yes.
+
+Potential ECharts issue: value axis inverse with nameGap? okay.
+
+Potential issue: y2 axis range with scatter label at peak; if label outside, okay. Could set axisLabel formatter? no.
+
+Potential issue: legend center left: In ECharts, legend left 'left', top 'middle' works? Legend top accepts 'middle'? In ECharts, top can be 'top', 'middle', 'bottom', or pixel/percent. Yes. left can be 'left'. Good.
+
+Potential issue: title top 10 and legend top middle maybe overlap? okay.
+
+Potential issue: series names with ° in JSON okay.
+
+Potential issue: scatter series not in legend but tooltip? no.
+
+Potential issue: label formatter '{b}' may show empty if data item value is array and name? Let's verify ECharts: For label.formatter, string template: {a} series name, {b} data name, {c} data value, {d} percentage. For scatter, if data item is {name:'foo', value:[1,2]}, {b}=foo. Good.
+
+Alternative use markPoint to avoid extra scatter. But scatter fine.
+
+Need maybe if residue label at 800 but nearest temp maybe 800.0; format one decimal. Good.
+
+Need maybe peak label text "600 °C" with space before °C. Use f'{peak_x:.0f} °C'. Good.
+
+Need maybe residue marker on curve: scatter color same. Good.
+
+Need if multiple figures? Only Raw. Could if user wanted all? But named Raw. Good.
+
+Let's consider if sheet name Raw has header row 1. pd.read_excel header=0. Good.
+
+Need maybe TGA guess uses columns B,C,D but our find_col may pick Time? For x keywords ['temperature','temp'] excludes time. Good. y1 weight excludes deriv. y2 deriv. Good.
+
+Need if y2col detection: 'Deriv. Weight (%/°C)' contains weight but y1 exclude deriv; y2 keywords deriv. Good.
+
+Need if y1col detection with exclude ['deriv','dtg'] and keywords ['weight'] finds Weight (%). Good.
+
+Need if column names have newline? okay.
+
+Need if data has NaN in y2 at endpoints. dropna removes. Good.
+
+Need if peak mask above 150 includes NaN? dropna. Good.
+
+Need if y2_plot max is 0.002 at high? It might pick initial? But above 150. Good.
+
+Need if highest DTG peak should be local peak? They say highest DTG peak above 150. Could just max -dtg. Good.
+
+Need maybe filter temp <= 800? No, residue nearest 800. Peak above 150 no upper.
+
+Need maybe if y2 axis should be inverted? Since multiply by -1, no.
+
+Need maybe if x axis reversed but data sorted ascending, line marker labels positions? okay.
+
+Need maybe if x axis reversed and axis name gap, name may be on right? nameLocation middle. fine.
+
+Need maybe if grid right enough for y2 labels and name. 80.
+
+Need maybe if title sheet name "Raw". Good.
+
+Potential issue with server-side ECharts and fontFamily not installed? It is installed. Good.
+
+Need maybe use ensure_ascii=False to keep Korean? Output English but okay. If Korean in sheet? maybe.
+
+Need maybe if no figures? print empty. okay.
+
+Let's write final script. Ensure no syntax errors.
+
+Could include main guard. Good.
+
+One nuance: In ECharts, scatter series with yAxisIndex 1 and data value [x, y2_plot]. If y2 axis auto includes DTG line and scatter. Good.
+
+Another nuance: Label position 'top' for peak may overlap line; okay. Could use 'right'. But fine.
+
+Could add 'silent': True to scatter? Not needed.
+
+Could set 'emphasis': {'disabled': True}. Not needed.
+
+Need maybe axis tick spacing? not requested.
+
+Need maybe "x축 방향 뒤집어서" only. Good.
+
+Let's final.

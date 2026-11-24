@@ -1,0 +1,107 @@
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/B13_r1/out"
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+
+def find_column(columns, terms):
+    for col in columns:
+        name = str(col).lower()
+        if all(term.lower() in name for term in terms):
+            return col
+    return None
+
+
+def main():
+    out_dir = Path(OUT_DIR)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    df = pd.read_excel(DATA_FILE, sheet_name="PVC")
+    x_col = find_column(df.columns, ["temperature"])
+    weight_col = find_column(df.columns, ["weight"])
+
+    if x_col is None or weight_col is None:
+        raise ValueError("PVC 시트에서 온도 및 무게 열을 찾을 수 없습니다.")
+
+    data = df[[x_col, weight_col]].apply(pd.to_numeric, errors="coerce").dropna()
+    data = data.sort_values(x_col)
+    x = data[x_col].to_numpy(dtype=float)
+    weight = data[weight_col].to_numpy(dtype=float)
+
+    # Smooth the weight curve, then locate the two strongest downward transitions.
+    window = max(9, int(round(len(weight) * 0.015)))
+    if window % 2 == 0:
+        window += 1
+    smoothed = (
+        pd.Series(weight)
+        .rolling(window=window, center=True, min_periods=1)
+        .mean()
+        .to_numpy()
+    )
+    gradient = np.gradient(smoothed, x)
+    loss_rate = -gradient
+
+    # Select local maxima in mass-loss rate, requiring separation between the two regions.
+    candidates = np.where(
+        (loss_rate[1:-1] >= loss_rate[:-2])
+        & (loss_rate[1:-1] > loss_rate[2:])
+    )[0] + 1
+    candidates = candidates[x[candidates] > 150]
+
+    min_separation = max(20.0, 0.05 * (x.max() - x.min()))
+    selected = []
+    for idx in candidates[np.argsort(loss_rate[candidates])[::-1]]:
+        if all(abs(x[idx] - x[prev]) >= min_separation for prev in selected):
+            selected.append(idx)
+            if len(selected) == 2:
+                break
+
+    # Fallback: split the temperature range into two regions and find the steepest drop in each.
+    if len(selected) < 2:
+        selected = []
+        midpoint = (x.min() + x.max()) / 2
+        for mask in (x <= midpoint, x > midpoint):
+            valid = np.where(mask & (x > 150))[0]
+            if len(valid):
+                selected.append(valid[np.argmax(loss_rate[valid])])
+
+    selected = sorted(selected, key=lambda idx: x[idx])
+
+    fig, ax = plt.subplots(figsize=(9, 6))
+    ax.plot(x, weight, color="#1f4e9c", linewidth=2, label="Weight")
+    ax.set_xlabel("Temperature (°C)")
+    ax.set_ylabel("Weight (%)")
+    ax.set_title("PVC")
+    ax.grid(True, alpha=0.25)
+
+    for idx in selected[:2]:
+        temp = x[idx]
+        ax.scatter(temp, weight[idx], color="#c0392b", edgecolor="white",
+                   linewidth=0.8, s=65, zorder=4)
+        ax.annotate(
+            f"{temp:.0f} °C",
+            xy=(temp, weight[idx]),
+            xytext=(8, 12),
+            textcoords="offset points",
+            color="#c0392b",
+            fontsize=11,
+            fontweight="bold",
+            arrowprops=dict(arrowstyle="-", color="#c0392b", lw=1),
+        )
+
+    fig.tight_layout()
+    fig.savefig(out_dir / "PVC_weight_drop_temperatures.png", dpi=300, bbox_inches="tight")
+    plt.close(fig)
+
+
+if __name__ == "__main__":
+    main()

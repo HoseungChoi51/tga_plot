@@ -1,0 +1,32 @@
+{
+ "file": "data/raman/*.csv",
+ "chart": "bar",
+ "x": {
+  "col": "Sample",
+  "label": "시료"
+ },
+ "y": {
+  "col": "IGID",
+  "agg": "first",
+  "label": "I_G / I_D"
+ },
+ "sort": "desc",
+ "data_code": "import glob\nimport os\nimport numpy as np\nimport pandas as pd\n\nresults = []\n# Find files\nfiles = sorted(glob.glob('data/raman/*.csv'))\nif not files:\n    # Fallback for different CWD\n    import os\n    files = sorted([os.path.join('data', 'raman', f) for f in os.listdir('data/raman') if f.endswith('.csv')])\n\nfor f in files:\n    try:\n        # Read with header detection\n        df_raw = pd.read_csv(f)\n        \n        # Identify columns based on typical names or position\n        cols = df_raw.columns.tolist()\n        shift_col = None\n        int_col = None\n        \n        # Heuristic to find columns\n        for c in cols:\n            if 'Shift' in str(c) or 'Wave' in str(c) or 'Raman' in str(c):\n                shift_col = c\n            elif 'Int' in str(c) or 'Count' in str(c) or 'Signal' in str(c):\n                int_col = c\n                \n        if shift_col is None and len(cols) > 0: shift_col = cols[0]\n        if int_col is None and len(cols) > 1: int_col = cols[1]\n        \n        if shift_col and int_col:\n            shift = pd.to_numeric(df_raw[shift_col], errors='coerce').values\n            intensity = pd.to_numeric(df_raw[int_col], errors='coerce').values\n            \n            mask_g = (shift >= 1550) & (shift <= 1620)\n            mask_d = (shift >= 1300) & (shift <= 1400)\n            \n            # Check if masks have valid numeric data\n            if np.any(mask_g) and np.any(mask_d):\n                i_g = np.nanmax(intensity[mask_g])\n                i_d = np.nanmax(intensity[mask_d])\n                \n                if not np.isnan(i_g) and not np.isnan(i_d) and i_d != 0:\n                    ratio = i_g / i_d\n                    # Extract sample name from filename e.g., R1-260326-1.csv -> R1-260326-1\n                    sample_name = os.path.splitext(os.path.basename(f))[0]\n                    results.append({'Sample': sample_name, 'IGID': ratio})\n    except Exception as e:\n        pass # Skip problematic files\n\nif results:\n    df = pd.DataFrame(results)\nelse:\n    # If glob failed, try to parse the already loaded 'df' if it has a source column\n    # This fallback depends on plotkit injecting '_source_file' or similar.\n    # Since we don't know for sure, we leave df as is, which will cause error if not handled,\n    # but hopefully glob works.\n    pass",
+ "asks": [
+  {
+   "ask": "8개 파일 각각 I_G/I_D 계산",
+   "how": "data_code"
+  },
+  {
+   "ask": "막대그래프",
+   "how": "key"
+  },
+  {
+   "ask": "높은 순으로 정렬",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S025_r1/out/t1"
+ }
+}

@@ -1,0 +1,24 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "scatter",
+ "x": "S",
+ "y": "U",
+ "colors": "gray",
+ "legend": {
+  "show": false
+ },
+ "code": "import numpy as np\n# Re-draw scatter with specific colors for Grade C vs Others based on original data logic if possible\n# Since 'data' in code context is the plotted dataframe subset or full? Hint says 'data = the drawn numbers'.\n# Usually for scatter, we can access the underlying df via a trick or just rely on keys.\n# However, plotkit 'by' key handles grouping. Let's try using 'by' and 'colors' mapping which is cleaner.\n# But the user asked for specific colors: C=red, others=gray.\n# If I use 'by': 'V', it creates series. Then 'colors': {'C': 'red'} might work but others need to be gray.\n# The previous attempt failed because 'data' in code didn't have column 'V'.\n# Let's switch to using 'by' and 'colors' dictionary which is supported by keys.",
+ "asks": [
+  {
+   "ask": "잔류금속 x, IG/ID y 산점도",
+   "how": "key"
+  },
+  {
+   "ask": "등급 C 런만 빨간색, 나머지는 회색",
+   "how": "code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdflat/D010_r1/out/t1"
+ }
+}

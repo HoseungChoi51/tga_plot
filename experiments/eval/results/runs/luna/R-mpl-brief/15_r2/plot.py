@@ -1,0 +1,87 @@
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/15_r2/out")
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+sheets = pd.read_excel(DATA_FILE, sheet_name=None)
+
+fig, ax1 = plt.subplots(figsize=(12, 7))
+ax2 = ax1.twinx()
+
+colors = plt.get_cmap("tab10").colors
+for i, (sheet_name, df) in enumerate(sheets.items()):
+    df.columns = [str(col).strip() for col in df.columns]
+
+    # TGA columns identified by the workbook headers.
+    temperature_col = next(
+        col for col in df.columns if "temperature" in col.lower()
+    )
+    weight_col = next(
+        col for col in df.columns if "weight" in col.lower() and "d.w" not in col.lower()
+    )
+    dtg_col = next(
+        col for col in df.columns
+        if "d.w" in col.lower() or "dtg" in col.lower() or "derivative" in col.lower()
+    )
+
+    temperature = pd.to_numeric(df[temperature_col], errors="coerce")
+    weight = pd.to_numeric(df[weight_col], errors="coerce")
+    dtg = pd.to_numeric(df[dtg_col], errors="coerce")
+    valid = temperature.notna() & weight.notna() & dtg.notna()
+
+    x = temperature[valid].to_numpy()
+    w = weight[valid].to_numpy()
+    d = dtg[valid].to_numpy()
+    color = colors[i % len(colors)]
+
+    ax1.plot(x, w, color=color, linewidth=1.8, label=f"{sheet_name} Weight")
+    ax2.plot(x, -d, color=color, linewidth=1.5, linestyle="--",
+             label=f"{sheet_name} DTG")
+
+    # Residue at the measured point nearest 800 °C.
+    residue_idx = int(np.argmin(np.abs(x - 800)))
+    ax1.scatter(x[residue_idx], w[residue_idx], color=color, s=28, zorder=4)
+    ax1.annotate(
+        f"Residue {w[residue_idx]:.1f}%",
+        (x[residue_idx], w[residue_idx]),
+        xytext=(5, 7), textcoords="offset points",
+        color=color, fontsize=8,
+    )
+
+    # Highest positive DTG peak above 150 °C (DTG is inverted for display).
+    peak_candidates = np.flatnonzero(x > 150)
+    if peak_candidates.size:
+        peak_idx = peak_candidates[np.argmax((-d)[peak_candidates])]
+        ax2.scatter(x[peak_idx], -d[peak_idx], color=color, marker="^", s=35, zorder=5)
+        ax2.annotate(
+            f"{x[peak_idx]:.0f} °C",
+            (x[peak_idx], -d[peak_idx]),
+            xytext=(5, 6), textcoords="offset points",
+            color=color, fontsize=8,
+        )
+
+ax1.set_title("TGA 시트 겹쳐 그리기")
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)", color="#1f4e9c")
+ax2.set_ylabel("DTG (-D.W, %/°C)", color="#c0392b")
+ax1.tick_params(axis="y", labelcolor="#1f4e9c")
+ax2.tick_params(axis="y", labelcolor="#c0392b")
+ax1.grid(True, alpha=0.25)
+
+handles1, labels1 = ax1.get_legend_handles_labels()
+handles2, labels2 = ax2.get_legend_handles_labels()
+ax1.legend(handles1 + handles2, labels1 + labels2, loc="center left",
+           bbox_to_anchor=(1.08, 0.5), fontsize=8, frameon=True)
+
+fig.tight_layout()
+fig.savefig(OUT_DIR / "TGA_all_sheets_overlay.png", dpi=300, bbox_inches="tight")
+plt.close(fig)

@@ -1,0 +1,31 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "heatmap",
+ "x": "주차",
+ "y": {
+  "col": "반응기",
+  "order": [
+   "R1",
+   "R2",
+   "R3",
+   "R4"
+  ]
+ },
+ "z": {
+  "col": "잔류금속 (wt%)",
+  "agg": "mean"
+ },
+ "asks": [
+  {
+   "ask": "반응기 × 주차 평균 잔류금속 heatmap",
+   "how": "key"
+  },
+  {
+   "ask": "행 R1~R4, 열 1~26주",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdflat/D025_r1/out/t1"
+ }
+}

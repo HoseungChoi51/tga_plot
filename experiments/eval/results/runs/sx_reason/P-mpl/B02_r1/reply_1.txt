@@ -1,0 +1,23 @@
+```json
+{
+  "file": "caox.csv",
+  "y2": {
+    "col": "E"
+  },
+  "annotate": {
+    "peak": {
+      "on": "y2",
+      "kind": "max",
+      "count": 1,
+      "text": "{x:.0f} °C"
+    },
+    "endo": {
+      "type": "peak",
+      "on": "y2",
+      "kind": "min",
+      "count": 2,
+      "text": "{x:.0f} °C"
+    }
+  }
+}
+```

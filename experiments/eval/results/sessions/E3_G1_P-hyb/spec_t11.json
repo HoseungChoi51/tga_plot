@@ -1,0 +1,27 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "scatter",
+ "x": "외기습도 (%)",
+ "y": "CNT수율 (g/g-cat)",
+ "by": "촉매로트",
+ "filter": [
+  "반응기 == R4"
+ ],
+ "asks": [
+  {
+   "ask": "R4만",
+   "how": "key"
+  },
+  {
+   "ask": "외기습도와 CNT수율 산점도",
+   "how": "key"
+  },
+  {
+   "ask": "촉매로트별 색 구분",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/sessions/E3_G1_P-hyb/out/t11"
+ }
+}

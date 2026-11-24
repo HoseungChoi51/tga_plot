@@ -1,0 +1,35 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "bar",
+ "x": {
+  "col": "label_text"
+ },
+ "y": {
+  "col": "정지시간(분)",
+  "agg": "max"
+ },
+ "sort": "desc",
+ "top": 10,
+ "asks": [
+  {
+   "ask": "Top 10 longest downtime events by 정지시간(분)",
+   "how": "key"
+  },
+  {
+   "ask": "as a bar chart",
+   "how": "key"
+  },
+  {
+   "ask": "sorted desc",
+   "how": "key"
+  },
+  {
+   "ask": "tick labels '반응기 / 원인 / 일자'",
+   "how": "code"
+  }
+ ],
+ "data_code": "df['label_text'] = df['반응기'].astype(str) + ' / ' + df['원인'].astype(str) + ' / ' + df['일자'].astype(str)",
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S053_r1/out/t1"
+ }
+}

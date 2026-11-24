@@ -1,0 +1,14 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "pie",
+ "x": "원인",
+ "asks": [
+  {
+   "ask": "원인별 비율 파이",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-ec/DS03_r1/out/t3"
+ }
+}

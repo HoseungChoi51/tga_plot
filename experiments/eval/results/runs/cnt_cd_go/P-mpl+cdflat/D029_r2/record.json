@@ -1,0 +1,221 @@
+{
+ "arm": "P-mpl+cdflat",
+ "item": "D029",
+ "repeat": 2,
+ "split": "dev",
+ "persona": "공정 엔지니어",
+ "type": "single",
+ "cd": "flat",
+ "backend": "anthropic",
+ "model": "qwen3.8-flash",
+ "effort": "",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "26주 전체 등급(A/B/C) 비율 pie. 색은 A 초록, B 주황, C 빨강, % 라벨 소수 1자리.",
+   "calls": [
+    {
+     "reply": "{\n  \"asks\": [\n    {\n      \"ask\": \"26주 전체 등급(A/B/C) 비율 pie\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"색은 A 초록, B 주황, C 빨강\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"% 라벨 소수 1자리\",\n      \"how\": \"key\"\n    }\n  ],\n  \"chart\": \"pie\",\n  \"file\": \"data/run_log.xlsx\",\n  \"settings\": [\n    {\n      \"sheet\": \"런로그\"\n    },\n    {\n      \"key\": \"x.col\",\n      \"new_column\": \"등급_순서\"\n    },\n    {\n      \"key\": \"colors\",\n      \"value\": [\n        \"green\",\n        \"orange\",\n        \"red\"\n      ]\n    },\n    {\n      \"key\": \"values\",\n      \"value\": \"{:.1f}%\"\n    }\n  ]\n}",
+     "llm_s": 2.719,
+     "prompt_tokens": 6626,
+     "output_tokens": 239,
+     "cached_tokens": 5644,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": "",
+     "flat": {
+      "asks": [
+       {
+        "ask": "26주 전체 등급(A/B/C) 비율 pie",
+        "how": "key"
+       },
+       {
+        "ask": "색은 A 초록, B 주황, C 빨강",
+        "how": "key"
+       },
+       {
+        "ask": "% 라벨 소수 1자리",
+        "how": "key"
+       }
+      ],
+      "chart": "pie",
+      "file": "data/run_log.xlsx",
+      "settings": [
+       {
+        "sheet": "런로그"
+       },
+       {
+        "key": "x.col",
+        "new_column": "등급_순서"
+       },
+       {
+        "key": "colors",
+        "value": [
+         "green",
+         "orange",
+         "red"
+        ]
+       },
+       {
+        "key": "values",
+        "value": "{:.1f}%"
+       }
+      ]
+     }
+    },
+    {
+     "reply": "{\n  \"asks\": [\n    {\n      \"ask\": \"26주 전체 등급(A/B/C) 비율 pie\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"색은 A 초록, B 주황, C 빨강\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"% 라벨 소수 1자리\",\n      \"how\": \"key\"\n    }\n  ],\n  \"chart\": \"pie\",\n  \"file\": \"data/run_log.xlsx\",\n  \"settings\": [\n    {\n      \"sheet\": \"런로그\"\n    },\n    {\n      \"key\": \"x.col\",\n      \"new_column\": \"등급_순서\"\n    },\n    {\n      \"key\": \"colors\",\n      \"value\": [\n        \"green\",\n        \"orange\",\n        \"red\"\n      ]\n    },\n    {\n      \"key\": \"values\",\n      \"value\": \"{:.1f}%\"\n    }\n  ]\n}",
+     "llm_s": 3.004,
+     "prompt_tokens": 7091,
+     "output_tokens": 239,
+     "cached_tokens": 5644,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": "",
+     "flat": {
+      "asks": [
+       {
+        "ask": "26주 전체 등급(A/B/C) 비율 pie",
+        "how": "key"
+       },
+       {
+        "ask": "색은 A 초록, B 주황, C 빨강",
+        "how": "key"
+       },
+       {
+        "ask": "% 라벨 소수 1자리",
+        "how": "key"
+       }
+      ],
+      "chart": "pie",
+      "file": "data/run_log.xlsx",
+      "settings": [
+       {
+        "sheet": "런로그"
+       },
+       {
+        "key": "x.col",
+        "new_column": "등급_순서"
+       },
+       {
+        "key": "colors",
+        "value": [
+         "green",
+         "orange",
+         "red"
+        ]
+       },
+       {
+        "key": "values",
+        "value": "{:.1f}%"
+       }
+      ]
+     }
+    },
+    {
+     "reply": "{\n  \"asks\": [\n    {\n      \"ask\": \"26주 전체 등급(A/B/C) 비율 pie\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"색은 A 초록, B 주황, C 빨강\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"% 라벨 소수 1자리\",\n      \"how\": \"key\"\n    }\n  ],\n  \"chart\": \"pie\",\n  \"file\": \"data/run_log.xlsx\",\n  \"settings\": [\n    {\n      \"sheet\": \"런로그\"\n    },\n    {\n      \"key\": \"x.col\",\n      \"new_column\": \"등급_순서\"\n    },\n    {\n      \"key\": \"colors\",\n      \"value\": [\n        \"green\",\n        \"orange\",\n        \"red\"\n      ]\n    },\n    {\n      \"key\": \"values\",\n      \"value\": \"{:.1f}%\"\n    }\n  ]\n}",
+     "llm_s": 2.604,
+     "prompt_tokens": 7556,
+     "output_tokens": 239,
+     "cached_tokens": 5644,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": "",
+     "flat": {
+      "asks": [
+       {
+        "ask": "26주 전체 등급(A/B/C) 비율 pie",
+        "how": "key"
+       },
+       {
+        "ask": "색은 A 초록, B 주황, C 빨강",
+        "how": "key"
+       },
+       {
+        "ask": "% 라벨 소수 1자리",
+        "how": "key"
+       }
+      ],
+      "chart": "pie",
+      "file": "data/run_log.xlsx",
+      "settings": [
+       {
+        "sheet": "런로그"
+       },
+       {
+        "key": "x.col",
+        "new_column": "등급_순서"
+       },
+       {
+        "key": "colors",
+        "value": [
+         "green",
+         "orange",
+         "red"
+        ]
+       },
+       {
+        "key": "values",
+        "value": "{:.1f}%"
+       }
+      ]
+     }
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "chart": "pie",
+    "x": "등급_순서",
+    "colors": [
+     "green",
+     "orange",
+     "red"
+    ],
+    "values": "{:.1f}%",
+    "sheets": "런로그",
+    "asks": [
+     {
+      "ask": "26주 전체 등급(A/B/C) 비율 pie",
+      "how": "key"
+     },
+     {
+      "ask": "색은 A 초록, B 주황, C 빨강",
+      "how": "key"
+     },
+     {
+      "ask": "% 라벨 소수 1자리",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": false,
+    "error": "x: no column matches \"등급_순서\"",
+    "hint": "columns: A \"런ID\", B \"일자 (yyyy-mm-dd)\", C \"주차\", D \"근무조\", E \"반응기\", F \"촉매로트\", G \"작업자\", H \"1존온도 (°C)\", I \"2존온도 (°C)\", J \"3존온도 (°C)\", K \"C2H4유량 (sccm)\", L \"H2유량 (sccm)\", M \"H2/C2H4비\", N \"체류시간 (s)\", O \"외기습도 (%)\", P \"가동시간 (h)\", Q \"CNT수율 (g/g-cat)\", R \"생산속도 (g/h)\", S \"잔류금속 (wt%)\", T \"산화개시온도 (°C)\", U \"IG/ID\", V \"등급 (A/B/C)\""
+   },
+   "facts": [],
+   "draw_s": 0.48486828804016113,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [
+     "run: no plot (x: no column matches \"등급_순서\")"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 9.983
+  }
+ ]
+}

@@ -1,0 +1,54 @@
+```python
+from pathlib import Path
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/tests/inputs/blank_rows_on_top.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/21_r3/out")
+
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+# 데이터는 8행에 머리글이 있고, 9행부터 시작합니다.
+df = pd.read_excel(DATA_FILE, sheet_name="Sheet1", header=7)
+df = df.iloc[:, 1:5].copy()  # 엑셀 B:E 열: Time, Temperature, Weight(%), D.W(%/C)
+df.columns = ["Time", "Temperature", "Weight(%)", "D.W(%/C)"]
+
+for column in ["Temperature", "Weight(%)", "D.W(%/C)"]:
+    df[column] = pd.to_numeric(df[column], errors="coerce")
+df = df.dropna(subset=["Temperature", "Weight(%)", "D.W(%/C)"])
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+fig, ax1 = plt.subplots(figsize=(10, 6))
+ax2 = ax1.twinx()
+
+line1, = ax1.plot(
+    df["Temperature"],
+    df["Weight(%)"],
+    color="tab:blue",
+    linewidth=1.8,
+    label="Weight(%)",
+)
+line2, = ax2.plot(
+    df["Temperature"],
+    df["D.W(%/C)"],
+    color="tab:red",
+    linewidth=1.5,
+    label="D.W(%/C)",
+)
+
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)", color="tab:blue")
+ax2.set_ylabel("D.W (%/°C)", color="tab:red")
+ax1.tick_params(axis="y", labelcolor="tab:blue")
+ax2.tick_params(axis="y", labelcolor="tab:red")
+ax1.grid(True, linestyle="--", alpha=0.35)
+ax1.legend([line1, line2], [line1.get_label(), line2.get_label()], loc="best")
+ax1.set_title("Weight and Derivative Weight vs. Temperature")
+
+fig.tight_layout()
+fig.savefig(OUT_DIR / "tga_plot.png", dpi=300, bbox_inches="tight")
+plt.close(fig)
+```

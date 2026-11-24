@@ -1,0 +1,111 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import find_peaks
+import os
+
+# 설정
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/B13_r3/out"
+SHEET_NAME = "PVC"
+
+# 폰트 설정 (한글 지원)
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+def main():
+    # 데이터 로드
+    df = pd.read_excel(DATA_FILE, sheet_name=SHEET_NAME)
+    
+    # 열 이름 정리 및 추출
+    temp_col = 'Temperature (°C)'
+    weight_col = 'Weight (%)'
+    deriv_col = 'Deriv. Weight (%/°C)'
+    
+    temps = df[temp_col].values
+    weights = df[weight_col].values
+    derivs = df[deriv_col].values
+    
+    # DTG 데이터는 음수 피크가 분해 구간이므로, 절대값으로 변환하여 피크를 찾음
+    # 또는 -derivs로 변환하여 양수 피크로 만듦
+    dtg_signal = -derivs
+    
+    # 노이즈 제거를 위해 간단한 스무딩 적용 가능하나, 여기서는 raw data 사용
+    # find_peaks를 사용하여 주요 분해 피크 찾기
+    # height: 최소 높이 필터링 (노이즈 방지), distance: 최소 간격
+    peaks, properties = find_peaks(dtg_signal, height=0.5, distance=50)
+    
+    # 만약 피크가 너무 많거나 적으면 파라미터 조정 필요할 수 있음
+    # PVC의 경우 보통 2단계 분해(탈염소화, 탄화수소 사슬 분해)로 알려져 있음
+    
+    if len(peaks) < 2:
+        # 피크가 부족하면 더 낮은 threshold로 시도
+        peaks, _ = find_peaks(dtg_signal, height=0.1, distance=30)
+        
+    # 가장 큰 두 개의 피크 선택 (분해가 확 일어나는 곳)
+    if len(peaks) >= 2:
+        peak_heights = dtg_signal[peaks]
+        sorted_indices = np.argsort(peak_heights)[::-1][:2] # Top 2
+        top_two_peak_indices = peaks[sorted_indices]
+        top_two_temps = temps[top_two_peak_indices]
+    elif len(peaks) == 1:
+        top_two_temps = [temps[peaks[0]], None]
+    else:
+        # 피크를 못 찾은 경우 대안: 기울기가 가장 급격한 지점 찾기
+        d_weight_d_temp = np.gradient(weights, temps)
+        steep_indices = np.argsort(d_weight_d_temp)[:2] # 가장 큰 음수 기울기 (급격한 감소)
+        top_two_temps = temps[steep_indices]
+
+    # 플롯 생성
+    fig, ax1 = plt.subplots(figsize=(10, 6))
+    
+    # TGA 곡선 (무게 %)
+    color_tga = 'tab:blue'
+    ax1.set_xlabel('온도 (°C)', fontsize=12)
+    ax1.set_ylabel('무게 (%)', color=color_tga, fontsize=12)
+    line1, = ax1.plot(temps, weights, color=color_tga, label='TGA (무게 %)')
+    ax1.tick_params(axis='y', labelcolor=color_tga)
+    ax1.grid(True, linestyle='--', alpha=0.7)
+    
+    # DTG 곡선 (미분 무게) - 오른쪽 축
+    ax2 = ax1.twinx()
+    color_dtg = 'tab:red'
+    ax2.set_ylabel('미분 무게 (%/°C)', color=color_dtg, fontsize=12)
+    line2, = ax2.plot(temps, derivs, color=color_dtg, linestyle='--', label='DTG (미분 무게)')
+    ax2.tick_params(axis='y', labelcolor=color_dtg)
+    
+    # 피크 온도 표시
+    for i, t in enumerate(top_two_temps):
+        if t is not None:
+            # 해당 온도의 무게 값 찾기
+            idx = np.argmin(np.abs(temps - t))
+            w_at_t = weights[idx]
+            
+            # 세로선 그리기
+            ax1.axvline(x=t, color='green', linestyle=':', linewidth=2)
+            
+            # 텍스트 상자로 온도 표시
+            text_str = f'{t:.1f} °C'
+            ax1.annotate(text_str, 
+                         xy=(t, w_at_t), 
+                         xytext=(t + 20, w_at_t + 10),
+                         arrowprops=dict(facecolor='green', shrink=0.05),
+                         bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="green", lw=1, alpha=0.8),
+                         fontsize=10, fontweight='bold')
+
+    # 제목 및 범례
+    ax1.set_title(f'{SHEET_NAME} 시료의 열중량 분석(TGA) 및 미분열중량(DTG) 곡선', fontsize=14)
+    
+    lines = [line1, line2]
+    labels = [l.get_label() for l in lines]
+    ax1.legend(lines, labels, loc='upper right')
+    
+    # 저장
+    os.makedirs(OUT_DIR, exist_ok=True)
+    output_path = os.path.join(OUT_DIR, 'pvc_tga_peaks.png')
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300)
+    plt.close()
+
+if __name__ == '__main__':
+    main()

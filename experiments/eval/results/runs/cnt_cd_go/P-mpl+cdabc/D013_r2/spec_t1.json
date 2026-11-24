@@ -1,0 +1,20 @@
+{
+ "asks": [
+  {
+   "ask": "x 잔류금속, y CNT수율 산점도",
+   "how": "key"
+  },
+  {
+   "ask": "P1 P2 색상 구분",
+   "how": "key"
+  }
+ ],
+ "by": "반응기",
+ "chart": "scatter",
+ "file": "data/L3_MES_export_202607.csv",
+ "x": "잔류금속(wt%)",
+ "y": "CNT수율(g/g-cat)",
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdabc/D013_r2/out/t1"
+ }
+}

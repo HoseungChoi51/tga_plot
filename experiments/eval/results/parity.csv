@@ -1,0 +1,17 @@
+spec,kind,field,matplotlib,echarts
+gallery_12,annotation text,fig0.texts,[],"[""Residue 12.0%""]"
+gallery_16,ticks,fig0.p0.x.ticks,"[200.0, 400.0, 600.0, 800.0]","[100.0, 200.0, 300.0, 400.0, 500.0, 600.0, 700.0, 800.0, 900.0]"
+gallery_16,ticks,fig0.p0.y2.ticks,"[0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5]","[0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6]"
+gallery_17,ticks,fig0.p0.y2.ticks,"[0.0, 0.25, 0.5, 0.75, 1.0]","[0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2]"
+ref_19,ticks,fig0.p0.x.ticks,"[200.0, 400.0, 600.0, 800.0]","[100.0, 200.0, 300.0, 400.0, 500.0, 600.0, 700.0, 800.0, 900.0]"
+ref_19,ticks,fig1.p0.x.ticks,"[200.0, 400.0, 600.0, 800.0]","[100.0, 200.0, 300.0, 400.0, 500.0, 600.0, 700.0, 800.0, 900.0]"
+refb_B09,annotation text,fig0.texts,[],"[""Residue 1.0%""]"
+refb_B10,ticks,fig0.p0.x.ticks,"[200.0, 400.0, 600.0, 800.0]","[100.0, 200.0, 300.0, 400.0, 500.0, 600.0, 700.0, 800.0, 900.0]"
+refb_B10,ticks,fig0.p0.y2.ticks,"[0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5]","[0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6]"
+probe_linestyle_dash_alias,line style,fig0.p0.line1.style,dashed,solid
+probe_linestyle_korean,line style,fig0.p0.line1.style,dotted,solid
+probe_residue_beyond_xmax,annotation text,fig0.texts,[],"[""Residue 8.0%""]"
+probe_auto_ticks_small_fig,ticks,fig0.p0.x.ticks,"[200.0, 400.0, 600.0, 800.0]","[100.0, 200.0, 300.0, 400.0, 500.0, 600.0, 700.0, 800.0, 900.0]"
+probe_tick_inout,axis style,fig0.p0.x.tick_direction,inout,out
+probe_tick_inout,axis style,fig0.p0.y1.tick_direction,inout,out
+probe_tick_inout,axis style,fig0.p0.y2.tick_direction,inout,out

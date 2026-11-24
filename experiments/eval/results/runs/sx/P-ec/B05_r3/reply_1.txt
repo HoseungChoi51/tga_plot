@@ -1,0 +1,17 @@
+```json
+{
+  "files": [
+    {
+      "file": "cnt_lot_A.csv",
+      "y1": {"legend": "Lot A"},
+      "y2": {"legend": "Lot A"}
+    },
+    {
+      "file": "cnt_lot_B.txt",
+      "y1": {"legend": "Lot B"},
+      "y2": {"legend": "Lot B"}
+    }
+  ],
+  "combine": true
+}
+```

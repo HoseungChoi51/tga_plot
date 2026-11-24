@@ -1,0 +1,57 @@
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+# File paths
+DATA_FILES = [
+    "/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_A.csv",
+    "/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_B.txt"
+]
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/B05_r2/out"
+
+# Ensure output directory exists
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# Read data files
+df_a = pd.read_csv(DATA_FILES[0])
+df_b = pd.read_csv(DATA_FILES[1], sep='\t')  # .txt file likely tab-separated
+
+# Extract columns based on the preview info
+# x: Temperature (°C), y1: Weight (%), y2: Deriv. Weight (%/°C)
+temp_a = df_a['Temperature (°C)']
+weight_a = df_a['Weight (%)']
+dwt_a = df_a['Deriv. Weight (%/°C)']
+
+temp_b = df_b['Temperature (°C)']
+weight_b = df_b['Weight (%)']
+dwt_b = df_b['Deriv. Weight (%/°C)']
+
+# Create figure with two subplots sharing x-axis
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True, gridspec_kw={'height_ratios': [3, 1]})
+
+# Plot TGA (Weight %)
+ax1.plot(temp_a, weight_a, label='Lot A', color='blue')
+ax1.plot(temp_b, weight_b, label='Lot B', color='red')
+ax1.set_ylabel('Weight (%)')
+ax1.legend(loc='upper right')
+ax1.grid(True, linestyle='--', alpha=0.6)
+
+# Plot DTG (Derivative Weight)
+ax2.plot(temp_a, dwt_a, label='Lot A', color='blue')
+ax2.plot(temp_b, dwt_b, label='Lot B', color='red')
+ax2.set_xlabel('Temperature (°C)')
+ax2.set_ylabel('Deriv. Weight (%/°C)')
+ax2.legend(loc='upper right')
+ax2.grid(True, linestyle='--', alpha=0.6)
+
+# Adjust layout and save
+plt.tight_layout()
+output_path = os.path.join(OUT_DIR, "TGA_comparison.png")
+plt.savefig(output_path, dpi=300)
+plt.close()
+```

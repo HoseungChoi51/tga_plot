@@ -1,0 +1,19 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "bar",
+ "x": "반응기",
+ "y": {
+  "col": "IG/ID",
+  "agg": "mean"
+ },
+ "by": "근무조",
+ "asks": [
+  {
+   "ask": "반응기별 주간/야간 평균 IG/ID grouped bar",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_sx/P-ec+cdflat/D017_r1/out/t1"
+ }
+}

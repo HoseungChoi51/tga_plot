@@ -1,0 +1,28 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "bar",
+ "x": {
+  "col": "일자",
+  "period": "month"
+ },
+ "y": {
+  "col": "pass_rate",
+  "agg": "mean"
+ },
+ "by": "반응기",
+ "asks": [
+  {
+   "ask": "월별로 나눠서",
+   "how": "key"
+  },
+  {
+   "ask": "반응기별 묶은 막대",
+   "how": "key"
+  }
+ ],
+ "data_code": "df['합격'] = df['등급'].isin(['A', 'B']).astype(int)\ndf['pass_rate'] = df.groupby('반응기')['합격'].transform('mean') * 100\n",
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/SS03_r2/out/t2"
+ }
+}

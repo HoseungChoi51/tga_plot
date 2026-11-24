@@ -1,0 +1,58 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "heatmap",
+ "data_code": "import pandas as pd\n# 요일 추출 (월=0 ... 일=6)\ndf['요일'] = pd.to_datetime(df['일자']).dt.dayofweek.map({0:'월',1:'화',2:'수',3:'목',4:'금',5:'토',6:'일'})\n# 시간대 추출 (시) 및 라벨링\ndf['시간대'] = pd.to_datetime(df['시작시각'], format='%H:%M').dt.hour.map(lambda h: f'{h}시')\n# 정렬용 숫자 컬럼 추가 (선택적, order로 처리 가능하지만 heatmap 축 순서 안정성 위해)\ndf['요일_num'] = pd.to_datetime(df['일자']).dt.dayofweek\ndf['시간_num'] = pd.to_datetime(df['시작시각'], format='%H:%M').dt.hour",
+ "x": {
+  "col": "시간대",
+  "order": [
+   "0시",
+   "1시",
+   "2시",
+   "3시",
+   "4시",
+   "5시",
+   "6시",
+   "7시",
+   "8시",
+   "9시",
+   "10시",
+   "11시",
+   "12시",
+   "13시",
+   "14시",
+   "15시",
+   "16시",
+   "17시",
+   "18시",
+   "19시",
+   "20시",
+   "21시",
+   "22시",
+   "23시"
+  ]
+ },
+ "y": {
+  "col": "요일",
+  "order": [
+   "월",
+   "화",
+   "수",
+   "목",
+   "금",
+   "토",
+   "일"
+  ]
+ },
+ "z": {
+  "agg": "count"
+ },
+ "asks": [
+  {
+   "ask": "요일별/시간대별 정지 빈도 히트맵",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_sx/P-ec/D026_r3/out/t1"
+ }
+}

@@ -1,0 +1,56 @@
+We need answer user's request in test mode: only JSON spec inside ```json block, nothing else. Need analyze request Korean.
+
+User: "오른쪽 축에 DTG 대신 Heat Flow를 그리고, 흡열 피크 두 개와 발열 피크 하나의 온도를 표시해줘"
+
+Inspect caox.csv: columns A Time, B Temperature, C Weight, D Deriv Weight, E Heat Flow. TGA guess x B, y1 C, y2 D. User wants right axis y2 to be Heat Flow instead of DTG. So set y2.col = "E". Also wants absorbent peaks two and exothermic peak one temperatures displayed. Need annotate peaks. But what are 흡열/발열? Heat Flow sign conventions? In DSC, endothermic often negative or positive depending convention. Need infer. "흡열 피크 두 개와 발열 피크 하나의 온도를 표시" likely peak annotations on y2 (Heat Flow) with count? Need specify count maybe 3? But need distinguish endo vs exo? Could annotate peak with kind max/min? Need know sign convention. Heat Flow min -1.374 max 2.307. If endothermic peaks are? Usually DSC heat flow: exothermic peak positive in many instruments? But some use endothermic downward (negative). Need choose? User says two 흡열 and one 발열. Need maybe use peak annotations: one for max peaks? If exothermic is positive, then two endothermic are min peaks and one exothermic is max peak. Could set annotate peak on y2 with count? But peak annotation only count and kind max/min. Need multiple annotations with different kind/count maybe. Could create peak_endo: on y2, kind min, count 2, text temperature; peak_exo: on y2, kind max, count 1. But default preset peak on y2 DTG? We change y2 col to Heat Flow. Need remove default peak? Default TGA preset has peak on y2 DTG. If we add new annotations named peak? The preset has "peak". If we set y2.col E, default peak remains on y2 Heat Flow with count 1 kind max? User wants two endo and one exo. Could override peak? Need likely set annotate: {"peak": false} to remove default DTG peak? Then add custom annotations: "peak_endo": {"type": "peak", "on": "y2", "kind": "min", "count": 2, "text": "{x:.0f} °C"}, "peak_exo": {"type": "peak", "on": "y2", "kind": "max", "count": 1, "text": "{x:.0f} °C"}. But if default peak is max, maybe override to exo? But need two endo. Could use "peak": {"kind":"max","count":1} for exo and add "peak_endo". However if default peak on y2 with Heat Flow, it would show max (exo) if exo positive. But if convention opposite, wrong. Need decide.
+
+Question: "흡열 피크 두 개와 발열 피크 하나의 온도를 표시해줘" They didn't specify axis? "오른쪽 축에 DTG 대신 Heat Flow를 그리고" so peaks likely on Heat Flow. Need annotate peak temperatures. Could set y2 col E. Need peak annotations. Could use "annotate": {"peak": {"count": 3}}? But can't distinguish endo/exo. Need perhaps use kind? If Heat Flow positive = endothermic? Let's think typical DSC: In many thermal analysis, exothermic peak points upward (positive heat flow) and endothermic downward (negative). But sometimes heat flow to sample positive for endothermic? DSC heat flow convention: In TA Instruments, exothermic up? In Mettler, exothermic down? Actually heat flow (W/g) may have exothe
+[...]
+ set peak as exo, default peak's x_min=150. If exo positive >150. Good. But if we want label exo maybe. Could use peak false to avoid default x_min for exo? Not needed. If exo is max count 1, default x_min 150 probably okay. But if there is a positive peak below 150? User didn't exclude. Better custom without x_min. So peak false + exo custom. Good.
+
+Need maybe include "annotate": {"residue": false}? User didn't ask residue but default. But if they ask only peaks maybe they might not want residue? Rule says default TGA preset already draws residue. Leave out keys not mentioned. But if they ask "DTG 대신 Heat Flow" and peaks, maybe residue default still okay. If they wanted no residue they'd say. Do not remove.
+
+Need think about "오른쪽 축에 DTG 대신 Heat Flow를 그리고" Could mean replace y2 series with Heat Flow, and annotate peaks on Heat Flow. Yes.
+
+Need maybe if Heat Flow has both positive and negative, peak annotations for endo/exo should be on y2. Good.
+
+Could use "kind": "min" for endothermic. If test expects max/min reversed? Need maybe hedge? Could annotate both max and min counts? For two endo and one exo, if sign convention unknown, maybe annotate all extrema: two min and one max? That's what we do. If reversed, then labels wrong but temps still maybe one max two min? If actual endo positive, there would be two max and one min. Our spec would show two min (maybe exo?) and one max (endo). Wrong. Need decide convention. Let's investigate likely data: caox.csv maybe CNT oxidation. Time 0-92 min, Temperature 30-950, Weight 100 to 38, Deriv Weight min -0.5459 max 0.002553, Heat Flow min -1.374 max 2.307. CNT oxidation exothermic peak in DSC likely positive heat flow? Weight loss derivative negative. Heat flow max 2.307 likely exothermic oxidation. Endothermic peaks: maybe moisture loss around 100 (endothermic negative) and maybe another around? two negative minima. So min count 2, max count 1. Good.
+
+Need maybe "흡열 피크" in DSC heat flow often negative? yes.
+
+Need maybe set "kind": "min" for endo and "kind": "max" for exo. Good.
+
+Need final only JSON block. Ensure no extra text. Could include:
+```json
+{
+  "file": "caox.csv",
+  "y2": {"col": "E"},
+  "annotate": {
+    "peak": false,
+    "endo": {"type": "peak", "on": "y2", "kind": "min", "count": 2, "text": "{x:.0f} °C"},
+    "exo": {"type": "peak", "on": "y2", "kind": "max", "count": 1, "text": "{x:.0f} °C"}
+  }
+}
+```
+
+Should we include labels? Maybe:
+"endo": {..., "text": "흡열 {x:.0f} °C"}, "exo": {..., "text": "발열 {x:.0f} °C"}
+This is more explicit. But "only what user asked"? The text is what displayed; user asked temperatures, labels optional. If labels included, still displays temperature plus label. Could be considered extra. In examples, when request "Residue {}%" they specify text. For peaks, default text. I'd avoid labels to be minimal.
+
+But if two annotations with same text, no way to know which is which; but user can see two at negative peaks and one at positive. Fine.
+
+Need maybe if default peak false, but default residue remains. If we want to ensure no default DTG peak, yes.
+
+Could there be issue with annotation names "endo" and "exo" conflicting? no.
+
+Need maybe use "peak_endo" and "peak_exo" for clarity. Any name okay.
+
+Potential alternative: set "annotate": {"peak": {"on":"y2", "kind":"max", "count":1}, "peak_endo": {"type":"peak", "on":"y2", "kind":"min", "count":2}}. This retains default peak but changes kind/count. If default peak has x_min 150, maybe okay. But if we set peak false, we remove default peak and add exo. Which is better? If default peak has x_min 150 and we don't want to exclude possible exo below 150, custom better. But default exo likely above 150. Still custom cleaner.
+
+Need maybe if we set peak false, and add exo custom, there is no default peak. Good.
+
+Could there be a rule: Do not remove default peak unless user asks? User asks specific peaks; yes.
+
+Need maybe set y2.col "E" and annotate peaks on y2. Good.
+
+Need final. Ensure JSON only. No analysis.

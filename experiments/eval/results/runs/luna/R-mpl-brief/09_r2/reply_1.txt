@@ -1,0 +1,100 @@
+We need script. All sheets, standard TGA, tick direction outward, labels size 9 all axes. Use pandas excel. handle dtg peak max of -dtg above 150. residue nearest 800. Plot save. Need perhaps axis labels standard. Korean font. complete.```python
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/09_r2/out")
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+def safe_filename(name):
+    return "".join(c if c.isalnum() or c in "-_." else "_" for c in str(name))
+
+def find_column(columns, tokens):
+    for col in columns:
+        name = str(col).lower()
+        if all(token in name for token in tokens):
+            return col
+    return None
+
+excel = pd.ExcelFile(DATA_FILE)
+
+for sheet_name in excel.sheet_names:
+    df = pd.read_excel(DATA_FILE, sheet_name=sheet_name)
+    df.columns = [str(c).strip() for c in df.columns]
+
+    x_col = find_column(df.columns, ["temperature"])
+    weight_col = find_column(df.columns, ["weight"])
+    dtg_col = find_column(df.columns, ["d.w"]) or find_column(df.columns, ["dtg"])
+
+    if x_col is None or weight_col is None or dtg_col is None:
+        numeric_cols = [c for c in df.columns if pd.api.types.is_numeric_dtype(df[c])]
+        if len(numeric_cols) < 4:
+            continue
+        x_col, weight_col, dtg_col = numeric_cols[1], numeric_cols[2], numeric_cols[3]
+
+    data = df[[x_col, weight_col, dtg_col]].apply(pd.to_numeric, errors="coerce").dropna()
+    if data.empty:
+        continue
+
+    temperature = data[x_col].to_numpy()
+    weight = data[weight_col].to_numpy()
+    dtg_up = -data[dtg_col].to_numpy()
+
+    fig, ax1 = plt.subplots(figsize=(8, 5))
+    ax2 = ax1.twinx()
+
+    ax1.plot(temperature, weight, color="#1f4e9c", linewidth=1.8, label="Weight")
+    ax2.plot(temperature, dtg_up, color="#c0392b", linewidth=1.5, label="DTG")
+
+    ax1.set_title(sheet_name)
+    ax1.set_xlabel("Temperature (°C)")
+    ax1.set_ylabel("Weight (%)", color="#1f4e9c")
+    ax2.set_ylabel("DTG (%/°C)", color="#c0392b")
+    ax1.tick_params(axis="y", labelcolor="#1f4e9c")
+    ax2.tick_params(axis="y", labelcolor="#c0392b")
+
+    # Tick direction outward and tick-label size 9 on all axes.
+    ax1.tick_params(axis="both", direction="out", labelsize=9)
+    ax2.tick_params(axis="y", direction="out", labelsize=9)
+
+    # Residue at the measured point nearest 800 °C.
+    residue_idx = int(np.argmin(np.abs(temperature - 800)))
+    ax1.plot(temperature[residue_idx], weight[residue_idx], "o",
+             color="#1f4e9c", markersize=5)
+    ax1.annotate(
+        f"Residue {weight[residue_idx]:.1f}%",
+        (temperature[residue_idx], weight[residue_idx]),
+        xytext=(7, 8), textcoords="offset points",
+        color="#1f4e9c", fontsize=9
+    )
+
+    # Highest upward-pointing DTG peak above 150 °C.
+    eligible = np.flatnonzero(temperature > 150)
+    if eligible.size:
+        peak_idx = eligible[np.argmax(dtg_up[eligible])]
+        ax2.plot(temperature[peak_idx], dtg_up[peak_idx], "o",
+                 color="#c0392b", markersize=5)
+        ax2.annotate(
+            f"{temperature[peak_idx]:.0f} °C",
+            (temperature[peak_idx], dtg_up[peak_idx]),
+            xytext=(7, 8), textcoords="offset points",
+            color="#c0392b", fontsize=9
+        )
+
+    lines1, labels1 = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines1 + lines2, labels1 + labels2, loc="center left")
+    ax1.grid(False)
+
+    fig.tight_layout()
+    fig.savefig(OUT_DIR / f"{safe_filename(sheet_name)}.png", dpi=300, bbox_inches="tight")
+    plt.close(fig)
+```

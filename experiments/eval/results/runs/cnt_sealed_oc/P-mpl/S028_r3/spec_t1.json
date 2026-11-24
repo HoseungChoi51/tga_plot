@@ -1,0 +1,39 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "histogram",
+ "x": {
+  "col": "산화개시온도 (°C)",
+  "bins": {
+   "width": 5,
+   "min": 535,
+   "max": 610
+  }
+ },
+ "by": "반응기",
+ "filter": [
+  "반응기 in [R1, R2, R3, R4]"
+ ],
+ "colors": [
+  "gray",
+  "gray",
+  "gray",
+  "red"
+ ],
+ "asks": [
+  {
+   "ask": "산화개시온도 분포 히스토그램",
+   "how": "key"
+  },
+  {
+   "ask": "R4와 나머지 그룹으로 나눠서 겹치기",
+   "how": "key"
+  },
+  {
+   "ask": "bin 5 °C 간격, 535–610 °C",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S028_r3/out/t1"
+ }
+}

@@ -1,0 +1,21 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "bar",
+ "x": "반응기",
+ "y": "count",
+ "by": "등급 (A/B/C)",
+ "stack": true,
+ "asks": [
+  {
+   "ask": "반응기별 등급(A/B/C) 비율",
+   "how": "key"
+  },
+  {
+   "ask": "누적 막대",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/sessions/E3_G8_P-hyb/out/t9"
+ }
+}

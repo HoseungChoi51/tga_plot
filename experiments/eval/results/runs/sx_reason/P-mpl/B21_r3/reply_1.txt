@@ -1,0 +1,9 @@
+```json
+{
+  "file": "cnt_batches.xlsx",
+  "sheets": "Raw",
+  "x": {
+    "flip": true
+  }
+}
+```

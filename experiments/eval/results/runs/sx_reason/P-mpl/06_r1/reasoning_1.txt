@@ -1,0 +1,1 @@
+We need answer user's request with JSON spec only in json block. Need analyze in Korean? User Korean. We need produce spec. Request: "범례 없애고 격자 켜줘". File TGA.xlsx from inspect. Need include file only? Defaults TGA. Legend none, grid true. No axis mentioned. Need output JSON: {"file":"TGA.xlsx","legend":"none","grid":true}. Ensure no extra.

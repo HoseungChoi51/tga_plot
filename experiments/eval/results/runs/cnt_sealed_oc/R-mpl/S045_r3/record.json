@@ -1,0 +1,192 @@
+{
+ "arm": "R-mpl",
+ "item": "S045",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "신입 연구원",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "작업자분들이 여러 명이시던데 각자 런을 몇 번씩 맡으셨는지 비율로 보고 싶어요. 원그래프로 부탁드립니다.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read data\nfile_path = \"data/run_log.xlsx\"\nsheet_name = '런로그'\n\ntry:\n    df = pd.read_excel(file_path, sheet_name=sheet_name)\n    \n    # Check if '작업자' column exists\n    if '작업자' not in df.columns:\n        raise KeyError(\"Column '작업자' not found in the dataframe.\")\n    \n    # Count runs per operator\n    operator_counts = df['작업자'].value_counts()\n    \n    # Create pie chart\n    fig, ax = plt.subplots(figsize=(8, 6))\n    \n    # Use autopct to show percentage on slices\n    # Sort by count for better visualization (optional, but value_counts is already sorted desc)\n    wedges, texts, autotexts = ax.pie(operator_counts.values, labels=operator_counts.index, \n                                      autopct='%1.1f%%', startangle=90, textprops={'fontsize': 12})\n    \n    # Equal aspect ratio ensures that pie is drawn as a circle.\n    ax.axis('equal')\n    \n    # Title\n    plt.title('작업자별 런 담당 비율', fontsize=14, pad=20)\n    \n    # Save figure\n    output_file = os.path.join(OUT_DIR, \"operator_run_ratio_pie.png\")\n    plt.tight_layout()\n    plt.savefig(output_file, dpi=300, bbox_inches='tight')\n    plt.close()\n    \nexcept Exception as e:\n    print(f\"An error occurred: {e}\")\n```",
+     "llm_s": 6.617,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 3783,
+     "output_chars": 1397,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Define output directory\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read data\nfile_path = \"data/run_log.xlsx\"\nsheet_name = '런로그'\n\ntry:\n    df = pd.read_excel(file_path, sheet_name=sheet_name)\n    \n    # Check if '작업자' column exists\n    if '작업자' not in df.columns:\n        raise KeyError(\"Column '작업자' not found in the dataframe.\")\n    \n    # Count runs per operator\n    operator_counts = df['작업자'].value_counts()\n    \n    # Create pie chart\n    fig, ax = plt.subplots(figsize=(8, 6))\n    \n    # Use autopct to show percentage on slices\n    # Sort by count for better visualization (optional, but value_counts is already sorted desc)\n    wedges, texts, autotexts = ax.pie(operator_counts.values, labels=operator_counts.index, \n                                      autopct='%1.1f%%', startangle=90, textprops={'fontsize': 12})\n    \n    # Equal aspect ratio ensures that pie is drawn as a circle.\n    ax.axis('equal')\n    \n    # Title\n    plt.title('작업자별 런 담당 비율', fontsize=14, pad=20)\n    \n    # Save figure\n    output_file = os.path.join(OUT_DIR, \"operator_run_ratio_pie.png\")\n    plt.tight_layout()\n    plt.savefig(output_file, dpi=300, bbox_inches='tight')\n    plt.close()\n    \nexcept Exception as e:\n    print(f\"An error occurred: {e}\")\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      8.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "작업자별 런 담당 비율",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": {
+        "labels": [
+         "이서준",
+         "정민호",
+         "박지훈",
+         "윤재원",
+         "최유진",
+         "한수빈",
+         "김도현",
+         "강하늘",
+         "-"
+        ],
+        "shares": [
+         0.13627254509018036,
+         0.13527054108216435,
+         0.13026052104208416,
+         0.12925851703406815,
+         0.12424849699398789,
+         0.1192384769539078,
+         0.11523046092184377,
+         0.10921843687374744,
+         0.0010020040080160836
+        ],
+        "values": null,
+        "colors": [
+         "#1f77b4",
+         "#ff7f0e",
+         "#2ca02c",
+         "#d62728",
+         "#9467bd",
+         "#8c564b",
+         "#e377c2",
+         "#7f7f7f",
+         "#bcbd22"
+        ]
+       },
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 9,
+       "texts": [
+        "이서준",
+        "정민호",
+        "박지훈",
+        "윤재원",
+        "최유진",
+        "한수빈",
+        "김도현",
+        "강하늘",
+        "-",
+        "13.6%",
+        "13.5%",
+        "13.0%",
+        "12.9%",
+        "12.4%",
+        "11.9%",
+        "11.5%",
+        "10.9%",
+        "0.1%"
+       ],
+       "x": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.622935159095258,
+        "max": 1.6229353236456692,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.0999994249443246,
+        "max": 1.0999999726163965,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "title": "작업자별 런 담당 비율"
+      }
+     ],
+     "texts": [
+      "이서준",
+      "정민호",
+      "박지훈",
+      "윤재원",
+      "최유진",
+      "한수빈",
+      "김도현",
+      "강하늘",
+      "-",
+      "13.6%",
+      "13.5%",
+      "13.0%",
+      "12.9%",
+      "12.4%",
+      "11.9%",
+      "11.5%",
+      "10.9%",
+      "0.1%"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t1/operator_run_ratio_pie.png",
+       "format": "png",
+       "px": [
+        2370,
+        1768
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.485013484954834,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [
+     "pie: extra slices ['-']"
+    ],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 1,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 7.103
+  }
+ ]
+}

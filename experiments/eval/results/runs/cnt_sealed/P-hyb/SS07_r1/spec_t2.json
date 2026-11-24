@@ -1,0 +1,24 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "histogram",
+ "x": "잔류금속 (wt%)",
+ "bins": {
+  "width": 0.25,
+  "min": 1.75,
+  "max": 6.5
+ },
+ "by": "반응기",
+ "filter": [
+  "반응기 in [R1, R2, R3, R4]"
+ ],
+ "asks": [
+  {
+   "ask": "R4와 나머지(R1-R3)로 나눠서 겹치기",
+   "how": "unsupported"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-hyb/SS07_r1/out/t2"
+ }
+}

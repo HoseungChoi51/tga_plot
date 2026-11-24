@@ -1,0 +1,207 @@
+{
+ "arm": "P-mpl+cdabc",
+ "item": "D028",
+ "repeat": 2,
+ "split": "dev",
+ "persona": "라인 작업자",
+ "type": "single",
+ "cd": "fullabc",
+ "backend": "anthropic",
+ "model": "qwen3.8-flash",
+ "effort": "",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "정지원인 비율 파이로",
+   "calls": [
+    {
+     "reply": "{\n  \"asks\": [\n    {\n      \"ask\": \"정지 원인별 비율 파이\",\n      \"how\": \"key\"\n    }\n  ],\n  \"chart\": \"pie\",\n  \"file\": \"data/downtime.xlsx\",\n  \"x\": \"원인\",\n  \"y\": {\n    \"agg\": \"sum\",\n    \"col\": \"정지시간(분)\"\n  }\n}",
+     "llm_s": 2.902,
+     "prompt_tokens": 5760,
+     "output_tokens": 97,
+     "cached_tokens": 5406,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": ""
+    }
+   ],
+   "spec": {
+    "asks": [
+     {
+      "ask": "정지 원인별 비율 파이",
+      "how": "key"
+     }
+    ],
+    "chart": "pie",
+    "file": "data/downtime.xlsx",
+    "x": "원인",
+    "y": {
+     "agg": "sum",
+     "col": "정지시간(분)"
+    }
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdabc/D028_r2/out/t1/pie_정지시간_분.png"
+    ],
+    "chart": "pie",
+    "rows_used": 294,
+    "rows_total": 294,
+    "values": {
+     "slices": {
+      "히터 고장": 10491.0,
+      "촉매 공급 이상": 5959.0,
+      "노즐 막힘": 4697.0,
+      "기타": 2899.0,
+      "전력": 1733.0
+     },
+     "shares": {
+      "히터 고장": 0.407,
+      "촉매 공급 이상": 0.2312,
+      "노즐 막힘": 0.1822,
+      "기타": 0.1125,
+      "전력": 0.0672
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "원 그래프를 저장했습니다: pie_정지시간_분.png\n사용한 행: 294 / 294\n히터 고장 40.7%, 촉매 공급 이상 23.1%, 노즐 막힘 18.2%, 기타 11.2%, 전력 6.7%"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": {
+        "labels": [
+         "히터 고장",
+         "촉매 공급 이상",
+         "노즐 막힘",
+         "기타",
+         "전력"
+        ],
+        "shares": [
+         0.4069591527987897,
+         0.2311571434113038,
+         0.1822025679816905,
+         0.11245587493696421,
+         0.06722526087125182
+        ],
+        "values": null,
+        "colors": [
+         "#1f4e9c",
+         "#c0392b",
+         "#2e8b57",
+         "#d4881c",
+         "#7b3fa0"
+        ]
+       },
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 5,
+       "texts": [
+        "히터 고장",
+        "촉매 공급 이상",
+        "노즐 막힘",
+        "기타",
+        "전력",
+        "40.7%",
+        "23.1%",
+        "18.2%",
+        "11.2%",
+        "6.7%"
+       ],
+       "x": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.5403726163296478,
+        "max": 1.5403658728975582,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.0631745803188382,
+        "max": 1.0631790288447245,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [
+      "히터 고장",
+      "촉매 공급 이상",
+      "노즐 막힘",
+      "기타",
+      "전력",
+      "40.7%",
+      "23.1%",
+      "18.2%",
+      "11.2%",
+      "6.7%"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdabc/D028_r2/out/t1/pie_정지시간_분.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5068941116333008,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [
+     "pie: 기타: 11.25%, want 23.81%; 노즐 막힘: 18.22%, want 28.57%; 전력: 6.72%, want 9.52%; 히터 고장: 40.70%, want 14.97%"
+    ],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 1,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 3.533
+  }
+ ]
+}

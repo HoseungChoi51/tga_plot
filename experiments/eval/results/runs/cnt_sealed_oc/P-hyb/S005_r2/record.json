@@ -1,0 +1,198 @@
+{
+ "arm": "P-hyb",
+ "item": "S005",
+ "repeat": 2,
+ "split": "sealed",
+ "persona": "생산팀장",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "불량 비율 한 장으로 보여줄 수 있어요? 이번 주 임원 보고에 들어갑니다.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"pie\",\n  \"x\": \"등급\",\n  \"asks\": [\n    {\n      \"ask\": \"불량 비율 한 장으로 보여줄 수 있어요?\",\n      \"how\": \"chart\"\n    }\n  ],\n  \"title\": \"CNT 등급별 생산 비율 (불량률 확인용)\",\n  \"values\": \"percent\",\n  \"colors\": [\"#2E86C1\", \"#F39C12\", \"#E74C3C\"],\n  \"legend\": \"outside right\",\n  \"size\": [10, 6],\n  \"font_size\": 12\n}\n```",
+     "llm_s": 4.513,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 18006,
+     "output_chars": 358,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "pie",
+    "x": "등급",
+    "asks": [
+     {
+      "ask": "불량 비율 한 장으로 보여줄 수 있어요?",
+      "how": "chart"
+     }
+    ],
+    "title": "CNT 등급별 생산 비율 (불량률 확인용)",
+    "values": "percent",
+    "colors": [
+     "#2E86C1",
+     "#F39C12",
+     "#E74C3C"
+    ],
+    "legend": "outside right",
+    "size": [
+     10,
+     6
+    ],
+    "font_size": 12
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": true,
+    "engine": "echarts",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S005_r2/out/t1/pie_등급.png"
+    ],
+    "chart": "pie",
+    "rows_used": 997,
+    "rows_total": 997,
+    "values": {
+     "slices": {
+      "B": 522.0,
+      "A": 349.0,
+      "C": 126.0
+     },
+     "shares": {
+      "B": 0.5236,
+      "A": 0.3501,
+      "C": 0.1264
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "원 그래프를 저장했습니다: pie_등급.png\n사용한 행: 997 / 997\nB 52.4%, A 35.0%, C 12.6%"
+   },
+   "facts": [
+    {
+     "engine": "echarts",
+     "size_in": [
+      10,
+      6
+     ],
+     "dpi": 300,
+     "title": "CNT 등급별 생산 비율 (불량률 확인용)",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": {
+        "labels": [
+         "B",
+         "A",
+         "C"
+        ],
+        "shares": [
+         0.5235707121364093,
+         0.35005015045135407,
+         0.12637913741223672
+        ],
+        "values": [
+         522.0,
+         349.0,
+         126.0
+        ],
+        "colors": [
+         "#2e86c1",
+         "#f39c12",
+         "#e74c3c"
+        ]
+       },
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [
+        "B\n52.4%",
+        "A\n35.0%",
+        "C\n12.6%"
+       ],
+       "x": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": null,
+        "max": null,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": null,
+        "max": null,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       }
+      }
+     ],
+     "texts": [
+      "B\n52.4%",
+      "A\n35.0%",
+      "C\n12.6%",
+      "CNT 등급별 생산 비율 (불량률 확인용)"
+     ],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "B",
+       "A",
+       "C"
+      ],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S005_r2/out/t1/pie_등급.png",
+       "format": "png",
+       "px": [
+        3000,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.6363296508789062,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [
+     "pie: slices ['B', 'A', 'C'], want ['불합격(C)', '합격(A·B)']"
+    ],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 1,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 5.276
+  }
+ ]
+}

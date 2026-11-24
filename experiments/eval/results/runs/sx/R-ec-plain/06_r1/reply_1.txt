@@ -1,0 +1,149 @@
+```python
+import pandas as pd
+import json
+
+def main():
+    file_path = "/home/chs/CNT/Plot/tests/inputs/TGA.xlsx"
+    
+    # Read all sheets
+    xls = pd.ExcelFile(file_path)
+    sheet_names = xls.sheet_names
+    
+    figures = []
+    
+    for sheet_name in sheet_names:
+        df = pd.read_excel(file_path, sheet_name=sheet_name)
+        
+        # Identify columns based on the preview structure
+        # Columns: Time, Temperature, Weight(%), D.W(%/C)
+        temp_col = "Temperature"
+        weight_col = "Weight(%)"
+        dtg_col = "D.W(%/C)"
+        
+        # Extract data
+        temps = df[temp_col].tolist()
+        weights = df[weight_col].tolist()
+        dtgs = df[dtg_col].tolist()
+        
+        # Create series data for TGA (Weight %) and DTG (D.W %/C)
+        # Using [x, y] format for scatter/line charts to ensure correct pairing
+        
+        tga_data = [[t, w] for t, w in zip(temps, weights)]
+        dtg_data = [[t, d] for t, d in zip(temps, dtgs)]
+        
+        option = {
+            "title": {
+                "text": f"TGA / DTG - {sheet_name}",
+                "left": "center",
+                "textStyle": {
+                    "fontFamily": "Noto Sans CJK KR"
+                }
+            },
+            "tooltip": {
+                "trigger": "axis",
+                "axisPointer": {
+                    "type": "cross"
+                }
+            },
+            "grid": {
+                "left": "10%",
+                "right": "10%",
+                "bottom": "15%",
+                "containLabel": True
+            },
+            "xAxis": {
+                "name": "Temperature (°C)",
+                "type": "value",
+                "min": 30,
+                "max": 900 if "750C" not in sheet_name else 750,
+                "splitLine": {
+                    "show": True,
+                    "lineStyle": {
+                        "color": "#ccc",
+                        "type": "dashed"
+                    }
+                },
+                "axisLabel": {
+                    "fontFamily": "Noto Sans CJK KR"
+                }
+            },
+            "yAxis": [
+                {
+                    "name": "Weight (%)",
+                    "type": "value",
+                    "position": "left",
+                    "splitLine": {
+                        "show": True,
+                        "lineStyle": {
+                            "color": "#ccc",
+                            "type": "dashed"
+                        }
+                    },
+                    "axisLabel": {
+                        "fontFamily": "Noto Sans CJK KR"
+                    }
+                },
+                {
+                    "name": "DTG (%/°C)",
+                    "type": "value",
+                    "position": "right",
+                    "splitLine": {
+                        "show": False
+                    },
+                    "axisLabel": {
+                        "fontFamily": "Noto Sans CJK KR"
+                    }
+                }
+            ],
+            "legend": {
+                "show": False  # Remove legend as requested
+            },
+            "series": [
+                {
+                    "name": "Weight (%)",
+                    "type": "line",
+                    "data": tga_data,
+                    "smooth": True,
+                    "symbol": "none",
+                    "lineStyle": {
+                        "width": 2,
+                        "color": "#5470c6"
+                    },
+                    "itemStyle": {
+                        "color": "#5470c6"
+                    }
+                },
+                {
+                    "name": "DTG (%/°C)",
+                    "type": "line",
+                    "yAxisIndex": 1,
+                    "data": dtg_data,
+                    "smooth": True,
+                    "symbol": "none",
+                    "lineStyle": {
+                        "width": 2,
+                        "color": "#ee6666"
+                    },
+                    "itemStyle": {
+                        "color": "#ee6666"
+                    }
+                }
+            ]
+        }
+        
+        fig_entry = {
+            "name": f"tga_{sheet_name.replace(' ', '_').replace('-', '_')}",
+            "option": option,
+            "width": 800,
+            "height": 600,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+        figures.append(fig_entry)
+        
+    output = {"figures": figures}
+    print(json.dumps(output, ensure_ascii=False))
+
+if __name__ == "__main__":
+    main()
+```

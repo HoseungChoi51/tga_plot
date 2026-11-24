@@ -1,0 +1,19 @@
+```json
+{
+ "file": "extra_columns.xlsx",
+ "y1": {
+  "col": "D",
+  "label": "Weight (mg)"
+ },
+ "asks": [
+  {
+   "ask": "y1축 Weight (mg) 열 사용",
+   "how": "key"
+  },
+  {
+   "ask": "y1축 라벨 'Weight (mg)'",
+   "how": "key"
+  }
+ ]
+}
+```

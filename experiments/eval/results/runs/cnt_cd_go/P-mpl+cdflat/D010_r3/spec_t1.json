@@ -1,0 +1,28 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "scatter",
+ "x": "color_group",
+ "y": "color_group",
+ "colors": [
+  "red",
+  "gray"
+ ],
+ "legend": {
+  "show": true,
+  "where": "best"
+ },
+ "title": "",
+ "asks": [
+  {
+   "ask": "잔류금속 x, IG/ID y 산점도",
+   "how": "key"
+  },
+  {
+   "ask": "등급 C 빨강, 나머지 회색",
+   "how": "data_code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdflat/D010_r3/out/t1"
+ }
+}

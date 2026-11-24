@@ -1,0 +1,109 @@
+```python
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import pandas as pd
+
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna_think/R-mpl-brief/12_r1")
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+
+def safe_filename(name):
+    return "".join(c if c.isalnum() or c in "._- " else "_" for c in str(name)).strip()
+
+
+def main():
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    sheets = pd.read_excel(DATA_FILE, sheet_name=None)
+
+    for sheet_name, df in sheets.items():
+        # Select the TGA columns by their headers.
+        cols = {str(col).strip().lower(): col for col in df.columns}
+        temp_col = next((v for k, v in cols.items() if "temperature" in k or "temp" in k), None)
+        weight_col = next((v for k, v in cols.items() if "weight" in k), None)
+        dtg_col = next((v for k, v in cols.items() if "d.w" in k or "dtg" in k), None)
+        if temp_col is None or weight_col is None or dtg_col is None:
+            continue
+
+        data = df[[temp_col, weight_col, dtg_col]].apply(pd.to_numeric, errors="coerce").dropna()
+        if data.empty:
+            continue
+
+        temperature = data[temp_col]
+        weight = data[weight_col]
+        dtg_up = -data[dtg_col]
+
+        fig, ax1 = plt.subplots(figsize=(10, 6))
+        ax2 = ax1.twinx()
+
+        line1, = ax1.plot(temperature, weight, color="#1f4e9c", label="Weight (%)")
+        line2, = ax2.plot(temperature, dtg_up, color="#c0392b", label="-DTG (%/°C)")
+
+        ax1.set_title(str(sheet_name))
+        ax1.set_xlabel("Temperature (°C)")
+        ax1.set_ylabel("Weight (%)", color="#1f4e9c")
+        ax2.set_ylabel("-DTG (%/°C)", color="#c0392b")
+        ax1.tick_params(axis="y", labelcolor="#1f4e9c")
+        ax2.tick_params(axis="y", labelcolor="#c0392b")
+        ax1.grid(True, alpha=0.25)
+
+        # Reference line and label for oxidation onset.
+        ax1.axvline(450, color="0.35", linestyle="--", linewidth=1.3)
+        y_top = ax1.get_ylim()[1]
+        ax1.annotate(
+            "산화 시작",
+            xy=(450, y_top),
+            xytext=(5, -5),
+            textcoords="offset points",
+            ha="left",
+            va="top",
+            color="0.25",
+            fontsize=10,
+        )
+
+        # Residue at the measured temperature nearest 800 °C.
+        residue_idx = (temperature - 800).abs().idxmin()
+        residue_temp = temperature.loc[residue_idx]
+        residue_weight = weight.loc[residue_idx]
+        ax1.plot(residue_temp, residue_weight, "o", color="#1f4e9c", markersize=5)
+        ax1.annotate(
+            f"Residue {residue_weight:.1f}%",
+            xy=(residue_temp, residue_weight),
+            xytext=(7, 8),
+            textcoords="offset points",
+            color="#1f4e9c",
+            fontsize=9,
+        )
+
+        # Highest upward DTG peak above 150 °C.
+        peak_mask = temperature > 150
+        if peak_mask.any():
+            peak_idx = dtg_up.loc[peak_mask].idxmax()
+            peak_temp = temperature.loc[peak_idx]
+            peak_value = dtg_up.loc[peak_idx]
+            ax2.plot(peak_temp, peak_value, "o", color="#c0392b", markersize=5)
+            ax2.annotate(
+                f"{peak_temp:.0f} °C",
+                xy=(peak_temp, peak_value),
+                xytext=(7, 8),
+                textcoords="offset points",
+                color="#c0392b",
+                fontsize=9,
+            )
+
+        ax1.legend([line1, line2], [line1.get_label(), line2.get_label()], loc="center left")
+        fig.tight_layout()
+        output_path = OUT_DIR / f"{safe_filename(sheet_name)}.png"
+        fig.savefig(output_path, dpi=300, bbox_inches="tight")
+        plt.close(fig)
+
+
+if __name__ == "__main__":
+    main()
+```

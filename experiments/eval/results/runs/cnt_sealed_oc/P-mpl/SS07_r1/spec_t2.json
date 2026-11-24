@@ -1,0 +1,31 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "histogram",
+ "x": "잔류금속 (wt%)",
+ "bins": {
+  "width": 0.25,
+  "min": 1.75,
+  "max": 6.5
+ },
+ "by": "반응기그룹",
+ "colors": [
+  "gray",
+  "red"
+ ],
+ "asks": [
+  {
+   "ask": "R4와 나머지 구분",
+   "how": "code"
+  },
+  {
+   "ask": "겹쳐서 반투명",
+   "how": "code"
+  }
+ ],
+ "data_code": "df['반응기그룹'] = df['반응기'].apply(lambda x: 'R4' if x == 'R4' else 'R1-R3')",
+ "code": "import matplotlib.pyplot as plt\nfor p in ax.patches:\n    p.set_alpha(0.5)",
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS07_r1/out/t2"
+ }
+}

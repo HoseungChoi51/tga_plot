@@ -1,0 +1,27 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "line",
+ "x": {
+  "col": "일자",
+  "period": "day"
+ },
+ "y": {
+  "col": "외기습도 (%)",
+  "agg": "mean"
+ },
+ "title": "일별 평균 외기습도 추이",
+ "asks": [
+  {
+   "ask": "날짜별로 습도 변화 보기",
+   "how": "key"
+  },
+  {
+   "ask": "하루에 런이 여러 개 (평균 내기)",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/SS09_r1/out/t1"
+ }
+}

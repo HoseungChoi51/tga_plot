@@ -1,0 +1,176 @@
+{
+ "arm": "R-mpl",
+ "item": "S030",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "등급 C 판정 런들의 불합격 사유 비율을 파이로 보여 주세요. 사유는 '잔류금속 > 5.0 wt%만', 'IG/ID < 2.2만', '둘 다' 세 가지로 나눠 주세요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name='런로그')\n\n# 등급 C인 런만 필터링\ndf_c = df[df['등급 (A/B/C)'] == 'C'].copy()\n\n# 불합격 사유 분류 함수\ndef classify_failure(row):\n    high_metal = row['잔류금속 (wt%)'] > 5.0\n    low_raman = row['IG/ID'] < 2.2\n    \n    if high_metal and low_raman:\n        return '둘 다'\n    elif high_metal:\n        return '잔류금속 > 5.0 wt%만'\n    elif low_raman:\n        return 'IG/ID < 2.2만'\n    else:\n        # 논리적으로 C등급인데 두 조건 모두 해당하지 않는 경우 (데이터 정합성 확인용, 보통은 없음)\n        # 요청사항에는 세 가지로 나누라고 했으므로, 이 경우는 제외하거나 기타로 처리해야 할 수 있으나\n        # 문제의 의도상 C등급 판정 기준이 이 두가지일 가능성이 높음.\n        # 만약 그런 케이스가 있다면 무시하고 파이 차트에는 포함시키지 않거나 '기타'로 표시할 수 있음.\n        # 여기서는 명시된 세 가지 카테고리만 사용하므로, 나머지 케이스는 카운트에서 제외하되 \n        # 실제 데이터에 없는 것을 가정하거나, 있다면 '기타'로 묶을 수도 있음.\n        # 하지만 질문에서는 세 가지로 나눠 달라고 했으므로, 이 외의 케이스는 발생하지 않거나 무시하도록 함.\n        return None\n\ndf_c['불합격사유'] = df_c.apply(classify_failure, axis=1)\n\n# 유효한 사유가 있는 데이터만 추출\ndf_valid = df_c.dropna(subset=['불합격사유'])\n\n# 각 사유별 개수 집계\ncounts = df_valid['불합격사유'].value_counts()\n\n# 파이 차트 그리기\nlabels = counts.index.tolist()\nsizes = counts.values.tolist()\n\nfig, ax = plt.subplots(figsize=(8, 6))\n\n# 색상 지정 (필요시)\ncolors = ['#ff9999', '#66b3ff', '#99ff99'] # 빨강(잔류금속), 파랑(Raman), 초록(둘다) 등 적절히 매핑하거나 기본 색상 사용\n# 라벨 순서에 따라 색상을 일관성 있게 매핑하기 위해 dictionary로 관리 가능하지만, \n# value_counts()의 순서와 colors를 일치시키는 것이 중요함.\n# 단순히 default colors를 쓰거나, 위처럼 명시적 배치가 가능합니다.\n\nwedges, texts, autotexts = ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90, counterclock=False, colors=colors)\n\nax.axis('equal')\nax.set_title('등급 C 런의 불합격 사유 비율')\n\n# 저장\noutput_path = os.path.join(OUT_DIR, 'grade_c_failure_pie.png')\nplt.savefig(output_path, dpi=300, bbox_inches='tight')\nplt.close()\n```",
+     "llm_s": 12.848,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 3816,
+     "output_chars": 1972,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name='런로그')\n\n# 열 이름 확인 및 매칭 (공백 등 차이 해결을 위해 strip() 적용)\n# 원래 요청된 '등급 (A/B/C)'가 아닐 수 있으므로, 가장 유사한 열을 찾습니다.\ncols_cleaned = {col.strip(): col for col in df.columns}\ntarget_col_key = None\nfor k in cols_cleaned.keys():\n    if '등급' in k:\n        target_col_key = cols_cleaned[k]\n        break\n\nif target_col_key is None:\n    raise ValueError(\"등급 컬럼을 찾을 수 없습니다.\")\n\nprint(f\"사용할 등급 컬럼명: {target_col_key}\")\n\n# 등급 C인 런만 필터링\ndf_c = df[df[target_col_key] == 'C'].copy()\n\n# 불합격 사유 분류 함수\ndef classify_failure(row):\n    high_metal = row['잔류금속 (wt%)'] > 5.0\n    low_raman = row['IG/ID'] < 2.2\n    \n    if high_metal and low_raman:\n        return '둘 다'\n    elif high_metal:\n        return '잔류금속 > 5.0 wt%만'\n    elif low_raman:\n        return 'IG/ID < 2.2만'\n    else:\n        # 조건에 해당하지 않는 경우 (예외 처리용, 보통은 발생하지 않거나 무시됨)\n        # 파이 차트 그리기 시 0개 카테고리는 제외되므로 None 반환하여 dropna로 제거함\n        return None\n\ndf_c['불합격사유'] = df_c.apply(classify_failure, axis=1)\n\n# 유효한 사유가 있는 데이터만 추출\ndf_valid = df_c.dropna(subset=['불합격사유'])\n\n# 각 사유별 개수 집계\ncounts = df_valid['불합격사유'].value_counts()\n\n# 파이 차트 그리기\nlabels = counts.index.tolist()\nsizes = counts.values.tolist()\n\nfig, ax = plt.subplots(figsize=(8, 6))\n\n# 색상 지정\n# 라벨 순서와 colors 리스트의 인덱스가 일치하도록 주의해야 함.\n# value_counts는 빈도순으로 정렬될 수 있으므로, 명시적 색 지정보다는 기본 팔레트 사용이 안전하거나\n# dict로 관리하는 것이 좋습니다. 여기서는 기본 팔레트를 사용하되, 가독성을 위해 수정 가능합니다.\ncolors = ['#ff9999', '#66b3ff', '#99ff99', '#ffff99'] # 필요시 확장 가능\n\nwedges, texts, autotexts = ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90, counterclock=False, colors=colors[:len(sizes)])\n\nax.axis('equal')\nax.set_title('등급 C 런의 불합격 사유 비율')\n\n# 저장\noutput_path = os.path.join(OUT_DIR, 'grade_c_failure_pie.png')\nplt.savefig(output_path, dpi=300, bbox_inches='tight')\nplt.close()\n```",
+     "llm_s": 13.677,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 8120,
+     "output_chars": 2056,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name='런로그')\n\n# 열 이름 매칭 함수: 부분 일치 검색을 통해 정확한 컬럼명을 찾습니다.\ndef find_col(df, keyword):\n    for col in df.columns:\n        if keyword in str(col):\n            return col\n    raise ValueError(f\"'{keyword}'을(를) 포함하는 컬럼을 찾을 수 없습니다.\")\n\ncol_grade = find_col(df, '등급')\ncol_metal = find_col(df, '잔류금속')\ncol_raman = find_col(df, 'IG/ID')\n\nprint(f\"Found columns: Grade='{col_grade}', Metal='{col_metal}', Raman='{col_raman}'\")\n\n# 등급 C인 런만 필터링\ndf_c = df[df[col_grade] == 'C'].copy()\n\n# 불합격 사유 분류 함수\ndef classify_failure(row):\n    # 각 컬럼에 접근하여 조건 검사\n    high_metal = row[col_metal] > 5.0\n    low_raman = row[col_raman] < 2.2\n    \n    if high_metal and low_raman:\n        return '둘 다'\n    elif high_metal:\n        return '잔류금속 > 5.0 wt%만'\n    elif low_raman:\n        return 'IG/ID < 2.2만'\n    else:\n        # 명시된 세 가지 카테고리에 해당하지 않는 경우 (데이터 정합성 확인용)\n        # 요청사항에는 세 가지로 나눠 달라고 했으므로, 이 외의 케이스는 파이 차트에서 제외합니다.\n        return None\n\ndf_c['불합격사유'] = df_c.apply(classify_failure, axis=1)\n\n# 유효한 사유가 있는 데이터만 추출\ndf_valid = df_c.dropna(subset=['불합격사유'])\n\nif df_valid.empty:\n    print(\"경고: 분류된 불합격 사유가 없습니다. 빈 차트를 생성합니다.\")\n    labels = []\n    sizes = []\nelse:\n    # 각 사유별 개수 집계\n    counts = df_valid['불합격사유'].value_counts()\n    \n    # 파이 차트 그리기 준비\n    # 라벨과 크기를 정렬 순서에 맞춰 준비합니다.\n    # 시각적 일관성을 위해 특정 순서(예: 둘다, 금속만, IG/ID만)로 재배열할 수도 있지만,\n    # value_counts 기본 순서(빈도순)를 따르는 것이 일반적입니다.\n    labels = counts.index.tolist()\n    sizes = counts.values.tolist()\n\nfig, ax = plt.subplots(figsize=(8, 6))\n\nif len(sizes) > 0:\n    # 색상 지정\n    colors = ['#ff9999', '#66b3ff', '#99ff99', '#ffff99']\n    \n    wedges, texts, autotexts = ax.pie(sizes, \n                                      labels=labels, \n                                      autopct='%1.1f%%', \n                                      startangle=90, \n                                      counterclock=False, \n                                      colors=colors[:len(sizes)])\n    \n    ax.axis('equal')\n    ax.set_title('등급 C 런의 불합격 사유 비율')\nelse:\n    ax.text(0.5, 0.5, '데이터 없음', ha='center', va='center')\n    ax.set_title('등급 C 런의 불합격 사유 비율')\n    ax.axis('off')\n\n# 저장\noutput_path = os.path.join(OUT_DIR, 'grade_c_failure_pie.png')\nplt.savefig(output_path, dpi=300, bbox_inches='tight')\nplt.close()\n```",
+     "llm_s": 13.984,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 12423,
+     "output_chars": 2543,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name='런로그')\n\n# 열 이름 매칭 함수: 부분 일치 검색을 통해 정확한 컬럼명을 찾습니다.\ndef find_col(df, keyword):\n    for col in df.columns:\n        if keyword in str(col):\n            return col\n    raise ValueError(f\"'{keyword}'을(를) 포함하는 컬럼을 찾을 수 없습니다.\")\n\ncol_grade = find_col(df, '등급')\ncol_metal = find_col(df, '잔류금속')\ncol_raman = find_col(df, 'IG/ID')\n\nprint(f\"Found columns: Grade='{col_grade}', Metal='{col_metal}', Raman='{col_raman}'\")\n\n# 등급 C인 런만 필터링\ndf_c = df[df[col_grade] == 'C'].copy()\n\n# 불합격 사유 분류 함수\ndef classify_failure(row):\n    # 각 컬럼에 접근하여 조건 검사\n    high_metal = row[col_metal] > 5.0\n    low_raman = row[col_raman] < 2.2\n    \n    if high_metal and low_raman:\n        return '둘 다'\n    elif high_metal:\n        return '잔류금속 > 5.0 wt%만'\n    elif low_raman:\n        return 'IG/ID < 2.2만'\n    else:\n        # 명시된 세 가지 카테고리에 해당하지 않는 경우 (데이터 정합성 확인용)\n        # 요청사항에는 세 가지로 나눠 달라고 했으므로, 이 외의 케이스는 파이 차트에서 제외합니다.\n        return None\n\ndf_c['불합격사유'] = df_c.apply(classify_failure, axis=1)\n\n# 유효한 사유가 있는 데이터만 추출\ndf_valid = df_c.dropna(subset=['불합격사유'])\n\nif df_valid.empty:\n    print(\"경고: 분류된 불합격 사유가 없습니다. 빈 차트를 생성합니다.\")\n    labels = []\n    sizes = []\nelse:\n    # 각 사유별 개수 집계\n    counts = df_valid['불합격사유'].value_counts()\n    \n    # 파이 차트 그리기 준비\n    # 라벨과 크기를 정렬 순서에 맞춰 준비합니다.\n    # 시각적 일관성을 위해 특정 순서(예: 둘다, 금속만, IG/ID만)로 재배열할 수도 있지만,\n    # value_counts 기본 순서(빈도순)를 따르는 것이 일반적입니다.\n    labels = counts.index.tolist()\n    sizes = counts.values.tolist()\n\nfig, ax = plt.subplots(figsize=(8, 6))\n\nif len(sizes) > 0:\n    # 색상 지정\n    colors = ['#ff9999', '#66b3ff', '#99ff99', '#ffff99']\n    \n    wedges, texts, autotexts = ax.pie(sizes, \n                                      labels=labels, \n                                      autopct='%1.1f%%', \n                                      startangle=90, \n                                      counterclock=False, \n                                      colors=colors[:len(sizes)])\n    \n    ax.axis('equal')\n    ax.set_title('등급 C 런의 불합격 사유 비율')\nelse:\n    ax.text(0.5, 0.5, '데이터 없음', ha='center', va='center')\n    ax.set_title('등급 C 런의 불합격 사유 비율')\n    ax.axis('off')\n\n# 저장\noutput_path = os.path.join(OUT_DIR, 'grade_c_failure_pie.png')\nplt.savefig(output_path, dpi=300, bbox_inches='tight')\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      8.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "등급 C 런의 불합격 사유 비율",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": {
+        "labels": [
+         "IG/ID < 2.2만",
+         "잔류금속 > 5.0 wt%만",
+         "둘 다"
+        ],
+        "shares": [
+         0.42857142857142855,
+         0.3730158730158731,
+         0.19841269841269837
+        ],
+        "values": null,
+        "colors": [
+         "#ff9999",
+         "#66b3ff",
+         "#99ff99"
+        ]
+       },
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 3,
+       "texts": [
+        "IG/ID < 2.2만",
+        "잔류금속 > 5.0 wt%만",
+        "둘 다",
+        "42.9%",
+        "37.3%",
+        "19.8%"
+       ],
+       "x": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.4761907471520095,
+        "max": 1.4761875047750452,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.0999980791932755,
+        "max": 1.0999999085330132,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "title": "등급 C 런의 불합격 사유 비율"
+      }
+     ],
+     "texts": [
+      "IG/ID < 2.2만",
+      "잔류금속 > 5.0 wt%만",
+      "둘 다",
+      "42.9%",
+      "37.3%",
+      "19.8%"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t1/grade_c_failure_pie.png",
+       "format": "png",
+       "px": [
+        1920,
+        1515
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.478482723236084,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 41.809
+  }
+ ]
+}

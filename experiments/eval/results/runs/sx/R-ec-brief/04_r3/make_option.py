@@ -1,0 +1,180 @@
+import pandas as pd
+import numpy as np
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+# Read the specific sheet requested by user
+sheet_name = "1006R1-V normal"
+df = pd.read_excel(DATA_FILE, sheet_name=sheet_name)
+
+# Extract columns based on TGA guess from preview
+x_col = "Temperature"
+y1_col = "Weight(%)"
+y2_col = "D.W(%/C)"
+
+# Prepare data arrays
+temp = df[x_col].values
+weight = df[y1_col].values
+dtg = df[y2_col].values * -1  # Multiply by -1 so peaks point up
+
+# Find residue at nearest 800°C
+idx_800 = np.argmin(np.abs(temp - 800))
+residue_temp = temp[idx_800]
+residue_weight = weight[idx_800]
+
+# Find highest DTG peak above 150°C
+mask_above_150 = temp > 150
+if np.any(mask_above_150):
+    dtg_filtered = dtg[mask_above_150]
+    temp_filtered = temp[mask_above_150]
+    idx_peak_local = np.argmax(dtg_filtered)
+    peak_temp = temp_filtered[idx_peak_local]
+    peak_dtg_val = dtg_filtered[idx_peak_local]
+else:
+    peak_temp = None
+    peak_dtg_val = None
+
+# Build series data for ECharts
+series_data_weight = [[float(t), float(w)] for t, w in zip(temp, weight)]
+series_data_dtg = [[float(t), float(d)] for t, d in zip(temp, dtg)]
+
+# Markers for residue and peak
+mark_points = []
+# Residue marker
+mark_points.append({
+    "coord": [float(residue_temp), float(residue_weight)],
+    "value": f"Residue {residue_weight:.1f}%",
+    "symbolSize": 8,
+    "label": {
+        "show": True,
+        "position": "right",
+        "formatter": "{c}",
+        "fontSize": 12,
+        "color": "#1f4e9c"
+    }
+})
+
+# Peak marker
+if peak_temp is not None:
+    mark_points.append({
+        "coord": [float(peak_temp), float(peak_dtg_val)],
+        "value": f"{peak_temp:.0f} °C",
+        "symbolSize": 8,
+        "label": {
+            "show": True,
+            "position": "top",
+            "formatter": "{c}",
+            "fontSize": 12,
+            "color": "#c0392b"
+        }
+    })
+
+option = {
+    "title": {
+        "text": "CNT 산화 거동",
+        "left": "center",
+        "textStyle": {
+            "fontSize": 18,
+            "color": "#00008B"  # Navy blue
+        }
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {"type": "cross"}
+    },
+    "legend": {
+        "data": ["Weight (%)", "DTG (%/°C)"],
+        "orient": "vertical",
+        "left": "left",
+        "top": "middle"
+    },
+    "grid": {
+        "left": "10%",
+        "right": "10%",
+        "bottom": "15%",
+        "containLabel": True
+    },
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "axisLabel": {"formatter": "{value}"},
+        "splitLine": {"show": False}
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Weight (%)",
+            "position": "left",
+            "axisLine": {"lineStyle": {"color": "#1f4e9c"}},
+            "axisLabel": {"color": "#1f4e9c"},
+            "splitLine": {"show": True, "lineStyle": {"type": "dashed"}}
+        },
+        {
+            "type": "value",
+            "name": "DTG (%/°C)",
+            "position": "right",
+            "axisLine": {"lineStyle": {"color": "#c0392b"}},
+            "axisLabel": {"color": "#c0392b"},
+            "splitLine": {"show": False}
+        }
+    ],
+    "series": [
+        {
+            "name": "Weight (%)",
+            "type": "line",
+            "data": series_data_weight,
+            "smooth": True,
+            "showSymbol": False,
+            "lineStyle": {"color": "#1f4e9c", "width": 2},
+            "itemStyle": {"color": "#1f4e9c"},
+            "markPoint": {
+                "data": [mp for mp in mark_points if mp["coord"][1] == residue_weight]
+            }
+        },
+        {
+            "name": "DTG (%/°C)",
+            "type": "line",
+            "yAxisIndex": 1,
+            "data": series_data_dtg,
+            "smooth": True,
+            "showSymbol": False,
+            "lineStyle": {"color": "#c0392b", "width": 2},
+            "itemStyle": {"color": "#c0392b"},
+            "markPoint": {
+                "data": [mp for mp in mark_points if mp["coord"][1] != residue_weight or peak_temp is None]
+            }
+        }
+    ]
+}
+
+# Ensure correct placement of markers in respective series
+# Re-construct markPoints to ensure they are assigned correctly
+mp_weight = []
+mp_dtg = []
+
+for mp in mark_points:
+    if mp["coord"][1] == residue_weight:
+        mp_weight.append(mp)
+    else:
+        mp_dtg.append(mp)
+
+option["series"][0]["markPoint"] = {"data": mp_weight}
+option["series"][1]["markPoint"] = {"data": mp_dtg}
+
+output = {
+    "figures": [
+        {
+            "name": "plot1",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+    ]
+}
+
+print(json.dumps(output, ensure_ascii=False))

@@ -1,0 +1,28 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "pie",
+ "x": "등급",
+ "asks": [
+  {
+   "ask": "불량 비율 한 장으로 보여줄 수 있어요?",
+   "how": "chart"
+  }
+ ],
+ "title": "CNT 등급별 생산 비율 (불량률 확인용)",
+ "values": "percent",
+ "colors": [
+  "#2E86C1",
+  "#F39C12",
+  "#E74C3C"
+ ],
+ "legend": "outside right",
+ "size": [
+  10,
+  6
+ ],
+ "font_size": 12,
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S005_r2/out/t1"
+ }
+}

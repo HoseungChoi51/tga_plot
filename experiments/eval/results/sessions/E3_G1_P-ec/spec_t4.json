@@ -1,0 +1,24 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "bar",
+ "x": "반응기",
+ "y": {
+  "col": "CNT수율 (g/g-cat)",
+  "agg": "mean"
+ },
+ "by": "촉매로트",
+ "asks": [
+  {
+   "ask": "반응기별 평균 CNT수율",
+   "how": "key"
+  },
+  {
+   "ask": "촉매로트별 비교 (묶음 막대)",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/sessions/E3_G1_P-ec/out/t4"
+ }
+}

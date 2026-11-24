@@ -1,0 +1,109 @@
+```python
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/tests/inputs/instrument_export.txt")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/23_r3/out")
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+
+def read_instrument_text(path):
+    """Skip the instrument's metadata preamble and load its numeric data table."""
+    lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
+    rows = []
+    for line in lines:
+        parts = line.replace(",", " ").split()
+        if len(parts) < 4:
+            continue
+        try:
+            values = [float(value) for value in parts[:4]]
+        except ValueError:
+            continue
+        rows.append(values)
+
+    if not rows:
+        raise ValueError(f"No numeric four-column data found in {path}")
+
+    return pd.DataFrame(rows, columns=["time", "temperature", "weight", "dtg"])
+
+
+data = read_instrument_text(DATA_FILE)
+temperature = data["temperature"].to_numpy()
+weight = data["weight"].to_numpy()
+dtg = data["dtg"].to_numpy()
+
+valid = np.isfinite(temperature) & np.isfinite(weight) & np.isfinite(dtg)
+temperature, weight, dtg = temperature[valid], weight[valid], dtg[valid]
+if temperature.size == 0:
+    raise ValueError("No valid data points to plot.")
+
+residue_idx = int(np.nanargmin(np.abs(temperature - 800)))
+residue_temp = temperature[residue_idx]
+residue_weight = weight[residue_idx]
+
+peak_mask = temperature > 150
+if peak_mask.any():
+    peak_indices = np.flatnonzero(peak_mask)
+    peak_idx = int(peak_indices[np.nanargmax(-dtg[peak_mask])])
+    peak_temp = temperature[peak_idx]
+else:
+    peak_idx = int(np.nanargmax(-dtg))
+    peak_temp = temperature[peak_idx]
+
+fig, ax1 = plt.subplots(figsize=(8, 5))
+ax2 = ax1.twinx()
+
+weight_line, = ax1.plot(
+    temperature, weight, color="#1f4e9c", linewidth=1.8, label="Weight"
+)
+dtg_line, = ax2.plot(
+    temperature, -dtg, color="#c0392b", linewidth=1.5, label="DTG"
+)
+
+ax1.scatter(
+    [residue_temp], [residue_weight], color="#1f4e9c", edgecolor="white",
+    linewidth=0.6, zorder=5
+)
+ax1.annotate(
+    f"Residue: {residue_weight:.1f}%",
+    xy=(residue_temp, residue_weight),
+    xytext=(8, 10),
+    textcoords="offset points",
+    color="#1f4e9c",
+    fontsize=9,
+)
+
+ax2.scatter(
+    [peak_temp], [-dtg[peak_idx]], color="#c0392b", edgecolor="white",
+    linewidth=0.6, zorder=5
+)
+ax2.annotate(
+    f"{peak_temp:.0f} °C",
+    xy=(peak_temp, -dtg[peak_idx]),
+    xytext=(8, 10),
+    textcoords="offset points",
+    color="#c0392b",
+    fontsize=9,
+)
+
+ax1.set_title("instrument_export")
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)", color="#1f4e9c")
+ax2.set_ylabel("DTG", color="#c0392b")
+ax1.tick_params(axis="y", labelcolor="#1f4e9c")
+ax2.tick_params(axis="y", labelcolor="#c0392b")
+ax1.grid(True, alpha=0.25)
+ax1.legend([weight_line, dtg_line], ["Weight", "DTG"], loc="center left")
+
+fig.tight_layout()
+fig.savefig(OUT_DIR / "instrument_export.png", dpi=300, bbox_inches="tight")
+plt.close(fig)
+```

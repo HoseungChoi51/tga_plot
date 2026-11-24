@@ -1,0 +1,133 @@
+```python
+import json
+import re
+import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+BLUE = "#1f4e9c"
+RED = "#c0392b"
+FONT = "Noto Sans CJK KR"
+
+
+def clean_name(value):
+    name = re.sub(r"[^\w가-힣.-]+", "_", str(value).strip())
+    return name.strip("_") or "plot"
+
+
+def make_figure(sheet_name, frame):
+    columns = {str(col).strip().lower(): col for col in frame.columns}
+
+    def find_column(tokens, fallback_index):
+        for key, col in columns.items():
+            if any(token in key for token in tokens):
+                return col
+        return frame.columns[fallback_index]
+
+    x_col = find_column(("temperature", "temp", "온도"), 1)
+    weight_col = find_column(("weight", "mass", "중량", "무게"), 2)
+    dtg_col = find_column(("d.w", "dtg", "derivative", "미분"), 3)
+
+    x = pd.to_numeric(frame[x_col], errors="coerce").to_numpy(dtype=float)
+    weight = pd.to_numeric(frame[weight_col], errors="coerce").to_numpy(dtype=float)
+    dtg = pd.to_numeric(frame[dtg_col], errors="coerce").to_numpy(dtype=float)
+
+    valid = np.isfinite(x) & np.isfinite(weight) & np.isfinite(dtg)
+    x, weight, dtg = x[valid], weight[valid], dtg[valid]
+
+    weight_data = [[float(a), float(b)] for a, b in zip(x, weight)]
+    dtg_data = [[float(a), float(-b)] for a, b in zip(x, dtg)]
+
+    option = {
+        "animation": False,
+        "textStyle": {"fontFamily": FONT},
+        "title": {
+            "text": str(sheet_name),
+            "left": "center",
+            "textStyle": {"fontFamily": FONT, "fontSize": 16},
+        },
+        "tooltip": {"trigger": "axis"},
+        "legend": {
+            "data": ["Weight (%)", "-DTG (%/°C)"],
+            "left": 70,
+            "top": "middle",
+            "orient": "vertical",
+        },
+        "grid": {"left": 82, "right": 82, "top": 65, "bottom": 70},
+        "xAxis": {
+            "type": "value",
+            "name": "Temperature (°C)",
+            "nameLocation": "middle",
+            "nameGap": 38,
+            "axisLine": {"show": True},
+            "axisTick": {"show": True},
+            "splitLine": {"show": False},
+        },
+        "yAxis": [
+            {
+                "type": "value",
+                "name": "Weight (%)",
+                "nameLocation": "middle",
+                "nameGap": 48,
+                "axisLine": {"show": True},
+                "axisTick": {"show": True},
+                "splitLine": {"show": True, "lineStyle": {"color": "#dddddd"}},
+            },
+            {
+                "type": "value",
+                "name": "-DTG (%/°C)",
+                "nameLocation": "middle",
+                "nameGap": 50,
+                "axisLine": {"show": True},
+                "axisTick": {"show": True},
+                "splitLine": {"show": False},
+            },
+        ],
+        "series": [
+            {
+                "name": "Weight (%)",
+                "type": "line",
+                "data": weight_data,
+                "yAxisIndex": 0,
+                "showSymbol": False,
+                "lineStyle": {"color": BLUE, "width": 2},
+                "itemStyle": {"color": BLUE},
+            },
+            {
+                "name": "-DTG (%/°C)",
+                "type": "line",
+                "data": dtg_data,
+                "yAxisIndex": 1,
+                "showSymbol": False,
+                "lineStyle": {"color": RED, "width": 2},
+                "itemStyle": {"color": RED},
+            },
+        ],
+    }
+
+    return {
+        "name": clean_name(sheet_name),
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"],
+    }
+
+
+def main():
+    figures = []
+    workbook = pd.ExcelFile(DATA_FILE)
+    for sheet_name in workbook.sheet_names:
+        frame = pd.read_excel(workbook, sheet_name=sheet_name)
+        figures.append(make_figure(sheet_name, frame))
+    print(json.dumps({"figures": figures}, ensure_ascii=False, allow_nan=False))
+
+
+if __name__ == "__main__":
+    main()
+```

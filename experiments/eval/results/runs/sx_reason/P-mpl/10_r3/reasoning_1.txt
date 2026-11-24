@@ -1,0 +1,9 @@
+We need answer user's request with JSON spec only. Need analyze in Korean? User request Korean. Need produce final only json block. Need infer spec.
+
+User: "잔류량 표시를 700 °C로 바꾸고 소수점 둘째 자리까지 보여줘"
+Need spec: file TGA.xlsx, annotate residue x 700, text with two decimals? Default residue text "Residue {y:.1f}%". They want show two decimal places. Should set text maybe "Residue {y:.2f}%". Also x=700. If only mention residue display, include annotate.residue. No other keys.
+Need consider sheets? Not specified, all sheets default? Default maybe all? The inspect has multiple sheets. Default likely plots all? The request doesn't specify sheet. Leave sheets out.
+Need ensure JSON valid.
+Potential: {"file": "TGA.xlsx", "annotate": {"residue": {"x": 700, "text": "Residue {y:.2f}%"}}}
+Is text template acceptable? Yes. Could just {"x":700, "text":"{y:.2f}"}? They say show to second decimal; likely keep label? The default includes Residue. Use "Residue {y:.2f}%".
+Need final only json block. No extra. Ensure no comments.

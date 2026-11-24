@@ -1,0 +1,176 @@
+{
+ "arm": "R-mpl",
+ "item": "S004",
+ "repeat": 2,
+ "split": "sealed",
+ "persona": "생산팀장",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "등급별 생산량 비중을 파이로 보여 주세요. 런 건수 말고 생산량(kg) 기준이에요. 생산량은 생산속도×가동시간으로 잡으면 됩니다.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 환경 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name='런로그')\n\n# 생산량 계산: 생산속도(g/h) * 가동시간(h) -> 단위: g\n# 사용자는 kg 단위를 요청했으므로 / 1000하여 kg로 변환\ndf['생산량_kg'] = (df['생산속도 (g/h)'] * df['가동시간 (h)']) / 1000\n\n# 등급별 합산\ngrade_grouped = df.groupby('등급 (A/B/C)')['생산량_kg'].sum()\n\n# 파이 차트 그리기\nfig, ax = plt.subplots(figsize=(8, 6))\n\ncolors = ['#4CAF50', '#2196F3', '#FFC107'] # A, B, C에 대한 색상 예시 (순서에 따라 자동 매핑됨)\n# 정렬된 순서대로 색상을 지정하기 위해 인덱스 확인\nsorted_indices = grade_grouped.sort_values(ascending=False).index\ncustom_colors = {'A': '#4CAF50', 'B': '#2196F3', 'C': '#FFC107'}\ncolor_list = [custom_colors[idx] for idx in sorted_indices]\n\nwedges, texts, autotexts = ax.pie(\n    grade_grouped, \n    labels=grade_grouped.index, \n    autopct='%1.1f%%', \n    startangle=90,\n    colors=color_list,\n    textprops={'fontsize': 12}\n)\n\nax.set_title('등급별 생산량 비중 (kg)', fontsize=14)\nax.axis('equal')  # 원형 유지\n\n# 저장\nsave_path = os.path.join(OUT_DIR, 'production_by_grade_pie.png')\nplt.tight_layout()\nplt.savefig(save_path, dpi=300, bbox_inches='tight')\nplt.close(fig)\n\nprint(f\"Chart saved to {save_path}\")\n```",
+     "llm_s": 7.267,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 3810,
+     "output_chars": 1330,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 환경 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name='런로그')\n\n# 컬럼명 확인 및 공백 제거 처리 (실제 파일의 헤더에 불필요한 공백이나 줄바꿈이 있을 수 있음)\n# 에러 메시지에 따르면 '생산속도 (g/h)'를 찾지 못함. 실제 컬럼명이 다를 수 있으므로 안전하게 접근합니다.\n# 일반적으로 Excel에서 읽은 컬럼명은 앞뒤 공백이 있거나 다른 형태일 수 있어 strip()을 적용하는 것이 좋습니다.\ncols = df.columns.tolist()\ncol_prod_speed = None\ncol_op_time = None\ncol_grade = None\n\nfor c in cols:\n    c_clean = str(c).strip()\n    if \"생산속도\" in c_clean:\n        col_prod_speed = c\n    elif \"가동시간\" in c_clean:\n        col_op_time = c\n    elif \"등급\" in c_clean:\n        col_grade = c\n\nif not all([col_prod_speed, col_op_time, col_grade]):\n    raise ValueError(f\"필수 컬럼을 찾을 수 없습니다. 사용 가능한 컬럼: {cols}\")\n\n# 생산량 계산: 생산속도(g/h) * 가동시간(h) -> 단위: g\n# 사용자는 kg 단위를 요청했으므로 / 1000하여 kg로 변환\ndf['생산량_kg'] = (df[col_prod_speed] * df[col_op_time]) / 1000\n\n# 등급별 합산\ngrade_grouped = df.groupby(col_grade)['생산량_kg'].sum()\n\n# 파이 차트 그리기\nfig, ax = plt.subplots(figsize=(8, 6))\n\n# 색상 매핑\ncustom_colors = {'A': '#4CAF50', 'B': '#2196F3', 'C': '#FFC107'}\ncolor_list = [custom_colors.get(idx, '#gray') for idx in grade_grouped.index]\n\nwedges, texts, autotexts = ax.pie(\n    grade_grouped, \n    labels=grade_grouped.index, \n    autopct='%1.1f%%', \n    startangle=90,\n    colors=color_list,\n    textprops={'fontsize': 12}\n)\n\nax.set_title('등급별 생산량 비중 (kg)', fontsize=14)\nax.axis('equal')  # 원형 유지\n\n# 저장\nsave_path = os.path.join(OUT_DIR, 'production_by_grade_pie.png')\nplt.tight_layout()\nplt.savefig(save_path, dpi=300, bbox_inches='tight')\nplt.close(fig)\n\nprint(f\"Chart saved to {save_path}\")\n```",
+     "llm_s": 10.716,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 6882,
+     "output_chars": 1772,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 환경 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name='런로그')\n\n# 컬럼명 확인 및 매핑 (공백이나 특수문자 차이 대응)\ncols = df.columns.tolist()\ncol_prod_speed = None\ncol_op_time = None\ncol_grade = None\n\nfor c in cols:\n    c_clean = str(c).strip()\n    if \"생산속도\" in c_clean:\n        col_prod_speed = c\n    elif \"가동시간\" in c_clean:\n        col_op_time = c\n    elif \"등급\" in c_clean:\n        col_grade = c\n\nif not all([col_prod_speed, col_op_time, col_grade]):\n    raise ValueError(f\"필수 컬럼을 찾을 수 없습니다. 사용 가능한 컬럼: {cols}\")\n\n# 숫자형으로 변환 (문자열이 섞여 있을 경우 에러 방지)\ndf[col_prod_speed] = pd.to_numeric(df[col_prod_speed], errors='coerce')\ndf[col_op_time] = pd.to_numeric(df[col_op_time], errors='coerce')\n\n# 생산량 계산: 생산속도(g/h) * 가동시간(h) -> 단위: g\n# kg 단위로 변환\ndf['생산량_kg'] = (df[col_prod_speed] * df[col_op_time]) / 1000\n\n# 결측치 제거 후 등급별 합산\nvalid_df = df.dropna(subset=['생산량_kg', col_grade])\ngrade_grouped = valid_df.groupby(col_grade)['생산량_kg'].sum()\n\n# 파이 차트 그리기\nfig, ax = plt.subplots(figsize=(8, 6))\n\n# 색상 매핑\ncustom_colors = {'A': '#4CAF50', 'B': '#2196F3', 'C': '#FFC107'}\ncolor_list = [custom_colors.get(str(idx), '#gray') for idx in grade_grouped.index]\n\nwedges, texts, autotexts = ax.pie(\n    grade_grouped, \n    labels=grade_grouped.index, \n    autopct='%1.1f%%', \n    startangle=90,\n    colors=color_list,\n    textprops={'fontsize': 12}\n)\n\nax.set_title('등급별 생산량 비중 (kg)', fontsize=14)\nax.axis('equal')  # 원형 유지\n\n# 저장\nsave_path = os.path.join(OUT_DIR, 'production_by_grade_pie.png')\nplt.tight_layout()\nplt.savefig(save_path, dpi=300, bbox_inches='tight')\nplt.close(fig)\n\nprint(f\"Chart saved to {save_path}\")\n```",
+     "llm_s": 7.923,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 10893,
+     "output_chars": 1831,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# 환경 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 읽기\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name='런로그')\n\n# 컬럼명 확인 및 매핑 (공백이나 특수문자 차이 대응)\ncols = df.columns.tolist()\ncol_prod_speed = None\ncol_op_time = None\ncol_grade = None\n\nfor c in cols:\n    c_clean = str(c).strip()\n    if \"생산속도\" in c_clean:\n        col_prod_speed = c\n    elif \"가동시간\" in c_clean:\n        col_op_time = c\n    elif \"등급\" in c_clean:\n        col_grade = c\n\nif not all([col_prod_speed, col_op_time, col_grade]):\n    raise ValueError(f\"필수 컬럼을 찾을 수 없습니다. 사용 가능한 컬럼: {cols}\")\n\n# 숫자형으로 변환 (문자열이 섞여 있을 경우 에러 방지)\ndf[col_prod_speed] = pd.to_numeric(df[col_prod_speed], errors='coerce')\ndf[col_op_time] = pd.to_numeric(df[col_op_time], errors='coerce')\n\n# 생산량 계산: 생산속도(g/h) * 가동시간(h) -> 단위: g\n# kg 단위로 변환\ndf['생산량_kg'] = (df[col_prod_speed] * df[col_op_time]) / 1000\n\n# 결측치 제거 후 등급별 합산\nvalid_df = df.dropna(subset=['생산량_kg', col_grade])\ngrade_grouped = valid_df.groupby(col_grade)['생산량_kg'].sum()\n\n# 파이 차트 그리기\nfig, ax = plt.subplots(figsize=(8, 6))\n\n# 색상 매핑\ncustom_colors = {'A': '#4CAF50', 'B': '#2196F3', 'C': '#FFC107'}\ncolor_list = [custom_colors.get(str(idx), '#gray') for idx in grade_grouped.index]\n\nwedges, texts, autotexts = ax.pie(\n    grade_grouped, \n    labels=grade_grouped.index, \n    autopct='%1.1f%%', \n    startangle=90,\n    colors=color_list,\n    textprops={'fontsize': 12}\n)\n\nax.set_title('등급별 생산량 비중 (kg)', fontsize=14)\nax.axis('equal')  # 원형 유지\n\n# 저장\nsave_path = os.path.join(OUT_DIR, 'production_by_grade_pie.png')\nplt.tight_layout()\nplt.savefig(save_path, dpi=300, bbox_inches='tight')\nplt.close(fig)\n\nprint(f\"Chart saved to {save_path}\")\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      8.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "등급별 생산량 비중 (kg)",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": {
+        "labels": [
+         "A",
+         "B",
+         "C"
+        ],
+        "shares": [
+         0.3567074962983997,
+         0.5261226355338162,
+         0.11716986816778403
+        ],
+        "values": null,
+        "colors": [
+         "#4caf50",
+         "#2196f3",
+         "#ffc107"
+        ]
+       },
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 3,
+       "texts": [
+        "A",
+        "B",
+        "C",
+        "35.7%",
+        "52.6%",
+        "11.7%"
+       ],
+       "x": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.5553962846736091,
+        "max": 1.5553972391235074,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.0999998705412766,
+        "max": 1.099999993835299,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "title": "등급별 생산량 비중 (kg)"
+      }
+     ],
+     "texts": [
+      "A",
+      "B",
+      "C",
+      "35.7%",
+      "52.6%",
+      "11.7%"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t1/production_by_grade_pie.png",
+       "format": "png",
+       "px": [
+        2370,
+        1770
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.44873595237731934,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 27.212
+  }
+ ]
+}

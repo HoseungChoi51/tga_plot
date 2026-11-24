@@ -1,0 +1,27 @@
+{
+ "asks": [
+  {
+   "ask": "2존과 SP 차이 히스토그램",
+   "how": "key"
+  },
+  {
+   "ask": "2도 간격",
+   "how": "key"
+  }
+ ],
+ "bins": {
+  "width": 2
+ },
+ "chart": "histogram",
+ "file": "data/r2_zone_temps.csv",
+ "title": "2존 온도 - SP 분포 (18:00~22:00)",
+ "x": {
+  "col": "2존 SP(°C)"
+ },
+ "y": {
+  "col": "2존(°C)"
+ },
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-ec+cdabc/DS04_r1/out/t3"
+ }
+}

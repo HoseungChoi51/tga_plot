@@ -1,0 +1,372 @@
+{
+ "arm": "R-mpl",
+ "item": "S011",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "생산팀장",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "월별 생산량(kg)을 반응기별 누적 막대로 만들어 주세요. 범례는 그래프 바깥 오른쪽에 두고, 300 dpi PNG로 저장해 주세요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\n\n# Load data\nfile_path = \"data/run_log.xlsx\"\ndf_runs = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Calculate production quantity per run: CNT Yield (g/g-cat) * Catalyst Amount? \n# Wait, the data provides 'CNT수율 (g/g-cat)' and '가동시간 (h)' and '생산속도 (g/h)'.\n# Total production for a run is typically Production Rate (g/h) * Operation Time (h).\n# Let's check if we can derive monthly total in kg.\n# Column R: 생산속도 (g/h)\n# Column P: 가동시간 (h)\n# Run Production (g) = 생산속도 * 가동시간\n# To get kg, divide by 1000.\n\nif '생산속도 (g/h)' not in df_runs.columns or '가동시간 (h)' not in df_runs.columns:\n    raise ValueError(\"Required columns for production calculation are missing.\")\n\ndf_runs['Run_Production_g'] = df_runs['생산속도 (g/h)'] * df_runs['가동시간 (h)']\ndf_runs['Run_Production_kg'] = df_runs['Run_Production_g'] / 1000.0\n\n# Extract Month from Date\ndf_runs['Date'] = pd.to_datetime(df_runs['일자'])\ndf_runs['Month'] = df_runs['Date'].dt.month\n\n# Group by Month and Reactor to sum production\npivot_table = df_runs.pivot_table(index='Month', columns='반응기', values='Run_Production_kg', aggfunc='sum')\n\n# Ensure all reactors R1-R4 are present as columns, fill NaN with 0\nreactors = ['R1', 'R2', 'R3', 'R4']\nfor r in reactors:\n    if r not in pivot_table.columns:\n        pivot_table[r] = 0\n\n# Sort columns just in case\npivot_table = pivot_table[reactors]\n\n# Create Plot\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# Plot stacked bar chart\nbottom = np.zeros(len(pivot_table))\ncolors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728'] # Standard distinct colors\n\nfor i, reactor in enumerate(reactors):\n    bars = ax.bar(pivot_table.index.astype(str), pivot_table[reactor], bottom=bottom, label=reactor, color=colors[i])\n    bottom += pivot_table[reactor].values\n\n# Labels and Title\nax.set_xlabel('월', fontsize=12)\nax.set_ylabel('생산량 (kg)', fontsize=12)\nax.set_title('월별 반응기별 누적 생산량', fontsize=14)\nax.tick_params(axis='both', which='major', labelsize=10)\n\n# Legend outside right\nax.legend(title='반응기', bbox_to_anchor=(1.05, 1), loc='upper left')\n\n# Adjust layout to prevent clipping of legend\nplt.tight_layout()\n\n# Save figure\nout_dir = \"out\"\nimport os\nos.makedirs(out_dir, exist_ok=True)\nsave_path = os.path.join(out_dir, \"monthly_production_by_reactor.png\")\nplt.savefig(save_path, dpi=300, bbox_inches='tight')\n\nplt.close()\nprint(f\"Plot saved to {save_path}\")\n```",
+     "llm_s": 13.518,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 3795,
+     "output_chars": 2481,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Load data\nfile_path = \"data/run_log.xlsx\"\ndf_runs = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Identify columns for production rate and time\n# Based on preview: '생산속도 (g/h)' and '가동시간 (h)'\ncol_rate = '생산속도 (g/h)'\ncol_time = '가동시간 (h)'\n\nif col_rate not in df_runs.columns or col_time not in df_runs.columns:\n    # Try to find similar columns if exact match fails due to whitespace or encoding issues\n    cols = df_runs.columns.tolist()\n    rate_col = [c for c in cols if '생산속도' in c]\n    time_col = [c for c in cols if '가동시간' in c]\n    if rate_col and time_col:\n        col_rate = rate_col[0]\n        col_time = time_col[0]\n    else:\n        raise ValueError(f\"Could not find columns for production rate ('{col_rate}') or operation time ('{col_time}'). Available columns: {cols}\")\n\n# Calculate total production per run in kg\n# Production (kg) = Rate (g/h) * Time (h) / 1000\ndf_runs['Run_Production_kg'] = (df_runs[col_rate] * df_runs[col_time]) / 1000.0\n\n# Extract Month from Date\n# The column is named '일자' according to preview\ndf_runs['Date'] = pd.to_datetime(df_runs['일자'])\ndf_runs['Month'] = df_runs['Date'].dt.month\n\n# Group by Month and Reactor to sum production\npivot_table = df_runs.pivot_table(index='Month', columns='반응기', values='Run_Production_kg', aggfunc='sum')\n\n# Ensure all reactors R1-R4 are present as columns, fill NaN with 0\nreactors = ['R1', 'R2', 'R3', 'R4']\nfor r in reactors:\n    if r not in pivot_table.columns:\n        pivot_table[r] = 0\n\n# Sort columns to ensure consistent stacking order\npivot_table = pivot_table[reactors]\n\n# Create Plot\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# Plot stacked bar chart\nbottom = np.zeros(len(pivot_table))\ncolors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728'] \n\nx_labels = [str(m) + '월' for m in pivot_table.index]\n\nfor i, reactor in enumerate(reactors):\n    bars = ax.bar(x_labels, pivot_table[reactor], bottom=bottom, label=reactor, color=colors[i])\n    bottom += pivot_table[reactor].values\n\n# Labels and Title\nax.set_xlabel('월', fontsize=12)\nax.set_ylabel('생산량 (kg)', fontsize=12)\nax.set_title('월별 반응기별 누적 생산량', fontsize=14)\nax.tick_params(axis='both', which='major', labelsize=10)\n\n# Legend outside right\nax.legend(title='반응기', bbox_to_anchor=(1.05, 1), loc='upper left')\n\n# Adjust layout to prevent clipping of legend\nplt.tight_layout()\n\n# Save figure\nout_dir = \"out\"\nos.makedirs(out_dir, exist_ok=True)\nsave_path = os.path.join(out_dir, \"monthly_production_by_reactor.png\")\nplt.savefig(save_path, dpi=300, bbox_inches='tight')\n\nplt.close()\nprint(f\"Plot saved to {save_path}\")\n```",
+     "llm_s": 12.705,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 7385,
+     "output_chars": 2756,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Load data\nfile_path = \"data/run_log.xlsx\"\ndf_runs = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Identify columns for production rate and time\ncol_rate = '생산속도 (g/h)'\ncol_time = '가동시간 (h)'\ncol_reactor = '반응기'\ncol_date = '일자'\n\n# Check if columns exist\nif col_rate not in df_runs.columns or col_time not in df_runs.columns:\n    cols = df_runs.columns.tolist()\n    rate_col = [c for c in cols if '생산속도' in str(c)]\n    time_col = [c for c in cols if '가동시간' in str(c)]\n    if rate_col and time_col:\n        col_rate = rate_col[0]\n        col_time = time_col[0]\n    else:\n        raise ValueError(f\"Could not find required columns. Available: {cols}\")\n\n# Clean numeric columns: convert to numeric, coercing errors to NaN then dropping them later or filling 0\n# The error suggests strings are present. We force conversion.\ndf_runs[col_rate] = pd.to_numeric(df_runs[col_rate], errors='coerce')\ndf_runs[col_time] = pd.to_numeric(df_runs[col_time], errors='coerce')\n\n# Drop rows where critical numeric data is missing after conversion\ndf_clean = df_runs.dropna(subset=[col_rate, col_time, col_reactor, col_date]).copy()\n\n# Calculate total production per run in kg\n# Production (kg) = Rate (g/h) * Time (h) / 1000\ndf_clean['Run_Production_kg'] = (df_clean[col_rate] * df_clean[col_time]) / 1000.0\n\n# Extract Month from Date\n# Ensure date column is datetime\ndf_clean['Date'] = pd.to_datetime(df_clean[col_date], errors='coerce')\ndf_clean = df_clean.dropna(subset=['Date'])\ndf_clean['Month'] = df_clean['Date'].dt.month\n\n# Group by Month and Reactor to sum production\npivot_table = df_clean.pivot_table(index='Month', columns=col_reactor, values='Run_Production_kg', aggfunc='sum')\n\n# Ensure all reactors R1-R4 are present as columns, fill NaN with 0\nreactors = ['R1', 'R2', 'R3', 'R4']\nfor r in reactors:\n    if r not in pivot_table.columns:\n        pivot_table[r] = 0\n\n# Sort columns to ensure consistent stacking order\npivot_table = pivot_table[reactors].fillna(0)\n\n# Create Plot\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# Plot stacked bar chart\nbottom = np.zeros(len(pivot_table))\ncolors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728'] \n\nx_labels = [str(m) + '월' for m in pivot_table.index]\n\nfor i, reactor in enumerate(reactors):\n    bars = ax.bar(x_labels, pivot_table[reactor], bottom=bottom, label=reactor, color=colors[i])\n    bottom += pivot_table[reactor].values\n\n# Labels and Title\nax.set_xlabel('월', fontsize=12)\nax.set_ylabel('생산량 (kg)', fontsize=12)\nax.set_title('월별 반응기별 누적 생산량', fontsize=14)\nax.tick_params(axis='both', which='major', labelsize=10)\n\n# Legend outside right\nax.legend(title='반응기', bbox_to_anchor=(1.05, 1), loc='upper left')\n\n# Adjust layout to prevent clipping of legend\nplt.tight_layout()\n\n# Save figure\nout_dir = \"out\"\nos.makedirs(out_dir, exist_ok=True)\nsave_path = os.path.join(out_dir, \"monthly_production_by_reactor.png\")\nplt.savefig(save_path, dpi=300, bbox_inches='tight')\n\nplt.close()\nprint(f\"Plot saved to {save_path}\")\n```",
+     "llm_s": 13.82,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 12072,
+     "output_chars": 3158,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Load data\nfile_path = \"data/run_log.xlsx\"\ndf_runs = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Identify columns for production rate and time\ncol_rate = '생산속도 (g/h)'\ncol_time = '가동시간 (h)'\ncol_reactor = '반응기'\ncol_date = '일자'\n\n# Check if columns exist\nif col_rate not in df_runs.columns or col_time not in df_runs.columns:\n    cols = df_runs.columns.tolist()\n    rate_col = [c for c in cols if '생산속도' in str(c)]\n    time_col = [c for c in cols if '가동시간' in str(c)]\n    if rate_col and time_col:\n        col_rate = rate_col[0]\n        col_time = time_col[0]\n    else:\n        raise ValueError(f\"Could not find required columns. Available: {cols}\")\n\n# Clean numeric columns: convert to numeric, coercing errors to NaN then dropping them later or filling 0\n# The error suggests strings are present. We force conversion.\ndf_runs[col_rate] = pd.to_numeric(df_runs[col_rate], errors='coerce')\ndf_runs[col_time] = pd.to_numeric(df_runs[col_time], errors='coerce')\n\n# Drop rows where critical numeric data is missing after conversion\ndf_clean = df_runs.dropna(subset=[col_rate, col_time, col_reactor, col_date]).copy()\n\n# Calculate total production per run in kg\n# Production (kg) = Rate (g/h) * Time (h) / 1000\ndf_clean['Run_Production_kg'] = (df_clean[col_rate] * df_clean[col_time]) / 1000.0\n\n# Extract Month from Date\n# Ensure date column is datetime\ndf_clean['Date'] = pd.to_datetime(df_clean[col_date], errors='coerce')\ndf_clean = df_clean.dropna(subset=['Date'])\ndf_clean['Month'] = df_clean['Date'].dt.month\n\n# Group by Month and Reactor to sum production\npivot_table = df_clean.pivot_table(index='Month', columns=col_reactor, values='Run_Production_kg', aggfunc='sum')\n\n# Ensure all reactors R1-R4 are present as columns, fill NaN with 0\nreactors = ['R1', 'R2', 'R3', 'R4']\nfor r in reactors:\n    if r not in pivot_table.columns:\n        pivot_table[r] = 0\n\n# Sort columns to ensure consistent stacking order\npivot_table = pivot_table[reactors].fillna(0)\n\n# Create Plot\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# Plot stacked bar chart\nbottom = np.zeros(len(pivot_table))\ncolors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728'] \n\nx_labels = [str(m) + '월' for m in pivot_table.index]\n\nfor i, reactor in enumerate(reactors):\n    bars = ax.bar(x_labels, pivot_table[reactor], bottom=bottom, label=reactor, color=colors[i])\n    bottom += pivot_table[reactor].values\n\n# Labels and Title\nax.set_xlabel('월', fontsize=12)\nax.set_ylabel('생산량 (kg)', fontsize=12)\nax.set_title('월별 반응기별 누적 생산량', fontsize=14)\nax.tick_params(axis='both', which='major', labelsize=10)\n\n# Legend outside right\nax.legend(title='반응기', bbox_to_anchor=(1.05, 1), loc='upper left')\n\n# Adjust layout to prevent clipping of legend\nplt.tight_layout()\n\n# Save figure\nout_dir = \"out\"\nos.makedirs(out_dir, exist_ok=True)\nsave_path = os.path.join(out_dir, \"monthly_production_by_reactor.png\")\nplt.savefig(save_path, dpi=300, bbox_inches='tight')\n\nplt.close()\nprint(f\"Plot saved to {save_path}\")\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "월별 반응기별 누적 생산량",
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "R1",
+         "orient": "v",
+         "cats": [
+          "3월",
+          "4월",
+          "5월",
+          "6월",
+          "7월",
+          "8월"
+         ],
+         "values": [
+          18.45131,
+          17.601300000000002,
+          20.09761,
+          15.73829,
+          17.76823,
+          15.94867
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#1f77b4",
+          "#1f77b4",
+          "#1f77b4",
+          "#1f77b4",
+          "#1f77b4",
+          "#1f77b4"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0
+         ]
+        },
+        {
+         "name": "R2",
+         "orient": "v",
+         "cats": [
+          "3월",
+          "4월",
+          "5월",
+          "6월",
+          "7월",
+          "8월"
+         ],
+         "values": [
+          19.065220000000004,
+          20.040600000000005,
+          19.53617,
+          15.870429999999999,
+          17.47985,
+          17.43658
+         ],
+         "bottoms": [
+          18.45131,
+          17.601300000000002,
+          20.09761,
+          15.73829,
+          17.76823,
+          15.94867
+         ],
+         "colors": [
+          "#ff7f0e",
+          "#ff7f0e",
+          "#ff7f0e",
+          "#ff7f0e",
+          "#ff7f0e",
+          "#ff7f0e"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0
+         ]
+        },
+        {
+         "name": "R3",
+         "orient": "v",
+         "cats": [
+          "3월",
+          "4월",
+          "5월",
+          "6월",
+          "7월",
+          "8월"
+         ],
+         "values": [
+          19.92731,
+          19.051180000000002,
+          20.359589999999997,
+          17.220889999999997,
+          14.84272,
+          14.08858
+         ],
+         "bottoms": [
+          37.51653,
+          37.64190000000001,
+          39.63378,
+          31.608719999999998,
+          35.24808,
+          33.38525
+         ],
+         "colors": [
+          "#2ca02c",
+          "#2ca02c",
+          "#2ca02c",
+          "#2ca02c",
+          "#2ca02c",
+          "#2ca02c"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0
+         ]
+        },
+        {
+         "name": "R4",
+         "orient": "v",
+         "cats": [
+          "3월",
+          "4월",
+          "5월",
+          "6월",
+          "7월",
+          "8월"
+         ],
+         "values": [
+          19.882349999999995,
+          18.13205,
+          18.52102,
+          18.177060000000004,
+          18.54891,
+          15.568919999999999
+         ],
+         "bottoms": [
+          57.44384,
+          56.69308000000001,
+          59.99337,
+          48.82961,
+          50.0908,
+          47.47383
+         ],
+         "colors": [
+          "#d62728",
+          "#d62728",
+          "#d62728",
+          "#d62728",
+          "#d62728",
+          "#d62728"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "월",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0,
+         5.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "3월",
+         "4월",
+         "5월",
+         "6월",
+         "7월",
+         "8월"
+        ],
+        "min": -0.69,
+        "max": 5.6899999999999995,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "3월",
+         "4월",
+         "5월",
+         "6월",
+         "7월",
+         "8월"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "생산량 (kg)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         10.0,
+         20.0,
+         30.0,
+         40.0,
+         50.0,
+         60.0,
+         70.0,
+         80.0
+        ],
+        "step": 10.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 82.44010949999999,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "10",
+         "20",
+         "30",
+         "40",
+         "50",
+         "60",
+         "70",
+         "80",
+         "90"
+        ],
+        "rotate": 0.0
+       },
+       "title": "월별 반응기별 누적 생산량"
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "R1",
+       "R2",
+       "R3",
+       "R4"
+      ],
+      "inside": false,
+      "where": "outside"
+     },
+     "files": [
+      {
+       "path": "out/monthly_production_by_reactor.png",
+       "format": "png",
+       "px": [
+        2971,
+        1769
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.49723219871520996,
+   "check": {
+    "kind_expected": "stacked_bar",
+    "failed": [],
+    "unchecked": [
+     "dpi=300",
+     "format=png"
+    ],
+    "n_checks": 5,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 41.278
+  }
+ ]
+}

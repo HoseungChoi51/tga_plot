@@ -1,0 +1,28 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheets": "주간요약",
+ "chart": "line",
+ "x": {
+  "col": "주차"
+ },
+ "y": [
+  {
+   "col": "평균수율(g/g-cat)",
+   "label": "Weekly Mean CNT Yield"
+  }
+ ],
+ "asks": [
+  {
+   "ask": "Weekly mean CNT수율 vs 주차",
+   "how": "key"
+  },
+  {
+   "ask": "4-week trailing rolling mean as a second line",
+   "how": "data_code"
+  }
+ ],
+ "data_code": "import pandas as pd\n# Compute 4-week trailing rolling mean on the existing '평균수율(g/g-cat)' column\ndf['Rolling_Mean_4wk'] = df['평균수율(g/g-cat)'].rolling(window=4, min_periods=1).mean()\n# The spec will then use this new column for the second y-series",
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S046_r3/out/t1"
+ }
+}

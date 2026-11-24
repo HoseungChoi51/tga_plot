@@ -1,0 +1,34 @@
+{
+ "file": [
+  "data/downtime.xlsx",
+  "data/run_log.xlsx"
+ ],
+ "chart": "scatter",
+ "x": {
+  "col": "주차",
+  "label": "주차"
+ },
+ "y": {
+  "col": "총생산량(kg)",
+  "agg": "sum",
+  "label": "총생산량 (kg)"
+ },
+ "data_code": "import pandas as pd\n# Load downtime data\ndt = pd.read_excel('data/downtime.xlsx', sheet_name='정지이력')\n# Calculate week number based on start date 2026-03-02 (Week 1)\ndt['일자'] = pd.to_datetime(dt['일자'])\nstart_date = pd.Timestamp('2026-03-02')\ndt['주차'] = ((dt['일자'] - start_date).dt.days // 7) + 1\n# Aggregate total downtime hours per week\ndt_weekly = dt.groupby('주차')['정지시간(분)'].sum().reset_index()\ndt_weekly['총정지시간(h)'] = dt_weekly['정지시간(분)'] / 60.0\n# Load run log weekly summary\nrl = pd.read_excel('data/run_log.xlsx', sheet_name='주간요약')\n# Merge: keep all weeks from run log, fill missing downtime with 0\nmerged = rl.merge(dt_weekly[['주차', '총정지시간(h)']], on='주차', how='left')\nmerged['총정지시간(h)'] = merged['총정지시간(h)'].fillna(0)\ndf = merged",
+ "asks": [
+  {
+   "ask": "주차별 총 정지시간과 총생산량의 관계 산점도",
+   "how": "key"
+  },
+  {
+   "ask": "정지시간 단위 변환 (분 -> 시간)",
+   "how": "data_code"
+  },
+  {
+   "ask": "데이터 병합 (downtime 및 run_log 주간요약)",
+   "how": "data_code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-ec/S014_r2/out/t1"
+ }
+}

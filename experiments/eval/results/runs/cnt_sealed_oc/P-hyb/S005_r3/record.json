@@ -1,0 +1,188 @@
+{
+ "arm": "P-hyb",
+ "item": "S005",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "생산팀장",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "불량 비율 한 장으로 보여줄 수 있어요? 이번 주 임원 보고에 들어갑니다.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"pie\",\n  \"x\": \"등급\",\n  \"asks\": [\n    {\n      \"ask\": \"불량 비율 (등급별 구성)\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"임원 보고용 깔끔한 스타일\",\n      \"how\": \"code\"\n    }\n  ],\n  \"code\": \"import matplotlib.pyplot as plt\\n# 임원 보고용: 배경 흰색, 글자 크게, 범례 명확하게\\nplt.style.use('seaborn-v0_8-whitegrid')\\nfig.patch.set_facecolor('white')\\nax.set_title('제품 등급별 불량률 현황', fontsize=16, fontweight='bold', pad=20)\\n# 파이 차트 라벨 크기 조절 및 강조\\ntexts = ax.texts\\nfor t in texts:\\n    if t.get_text() not in ['B', 'A', 'C']:\\n        continue\\n    # 실제 구현에서는 wedge와 label을 통해 접근해야 하지만, 여기서는 기본 설정으로 대체\\n    pass\\n\\n# 색상 강조: A는 초록(합격), B/C는 빨강/주황(불량/주의) - 필요시 colors 키로 지정하지만 code에서 직접 제어 가능\\n# plotkit의 pie는 x축 카테고리별 카운트를 그리므로, 데이터 자체의 등급 분포를 보여줍니다.\\n\"\n}\n```",
+     "llm_s": 6.062,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 18006,
+     "output_chars": 791,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "pie",
+    "x": "등급",
+    "asks": [
+     {
+      "ask": "불량 비율 (등급별 구성)",
+      "how": "key"
+     },
+     {
+      "ask": "임원 보고용 깔끔한 스타일",
+      "how": "code"
+     }
+    ],
+    "code": "import matplotlib.pyplot as plt\n# 임원 보고용: 배경 흰색, 글자 크게, 범례 명확하게\nplt.style.use('seaborn-v0_8-whitegrid')\nfig.patch.set_facecolor('white')\nax.set_title('제품 등급별 불량률 현황', fontsize=16, fontweight='bold', pad=20)\n# 파이 차트 라벨 크기 조절 및 강조\ntexts = ax.texts\nfor t in texts:\n    if t.get_text() not in ['B', 'A', 'C']:\n        continue\n    # 실제 구현에서는 wedge와 label을 통해 접근해야 하지만, 여기서는 기본 설정으로 대체\n    pass\n\n# 색상 강조: A는 초록(합격), B/C는 빨강/주황(불량/주의) - 필요시 colors 키로 지정하지만 code에서 직접 제어 가능\n# plotkit의 pie는 x축 카테고리별 카운트를 그리므로, 데이터 자체의 등급 분포를 보여줍니다.\n"
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S005_r3/out/t1/pie_등급.png"
+    ],
+    "chart": "pie",
+    "rows_used": 997,
+    "rows_total": 997,
+    "values": {
+     "slices": {
+      "B": 522.0,
+      "A": 349.0,
+      "C": 126.0
+     },
+     "shares": {
+      "B": 0.5236,
+      "A": 0.3501,
+      "C": 0.1264
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "원 그래프를 저장했습니다: pie_등급.png\n사용한 행: 997 / 997\nB 52.4%, A 35.0%, C 12.6%"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": "제품 등급별 불량률 현황",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": {
+        "labels": [
+         "B",
+         "A",
+         "C"
+        ],
+        "shares": [
+         0.5235707121364093,
+         0.35005015045135396,
+         0.12637913741223675
+        ],
+        "values": null,
+        "colors": [
+         "#1f4e9c",
+         "#c0392b",
+         "#2e8b57"
+        ]
+       },
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 3,
+       "texts": [
+        "B",
+        "A",
+        "C",
+        "52.4%",
+        "35.0%",
+        "12.6%"
+       ],
+       "x": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.719327816170847,
+        "max": 1.7193307953321748,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.083589517023766,
+        "max": 1.08358998131138,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "title": "제품 등급별 불량률 현황"
+      }
+     ],
+     "texts": [
+      "B",
+      "A",
+      "C",
+      "52.4%",
+      "35.0%",
+      "12.6%"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S005_r3/out/t1/pie_등급.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.4013042449951172,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [
+     "pie: slices ['B', 'A', 'C'], want ['불합격(C)', '합격(A·B)']"
+    ],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 1,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 6.556
+  }
+ ]
+}

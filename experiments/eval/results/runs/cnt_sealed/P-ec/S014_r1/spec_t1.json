@@ -1,0 +1,34 @@
+{
+ "file": [
+  "data/downtime.xlsx",
+  "data/run_log.xlsx"
+ ],
+ "chart": "scatter",
+ "x": {
+  "col": "정지시간_h",
+  "label": "주차별 총 정지시간 (h)"
+ },
+ "y": {
+  "col": "총생산량(kg)",
+  "agg": "mean",
+  "label": "주차별 총생산량 (kg)"
+ },
+ "data_code": "import pandas as pd\n# Load downtime sheet\ndt = pd.read_excel('data/downtime.xlsx', sheet_name='정지이력')\n# Convert minutes to hours\ndt['정지시간_h'] = dt['정지시간(분)'] / 60.0\n# Group by week number (assuming '일자' is date column)\ndt['일자'] = pd.to_datetime(dt['일자'])\ndt['주차'] = dt['일자'].dt.isocalendar().week\n# Adjust week numbers so that March 2, 2026 is Week 1\n# Find the ISO week of March 2, 2026\nref_date = pd.Timestamp('2026-03-02')\nref_week = ref_date.isocalendar()[1]\ndt['주차'] = dt['주차'] - ref_week + 1\n# Aggregate total downtime per week\ndt_weekly = dt.groupby('주차')['정지시간_h'].sum().reset_index()\ndt_weekly.rename(columns={'정지시간_h': '정지시간_h'}, inplace=True)\n# Load weekly summary from run_log\nwl = pd.read_excel('data/run_log.xlsx', sheet_name='주간요약')\n# Merge on 주차\nmerged = pd.merge(wl, dt_weekly, on='주차', how='inner')\ndf = merged",
+ "asks": [
+  {
+   "ask": "주차별 총 정지시간과 총생산량의 관계 산점도",
+   "how": "key"
+  },
+  {
+   "ask": "정지시간을 시간 단위로 변환",
+   "how": "data_code"
+  },
+  {
+   "ask": "주차 기준 설정 (3월 2일 = 1주차)",
+   "how": "data_code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-ec/S014_r1/out/t1"
+ }
+}

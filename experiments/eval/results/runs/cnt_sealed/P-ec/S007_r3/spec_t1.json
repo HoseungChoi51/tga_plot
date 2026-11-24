@@ -1,0 +1,27 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "line",
+ "x": {
+  "col": "주차"
+ },
+ "y": {
+  "col": "합격",
+  "agg": "mean"
+ },
+ "by": "반응기",
+ "data_code": "df['합격'] = df['등급 (A/B/C)'].isin(['A', 'B']).astype(float)",
+ "asks": [
+  {
+   "ask": "반응기별 주차별 합격률 추이 선그래프",
+   "how": "key"
+  },
+  {
+   "ask": "합격 기준 A, B 등급",
+   "how": "data_code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-ec/S007_r3/out/t1"
+ }
+}

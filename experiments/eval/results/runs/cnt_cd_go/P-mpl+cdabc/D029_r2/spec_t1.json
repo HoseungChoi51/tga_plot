@@ -1,0 +1,29 @@
+{
+ "asks": [
+  {
+   "ask": "26주 전체 등급 비율 pie",
+   "how": "key"
+  },
+  {
+   "ask": "색 A 초록, B 주황, C 빨강",
+   "how": "key"
+  },
+  {
+   "ask": "% 라벨 소수 1자리",
+   "how": "key"
+  }
+ ],
+ "chart": "pie",
+ "colors": [
+  "green",
+  "orange",
+  "red"
+ ],
+ "file": "data/run_log.xlsx",
+ "sheets": "런로그",
+ "values": "{:.1f}%",
+ "x": "등급",
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdabc/D029_r2/out/t1"
+ }
+}

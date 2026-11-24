@@ -1,0 +1,91 @@
+{
+ "arm": "P-mpl+cd",
+ "item": "D021",
+ "repeat": 2,
+ "split": "dev",
+ "persona": "공정 엔지니어",
+ "type": "single",
+ "cd": "full",
+ "backend": "anthropic",
+ "model": "qwen3.8-flash",
+ "effort": "",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "작업자별 평균 CNT수율 bar, 높은 순 정렬.",
+   "calls": [
+    {
+     "reply": "{\"file\": \"data/run_log.xlsx\", \"sheets\": \"런로그\", \"x\": \"작업자\", \"y1\": {\"col\": \"CNT수율 (g/g-cat)\", \"label\": \"평균 CNT수율 (g/g-cat)\"}, \"y2\": false}",
+     "llm_s": 1.889,
+     "prompt_tokens": 6259,
+     "output_tokens": 61,
+     "cached_tokens": 5297,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": ""
+    },
+    {
+     "reply": "{\"file\": \"data/run_log.xlsx\", \"sheets\": \"런로그\", \"x\": {\"col\": \"G\", \"label\": \"작업자\"}, \"y1\": {\"col\": \"Q\", \"label\": \"평균 CNT수율 (g/g-cat)\"}, \"y2\": false}",
+     "llm_s": 1.926,
+     "prompt_tokens": 6442,
+     "output_tokens": 63,
+     "cached_tokens": 5297,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": ""
+    },
+    {
+     "reply": "{\"file\": \"data/run_log.xlsx\", \"sheets\": \"런로그\", \"x\": {\"col\": \"G\", \"label\": \"작업자\"}, \"y1\": {\"col\": \"Q\", \"label\": \"평균 CNT수율 (g/g-cat)\"}, \"y2\": false}",
+     "llm_s": 1.973,
+     "prompt_tokens": 6618,
+     "output_tokens": 63,
+     "cached_tokens": 5297,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": ""
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheets": "런로그",
+    "x": {
+     "col": "G",
+     "label": "작업자"
+    },
+    "y1": {
+     "col": "Q",
+     "label": "평균 CNT수율 (g/g-cat)"
+    },
+    "y2": false
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": false,
+    "error": "run_log.xlsx / \"런로그\" x.col: column G has no numbers",
+    "hint": "columns with numbers: C \"-\", H \"°C\", I \"°C\", J \"°C\", K \"sccm\", L \"sccm\", M \"-\", N \"s\", O \"%\", P \"h\", Q \"g/g-cat\", R \"g/h\", S \"wt%\", T \"°C\", U \"-\""
+   },
+   "facts": [],
+   "draw_s": 0.517066478729248,
+   "check": {
+    "kind_expected": "bar",
+    "failed": [
+     "run: no plot (run_log.xlsx / \"런로그\" x.col: column G has no numbers)"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 7.665
+  }
+ ]
+}

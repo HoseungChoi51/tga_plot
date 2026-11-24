@@ -1,0 +1,19 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "scatter",
+ "x": "2존온도 (°C)",
+ "y": {
+  "col": "IG/ID"
+ },
+ "by": "반응기",
+ "asks": [
+  {
+   "ask": "IG/ID와 2존온도 산점도, 반응기별 색",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/sessions/E3_G7_P-ec/out/t4"
+ }
+}

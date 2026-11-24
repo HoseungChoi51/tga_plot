@@ -1,0 +1,60 @@
+from pathlib import Path
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/20_r1/out")
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+excel = pd.ExcelFile(DATA_FILE)
+fig, axes = plt.subplots(
+    len(excel.sheet_names), 1,
+    figsize=(9, 4.2 * len(excel.sheet_names)),
+    sharex=True,
+    constrained_layout=True,
+)
+if len(excel.sheet_names) == 1:
+    axes = [axes]
+
+for ax, sheet_name in zip(axes, excel.sheet_names):
+    df = pd.read_excel(DATA_FILE, sheet_name=sheet_name)
+    df.columns = [str(c).strip() for c in df.columns]
+
+    temperature = pd.to_numeric(df["Temperature"], errors="coerce")
+    weight = pd.to_numeric(df["Weight(%)"], errors="coerce")
+    derivative = pd.to_numeric(df["D.W(%/C)"], errors="coerce")
+
+    ax.axvspan(300, 450, color="lightgray", alpha=0.55, zorder=0)
+    weight_line, = ax.plot(
+        temperature, weight, color="tab:blue", linewidth=1.8, label="Weight (%)"
+    )
+    ax.set_ylabel("Weight (%)", color="tab:blue")
+    ax.tick_params(axis="y", labelcolor="tab:blue")
+    ax.grid(True, linestyle=":", alpha=0.45)
+    ax.set_title(sheet_name)
+
+    ax2 = ax.twinx()
+    derivative_line, = ax2.plot(
+        temperature, derivative, color="tab:red", linewidth=1.4,
+        label="D.W (%/°C)"
+    )
+    ax2.set_ylabel("D.W (%/°C)", color="tab:red")
+    ax2.tick_params(axis="y", labelcolor="tab:red")
+
+    ax.legend(
+        [weight_line, derivative_line],
+        ["Weight (%)", "D.W (%/°C)"],
+        loc="best",
+        frameon=False,
+    )
+
+axes[-1].set_xlabel("Temperature (°C)")
+axes[-1].set_xlim(30, 900)
+
+output_file = OUT_DIR / "TGA_temperature_range_shaded.png"
+fig.savefig(output_file, dpi=300, bbox_inches="tight")
+plt.close(fig)

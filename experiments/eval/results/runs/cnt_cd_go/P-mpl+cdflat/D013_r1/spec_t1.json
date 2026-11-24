@@ -1,0 +1,20 @@
+{
+ "file": "data/L3_MES_export_202607.csv",
+ "chart": "scatter",
+ "x": "잔류금속(wt%)",
+ "y": "CNT수율(g/g-cat)",
+ "by": "반응기",
+ "asks": [
+  {
+   "ask": "x축 금속, y축 수율 산점도",
+   "how": "key"
+  },
+  {
+   "ask": "P1, P2 색상 구분",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdflat/D013_r1/out/t1"
+ }
+}

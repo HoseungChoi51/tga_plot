@@ -1,0 +1,87 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+# 설정
+DATA_FILES = ["/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_A.csv", "/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_B.txt"]
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/B05_r3/out"
+LABELS = ["Lot A", "Lot B"]
+
+# 폰트 설정 (한글 지원)
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+# 데이터 로드 및 그림 그리기 준비
+fig, ax1 = plt.subplots(figsize=(10, 6))
+
+colors = ['#1f77b4', '#d62728'] # Lot A: 파랑, Lot B: 빨강
+
+for i, file_path in enumerate(DATA_FILES):
+    label = LABELS[i]
+    color = colors[i]
+    
+    # 파일 읽기
+    # 세미콜론(;), 쉼표(,), 탭(\t) 등 다양한 구분자를 자동 감지하도록 sep=None 사용
+    df = pd.read_csv(file_path, sep=None, engine='python')
+            
+    # 컬럼명 확인 및 변수 할당
+    # 실제 컬럼명에 공백이나 특수문자 인코딩 문제가 있을 수 있으므로 strip() 적용
+    df.columns = df.columns.str.strip()
+    
+    # 컬럼 이름이 정확히 일치하지 않을 경우를 대비하여 부분 일치 검색
+    temp_col = None
+    weight_col = None
+    deriv_col = None
+    
+    for col in df.columns:
+        if 'Temperature' in col or 'Temp' in col:
+            temp_col = col
+        elif 'Weight' in col and 'Deriv' not in col:
+            weight_col = col
+        elif 'Deriv' in col or 'DTG' in col:
+            deriv_col = col
+            
+    if temp_col is None or weight_col is None or deriv_col is None:
+        raise ValueError(f"필요한 컬럼을 찾을 수 없습니다: {df.columns.tolist()}")
+
+    x_data = df[temp_col]
+    y_weight = df[weight_col]
+    y_deriv = df[deriv_col]
+    
+    # TGA 곡선 (무게 %) - 왼쪽 축
+    ax1.plot(x_data, y_weight, color=color, label=f'{label} TGA', linewidth=1.5)
+    
+    # DTG 곡선 (미분 무게) - 오른쪽 축 생성 후 플롯
+    # 두 번째 축이 없으면 생성
+    if i == 0:
+        ax2 = ax1.twinx()
+        
+    ax2.plot(x_data, y_deriv, color=color, linestyle='--', alpha=0.7, linewidth=1.2)
+
+# 축 라벨 설정
+ax1.set_xlabel('Temperature (°C)', fontsize=12)
+ax1.set_ylabel('Weight (%)', fontsize=12)
+ax2.set_ylabel('Deriv. Weight (%/°C)', fontsize=12)
+
+# 제목
+plt.title('TGA/DTG Analysis: Lot A vs Lot B', fontsize=14)
+
+# 범례 추가
+# TGA와 DTG를 모두 포함하여 범례 표시
+lines_1, labels_1 = ax1.get_legend_handles_labels()
+lines_2, labels_2 = ax2.get_legend_handles_labels()
+
+# 범례 위치 조정 (위쪽 중앙 등)
+ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='upper right', frameon=True)
+
+# 격자 표시
+ax1.grid(True, linestyle=':', alpha=0.6)
+
+# 레이아웃 조정
+plt.tight_layout()
+
+# 저장 경로 확인 및 저장
+os.makedirs(OUT_DIR, exist_ok=True)
+output_filename = os.path.join(OUT_DIR, 'tga_comparison.png')
+plt.savefig(output_filename, dpi=300, bbox_inches='tight')
+plt.close()

@@ -1,0 +1,45 @@
+{
+ "file": "data/tga_batches.xlsx",
+ "sheets": "all",
+ "combine": true,
+ "x": {
+  "col": "B",
+  "label": "온도 (°C)",
+  "min": 500,
+  "max": 700
+ },
+ "y1": {
+  "col": "D",
+  "label": "미분중량 (%/°C)",
+  "legend": false
+ },
+ "y2": false,
+ "preset": "none",
+ "annotate": {
+  "peak": {
+   "count": 1,
+   "kind": "max"
+  }
+ },
+ "asks": [
+  {
+   "ask": "DTG 곡선(미분중량) 겹쳐서 그리기",
+   "how": "key"
+  },
+  {
+   "ask": "10개 배치 전부",
+   "how": "key"
+  },
+  {
+   "ask": "500–700 °C 구간만",
+   "how": "key"
+  },
+  {
+   "ask": "피크 위치 비교",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S019_r1/out/t1"
+ }
+}

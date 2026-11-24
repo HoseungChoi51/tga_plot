@@ -1,0 +1,25 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "bar",
+ "x": "월",
+ "y": {
+  "col": "합격률(%)",
+  "agg": "mean"
+ },
+ "by": "반응기",
+ "data_code": "df['월'] = pd.to_datetime(df['일자']).dt.month\npass_counts = df[df['등급'].isin(['A', 'B'])].groupby(['월', '반응기']).size().reset_index(name='pass_n')\ntotal_counts = df.groupby(['월', '반응기']).size().reset_index(name='total_n')\nsummary = total_counts.merge(pass_counts, on=['월', '반응기'], how='left').fillna({'pass_n': 0})\nsummary['합격률(%)'] = summary['pass_n'] / summary['total_n'] * 100\ndf = summary",
+ "asks": [
+  {
+   "ask": "월별 반응기별 합격률 계산",
+   "how": "code"
+  },
+  {
+   "ask": "월별로 나눠서 묶은 막대",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/SS03_r2/out/t2"
+ }
+}

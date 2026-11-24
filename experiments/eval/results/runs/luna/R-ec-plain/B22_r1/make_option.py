@@ -1,0 +1,95 @@
+import json
+import pandas as pd
+import numpy as np
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx"
+
+df = pd.read_excel(DATA_FILE, sheet_name="Raw")
+df.columns = [str(c).strip() for c in df.columns]
+
+temp_col = next(c for c in df.columns if "Temperature" in c)
+weight_col = next(c for c in df.columns if "Weight" in c and "Deriv" not in c)
+
+temperature = pd.to_numeric(df[temp_col], errors="coerce")
+weight = pd.to_numeric(df[weight_col], errors="coerce")
+valid = temperature.notna() & weight.notna()
+temperature = temperature[valid].to_numpy(dtype=float)
+weight = weight[valid].to_numpy(dtype=float)
+
+# Use the measured weight nearest to 150 °C as the dry-basis reference.
+idx_150 = int(np.argmin(np.abs(temperature - 150.0)))
+reference_weight = float(weight[idx_150])
+if not np.isfinite(reference_weight) or reference_weight == 0:
+    raise ValueError("Cannot normalize: invalid weight at the temperature nearest 150 °C.")
+
+dry_basis_weight = weight / reference_weight * 100.0
+data = [
+    [round(float(x), 6), round(float(y), 6)]
+    for x, y in zip(temperature, dry_basis_weight)
+]
+
+option = {
+    "animation": False,
+    "backgroundColor": "#ffffff",
+    "textStyle": {"fontFamily": "Noto Sans CJK KR, sans-serif"},
+    "title": {
+        "text": "Raw — 150 °C 건조 기준 무게",
+        "subtext": f"150 °C 기준 무게: {reference_weight:.4g}%",
+        "left": "center",
+        "top": 12,
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {"type": "line"},
+        "valueFormatter": "{value}",
+    },
+    "grid": {"left": 78, "right": 28, "top": 82, "bottom": 66},
+    "xAxis": {
+        "type": "value",
+        "name": "온도 (°C)",
+        "nameLocation": "middle",
+        "nameGap": 38,
+        "min": 30,
+        "max": 900,
+        "axisLine": {"lineStyle": {"color": "#555"}},
+        "axisLabel": {"color": "#333"},
+        "splitLine": {"show": True, "lineStyle": {"color": "#e5e5e5"}},
+    },
+    "yAxis": {
+        "type": "value",
+        "name": "무게 (%, 150 °C 기준)",
+        "nameLocation": "middle",
+        "nameGap": 55,
+        "axisLine": {"show": True, "lineStyle": {"color": "#555"}},
+        "axisLabel": {"color": "#333"},
+        "splitLine": {"show": True, "lineStyle": {"color": "#e5e5e5"}},
+    },
+    "series": [
+        {
+            "name": "Raw",
+            "type": "line",
+            "data": data,
+            "showSymbol": False,
+            "smooth": False,
+            "lineStyle": {"width": 2, "color": "#2878b5"},
+            "itemStyle": {"color": "#2878b5"},
+            "markLine": {
+                "symbol": ["none", "none"],
+                "lineStyle": {"type": "dashed", "color": "#888"},
+                "data": [{"xAxis": 150}],
+                "label": {"formatter": "150 °C", "position": "insideEndTop"},
+            },
+        }
+    ],
+}
+
+print(json.dumps({
+    "figures": [{
+        "name": "raw_dry_basis_150C",
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"],
+    }]
+}, ensure_ascii=False, allow_nan=False))

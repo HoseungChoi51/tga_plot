@@ -1,0 +1,71 @@
+```python
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/B14_r1/out"
+
+out_dir = Path(OUT_DIR)
+out_dir.mkdir(parents=True, exist_ok=True)
+
+# Load the PVC worksheet and select temperature, weight, and derivative weight.
+df = pd.read_excel(DATA_FILE, sheet_name="PVC")
+df.columns = [str(column).strip() for column in df.columns]
+
+temperature = pd.to_numeric(df["Temperature (°C)"], errors="coerce")
+weight = pd.to_numeric(df["Weight (%)"], errors="coerce")
+derivative = pd.to_numeric(df["Deriv. Weight (%/°C)"], errors="coerce")
+data = pd.DataFrame(
+    {"temperature": temperature, "weight": weight, "derivative": derivative}
+).dropna()
+
+plt.rcParams.update({
+    "font.family": "Noto Sans CJK KR",
+    "font.size": 16,
+    "axes.titlesize": 18,
+    "axes.labelsize": 16,
+    "xtick.labelsize": 14,
+    "ytick.labelsize": 14,
+    "legend.fontsize": 14,
+})
+
+fig, ax_weight = plt.subplots(figsize=(10, 6), constrained_layout=True)
+ax_derivative = ax_weight.twinx()
+
+weight_line, = ax_weight.plot(
+    data["temperature"],
+    data["weight"],
+    color="#1769aa",
+    linewidth=2.8,
+    label="Weight",
+)
+derivative_line, = ax_derivative.plot(
+    data["temperature"],
+    data["derivative"],
+    color="#d1495b",
+    linewidth=2.4,
+    label="Derivative weight",
+)
+
+ax_weight.set_title("PVC TGA")
+ax_weight.set_xlabel("Temperature (°C)")
+ax_weight.set_ylabel("Weight (%)", color="#1769aa")
+ax_derivative.set_ylabel("Derivative weight (%/°C)", color="#d1495b")
+
+ax_weight.tick_params(axis="y", colors="#1769aa")
+ax_derivative.tick_params(axis="y", colors="#d1495b")
+ax_weight.grid(True, linestyle="--", linewidth=0.7, alpha=0.35)
+ax_weight.legend(
+    [weight_line, derivative_line],
+    [weight_line.get_label(), derivative_line.get_label()],
+    loc="best",
+    frameon=True,
+)
+
+fig.savefig(out_dir / "PVC_TGA.png", dpi=300, bbox_inches="tight")
+plt.close(fig)
+```

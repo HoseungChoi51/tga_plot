@@ -1,0 +1,95 @@
+We need answer user in Korean? User asks Korean. Need produce complete Python script inside one ```python block only. Need think through script. Need parse request: Data file caox.csv with columns Time, Temperature, Weight, Deriv Weight, Heat Flow. User: "오른쪽 축에 DTG 대신 Heat Flow를 그리고, 흡열 피크 두 개와 발열 피크 하나의 온도를 표시해줘" Means plot standard TGA? Left y weight %, right y Heat Flow instead of DTG. Need mark temperatures of two endothermic peaks and one exothermic peak. Need infer from Heat Flow sign convention. Heat Flow (W/g): first positive, min -1.374, max 2.307. In DSC, endothermic often negative heat flow (depending instrument). User says 흡열 피크 두 개와 발열 피크 하나. Need detect peaks: endothermic peaks likely negative minima (two), exothermic peak likely positive maximum (one). Need mark temperatures. Could use scipy.signal.find_peaks on -heat_flow for endothermic (peaks positive) and heat_flow for exothermic. Need select two endothermic and one exothermic. Need robust. Data 921 rows temp 30-950. Need maybe smooth? Need choose prominent peaks. Could use find_peaks with prominence. Need ensure exactly two endo and one exo? User says there are two endo and one exo. We can detect top peaks by prominence/height. Need maybe if not enough, fallback to top N by prominence or extrema. Need labels: "Endo 1: 123 °C", etc. Or Korean? Maybe labels in English? Could use Korean? Matplotlib with Korean font. But labels may be simple. Need standard TGA plot: title sheet name, legend center left, residue at nearest 800°C with marker, peak? User specifically asks right axis Heat Flow instead of DTG and mark peaks. Standard labels residue and DTG peak? Since right axis not DTG, maybe still residue label? The standard says two labels always drawn unless user says otherwise: residue and peak (highest DTG peak above 150). But user asks Heat Flow peaks. Could still draw residue label and maybe not DTG peak? "DTG 대신 Heat Flow" means right axis Heat Flow, so peak label maybe Heat Flow peaks. Need draw residue label? likely yes unless user says otherwise. But if right axis not DTG, standard peak label based on DTG may be confusing. Could include residue label and requested peak labels. Need maybe not draw standard DTG peak label because no DTG? But standard says two labels always drawn unless user says otherwise. User didn't say remove residue. Could draw residue. For peak: maybe skip DTG peak because right axis changed and asked specific peaks. But "피크 표시" part names? They ask peak temps. We should draw those. Maybe also standard residue.
+
+Need script reads DATA_FILE. OUT_DIR. Save PNG 300 dpi. No plt.show. Need complete script only. Need handle CSV with header row maybe first row? Preview says header_rows [1], data_start_row 2? In CSV likely first line header? The preview says header_rows: [1] maybe row 1 header? data_start_row 2? Actually if header_rows [1] maybe first row is header? They use 1-index? columns names. We can read pd.read_csv(DATA_FILE). If first row header? likely
+[...]
+winx()
+   ax2.plot(temp, heat, color='#c0392b', lw=1.8, label=heat_label)
+   ax2.set_ylabel(heat_label)
+   # residue
+   idx_res = int(np.argmin(np.abs(temp-800)))
+   res = weight[idx_res]
+   ax1.plot(temp[idx_res], res, 'o', color='#1f4e9c', ms=5, zorder=5)
+   ax1.annotate(f'Residue {res:.1f}%', xy=(temp[idx_res], res), xytext=(10,10), textcoords='offset points', color='#1f4e9c', fontsize=9, arrowprops=dict(arrowstyle='->', color='#1f4e9c', lw=0.8))
+   # peaks
+   endo_idx, exo_idx = choose_peaks(temp, heat)
+   # draw endo
+   for k, idx in enumerate(endo_idx):
+       xp=temp[idx]; yp=heat[idx]
+       ax2.plot(xp, yp, 'o', color='#c0392b', ms=5, zorder=5)
+       ax2.vlines(xp, 0, yp, color='#c0392b', linestyle='--', linewidth=0.8, alpha=0.5)
+       offset_y = -15 if yp < 0 else 15
+       if k == 1: offset_y += -15 if yp < 0 else 15
+       ax2.annotate(f'흡열 {k+1}: {xp:.0f} °C', xy=(xp, yp), xytext=(10, offset_y), textcoords='offset points', color='#c0392b', fontsize=9, arrowprops=dict(arrowstyle='->', color='#c0392b', lw=0.8))
+   for idx in exo_idx:
+       xp=temp[idx]; yp=heat[idx]
+       ax2.plot(xp, yp, 'o', color='#c0392b', ms=5, zorder=5)
+       ax2.vlines(xp, 0, yp, color='#c0392b', linestyle='--', linewidth=0.8, alpha=0.5)
+       offset_y = 15 if yp >= 0 else -15
+       ax2.annotate(f'발열: {xp:.0f} °C', xy=(xp, yp), xytext=(10, offset_y), textcoords='offset points', color='#c0392b', fontsize=9, arrowprops=dict(arrowstyle='->', color='#c0392b', lw=0.8))
+   # title, legend
+   ax1.set_title(sheet_name)
+   h1,l1 = ax1.get_legend_handles_labels(); h2,l2 = ax2.get_legend_handles_labels()
+   ax1.legend(h1+h2, l1+l2, loc='center left', bbox_to_anchor=(0.02,0.5), framealpha=0.9)
+   out = os.path.join(OUT_DIR, safe_name(sheet_name)+'.png')
+   fig.savefig(out, dpi=300, bbox_inches='tight')
+   plt.close(fig)
+```
+Need `heat_label` inside plot_one. Define before.
+
+Need if residue annotation overlaps with peak labels. okay.
+
+Need choose_peaks defined outside. Need use `find_peaks_top` with scipy. Ensure import.
+
+Let's refine choose_peaks to avoid errors.
+
+```
+def pad_indices(indices, x, y, sign, n, exclude=None):
+    indices = [int(i) for i in indices]
+    exclude = set(exclude or [])
+    if len(indices) >= n:
+       return indices[:n]
+    candidates = find_peaks_top(x, y, sign, max(n*2, n))[0]
+    for idx in candidates:
+       idx=int(idx)
+       if idx not in indices and idx not in exclude:
+          indices.append(idx)
+       if len(indices) >= n: break
+    if len(indices) < n:
+       ys = sign * y
+       order = np.argsort(ys)[::-1]
+       for idx in order:
+          idx=int(idx)
+          if idx not in indices and idx not in exclude and np.isfinite(y[idx]):
+             indices.append(idx)
+          if len(indices) >= n: break
+    return indices[:n]
+```
+
+choose:
+```
+def choose_peaks(x, y):
+    neg2, neg2_prom = find_peaks_top(x,y,-1,2)
+    pos1, pos1_prom = find_peaks_top(x,y,1,1)
+    pos2, pos2_prom = find_peaks_top(x,y,1,2)
+    neg1, neg1_prom = find_peaks_top(x,y,-1,1)
+    def all_sign(idx, positive):
+       if not idx: return False
+       vals = np.array([y[i] for i in idx], dtype=float)
+       return bool(np.all(vals > 0) if positive else np.all(vals < 0))
+    conv_valid = len(neg2)>=2 and len(pos1)>=1 and all_sign(neg2, False) and all_sign(pos1, True)
+    inv_valid = len(pos2)>=2 and len(neg1)>=1 and all_sign(pos2, True) and all_sign(neg1, False)
+    if conv_valid and not inv_valid:
+       endo_idx, exo_idx = neg2, pos1
+    elif inv_valid and not conv_valid:
+       endo_idx, exo_idx = pos2, neg1
+    elif conv_valid and inv_valid:
+       conv_score = float(np.sum(neg2_prom)) + float(np.sum(pos1_prom))
+       inv_score = float(np.sum(pos2_prom)) + float(np.sum(neg1_prom))
+       if inv_score > conv_score * 1.2:
+          endo_idx, exo_idx = pos2, neg1
+       else:
+          endo_idx, exo_idx = neg2, pos1
+    else:
+       if float(np.sum(neg2_prom)) >= float(np.sum(pos2_prom)):
+          endo_idx, exo_idx = neg2, pos1
+       else:

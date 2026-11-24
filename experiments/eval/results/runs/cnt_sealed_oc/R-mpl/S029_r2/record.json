@@ -1,0 +1,297 @@
+{
+ "arm": "R-mpl",
+ "item": "S029",
+ "repeat": 2,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "DOE 결과로 2존온도 × H2/C2H4비 순도(%) 평균 히트맵 부탁합니다.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport seaborn as sns # Optional but good for heatmaps, if not available use pure mpl\nfrom scipy.stats import gaussian_kde\n\n# Ensure output directory exists\nimport os\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Load data\nfile_path = \"data/doe_temp_h2.csv\"\ndf = pd.read_csv(file_path)\n\n# Clean column names just in case of extra spaces (though preview looks clean)\ndf.columns = df.columns.str.strip()\n\n# Identify columns based on preview description\ncol_temp = '2존온도(°C)'\ncol_ratio = 'H2/C2H4비'\ncol_purity = '순도(%)'\n\n# Check if columns exist\nif col_temp not in df.columns or col_ratio not in df.columns or col_purity not in df.columns:\n    raise ValueError(f\"Expected columns '{col_temp}', '{col_ratio}', '{col_purity}' not found.\")\n\n# Calculate mean purity grouped by temperature and ratio\npivot_table = df.pivot_table(values=col_purity, \n                             index=col_temp, \n                             columns=col_ratio, \n                             aggfunc='mean')\n\n# Prepare plot\nfig, ax = plt.subplots(figsize=(10, 8))\n\n# Create heatmap using matplotlib imshow since we don't strictly depend on seaborn in the prompt's tool list, \n# though it is often installed. Using pure matplotlib to be safe with standard libs + numpy/pandas.\n# We need to handle the matrix format for imshow.\nheatmap_data = pivot_table.values\n\n# Plotting\nim = ax.imshow(heatmap_data, cmap='YlOrRd', aspect='auto', interpolation='nearest')\n\n# Set ticks and labels\nax.set_xticks(np.arange(len(pivot_table.columns)))\nax.set_yticks(np.arange(len(pivot_table.index)))\nax.set_xticklabels([str(x) for x in pivot_table.columns])\nax.set_yticklabels([str(x) for x in pivot_table.index])\n\nax.set_xlabel('H2/C2H4 비')\nax.set_ylabel('2존 온도 (°C)')\nax.set_title('DOE 결과: 2존온도 × H2/C2H4비 평균 순도(%) 히트맵')\n\n# Add text annotations for each cell\nfor i in range(len(pivot_table.index)):\n    for j in range(len(pivot_table.columns)):\n        val = heatmap_data[i, j]\n        if not np.isnan(val):\n            # Determine text color based on background brightness\n            threshold = (heatmap_data.max() - heatmap_data.min()) / 2 + heatmap_data.min()\n            color = 'white' if val > threshold else 'black'\n            ax.text(j, i, f'{val:.2f}', ha='center', va='center', color=color, fontsize=9)\n\n# Add colorbar\ncbar = fig.colorbar(im, ax=ax)\ncbar.set_label('평균 순도 (%)')\n\nplt.tight_layout()\n\n# Save figure\noutput_path = os.path.join(OUT_DIR, 'doe_purity_heatmap.png')\nplt.savefig(output_path, dpi=300)\nplt.close(fig)\n```",
+     "llm_s": 9.543,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 2601,
+     "output_chars": 2696,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# Ensure output directory exists\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Load data\nfile_path = \"data/doe_temp_h2.csv\"\ndf = pd.read_csv(file_path)\n\n# Clean column names just in case of extra spaces (though preview looks clean)\ndf.columns = df.columns.str.strip()\n\n# Identify columns based on preview description\ncol_temp = '2존온도(°C)'\ncol_ratio = 'H2/C2H4비'\ncol_purity = '순도(%)'\n\n# Check if columns exist\nif col_temp not in df.columns or col_ratio not in df.columns or col_purity not in df.columns:\n    raise ValueError(f\"Expected columns '{col_temp}', '{col_ratio}', '{col_purity}' not found.\")\n\n# Calculate mean purity grouped by temperature and ratio\npivot_table = df.pivot_table(values=col_purity, \n                             index=col_temp, \n                             columns=col_ratio, \n                             aggfunc='mean')\n\n# Prepare plot\nfig, ax = plt.subplots(figsize=(10, 8))\n\n# Create heatmap using matplotlib imshow\nheatmap_data = pivot_table.values\n\n# Plotting\nim = ax.imshow(heatmap_data, cmap='YlOrRd', aspect='auto', interpolation='nearest')\n\n# Set ticks and labels\nax.set_xticks(np.arange(len(pivot_table.columns)))\nax.set_yticks(np.arange(len(pivot_table.index)))\nax.set_xticklabels([str(x) for x in pivot_table.columns])\nax.set_yticklabels([str(x) for x in pivot_table.index])\n\nax.set_xlabel('H2/C2H4 비')\nax.set_ylabel('2존 온도 (°C)')\nax.set_title('DOE 결과: 2존온도 × H2/C2H4비 평균 순도(%) 히트맵')\n\n# Add text annotations for each cell\nfor i in range(len(pivot_table.index)):\n    for j in range(len(pivot_table.columns)):\n        val = heatmap_data[i, j]\n        if not np.isnan(val):\n            # Determine text color based on background brightness\n            threshold = (np.nanmax(heatmap_data) - np.nanmin(heatmap_data)) / 2 + np.nanmin(heatmap_data)\n            color = 'white' if val > threshold else 'black'\n            ax.text(j, i, f'{val:.2f}', ha='center', va='center', color=color, fontsize=9)\n\n# Add colorbar\ncbar = fig.colorbar(im, ax=ax)\ncbar.set_label('평균 순도 (%)')\n\nplt.tight_layout()\n\n# Save figure\noutput_path = os.path.join(OUT_DIR, 'doe_purity_heatmap.png')\nplt.savefig(output_path, dpi=300)\nplt.close(fig)\n```",
+     "llm_s": 9.364,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 6338,
+     "output_chars": 2368,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# Ensure output directory exists\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# Load data\nfile_path = \"data/doe_temp_h2.csv\"\ndf = pd.read_csv(file_path)\n\n# Clean column names just in case of extra spaces (though preview looks clean)\ndf.columns = df.columns.str.strip()\n\n# Identify columns based on preview description\ncol_temp = '2존온도(°C)'\ncol_ratio = 'H2/C2H4비'\ncol_purity = '순도(%)'\n\n# Check if columns exist\nif col_temp not in df.columns or col_ratio not in df.columns or col_purity not in df.columns:\n    raise ValueError(f\"Expected columns '{col_temp}', '{col_ratio}', '{col_purity}' not found.\")\n\n# Calculate mean purity grouped by temperature and ratio\npivot_table = df.pivot_table(values=col_purity, \n                             index=col_temp, \n                             columns=col_ratio, \n                             aggfunc='mean')\n\n# Prepare plot\nfig, ax = plt.subplots(figsize=(10, 8))\n\n# Create heatmap using matplotlib imshow\nheatmap_data = pivot_table.values\n\n# Plotting\nim = ax.imshow(heatmap_data, cmap='YlOrRd', aspect='auto', interpolation='nearest')\n\n# Set ticks and labels\nax.set_xticks(np.arange(len(pivot_table.columns)))\nax.set_yticks(np.arange(len(pivot_table.index)))\nax.set_xticklabels([str(x) for x in pivot_table.columns])\nax.set_yticklabels([str(x) for x in pivot_table.index])\n\nax.set_xlabel('H2/C2H4 비')\nax.set_ylabel('2존 온도 (°C)')\nax.set_title('DOE 결과: 2존온도 × H2/C2H4비 평균 순도(%) 히트맵')\n\n# Add text annotations for each cell\nfor i in range(len(pivot_table.index)):\n    for j in range(len(pivot_table.columns)):\n        val = heatmap_data[i, j]\n        if not np.isnan(val):\n            # Determine text color based on background brightness\n            threshold = (np.nanmax(heatmap_data) - np.nanmin(heatmap_data)) / 2 + np.nanmin(heatmap_data)\n            color = 'white' if val > threshold else 'black'\n            ax.text(j, i, f'{val:.2f}', ha='center', va='center', color=color, fontsize=9)\n\n# Add colorbar\ncbar = fig.colorbar(im, ax=ax)\ncbar.set_label('평균 순도 (%)')\n\nplt.tight_layout()\n\n# Save figure\noutput_path = os.path.join(OUT_DIR, 'doe_purity_heatmap.png')\nplt.savefig(output_path, dpi=300)\nplt.close(fig)\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      8.0
+     ],
+     "dpi": null,
+     "title": "DOE 결과: 2존온도 × H2/C2H4비 평균 순도(%) 히트맵",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": {
+        "rows": [
+         "1100",
+         "1125",
+         "1150",
+         "1175",
+         "1200"
+        ],
+        "cols": [
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16"
+        ],
+        "z": [
+         [
+          86.05,
+          88.22333333333334,
+          89.10000000000001,
+          90.13666666666666,
+          89.36000000000001,
+          88.10666666666667
+         ],
+         [
+          89.95,
+          91.87,
+          93.24333333333334,
+          93.82333333333334,
+          93.53666666666668,
+          92.05333333333334
+         ],
+         [
+          92.27999999999999,
+          94.29666666666667,
+          95.34333333333332,
+          95.91333333333334,
+          95.39,
+          94.24666666666667
+         ],
+         [
+          92.97000000000001,
+          95.2,
+          96.14333333333333,
+          96.71333333333332,
+          96.25,
+          94.91000000000001
+         ],
+         [
+          92.17999999999999,
+          94.32333333333334,
+          95.43666666666667,
+          95.81333333333333,
+          95.51666666666667,
+          94.44666666666667
+         ]
+        ],
+        "colorbar": true,
+        "values_shown": true,
+        "cmap": "YlOrRd",
+        "clim": [
+         86.05,
+         96.71333333333332
+        ]
+       },
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 30,
+       "texts": [
+        "86.05",
+        "88.22",
+        "89.10",
+        "90.14",
+        "89.36",
+        "88.11",
+        "89.95",
+        "91.87",
+        "93.24",
+        "93.82",
+        "93.54",
+        "92.05",
+        "92.28",
+        "94.30",
+        "95.34",
+        "95.91",
+        "95.39",
+        "94.25",
+        "92.97",
+        "95.20",
+        "96.14",
+        "96.71",
+        "96.25",
+        "94.91",
+        "92.18",
+        "94.32",
+        "95.44",
+        "95.81",
+        "95.52",
+        "94.45"
+       ],
+       "x": {
+        "label": "H2/C2H4 비",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0,
+         5.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16"
+        ],
+        "min": -0.5,
+        "max": 5.5,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "2존 온도 (°C)",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "1100",
+         "1125",
+         "1150",
+         "1175",
+         "1200"
+        ],
+        "min": -0.5,
+        "max": 4.5,
+        "log": false,
+        "inverted": true,
+        "tick_labels": [
+         "1100",
+         "1125",
+         "1150",
+         "1175",
+         "1200"
+        ],
+        "rotate": 0.0
+       },
+       "title": "DOE 결과: 2존온도 × H2/C2H4비 평균 순도(%) 히트맵"
+      }
+     ],
+     "texts": [
+      "86.05",
+      "88.22",
+      "89.10",
+      "90.14",
+      "89.36",
+      "88.11",
+      "89.95",
+      "91.87",
+      "93.24",
+      "93.82",
+      "93.54",
+      "92.05",
+      "92.28",
+      "94.30",
+      "95.34",
+      "95.91",
+      "95.39",
+      "94.25",
+      "92.97",
+      "95.20",
+      "96.14",
+      "96.71",
+      "96.25",
+      "94.91",
+      "92.18",
+      "94.32",
+      "95.44",
+      "95.81",
+      "95.52",
+      "94.45"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t1/doe_purity_heatmap.png",
+       "format": "png",
+       "px": [
+        3000,
+        2400
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.619999885559082,
+   "check": {
+    "kind_expected": "heatmap",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 19.792
+  }
+ ]
+}

@@ -1,0 +1,252 @@
+{
+ "arm": "P-mpl+cdflat",
+ "item": "D029",
+ "repeat": 3,
+ "split": "dev",
+ "persona": "공정 엔지니어",
+ "type": "single",
+ "cd": "flat",
+ "backend": "anthropic",
+ "model": "qwen3.8-flash",
+ "effort": "",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "26주 전체 등급(A/B/C) 비율 pie. 색은 A 초록, B 주황, C 빨강, % 라벨 소수 1자리.",
+   "calls": [
+    {
+     "reply": "{\n  \"asks\": [\n    {\n      \"ask\": \"26주 전체 등급(A/B/C) 비율 pie\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"색은 A 초록, B 주황, C 빨강\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"% 라벨 소수 1자리\",\n      \"how\": \"key\"\n    }\n  ],\n  \"chart\": \"pie\",\n  \"file\": \"data/run_log.xlsx\",\n  \"settings\": [\n    {\n      \"key\": \"x.col\",\n      \"new_column\": \"등급_순서\"\n    },\n    {\n      \"key\": \"y.agg\",\n      \"value\": \"count\"\n    },\n    {\n      \"key\": \"values\",\n      \"value\": \"{:.1f}%\"\n    },\n    {\n      \"key\": \"colors\",\n      \"value\": [\n        \"green\",\n        \"orange\",\n        \"red\"\n      ]\n    },\n    {\n      \"key\": \"sort\",\n      \"value\": \"asc\"\n    },\n    {\n      \"key\": \"data_code\",\n      \"value\": \"df['등급_순서'] = df['등급 (A/B/C)'].astype('category').cat.reorder_categories(['A', 'B', 'C'])\"\n    }\n  ]\n}",
+     "llm_s": 3.233,
+     "prompt_tokens": 6626,
+     "output_tokens": 326,
+     "cached_tokens": 5644,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": "",
+     "flat": {
+      "asks": [
+       {
+        "ask": "26주 전체 등급(A/B/C) 비율 pie",
+        "how": "key"
+       },
+       {
+        "ask": "색은 A 초록, B 주황, C 빨강",
+        "how": "key"
+       },
+       {
+        "ask": "% 라벨 소수 1자리",
+        "how": "key"
+       }
+      ],
+      "chart": "pie",
+      "file": "data/run_log.xlsx",
+      "settings": [
+       {
+        "key": "x.col",
+        "new_column": "등급_순서"
+       },
+       {
+        "key": "y.agg",
+        "value": "count"
+       },
+       {
+        "key": "values",
+        "value": "{:.1f}%"
+       },
+       {
+        "key": "colors",
+        "value": [
+         "green",
+         "orange",
+         "red"
+        ]
+       },
+       {
+        "key": "sort",
+        "value": "asc"
+       },
+       {
+        "key": "data_code",
+        "value": "df['등급_순서'] = df['등급 (A/B/C)'].astype('category').cat.reorder_categories(['A', 'B', 'C'])"
+       }
+      ]
+     }
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "chart": "pie",
+    "x": "등급_순서",
+    "y": {
+     "agg": "count"
+    },
+    "values": "{:.1f}%",
+    "colors": [
+     "green",
+     "orange",
+     "red"
+    ],
+    "sort": "asc",
+    "data_code": "df['등급_순서'] = df['등급 (A/B/C)'].astype('category').cat.reorder_categories(['A', 'B', 'C'])",
+    "asks": [
+     {
+      "ask": "26주 전체 등급(A/B/C) 비율 pie",
+      "how": "key"
+     },
+     {
+      "ask": "색은 A 초록, B 주황, C 빨강",
+      "how": "key"
+     },
+     {
+      "ask": "% 라벨 소수 1자리",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdflat/D029_r3/out/t1/pie_등급_순서.png"
+    ],
+    "chart": "pie",
+    "rows_used": 997,
+    "rows_total": 997,
+    "values": {
+     "slices": {
+      "C": 126.0,
+      "A": 349.0,
+      "B": 522.0
+     },
+     "shares": {
+      "C": 0.1264,
+      "A": 0.3501,
+      "B": 0.5236
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "원 그래프를 저장했습니다: pie_등급_순서.png\n사용한 행: 997 / 997\nC 12.6%, A 35.0%, B 52.4%"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": {
+        "labels": [
+         "C",
+         "A",
+         "B"
+        ],
+        "shares": [
+         0.12637913741223672,
+         0.35005015045135407,
+         0.5235707121364092
+        ],
+        "values": null,
+        "colors": [
+         "#2e8b57",
+         "#e07b1f",
+         "#c0392b"
+        ]
+       },
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 3,
+       "texts": [
+        "C",
+        "A",
+        "B",
+        "12.6%",
+        "35.0%",
+        "52.4%"
+       ],
+       "x": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.5403738028001417,
+        "max": 1.5403708236388134,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "",
+        "type": "value",
+        "ticks": [],
+        "step": null,
+        "categories": null,
+        "min": -1.0835895170237662,
+        "max": 1.0835899813113798,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [
+      "C",
+      "A",
+      "B",
+      "12.6%",
+      "35.0%",
+      "52.4%"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdflat/D029_r3/out/t1/pie_등급_순서.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.778583288192749,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [
+     "colors: A: ['#e07b1f'] not green; B: ['#c0392b'] not orange; C: ['#2e8b57'] not red"
+    ],
+    "unchecked": [],
+    "n_checks": 4,
+    "n_failed": 1,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 4.102
+  }
+ ]
+}

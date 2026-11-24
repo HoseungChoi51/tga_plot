@@ -1,0 +1,22 @@
+{
+ "file": "data/tga_batches.xlsx",
+ "sheets": [
+  "R4-260407-1",
+  "R4-260721-1"
+ ],
+ "x": {
+  "col": "B"
+ },
+ "y1": {
+  "col": "C",
+  "label": "Weight (%)"
+ },
+ "y2": {
+  "col": "D",
+  "label": "DTG (%/°C)",
+  "legend": "DTG"
+ },
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cd/D005_r3/out/t1"
+ }
+}

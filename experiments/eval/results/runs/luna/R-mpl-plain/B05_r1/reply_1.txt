@@ -1,0 +1,98 @@
+```python
+from pathlib import Path
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+DATA_FILES = [
+    "/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_A.csv",
+    "/home/chs/Work/tga_plot/eval/inputs_b/cnt_lot_B.txt",
+]
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/B05_r1/out"
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+
+def read_data(path):
+    path = Path(path)
+    if path.suffix.lower() == ".csv":
+        df = pd.read_csv(path)
+    else:
+        # 탭 또는 공백으로 구분된 텍스트 파일을 처리합니다.
+        try:
+            df = pd.read_csv(path, sep=None, engine="python")
+            if df.shape[1] < 2:
+                df = pd.read_csv(path, sep=r"\s+", engine="python")
+        except Exception:
+            df = pd.read_csv(path, sep=r"\s+", engine="python")
+
+    df.columns = [str(col).strip() for col in df.columns]
+    return df
+
+
+out_dir = Path(OUT_DIR)
+out_dir.mkdir(parents=True, exist_ok=True)
+
+fig, ax = plt.subplots(figsize=(9, 6))
+ax_deriv = ax.twinx()
+
+styles = [
+    (DATA_FILES[0], "Lot A", "#1f77b4"),
+    (DATA_FILES[1], "Lot B", "#d62728"),
+]
+
+for file_path, label, color in styles:
+    df = read_data(file_path)
+
+    temperature_col = next(
+        (c for c in df.columns if "temperature" in c.lower()),
+        df.columns[1],
+    )
+    weight_col = next(
+        (c for c in df.columns if "weight" in c.lower() and "deriv" not in c.lower()),
+        df.columns[2],
+    )
+    derivative_col = next(
+        (c for c in df.columns if "deriv" in c.lower()),
+        df.columns[3],
+    )
+
+    temperature = pd.to_numeric(df[temperature_col], errors="coerce")
+    weight = pd.to_numeric(df[weight_col], errors="coerce")
+    derivative = pd.to_numeric(df[derivative_col], errors="coerce")
+
+    valid_weight = temperature.notna() & weight.notna()
+    valid_derivative = temperature.notna() & derivative.notna()
+
+    ax.plot(
+        temperature[valid_weight],
+        weight[valid_weight],
+        color=color,
+        linewidth=2,
+        label=label,
+    )
+    ax_deriv.plot(
+        temperature[valid_derivative],
+        derivative[valid_derivative],
+        color=color,
+        linewidth=1.4,
+        linestyle="--",
+        alpha=0.75,
+        label=f"{label} 미분중량",
+    )
+
+ax.set_xlabel("Temperature (°C)")
+ax.set_ylabel("Weight (%)")
+ax_deriv.set_ylabel("Deriv. Weight (%/°C)")
+ax.set_title("TGA Comparison")
+ax.grid(True, alpha=0.3)
+
+handles1, labels1 = ax.get_legend_handles_labels()
+handles2, labels2 = ax_deriv.get_legend_handles_labels()
+ax.legend(handles1 + handles2, labels1 + labels2, loc="best", frameon=True)
+
+fig.tight_layout()
+fig.savefig(out_dir / "tga_lot_comparison.png", dpi=300, bbox_inches="tight")
+plt.close(fig)
+```

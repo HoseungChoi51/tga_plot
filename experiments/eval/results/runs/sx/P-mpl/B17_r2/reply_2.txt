@@ -1,0 +1,8 @@
+```json
+{
+  "file": "polymers.xlsx",
+  "combine": true,
+  "y2": false,
+  "code": "import numpy as np\nlines = ax1.get_lines()\ndata_lines = [l for l in lines if l.get_ydata() is not None and len(l.get_ydata()) > 0]\nfor i, line in enumerate(data_lines):\n    y_data = line.get_ydata()\n    offset = i * 20\n    new_y = y_data + offset\n    line.set_ydata(new_y)"
+}
+```

@@ -1,0 +1,99 @@
+{
+ "arm": "P-ec",
+ "item": "S047",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "데이터 분석가",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "Cumulative production (kg) per 반응기 over 일자 — per-run production = 생산속도 × 가동시간 / 1000. One line per reactor, daily resolution.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"chart\": \"line\",\n  \"x\": {\"col\": \"일자\"},\n  \"y\": {\"col\": \"누적생산량_kg\", \"agg\": \"sum\"},\n  \"by\": \"반응기\",\n  \"data_code\": \"df['일생산량_kg'] = df['생산속도 (g/h)'] * df['가동시간 (h)'] / 1000\\ndf = df.sort_values(['반응기', '일자']).reset_index(drop=True)\\ndf['누적생산량_kg'] = df.groupby('반응기')['일생산량_kg'].cumsum()\",\n  \"asks\": [\n    {\"ask\": \"Cumulative production per reactor over date\", \"how\": \"key\"},\n    {\"ask\": \"per-run production calculation\", \"how\": \"data_code\"},\n    {\"ask\": \"one line per reactor\", \"how\": \"key\"},\n    {\"ask\": \"daily resolution\", \"how\": \"key\"}\n  ]\n}\n```",
+     "llm_s": 7.609,
+     "prompt_tokens": 6336,
+     "output_tokens": 238,
+     "cached_tokens": 6289,
+     "prompt_n": 47,
+     "prefill_ms": 277.088709,
+     "decode_ms": 6868.320445999999,
+     "finish": "stop"
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"chart\": \"line\",\n  \"x\": {\"col\": \"일자\"},\n  \"y\": {\"col\": \"누적생산량_kg\", \"agg\": \"sum\"},\n  \"by\": \"반응기\",\n  \"data_code\": \"df['일생산량_kg'] = df['생산속도 (g/h)'] * df['가동시간 (h)'] / 1000\\ndf = df.sort_values(['반응기', 'B']).reset_index(drop=True)\\ndf['누적생산량_kg'] = df.groupby('E')['일생산량_kg'].cumsum()\",\n  \"asks\": [\n    {\"ask\": \"Cumulative production per reactor over date\", \"how\": \"key\"},\n    {\"ask\": \"per-run production calculation\", \"how\": \"data_code\"},\n    {\"ask\": \"one line per reactor\", \"how\": \"key\"},\n    {\"ask\": \"daily resolution\", \"how\": \"key\"}\n  ]\n}\n```",
+     "llm_s": 7.293,
+     "prompt_tokens": 6632,
+     "output_tokens": 236,
+     "cached_tokens": 6574,
+     "prompt_n": 58,
+     "prefill_ms": 304.499572,
+     "decode_ms": 6489.81998,
+     "finish": "stop"
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"chart\": \"line\",\n  \"x\": {\"col\": \"일자\"},\n  \"y\": {\"col\": \"누적생산량_kg\", \"agg\": \"sum\"},\n  \"by\": \"반응기\",\n  \"data_code\": \"df['일생산량_kg'] = df['생산속도 (g/h)'] * df['가동시간 (h)'] / 1000\\ndf = df.sort_values(['반응기', '일자']).reset_index(drop=True)\\ndf['누적생산량_kg'] = df.groupby('반응기')['일생산량_kg'].cumsum()\",\n  \"asks\": [\n    {\"ask\": \"Cumulative production per reactor over date\", \"how\": \"key\"},\n    {\"ask\": \"per-run production calculation\", \"how\": \"data_code\"},\n    {\"ask\": \"one line per reactor\", \"how\": \"key\"},\n    {\"ask\": \"daily resolution\", \"how\": \"key\"}\n  ]\n}\n```",
+     "llm_s": 5.647,
+     "prompt_tokens": 6926,
+     "output_tokens": 238,
+     "cached_tokens": 6868,
+     "prompt_n": 58,
+     "prefill_ms": 305.50814,
+     "decode_ms": 4898.3307399999985,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "chart": "line",
+    "x": {
+     "col": "일자"
+    },
+    "y": {
+     "col": "누적생산량_kg",
+     "agg": "sum"
+    },
+    "by": "반응기",
+    "data_code": "df['일생산량_kg'] = df['생산속도 (g/h)'] * df['가동시간 (h)'] / 1000\ndf = df.sort_values(['반응기', '일자']).reset_index(drop=True)\ndf['누적생산량_kg'] = df.groupby('반응기')['일생산량_kg'].cumsum()",
+    "asks": [
+     {
+      "ask": "Cumulative production per reactor over date",
+      "how": "key"
+     },
+     {
+      "ask": "per-run production calculation",
+      "how": "data_code"
+     },
+     {
+      "ask": "one line per reactor",
+      "how": "key"
+     },
+     {
+      "ask": "daily resolution",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": false,
+    "error": "data_code failed: KeyError: '일자'",
+    "hint": "names: df (pandas DataFrame of the table), pd, np; leave the result in df"
+   },
+   "facts": [],
+   "draw_s": 0.44936347007751465,
+   "check": {
+    "kind_expected": "line",
+    "failed": [
+     "run: no plot (data_code failed: KeyError: '일자')"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 22.126
+  }
+ ]
+}

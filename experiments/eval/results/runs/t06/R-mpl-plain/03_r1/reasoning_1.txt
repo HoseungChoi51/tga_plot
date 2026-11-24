@@ -1,0 +1,103 @@
+We need answer user's request in Korean? User asks in Korean. Need produce complete Python script inside one python block and nothing else. Need analyze. We have DATA_FILE TGA.xlsx, OUT_DIR. Request: draw only sheet 1006R1-V acid. x-axis range 100~800, peaks display 2. Need likely plot TGA curve Weight(%) vs Temperature and DTG D.W vs Temperature? "피크 표시 2개" likely mark two peaks on DTG? Need infer. In TGA plots, often show TGA and DTG, x-axis Temperature, y-axis Weight% and derivative. Peaks in DTG. Need draw 1006R1-V acid sheet only. x-axis range 100-800. 피크 표시 2개 = indicate two peaks. Could mean annotate two DTG peaks. Need robust script.
+
+Need read Excel with pandas. Use openpyxl. Sheet name exact. Use columns B Temperature, C Weight(%), D D.W(%/C). Filter x 100-800 maybe include. Need find two peaks in D.W? DTG peaks are minima (most negative). But if data has negative derivative peaks, find two local minima. Could use scipy.signal.find_peaks on -D.W to find peaks. Need choose 2 peaks. Could smooth? maybe robust. We can find peaks with prominence; if not enough, take two most negative values separated by some distance. Need annotate temperatures and values. Could plot twin axes: TGA Weight% left, DTG right. Mark peaks on DTG with red dots and annotations. Or maybe user wants plot with two peaks marked (maybe peaks in DTG). We'll do twin axis.
+
+Need Korean font: matplotlib rcParams font.family = ['Noto Sans CJK KR'] etc. Save PNG 300 dpi. OUT_DIR ensure exists. Use filename maybe TGA_1006R1-V_acid.png. Need not call plt.show.
+
+Need consider x-axis range 100~800 but acid sheet max temp 900. Filter to 100-800 inclusive. Peak finding should be within range. Need maybe if peaks outside? Use mask.
+
+Potential issues: Excel columns may have spaces? Use df.columns. Need header_rows [1] means first row? pandas read_excel sheet_name, header=0? The preview says header_rows [1], data_start_row 2, so likely row 1 header. Use header=0. If columns not named exactly? Could fallback. But for this file exact.
+
+Need script robust for file path. DATA_FILE variable given. We can set DATA_FILE = os.environ.get('DATA_FILE', '/home/...')? Since environment may pass? They say read data file(s) given as DATA_FILE in message. We can hardcode. Better use global variable from script? They provide DATA_FILE and OUT_DIR in message, but script should include them? Usually include DATA_FILE = "...", OUT_DIR = "...". Use those.
+
+Need find peaks: scipy.signal.find_peaks. Since DTG negative peaks, invert. Use y = -dtg. Smooth? Could use simple moving average to reduce noise. But peak labels should correspond to original data. We can smooth for detection then map to original local min within window. Or use find_peaks directly with prominence. Need ensure two peaks. Acid DTG min -0.8067, max 0.0033. There may be multiple peaks. Need choose two most significant minima. Approach:
+- x = Temperature, y = D.W.
+- mask 100 <= x <= 800.
+- sort by x.
+- maybe remove NaN.
+- For detection, s
+[...]
+%/c)', keys include 'd.w'. Good.
+
+Potential issue: `find(['weight','tg','mass'],2)` for 'Weight(%)' lower replace -> 'weight(%)', contains weight. Good.
+
+Potential issue: `find(['temperature','temp','x'],1)` for 'Temperature' contains temp. Good.
+
+Potential issue: If x_col is 'Time' because 'temp' not? no.
+
+Need maybe if sheet empty. raise.
+
+Could add print? Not required. Print okay? They only want script. Print might be okay but not necessary. We can avoid.
+
+Let's maybe incorporate unique peaks:
+```
+def refine_peak_indices... return list of unique sorted.
+```
+Implement:
+```
+def refine_peak_indices(x,y,idxs,width_frac=0.01):
+    n=len(x); half=...; refined=[]
+    for i in idxs:
+       ...
+       if j not in refined: refined.append(j)
+    return np.array(refined, dtype=int)
+```
+Then in loop if len>=2 return.
+
+Need fallback if refined <2: continue? If loop found peaks but refined unique <2 maybe continue lower prominence? Could continue. But if lower prominence finds more. If after loop fallback. Good.
+
+Code:
+```
+for prom in ...:
+    idx, props = find_peaks(...)
+    if len(idx)>=2:
+       ... top = idx[order[:2]]
+       ref = refine...
+       if len(ref)>=2: return np.sort(ref)
+```
+If not, continue. Good.
+
+Potential issue: If prominence=0 returns many, top two by prominence maybe zero and refined unique? okay.
+
+Need maybe choose top two by prominence, but if all prominence zero, order arbitrary. Could choose by height (most negative). Use:
+```
+if 'prominences' in props and len(props['prominences'])==len(idx): order = np.argsort(props['prominences'])[::-1]
+else: order = np.argsort(-inv[idx])
+```
+If prominence zero, heights maybe. Good.
+
+Need maybe if `find_peaks` returns peaks but top two are not separated after refine? unique. Good.
+
+Could add smoothing window adaptive: `window=25` maybe okay. For n=700. Good.
+
+Potential issue: `savgol_filter` with window length 25 and polyorder 2 okay. If n < 25, adjust.
+
+Potential issue: `pd.Series(y).rolling` returns NaN if min_periods? set 1. Good.
+
+Need maybe `np.argsort(y)` fallback chooses most negative points, but if noise, okay.
+
+Need maybe annotate arrow with text vertical alignment. If ty > y2[i], va bottom. If ty < y2[i], va top. Good. But if ty near ymax and set below, okay.
+
+Potential issue: `ax2.get_ylim()` before drawing annotations but after plotting. It may not include annotation bbox. okay.
+
+Potential issue: Legend lower left may overlap annotation. Could use loc='best'. But lower left maybe okay. Use `loc='best'`? Twin axes legend might be best. But user didn't specify. Use lower left to avoid peak? Peaks maybe middle. Use `loc='lower left'`. If x range 100-800, lower left near 100, weight maybe high? TGA at 100 near 100, DTG maybe near 0. Legend may overlap DTG curve. Use `loc='upper right'`? Acid TGA at high temp low, DTG near 0. Could use `loc='best'`. Let's use `loc='best'` to avoid. But with twin axes, best may still. Could manually lower left. Not critical.
+
+Need maybe title includes x-axis range? no.
+
+Could set grid. okay.
+
+Let's think about peak detection for acid sheet: DTG min -0.8067. There may be main decomposition around 550. There might be small peak around 300? find_peaks prominence 0.1 might find main only. Lower to 0.01 may find noise peaks. It will choose top two by prominence. If noise peak has prominence 0.01 but main 0.8, okay. But if there is shoulder, maybe choose shoulder. Good.
+
+Could use `prominence=0.02` etc. Good.
+
+Need maybe if data contains positive peak (first small positive) and negative loss peaks. Inverting -y makes positive peaks into minima? find_peaks on -y finds negative y peaks (loss). Good. If there is a positive peak in y, it's a valley in -y, not selected. Good.
+
+Need maybe if y2 has positive and negative, two peaks should be most negative. Good.
+
+Potential issue: x-axis range 100~800 but if peak at 850 not included. Good.
+
+Need maybe output file in OUT_DIR. yes.
+
+Need final code block. Ensure no extra text.
+
+Let's produce final code.

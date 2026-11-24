@@ -1,0 +1,129 @@
+import pandas as pd
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx"
+
+# Read the Raw sheet
+df = pd.read_excel(DATA_FILE, sheet_name="Raw")
+
+# Extract columns
+temp = df["Temperature (°C)"].values
+weight = df["Weight (%)"].values
+
+# Find the weight at 150°C for normalization
+# Interpolate to find exact value at 150°C if not present exactly
+idx_150 = None
+for i in range(len(temp)):
+    if temp[i] >= 150:
+        idx_150 = i
+        break
+
+if idx_150 is None:
+    # Fallback: use last point
+    ref_weight = weight[-1]
+else:
+    # Linear interpolation between idx_150-1 and idx_150 if needed
+    if idx_150 == 0:
+        ref_weight = weight[0]
+    else:
+        t0, t1 = temp[idx_150 - 1], temp[idx_150]
+        w0, w1 = weight[idx_150 - 1], weight[idx_150]
+        if t1 != t0:
+            frac = (150.0 - t0) / (t1 - t0)
+            ref_weight = w0 + frac * (w1 - w0)
+        else:
+            ref_weight = w1
+
+# Normalize so that weight at 150°C = 100%
+normalized_weight = (weight / ref_weight) * 100.0
+
+# Prepare data points [x, y]
+data_points = [[float(t), float(w)] for t, w in zip(temp, normalized_weight)]
+
+option = {
+    "title": {
+        "text": "TGA (Raw, Dry Basis @150°C)",
+        "left": "center",
+        "top": 10,
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR",
+            "fontSize": 14
+        }
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "formatter": "{a}<br/>Temp: {b} °C<br/>Weight: {c} %"
+    },
+    "legend": {
+        "data": ["Weight (%)"],
+        "top": 35,
+        "right": 20,
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR",
+            "fontSize": 11
+        }
+    },
+    "grid": {
+        "left": 60,
+        "right": 40,
+        "top": 70,
+        "bottom": 50,
+        "containLabel": False
+    },
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "min": 30,
+        "max": 900,
+        "axisLabel": {
+            "fontFamily": "Noto Sans CJK KR",
+            "fontSize": 10
+        },
+        "splitLine": {
+            "show": True,
+            "lineStyle": {"color": "#eee"}
+        }
+    },
+    "yAxis": {
+        "type": "value",
+        "name": "Weight (%)",
+        "nameLocation": "middle",
+        "nameGap": 40,
+        "axisLabel": {
+            "fontFamily": "Noto Sans CJK KR",
+            "fontSize": 10
+        },
+        "splitLine": {
+            "show": True,
+            "lineStyle": {"color": "#eee"}
+        }
+    },
+    "series": [
+        {
+            "name": "Weight (%)",
+            "type": "line",
+            "smooth": False,
+            "symbol": "none",
+            "lineStyle": {"width": 1.5},
+            "itemStyle": {"color": "#d62728"},
+            "data": data_points
+        }
+    ]
+}
+
+result = {
+    "figures": [
+        {
+            "name": "plot1",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+    ]
+}
+
+print(json.dumps(result, ensure_ascii=False))

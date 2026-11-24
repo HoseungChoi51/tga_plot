@@ -1,0 +1,14 @@
+```json
+{
+  "file": "polymers.xlsx",
+  "sheets": "PET",
+  "title": "PET 열분해",
+  "legend": "lower left",
+  "grid": true,
+  "annotate": {
+    "residue": {
+      "text": "Residue {y:.2f}%"
+    }
+  }
+}
+```

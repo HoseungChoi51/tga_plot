@@ -1,0 +1,25 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheets": "주간요약",
+ "chart": "bar",
+ "x": "주차",
+ "y": {
+  "col": "총생산량(kg)",
+  "label": "생산량 (kg)"
+ },
+ "title": "주간 생산량 추이 (3~8월)",
+ "code": "import matplotlib.colors as mcolors\n# Get the x-axis tick labels which correspond to the weeks\nweeks = [float(t.get_text()) for t in ax.get_xticklabels()]\nfor i, patch in enumerate(ax.patches):\n    if i < len(weeks) and weeks[i] >= 14:\n        patch.set_color('#ff7f0e') # Orange for week >= 14\n    else:\n        patch.set_color('#1f77b4') # Blue for week < 14\n\n# Calculate averages from the drawn data (assuming 'data' contains the y-values)\n# Note: 'data' structure might vary. Usually it's a dict or list of arrays.\n# Let's assume standard bar chart data access. If 'data' is not straightforward, we might need to rely on visual estimation or simpler logic if possible.\n# However, the prompt says 'data = the drawn numbers'. \n# Let's try to extract values from patches if data is ambiguous, but usually 'data' has 'y'.\n# Safer bet: use the patch heights directly since they are already drawn.\nheights = [p.get_height() for p in ax.patches]\n\navg_early = np.mean([h for h, w in zip(heights, weeks) if w < 14])\navg_late = np.mean([h for h, w in zip(heights, weeks) if w >= 14])\n\nax.axhline(avg_early, color='blue', linestyle='--', label=f'1-13주 평균 ({avg_early:.2f})')\nax.axhline(avg_late, color='orange', linestyle='--', label=f'14-26주 평균 ({avg_late:.2f})')\nax.legend()",
+ "asks": [
+  {
+   "ask": "제목 '주간 생산량 추이 (3~8월)'",
+   "how": "key"
+  },
+  {
+   "ask": "y축 이름 '생산량 (kg)'",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-hyb/SS01_r3/out/t4"
+ }
+}

@@ -1,0 +1,121 @@
+```python
+import os
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib
+
+# Set Korean font
+matplotlib.rcParams['font.family'] = 'Noto Sans CJK KR'
+matplotlib.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/20_r3/out"
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+xl_file = pd.ExcelFile(DATA_FILE)
+sheet_names = xl_file.sheet_names
+
+for sheet_name in sheet_names:
+    df = pd.read_excel(DATA_FILE, sheet_name=sheet_name)
+    
+    # Identify columns based on the preview structure
+    # Assuming standard TGA columns: Temperature, Weight(%), D.W(%/C)
+    temp_col = None
+    weight_col = None
+    dtg_col = None
+    
+    for col in df.columns:
+        col_str = str(col).lower()
+        if 'temperature' in col_str or 'temp' in col_str:
+            temp_col = col
+        elif 'weight' in col_str and '%' in col_str:
+            weight_col = col
+        elif 'd.w' in col_str or 'dtg' in col_str or 'derivative' in col_str:
+            dtg_col = col
+            
+    # Fallback to positional if names aren't clear (based on preview: B=Temp, C=Weight, D=DW)
+    if temp_col is None:
+        temp_col = df.columns[1]
+    if weight_col is None:
+        weight_col = df.columns[2]
+    if dtg_col is None:
+        dtg_col = df.columns[3]
+        
+    temps = df[temp_col].values
+    weights = df[weight_col].values
+    dtgs = df[dtg_col].values
+    
+    # Create figure
+    fig, ax1 = plt.subplots(figsize=(8, 6))
+    
+    # Plot Weight (%) on left y-axis
+    color_w = '#1f4e9c'
+    line1 = ax1.plot(temps, weights, color=color_w, label='Weight (%)')
+    ax1.set_xlabel('Temperature (°C)', fontsize=12)
+    ax1.set_ylabel('Weight (%)', color=color_w, fontsize=12)
+    ax1.tick_params(axis='y', labelcolor=color_w)
+    
+    # Create twin axis for DTG
+    ax2 = ax1.twinx()
+    color_d = '#c0392b'
+    # Invert DTG so peaks point up
+    dtg_inverted = -dtgs
+    line2 = ax2.plot(temps, dtg_inverted, color=color_d, label='DTG (%/°C)')
+    ax2.set_ylabel('DTG (%/°C)', color=color_d, fontsize=12)
+    ax2.tick_params(axis='y', labelcolor=color_d)
+    
+    # Shade region 300~450 °C with light gray
+    ax1.axvspan(300, 450, color='lightgray', alpha=0.5, zorder=0)
+    
+    # Title
+    ax1.set_title(sheet_name, fontsize=14)
+    
+    # Legend
+    lines = line1 + line2
+    labels = [l.get_label() for l in lines]
+    ax1.legend(lines, labels, loc='center left')
+    
+    # Calculate Residue at nearest 800°C
+    # Find index of temperature closest to 800
+    idx_800 = np.argmin(np.abs(temps - 800))
+    residue_val = weights[idx_800]
+    temp_res = temps[idx_800]
+    
+    # Add marker and text for residue
+    ax1.plot(temp_res, residue_val, 'o', color=color_w, markersize=6)
+    ax1.text(temp_res, residue_val, f'Residue {residue_val:.1f}%', 
+             ha='left', va='bottom', color=color_w, fontsize=10,
+             bbox=dict(facecolor='white', alpha=0.7, edgecolor='none'))
+             
+    # Calculate Peak: highest DTG peak above 150°C
+    # Filter data > 150°C
+    mask_high_temp = temps > 150
+    temps_filtered = temps[mask_high_temp]
+    dtg_filtered = dtgs[mask_high_temp]
+    
+    if len(dtg_filtered) > 0:
+        # Find min DTG (most negative = biggest mass loss rate)
+        idx_min_dtg = np.argmin(dtg_filtered)
+        peak_temp = temps_filtered[idx_min_dtg]
+        peak_dtg_val = dtg_filtered[idx_min_dtg]
+        
+        # Marker on DTG curve (inverted)
+        ax2.plot(peak_temp, -peak_dtg_val, 'o', color=color_d, markersize=6)
+        ax2.text(peak_temp, -peak_dtg_val, f'{peak_temp:.0f} °C', 
+                 ha='center', va='bottom', color=color_d, fontsize=10,
+                 bbox=dict(facecolor='white', alpha=0.7, edgecolor='none'))
+    
+    # Grid
+    ax1.grid(True, linestyle='--', alpha=0.5)
+    
+    # Adjust layout
+    fig.tight_layout()
+    
+    # Save file
+    safe_sheet_name = sheet_name.replace('/', '_').replace('\\', '_')
+    out_path = os.path.join(OUT_DIR, f"{safe_sheet_name}.png")
+    plt.savefig(out_path, dpi=300)
+    plt.close(fig)
+```

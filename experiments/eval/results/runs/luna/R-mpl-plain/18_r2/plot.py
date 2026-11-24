@@ -1,0 +1,64 @@
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import pandas as pd
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/18_r2/out")
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+sheets = pd.read_excel(DATA_FILE, sheet_name=None)
+
+for sheet_name, df in sheets.items():
+    df.columns = [str(col).strip() for col in df.columns]
+
+    temperature_col = next(col for col in df.columns if "Temperature" in col)
+    weight_col = next(col for col in df.columns if "Weight" in col)
+    derivative_col = next(
+        col for col in df.columns if "D.W" in col or "D.W" in col.replace(" ", "")
+    )
+
+    data = df[[temperature_col, weight_col, derivative_col]].apply(
+        pd.to_numeric, errors="coerce"
+    ).dropna()
+
+    fig, ax1 = plt.subplots(figsize=(9, 6))
+    ax2 = ax1.twinx()
+
+    ax1.plot(data[temperature_col], data[weight_col], color="tab:blue", label="Weight(%)")
+    ax2.plot(
+        data[temperature_col],
+        data[derivative_col],
+        color="tab:red",
+        label="D.W(%/C)",
+    )
+
+    ax1.set_xlabel("Temperature (°C)")
+    ax1.set_ylabel("Weight (%)", color="tab:blue")
+    ax2.set_ylabel("D.W (%/°C)", color="tab:red")
+    ax1.tick_params(axis="y", labelcolor="tab:blue")
+    ax2.tick_params(axis="y", labelcolor="tab:red")
+
+    xmin = data[temperature_col].min()
+    xmax = data[temperature_col].max()
+    tick_start = (int(xmin) // 100) * 100
+    ax1.set_xticks(range(tick_start, int(xmax) + 101, 100))
+    ax2.set_ylim(-0.05, 1.2)
+
+    ax1.set_title(sheet_name)
+    ax1.grid(True, alpha=0.3)
+
+    lines = ax1.get_lines() + ax2.get_lines()
+    ax1.legend(lines, [line.get_label() for line in lines], loc="best")
+
+    fig.tight_layout()
+    output_name = "".join(
+        char if char.isalnum() or char in ("-", "_") else "_" for char in sheet_name
+    )
+    fig.savefig(OUT_DIR / f"{output_name}.png", dpi=300, bbox_inches="tight")
+    plt.close(fig)

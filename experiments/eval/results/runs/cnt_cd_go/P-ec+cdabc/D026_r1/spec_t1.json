@@ -1,0 +1,25 @@
+{
+ "asks": [
+  {
+   "ask": "요일별 시간대 정지 빈도 히트맵",
+   "how": "data_code"
+  }
+ ],
+ "chart": "heatmap",
+ "file": "data/downtime.xlsx",
+ "x": {
+  "col": "시작시각",
+  "label": "시간대 (시)"
+ },
+ "y": {
+  "col": "일자",
+  "label": "요일"
+ },
+ "z": {
+  "agg": "count",
+  "col": "일자"
+ },
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-ec+cdabc/D026_r1/out/t1"
+ }
+}

@@ -1,0 +1,248 @@
+```python
+import pandas as pd
+import numpy as np
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx"
+
+# Read only the 'Annealed' sheet
+df = pd.read_excel(DATA_FILE, sheet_name='Annealed')
+
+# Extract columns based on standard TGA structure identified in preview
+temp_col = 'Temperature (°C)'
+weight_col = 'Weight (%)'
+dtg_col = 'Deriv. Weight (%/°C)'
+
+temps = df[temp_col].values
+weights = df[weight_col].values
+dtgs = df[dtg_col].values * -1  # Invert DTG so peaks point up
+
+# Prepare data for ECharts series: [[x, y], ...]
+# Ensure all values are native Python floats to avoid JSON serialization issues with numpy types
+weight_data = [[float(t), float(w)] for t, w in zip(temps, weights)]
+dtg_data = [[float(t), float(d)] for t, d in zip(temps, dtgs)]
+
+# --- Calculate Residue at ~800°C ---
+idx_800 = int(np.argmin(np.abs(temps - 800)))
+residue_val = float(weights[idx_800])
+residue_temp = float(temps[idx_800])
+residue_label_text = f"Residue {residue_val:.1f}%"
+
+# --- Calculate Peak Temperature (>150°C) ---
+mask_high_temp = temps > 150
+peak_temp = None
+peak_dtg_val = None
+peak_label_text = ""
+
+if np.any(mask_high_temp):
+    # Find index of max inverted DTG among points > 150°C
+    # Note: dtgs array is already inverted (-1 * original)
+    dtg_subset = dtgs[mask_high_temp]
+    temp_subset = temps[mask_high_temp]
+    
+    peak_idx_local = int(np.argmax(dtg_subset))
+    peak_temp = float(temp_subset[peak_idx_local])
+    peak_dtg_val = float(dtg_subset[peak_idx_local]) # This is the positive value after inversion
+    
+    peak_label_text = f"{peak_temp:.0f} °C"
+
+# --- Plot Configuration ---
+# User requested: Black and white, font size 8, 3.5x2.6 inches, 600 dpi
+# Dimensions in pixels at 96 dpi: 
+width_px = int(3.5 * 96)   # 336
+height_px = int(2.6 * 96)  # 249
+dpi = 600
+
+font_size = 8
+font_family = "Noto Sans CJK KR, sans-serif"
+color_black = "#000000"
+
+option = {
+    "backgroundColor": "#ffffff",
+    "title": {
+        "text": "Annealed",
+        "left": "center",
+        "top": 5,
+        "textStyle": {
+            "fontSize": font_size + 2,
+            "fontWeight": "bold",
+            "color": color_black,
+            "fontFamily": font_family
+        }
+    },
+    "legend": {
+        "data": ["Weight (%)", "DTG (%/°C)"],
+        "top": 25,
+        "left": "center",
+        "textStyle": {
+            "fontSize": font_size,
+            "color": color_black,
+            "fontFamily": font_family
+        },
+        "itemWidth": 15,
+        "itemHeight": 8
+    },
+    "grid": {
+        "left": 45,
+        "right": 45,
+        "bottom": 40,
+        "top": 60,
+        "containLabel": False
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {"type": "cross"},
+        "textStyle": {"fontSize": font_size}
+    },
+    "xAxis": {
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 25,
+        "type": "value",
+        "min": 30,
+        "max": 900,
+        "axisLine": {"lineStyle": {"color": color_black}},
+        "axisTick": {"show": True, "length": 4, "lineStyle": {"color": color_black}},
+        "axisLabel": {
+            "fontSize": font_size,
+            "color": color_black,
+            "fontFamily": font_family
+        },
+        "splitLine": {"show": False},
+        "nameTextStyle": {
+            "fontSize": font_size,
+            "color": color_black,
+            "fontFamily": font_family
+        }
+    },
+    "yAxis": [
+        {
+            "name": "Weight (%)",
+            "nameLocation": "middle",
+            "nameGap": 30,
+            "type": "value",
+            "position": "left",
+            "min": 0,
+            "max": 105,
+            "axisLine": {"lineStyle": {"color": color_black}},
+            "axisTick": {"show": True, "length": 4, "lineStyle": {"color": color_black}},
+            "axisLabel": {
+                "fontSize": font_size,
+                "color": color_black,
+                "fontFamily": font_family
+            },
+            "splitLine": {"show": True, "lineStyle": {"color": "#cccccc", "type": "dashed"}},
+            "nameTextStyle": {
+                "fontSize": font_size,
+                "color": color_black,
+                "fontFamily": font_family
+            }
+        },
+        {
+            "name": "DTG (%/°C)",
+            "nameLocation": "middle",
+            "nameGap": 30,
+            "type": "value",
+            "position": "right",
+            "axisLine": {"lineStyle": {"color": color_black}},
+            "axisTick": {"show": True, "length": 4, "lineStyle": {"color": color_black}},
+            "axisLabel": {
+                "fontSize": font_size,
+                "color": color_black,
+                "fontFamily": font_family
+            },
+            "splitLine": {"show": False},
+            "nameTextStyle": {
+                "fontSize": font_size,
+                "color": color_black,
+                "fontFamily": font_family
+            }
+        }
+    ],
+    "series": [
+        {
+            "name": "Weight (%)",
+            "type": "line",
+            "data": weight_data,
+            "smooth": False,
+            "symbol": "none",
+            "lineStyle": {
+                "color": color_black,
+                "width": 1.5
+            },
+            "markPoint": {
+                "data": [
+                    {
+                        "coord": [residue_temp, residue_val],
+                        "label": {
+                            "show": True,
+                            "formatter": residue_label_text,
+                            "position": "right",
+                            "fontSize": font_size,
+                            "color": color_black,
+                            "fontFamily": font_family
+                        },
+                        "symbol": "circle",
+                        "symbolSize": 6,
+                        "itemStyle": {
+                            "color": color_black,
+                            "borderColor": color_black
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "DTG (%/°C)",
+            "type": "line",
+            "yAxisIndex": 1,
+            "data": dtg_data,
+            "smooth": False,
+            "symbol": "none",
+            "lineStyle": {
+                "color": color_black,
+                "width": 1.5,
+                "type": "dashed" # Dashed to distinguish from solid weight line in B&W
+            },
+            "markPoint": {
+                "data": []
+            }
+        }
+    ]
+}
+
+# Add Peak Marker to DTG series if found
+if peak_temp is not None:
+    option["series"][1]["markPoint"]["data"].append({
+        "coord": [peak_temp, peak_dtg_val],
+        "label": {
+            "show": True,
+            "formatter": peak_label_text,
+            "position": "top",
+            "fontSize": font_size,
+            "color": color_black,
+            "fontFamily": font_family
+        },
+        "symbol": "triangle",
+        "symbolSize": 8,
+        "itemStyle": {
+            "color": color_black,
+            "borderColor": color_black
+        }
+    })
+
+output = {
+    "figures": [
+        {
+            "name": "Annealed_TGA",
+            "option": option,
+            "width": width_px,
+            "height": height_px,
+            "dpi": dpi,
+            "formats": ["png"]
+        }
+    ]
+}
+
+print(json.dumps(output))
+```

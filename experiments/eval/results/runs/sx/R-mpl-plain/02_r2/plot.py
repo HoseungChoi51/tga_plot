@@ -1,0 +1,152 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+
+# 설정
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/02_r2/out"
+SHEET_NAME = "1006R1-V normal"
+OUTPUT_FILENAME = "TGA_normal.png"
+
+# 한글 폰트 설정
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+def main():
+    # 데이터 로드
+    try:
+        df = pd.read_excel(DATA_FILE, sheet_name=SHEET_NAME)
+    except Exception as e:
+        print(f"데이터 로드 실패: {e}")
+        return
+
+    # 열 이름 확인 및 추출 (요청에 따라 B=Temperature, C=Weight, D=D.W)
+    # 엑셀 헤더가 1행이므로 pandas는 자동으로 처리하지만, 컬럼명이 정확히 일치하는지 확인 필요
+    cols = df.columns.tolist()
+    
+    # 예상되는 컬럼명 매핑
+    temp_col = None
+    weight_col = None
+    dw_col = None
+    
+    for col in cols:
+        if 'Temperature' in str(col):
+            temp_col = col
+        elif 'Weight(%)' in str(col) or 'Weight' in str(col):
+            weight_col = col
+        elif 'D.W' in str(col) or 'Deriv' in str(col):
+            dw_col = col
+            
+    if not all([temp_col, weight_col, dw_col]):
+        # 만약 이름이 다르면 위치 기반(B, C, D -> index 1, 2, 3)으로 시도
+        # 하지만 위 로직으로 대부분 잡힐 것임. 안전을 위해 인덱스 접근도 고려 가능하나 여기서는 이름 기반 진행.
+        pass
+
+    x_data = df[temp_col].values
+    y1_data = df[weight_col].values
+    y2_data = df[dw_col].values
+
+    # 그래프 생성
+    fig, ax1 = plt.subplots(figsize=(10, 7))
+
+    # Y1축: Weight (%) - 왼쪽 축
+    color1 = 'tab:blue'
+    ax1.set_xlabel('Temperature (°C)', fontsize=12)
+    ax1.set_ylabel('Weight (%)', color=color1, fontsize=12)
+    line1, = ax1.plot(x_data, y1_data, color=color1, label='Weight (%)')
+    ax1.tick_params(axis='y', labelcolor=color1)
+    
+    # X축 눈금 설정: 0부터 200씩 증가
+    max_temp = np.max(x_data)
+    min_temp = np.min(x_data)
+    x_ticks = np.arange(0, int(max_temp) + 200, 200)
+    ax1.set_xticks(x_ticks)
+    ax1.set_xlim(left=0)
+
+    # Y2축: Deriv.Weight (%/C) - 오른쪽 축
+    ax2 = ax1.twinx()
+    color2 = 'tab:red'
+    ax2.set_ylabel('Deriv.Weight (%/C)', color=color2, fontsize=12)
+    line2, = ax2.plot(x_data, y2_data, color=color2, linestyle='--', label='Deriv.Weight (%/C)')
+    ax2.tick_params(axis='y', labelcolor=color2)
+    
+    # Y2축 눈금 설정: 0.2 단위
+    min_dw = np.min(y2_data)
+    max_dw = np.max(y2_data)
+    # 범위에 맞춰 적절한 간격 계산, 요청은 0.2 단위 표시
+    y2_min_tick = np.floor(min_dw / 0.2) * 0.2
+    y2_max_tick = np.ceil(max_dw / 0.2) * 0.2
+    y2_ticks = np.arange(y2_min_tick, y2_max_tick + 0.1, 0.2)
+    ax2.set_yticks(y2_ticks)
+
+    # Y1축 눈금 설정: 20 단위
+    min_w = np.min(y1_data)
+    max_w = np.max(y1_data)
+    y1_min_tick = np.floor(min_w / 20) * 20
+    y1_max_tick = np.ceil(max_w / 20) * 20
+    y1_ticks = np.arange(y1_min_tick, y1_max_tick + 1, 20)
+    ax1.set_yticks(y1_ticks)
+
+    # 최대 Deriv.Weight 값 표시
+    idx_max_dw = np.argmax(np.abs(y2_data)) # 절대값 기준 또는 실제 최대? 보통 분해 속도는 음수이므로 최소값이 최대 변화율일 수 있음.
+    # 문제에서 "Deriv.Weight의 max값"이라고 했으므로 순수 최대값(양수 쪽 포함) 또는 물리적 의미상 가장 큰 감소폭(음수 최소값)인지 모호함.
+    # 일반적으로 TGA DTG peak는 음수 방향이 크지만, 텍스트 그대로 "max"를 따르자면 np.max(y2_data).
+    # 그러나 화학적으로 중요한 것은 분해 피크(음수 극소점)인 경우가 많음. 
+    # 하지만 지시사항은 "max값"이므로 np.max 사용. 만약 모든 값이 음수라면 가장 0에 가까운 값이 max가 됨.
+    # 통상적인 해석: DTG 곡선의 피크(절대값이 가장 큰 곳)를 원할 가능성 높으나, 명시적 "max"를 존중하여 np.max 사용.
+    # 단, 대부분의 TGA 데이터에서 D.W는 음수이므로 max는 0 근처일 수 있음. 
+    # 혹시 사용자가 "최대 분해 속도(피크)"를 의도했다면 abs를 써야 함. 
+    # 문맥상 "max값을 표시"라고 했으므로 단순 최대값을 찾되, 만약 그게 0 근처라면 의미가 없을 수 있어 주의.
+    # 여기서는 단순히 np.max(y2_data)를 사용하되, 좌표는 해당 인덱스의 Temperature와 Weight를 가져옴.
+    
+    val_max_dw = np.max(y2_data)
+    idx_max_dw = np.where(y2_data == val_max_dw)[0][0]
+    temp_at_max_dw = x_data[idx_max_dw]
+    weight_at_max_dw = y1_data[idx_max_dw]
+    
+    # 주석 추가: Max Deriv.Weight
+    # 그래프 상단이나 적절한 위치에 표시
+    ax2.annotate(f'Max D.W: {val_max_dw:.4f} %/C\nTemp: {temp_at_max_dw:.1f} °C',
+                 xy=(temp_at_max_dw, val_max_dw),
+                 xytext=(temp_at_max_dw + 50, val_max_dw + 0.1),
+                 arrowprops=dict(facecolor='black', shrink=0.05),
+                 fontsize=9, bbox=dict(boxstyle="round,pad=0.3", fc="yellow", ec="k", lw=1, alpha=0.8))
+
+    # 800°C 근처의 Residue (%) 표시
+    target_temp = 800
+    # 800과 가장 가까운 온도 인덱스 찾기
+    idx_800 = np.argmin(np.abs(x_data - target_temp))
+    actual_temp_800 = x_data[idx_800]
+    residue_weight = y1_data[idx_800]
+    
+    # 주석 추가: Residue at ~800°C
+    # Y1축 기준으로 높이 설정
+    ax1.annotate(f'Residue @ ~{actual_temp_800:.1f}°C:\n{residue_weight:.2f}%',
+                 xy=(actual_temp_800, residue_weight),
+                 xytext=(actual_temp_800 - 150, residue_weight + 15),
+                 arrowprops=dict(facecolor='green', shrink=0.05),
+                 fontsize=10, fontweight='bold',
+                 bbox=dict(boxstyle="round,pad=0.3", fc="lightgreen", ec="darkgreen", lw=1, alpha=0.8))
+
+    # 제목 및 레전드
+    ax1.set_title(f'TGA Analysis: {SHEET_NAME}', fontsize=14, pad=20)
+    
+    lines = [line1, line2]
+    labels = [l.get_label() for l in lines]
+    ax1.legend(lines, labels, loc='upper right')
+
+    # 그리드
+    ax1.grid(True, linestyle=':', alpha=0.6)
+
+    # 저장
+    os.makedirs(OUT_DIR, exist_ok=True)
+    save_path = os.path.join(OUT_DIR, OUTPUT_FILENAME)
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=300)
+    plt.close()
+    
+    print(f"그래프가 저장되었습니다: {save_path}")
+
+if __name__ == "__main__":
+    main()

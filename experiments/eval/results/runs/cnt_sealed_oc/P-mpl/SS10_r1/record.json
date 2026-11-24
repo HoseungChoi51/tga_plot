@@ -1,0 +1,717 @@
+{
+ "arm": "P-mpl",
+ "item": "SS10",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "신입 연구원",
+ "type": "session",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "TEM 직경 데이터로 시료별 평균 직경을 막대그래프로 보고 싶어요.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/diameters.csv\",\n  \"chart\": \"bar\",\n  \"x\": \"시료\",\n  \"y\": {\n    \"col\": \"직경(nm)\",\n    \"agg\": \"mean\"\n  },\n  \"asks\": [\n    {\n      \"ask\": \"TEM 직경 데이터로 시료별 평균 직경 막대그래프\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 2.855,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 16679,
+     "output_chars": 222,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/diameters.csv",
+    "chart": "bar",
+    "x": "시료",
+    "y": {
+     "col": "직경(nm)",
+     "agg": "mean"
+    },
+    "asks": [
+     {
+      "ask": "TEM 직경 데이터로 시료별 평균 직경 막대그래프",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS10_r1/out/t1/bar_직경_nm.png"
+    ],
+    "chart": "bar",
+    "rows_used": 1300,
+    "rows_total": 1300,
+    "values": {
+     "categories": [
+      "TEM-01",
+      "TEM-02",
+      "TEM-03",
+      "TEM-04",
+      "TEM-05",
+      "TEM-06"
+     ],
+     "series": {
+      "직경(nm)": [
+       9.3861,
+       11.7432,
+       9.7375,
+       9.8548,
+       10.3135,
+       12.2683
+      ]
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "막대 그래프를 저장했습니다: bar_직경_nm.png\n사용한 행: 1300 / 1300\n직경(nm): TEM-01 9.39, TEM-02 11.7, TEM-03 9.74, TEM-04 9.85, TEM-05 10.3, TEM-06 12.3"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": null,
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "직경(nm)",
+         "orient": "v",
+         "cats": [
+          "TEM-01",
+          "TEM-02",
+          "TEM-03",
+          "TEM-04",
+          "TEM-05",
+          "TEM-06"
+         ],
+         "values": [
+          9.386111111111113,
+          11.743181818181819,
+          9.7375,
+          9.8548,
+          10.3135,
+          12.268275862068966
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "시료",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0,
+         5.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "TEM-01",
+         "TEM-02",
+         "TEM-03",
+         "TEM-04",
+         "TEM-05",
+         "TEM-06"
+        ],
+        "min": -0.69,
+        "max": 5.6899999999999995,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "TEM-01",
+         "TEM-02",
+         "TEM-03",
+         "TEM-04",
+         "TEM-05",
+         "TEM-06"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "직경(nm) (mean)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         2.5,
+         5.0,
+         7.5,
+         10.0,
+         12.5,
+         15.0
+        ],
+        "step": 2.5,
+        "categories": null,
+        "min": 0.0,
+        "max": 15.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "-2.5",
+         "0.0",
+         "2.5",
+         "5.0",
+         "7.5",
+         "10.0",
+         "12.5",
+         "15.0",
+         "17.5"
+        ],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS10_r1/out/t1/bar_직경_nm.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.3253791332244873,
+   "check": {
+    "kind_expected": "bar",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 3.252
+  },
+  {
+   "turn": 2,
+   "text": "혹시 오차막대로 표준편차도 넣어 주실 수 있나요?",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/diameters.csv\",\n  \"chart\": \"bar\",\n  \"x\": \"시료\",\n  \"y\": {\n    \"col\": \"직경(nm)\",\n    \"agg\": \"mean\"\n  },\n  \"error\": \"std\",\n  \"asks\": [\n    {\n      \"ask\": \"오차막대 표준편차 추가\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 2.532,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 17266,
+     "output_chars": 225,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/diameters.csv",
+    "chart": "bar",
+    "x": "시료",
+    "y": {
+     "col": "직경(nm)",
+     "agg": "mean"
+    },
+    "error": "std",
+    "asks": [
+     {
+      "ask": "오차막대 표준편차 추가",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS10_r1/out/t2/bar_직경_nm.png"
+    ],
+    "chart": "bar",
+    "rows_used": 1300,
+    "rows_total": 1300,
+    "values": {
+     "categories": [
+      "TEM-01",
+      "TEM-02",
+      "TEM-03",
+      "TEM-04",
+      "TEM-05",
+      "TEM-06"
+     ],
+     "series": {
+      "직경(nm)": [
+       9.3861,
+       11.7432,
+       9.7375,
+       9.8548,
+       10.3135,
+       12.2683
+      ]
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "막대 그래프를 저장했습니다: bar_직경_nm.png\n사용한 행: 1300 / 1300\n직경(nm): TEM-01 9.39, TEM-02 11.7, TEM-03 9.74, TEM-04 9.85, TEM-05 10.3, TEM-06 12.3"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": null,
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "직경(nm)",
+         "orient": "v",
+         "cats": [
+          "TEM-01",
+          "TEM-02",
+          "TEM-03",
+          "TEM-04",
+          "TEM-05",
+          "TEM-06"
+         ],
+         "values": [
+          9.386111111111113,
+          11.743181818181819,
+          9.7375,
+          9.8548,
+          10.3135,
+          12.268275862068966
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "시료",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0,
+         5.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "TEM-01",
+         "TEM-02",
+         "TEM-03",
+         "TEM-04",
+         "TEM-05",
+         "TEM-06"
+        ],
+        "min": -0.69,
+        "max": 5.6899999999999995,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "TEM-01",
+         "TEM-02",
+         "TEM-03",
+         "TEM-04",
+         "TEM-05",
+         "TEM-06"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "직경(nm) (mean)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         5.0,
+         10.0,
+         15.0,
+         20.0
+        ],
+        "step": 5.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 20.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "-5",
+         "0",
+         "5",
+         "10",
+         "15",
+         "20",
+         "25"
+        ],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS10_r1/out/t2/bar_직경_nm.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.30925846099853516,
+   "check": {
+    "kind_expected": "bar",
+    "failed": [],
+    "unchecked": [
+     "error_bars={'TEM-01': 2.595, 'TEM-02': 3.284, 'TEM-03': 2.561, 'TEM-04': 2.746, 'TEM-05': 3.157, 'TEM-06': 3.492}"
+    ],
+    "n_checks": 3,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 2.945
+  },
+  {
+   "turn": 3,
+   "text": "시료 이름 대신 '반응기 / 촉매로트'로 라벨을 바꿔 주실 수 있을까요? 예를 들면 'R1 / FC-2604'처럼요.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/diameters.csv\",\n  \"chart\": \"bar\",\n  \"x\": {\"col\": \"시료\", \"label\": \"\"},\n  \"y\": {\n    \"col\": \"직경(nm)\",\n    \"agg\": \"mean\"\n  },\n  \"error\": \"std\",\n  \"data_code\": \"df['시료'] = df['반응기'] + ' / ' + df['촉매로트']\",\n  \"asks\": [\n    {\n      \"ask\": \"시료 라벨을 반응기/촉매로트로 변경\",\n      \"how\": \"data_code\"\n    }\n  ]\n}\n```",
+     "llm_s": 4.245,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 17763,
+     "output_chars": 320,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/diameters.csv",
+    "chart": "bar",
+    "x": {
+     "col": "시료",
+     "label": ""
+    },
+    "y": {
+     "col": "직경(nm)",
+     "agg": "mean"
+    },
+    "error": "std",
+    "data_code": "df['시료'] = df['반응기'] + ' / ' + df['촉매로트']",
+    "asks": [
+     {
+      "ask": "시료 라벨을 반응기/촉매로트로 변경",
+      "how": "data_code"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS10_r1/out/t3/bar_직경_nm.png"
+    ],
+    "chart": "bar",
+    "rows_used": 1300,
+    "rows_total": 1300,
+    "values": {
+     "categories": [
+      "R1 / FC-2604",
+      "R1 / FC-2607",
+      "R2 / FC-2605",
+      "R3 / FC-2604",
+      "R4 / FC-2604",
+      "R4 / FC-2607"
+     ],
+     "series": {
+      "직경(nm)": [
+       9.3861,
+       11.7432,
+       9.7375,
+       9.8548,
+       10.3135,
+       12.2683
+      ]
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "막대 그래프를 저장했습니다: bar_직경_nm.png\n사용한 행: 1300 / 1300\n직경(nm): R1 / FC-2604 9.39, R1 / FC-2607 11.7, R2 / FC-2605 9.74, R3 / FC-2604 9.85, R4 / FC-2604 10.3, R4 / FC-2607 12.3"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": null,
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "직경(nm)",
+         "orient": "v",
+         "cats": [
+          "R1 / FC-2604",
+          "R1 / FC-2607",
+          "R2 / FC-2605",
+          "R3 / FC-2604",
+          "R4 / FC-2604",
+          "R4 / FC-2607"
+         ],
+         "values": [
+          9.386111111111113,
+          11.743181818181819,
+          9.7375,
+          9.8548,
+          10.3135,
+          12.268275862068966
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "시료",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0,
+         5.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "R1 / FC-2604",
+         "R1 / FC-2607",
+         "R2 / FC-2605",
+         "R3 / FC-2604",
+         "R4 / FC-2604",
+         "R4 / FC-2607"
+        ],
+        "min": -0.69,
+        "max": 5.6899999999999995,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "R1 / FC-2604",
+         "R1 / FC-2607",
+         "R2 / FC-2605",
+         "R3 / FC-2604",
+         "R4 / FC-2604",
+         "R4 / FC-2607"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "직경(nm) (mean)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         5.0,
+         10.0,
+         15.0,
+         20.0
+        ],
+        "step": 5.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 20.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "-5",
+         "0",
+         "5",
+         "10",
+         "15",
+         "20",
+         "25"
+        ],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS10_r1/out/t3/bar_직경_nm.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.42343974113464355,
+   "check": {
+    "kind_expected": "bar",
+    "failed": [],
+    "unchecked": [
+     "error_bars={'R1 / FC-2604': 2.595, 'R1 / FC-2607': 3.284, 'R2 / FC-2605': 2.561, 'R3 / FC-2604': 2.746, 'R4 / FC-2604': 3.157, 'R4 / FC-2607': 3.492}"
+    ],
+    "n_checks": 3,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 4.737
+  }
+ ]
+}

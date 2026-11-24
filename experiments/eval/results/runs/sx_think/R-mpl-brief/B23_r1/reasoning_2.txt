@@ -1,0 +1,118 @@
+We need answer user's latest: "no ```python block in the Reply with corrected complete script only, inside one ```python block." We need produce final with python block. Need satisfy original: read DATA_FILE, overlay three sheets, colors: Raw black, Acid-washed blue, Annealed red. Standard TGA plot: x temp, y1 weight %, y2 DTG multiplied -1. Title? For overlay maybe title? User says 세 시료 겹쳐서 그리고... likely one plot with all sheets. Need labels, legend. Residue and peak labels always drawn unless user says otherwise. For multiple sheets overlaid, draw residue and peak labels for each? The standard says two labels always drawn unless user says otherwise. For overlay, likely label each curve's residue and peak. Need be careful with overlapping text. We can annotate each sheet with residue at nearest 800 C and peak highest DTG above 150. Colors correspond to curves? Residue label maybe same color as y1? Peak label same color as y2? But if y2 is multiplied by -1, peak temp marker on y2 curve? Need draw marker at (peak temp, -dtg_peak) on y2 axis, text near. For residue marker at (800, weight) on y1. Since multiple curves, use colors. Need set colors: Raw black (#000000), Acid-washed blue (#1f4e9c maybe? user says 파랑; use blue #0000ff or standard blue? To be clear use #1f4e9c? But Raw black, Acid-washed blue, Annealed red. Could use #0000FF and #FF0000. But standard y1 line #1f4e9c and y2 #c0392b? User overrides colors for curves? They say Raw is black, Acid-washed blue, Annealed red. For overlaid TGA, each sample has weight and DTG. Should both weight and DTG for each sample use same sample color? Probably yes, maybe DTG dashed? Need distinguish y1/y2. Could use solid for weight, dashed for DTG, same color. But standard TGA plot y1 blue y2 red. User asks sample colors. We can draw each sample's weight solid and DTG dashed in sample color. Legend entries: Raw Weight, Raw DTG, etc. Or maybe only one legend per sample? But y1/y2 separate. Need include legend center left. Could use handles from all lines. Need avoid too many legend entries? Could group: for each sample, weight solid, DTG dashed. Good.
+
+Need read Excel with pandas. Data columns names: Time, Temperature, Weight, Deriv. Need robust. Use header=0? Header rows [1], data_start_row 2, so pandas read_excel(sheet_name=..., header=0) works. Need handle Korean font: matplotlib rcParams font.family = 'Noto Sans CJK KR'. Need OUT_DIR exists. Save one figure? File name maybe cnt_batches_overlay.png or all sheets? Since overlay requested, one plot. Could also save per-sheet? User says 세 시료 겹쳐서 (overlay) so one. But standard says one plot per sheet unless no sheet named? User explicitly overlay. So one figure.
+
+Need ensure no plt.show. Use dpi 300. Figure size maybe 10x6. Need axis labels: x Temperature (°C), y1 Weight (%), y2 DTG (%/°C) maybe note inverted? Since multiplied by -1, label maybe "DTG (%/°C) (inverted)"? Standard says right y axis = DTG multiplied by -1 so peaks point up. Could label "DTG (%
+[...]
+nd(inv_dtg)
+
+    ax1.plot(temp, weight, color=color, linewidth=2.0, label=f"{sheet} Weight")
+    ax2.plot(temp, inv_dtg, color=color, linewidth=1.5, linestyle="--", label=f"{sheet} DTG (× -1)")
+
+    # residue nearest 800 C
+    res_idx = int(np.argmin(np.abs(temp - 800.0)))
+    res_temp = float(temp[res_idx])
+    res_weight = float(weight[res_idx])
+    ax1.scatter([res_temp], [res_weight], color=color, s=35, zorder=5)
+    annotations.append((ax1, res_temp, res_weight, f"{sheet} residue {res_weight:.1f}%", color, idx))
+
+    # DTG peak above 150 C
+    mask = (temp > 150.0) & np.isfinite(inv_dtg)
+    if np.any(mask):
+        temp_m = temp[mask]
+        inv_m = inv_dtg[mask]
+        try:
+            peaks, _ = find_peaks(inv_m, prominence=0.05, distance=20)
+            if len(peaks) > 0:
+                best = int(peaks[np.argmax(inv_m[peaks])])
+            else:
+                best = int(np.argmax(inv_m))
+        except Exception:
+            best = int(np.argmax(inv_m))
+        peak_temp = float(temp_m[best])
+        peak_val = float(inv_m[best])
+    else:
+        peak_temp = float(temp[-1])
+        peak_val = 0.0
+
+    ax2.scatter([peak_temp], [peak_val], color=color, s=35, zorder=5)
+    annotations.append((ax2, peak_temp, peak_val, f"{sheet} {peak_temp:.0f} °C", color, idx))
+
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)")
+ax2.set_ylabel("DTG (%/°C) (× -1)")
+ax1.set_title("TGA Overlay")
+
+if all_temp:
+    x_min = min(float(np.nanmin(t)) for t in all_temp)
+    x_max = max(float(np.nanmax(t)) for t in all_temp)
+    ax1.set_xlim(x_min - 10, x_max + 10)
+
+if all_weight:
+    w_min = min(float(np.nanmin(w)) for w in all_weight)
+    w_max = max(float(np.nanmax(w)) for w in all_weight)
+    ax1.set_ylim(min(0.0, w_min - 2.0), max(100.0, w_max + 2.0))
+
+if all_inv_dtg:
+    d_min = min(float(np.nanmin(v)) for v in all_inv_dtg)
+    d_max = max(float(np.nanmax(v)) for v in all_inv_dtg)
+    ax2.set_ylim(min(d_min, 0.0) - 0.1, d_max * 1.15 + 0.1)
+
+handles1, labels1 = ax1.get_legend_handles_labels()
+handles2, labels2 = ax2.get_legend_handles_labels()
+ax1.legend(
+    handles=handles1 + handles2,
+    labels=labels1 + labels2,
+    loc="center left",
+    bbox_to_anchor=(0.02, 0.5),
+    fontsize=9,
+    framealpha=0.9,
+)
+
+for ax, x, y, text, color, idx in annotations:
+    y_min, y_max = ax.get_ylim()
+    if y > y_min + 0.80 * (y_max - y_min):
+        va = "top"
+        dy = -10 - idx * 14
+    else:
+        va = "bottom"
+        dy = 10 + idx * 14
+    ax.annotate(
+        text,
+        xy=(x, y),
+        xytext=(8, dy),
+        textcoords="offset points",
+        color=color,
+        fontsize=9,
+        ha="left",
+        va=va,
+    )
+
+fig.tight_layout()
+base = os.path.splitext(os.path.basename(DATA_FILE))[0]
+out_path = os.path.join(OUT_DIR, f"{base}_overlay.png")
+fig.savefig(out_path, dpi=300)
+plt.close(fig)
+```
+
+Need consider if ordered_sheets empty? Then fig save blank. Fine.
+
+Need maybe if color_for returns black for unknown, but if unknown not in preferred maybe okay.
+
+Potential issue: using find_peaks on inv_m with NaN? mask finite. Good.
+
+Potential issue: if inv_m all NaN? mask finite false. Good.
+
+Potential issue: if data contains negative weight? y1 min maybe negative. Good.
+
+Potential issue: y2 label includes multiplication sign ×; font supports. Good.
+
+Potential issue: legend center left may cover left curves? But okay.
+
+Potential issue: annotation for residue on ax1 and peak on ax2 both use idx offset. For Raw idx=0 offset 10, Acid idx=1 offset 24, Annealed idx=2 offset 38. Good. But if residue y values near top? y1 max 100, residue ~15, so bottom. Peak y2 maybe peak_val ~0.85, y2 max ~1.66, threshold 1.33, so bottom. If Annealed peak 1.368, y2 max 1.673, threshold 1.338, peak_val 1.368 > threshold, so top offset -38. Good.
+
+Need maybe if peak_val exactly 0 and y_min negative, threshold maybe 0.8*(range), bottom. Good.
+
+Could include grid? Not requested. Avoid.
+
+Need final only python block. Ensure no analysis in final. Good.

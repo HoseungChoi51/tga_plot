@@ -1,0 +1,170 @@
+import pandas as pd
+import numpy as np
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx"
+
+# Read the 'Annealed' sheet
+df = pd.read_excel(DATA_FILE, sheet_name="Annealed")
+
+# Extract columns based on header names
+temp_col = "Temperature (°C)"
+weight_col = "Weight (%)"
+deriv_col = "Deriv. Weight (%/°C)"
+
+temperatures = df[temp_col].values
+weights = df[weight_col].values
+deriv_weights = df[deriv_col].values
+
+# Prepare data for ECharts: list of [x, y] pairs
+weight_data = [[float(t), float(w)] for t, w in zip(temperatures, weights)]
+deriv_data = [[float(t), float(d)] for t, d in zip(temperatures, deriv_weights)]
+
+# Black and white styling for publication
+# Line 1: solid black line for Weight (%)
+# Line 2: dashed gray/black line for Deriv. Weight (%/°C) on secondary axis
+
+option = {
+    "backgroundColor": "#ffffff",
+    "grid": {
+        "left": "10%",
+        "right": "10%",
+        "top": "15%",
+        "bottom": "12%",
+        "containLabel": True
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {"type": "cross"}
+    },
+    "legend": {
+        "data": ["Weight (%)", "Deriv. Weight (%/°C)"],
+        "top": "2%",
+        "textStyle": {
+            "fontSize": 8,
+            "color": "#000000"
+        }
+    },
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "nameTextStyle": {
+            "fontSize": 8,
+            "color": "#000000"
+        },
+        "axisLine": {
+            "lineStyle": {"color": "#000000"}
+        },
+        "axisTick": {
+            "lineStyle": {"color": "#000000"}
+        },
+        "axisLabel": {
+            "fontSize": 8,
+            "color": "#000000"
+        },
+        "splitLine": {
+            "show": False
+        }
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Weight (%)",
+            "position": "left",
+            "nameTextStyle": {
+                "fontSize": 8,
+                "color": "#000000"
+            },
+            "axisLine": {
+                "lineStyle": {"color": "#000000"}
+            },
+            "axisTick": {
+                "lineStyle": {"color": "#000000"}
+            },
+            "axisLabel": {
+                "fontSize": 8,
+                "color": "#000000"
+            },
+            "splitLine": {
+                "show": True,
+                "lineStyle": {
+                    "color": "#cccccc",
+                    "type": "dashed"
+                }
+            }
+        },
+        {
+            "type": "value",
+            "name": "Deriv. Weight (%/°C)",
+            "position": "right",
+            "nameTextStyle": {
+                "fontSize": 8,
+                "color": "#000000"
+            },
+            "axisLine": {
+                "lineStyle": {"color": "#000000"}
+            },
+            "axisTick": {
+                "lineStyle": {"color": "#000000"}
+            },
+            "axisLabel": {
+                "fontSize": 8,
+                "color": "#000000"
+            },
+            "splitLine": {
+                "show": False
+            }
+        }
+    ],
+    "series": [
+        {
+            "name": "Weight (%)",
+            "type": "line",
+            "data": weight_data,
+            "smooth": False,
+            "symbol": "none",
+            "lineStyle": {
+                "color": "#000000",
+                "width": 1.5
+            },
+            "itemStyle": {
+                "color": "#000000"
+            },
+            "yAxisIndex": 0
+        },
+        {
+            "name": "Deriv. Weight (%/°C)",
+            "type": "line",
+            "data": deriv_data,
+            "smooth": False,
+            "symbol": "none",
+            "lineStyle": {
+                "color": "#666666",
+                "width": 1.5,
+                "type": "dashed"
+            },
+            "itemStyle": {
+                "color": "#666666"
+            },
+            "yAxisIndex": 1
+        }
+    ]
+}
+
+# Calculate dimensions: 3.5 x 2.6 inches at 96 px/inch
+width_px = int(3.5 * 96)   # 336
+height_px = int(2.6 * 96)  # 249.6 -> 250
+
+figure = {
+    "name": "tga_annealed_bw",
+    "option": option,
+    "width": width_px,
+    "height": height_px,
+    "dpi": 600,
+    "formats": ["png"]
+}
+
+output = {"figures": [figure]}
+print(json.dumps(output, ensure_ascii=False))

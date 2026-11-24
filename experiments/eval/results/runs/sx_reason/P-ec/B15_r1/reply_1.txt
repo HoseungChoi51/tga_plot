@@ -1,0 +1,15 @@
+```json
+{
+  "file": "polymers.xlsx",
+  "combine": true,
+  "echarts": {
+    "legend": {
+      "orient": "vertical",
+      "right": 0
+    },
+    "grid": {
+      "right": 120
+    }
+  }
+}
+```

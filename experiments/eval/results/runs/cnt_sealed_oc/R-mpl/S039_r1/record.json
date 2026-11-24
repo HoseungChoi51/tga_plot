@@ -1,0 +1,253 @@
+{
+ "arm": "R-mpl",
+ "item": "S039",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "신입 연구원",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "주간조랑 야간조가 차이가 있는지 보고 싶은데요, 반응기별로 평균 2존 온도를 주간/야간으로 나눠서 막대로 보여 주실 수 있을까요?",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read data\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Clean column names if necessary (though preview shows clean headers)\n# Filter out rows with missing critical data for the plot\ndf_plot = df.dropna(subset=['반응기', '근무조', '2존온도'])\n\n# Calculate mean 2-zone temperature by Reactor and Shift\ngrouped = df_plot.groupby(['반응기', '근무조'])['2존온도'].mean().reset_index()\n\n# Pivot for easier plotting\npivot_df = grouped.pivot(index='반응기', columns='근무조', values='2존온도')\n\n# Ensure order of reactors is R1, R2, R3, R4\nreactor_order = ['R1', 'R2', 'R3', 'R4']\npivot_df = pivot_df.reindex(reactor_order)\n\n# Define colors for shifts\ncolors = {'주간': '#1f77b4', '야간': '#ff7f0e'} # Blue for Day, Orange for Night\n\n# Create bar chart\nx = np.arange(len(pivot_df))  # label locations\nwidth = 0.35  # width of bars\n\nfig, ax = plt.subplots(figsize=(10, 6))\n\nrects1 = ax.bar(x - width/2, pivot_df['주간'], width, label='주간', color=colors['주간'])\nrects2 = ax.bar(x + width/2, pivot_df['야간'], width, label='야간', color=colors['야간'])\n\n# Add some text for labels, title and custom x-axis tick labels, etc.\nax.set_ylabel('평균 2존 온도 (°C)', fontsize=12)\nax.set_title('반응기별 근무조 평균 2존 온도 비교', fontsize=14)\nax.set_xticks(x)\nax.set_xticklabels(pivot_df.index, fontsize=12)\nax.legend(fontsize=12)\n\n# Attach a text label above each bar in *rects*, displaying its height.\ndef add_labels(rects):\n    for rect in rects:\n        height = rect.get_height()\n        ax.annotate(f'{height:.1f}',\n                    xy=(rect.get_x() + rect.get_width() / 2, height),\n                    xytext=(0, 3),  # 3 points vertical offset\n                    textcoords=\"offset points\",\n                    ha='center', va='bottom', fontsize=9)\n\nadd_labels(rects1)\nadd_labels(rects2)\n\nfig.tight_layout()\n\n# Save figure\noutput_file = os.path.join(OUT_DIR, \"shift_reactor_temp_comparison.png\")\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\nplt.close()\n```",
+     "llm_s": 11.161,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 3813,
+     "output_chars": 2198,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read data\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Identify columns to convert to numeric\nnumeric_cols = ['2존온도 (°C)', 'CNT수율 (g/g-cat)', '생산속도 (g/h)', '잔류금속 (wt%)', \n                '산화개시온도 (°C)', 'IG/ID', '체류시간 (s)', '외기습도 (%)', '가동시간 (h)',\n                '1존온도 (°C)', '3존온도 (°C)', 'C2H4유량 (sccm)', 'H2유량 (sccm)', 'H2/C2H4비']\n\n# Convert specified columns to numeric, coercing errors to NaN\nfor col in numeric_cols:\n    if col in df.columns:\n        df[col] = pd.to_numeric(df[col], errors='coerce')\n\n# Filter out rows with missing critical data for the plot\n# Note: The column name in the preview is '2존온도' but usually includes units in headers or might be just text.\n# Based on previous error, it seems '2존온도' was read as object. Let's check actual header names from typical Excel structures.\n# If the header is strictly '2존온도' without units in this specific file version causing issues, we handle it.\n# However, looking at the preview: I 2존온도 (°C). So the column name likely contains \"(°C)\".\n# But wait, in the first script I used '2존온도'. If that failed, maybe the column name is different or has whitespace.\n# Let's try to find the column containing \"2존\" and \"온도\".\n\ncol_2zone = None\nfor c in df.columns:\n    if \"2존\" in str(c) and \"온도\" in str(c):\n        col_2zone = c\n        break\n\nif col_2zone is None:\n    # Fallback if exact match fails, though unlikely given preview\n    raise ValueError(\"Column for 2-zone temperature not found\")\n\n# Ensure the identified column is numeric\ndf[col_2zone] = pd.to_numeric(df[col_2zone], errors='coerce')\n\n# Drop rows where key fields are null\ndf_plot = df.dropna(subset=['반응기', '근무조', col_2zone])\n\n# Calculate mean 2-zone temperature by Reactor and Shift\ngrouped = df_plot.groupby(['반응기', '근무조'])[col_2zone].mean().reset_index()\n\n# Pivot for easier plotting\npivot_df = grouped.pivot(index='반응기', columns='근무조', values=col_2zone)\n\n# Ensure order of reactors is R1, R2, R3, R4\nreactor_order = ['R1', 'R2', 'R3', 'R4']\n# Only keep reactors present in pivot index\npivot_df = pivot_df.reindex([r for r in reactor_order if r in pivot_df.index])\n\n# Define colors for shifts\ncolors = {'주간': '#1f77b4', '야간': '#ff7f0e'} # Blue for Day, Orange for Night\n\n# Create bar chart\nx = np.arange(len(pivot_df))  # label locations\nwidth = 0.35  # width of bars\n\nfig, ax = plt.subplots(figsize=(10, 6))\n\nrects1 = ax.bar(x - width/2, pivot_df['주간'], width, label='주간', color=colors['주간'])\nrects2 = ax.bar(x + width/2, pivot_df['야간'], width, label='야간', color=colors['야간'])\n\n# Add some text for labels, title and custom x-axis tick labels, etc.\nax.set_ylabel('평균 2존 온도 (°C)', fontsize=12)\nax.set_title('반응기별 근무조 평균 2존 온도 비교', fontsize=14)\nax.set_xticks(x)\nax.set_xticklabels(pivot_df.index, fontsize=12)\nax.legend(fontsize=12)\n\n# Attach a text label above each bar in *rects*, displaying its height.\ndef add_labels(rects):\n    for rect in rects:\n        height = rect.get_height()\n        if not np.isnan(height):\n            ax.annotate(f'{height:.1f}',\n                        xy=(rect.get_x() + rect.get_width() / 2, height),\n                        xytext=(0, 3),  # 3 points vertical offset\n                        textcoords=\"offset points\",\n                        ha='center', va='bottom', fontsize=9)\n\nadd_labels(rects1)\nadd_labels(rects2)\n\nfig.tight_layout()\n\n# Save figure\noutput_file = os.path.join(OUT_DIR, \"shift_reactor_temp_comparison.png\")\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\nplt.close()\n```",
+     "llm_s": 13.549,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 7624,
+     "output_chars": 3748,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read data\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Identify columns to convert to numeric\nnumeric_cols = ['2존온도 (°C)', 'CNT수율 (g/g-cat)', '생산속도 (g/h)', '잔류금속 (wt%)', \n                '산화개시온도 (°C)', 'IG/ID', '체류시간 (s)', '외기습도 (%)', '가동시간 (h)',\n                '1존온도 (°C)', '3존온도 (°C)', 'C2H4유량 (sccm)', 'H2유량 (sccm)', 'H2/C2H4비']\n\n# Convert specified columns to numeric, coercing errors to NaN\nfor col in numeric_cols:\n    if col in df.columns:\n        df[col] = pd.to_numeric(df[col], errors='coerce')\n\n# Filter out rows with missing critical data for the plot\n# Note: The column name in the preview is '2존온도' but usually includes units in headers or might be just text.\n# Based on previous error, it seems '2존온도' was read as object. Let's check actual header names from typical Excel structures.\n# If the header is strictly '2존온도' without units in this specific file version causing issues, we handle it.\n# However, looking at the preview: I 2존온도 (°C). So the column name likely contains \"(°C)\".\n# But wait, in the first script I used '2존온도'. If that failed, maybe the column name is different or has whitespace.\n# Let's try to find the column containing \"2존\" and \"온도\".\n\ncol_2zone = None\nfor c in df.columns:\n    if \"2존\" in str(c) and \"온도\" in str(c):\n        col_2zone = c\n        break\n\nif col_2zone is None:\n    # Fallback if exact match fails, though unlikely given preview\n    raise ValueError(\"Column for 2-zone temperature not found\")\n\n# Ensure the identified column is numeric\ndf[col_2zone] = pd.to_numeric(df[col_2zone], errors='coerce')\n\n# Drop rows where key fields are null\ndf_plot = df.dropna(subset=['반응기', '근무조', col_2zone])\n\n# Calculate mean 2-zone temperature by Reactor and Shift\ngrouped = df_plot.groupby(['반응기', '근무조'])[col_2zone].mean().reset_index()\n\n# Pivot for easier plotting\npivot_df = grouped.pivot(index='반응기', columns='근무조', values=col_2zone)\n\n# Ensure order of reactors is R1, R2, R3, R4\nreactor_order = ['R1', 'R2', 'R3', 'R4']\n# Only keep reactors present in pivot index\npivot_df = pivot_df.reindex([r for r in reactor_order if r in pivot_df.index])\n\n# Define colors for shifts\ncolors = {'주간': '#1f77b4', '야간': '#ff7f0e'} # Blue for Day, Orange for Night\n\n# Create bar chart\nx = np.arange(len(pivot_df))  # label locations\nwidth = 0.35  # width of bars\n\nfig, ax = plt.subplots(figsize=(10, 6))\n\nrects1 = ax.bar(x - width/2, pivot_df['주간'], width, label='주간', color=colors['주간'])\nrects2 = ax.bar(x + width/2, pivot_df['야간'], width, label='야간', color=colors['야간'])\n\n# Add some text for labels, title and custom x-axis tick labels, etc.\nax.set_ylabel('평균 2존 온도 (°C)', fontsize=12)\nax.set_title('반응기별 근무조 평균 2존 온도 비교', fontsize=14)\nax.set_xticks(x)\nax.set_xticklabels(pivot_df.index, fontsize=12)\nax.legend(fontsize=12)\n\n# Attach a text label above each bar in *rects*, displaying its height.\ndef add_labels(rects):\n    for rect in rects:\n        height = rect.get_height()\n        if not np.isnan(height):\n            ax.annotate(f'{height:.1f}',\n                        xy=(rect.get_x() + rect.get_width() / 2, height),\n                        xytext=(0, 3),  # 3 points vertical offset\n                        textcoords=\"offset points\",\n                        ha='center', va='bottom', fontsize=9)\n\nadd_labels(rects1)\nadd_labels(rects2)\n\nfig.tight_layout()\n\n# Save figure\noutput_file = os.path.join(OUT_DIR, \"shift_reactor_temp_comparison.png\")\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "반응기별 근무조 평균 2존 온도 비교",
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "주간",
+         "orient": "v",
+         "cats": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          1149.9808695652173,
+          1150.289516129032,
+          1149.6283464566927,
+          1149.7661538461539
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#1f77b4",
+          "#1f77b4",
+          "#1f77b4",
+          "#1f77b4"
+         ],
+         "centers": [
+          -0.175,
+          0.825,
+          1.825,
+          2.825
+         ]
+        },
+        {
+         "name": "야간",
+         "orient": "v",
+         "cats": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          1149.7345588235294,
+          1162.3761904761905,
+          1149.9915254237287,
+          1149.8355371900827
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#ff7f0e",
+          "#ff7f0e",
+          "#ff7f0e",
+          "#ff7f0e"
+         ],
+         "centers": [
+          0.175,
+          1.175,
+          2.175,
+          3.175
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 8,
+       "texts": [
+        "1150.0",
+        "1150.3",
+        "1149.6",
+        "1149.8",
+        "1149.7",
+        "1162.4",
+        "1150.0",
+        "1149.8"
+       ],
+       "x": {
+        "label": "",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "R1",
+         "R2",
+         "R3",
+         "R4"
+        ],
+        "min": -0.535,
+        "max": 3.535,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "R1",
+         "R2",
+         "R3",
+         "R4"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "평균 2존 온도 (°C)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         200.0,
+         400.0,
+         600.0,
+         800.0,
+         1000.0,
+         1200.0
+        ],
+        "step": 200.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 1220.495,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "200",
+         "400",
+         "600",
+         "800",
+         "1000",
+         "1200",
+         "1400"
+        ],
+        "rotate": 0.0
+       },
+       "title": "반응기별 근무조 평균 2존 온도 비교"
+      }
+     ],
+     "texts": [
+      "1150.0",
+      "1150.3",
+      "1149.6",
+      "1149.8",
+      "1149.7",
+      "1162.4",
+      "1150.0",
+      "1149.8"
+     ],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "주간",
+       "야간"
+      ],
+      "inside": true,
+      "where": "lower left"
+     },
+     "files": [
+      {
+       "path": "out/t1/shift_reactor_temp_comparison.png",
+       "format": "png",
+       "px": [
+        2966,
+        1770
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5249748229980469,
+   "check": {
+    "kind_expected": "grouped_bar",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 25.663
+  }
+ ]
+}

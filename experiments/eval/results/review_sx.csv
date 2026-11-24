@@ -1,0 +1,289 @@
+request,label,verdict,defects,grader,arm,pass_all,pass_ask
+01,A,yes,,1,P-ec,1,1
+01,B,partial,overlap,1,R-mpl-plain,0,1
+01,C,yes,,1,P-mpl,1,1
+01,D,partial,overlap,1,R-ec-brief,1,1
+01,E,yes,,1,R-ec-plain,0,1
+01,F,yes,,1,R-mpl-brief,1,1
+02,A,partial,overlap wrong-ask:max-marker,2,R-ec-plain,0,0
+02,B,partial,missing-ask:max overlap clipped:peak,2,R-ec-brief,1,1
+02,C,yes,,2,P-mpl,1,1
+02,D,yes,,2,P-ec,1,1
+02,E,partial,overlap wrong-ask:max-marker,2,R-mpl-brief,1,1
+02,F,partial,overlap,2,R-mpl-plain,0,0
+03,A,yes,,1,R-mpl-plain,1,1
+03,B,partial,wrong-ask:peaks overlap,1,R-mpl-brief,0,0
+03,C,partial,clipped overlap,1,R-ec-plain,0,0
+03,D,yes,,1,P-ec,1,1
+03,E,yes,,1,P-mpl,1,1
+03,F,partial,missing-ask:peak2 overlap,1,R-ec-brief,0,0
+04,A,yes,,2,P-ec,1,1
+04,B,partial,clipped overlap,2,R-ec-plain,1,1
+04,C,partial,overlap,2,R-mpl-brief,1,1
+04,D,partial,overlap,2,R-ec-brief,1,1
+04,E,partial,legend-covers,2,R-mpl-plain,1,1
+04,F,yes,,2,P-mpl,1,1
+05,A,yes,,1,P-ec,1,1
+05,B,no,no-plot,1,R-mpl-plain,0,0
+05,C,partial,overlap legend-mismatch,1,R-ec-plain,0,0
+05,D,partial,overlap,1,R-ec-brief,0,0
+05,E,yes,,1,R-mpl-brief,0,0
+05,F,yes,,1,P-mpl,1,1
+06,A,partial,overlap,2,R-mpl-brief,1,1
+06,B,yes,,2,P-mpl,1,1
+06,C,partial,clipped overlap,2,R-ec-plain,1,1
+06,D,yes,,2,P-ec,1,1
+06,E,partial,overlap unreadable:y2-ticks,2,R-mpl-plain,1,1
+06,F,partial,wrong-ticks overlap,2,R-ec-brief,1,1
+07,A,partial,overlap,1,R-ec-plain,0,0
+07,B,yes,,1,P-ec,1,1
+07,C,partial,overlap legend-incomplete,1,R-mpl-plain,1,1
+07,D,yes,,1,R-mpl-brief,1,1
+07,E,yes,,1,R-ec-brief,0,0
+07,F,yes,,1,P-mpl,1,1
+08,A,yes,,2,P-ec,1,1
+08,B,partial,legend-covers small-labels,2,R-ec-plain,1,1
+08,C,yes,,2,P-mpl,1,1
+08,D,partial,overlap garbled-annotation,2,R-ec-brief,1,1
+08,E,partial,overlap,2,R-mpl-brief,1,1
+08,F,partial,legend-covers overlap,2,R-mpl-plain,1,1
+09,A,partial,overlap,1,R-ec-brief,1,1
+09,B,partial,overlap,1,R-mpl-plain,1,1
+09,C,yes,,1,P-ec,1,1
+09,D,yes,,1,P-mpl,1,1
+09,E,yes,,1,R-ec-plain,1,1
+09,F,yes,,1,R-mpl-brief,1,1
+10,A,no,missing-ask:residue,2,R-mpl-plain,0,0
+10,B,partial,overlap,2,R-ec-brief,1,1
+10,C,partial,overlap clipped,2,R-mpl-brief,1,1
+10,D,yes,,2,P-ec,1,1
+10,E,yes,,2,P-mpl,1,1
+10,F,partial,wrong-ask:decimals small-text,2,R-ec-plain,0,0
+11,A,yes,,1,P-mpl,1,1
+11,B,yes,,1,P-ec,1,1
+11,C,yes,,1,R-ec-plain,0,1
+11,D,partial,overlap,1,R-mpl-plain,0,1
+11,E,yes,,1,R-mpl-brief,1,1
+11,F,partial,overlap wrong-ticks,1,R-ec-brief,1,1
+12,A,yes,,2,P-mpl,1,1
+12,B,yes,,2,R-ec-plain,1,1
+12,C,partial,small-text,2,R-mpl-plain,1,1
+12,D,no,wrong-data overlap,2,R-ec-brief,0,0
+12,E,partial,overlap,2,R-mpl-brief,1,1
+12,F,yes,,2,P-ec,1,1
+13,A,yes,,1,R-ec-plain,1,1
+13,B,yes,,1,P-mpl,1,1
+13,C,yes,,1,R-mpl-brief,1,1
+13,D,yes,,1,R-mpl-plain,1,1
+13,E,yes,,1,P-ec,1,1
+13,F,partial,overlap,1,R-ec-brief,1,1
+14,A,yes,,2,P-mpl,1,1
+14,B,partial,overlap,2,R-mpl-brief,1,1
+14,C,yes,,2,P-ec,1,1
+14,D,partial,legend-covers,2,R-mpl-plain,1,1
+14,E,partial,overlap duplicate-axis,2,R-ec-plain,1,1
+14,F,partial,overlap,2,R-ec-brief,1,1
+15,A,partial,overlap,1,R-ec-plain,1,1
+15,B,partial,overlap legend-covers,1,R-mpl-brief,1,1
+15,C,partial,wrong-ticks,1,R-ec-brief,1,1
+15,D,yes,,1,P-mpl,1,1
+15,E,yes,,1,R-mpl-plain,1,1
+15,F,yes,,1,P-ec,1,1
+16,A,no,no-plot,2,R-mpl-plain,0,0
+16,B,partial,wrong-ticks missing-label:residue,2,R-ec-brief,1,1
+16,C,yes,,2,R-mpl-brief,1,1
+16,D,yes,,2,P-mpl,1,1
+16,E,yes,,2,P-ec,1,1
+16,F,partial,clipped,2,R-ec-plain,1,1
+17,A,partial,overlap,1,R-mpl-plain,1,1
+17,B,partial,overlap,1,R-mpl-brief,1,1
+17,C,yes,,1,R-ec-plain,1,1
+17,D,yes,,1,P-mpl,1,1
+17,E,yes,,1,P-ec,1,1
+17,F,partial,overlap,1,R-ec-brief,1,1
+18,A,yes,,2,P-mpl,1,1
+18,B,no,wrong-ticks wrong-range,2,R-ec-plain,0,0
+18,C,yes,,2,P-ec,1,1
+18,D,partial,overlap,2,R-mpl-brief,1,1
+18,E,partial,wrong-ticks overlap,2,R-ec-brief,0,0
+18,F,no,unreadable:y2-ticks wrong-range,2,R-mpl-plain,1,1
+19,A,yes,,1,P-mpl,1,1
+19,B,yes,,1,P-ec,1,1
+19,C,no,wrong-ask:font-size wrong-ask:text-color unreadable,1,R-mpl-plain,0,0
+19,D,partial,wrong-ask:legend-color,1,R-mpl-brief,0,0
+19,E,partial,overlap,1,R-ec-brief,0,0
+19,F,yes,,1,R-ec-plain,1,1
+20,A,partial,legend-covers clipped overlap,2,R-ec-plain,1,1
+20,B,yes,,2,P-ec,1,1
+20,C,yes,,2,P-mpl,1,1
+20,D,partial,overlap,2,R-ec-brief,1,1
+20,E,partial,overlap duplicate-axis,2,R-mpl-plain,0,0
+20,F,partial,overlap,2,R-mpl-brief,1,1
+21,A,partial,overlap clipped,1,R-ec-plain,1,1
+21,B,partial,overlap,1,R-ec-brief,1,1
+21,C,yes,,1,R-mpl-plain,1,1
+21,D,yes,,1,P-ec,1,1
+21,E,yes,,1,P-mpl,1,1
+21,F,yes,,1,R-mpl-brief,1,1
+22,A,partial,legend-covers overlap unreadable:y2-ticks,2,R-mpl-plain,1,1
+22,B,partial,overlap,2,R-mpl-brief,1,1
+22,C,partial,overlap,2,R-ec-plain,0,0
+22,D,yes,,2,P-mpl,1,1
+22,E,partial,overlap misplaced-peak-marker,2,R-ec-brief,0,0
+22,F,yes,,2,P-ec,1,1
+23,A,no,no-plot,1,R-mpl-brief,0,0
+23,B,no,wrong-data empty-plot,1,R-mpl-plain,0,0
+23,C,no,no-plot,1,R-ec-brief,0,0
+23,D,partial,clipped,1,R-ec-plain,0,0
+23,E,yes,,1,P-mpl,1,1
+23,F,yes,,1,P-ec,1,1
+24,A,yes,,2,P-ec,1,1
+24,B,yes,,2,P-mpl,1,1
+24,C,partial,overlap,2,R-ec-brief,1,1
+24,D,partial,overlap,2,R-ec-plain,1,1
+24,E,partial,overlap,2,R-mpl-brief,1,1
+24,F,yes,,2,R-mpl-plain,1,1
+B01,A,partial,overlap,1,R-ec-brief,0,0
+B01,B,partial,tofu,1,R-mpl-plain,0,0
+B01,C,partial,tofu,1,R-mpl-brief,0,0
+B01,D,partial,missing-ask:labels overlap,1,R-ec-plain,0,0
+B01,E,partial,faint-labels,1,P-ec,1,1
+B01,F,partial,overlap,1,P-mpl,1,1
+B02,A,partial,missing-ask:endo-peak wrong-ask:peak-labels overlap,2,R-mpl-plain,0,0
+B02,B,partial,missing-ask:endo-peak overlap,2,R-ec-plain,0,0
+B02,C,partial,missing-ask:peak-temps,2,R-ec-brief,0,0
+B02,D,partial,missing-ask:endo-peak duplicate-label,2,P-mpl,0,0
+B02,E,no,wrong-ask:peaks overlap,2,R-mpl-brief,0,0
+B02,F,partial,missing-ask:endo-peak,2,P-ec,0,0
+B03,A,yes,,1,R-mpl-plain,1,1
+B03,B,yes,,1,P-mpl,1,1
+B03,C,yes,,1,R-mpl-brief,1,1
+B03,D,partial,overlap wrong-ticks,1,P-ec,1,1
+B03,E,yes,,1,R-ec-plain,1,1
+B03,F,partial,overlap,1,R-ec-brief,1,1
+B04,A,partial,low-precision:peak-values,2,P-ec,0,0
+B04,B,partial,wrong-ask:peaks overlap,2,R-mpl-brief,0,0
+B04,C,partial,wrong-ask:peaks overlap,2,R-mpl-plain,0,0
+B04,D,partial,missing-label:peak-values,2,R-ec-brief,0,0
+B04,E,partial,low-precision:peak-values,2,P-mpl,0,0
+B04,F,partial,wrong-ask:peaks overlap,2,R-ec-plain,0,0
+B05,A,no,wrong-data missing-series:lotB overlap,1,R-ec-plain,0,0
+B05,B,no,wrong-data missing-series:lotB,1,R-mpl-brief,0,0
+B05,C,partial,wrong-ask:legend-labels,1,P-mpl,0,0
+B05,D,no,wrong-data unreadable,1,R-mpl-plain,0,0
+B05,E,partial,wrong-ask:legend-labels,1,P-ec,0,0
+B05,F,no,no-plot,1,R-ec-brief,0,0
+B06,A,partial,legend-covers,2,R-mpl-brief,1,1
+B06,B,partial,legend-covers overlap,2,P-mpl,1,1
+B06,C,partial,legend-covers,2,R-mpl-plain,1,1
+B06,D,no,no-plot,2,R-ec-brief,0,0
+B06,E,no,no-plot,2,R-ec-plain,0,0
+B06,F,partial,legend-covers overlap,2,P-ec,1,1
+B07,A,partial,wrong-ticks overlap,1,R-ec-brief,1,1
+B07,B,partial,overlap,1,P-mpl,1,1
+B07,C,partial,overlap unreadable-labels,1,R-ec-plain,1,1
+B07,D,partial,overlap,1,P-ec,1,1
+B07,E,yes,,1,R-mpl-brief,1,1
+B07,F,yes,,1,R-mpl-plain,1,1
+B08,A,no,wrong-data:sheet multi-file overlap,2,R-ec-brief,0,0
+B08,B,yes,,2,P-ec,1,1
+B08,C,yes,,2,P-mpl,1,1
+B08,D,partial,legend-covers:memo,2,R-mpl-plain,1,1
+B08,E,partial,overlap,2,R-mpl-brief,1,1
+B08,F,yes,,2,R-ec-plain,1,1
+B09,A,yes,,1,R-mpl-plain,1,1
+B09,B,yes,,1,P-mpl,1,1
+B09,C,partial,overlap placeholder-text,1,R-ec-brief,0,0
+B09,D,partial,overlap clipped,1,P-ec,1,1
+B09,E,yes,,1,R-ec-plain,0,0
+B09,F,yes,,1,R-mpl-brief,1,1
+B10,A,partial,overlap,2,R-ec-plain,0,0
+B10,B,partial,wrong-ask:bw overlap,2,R-ec-brief,0,0
+B10,C,partial,indistinguishable-series overlap,2,P-ec,1,1
+B10,D,partial,overlap,2,R-mpl-brief,0,0
+B10,E,partial,wrong-ask:bw,2,P-mpl,0,0
+B10,F,partial,legend-covers,2,R-mpl-plain,0,0
+B11,A,yes,,1,R-ec-brief,0,0
+B11,B,partial,missing-ask:residue,1,R-ec-plain,0,0
+B11,C,partial,tofu,1,R-mpl-brief,1,1
+B11,D,partial,legend-covers,1,P-ec,1,1
+B11,E,partial,legend-covers,1,P-mpl,1,1
+B11,F,partial,missing-ask:residue,1,R-mpl-plain,0,0
+B12,A,yes,,2,R-mpl-brief,1,1
+B12,B,partial,clipped,2,R-ec-plain,1,1
+B12,C,partial,overlap,2,R-mpl-plain,1,1
+B12,D,partial,clipped,2,R-ec-brief,1,1
+B12,E,yes,,2,P-ec,1,1
+B12,F,yes,,2,P-mpl,1,1
+B13,A,partial,wrong-ask:temps,1,R-mpl-brief,0,0
+B13,B,partial,clipped overlap,1,R-ec-plain,0,0
+B13,C,yes,,1,P-mpl,1,1
+B13,D,yes,,1,P-ec,1,1
+B13,E,partial,missing-ask:second-temp,1,R-mpl-plain,0,0
+B13,F,partial,overlap unreadable-labels,1,R-ec-brief,1,1
+B14,A,partial,wrong-ask:font-size,2,R-ec-plain,1,1
+B14,B,partial,wrong-ask:font-size wrong-ticks overlap,2,R-ec-brief,1,1
+B14,C,partial,legend-covers,2,R-mpl-plain,0,0
+B14,D,partial,legend-covers,2,P-ec,1,1
+B14,E,partial,clipped,2,R-mpl-brief,0,0
+B14,F,partial,legend-covers,2,P-mpl,1,1
+B15,A,yes,,1,R-ec-brief,1,1
+B15,B,partial,wrong-ask:legend-position overlap,1,P-ec,0,0
+B15,C,partial,wrong-ask:legend-position overlap,1,P-mpl,0,0
+B15,D,yes,,1,R-mpl-plain,1,1
+B15,E,partial,legend-labels-bug,1,R-mpl-brief,1,1
+B15,F,partial,overlap clipped,1,R-ec-plain,1,1
+B16,A,no,wrong-ask:shared-x wrong-ticks,2,R-ec-plain,1,1
+B16,B,no,wrong-ask:layout multi-file,2,R-ec-brief,0,0
+B16,C,yes,,2,R-mpl-plain,1,1
+B16,D,partial,clipped overlap,2,R-mpl-brief,1,1
+B16,E,no,no-plot,2,P-ec,0,0
+B16,F,no,wrong-ask:layout,2,P-mpl,0,0
+B17,A,partial,wrong-ask:offset overlap,1,R-ec-plain,1,1
+B17,B,yes,,1,R-mpl-brief,1,1
+B17,C,no,wrong-data clipped overlap,1,P-mpl,1,1
+B17,D,no,missing-ask:offset,1,P-ec,0,0
+B17,E,no,no-plot,1,R-ec-brief,0,0
+B17,F,yes,,1,R-mpl-plain,1,1
+B18,A,partial,overlap,2,R-ec-brief,1,1
+B18,B,partial,wrong-ask:onset-value overlap,2,P-mpl,0,0
+B18,C,no,wrong-data:onset,2,P-ec,0,0
+B18,D,partial,legend-covers,2,R-mpl-plain,0,0
+B18,E,partial,wrong-ask:onset-value overlap,2,R-mpl-brief,0,0
+B18,F,partial,overlap,2,R-ec-plain,0,0
+B19,A,partial,overlap,1,R-mpl-plain,1,1
+B19,B,partial,overlap,1,R-ec-brief,1,1
+B19,C,yes,,1,R-ec-plain,0,0
+B19,D,partial,overlap,1,R-mpl-brief,1,1
+B19,E,partial,missing-ask:value placeholder-text,1,P-ec,0,0
+B19,F,partial,overlap unreadable-labels,1,P-mpl,0,0
+B20,A,partial,legend-covers,2,R-mpl-plain,1,1
+B20,B,yes,,2,P-ec,1,1
+B20,C,partial,overlap,2,R-ec-plain,1,1
+B20,D,yes,,2,P-mpl,1,1
+B20,E,partial,overlap,2,R-mpl-brief,1,1
+B20,F,partial,overlap,2,R-ec-brief,1,1
+B21,A,partial,legend-covers,1,R-mpl-plain,1,1
+B21,B,yes,,1,R-mpl-brief,1,1
+B21,C,partial,overlap wrong-ticks,1,R-ec-brief,1,1
+B21,D,yes,,1,P-ec,1,1
+B21,E,yes,,1,P-mpl,1,1
+B21,F,partial,overlap,1,R-ec-plain,1,1
+B22,A,partial,overlap,2,R-mpl-brief,1,1
+B22,B,yes,,2,R-mpl-plain,1,1
+B22,C,partial,missing-label:axes wrong-data:residue-label,2,P-mpl,1,1
+B22,D,partial,overlap,2,R-ec-brief,1,1
+B22,E,no,wrong-data:not-normalized,2,P-ec,0,0
+B22,F,yes,,2,R-ec-plain,1,1
+B23,A,partial,wrong-ask:colors overlap,1,P-ec,1,1
+B23,B,partial,overlap,1,R-mpl-brief,1,1
+B23,C,partial,overlap,1,R-mpl-plain,1,1
+B23,D,partial,overlap,1,R-ec-plain,0,0
+B23,E,partial,overlap,1,R-ec-brief,0,0
+B23,F,no,wrong-ask:colors,1,P-mpl,0,0
+B24,A,no,wrong-data:not-converted-to-K,2,P-ec,0,0
+B24,B,partial,clipped,2,R-mpl-brief,1,1
+B24,C,yes,,2,R-mpl-plain,1,1
+B24,D,partial,overlap,2,R-ec-plain,1,1
+B24,E,no,wrong-data:not-converted-to-K,2,P-mpl,0,0
+B24,F,partial,overlap wrong-ask:peak-unit,2,R-ec-brief,1,1

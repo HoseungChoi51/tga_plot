@@ -1,0 +1,8 @@
+We need answer user's request with JSON spec only in ```json block. Need use inspect result. User Korean: "Heat Flow를 y2축으로 그려주고 y2축 라벨은 'Heat flow (W/g)', 피크 표시는 빼줘"
+
+Need produce spec.json only. Need include file extra_columns.xlsx. TGA default preset? Data has TGA guess x B, y1 E, y2 G. User wants Heat Flow as y2. Heat Flow column F. So set y2.col = "F" or "Heat Flow". y2.label = "Heat flow (W/g)". Remove peak: annotate.peak false. Since user mentions peak 표시 빼줘, include annotate peak false. Do we need residue? They didn't mention 잔류량 표시, so no. Should we specify x/y1? Defaults from TGA preset by name: x B, y1 E, y2 G. If set y2 col F, okay. Could include preset default. Need maybe y2 label and col. JSON:
+{"file":"extra_columns.xlsx","y2":{"col":"F","label":"Heat flow (W/g)"},"annotate":{"peak":false}}
+
+Check rules: Part names? Heat Flow part? It's column header. "y2축으로" means assign data to y2. "y2축 라벨" set label. "피크 표시는 빼줘" remove peak. Good.
+
+Need final only json block. Ensure no extra.

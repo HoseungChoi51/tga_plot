@@ -1,0 +1,94 @@
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/05_r1/out")
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+
+def safe_filename(name):
+    return "".join(c if c.isalnum() or c in "-_ ." else "_" for c in str(name)).strip()
+
+
+sheets = pd.read_excel(DATA_FILE, sheet_name=None)
+
+for sheet_name, df in sheets.items():
+    # Identify columns by name, falling back to the expected TGA column positions.
+    normalized = {str(col).strip().lower(): col for col in df.columns}
+
+    def find_column(keywords, fallback_index):
+        for col in df.columns:
+            label = str(col).strip().lower()
+            if any(word in label for word in keywords):
+                return col
+        return df.columns[fallback_index]
+
+    x_col = find_column(("temperature", "temp"), 1)
+    weight_col = find_column(("weight", "mass"), 2)
+    dtg_col = find_column(("d.w", "dtg", "derivative"), 3)
+
+    x = pd.to_numeric(df[x_col], errors="coerce")
+    weight = pd.to_numeric(df[weight_col], errors="coerce")
+    dtg = pd.to_numeric(df[dtg_col], errors="coerce")
+    valid = x.notna() & weight.notna() & dtg.notna()
+    x, weight, dtg = x[valid], weight[valid], dtg[valid]
+
+    if x.empty:
+        continue
+
+    fig, ax1 = plt.subplots(figsize=(8, 5))
+    ax2 = ax1.twinx()
+
+    line1, = ax1.plot(
+        x, weight, color="black", linewidth=2.5, label="Weight (%)"
+    )
+    line2, = ax2.plot(
+        x, -dtg, color="#c0392b", linestyle="--", label="DTG"
+    )
+
+    ax1.set_title(str(sheet_name))
+    ax1.set_xlabel("Temperature (°C)")
+    ax1.set_ylabel("Weight (%)")
+    ax2.set_ylabel("DTG (%/°C)")
+    ax1.legend([line1, line2], ["Weight (%)", "DTG"], loc="center left")
+
+    # Residue: weight at the measured temperature closest to 800 °C.
+    residue_idx = (x - 800).abs().idxmin()
+    residue_x = float(x.loc[residue_idx])
+    residue_y = float(weight.loc[residue_idx])
+    ax1.plot(residue_x, residue_y, marker="o", color="black", zorder=5)
+    ax1.annotate(
+        f"Residue {residue_y:.1f}%",
+        (residue_x, residue_y),
+        xytext=(7, 9),
+        textcoords="offset points",
+        color="black",
+    )
+
+    # Peak: maximum upward-pointing DTG value at temperatures above 150 °C.
+    peak_mask = x > 150
+    if peak_mask.any():
+        dtg_up = -dtg[peak_mask]
+        peak_idx = dtg_up.idxmax()
+        peak_x = float(x.loc[peak_idx])
+        peak_y = float(dtg_up.loc[peak_idx])
+        ax2.plot(peak_x, peak_y, marker="o", color="#c0392b", zorder=5)
+        ax2.annotate(
+            f"{peak_x:.0f} °C",
+            (peak_x, peak_y),
+            xytext=(7, 9),
+            textcoords="offset points",
+            color="#c0392b",
+        )
+
+    ax1.grid(True, alpha=0.3)
+    fig.tight_layout()
+    output_path = OUT_DIR / f"{safe_filename(sheet_name)}.png"
+    fig.savefig(output_path, dpi=300, bbox_inches="tight")
+    plt.close(fig)

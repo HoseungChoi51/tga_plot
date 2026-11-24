@@ -1,0 +1,37 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "histogram",
+ "x": {
+  "col": "잔류금속 (wt%)",
+  "bins": {
+   "width": 0.25,
+   "min": 1.75,
+   "max": 6.5
+  }
+ },
+ "data_code": "df['구분'] = df['반응기'].apply(lambda r: 'R4' if r == 'R4' else 'R1-R3')",
+ "by": "구분",
+ "alpha": 0.5,
+ "density": true,
+ "ref": [
+  {
+   "x": 5.0,
+   "text": "규격 상한 5.0 wt%",
+   "linestyle": "dashed"
+  }
+ ],
+ "asks": [
+  {
+   "ask": "규격 상한 5.0 세로 점선",
+   "how": "key"
+  },
+  {
+   "ask": "y축 밀도(density)",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS07_r3/out/t3"
+ }
+}

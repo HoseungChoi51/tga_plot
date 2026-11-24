@@ -1,0 +1,46 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "heatmap",
+ "x": {
+  "col": "시간대",
+  "label": "시간 (시)",
+  "bins": {
+   "width": 1,
+   "min": 0,
+   "max": 24
+  }
+ },
+ "y": {
+  "col": "요일",
+  "order": [
+   "월",
+   "화",
+   "수",
+   "목",
+   "금",
+   "토",
+   "일"
+  ],
+  "label": "요일"
+ },
+ "z": {
+  "agg": "count"
+ },
+ "values": true,
+ "cmap": "YlOrRd",
+ "title": "설비 정지 발생 빈도 (요일별 시간대)",
+ "asks": [
+  {
+   "ask": "요일과 시간대별 히트맵",
+   "how": "key"
+  },
+  {
+   "ask": "정지 발생 횟수 집계",
+   "how": "key"
+  }
+ ],
+ "data_code": "import pandas as pd\n# Extract hour from '시작시각' string (e.g., '10:43' -> 10)\ndf['시간대'] = df['시작시각'].str.split(':').str[0].astype(int)\n# Extract weekday name in Korean from '일자'\n# pandas day_name() returns English. We map it to Korean.\nday_map = {\n    'Monday': '월',\n    'Tuesday': '화',\n    'Wednesday': '수',\n    'Thursday': '목',\n    'Friday': '금',\n    'Saturday': '토',\n    'Sunday': '일'\n}\ndf['요일'] = pd.to_datetime(df['일자']).dt.day_name().map(day_map)",
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl/D026_r1/out/t1"
+ }
+}

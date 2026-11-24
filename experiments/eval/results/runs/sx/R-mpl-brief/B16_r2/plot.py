@@ -1,0 +1,91 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/caox.csv"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/B16_r2/out"
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# Read data
+df = pd.read_csv(DATA_FILE)
+
+# Identify columns based on preview
+x_col = "Temperature (°C)"
+y1_col = "Weight (%)"
+y2_col = "Deriv. Weight (%/°C)"
+
+x = df[x_col].values
+y1 = df[y1_col].values
+y2 = df[y2_col].values
+
+# Prepare DTG for plotting: multiply by -1 so peaks point up
+dtg_neg = y2 * -1
+
+# Find residue at ~800°C
+idx_800 = np.argmin(np.abs(x - 800))
+residue_val = y1[idx_800]
+temp_residue = x[idx_800]
+
+# Find peak temperature above 150°C from original DTG (most negative value means highest mass loss rate)
+mask_peak = x > 150
+if np.any(mask_peak):
+    dtg_subset = y2[mask_peak]
+    x_subset = x[mask_peak]
+    # The most negative value in y2 corresponds to the maximum mass loss rate
+    idx_min_dtg = np.argmin(dtg_subset)
+    peak_temp = x_subset[idx_min_dtg]
+else:
+    peak_temp = None
+
+# Create figure with two subplots sharing x-axis
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
+
+# Top plot: Weight (%)
+ax1.plot(x, y1, color='#1f4e9c', linewidth=1.5, label='Weight (%)')
+ax1.set_ylabel('Weight (%)', fontsize=12)
+ax1.grid(True, linestyle='--', alpha=0.7)
+
+# Add residue marker and label
+ax1.scatter(temp_residue, residue_val, color='#1f4e9c', zorder=5)
+ax1.annotate(f'Residue {residue_val:.1f}%', 
+             xy=(temp_residue, residue_val), 
+             xytext=(10, -15), textcoords='offset points',
+             fontsize=10, color='#1f4e9c',
+             arrowprops=dict(arrowstyle='->', color='#1f4e9c'))
+
+# Bottom plot: DTG (%/°C) multiplied by -1
+ax2.plot(x, dtg_neg, color='#c0392b', linewidth=1.5, label='DTG (%/°C)')
+ax2.set_xlabel('Temperature (°C)', fontsize=12)
+ax2.set_ylabel('DTG (%/°C)', fontsize=12)
+ax2.grid(True, linestyle='--', alpha=0.7)
+
+# Add peak marker and label if found
+if peak_temp is not None:
+    # Get the DTG value at peak temp (from negated array)
+    idx_peak = np.argmin(np.abs(x - peak_temp))
+    dtg_val_at_peak = dtg_neg[idx_peak]
+    
+    ax2.scatter(peak_temp, dtg_val_at_peak, color='#c0392b', zorder=5)
+    ax2.annotate(f'{peak_temp:.0f} °C', 
+                 xy=(peak_temp, dtg_val_at_peak), 
+                 xytext=(10, 10), textcoords='offset points',
+                 fontsize=10, color='#c0392b',
+                 arrowprops=dict(arrowstyle='->', color='#c0392b'))
+
+# Title
+sheet_name = "caox"
+fig.suptitle(sheet_name, fontsize=14, fontweight='bold')
+
+# Adjust layout
+plt.tight_layout(rect=[0, 0, 1, 0.95])
+
+# Save
+out_path = os.path.join(OUT_DIR, f"{sheet_name}.png")
+plt.savefig(out_path, dpi=300, bbox_inches='tight')
+plt.close()

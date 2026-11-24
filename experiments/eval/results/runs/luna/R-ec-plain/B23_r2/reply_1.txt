@@ -1,0 +1,101 @@
+```python
+import json
+import os
+import sys
+
+import numpy as np
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx"
+
+samples = [
+    ("Raw", "검정", "#000000"),
+    ("Acid-washed", "파랑", "#0000ff"),
+    ("Annealed", "빨강", "#ff0000"),
+]
+
+series = []
+for sheet, label, color in samples:
+    df = pd.read_excel(DATA_FILE, sheet_name=sheet)
+    df.columns = [str(c).strip() for c in df.columns]
+
+    x_col = next((c for c in df.columns if "Temperature" in c), df.columns[1])
+    y_col = next((c for c in df.columns if "Weight" in c and "Deriv" not in c), df.columns[2])
+
+    x = pd.to_numeric(df[x_col], errors="coerce")
+    y = pd.to_numeric(df[y_col], errors="coerce")
+    points = [
+        [float(a), float(b)]
+        for a, b in zip(x, y)
+        if pd.notna(a) and pd.notna(b) and np.isfinite(a) and np.isfinite(b)
+    ]
+
+    series.append(
+        {
+            "name": sheet,
+            "type": "line",
+            "showSymbol": False,
+            "connectNulls": False,
+            "lineStyle": {"width": 2, "color": color},
+            "itemStyle": {"color": color},
+            "data": points,
+        }
+    )
+
+option = {
+    "animation": False,
+    "backgroundColor": "#ffffff",
+    "textStyle": {"fontFamily": "Noto Sans CJK KR"},
+    "title": {
+        "text": "TGA — Weight vs Temperature",
+        "left": "center",
+        "textStyle": {"fontSize": 16, "fontWeight": "normal"},
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {"type": "cross"},
+    },
+    "legend": {"data": [sample[0] for sample in samples], "top": 36},
+    "grid": {"left": 76, "right": 28, "top": 88, "bottom": 64},
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 38,
+        "min": 30,
+        "max": 900,
+        "axisLine": {"lineStyle": {"color": "#444444"}},
+        "splitLine": {"show": True, "lineStyle": {"color": "#e6e6e6"}},
+    },
+    "yAxis": {
+        "type": "value",
+        "name": "Weight (%)",
+        "nameLocation": "middle",
+        "nameGap": 52,
+        "min": 0,
+        "max": 105,
+        "axisLine": {"lineStyle": {"color": "#444444"}},
+        "splitLine": {"show": True, "lineStyle": {"color": "#e6e6e6"}},
+    },
+    "series": series,
+}
+
+print(
+    json.dumps(
+        {
+            "figures": [
+                {
+                    "name": "tga_weight_comparison",
+                    "option": option,
+                    "width": 900,
+                    "height": 600,
+                    "dpi": 300,
+                    "formats": ["png"],
+                }
+            ]
+        },
+        ensure_ascii=False,
+        allow_nan=False,
+    )
+)
+```

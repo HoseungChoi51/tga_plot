@@ -1,0 +1,21 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "line",
+ "x": {
+  "col": "주차"
+ },
+ "y": {
+  "col": "가동시간 (h)",
+  "agg": "mean"
+ },
+ "by": "반응기",
+ "asks": [
+  {
+   "ask": "반응기별 주차별 평균 가동시간 추이",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/sessions/E3_G1_P-hyb/out/t7"
+ }
+}

@@ -1,0 +1,63 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/isothermal.txt"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/B06_r2/out"
+
+# Ensure output directory exists
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# Read data - the file appears to be tab or space separated with header at row 1 (index 0)
+df = pd.read_csv(DATA_FILE, sep=r'\s+', skiprows=1, header=None, names=['Time', 'Temperature', 'Weight'])
+
+# Create figure and axis
+fig, ax1 = plt.subplots(figsize=(10, 6))
+
+# Plot Weight on left y-axis
+color1 = 'tab:blue'
+ax1.set_xlabel('시간 (분)', fontsize=12)
+ax1.set_ylabel('무게 (%)', color=color1, fontsize=12)
+line1 = ax1.plot(df['Time'], df['Weight'], color=color1, label='무게 (%)')
+ax1.tick_params(axis='y', labelcolor=color1)
+
+# Create second y-axis for Temperature
+ax2 = ax1.twinx()
+color2 = 'tab:red'
+ax2.set_ylabel('온도 (°C)', color=color2, fontsize=12)
+line2 = ax2.plot(df['Time'], df['Temperature'], color=color2, linestyle='--', label='온도 (°C)')
+ax2.tick_params(axis='y', labelcolor=color2)
+
+# Find weight at time = 140 min
+target_time = 140.0
+idx_140 = df['Time'].sub(target_time).abs().idxmin()
+weight_at_140 = df.loc[idx_140, 'Weight']
+time_actual = df.loc[idx_140, 'Time']
+
+# Mark the point at 140 minutes
+ax1.scatter([time_actual], [weight_at_140], color='black', zorder=5, s=80)
+ax1.annotate(f'{weight_at_140:.2f}%', 
+             xy=(time_actual, weight_at_140),
+             xytext=(10, 10), textcoords='offset points',
+             fontsize=10, color='black',
+             arrowprops=dict(arrowstyle='->', color='black'))
+
+# Add legend
+lines = line1 + line2
+labels = [l.get_label() for l in lines]
+ax1.legend(lines, labels, loc='lower left')
+
+# Title
+plt.title('등온 TGA 데이터: 무게 및 온도 변화', fontsize=14)
+
+# Tight layout
+fig.tight_layout()
+
+# Save figure
+output_path = os.path.join(OUT_DIR, "isothermal_tga.png")
+plt.savefig(output_path, dpi=300, bbox_inches='tight')
+plt.close()

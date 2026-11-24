@@ -1,0 +1,3 @@
+```json
+{"file": "TGA.xlsx", "legend": "none", "grid": true, "asks": [{"ask": "범례 없애기", "how": "key"}, {"ask": "격자 켜기", "how": "key"}]}
+```

@@ -1,0 +1,20 @@
+{
+ "asks": [
+  {
+   "ask": "주간요약 시트",
+   "how": "key"
+  },
+  {
+   "ask": "합격률(%) 주차별 꺾은선",
+   "how": "key"
+  }
+ ],
+ "chart": "line",
+ "file": "data/run_log.xlsx",
+ "sheets": "주간요약",
+ "x": "주차",
+ "y": "합격률(%)",
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-ec+cdabc/D007_r2/out/t1"
+ }
+}

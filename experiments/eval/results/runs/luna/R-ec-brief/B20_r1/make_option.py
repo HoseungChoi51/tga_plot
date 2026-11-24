@@ -1,0 +1,154 @@
+import json
+import re
+import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx"
+SHEET_NAME = "Acid-washed"
+
+
+def clean_name(name):
+    return re.sub(r"[^A-Za-z0-9_-]+", "_", str(name)).strip("_") or "plot"
+
+
+def main():
+    path = Path(DATA_FILE)
+    df = pd.read_excel(path, sheet_name=SHEET_NAME, header=0)
+
+    def find_column(pattern):
+        matches = [c for c in df.columns if re.search(pattern, str(c), flags=re.I)]
+        if not matches:
+            raise ValueError(f"Could not find column matching {pattern!r}")
+        return matches[0]
+
+    x_col = find_column(r"temperature")
+    weight_col = find_column(r"weight")
+    dtg_col = find_column(r"deriv|dtg")
+
+    x = pd.to_numeric(df[x_col], errors="coerce").to_numpy(dtype=float)
+    weight = pd.to_numeric(df[weight_col], errors="coerce").to_numpy(dtype=float)
+    dtg = pd.to_numeric(df[dtg_col], errors="coerce").to_numpy(dtype=float)
+
+    valid = np.isfinite(x) & np.isfinite(weight) & np.isfinite(dtg)
+    x, weight, dtg = x[valid], weight[valid], dtg[valid]
+    if not len(x):
+        raise ValueError("No valid numeric data found.")
+
+    order = np.argsort(x)
+    x, weight, dtg = x[order], weight[order], dtg[order]
+
+    residue_idx = int(np.argmin(np.abs(x - 800.0)))
+    peak_candidates = np.flatnonzero(x > 150.0)
+    peak_idx = int(peak_candidates[np.argmax(-dtg[peak_candidates])]) if len(peak_candidates) else int(np.argmax(-dtg))
+
+    option = {
+        "animation": False,
+        "title": {
+            "text": SHEET_NAME,
+            "left": "center",
+            "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 16},
+        },
+        "tooltip": {"trigger": "axis"},
+        "legend": {
+            "data": ["Weight (%)", "DTG (-)"],
+            "left": "center",
+            "top": 38,
+            "textStyle": {"fontFamily": "Noto Sans CJK KR"},
+        },
+        "grid": {"left": 72, "right": 72, "top": 88, "bottom": 62},
+        "xAxis": {
+            "type": "value",
+            "name": "Temperature (°C)",
+            "nameLocation": "middle",
+            "nameGap": 38,
+            "min": float(np.min(x)),
+            "max": float(np.max(x)),
+            "axisTick": {"show": True, "inside": False},
+            "minorTick": {"show": True, "splitNumber": 5, "length": 3},
+            "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+            "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+            "splitLine": {"show": True, "lineStyle": {"color": "#e5e5e5"}},
+        },
+        "yAxis": [
+            {
+                "type": "value",
+                "name": "Weight (%)",
+                "nameLocation": "middle",
+                "nameGap": 48,
+                "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+                "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+                "splitLine": {"show": True, "lineStyle": {"color": "#e5e5e5"}},
+            },
+            {
+                "type": "value",
+                "name": "DTG (-)",
+                "nameLocation": "middle",
+                "nameGap": 48,
+                "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+                "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+                "splitLine": {"show": False},
+            },
+        ],
+        "series": [
+            {
+                "name": "Weight (%)",
+                "type": "line",
+                "yAxisIndex": 0,
+                "showSymbol": False,
+                "data": [[float(a), float(b)] for a, b in zip(x, weight)],
+                "lineStyle": {"color": "#1f4e9c", "width": 2},
+                "itemStyle": {"color": "#1f4e9c"},
+                "markPoint": {
+                    "symbol": "circle",
+                    "symbolSize": 9,
+                    "itemStyle": {"color": "#1f4e9c"},
+                    "label": {
+                        "show": True,
+                        "formatter": f"Residue {weight[residue_idx]:.1f}%",
+                        "position": "top",
+                        "fontFamily": "Noto Sans CJK KR",
+                    },
+                    "data": [{"coord": [float(x[residue_idx]), float(weight[residue_idx])]}],
+                },
+            },
+            {
+                "name": "DTG (-)",
+                "type": "line",
+                "yAxisIndex": 1,
+                "showSymbol": False,
+                "data": [[float(a), float(-b)] for a, b in zip(x, dtg)],
+                "lineStyle": {"color": "#c0392b", "width": 2},
+                "itemStyle": {"color": "#c0392b"},
+                "markPoint": {
+                    "symbol": "circle",
+                    "symbolSize": 9,
+                    "itemStyle": {"color": "#c0392b"},
+                    "label": {
+                        "show": True,
+                        "formatter": f"{x[peak_idx]:.0f} °C",
+                        "position": "top",
+                        "fontFamily": "Noto Sans CJK KR",
+                    },
+                    "data": [{"coord": [float(x[peak_idx]), float(-dtg[peak_idx])]}],
+                },
+            },
+        ],
+    }
+
+    print(json.dumps({
+        "figures": [{
+            "name": clean_name(SHEET_NAME),
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"],
+        }]
+    }, ensure_ascii=False, allow_nan=False))
+
+
+if __name__ == "__main__":
+    main()

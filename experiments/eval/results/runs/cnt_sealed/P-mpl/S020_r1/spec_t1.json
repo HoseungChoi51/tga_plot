@@ -1,0 +1,47 @@
+{
+ "file": [
+  "data/raman/R1-260326-1.csv",
+  "data/raman/R2-260616-1.csv",
+  "data/raman/R4-260721-1.csv"
+ ],
+ "combine": true,
+ "preset": "none",
+ "x": {
+  "col": "Raman Shift (cm-1)",
+  "min": 1000,
+  "max": 2000,
+  "label": "Raman Shift (cm⁻¹)"
+ },
+ "y1": {
+  "col": "Intensity (a.u.)",
+  "label": "Normalized Intensity"
+ },
+ "names": [
+  "R1-260326-1",
+  "R2-260616-1",
+  "R4-260721-1"
+ ],
+ "legend": "best",
+ "data_code": "import numpy as np\n# Baseline subtraction using points at 1100 and 1800 cm-1 (+/- 10 cm-1 average)\ndef subtract_baseline(x, y):\n    # Get indices for baseline points\n    mask_1100 = (x >= 1090) & (x <= 1110)\n    mask_1800 = (x >= 1790) & (x <= 1810)\n    \n    if not np.any(mask_1100) or not np.any(mask_1800):\n        return y\n        \n    y_base_1100 = np.mean(y[mask_1100])\n    y_base_1800 = np.mean(y[mask_1800])\n    x_base_1100 = np.mean(x[mask_1100])\n    x_base_1800 = np.mean(x[mask_1800])\n    \n    # Create linear baseline across the whole range\n    slope = (y_base_1800 - y_base_1100) / (x_base_1800 - x_base_1100)\n    intercept = y_base_1100 - slope * x_base_1100\n    baseline = slope * x + intercept\n    \n    return y - baseline\n\n# Normalize so that max intensity in G-band (1550-1620 cm-1) is 1\ndef normalize_g_band(x, y):\n    mask_g = (x >= 1550) & (x <= 1620)\n    if not np.any(mask_g):\n        return y\n    max_val = np.max(y[mask_g])\n    if max_val == 0:\n        return y\n    return y / max_val\n\n# Apply to current sheet data\ny1 = subtract_baseline(x, y1)\ny1 = normalize_g_band(x, y1)",
+ "asks": [
+  {
+   "ask": "세 파일 오버레이",
+   "how": "key"
+  },
+  {
+   "ask": "직선 베이스라인 빼기 (1100, 1800 ±10 평균)",
+   "how": "data_code"
+  },
+  {
+   "ask": "G 밴드(1550-1620) 최대값 정규화",
+   "how": "data_code"
+  },
+  {
+   "ask": "1000-2000 구간 표시",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-mpl/S020_r1/out/t1"
+ }
+}

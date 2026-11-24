@@ -1,0 +1,179 @@
+```python
+import json
+import pandas as pd
+import numpy as np
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/korean_excel.csv"
+
+
+def read_csv_with_fallback(path):
+    # Korean Excel CSV files are commonly encoded as CP949 or UTF-8 with BOM.
+    for encoding in ("utf-8-sig", "cp949", "euc-kr", "utf-16"):
+        try:
+            return pd.read_csv(path, encoding=encoding)
+        except UnicodeDecodeError:
+            continue
+    # Last resort: let pandas infer the delimiter and replace malformed bytes.
+    return pd.read_csv(path, encoding="cp949", encoding_errors="replace")
+
+
+df = read_csv_with_fallback(DATA_FILE)
+df.columns = [str(column).strip() for column in df.columns]
+
+
+def find_column(words):
+    for column in df.columns:
+        label = column.lower()
+        if any(word in label for word in words):
+            return column
+    return None
+
+
+x_col = find_column(["온도", "temperature", "temp"])
+weight_col = find_column(["무게", "weight", "mass"])
+dtg_col = find_column(["미분", "dtg", "derivative"])
+
+if x_col is None or weight_col is None or dtg_col is None:
+    numeric = [
+        column for column in df.columns
+        if pd.to_numeric(df[column], errors="coerce").notna().sum() > 0
+    ]
+    if len(numeric) < 3:
+        raise ValueError("TGA data requires temperature, weight, and DTG columns.")
+    x_col, weight_col, dtg_col = numeric[:3]
+
+for column in (x_col, weight_col, dtg_col):
+    df[column] = pd.to_numeric(df[column], errors="coerce")
+
+df = df[[x_col, weight_col, dtg_col]].dropna().sort_values(x_col)
+x = df[x_col].to_numpy(dtype=float)
+weight = df[weight_col].to_numpy(dtype=float)
+dtg = df[dtg_col].to_numpy(dtype=float)
+
+if len(x) == 0:
+    raise ValueError("No valid numeric TGA data found.")
+
+residue_index = int(np.argmin(np.abs(x - 800.0)))
+residue_x = float(x[residue_index])
+residue_y = float(weight[residue_index])
+
+peak_candidates = np.flatnonzero(x > 150.0)
+if len(peak_candidates):
+    peak_index = int(peak_candidates[np.argmax(-dtg[peak_candidates])])
+else:
+    peak_index = int(np.argmax(-dtg))
+peak_x = float(x[peak_index])
+peak_y = float(-dtg[peak_index])
+
+option = {
+    "animation": False,
+    "textStyle": {
+        "fontFamily": "Noto Sans CJK KR, sans-serif",
+        "color": "#333333"
+    },
+    "title": {
+        "text": "korean_excel",
+        "left": "center",
+        "textStyle": {"fontSize": 16, "fontWeight": "normal"}
+    },
+    "tooltip": {"trigger": "axis"},
+    "legend": {
+        "data": [
+            "무게(%)",
+            "-미분무게(%/°C)",
+            f"Residue {residue_y:.1f}%",
+            f"{peak_x:.0f} °C"
+        ],
+        "left": "center",
+        "bottom": 8
+    },
+    "grid": {"left": 72, "right": 72, "top": 62, "bottom": 72},
+    "xAxis": {
+        "type": "value",
+        "name": "온도 (°C)",
+        "nameLocation": "middle",
+        "nameGap": 34,
+        "axisLabel": {"fontSize": 11},
+        "axisLine": {"show": True},
+        "splitLine": {"show": True, "lineStyle": {"color": "#dddddd"}}
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "무게 (%)",
+            "nameLocation": "middle",
+            "nameGap": 48,
+            "axisLabel": {"fontSize": 11},
+            "axisLine": {
+                "show": True,
+                "lineStyle": {"color": "#1f4e9c"}
+            },
+            "splitLine": {"show": True, "lineStyle": {"color": "#eeeeee"}}
+        },
+        {
+            "type": "value",
+            "name": "-미분무게 (%/°C)",
+            "nameLocation": "middle",
+            "nameGap": 52,
+            "axisLabel": {"fontSize": 11},
+            "axisLine": {
+                "show": True,
+                "lineStyle": {"color": "#c0392b"}
+            },
+            "splitLine": {"show": False}
+        }
+    ],
+    "series": [
+        {
+            "name": "무게(%)",
+            "type": "line",
+            "yAxisIndex": 0,
+            "showSymbol": False,
+            "lineStyle": {"color": "#1f4e9c", "width": 2},
+            "data": [[float(a), float(b)] for a, b in zip(x, weight)],
+            "markPoint": {
+                "symbol": "circle",
+                "symbolSize": 9,
+                "itemStyle": {"color": "#1f4e9c"},
+                "label": {
+                    "show": True,
+                    "formatter": f"Residue {residue_y:.1f}%",
+                    "position": "top"
+                },
+                "data": [{"coord": [residue_x, residue_y]}]
+            }
+        },
+        {
+            "name": "-미분무게(%/°C)",
+            "type": "line",
+            "yAxisIndex": 1,
+            "showSymbol": False,
+            "lineStyle": {"color": "#c0392b", "width": 2},
+            "data": [[float(a), float(-b)] for a, b in zip(x, dtg)],
+            "markPoint": {
+                "symbol": "circle",
+                "symbolSize": 9,
+                "itemStyle": {"color": "#c0392b"},
+                "label": {
+                    "show": True,
+                    "formatter": f"{peak_x:.0f} °C",
+                    "position": "top"
+                },
+                "data": [{"coord": [peak_x, peak_y]}]
+            }
+        }
+    ]
+}
+
+result = {
+    "figures": [{
+        "name": "korean_excel",
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["pdf", "png"]
+    }]
+}
+print(json.dumps(result, ensure_ascii=False, allow_nan=False))
+```

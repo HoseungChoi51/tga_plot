@@ -1,0 +1,36 @@
+{
+ "asks": [
+  {
+   "ask": "체류시간 0.5s 구간 binning",
+   "how": "key"
+  },
+  {
+   "ask": "2.5~7.0s 범위",
+   "how": "key"
+  },
+  {
+   "ask": "구간별 평균 수율 bar",
+   "how": "key"
+  }
+ ],
+ "chart": "bar",
+ "file": "data/run_log.xlsx",
+ "sheets": "런로그",
+ "x": {
+  "bins": {
+   "max": 7,
+   "min": 2.5,
+   "width": 0.5
+  },
+  "col": "체류시간 (s)",
+  "label": "체류시간 (s)"
+ },
+ "y": {
+  "agg": "mean",
+  "col": "CNT수율 (g/g-cat)",
+  "label": "평균 CNT수율 (g/g-cat)"
+ },
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdabc/DS01_r3/out/t2"
+ }
+}

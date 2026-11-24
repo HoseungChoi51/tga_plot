@@ -1,0 +1,24 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "heatmap",
+ "x": {
+  "col": "주차",
+  "min": 1,
+  "max": 26
+ },
+ "y": "반응기",
+ "z": {
+  "col": "가동시간 (h)",
+  "agg": "mean"
+ },
+ "asks": [
+  {
+   "ask": "cell value = mean 가동시간",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/SS14_r2/out/t2"
+ }
+}

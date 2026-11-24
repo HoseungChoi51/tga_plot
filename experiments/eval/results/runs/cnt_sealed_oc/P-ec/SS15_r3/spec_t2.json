@@ -1,0 +1,32 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "histogram",
+ "x": "CNT수율 (g/g-cat)",
+ "bins": {
+  "width": 1,
+  "min": 12,
+  "max": 36
+ },
+ "by": {
+  "col": "주차",
+  "type": "group"
+ },
+ "filter": [],
+ "asks": [
+  {
+   "ask": "Overlay two periods — 주차 1–13 vs 14–26",
+   "how": "code"
+  },
+  {
+   "ask": "shared bin edges",
+   "how": "key"
+  },
+  {
+   "ask": "1 g/g-cat wide from 12 to 36",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/SS15_r3/out/t2"
+ }
+}

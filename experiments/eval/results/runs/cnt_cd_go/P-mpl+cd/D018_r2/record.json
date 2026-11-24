@@ -1,0 +1,92 @@
+{
+ "arm": "P-mpl+cd",
+ "item": "D018",
+ "repeat": 2,
+ "split": "dev",
+ "persona": "라인 작업자",
+ "type": "single",
+ "cd": "full",
+ "backend": "anthropic",
+ "model": "qwen3.8-flash",
+ "effort": "",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "월별로 노즐막힘 몇번낫는지 반응기별로 묶어서 막대로 해줘요",
+   "calls": [
+    {
+     "reply": "{\n  \"file\": \"data/downtime.xlsx\",\n  \"sheets\": \"정지이력\",\n  \"x\": {\"col\": \"일자\", \"label\": \"월\"},\n  \"y1\": {\"col\": \"시작시각\", \"label\": \"시작 시각\"},\n  \"y2\": false\n}",
+     "llm_s": 2.733,
+     "prompt_tokens": 5667,
+     "output_tokens": 74,
+     "cached_tokens": 5297,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": ""
+    },
+    {
+     "reply": "{\n  \"file\": \"data/downtime.xlsx\",\n  \"sheets\": \"정지이력\",\n  \"x\": {\"col\": \"일자\", \"label\": \"월\"},\n  \"y1\": {\"col\": \"시작시각\", \"label\": \"시작 시각\"},\n  \"y2\": false\n}",
+     "llm_s": 2.994,
+     "prompt_tokens": 5780,
+     "output_tokens": 73,
+     "cached_tokens": 5297,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": ""
+    },
+    {
+     "reply": "{\n  \"file\": \"data/downtime.xlsx\",\n  \"sheets\": \"정지이력\",\n  \"x\": {\"col\": \"일자\", \"label\": \"월\"},\n  \"y1\": {\"col\": \"시작시각\", \"label\": \"시작 시각\"},\n  \"y2\": false\n}",
+     "llm_s": 2.324,
+     "prompt_tokens": 5893,
+     "output_tokens": 73,
+     "cached_tokens": 5297,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": ""
+    }
+   ],
+   "spec": {
+    "file": "data/downtime.xlsx",
+    "sheets": "정지이력",
+    "x": {
+     "col": "일자",
+     "label": "월"
+    },
+    "y1": {
+     "col": "시작시각",
+     "label": "시작 시각"
+    },
+    "y2": false
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": false,
+    "error": "TypeError: Could not convert '10:43' to numeric",
+    "hint": "",
+    "crash": true
+   },
+   "facts": [],
+   "draw_s": 0.3592069149017334,
+   "check": {
+    "kind_expected": "grouped_bar",
+    "failed": [
+     "run: no plot (TypeError: Could not convert '10:43' to numeric)"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 9.468
+  }
+ ]
+}

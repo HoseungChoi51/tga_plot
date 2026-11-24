@@ -1,0 +1,225 @@
+{
+ "arm": "R-mpl",
+ "item": "S024",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "TGA 10개 배치 각각 800 °C 잔량(wt%)을 Fe로 환산(Fe₂O₃ → Fe, ×0.699)해서 런로그 잔류금속(wt%)과 비교하는 산점도 그려 주세요. 시트 이름이 런ID입니다. y = x 기준선도 넣어 주세요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# Configuration\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 1. Load Run Log to get '잔류금속 (wt%)' for each Run ID\nrun_log_path = \"data/run_log.xlsx\"\ndf_runs = pd.read_excel(run_log_path, sheet_name=\"런로그\")\n\n# Create a mapping from Run ID to Residual Metal Content\n# Note: The TGA sheet names are Run IDs like 'R1-260326-1'\nrun_metal_map = df_runs.set_index(\"런ID\")[\"잔류금속 (wt%)\"].to_dict()\n\n# 2. Load TGA Batches and calculate Fe content from residue at 800°C\ntga_file_path = \"data/tga_batches.xlsx\"\ntga_data = []\n\n# List of sheets in the TGA file\nxls = pd.ExcelFile(tga_file_path)\nsheet_names = xls.sheet_names\n\nfor sheet in sheet_names:\n    # Read TGA data for this batch\n    # Columns expected: A 시간 (min), B 온도 (°C), C 중량 (%), D 미분중량 (%/°C)\n    df_tga = pd.read_excel(tga_file_path, sheet_name=sheet)\n    \n    # Identify column names based on typical structure or index\n    # Assuming headers are present. If not, we use positional indexing.\n    # From preview: A=시간, B=온도, C=중량, D=미분중량\n    cols = df_tga.columns\n    \n    # Robustly find temperature and weight columns\n    temp_col = None\n    weight_col = None\n    \n    for c in cols:\n        if \"온도\" in str(c):\n            temp_col = c\n        elif \"중량\" in str(c) and \"미분\" not in str(c):\n            weight_col = c\n            \n    if temp_col is None or weight_col is None:\n        # Fallback to positional indices if headers don't match keywords exactly\n        # Based on preview: col 1 is Temp, col 2 is Weight %\n        temp_idx = 1\n        weight_idx = 2\n        temp_col = cols[temp_idx]\n        weight_col = cols[weight_idx]\n\n    # Filter data around 800°C to find the residue value\n    # We look for the row closest to 800°C\n    target_temp = 800.0\n    df_tga['temp_diff'] = abs(df_tga[temp_col] - target_temp)\n    closest_row_idx = df_tga['temp_diff'].idxmin()\n    \n    residue_wt_pct = df_tga.loc[closest_row_idx, weight_col]\n    \n    # Convert Oxide residue (Fe2O3) to Fe content\n    # Factor given: 0.699\n    fe_content_wt_pct = residue_wt_pct * 0.699\n    \n    run_id = sheet\n    \n    # Get corresponding residual metal from Run Log\n    if run_id in run_metal_map:\n        log_metal = run_metal_map[run_id]\n    else:\n        # Handle case where Run ID might have slight format differences or missing entry\n        log_metal = np.nan\n        \n    tga_data.append({\n        \"Run_ID\": run_id,\n        \"Residue_800C_Fe_Wt_Pct\": fe_content_wt_pct,\n        \"Log_Residual_Metal_Wt_Pct\": log_metal\n    })\n\ndf_comparison = pd.DataFrame(tga_data)\n\n# Drop rows with NaN values for plotting clarity\ndf_plot = df_comparison.dropna(subset=[\"Residue_800C_Fe_Wt_Pct\", \"Log_Residual_Metal_Wt_Pct\"])\n\n# 3. Plot Scatter\nfig, ax = plt.subplots(figsize=(8, 8))\n\nax.scatter(\n    df_plot[\"Residue_800C_Fe_Wt_Pct\"], \n    df_plot[\"Log_Residual_Metal_Wt_Pct\"], \n    s=100, \n    alpha=0.7, \n    edgecolors='k', \n    label=\"TGA 배치 vs 런로그\"\n)\n\n# Add y=x baseline\nlimit_min = min(df_plot[\"Residue_800C_Fe_Wt_Pct\"].min(), df_plot[\"Log_Residual_Metal_Wt_Pct\"].min())\nlimit_max = max(df_plot[\"Residue_800C_Fe_Wt_Pct\"].max(), df_plot[\"Log_Residual_Metal_Wt_Pct\"].max())\n# Pad limits slightly for visual clarity\npad = (limit_max - limit_min) * 0.05\nx_lim = [limit_min - pad, limit_max + pad]\n\nax.plot(x_lim, x_lim, 'r--', linewidth=2, label=\"y = x 기준선\")\n\nax.set_xlim(x_lim)\nax.set_ylim(x_lim)\n\nax.set_xlabel(\"TGA 잔류량 환산 Fe 함량 (wt%)\")\nax.set_ylabel(\"런로그 기록 잔류금속 (wt%)\")\nax.set_title(\"TGA 측정값과 생산 로그 잔류금속 비교\")\nax.legend()\nax.grid(True, linestyle=':', alpha=0.6)\n\n# Save figure\noutput_path = os.path.join(OUT_DIR, \"tga_vs_log_scatter.png\")\nplt.tight_layout()\nplt.savefig(output_path, dpi=300)\nplt.close()\n```",
+     "llm_s": 17.767,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 5834,
+     "output_chars": 3828,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# Configuration\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 1. Load Run Log to get '잔류금속 (wt%)' for each Run ID\nrun_log_path = \"data/run_log.xlsx\"\ndf_runs = pd.read_excel(run_log_path, sheet_name=\"런로그\")\n\n# Identify the correct column name for Residual Metal.\n# The preview shows headers like 'S 잔류금속 (wt%)'. \n# Sometimes spaces or encoding issues cause mismatches. We search for a column containing '잔류금속'.\nmetal_col = None\nfor col in df_runs.columns:\n    if '잔류금속' in str(col):\n        metal_col = col\n        break\n\nif metal_col is None:\n    # Fallback to index S (column 18, 0-indexed 18? Let's check preview: A=0... S=18)\n    # Preview says S is '잔류금속 (wt%)'. \n    # If header row was parsed correctly, it should be there. If not, maybe we need positional.\n    # But let's assume strict matching failed due to whitespace. We strip columns.\n    df_runs.columns = [str(c).strip() for c in df_runs.columns]\n    for col in df_runs.columns:\n        if '잔류금속' in col:\n            metal_col = col\n            break\n\n# Create a mapping from Run ID to Residual Metal Content\nif metal_col:\n    run_metal_map = df_runs.set_index(\"런ID\")[metal_col].to_dict()\nelse:\n    raise ValueError(\"Could not find '잔류금속' column in run log.\")\n\n# 2. Load TGA Batches and calculate Fe content from residue at 800°C\ntga_file_path = \"data/tga_batches.xlsx\"\ntga_data = []\n\nxls = pd.ExcelFile(tga_file_path)\nsheet_names = xls.sheet_names\n\nfor sheet in sheet_names:\n    # Read TGA data for this batch\n    df_tga = pd.read_excel(tga_file_path, sheet_name=sheet)\n    \n    cols = df_tga.columns\n    \n    # Robustly find temperature and weight columns\n    temp_col = None\n    weight_col = None\n    \n    for c in cols:\n        c_str = str(c)\n        if \"온도\" in c_str:\n            temp_col = c\n        elif \"중량\" in c_str and \"미분\" not in c_str:\n            weight_col = c\n            \n    if temp_col is None or weight_col is None:\n        # Fallback to positional indices based on preview structure\n        # Col 0: Time, Col 1: Temp, Col 2: Weight, Col 3: Derivative\n        temp_idx = 1\n        weight_idx = 2\n        temp_col = cols[temp_idx]\n        weight_col = cols[weight_idx]\n\n    # Filter data around 800°C to find the residue value\n    target_temp = 800.0\n    df_tga['temp_diff'] = abs(df_tga[temp_col] - target_temp)\n    closest_row_idx = df_tga['temp_diff'].idxmin()\n    \n    residue_wt_pct = df_tga.loc[closest_row_idx, weight_col]\n    \n    # Convert Oxide residue (Fe2O3) to Fe content\n    # Factor given: 0.699\n    fe_content_wt_pct = residue_wt_pct * 0.699\n    \n    run_id = sheet\n    \n    # Get corresponding residual metal from Run Log\n    if run_id in run_metal_map:\n        log_metal = run_metal_map[run_id]\n    else:\n        log_metal = np.nan\n        \n    tga_data.append({\n        \"Run_ID\": run_id,\n        \"Residue_800C_Fe_Wt_Pct\": fe_content_wt_pct,\n        \"Log_Residual_Metal_Wt_Pct\": log_metal\n    })\n\ndf_comparison = pd.DataFrame(tga_data)\n\n# Drop rows with NaN values for plotting clarity\ndf_plot = df_comparison.dropna(subset=[\"Residue_800C_Fe_Wt_Pct\", \"Log_Residual_Metal_Wt_Pct\"])\n\n# 3. Plot Scatter\nfig, ax = plt.subplots(figsize=(8, 8))\n\nax.scatter(\n    df_plot[\"Residue_800C_Fe_Wt_Pct\"], \n    df_plot[\"Log_Residual_Metal_Wt_Pct\"], \n    s=100, \n    alpha=0.7, \n    edgecolors='k', \n    label=\"TGA 배치 vs 런로그\"\n)\n\n# Add y=x baseline\nlimit_min = min(df_plot[\"Residue_800C_Fe_Wt_Pct\"].min(), df_plot[\"Log_Residual_Metal_Wt_Pct\"].min())\nlimit_max = max(df_plot[\"Residue_800C_Fe_Wt_Pct\"].max(), df_plot[\"Log_Residual_Metal_Wt_Pct\"].max())\npad = (limit_max - limit_min) * 0.05\nx_lim = [limit_min - pad, limit_max + pad]\n\nax.plot(x_lim, x_lim, 'r--', linewidth=2, label=\"y = x 기준선\")\n\nax.set_xlim(x_lim)\nax.set_ylim(x_lim)\n\nax.set_xlabel(\"TGA 잔류량 환산 Fe 함량 (wt%)\")\nax.set_ylabel(\"런로그 기록 잔류금속 (wt%)\")\nax.set_title(\"TGA 측정값과 생산 로그 잔류금속 비교\")\nax.legend()\nax.grid(True, linestyle=':', alpha=0.6)\n\n# Save figure\noutput_path = os.path.join(OUT_DIR, \"tga_vs_log_scatter.png\")\nplt.tight_layout()\nplt.savefig(output_path, dpi=300)\nplt.close()\n```",
+     "llm_s": 20.94,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 11449,
+     "output_chars": 4221,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# Configuration\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 1. Load Run Log to get '잔류금속 (wt%)' for each Run ID\nrun_log_path = \"data/run_log.xlsx\"\ndf_runs = pd.read_excel(run_log_path, sheet_name=\"런로그\")\n\n# Identify the correct column name for Residual Metal.\n# The preview shows headers like 'S 잔류금속 (wt%)'. \n# Sometimes spaces or encoding issues cause mismatches. We search for a column containing '잔류금속'.\nmetal_col = None\nfor col in df_runs.columns:\n    if '잔류금속' in str(col):\n        metal_col = col\n        break\n\nif metal_col is None:\n    # Fallback to index S (column 18, 0-indexed 18? Let's check preview: A=0... S=18)\n    # Preview says S is '잔류금속 (wt%)'. \n    # If header row was parsed correctly, it should be there. If not, maybe we need positional.\n    # But let's assume strict matching failed due to whitespace. We strip columns.\n    df_runs.columns = [str(c).strip() for c in df_runs.columns]\n    for col in df_runs.columns:\n        if '잔류금속' in col:\n            metal_col = col\n            break\n\n# Create a mapping from Run ID to Residual Metal Content\nif metal_col:\n    run_metal_map = df_runs.set_index(\"런ID\")[metal_col].to_dict()\nelse:\n    raise ValueError(\"Could not find '잔류금속' column in run log.\")\n\n# 2. Load TGA Batches and calculate Fe content from residue at 800°C\ntga_file_path = \"data/tga_batches.xlsx\"\ntga_data = []\n\nxls = pd.ExcelFile(tga_file_path)\nsheet_names = xls.sheet_names\n\nfor sheet in sheet_names:\n    # Read TGA data for this batch\n    df_tga = pd.read_excel(tga_file_path, sheet_name=sheet)\n    \n    cols = df_tga.columns\n    \n    # Robustly find temperature and weight columns\n    temp_col = None\n    weight_col = None\n    \n    for c in cols:\n        c_str = str(c)\n        if \"온도\" in c_str:\n            temp_col = c\n        elif \"중량\" in c_str and \"미분\" not in c_str:\n            weight_col = c\n            \n    if temp_col is None or weight_col is None:\n        # Fallback to positional indices based on preview structure\n        # Col 0: Time, Col 1: Temp, Col 2: Weight, Col 3: Derivative\n        temp_idx = 1\n        weight_idx = 2\n        temp_col = cols[temp_idx]\n        weight_col = cols[weight_idx]\n\n    # Filter data around 800°C to find the residue value\n    target_temp = 800.0\n    df_tga['temp_diff'] = abs(df_tga[temp_col] - target_temp)\n    closest_row_idx = df_tga['temp_diff'].idxmin()\n    \n    residue_wt_pct = df_tga.loc[closest_row_idx, weight_col]\n    \n    # Convert Oxide residue (Fe2O3) to Fe content\n    # Factor given: 0.699\n    fe_content_wt_pct = residue_wt_pct * 0.699\n    \n    run_id = sheet\n    \n    # Get corresponding residual metal from Run Log\n    if run_id in run_metal_map:\n        log_metal = run_metal_map[run_id]\n    else:\n        log_metal = np.nan\n        \n    tga_data.append({\n        \"Run_ID\": run_id,\n        \"Residue_800C_Fe_Wt_Pct\": fe_content_wt_pct,\n        \"Log_Residual_Metal_Wt_Pct\": log_metal\n    })\n\ndf_comparison = pd.DataFrame(tga_data)\n\n# Drop rows with NaN values for plotting clarity\ndf_plot = df_comparison.dropna(subset=[\"Residue_800C_Fe_Wt_Pct\", \"Log_Residual_Metal_Wt_Pct\"])\n\n# 3. Plot Scatter\nfig, ax = plt.subplots(figsize=(8, 8))\n\nax.scatter(\n    df_plot[\"Residue_800C_Fe_Wt_Pct\"], \n    df_plot[\"Log_Residual_Metal_Wt_Pct\"], \n    s=100, \n    alpha=0.7, \n    edgecolors='k', \n    label=\"TGA 배치 vs 런로그\"\n)\n\n# Add y=x baseline\nlimit_min = min(df_plot[\"Residue_800C_Fe_Wt_Pct\"].min(), df_plot[\"Log_Residual_Metal_Wt_Pct\"].min())\nlimit_max = max(df_plot[\"Residue_800C_Fe_Wt_Pct\"].max(), df_plot[\"Log_Residual_Metal_Wt_Pct\"].max())\npad = (limit_max - limit_min) * 0.05\nx_lim = [limit_min - pad, limit_max + pad]\n\nax.plot(x_lim, x_lim, 'r--', linewidth=2, label=\"y = x 기준선\")\n\nax.set_xlim(x_lim)\nax.set_ylim(x_lim)\n\nax.set_xlabel(\"TGA 잔류량 환산 Fe 함량 (wt%)\")\nax.set_ylabel(\"런로그 기록 잔류금속 (wt%)\")\nax.set_title(\"TGA 측정값과 생산 로그 잔류금속 비교\")\nax.legend()\nax.grid(True, linestyle=':', alpha=0.6)\n\n# Save figure\noutput_path = os.path.join(OUT_DIR, \"tga_vs_log_scatter.png\")\nplt.tight_layout()\nplt.savefig(output_path, dpi=300)\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      8.0,
+      8.0
+     ],
+     "dpi": null,
+     "title": "TGA 측정값과 생산 로그 잔류금속 비교",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [
+        {
+         "name": "y = x 기준선",
+         "n": 2,
+         "x": [
+          2.9445588349999996,
+          5.632163865
+         ],
+         "y": [
+          2.9445588349999996,
+          5.632163865
+         ],
+         "color": "#ff0000",
+         "style": "--",
+         "width": 2.0
+        }
+       ],
+       "points": [
+        {
+         "name": "TGA 배치 vs 런로그",
+         "n": 10,
+         "x_range": [
+          3.0667226999999997,
+          5.503856099999999
+         ],
+         "y_range": [
+          3.07,
+          5.51
+         ],
+         "color": "#1f77b4",
+         "colors": null,
+         "x": [
+          3.1752075,
+          4.142973,
+          3.0922362,
+          3.0667226999999997,
+          3.4418060999999995,
+          3.404829,
+          5.0802621,
+          5.503856099999999,
+          4.7113299,
+          3.5994306
+         ],
+         "y": [
+          3.18,
+          4.15,
+          3.09,
+          3.07,
+          3.44,
+          3.41,
+          5.08,
+          5.51,
+          4.71,
+          3.6
+         ]
+        }
+       ],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "TGA 잔류량 환산 Fe 함량 (wt%)",
+        "type": "value",
+        "ticks": [
+         3.0,
+         3.5,
+         4.0,
+         4.5,
+         5.0,
+         5.5
+        ],
+        "step": 0.5,
+        "categories": null,
+        "min": 2.9445588349999996,
+        "max": 5.632163865,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "2.5",
+         "3.0",
+         "3.5",
+         "4.0",
+         "4.5",
+         "5.0",
+         "5.5",
+         "6.0"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "런로그 기록 잔류금속 (wt%)",
+        "type": "value",
+        "ticks": [
+         3.0,
+         3.5,
+         4.0,
+         4.5,
+         5.0,
+         5.5
+        ],
+        "step": 0.5,
+        "categories": null,
+        "min": 2.9445588349999996,
+        "max": 5.632163865,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "2.5",
+         "3.0",
+         "3.5",
+         "4.0",
+         "4.5",
+         "5.0",
+         "5.5",
+         "6.0"
+        ],
+        "rotate": 0.0
+       },
+       "title": "TGA 측정값과 생산 로그 잔류금속 비교"
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "TGA 배치 vs 런로그",
+       "y = x 기준선"
+      ],
+      "inside": true,
+      "where": "upper left"
+     },
+     "files": [
+      {
+       "path": "out/t1/tga_vs_log_scatter.png",
+       "format": "png",
+       "px": [
+        2400,
+        2400
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.7587177753448486,
+   "check": {
+    "kind_expected": "scatter",
+    "failed": [
+     "computed TGA-derived Fe (wt%) per batch: {'R1-260326-1': 3.176, 'R1-260716-1': 4.143, 'R2-260617-1': 3.092, 'R2-260616-1': 3.067, 'R3-260428-1': 3.442, 'R3-260810-2': 3.405, 'R4-260407-1': 5.08, 'R4-260721-1': 5.504, 'R1-260711-1': 4.711, 'R2-260312-1': 3.599} not shown"
+    ],
+    "unchecked": [
+     "ref_line=y = x"
+    ],
+    "n_checks": 4,
+    "n_failed": 1,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 39.872
+  }
+ ]
+}

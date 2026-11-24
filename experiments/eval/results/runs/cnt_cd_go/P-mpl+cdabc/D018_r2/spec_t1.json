@@ -1,0 +1,38 @@
+{
+ "asks": [
+  {
+   "ask": "월별 집계",
+   "how": "key"
+  },
+  {
+   "ask": "노즐 막힘 필터",
+   "how": "key"
+  },
+  {
+   "ask": "발생 횟수 (count)",
+   "how": "key"
+  },
+  {
+   "ask": "반응기별 그룹핑",
+   "how": "key"
+  },
+  {
+   "ask": "막대 차트",
+   "how": "key"
+  }
+ ],
+ "chart": "bar",
+ "file": "data/downtime.xlsx",
+ "filter": [
+  "원인 == 노즐 막힘"
+ ],
+ "x": {
+  "col": "일자",
+  "period": "month"
+ },
+ "y": "count",
+ "z": "반응기",
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdabc/D018_r2/out/t1"
+ }
+}

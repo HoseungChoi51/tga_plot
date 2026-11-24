@@ -1,0 +1,24 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "bar",
+ "x": "반응기",
+ "y": "count",
+ "by": "등급 (A/B/C)",
+ "stack": true,
+ "percent": true,
+ "values": "percent",
+ "asks": [
+  {
+   "ask": "반응기별 등급 구성비 막대",
+   "how": "key"
+  },
+  {
+   "ask": "합이 100%가 되게 (정규화)",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-hyb/S026_r3/out/t1"
+ }
+}

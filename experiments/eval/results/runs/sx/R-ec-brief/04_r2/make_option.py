@@ -1,0 +1,208 @@
+import pandas as pd
+import numpy as np
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+def make_tga_plot(df, sheet_name, title_text, title_font_size=18, title_color="navy"):
+    # Identify columns based on standard TGA structure or the guess provided in preview logic
+    # Assuming standard: B=Temp, C=Weight, D=DTG
+    temp_col = "Temperature"
+    weight_col = "Weight(%)"
+    dtg_col = "D.W(%/C)"
+    
+    # Extract data
+    x = df[temp_col].values
+    y1 = df[weight_col].values
+    y2_raw = df[dtg_col].values
+    
+    # Invert DTG for plotting (peaks point up)
+    y2 = [-v for v in y2_raw]
+    
+    # Prepare series data for ECharts
+    # Weight series (left axis)
+    weight_data = [[float(t), float(w)] for t, w in zip(x, y1)]
+    
+    # DTG series (right axis)
+    dtg_data = [[float(t), float(d)] for t, d in zip(x, y2)]
+    
+    # Calculate Residue at 800°C
+    # Find index closest to 800
+    idx_800 = np.argmin(np.abs(x - 800))
+    residue_temp = x[idx_800]
+    residue_weight = y1[idx_800]
+    residue_label = f"Residue {residue_weight:.1f}%"
+    
+    # Markers for residue
+    residue_marker = [
+        {
+            "coord": [float(residue_temp), float(residue_weight)],
+            "symbol": "circle",
+            "symbolSize": 8,
+            "itemStyle": {"color": "#1f4e9c"},
+            "label": {
+                "show": True,
+                "formatter": residue_label,
+                "position": "top",
+                "fontSize": 10,
+                "color": "#1f4e9c"
+            }
+        }
+    ]
+    
+    # Calculate Peak temperature (highest DTG peak above 150°C)
+    # Filter data > 150°C
+    mask = x > 150
+    if np.any(mask):
+        filtered_x = x[mask]
+        filtered_y2 = np.array(y2)[mask]
+        
+        # Find max of inverted DTG (which corresponds to most negative original DTG, i.e., steepest mass loss)
+        peak_idx_local = np.argmax(filtered_y2)
+        peak_temp = filtered_x[peak_idx_local]
+        peak_val = filtered_y2[peak_idx_local]
+        
+        peak_label = f"{peak_temp:.0f} °C"
+        
+        peak_marker = [
+            {
+                "coord": [float(peak_temp), float(peak_val)],
+                "symbol": "triangle",
+                "symbolSize": 8,
+                "itemStyle": {"color": "#c0392b"},
+                "label": {
+                    "show": True,
+                    "formatter": peak_label,
+                    "position": "top",
+                    "fontSize": 10,
+                    "color": "#c0392b"
+                }
+            }
+        ]
+    else:
+        peak_marker = []
+
+    option = {
+        "title": {
+            "text": title_text,
+            "left": "center",
+            "textStyle": {
+                "fontSize": title_font_size,
+                "color": title_color,
+                "fontFamily": "Noto Sans CJK KR"
+            }
+        },
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {
+                "type": "cross"
+            }
+        },
+        "legend": {
+            "data": ["Weight (%)", "DTG (%/°C)"],
+            "orient": "vertical",
+            "left": "left",
+            "top": "middle",
+            "textStyle": {
+                "fontFamily": "Noto Sans CJK KR"
+            }
+        },
+        "grid": {
+            "left": "10%",
+            "right": "10%",
+            "bottom": "15%",
+            "containLabel": True
+        },
+        "xAxis": {
+            "name": "Temperature (°C)",
+            "nameLocation": "middle",
+            "nameGap": 30,
+            "type": "value",
+            "scale": False,
+            "min": 30,
+            "max": 900,
+            "axisLine": {"onZero": False},
+            "splitLine": {"show": True, "lineStyle": {"type": "dashed"}},
+            "axisLabel": {
+                "fontFamily": "Noto Sans CJK KR"
+            }
+        },
+        "yAxis": [
+            {
+                "name": "Weight (%)",
+                "type": "value",
+                "position": "left",
+                "axisLine": {"onZero": False, "lineStyle": {"color": "#1f4e9c"}},
+                "axisTick": {"lineStyle": {"color": "#1f4e9c"}},
+                "axisLabel": {
+                    "formatter": "{value}",
+                    "fontFamily": "Noto Sans CJK KR"
+                },
+                "splitLine": {"show": False}
+            },
+            {
+                "name": "DTG (%/°C)",
+                "type": "value",
+                "position": "right",
+                "axisLine": {"onZero": False, "lineStyle": {"color": "#c0392b"}},
+                "axisTick": {"lineStyle": {"color": "#c0392b"}},
+                "axisLabel": {
+                    "formatter": "{value}",
+                    "fontFamily": "Noto Sans CJK KR"
+                },
+                "splitLine": {"show": False}
+            }
+        ],
+        "series": [
+            {
+                "name": "Weight (%)",
+                "type": "line",
+                "yAxisIndex": 0,
+                "data": weight_data,
+                "smooth": False,
+                "lineStyle": {"color": "#1f4e9c", "width": 2},
+                "itemStyle": {"color": "#1f4e9c"},
+                "markPoint": {
+                    "data": residue_marker
+                },
+                "symbol": "none"
+            },
+            {
+                "name": "DTG (%/°C)",
+                "type": "line",
+                "yAxisIndex": 1,
+                "data": dtg_data,
+                "smooth": False,
+                "lineStyle": {"color": "#c0392b", "width": 2},
+                "itemStyle": {"color": "#c0392b"},
+                "markPoint": {
+                    "data": peak_marker
+                },
+                "symbol": "none"
+            }
+        ]
+    }
+    
+    return {
+        "name": "plot1",
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"]
+    }
+
+# Load specific sheet
+df = pd.read_excel(DATA_FILE, sheet_name="1006R1-V normal")
+
+# Generate plot
+fig = make_tga_plot(
+    df=df,
+    sheet_name="1006R1-V normal",
+    title_text="CNT 산화 거동",
+    title_font_size=18,
+    title_color="navy"
+)
+
+output = {"figures": [fig]}
+print(json.dumps(output, ensure_ascii=False))

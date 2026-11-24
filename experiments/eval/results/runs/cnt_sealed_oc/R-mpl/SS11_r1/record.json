@@ -1,0 +1,1457 @@
+{
+ "arm": "R-mpl",
+ "item": "SS11",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "신입 연구원",
+ "type": "session",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "DOE 파일을 받았는데요, 온도에 따라 수율이 어떻게 달라지는지 보고 싶어요. 어떤 그래프가 좋을지 잘 몰라서 알아서 부탁드려요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 폰트 설정 (한글 지원)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams['axes.unicode_minus'] = False  # 마이너스 부호 깨짐 방지\n\n# 데이터 읽기\nfile_path = \"data/doe_temp_h2.csv\"\ntry:\n    df = pd.read_csv(file_path, encoding='utf-8')\nexcept UnicodeDecodeError:\n    try:\n        df = pd.read_csv(file_path, encoding='cp949')\n    except Exception as e:\n        raise ValueError(f\"파일 인코딩 오류: {e}\")\n\n# 데이터 전처리 및 통계 계산\n# 온도별 수율 평균과 표준편차 계산\nstats_df = df.groupby('2존온도(°C)').agg({\n    '수율(g/g-cat)': ['mean', 'std', 'count']\n}).reset_index()\n\nstats_df.columns = ['Temperature', 'Mean_Yield', 'Std_Yield', 'Count']\n\n# 그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# 에러바 포함 선그래프\nax.errorbar(stats_df['Temperature'], stats_df['Mean_Yield'], \n            yerr=stats_df['Std_Yield'], \n            fmt='-o', color='#1f77b4', ecolor='lightgray', elinewidth=3, capsize=5, markersize=8, label='평균 ± 표준편차')\n\n# 원본 데이터 점 표시 (투명하게)\nax.scatter(df['2존온도(°C)'], df['수율(g/g-cat)'], alpha=0.3, color='gray', s=20, label='원본 데이터 포인트')\n\n# 라벨 및 제목\nax.set_title('DOE 결과: 2존 온도에 따른 CNT 수율 변화', fontsize=16)\nax.set_xlabel('2존 온도 (°C)', fontsize=12)\nax.set_ylabel('수율 (g/g-cat)', fontsize=12)\nax.legend(loc='best', fontsize=10)\nax.grid(True, linestyle='--', alpha=0.6)\n\n# Y축 범위 약간 여유롭게\ny_min = df['수율(g/g-cat)'].min()\ny_max = df['수율(g/g-cat)'].max()\nmargin = (y_max - y_min) * 0.1\nax.set_ylim(y_min - margin, y_max + margin)\n\n# X축 눈금 확인\nx_ticks = sorted(df['2존온도(°C)'].unique())\nax.set_xticks(x_ticks)\n\nplt.tight_layout()\n\n# 저장\noutput_filename = os.path.join(OUT_DIR, \"doe_temp_yield_plot.png\")\nplt.savefig(output_filename, dpi=300)\nplt.close()\n\nprint(f\"그래프가 저장되었습니다: {output_filename}\")\n```",
+     "llm_s": 10.65,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 2691,
+     "output_chars": 1804,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 폰트 설정 (한글 지원)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams['axes.unicode_minus'] = False  # 마이너스 부호 깨짐 방지\n\n# 데이터 읽기\nfile_path = \"data/doe_temp_h2.csv\"\ntry:\n    df = pd.read_csv(file_path, encoding='utf-8')\nexcept UnicodeDecodeError:\n    try:\n        df = pd.read_csv(file_path, encoding='cp949')\n    except Exception as e:\n        raise ValueError(f\"파일 인코딩 오류: {e}\")\n\n# 데이터 전처리 및 통계 계산\n# 온도별 수율 평균과 표준편차 계산\nstats_df = df.groupby('2존온도(°C)').agg({\n    '수율(g/g-cat)': ['mean', 'std', 'count']\n}).reset_index()\n\nstats_df.columns = ['Temperature', 'Mean_Yield', 'Std_Yield', 'Count']\n\n# 그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# 에러바 포함 선그래프\nax.errorbar(stats_df['Temperature'], stats_df['Mean_Yield'], \n            yerr=stats_df['Std_Yield'], \n            fmt='-o', color='#1f77b4', ecolor='lightgray', elinewidth=3, capsize=5, markersize=8, label='평균 ± 표준편차')\n\n# 원본 데이터 점 표시 (투명하게)\nax.scatter(df['2존온도(°C)'], df['수율(g/g-cat)'], alpha=0.3, color='gray', s=20, label='원본 데이터 포인트')\n\n# 라벨 및 제목\nax.set_title('DOE 결과: 2존 온도에 따른 CNT 수율 변화', fontsize=16)\nax.set_xlabel('2존 온도 (°C)', fontsize=12)\nax.set_ylabel('수율 (g/g-cat)', fontsize=12)\nax.legend(loc='best', fontsize=10)\nax.grid(True, linestyle='--', alpha=0.6)\n\n# Y축 범위 약간 여유롭게\ny_min = df['수율(g/g-cat)'].min()\ny_max = df['수율(g/g-cat)'].max()\nmargin = (y_max - y_min) * 0.1\nax.set_ylim(y_min - margin, y_max + margin)\n\n# X축 눈금 확인\nx_ticks = sorted(df['2존온도(°C)'].unique())\nax.set_xticks(x_ticks)\n\nplt.tight_layout()\n\n# 저장\noutput_filename = os.path.join(OUT_DIR, \"doe_temp_yield_plot.png\")\nplt.savefig(output_filename, dpi=300)\nplt.close()\n\nprint(f\"그래프가 저장되었습니다: {output_filename}\")\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "DOE 결과: 2존 온도에 따른 CNT 수율 변화",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [
+        {
+         "name": "원본 데이터 포인트",
+         "n": 90,
+         "x_range": [
+          1100.0,
+          1200.0
+         ],
+         "y_range": [
+          14.66,
+          32.54
+         ],
+         "color": "#808080",
+         "colors": null,
+         "x": [
+          1100.0,
+          1100.0,
+          1100.0,
+          1100.0,
+          1100.0,
+          1100.0,
+          1100.0,
+          1100.0,
+          1100.0,
+          1100.0,
+          1100.0,
+          1100.0,
+          1100.0,
+          1100.0,
+          1100.0,
+          1100.0,
+          1100.0,
+          1100.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1125.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1150.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1175.0,
+          1200.0,
+          1200.0,
+          1200.0,
+          1200.0,
+          1200.0,
+          1200.0,
+          1200.0,
+          1200.0,
+          1200.0,
+          1200.0,
+          1200.0,
+          1200.0,
+          1200.0,
+          1200.0,
+          1200.0,
+          1200.0,
+          1200.0,
+          1200.0
+         ],
+         "y": [
+          22.34,
+          20.97,
+          22.95,
+          27.02,
+          26.0,
+          26.71,
+          27.47,
+          27.74,
+          26.92,
+          27.15,
+          26.77,
+          27.46,
+          25.1,
+          23.62,
+          23.7,
+          16.4,
+          17.28,
+          17.47,
+          26.16,
+          25.02,
+          24.83,
+          28.27,
+          28.79,
+          30.1,
+          30.27,
+          30.07,
+          31.27,
+          29.99,
+          30.42,
+          29.02,
+          26.79,
+          27.31,
+          24.65,
+          21.71,
+          19.56,
+          21.02,
+          27.32,
+          27.76,
+          26.68,
+          29.89,
+          30.44,
+          31.49,
+          31.76,
+          32.54,
+          32.1,
+          29.36,
+          30.69,
+          28.43,
+          26.55,
+          25.83,
+          27.21,
+          22.52,
+          21.8,
+          20.64,
+          24.83,
+          25.43,
+          26.39,
+          29.22,
+          29.24,
+          30.04,
+          31.8,
+          30.18,
+          29.92,
+          29.01,
+          29.05,
+          29.74,
+          25.8,
+          25.46,
+          23.62,
+          18.97,
+          19.52,
+          19.07,
+          23.17,
+          23.24,
+          21.8,
+          27.64,
+          26.4,
+          25.62,
+          26.31,
+          27.38,
+          26.18,
+          27.28,
+          26.26,
+          25.22,
+          20.33,
+          21.77,
+          20.2,
+          16.24,
+          15.9,
+          14.66
+         ]
+        }
+       ],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "2존 온도 (°C)",
+        "type": "value",
+        "ticks": [
+         1100.0,
+         1125.0,
+         1150.0,
+         1175.0,
+         1200.0
+        ],
+        "step": 25.0,
+        "categories": null,
+        "min": 1095.0,
+        "max": 1205.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "1100",
+         "1125",
+         "1150",
+         "1175",
+         "1200"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "수율 (g/g-cat)",
+        "type": "value",
+        "ticks": [
+         15.0,
+         17.5,
+         20.0,
+         22.5,
+         25.0,
+         27.5,
+         30.0,
+         32.5
+        ],
+        "step": 2.5,
+        "categories": null,
+        "min": 12.872,
+        "max": 34.327999999999996,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "12.5",
+         "15.0",
+         "17.5",
+         "20.0",
+         "22.5",
+         "25.0",
+         "27.5",
+         "30.0",
+         "32.5",
+         "35.0"
+        ],
+        "rotate": 0.0
+       },
+       "title": "DOE 결과: 2존 온도에 따른 CNT 수율 변화"
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "원본 데이터 포인트",
+       "평균 ± 표준편차"
+      ],
+      "inside": true,
+      "where": "upper right"
+     },
+     "files": [
+      {
+       "path": "out/t1/doe_temp_yield_plot.png",
+       "format": "png",
+       "px": [
+        3000,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5112190246582031,
+   "check": {
+    "kind_expected": "line",
+    "failed": [
+     "kind: drawn ['scatter'], want line",
+     "lines: 0 drawn, want 1",
+     "series 평균 수율: not drawn"
+    ],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 3,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 11.161
+  },
+  {
+   "turn": 2,
+   "text": "H2 비율마다 선을 따로 그려 주실 수 있을까요?",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 폰트 설정 (한글 지원)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams['axes.unicode_minus'] = False  # 마이너스 부호 깨짐 방지\n\n# 데이터 읽기\nfile_path = \"data/doe_temp_h2.csv\"\ntry:\n    df = pd.read_csv(file_path, encoding='utf-8')\nexcept UnicodeDecodeError:\n    try:\n        df = pd.read_csv(file_path, encoding='cp949')\n    except Exception as e:\n        raise ValueError(f\"파일 인코딩 오류: {e}\")\n\n# H2/C2H4비별 그룹핑하여 온도별 평균 수율 계산\n# 각 H2 비율에 대해 온도가 x축이 되는 선을 그리기 위해 피벗 테이블 생성\npivot_df = df.pivot_table(values='수율(g/g-cat)', index='2존온도(°C)', columns='H2/C2H4비', aggfunc='mean').reset_index()\n\n# 그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# 색상 팔레트 정의\ncolors = plt.cm.viridis(np.linspace(0, 1, len(pivot_df.columns) - 1))\n\n# 각 H2 비율별로 선 그리기\nfor i, col in enumerate(pivot_df.columns[1:]):\n    h2_ratio = pivot_df[col]\n    # 유효한 값만 추출 (NaN 제외)\n    valid_mask = ~h2_ratio.isna()\n    temps = pivot_df['2존온도(°C)'][valid_mask]\n    yields = h2_ratio[valid_mask]\n    \n    if not temps.empty:\n        ax.plot(temps, yields, marker='o', linestyle='-', color=colors[i], label=f'H2/C2H4 = {col}', linewidth=2, markersize=6)\n\n# 라벨 및 제목\nax.set_title('DOE 결과: H2/C2H4 비에 따른 CNT 수율 변화', fontsize=16)\nax.set_xlabel('2존 온도 (°C)', fontsize=12)\nax.set_ylabel('수율 (g/g-cat)', fontsize=12)\nax.legend(loc='best', title='H2/C2H4 비', title_fontsize='10', fontsize='10')\nax.grid(True, linestyle='--', alpha=0.6)\n\n# X축 눈금 확인\nx_ticks = sorted(df['2존온도(°C)'].unique())\nax.set_xticks(x_ticks)\n\nplt.tight_layout()\n\n# 저장\noutput_filename = os.path.join(OUT_DIR, \"doe_temp_yield_by_h2.png\")\nplt.savefig(output_filename, dpi=300)\nplt.close()\n\nprint(f\"그래프가 저장되었습니다: {output_filename}\")\n```",
+     "llm_s": 11.569,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 5177,
+     "output_chars": 1794,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 폰트 설정 (한글 지원)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams['axes.unicode_minus'] = False  # 마이너스 부호 깨짐 방지\n\n# 데이터 읽기\nfile_path = \"data/doe_temp_h2.csv\"\ntry:\n    df = pd.read_csv(file_path, encoding='utf-8')\nexcept UnicodeDecodeError:\n    try:\n        df = pd.read_csv(file_path, encoding='cp949')\n    except Exception as e:\n        raise ValueError(f\"파일 인코딩 오류: {e}\")\n\n# H2/C2H4비별 그룹핑하여 온도별 평균 수율 계산\n# 각 H2 비율에 대해 온도가 x축이 되는 선을 그리기 위해 피벗 테이블 생성\npivot_df = df.pivot_table(values='수율(g/g-cat)', index='2존온도(°C)', columns='H2/C2H4비', aggfunc='mean').reset_index()\n\n# 그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 6))\n\n# 색상 팔레트 정의\ncolors = plt.cm.viridis(np.linspace(0, 1, len(pivot_df.columns) - 1))\n\n# 각 H2 비율별로 선 그리기\nfor i, col in enumerate(pivot_df.columns[1:]):\n    h2_ratio = pivot_df[col]\n    # 유효한 값만 추출 (NaN 제외)\n    valid_mask = ~h2_ratio.isna()\n    temps = pivot_df['2존온도(°C)'][valid_mask]\n    yields = h2_ratio[valid_mask]\n    \n    if not temps.empty:\n        ax.plot(temps, yields, marker='o', linestyle='-', color=colors[i], label=f'H2/C2H4 = {col}', linewidth=2, markersize=6)\n\n# 라벨 및 제목\nax.set_title('DOE 결과: H2/C2H4 비에 따른 CNT 수율 변화', fontsize=16)\nax.set_xlabel('2존 온도 (°C)', fontsize=12)\nax.set_ylabel('수율 (g/g-cat)', fontsize=12)\nax.legend(loc='best', title='H2/C2H4 비', title_fontsize='10', fontsize='10')\nax.grid(True, linestyle='--', alpha=0.6)\n\n# X축 눈금 확인\nx_ticks = sorted(df['2존온도(°C)'].unique())\nax.set_xticks(x_ticks)\n\nplt.tight_layout()\n\n# 저장\noutput_filename = os.path.join(OUT_DIR, \"doe_temp_yield_by_h2.png\")\nplt.savefig(output_filename, dpi=300)\nplt.close()\n\nprint(f\"그래프가 저장되었습니다: {output_filename}\")\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "DOE 결과: H2/C2H4 비에 따른 CNT 수율 변화",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [
+        {
+         "name": "H2/C2H4 = 6",
+         "n": 5,
+         "x": [
+          1100.0,
+          1125.0,
+          1150.0,
+          1175.0,
+          1200.0
+         ],
+         "y": [
+          22.08666666666667,
+          25.336666666666662,
+          27.25333333333333,
+          25.55,
+          22.736666666666668
+         ],
+         "color": "#440154",
+         "style": "-",
+         "width": 2.0
+        },
+        {
+         "name": "H2/C2H4 = 8",
+         "n": 5,
+         "x": [
+          1100.0,
+          1125.0,
+          1150.0,
+          1175.0,
+          1200.0
+         ],
+         "y": [
+          26.576666666666668,
+          29.05333333333333,
+          30.606666666666666,
+          29.5,
+          26.55333333333333
+         ],
+         "color": "#414487",
+         "style": "-",
+         "width": 2.0
+        },
+        {
+         "name": "H2/C2H4 = 10",
+         "n": 5,
+         "x": [
+          1100.0,
+          1125.0,
+          1150.0,
+          1175.0,
+          1200.0
+         ],
+         "y": [
+          27.376666666666665,
+          30.536666666666665,
+          32.13333333333333,
+          30.633333333333336,
+          26.623333333333335
+         ],
+         "color": "#2a788e",
+         "style": "-",
+         "width": 2.0
+        },
+        {
+         "name": "H2/C2H4 = 12",
+         "n": 5,
+         "x": [
+          1100.0,
+          1125.0,
+          1150.0,
+          1175.0,
+          1200.0
+         ],
+         "y": [
+          27.126666666666665,
+          29.81,
+          29.493333333333336,
+          29.266666666666666,
+          26.253333333333334
+         ],
+         "color": "#22a884",
+         "style": "-",
+         "width": 2.0
+        },
+        {
+         "name": "H2/C2H4 = 14",
+         "n": 5,
+         "x": [
+          1100.0,
+          1125.0,
+          1150.0,
+          1175.0,
+          1200.0
+         ],
+         "y": [
+          24.14,
+          26.25,
+          26.53,
+          24.959999999999997,
+          20.766666666666666
+         ],
+         "color": "#7ad151",
+         "style": "-",
+         "width": 2.0
+        },
+        {
+         "name": "H2/C2H4 = 16",
+         "n": 5,
+         "x": [
+          1100.0,
+          1125.0,
+          1150.0,
+          1175.0,
+          1200.0
+         ],
+         "y": [
+          17.05,
+          20.763333333333332,
+          21.653333333333332,
+          19.186666666666667,
+          15.6
+         ],
+         "color": "#fde725",
+         "style": "-",
+         "width": 2.0
+        }
+       ],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "2존 온도 (°C)",
+        "type": "value",
+        "ticks": [
+         1100.0,
+         1125.0,
+         1150.0,
+         1175.0,
+         1200.0
+        ],
+        "step": 25.0,
+        "categories": null,
+        "min": 1095.0,
+        "max": 1205.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "1100",
+         "1125",
+         "1150",
+         "1175",
+         "1200"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "수율 (g/g-cat)",
+        "type": "value",
+        "ticks": [
+         15.0,
+         17.5,
+         20.0,
+         22.5,
+         25.0,
+         27.5,
+         30.0,
+         32.5
+        ],
+        "step": 2.5,
+        "categories": null,
+        "min": 14.773333333333333,
+        "max": 32.96,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "12.5",
+         "15.0",
+         "17.5",
+         "20.0",
+         "22.5",
+         "25.0",
+         "27.5",
+         "30.0",
+         "32.5",
+         "35.0"
+        ],
+        "rotate": 0.0
+       },
+       "title": "DOE 결과: H2/C2H4 비에 따른 CNT 수율 변화"
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "H2/C2H4 = 6",
+       "H2/C2H4 = 8",
+       "H2/C2H4 = 10",
+       "H2/C2H4 = 12",
+       "H2/C2H4 = 14",
+       "H2/C2H4 = 16"
+      ],
+      "inside": true,
+      "where": "lower center"
+     },
+     "files": [
+      {
+       "path": "out/t2/doe_temp_yield_by_h2.png",
+       "format": "png",
+       "px": [
+        3000,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.49973368644714355,
+   "check": {
+    "kind_expected": "line",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 12.069
+  },
+  {
+   "turn": 3,
+   "text": "선이 많아서 좀 헷갈리네요. 히트맵으로 보면 어떨까요?",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 폰트 설정 (한글 지원)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams['axes.unicode_minus'] = False  # 마이너스 부호 깨짐 방지\n\n# 데이터 읽기\nfile_path = \"data/doe_temp_h2.csv\"\ntry:\n    df = pd.read_csv(file_path, encoding='utf-8')\nexcept UnicodeDecodeError:\n    try:\n        df = pd.read_csv(file_path, encoding='cp949')\n    except Exception as e:\n        raise ValueError(f\"파일 인코딩 오류: {e}\")\n\n# 피벗 테이블 생성: 온도(x축), H2비(y축), 수율(값)\npivot_df = df.pivot_table(values='수율(g/g-cat)', index='H2/C2H4비', columns='2존온도(°C)', aggfunc='mean')\n\n# 그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 7))\n\n# 히트맵绘制\nim = ax.imshow(pivot_df.values, cmap='YlOrRd', aspect='auto')\n\n# 눈금 및 라벨 설정\nax.set_xticks(np.arange(len(pivot_df.columns)))\nax.set_yticks(np.arange(len(pivot_df.index)))\nax.set_xticklabels(pivot_df.columns)\nax.set_yticklabels(pivot_df.index)\n\n# 회전 없이 중앙 정렬\nplt.setp(ax.get_xticklabels(), rotation=0, ha=\"center\", rotation_mode=\"anchor\")\n\n# 각 셀에 값 텍스트 추가\nfor i in range(len(pivot_df.index)):\n    for j in range(len(pivot_df.columns)):\n        text = ax.text(j, i, f\"{pivot_df.iloc[i, j]:.1f}\",\n                       ha=\"center\", va=\"center\", color=\"black\" if pivot_df.iloc[i, j] > (pivot_df.max().max() * 0.6) else \"white\")\n\n# 색상 막대 추가\ncbar = ax.figure.colorbar(im, ax=ax)\ncbar.ax.set_ylabel('평균 수율 (g/g-cat)', rotation=-90, va=\"bottom\", fontsize=12)\n\n# 축 제목\nax.set_xlabel('2존 온도 (°C)', fontsize=12)\nax.set_ylabel('H2/C2H4 비', fontsize=12)\nax.set_title('DOE 결과: 온도와 H2/C2H4 비에 따른 CNT 수율 히트맵', fontsize=16)\n\nplt.tight_layout()\n\n# 저장\noutput_filename = os.path.join(OUT_DIR, \"doe_yield_heatmap.png\")\nplt.savefig(output_filename, dpi=300)\nplt.close()\n\nprint(f\"그래프가 저장되었습니다: {output_filename}\")\n```",
+     "llm_s": 7.79,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 7501,
+     "output_chars": 1828,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 폰트 설정 (한글 지원)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams['axes.unicode_minus'] = False  # 마이너스 부호 깨짐 방지\n\n# 데이터 읽기\nfile_path = \"data/doe_temp_h2.csv\"\ntry:\n    df = pd.read_csv(file_path, encoding='utf-8')\nexcept UnicodeDecodeError:\n    try:\n        df = pd.read_csv(file_path, encoding='cp949')\n    except Exception as e:\n        raise ValueError(f\"파일 인코딩 오류: {e}\")\n\n# 피벗 테이블 생성: 온도(x축), H2비(y축), 수율(값)\npivot_df = df.pivot_table(values='수율(g/g-cat)', index='H2/C2H4비', columns='2존온도(°C)', aggfunc='mean')\n\n# 그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 7))\n\n# 히트맵绘制\nim = ax.imshow(pivot_df.values, cmap='YlOrRd', aspect='auto')\n\n# 눈금 및 라벨 설정\nax.set_xticks(np.arange(len(pivot_df.columns)))\nax.set_yticks(np.arange(len(pivot_df.index)))\nax.set_xticklabels(pivot_df.columns)\nax.set_yticklabels(pivot_df.index)\n\n# 회전 없이 중앙 정렬\nplt.setp(ax.get_xticklabels(), rotation=0, ha=\"center\", rotation_mode=\"anchor\")\n\n# 각 셀에 값 텍스트 추가\nfor i in range(len(pivot_df.index)):\n    for j in range(len(pivot_df.columns)):\n        text = ax.text(j, i, f\"{pivot_df.iloc[i, j]:.1f}\",\n                       ha=\"center\", va=\"center\", color=\"black\" if pivot_df.iloc[i, j] > (pivot_df.max().max() * 0.6) else \"white\")\n\n# 색상 막대 추가\ncbar = ax.figure.colorbar(im, ax=ax)\ncbar.ax.set_ylabel('평균 수율 (g/g-cat)', rotation=-90, va=\"bottom\", fontsize=12)\n\n# 축 제목\nax.set_xlabel('2존 온도 (°C)', fontsize=12)\nax.set_ylabel('H2/C2H4 비', fontsize=12)\nax.set_title('DOE 결과: 온도와 H2/C2H4 비에 따른 CNT 수율 히트맵', fontsize=16)\n\nplt.tight_layout()\n\n# 저장\noutput_filename = os.path.join(OUT_DIR, \"doe_yield_heatmap.png\")\nplt.savefig(output_filename, dpi=300)\nplt.close()\n\nprint(f\"그래프가 저장되었습니다: {output_filename}\")\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      7.0
+     ],
+     "dpi": null,
+     "title": "DOE 결과: 온도와 H2/C2H4 비에 따른 CNT 수율 히트맵",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": {
+        "rows": [
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16"
+        ],
+        "cols": [
+         "1100",
+         "1125",
+         "1150",
+         "1175",
+         "1200"
+        ],
+        "z": [
+         [
+          22.086666666666662,
+          25.336666666666662,
+          27.253333333333334,
+          25.55,
+          22.736666666666668
+         ],
+         [
+          26.576666666666668,
+          29.05333333333333,
+          30.606666666666666,
+          29.5,
+          26.55333333333333
+         ],
+         [
+          27.376666666666665,
+          30.536666666666665,
+          32.13333333333333,
+          30.633333333333336,
+          26.623333333333335
+         ],
+         [
+          27.126666666666665,
+          29.810000000000002,
+          29.493333333333336,
+          29.266666666666666,
+          26.253333333333334
+         ],
+         [
+          24.14,
+          26.25,
+          26.53,
+          24.959999999999997,
+          20.766666666666666
+         ],
+         [
+          17.05,
+          20.763333333333332,
+          21.653333333333336,
+          19.186666666666667,
+          15.6
+         ]
+        ],
+        "colorbar": true,
+        "values_shown": true,
+        "cmap": "YlOrRd",
+        "clim": [
+         15.6,
+         32.13333333333333
+        ]
+       },
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 30,
+       "texts": [
+        "22.1",
+        "25.3",
+        "27.3",
+        "25.6",
+        "22.7",
+        "26.6",
+        "29.1",
+        "30.6",
+        "29.5",
+        "26.6",
+        "27.4",
+        "30.5",
+        "32.1",
+        "30.6",
+        "26.6",
+        "27.1",
+        "29.8",
+        "29.5",
+        "29.3",
+        "26.3",
+        "24.1",
+        "26.2",
+        "26.5",
+        "25.0",
+        "20.8",
+        "17.1",
+        "20.8",
+        "21.7",
+        "19.2",
+        "15.6"
+       ],
+       "x": {
+        "label": "2존 온도 (°C)",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "1100",
+         "1125",
+         "1150",
+         "1175",
+         "1200"
+        ],
+        "min": -0.5,
+        "max": 4.5,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "1100",
+         "1125",
+         "1150",
+         "1175",
+         "1200"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "H2/C2H4 비",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0,
+         5.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16"
+        ],
+        "min": -0.5,
+        "max": 5.5,
+        "log": false,
+        "inverted": true,
+        "tick_labels": [
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16"
+        ],
+        "rotate": 0.0
+       },
+       "title": "DOE 결과: 온도와 H2/C2H4 비에 따른 CNT 수율 히트맵"
+      }
+     ],
+     "texts": [
+      "22.1",
+      "25.3",
+      "27.3",
+      "25.6",
+      "22.7",
+      "26.6",
+      "29.1",
+      "30.6",
+      "29.5",
+      "26.6",
+      "27.4",
+      "30.5",
+      "32.1",
+      "30.6",
+      "26.6",
+      "27.1",
+      "29.8",
+      "29.5",
+      "29.3",
+      "26.3",
+      "24.1",
+      "26.2",
+      "26.5",
+      "25.0",
+      "20.8",
+      "17.1",
+      "20.8",
+      "21.7",
+      "19.2",
+      "15.6"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t3/doe_yield_heatmap.png",
+       "format": "png",
+       "px": [
+        3000,
+        2100
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.6130216121673584,
+   "check": {
+    "kind_expected": "heatmap",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 8.404
+  },
+  {
+   "turn": 4,
+   "text": "칸 안에 숫자도 넣어 주세요. 소수점 한 자리로요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 폰트 설정 (한글 지원)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams['axes.unicode_minus'] = False  # 마이너스 부호 깨짐 방지\n\n# 데이터 읽기\nfile_path = \"data/doe_temp_h2.csv\"\ntry:\n    df = pd.read_csv(file_path, encoding='utf-8')\nexcept UnicodeDecodeError:\n    try:\n        df = pd.read_csv(file_path, encoding='cp949')\n    except Exception as e:\n        raise ValueError(f\"파일 인코딩 오류: {e}\")\n\n# 피벗 테이블 생성: 온도(x축), H2비(y축), 수율(값)\npivot_df = df.pivot_table(values='수율(g/g-cat)', index='H2/C2H4비', columns='2존온도(°C)', aggfunc='mean')\n\n# 그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 7))\n\n# 히트맵绘制\nim = ax.imshow(pivot_df.values, cmap='YlOrRd', aspect='auto')\n\n# 눈금 및 라벨 설정\nax.set_xticks(np.arange(len(pivot_df.columns)))\nax.set_yticks(np.arange(len(pivot_df.index)))\nax.set_xticklabels(pivot_df.columns)\nax.set_yticklabels(pivot_df.index)\n\n# 회전 없이 중앙 정렬\nplt.setp(ax.get_xticklabels(), rotation=0, ha=\"center\", rotation_mode=\"anchor\")\n\n# 각 셀에 값 텍스트 추가 (소수점 한 자리)\nfor i in range(len(pivot_df.index)):\n    for j in range(len(pivot_df.columns)):\n        val = pivot_df.iloc[i, j]\n        text_color = \"black\" if val > (pivot_df.max().max() * 0.6) else \"white\"\n        ax.text(j, i, f\"{val:.1f}\",\n                ha=\"center\", va=\"center\", color=text_color, fontsize=10)\n\n# 색상 막대 추가\ncbar = ax.figure.colorbar(im, ax=ax)\ncbar.ax.set_ylabel('평균 수율 (g/g-cat)', rotation=-90, va=\"bottom\", fontsize=12)\n\n# 축 제목\nax.set_xlabel('2존 온도 (°C)', fontsize=12)\nax.set_ylabel('H2/C2H4 비', fontsize=12)\nax.set_title('DOE 결과: 온도와 H2/C2H4 비에 따른 CNT 수율 히트맵', fontsize=16)\n\nplt.tight_layout()\n\n# 저장\noutput_filename = os.path.join(OUT_DIR, \"doe_yield_heatmap.png\")\nplt.savefig(output_filename, dpi=300)\nplt.close()\n\nprint(f\"그래프가 저장되었습니다: {output_filename}\")\n```",
+     "llm_s": 9.076,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 9816,
+     "output_chars": 1872,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 폰트 설정 (한글 지원)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams['axes.unicode_minus'] = False  # 마이너스 부호 깨짐 방지\n\n# 데이터 읽기\nfile_path = \"data/doe_temp_h2.csv\"\ntry:\n    df = pd.read_csv(file_path, encoding='utf-8')\nexcept UnicodeDecodeError:\n    try:\n        df = pd.read_csv(file_path, encoding='cp949')\n    except Exception as e:\n        raise ValueError(f\"파일 인코딩 오류: {e}\")\n\n# 피벗 테이블 생성: 온도(x축), H2비(y축), 수율(값)\npivot_df = df.pivot_table(values='수율(g/g-cat)', index='H2/C2H4비', columns='2존온도(°C)', aggfunc='mean')\n\n# 그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 7))\n\n# 히트맵绘制\nim = ax.imshow(pivot_df.values, cmap='YlOrRd', aspect='auto')\n\n# 눈금 및 라벨 설정\nax.set_xticks(np.arange(len(pivot_df.columns)))\nax.set_yticks(np.arange(len(pivot_df.index)))\nax.set_xticklabels(pivot_df.columns)\nax.set_yticklabels(pivot_df.index)\n\n# 회전 없이 중앙 정렬\nplt.setp(ax.get_xticklabels(), rotation=0, ha=\"center\", rotation_mode=\"anchor\")\n\n# 각 셀에 값 텍스트 추가 (소수점 한 자리)\nfor i in range(len(pivot_df.index)):\n    for j in range(len(pivot_df.columns)):\n        val = pivot_df.iloc[i, j]\n        text_color = \"black\" if val > (pivot_df.max().max() * 0.6) else \"white\"\n        ax.text(j, i, f\"{val:.1f}\",\n                ha=\"center\", va=\"center\", color=text_color, fontsize=10)\n\n# 색상 막대 추가\ncbar = ax.figure.colorbar(im, ax=ax)\ncbar.ax.set_ylabel('평균 수율 (g/g-cat)', rotation=-90, va=\"bottom\", fontsize=12)\n\n# 축 제목\nax.set_xlabel('2존 온도 (°C)', fontsize=12)\nax.set_ylabel('H2/C2H4 비', fontsize=12)\nax.set_title('DOE 결과: 온도와 H2/C2H4 비에 따른 CNT 수율 히트맵', fontsize=16)\n\nplt.tight_layout()\n\n# 저장\noutput_filename = os.path.join(OUT_DIR, \"doe_yield_heatmap.png\")\nplt.savefig(output_filename, dpi=300)\nplt.close()\n\nprint(f\"그래프가 저장되었습니다: {output_filename}\")\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      7.0
+     ],
+     "dpi": null,
+     "title": "DOE 결과: 온도와 H2/C2H4 비에 따른 CNT 수율 히트맵",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": {
+        "rows": [
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16"
+        ],
+        "cols": [
+         "1100",
+         "1125",
+         "1150",
+         "1175",
+         "1200"
+        ],
+        "z": [
+         [
+          22.086666666666662,
+          25.336666666666662,
+          27.253333333333334,
+          25.55,
+          22.736666666666668
+         ],
+         [
+          26.576666666666668,
+          29.05333333333333,
+          30.606666666666666,
+          29.5,
+          26.55333333333333
+         ],
+         [
+          27.376666666666665,
+          30.536666666666665,
+          32.13333333333333,
+          30.633333333333336,
+          26.623333333333335
+         ],
+         [
+          27.126666666666665,
+          29.810000000000002,
+          29.493333333333336,
+          29.266666666666666,
+          26.253333333333334
+         ],
+         [
+          24.14,
+          26.25,
+          26.53,
+          24.959999999999997,
+          20.766666666666666
+         ],
+         [
+          17.05,
+          20.763333333333332,
+          21.653333333333336,
+          19.186666666666667,
+          15.6
+         ]
+        ],
+        "colorbar": true,
+        "values_shown": true,
+        "cmap": "YlOrRd",
+        "clim": [
+         15.6,
+         32.13333333333333
+        ]
+       },
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 30,
+       "texts": [
+        "22.1",
+        "25.3",
+        "27.3",
+        "25.6",
+        "22.7",
+        "26.6",
+        "29.1",
+        "30.6",
+        "29.5",
+        "26.6",
+        "27.4",
+        "30.5",
+        "32.1",
+        "30.6",
+        "26.6",
+        "27.1",
+        "29.8",
+        "29.5",
+        "29.3",
+        "26.3",
+        "24.1",
+        "26.2",
+        "26.5",
+        "25.0",
+        "20.8",
+        "17.1",
+        "20.8",
+        "21.7",
+        "19.2",
+        "15.6"
+       ],
+       "x": {
+        "label": "2존 온도 (°C)",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "1100",
+         "1125",
+         "1150",
+         "1175",
+         "1200"
+        ],
+        "min": -0.5,
+        "max": 4.5,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "1100",
+         "1125",
+         "1150",
+         "1175",
+         "1200"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "H2/C2H4 비",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0,
+         5.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16"
+        ],
+        "min": -0.5,
+        "max": 5.5,
+        "log": false,
+        "inverted": true,
+        "tick_labels": [
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16"
+        ],
+        "rotate": 0.0
+       },
+       "title": "DOE 결과: 온도와 H2/C2H4 비에 따른 CNT 수율 히트맵"
+      }
+     ],
+     "texts": [
+      "22.1",
+      "25.3",
+      "27.3",
+      "25.6",
+      "22.7",
+      "26.6",
+      "29.1",
+      "30.6",
+      "29.5",
+      "26.6",
+      "27.4",
+      "30.5",
+      "32.1",
+      "30.6",
+      "26.6",
+      "27.1",
+      "29.8",
+      "29.5",
+      "29.3",
+      "26.3",
+      "24.1",
+      "26.2",
+      "26.5",
+      "25.0",
+      "20.8",
+      "17.1",
+      "20.8",
+      "21.7",
+      "19.2",
+      "15.6"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t4/doe_yield_heatmap.png",
+       "format": "png",
+       "px": [
+        3000,
+        2100
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.604576826095581,
+   "check": {
+    "kind_expected": "heatmap",
+    "failed": [],
+    "unchecked": [
+     "annotate=True"
+    ],
+    "n_checks": 3,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 9.681
+  },
+  {
+   "turn": 5,
+   "text": "순도로도 똑같이 하나 더 만들어 주실 수 있나요?",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 폰트 설정 (한글 지원)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams['axes.unicode_minus'] = False  # 마이너스 부호 깨짐 방지\n\n# 데이터 읽기\nfile_path = \"data/doe_temp_h2.csv\"\ntry:\n    df = pd.read_csv(file_path, encoding='utf-8')\nexcept UnicodeDecodeError:\n    try:\n        df = pd.read_csv(file_path, encoding='cp949')\n    except Exception as e:\n        raise ValueError(f\"파일 인코딩 오류: {e}\")\n\n# 피벗 테이블 생성: H2비(y축), 온도(x축), 순도(값)\npivot_df = df.pivot_table(values='순도(%)', index='H2/C2H4비', columns='2존온도(°C)', aggfunc='mean')\n\n# 그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 7))\n\n# 히트맵绘制\nim = ax.imshow(pivot_df.values, cmap='YlOrRd', aspect='auto')\n\n# 눈금 및 라벨 설정\nax.set_xticks(np.arange(len(pivot_df.columns)))\nax.set_yticks(np.arange(len(pivot_df.index)))\nax.set_xticklabels(pivot_df.columns)\nax.set_yticklabels(pivot_df.index)\n\n# 회전 없이 중앙 정렬\nplt.setp(ax.get_xticklabels(), rotation=0, ha=\"center\", rotation_mode=\"anchor\")\n\n# 각 셀에 값 텍스트 추가 (소수점 한 자리)\nfor i in range(len(pivot_df.index)):\n    for j in range(len(pivot_df.columns)):\n        val = pivot_df.iloc[i, j]\n        text_color = \"black\" if val > (pivot_df.max().max() * 0.6) else \"white\"\n        ax.text(j, i, f\"{val:.1f}\",\n                ha=\"center\", va=\"center\", color=text_color, fontsize=10)\n\n# 색상 막대 추가\ncbar = ax.figure.colorbar(im, ax=ax)\ncbar.ax.set_ylabel('평균 순도 (%)', rotation=-90, va=\"bottom\", fontsize=12)\n\n# 축 제목\nax.set_xlabel('2존 온도 (°C)', fontsize=12)\nax.set_ylabel('H2/C2H4 비', fontsize=12)\nax.set_title('DOE 결과: 온도와 H2/C2H4 비에 따른 CNT 순도 히트맵', fontsize=16)\n\nplt.tight_layout()\n\n# 저장\noutput_filename = os.path.join(OUT_DIR, \"doe_purity_heatmap.png\")\nplt.savefig(output_filename, dpi=300)\nplt.close()\n\nprint(f\"그래프가 저장되었습니다: {output_filename}\")\n```",
+     "llm_s": 11.112,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 12188,
+     "output_chars": 1861,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# 폰트 설정 (한글 지원)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams['axes.unicode_minus'] = False  # 마이너스 부호 깨짐 방지\n\n# 데이터 읽기\nfile_path = \"data/doe_temp_h2.csv\"\ntry:\n    df = pd.read_csv(file_path, encoding='utf-8')\nexcept UnicodeDecodeError:\n    try:\n        df = pd.read_csv(file_path, encoding='cp949')\n    except Exception as e:\n        raise ValueError(f\"파일 인코딩 오류: {e}\")\n\n# 피벗 테이블 생성: H2비(y축), 온도(x축), 순도(값)\npivot_df = df.pivot_table(values='순도(%)', index='H2/C2H4비', columns='2존온도(°C)', aggfunc='mean')\n\n# 그래프 그리기\nfig, ax = plt.subplots(figsize=(10, 7))\n\n# 히트맵绘制\nim = ax.imshow(pivot_df.values, cmap='YlOrRd', aspect='auto')\n\n# 눈금 및 라벨 설정\nax.set_xticks(np.arange(len(pivot_df.columns)))\nax.set_yticks(np.arange(len(pivot_df.index)))\nax.set_xticklabels(pivot_df.columns)\nax.set_yticklabels(pivot_df.index)\n\n# 회전 없이 중앙 정렬\nplt.setp(ax.get_xticklabels(), rotation=0, ha=\"center\", rotation_mode=\"anchor\")\n\n# 각 셀에 값 텍스트 추가 (소수점 한 자리)\nfor i in range(len(pivot_df.index)):\n    for j in range(len(pivot_df.columns)):\n        val = pivot_df.iloc[i, j]\n        text_color = \"black\" if val > (pivot_df.max().max() * 0.6) else \"white\"\n        ax.text(j, i, f\"{val:.1f}\",\n                ha=\"center\", va=\"center\", color=text_color, fontsize=10)\n\n# 색상 막대 추가\ncbar = ax.figure.colorbar(im, ax=ax)\ncbar.ax.set_ylabel('평균 순도 (%)', rotation=-90, va=\"bottom\", fontsize=12)\n\n# 축 제목\nax.set_xlabel('2존 온도 (°C)', fontsize=12)\nax.set_ylabel('H2/C2H4 비', fontsize=12)\nax.set_title('DOE 결과: 온도와 H2/C2H4 비에 따른 CNT 순도 히트맵', fontsize=16)\n\nplt.tight_layout()\n\n# 저장\noutput_filename = os.path.join(OUT_DIR, \"doe_purity_heatmap.png\")\nplt.savefig(output_filename, dpi=300)\nplt.close()\n\nprint(f\"그래프가 저장되었습니다: {output_filename}\")\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      7.0
+     ],
+     "dpi": null,
+     "title": "DOE 결과: 온도와 H2/C2H4 비에 따른 CNT 순도 히트맵",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": {
+        "rows": [
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16"
+        ],
+        "cols": [
+         "1100",
+         "1125",
+         "1150",
+         "1175",
+         "1200"
+        ],
+        "z": [
+         [
+          86.05,
+          89.95,
+          92.27999999999999,
+          92.96999999999998,
+          92.17999999999999
+         ],
+         [
+          88.22333333333334,
+          91.87,
+          94.29666666666667,
+          95.2,
+          94.32333333333334
+         ],
+         [
+          89.10000000000001,
+          93.24333333333334,
+          95.34333333333332,
+          96.14333333333333,
+          95.43666666666667
+         ],
+         [
+          90.13666666666666,
+          93.82333333333334,
+          95.91333333333334,
+          96.71333333333332,
+          95.81333333333333
+         ],
+         [
+          89.36000000000001,
+          93.53666666666668,
+          95.39,
+          96.25,
+          95.51666666666667
+         ],
+         [
+          88.10666666666667,
+          92.05333333333334,
+          94.24666666666667,
+          94.91000000000001,
+          94.44666666666667
+         ]
+        ],
+        "colorbar": true,
+        "values_shown": true,
+        "cmap": "YlOrRd",
+        "clim": [
+         86.05,
+         96.71333333333332
+        ]
+       },
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 30,
+       "texts": [
+        "86.0",
+        "90.0",
+        "92.3",
+        "93.0",
+        "92.2",
+        "88.2",
+        "91.9",
+        "94.3",
+        "95.2",
+        "94.3",
+        "89.1",
+        "93.2",
+        "95.3",
+        "96.1",
+        "95.4",
+        "90.1",
+        "93.8",
+        "95.9",
+        "96.7",
+        "95.8",
+        "89.4",
+        "93.5",
+        "95.4",
+        "96.2",
+        "95.5",
+        "88.1",
+        "92.1",
+        "94.2",
+        "94.9",
+        "94.4"
+       ],
+       "x": {
+        "label": "2존 온도 (°C)",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "1100",
+         "1125",
+         "1150",
+         "1175",
+         "1200"
+        ],
+        "min": -0.5,
+        "max": 4.5,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "1100",
+         "1125",
+         "1150",
+         "1175",
+         "1200"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "H2/C2H4 비",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0,
+         5.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16"
+        ],
+        "min": -0.5,
+        "max": 5.5,
+        "log": false,
+        "inverted": true,
+        "tick_labels": [
+         "6",
+         "8",
+         "10",
+         "12",
+         "14",
+         "16"
+        ],
+        "rotate": 0.0
+       },
+       "title": "DOE 결과: 온도와 H2/C2H4 비에 따른 CNT 순도 히트맵"
+      }
+     ],
+     "texts": [
+      "86.0",
+      "90.0",
+      "92.3",
+      "93.0",
+      "92.2",
+      "88.2",
+      "91.9",
+      "94.3",
+      "95.2",
+      "94.3",
+      "89.1",
+      "93.2",
+      "95.3",
+      "96.1",
+      "95.4",
+      "90.1",
+      "93.8",
+      "95.9",
+      "96.7",
+      "95.8",
+      "89.4",
+      "93.5",
+      "95.4",
+      "96.2",
+      "95.5",
+      "88.1",
+      "92.1",
+      "94.2",
+      "94.9",
+      "94.4"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t5/doe_purity_heatmap.png",
+       "format": "png",
+       "px": [
+        3000,
+        2100
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.6329572200775146,
+   "check": {
+    "kind_expected": "heatmap",
+    "failed": [],
+    "unchecked": [
+     "annotate=True"
+    ],
+    "n_checks": 3,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 11.745
+  }
+ ]
+}

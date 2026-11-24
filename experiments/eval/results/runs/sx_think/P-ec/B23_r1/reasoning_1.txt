@@ -1,0 +1,46 @@
+We need answer user's request in Korean? Actually test mode says: reply with JSON spec for user's request inside one ```json block, and nothing else. Need produce spec.
+
+User request Korean: "세 시료 겹쳐서 그리고 Raw는 검정, Acid-washed는 파랑, Annealed는 빨강으로 해줘"
+Meaning: overlay three samples, Raw black, Acid-washed blue, Annealed red.
+Data file cnt_batches.xlsx has sheets Raw, Acid-washed, Annealed. Need combine true. Need colors per sheet. How specify per sheet colors? Spec guide: sheets can be list; combine true. Colors: y1.color? But for multiple sheets, need per series color? The guide has part names: "겹쳐 그리기 (여러 시트를 한 그림에) combine". For colors: y1 color, y2 color. But if combine, one y1 line per sheet, then one y2 line per sheet. Extra ECharts can set series colors? Need likely use echarts series list with itemStyle/lineStyle color for each series. But maybe spec supports sheets with per-sheet color? Not listed. Need infer.
+
+We need include only what user asked: combine true, and colors for each sheet. Since no key for per-sheet colors, use "echarts" allowed. Need know series order: with combine, one y1 line per sheet, then one y2 line per sheet. Sheets order? If not specify sheets, default maybe all sheets? User says 세 시료, likely all three. Could specify sheets: ["Raw", "Acid-washed", "Annealed"] to ensure order. Combine true. Then series: 0 Raw y1, 1 Acid-washed y1, 2 Annealed y1, 3 Raw y2, 4 Acid-washed y2, 5 Annealed y2. But user only says colors for samples; should apply to both y1 and y2? Probably yes, line colors for each sample. Need use echarts series lineStyle color? In ECharts line series color can be lineStyle.color or itemStyle.color. The guide: In a series may set lineStyle, itemStyle. To set line color: {"lineStyle": {"color": "black"}} maybe. For y2 lines too.
+
+Need ensure allowed paths. "echarts": {"series": [{...}, ...]}. Use English colors: black, blue, red. Korean colors accepted but English safer.
+
+Spec:
+{
+ "file": "cnt_batches.xlsx",
+ "combine": true,
+ "sheets": ["Raw", "Acid-washed", "Annealed"],
+ "echarts": {"series": [
+   {"lineStyle": {"color": "black"}},
+   {"lineStyle": {"color": "blue"}},
+   {"lineStyle": {"color": "red"}},
+   {"lineStyle": {"color": "black"}},
+   {"lineStyle": {"color": "blue"}},
+   {"lineStyle": {"color": "red"}}
+ ]}
+}
+
+Question: If y2 derivative lines also colored? If user says Raw black etc likely all lines for that sample. Good.
+
+Could there be a simpler way using sheets objects with color? Not documented. Need not guess. Use echarts.
+
+Need consider default TGA preset: y1 weight, y2 derivative. If combine, maybe series count 6. If y2 false? User didn't say weight only, so keep y2.
+
+Need maybe include legend? Default probably legend shows. Not asked.
+
+Need output only JSON block. Ensure valid JSON. No comments.
+
+Double-check guide: "Use `{}` to skip a list entry". We can specify all six. If series order different? It says with combine, one y1 line per sheet, then one y2 line per sheet. Good.
+
+Potential issue: If user only wants three samples overlaid, maybe they mean combine sheets, not specify sheets? But specifying sheets list is okay and ensures order. Does "sheets" key accept list. Yes.
+
+Potential issue: Does ECharts lineStyle color override series color? Yes. Could also set itemStyle.color for legend? Legend color might follow lineStyle? In ECharts legend color for line series often uses lineStyle.color if lineStyle is set? It may use series color. To be safe, set both lineStyle.color and itemStyle.color? Allowed. For line series, legend icon color maybe itemStyle.color. But if lineStyle.color set, legend line color? ECharts legend uses lineStyle.color? Hmm. We can set {"lineStyle": {"color": ...}, "itemStyle": {"color": ...}}. That might affect symbols but no symbols maybe. Allowed. But if only line, itemStyle not harmful. Use both to ensure legend.
+
+Need maybe color y2 lines same. Good.
+
+Could there be issue that derivative y2 lines have negative peaks; user may want colors for sample lines. Yes.
+
+Need final only json.

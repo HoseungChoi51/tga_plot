@@ -1,0 +1,271 @@
+```python
+import pandas as pd
+import numpy as np
+import json
+
+DATA_FILE = "/home/chs/CNT/Plot/tests/inputs/TGA.xlsx"
+SHEET_NAME = "1006R1-V normal"
+
+# Read the specific sheet
+df = pd.read_excel(DATA_FILE, sheet_name=SHEET_NAME)
+
+# Extract columns based on user request: B=Temperature (X), C=Weight (Y1), D=D.W (Y2)
+x_data = df['Temperature'].tolist()
+y1_data = df['Weight(%)'].tolist()
+y2_data = df['D.W(%/C)'].tolist()
+
+# Prepare Y2 data for plotting: multiply by -1 so peaks point up
+y2_plot_data = [-val if not np.isnan(val) else None for val in y2_data]
+
+# Find Residue at 800°C
+target_temp = 800.0
+idx_800 = (np.array(x_data) - target_temp).abs().idxmin()
+temp_800 = x_data[idx_800]
+weight_800 = y1_data[idx_800]
+
+# Find Peak DTG above 150°C
+# Filter data where temperature > 150
+mask_peak = [t > 150 for t in x_data]
+filtered_x = [x for x, m in zip(x_data, mask_peak) if m]
+filtered_y2_orig = [y for y, m in zip(y2_data, mask_peak) if m] # Original negative values
+
+if filtered_y2_orig:
+    # The most negative value corresponds to the highest mass loss rate
+    min_dtg_val = min(filtered_y2_orig)
+    peak_idx_in_filtered = filtered_y2_orig.index(min_dtg_val)
+    peak_temp = filtered_x[peak_idx_in_filtered]
+    peak_dtg_val = min_dtg_val
+else:
+    peak_temp = None
+    peak_dtg_val = None
+
+# Construct Markers and Labels
+markers = []
+labels = []
+
+# Residue Marker
+markers.append({
+    "coord": [temp_800, weight_800],
+    "symbolSize": 8,
+    "itemStyle": {"color": "#1f4e9c"}
+})
+labels.append({
+    "content": f"Residue {weight_800:.1f}%",
+    "position": "top",
+    "distance": 5,
+    "fontSize": 12,
+    "fontWeight": "bold",
+    "color": "#1f4e9c"
+})
+
+# Peak Marker
+if peak_temp is not None:
+    markers.append({
+        "coord": [peak_temp, -peak_dtg_val], # Plotting value is positive
+        "symbolSize": 8,
+        "itemStyle": {"color": "#c0392b"}
+    })
+    labels.append({
+        "content": f"{int(round(peak_temp))} °C",
+        "position": "top",
+        "distance": 5,
+        "fontSize": 12,
+        "fontWeight": "bold",
+        "color": "#c0392b"
+    })
+
+# Axis Ranges and Intervals
+# X-axis: Temperature, start 0, step 200. Max temp in data is 900. Range 0-1000 or similar.
+max_temp = max(x_data)
+x_max = int(np.ceil(max_temp / 200) * 200)
+if x_max == 0: x_max = 200 # fallback
+
+# Y1-axis: Weight, step 20. Min ~7.9, Max 100. Range 0-120? Or 0-100 with padding.
+# User said "weight는 20단위로 해주고". Usually TGA weight starts at 100 goes down.
+# Let's set range 0 to 120 to ensure visibility of 100 and ticks at 0, 20, ... 120.
+y1_min = 0
+y1_max = 120
+
+# Y2-axis: Deriv.Weight (DTG). Values are negative. We plot -DTG (positive).
+# Min original DTG was -1.027 -> Plot max ~1.027.
+# User said "Deriv.Weight는 0.2단위로 표시해줘".
+# Since we plot -DTG, the axis shows positive values.
+# Max plotted value approx 1.03. Let's set range 0 to 1.2 or 1.4.
+plot_y2_vals = [v for v in y2_plot_data if v is not None]
+if plot_y2_vals:
+    y2_max_val = max(plot_y2_vals)
+    y2_min_val = min(plot_y2_vals)
+    # Ensure some padding
+    y2_axis_max = int(np.ceil((y2_max_val + 0.2) / 0.2) * 0.2)
+    y2_axis_min = 0 # Since we flipped sign, min is usually near 0 or slightly negative noise, but 0 is safe base.
+else:
+    y2_axis_max = 1.2
+    y2_axis_min = 0
+
+option = {
+    "title": {
+        "text": SHEET_NAME,
+        "left": "center",
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR",
+            "fontSize": 16,
+            "fontWeight": "bold"
+        }
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {
+            "type": "cross"
+        }
+    },
+    "legend": {
+        "data": ["Weight (%)", "-DTG (%/°C)"],
+        "top": "middle",
+        "left": "left",
+        "orient": "vertical",
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR"
+        }
+    },
+    "grid": {
+        "left": "10%",
+        "right": "10%",
+        "bottom": "15%",
+        "containLabel": True
+    },
+    "xAxis": {
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "type": "value",
+        "min": 0,
+        "max": x_max,
+        "interval": 200,
+        "axisLabel": {
+            "fontFamily": "Noto Sans CJK KR",
+            "formatter": "{value}"
+        },
+        "splitLine": {
+            "show": False
+        }
+    },
+    "yAxis": [
+        {
+            "name": "Weight (%)",
+            "type": "value",
+            "min": y1_min,
+            "max": y1_max,
+            "interval": 20,
+            "position": "left",
+            "axisLabel": {
+                "fontFamily": "Noto Sans CJK KR",
+                "formatter": "{value}"
+            },
+            "splitLine": {
+                "lineStyle": {
+                    "type": "dashed"
+                }
+            }
+        },
+        {
+            "name": "-DTG (%/°C)",
+            "type": "value",
+            "min": y2_axis_min,
+            "max": y2_axis_max,
+            "interval": 0.2,
+            "position": "right",
+            "axisLabel": {
+                "fontFamily": "Noto Sans CJK KR",
+                "formatter": "{value}"
+            },
+            "splitLine": {
+                "show": False
+            }
+        }
+    ],
+    "series": [
+        {
+            "name": "Weight (%)",
+            "type": "line",
+            "yAxisIndex": 0,
+            "data": [[x, y] for x, y in zip(x_data, y1_data)],
+            "lineStyle": {
+                "color": "#1f4e9c",
+                "width": 2
+            },
+            "itemStyle": {
+                "color": "#1f4e9c"
+            },
+            "showSymbol": False,
+            "markPoint": {
+                "data": [
+                    {
+                        "coord": [temp_800, weight_800],
+                        "symbol": "circle",
+                        "symbolSize": 8,
+                        "itemStyle": {"color": "#1f4e9c"},
+                        "label": {
+                            "show": True,
+                            "formatter": f"Residue {weight_800:.1f}%",
+                            "position": "top",
+                            "distance": 5,
+                            "fontSize": 12,
+                            "fontWeight": "bold",
+                            "color": "#1f4e9c",
+                            "fontFamily": "Noto Sans CJK KR"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "-DTG (%/°C)",
+            "type": "line",
+            "yAxisIndex": 1,
+            "data": [[x, y] for x, y in zip(x_data, y2_plot_data)],
+            "lineStyle": {
+                "color": "#c0392b",
+                "width": 2
+            },
+            "itemStyle": {
+                "color": "#c0392b"
+            },
+            "showSymbol": False,
+            "markPoint": {
+                "data": []
+            }
+        }
+    ]
+}
+
+# Add Peak MarkPoint to the second series
+if peak_temp is not None:
+    option["series"][1]["markPoint"]["data"].append({
+        "coord": [peak_temp, -peak_dtg_val],
+        "symbol": "circle",
+        "symbolSize": 8,
+        "itemStyle": {"color": "#c0392b"},
+        "label": {
+            "show": True,
+            "formatter": f"{int(round(peak_temp))} °C",
+            "position": "top",
+            "distance": 5,
+            "fontSize": 12,
+            "fontWeight": "bold",
+            "color": "#c0392b",
+            "fontFamily": "Noto Sans CJK KR"
+        }
+    })
+
+figure = {
+    "name": "TGA_normal",
+    "option": option,
+    "width": 614,
+    "height": 442,
+    "dpi": 300,
+    "formats": ["png"]
+}
+
+output = {"figures": [figure]}
+print(json.dumps(output))
+```

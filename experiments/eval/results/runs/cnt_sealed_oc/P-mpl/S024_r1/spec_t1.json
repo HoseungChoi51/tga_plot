@@ -1,0 +1,40 @@
+{
+ "file": [
+  "data/tga_batches.xlsx",
+  "data/run_log.xlsx"
+ ],
+ "chart": "scatter",
+ "x": {
+  "col": "tga_fe_converted",
+  "label": "TGA 잔류량 환산 Fe (wt%)",
+  "min": 0,
+  "max": 10
+ },
+ "y": {
+  "col": "잔류금속 (wt%)",
+  "label": "런로그 잔류금속 (wt%)"
+ },
+ "data_code": "import numpy as np\n\n# Identify columns in the merged df based on preview hints\n# TGA columns likely prefixed or present from first file: 'B 온도 (°C)', 'C 중량 (%)' or similar\n# Run log columns: 'A 런ID', 'S 잔류금속 (wt%)'\n\ntemp_col = None\nweight_col = None\nid_col = None\nmetal_col = None\n\nfor c in df.columns:\n    if '온도' in str(c) and '존' not in str(c): # Exclude Zone temperatures\n        temp_col = c\n    elif '중량' in str(c) and '미분' not in str(c):\n        weight_col = c\n    elif '런ID' in str(c):\n        id_col = c\n    elif '잔류금속' in str(c):\n        metal_col = c\n\nif all([temp_col, weight_col, id_col]):\n    # Calculate residue at 800 C for each row\n    # Note: Since df contains all sheets concatenated, we can compute per row if the temperature/weight arrays are aligned? \n    # No, plotkit usually flattens. But here, since we have multiple files merged into one dataframe structure where TGA rows correspond to specific runs?\n    # Actually, simply interpolating along the x-axis of the *current* dataframe might be wrong if it's mixed.\n    # However, looking at the data preview, TGA has many rows per sheet. Run log has 1 row per run.\n    # The error suggests `df` is a single table. If PlotKit merges them by column names only, it won't align rows 1-to-1 unless keys match.\n    # A safer bet with `data_code` when multiple files are provided: assume `df` contains the union of columns.\n    # We need to extract the TGA info associated with the Run ID.\n    # But wait, if `df` is just the concatenation of columns from both files matched somehow? Or stacked?\n    # Standard behavior for `file: [a, b]` without join key in spec often results in a horizontal merge if indices align (unlikely here) or vertical append (different cols).\n    # Given the previous error showed columns like '시간 (min)' and '런ID' together, it seems PlotKit attempted a concat.\n    # To get the correct value, we must filter/group.\n    \n    # Let's try to compute residue per unique Run ID using the available columns.\n    # This requires iterating through the dataframe grouped by ID.\n    \n    def calc_residue(group):\n        # Check if this group actually has valid TGA data\n        if group[temp_col].isna().all() or group[weight_col].isna().all():\n            return np.nan\n        try:\n            # Sort by temperature to ensure interp works correctly\n            g_sorted = group.sort_values(temp_col)\n            t = g_sorted[temp_col].values\n            w = g_sorted[weight_col].values\n            # Interpolate at 800\n            val = np.interp(800, t, w)\n            return val * 0.699\n        except:\n            return np.nan\n\n    # Apply calculation grouped by ID\n    # Note: Only apply to rows that have TGA data associated, then broadcast back to all rows of that ID? \n    # Usually we want one point per Run ID in the scatter plot against its Metal content.\n    # So we should probably create a new summary DF and merge it back.\n    \n    residues = df.groupby(id_col).apply(calc_residue)\n    residues.name = 'tga_fe_converted'\n    \n    # Map these values back to the main df\n    df['tga_fe_converted'] = df[id_col].map(residues)\nelse:\n    # Fallback if columns aren't found as expected\n    df['tga_fe_converted'] = 0\n",
+ "code": "# Draw y=x line\nlims = ax.get_xlim()\nax.plot(lims, lims, 'k--', alpha=0.5, label='y=x')\nax.legend()",
+ "asks": [
+  {
+   "ask": "TGA 10개 배치 각각 800 °C 잔량을 Fe로 환산",
+   "how": "data_code"
+  },
+  {
+   "ask": "시트 이름이 런ID인 것 매칭",
+   "how": "data_code"
+  },
+  {
+   "ask": "런로그 잔류금속과 비교하는 산점도",
+   "how": "key"
+  },
+  {
+   "ask": "y=x 기준선",
+   "how": "code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S024_r1/out/t1"
+ }
+}

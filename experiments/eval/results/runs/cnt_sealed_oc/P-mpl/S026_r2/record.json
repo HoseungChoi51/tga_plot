@@ -1,0 +1,346 @@
+{
+ "arm": "P-mpl",
+ "item": "S026",
+ "repeat": 2,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "반응기별 등급 A/B/C 구성비(%)를 묶은 막대로 보여 주세요. 반응기마다 합이 100%가 되게요.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"bar\",\n  \"x\": \"반응기\",\n  \"y\": \"count\",\n  \"by\": \"등급 (A/B/C)\",\n  \"stack\": true,\n  \"asks\": [\n    {\n      \"ask\": \"반응기별 등급 A/B/C 구성비(%)를 묶은 막대\",\n      \"how\": \"code\"\n    },\n    {\n      \"ask\": \"반응기마다 합이 100%가 되게\",\n      \"how\": \"code\"\n    }\n  ],\n  \"code\": \"import numpy as np\\n\\ndata = df.groupby(['반응기', '등급 (A/B/C)']).size().unstack(fill_value=0)\\ntotal = data.sum(axis=1)\\npct = data.div(total, axis=0) * 100\\n\\ncategories = pct.index.tolist()\\nax.clear()\\nbottoms = np.zeros(len(categories))\\ncolors = plt.cm.tab20b(np.linspace(0, 1, len(pct.columns)))\\nfor i, col in enumerate(pct.columns):\\n    vals = pct[col].values\\n    ax.bar(categories, vals, bottom=bottoms, label=col, color=colors[i])\\n    bottoms += vals\\n\\nax.set_ylabel('구성비 (%)')\\nax.legend(title='등급', loc='best')\\nax.grid(True, axis='y')\"\n}\n```",
+     "llm_s": 5.409,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 18027,
+     "output_chars": 873,
+     "attempts": 1
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"bar\",\n  \"x\": \"반응기\",\n  \"y\": {\"col\": \"등급 (A/B/C)\", \"agg\": \"count\"},\n  \"by\": \"등급 (A/B/C)\",\n  \"stack\": true,\n  \"code\": \"import numpy as np\\n# Get the data used for plotting from the chart object or recalculate from df if available in global scope? \\n# Hint says 'data = the drawn numbers'. Usually plotkit stores counts in ax.containers.\\n# Let's try to access the plotted values via containers.\\ncontainers = ax.containers\\ncolors = [c.get_facecolor() for c in containers]\\nlabels = [c.get_label() for c in containers]\\nvalues = [[v.get_height() for v in c] for c in containers]\\n\\n# Calculate totals per reactor (sum of stacks)\\ntotals = [sum(v[i] for v in values) for i in range(len(values[0]))]\\n\\n# Convert absolute counts to percentages\\npct_values = []\\nfor col_vals in values:\\n    pct_col = [(val / tot * 100) if tot > 0 else 0 for val, tot in zip(col_vals, totals)]\\n    pct_values.append(pct_col)\\n\\nax.clear()\\nbottoms = np.zeros(len(totals))\\nx_positions = np.arange(len(totals))\\nreactor_labels = [t.get_text() for t in ax.get_xticklabels()] # Might be empty after clear, so save before clear? No, we cleared already. We need x labels. Plotkit usually sets them. If cleared, we might lose them. Better approach: Don't clear if possible, just update heights? Bar heights can't be easily updated. \\n# Alternative: Re-draw using known categories from original spec '반응기' column unique values.\\n# But we don't have that list here easily without df.\\n# The hint said data_code is for changing data BEFORE drawing. Code is AFTER. \\n# If I use data_code, I can add a percentage column and then aggregate by mean?\\n# Let's switch strategy to use data_code to prepare the percentage data, then draw bar with agg='mean' on stacked bars.\\n\\n# Actually, the error was 'df not defined'. This implies 'df' IS NOT AVAILABLE in 'code'.\\n# So I must use 'data_code' to compute the percentages.\\n# Strategy:\\n# 1. In data_code: Add columns for each grade percentage relative to the reactor total.\\n#    Or simpler: Add a column 'Grade_Pct' which is 1/total_count_in_reactor * 100? No, count based.\\n#    Let's create long-form data where value is % contribution.\\n#    For each row, calculate how much this single run contributes to its reactor's total runs.\\n#    pct_contribution = 100 / count_of_runs_in_that_reactor.\\n#    Then sum these contributions for each Grade within each Reactor.\\n# 2. In chart keys: Use '반응기' as x, 'pct_val' as y, agg='sum', by='등급 (A/B/C)', stack=true.\\n\\n# Let's write the new spec with data_code.\"\n}\n```",
+     "llm_s": 14.372,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 19605,
+     "output_chars": 2600,
+     "attempts": 1
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"bar\",\n  \"x\": \"반응기\",\n  \"y\": {\"col\": \"등급 (A/B/C)\", \"agg\": \"count\"},\n  \"by\": \"등급 (A/B/C)\",\n  \"stack\": true,\n  \"values\": false,\n  \"data_code\": \"import pandas as pd\\n# Count total runs per reactor\\ntotal_counts = df.groupby('반응기')['등급 (A/B/C)'].transform('size')\\n# Calculate percentage contribution of each row to its reactor's total\\n# Since we want the stack sum to be 100%, and 'count' aggregates rows,\\n# if we assign value = 100/total_count for each row, then Sum(100/total_count) over all rows in a grade bucket\\n# will equal (GradeCount / TotalCount) * 100.\\ndf['pct_value'] = 100.0 / total_counts\",\n  \"asks\": [\n    {\n      \"ask\": \"반응기별 등급 A/B/C 구성비(%)를 묶은 막대\",\n      \"how\": \"code\"\n    },\n    {\n      \"ask\": \"반응기마다 합이 100%가 되게\",\n      \"how\": \"code\"\n    }\n  ]\n}\n```",
+     "llm_s": 6.794,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 22751,
+     "output_chars": 838,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "bar",
+    "x": "반응기",
+    "y": {
+     "col": "등급 (A/B/C)",
+     "agg": "count"
+    },
+    "by": "등급 (A/B/C)",
+    "stack": true,
+    "values": false,
+    "data_code": "import pandas as pd\n# Count total runs per reactor\ntotal_counts = df.groupby('반응기')['등급 (A/B/C)'].transform('size')\n# Calculate percentage contribution of each row to its reactor's total\n# Since we want the stack sum to be 100%, and 'count' aggregates rows,\n# if we assign value = 100/total_count for each row, then Sum(100/total_count) over all rows in a grade bucket\n# will equal (GradeCount / TotalCount) * 100.\ndf['pct_value'] = 100.0 / total_counts",
+    "asks": [
+     {
+      "ask": "반응기별 등급 A/B/C 구성비(%)를 묶은 막대",
+      "how": "code"
+     },
+     {
+      "ask": "반응기마다 합이 100%가 되게",
+      "how": "code"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S026_r2/out/t1/bar_등급_A_B_C.png"
+    ],
+    "chart": "bar",
+    "rows_used": 997,
+    "rows_total": 997,
+    "values": {
+     "categories": [
+      "R1",
+      "R2",
+      "R3",
+      "R4"
+     ],
+     "series": {
+      "A": [
+       138.0,
+       79.0,
+       131.0,
+       1.0
+      ],
+      "B": [
+       106.0,
+       126.0,
+       112.0,
+       178.0
+      ],
+      "C": [
+       7.0,
+       45.0,
+       2.0,
+       72.0
+      ]
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "막대 그래프를 저장했습니다: bar_등급_A_B_C.png\n사용한 행: 997 / 997\nA: R1 138, R2 79, R3 131, R4 1\nB: R1 106, R2 126, R3 112, R4 178\nC: R1 7, R2 45, R3 2, R4 72"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": null,
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "A",
+         "orient": "v",
+         "cats": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          138.0,
+          79.0,
+          131.0,
+          1.0
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0
+         ]
+        },
+        {
+         "name": "B",
+         "orient": "v",
+         "cats": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          106.0,
+          126.0,
+          112.0,
+          178.0
+         ],
+         "bottoms": [
+          138.0,
+          79.0,
+          131.0,
+          1.0
+         ],
+         "colors": [
+          "#c0392b",
+          "#c0392b",
+          "#c0392b",
+          "#c0392b"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0
+         ]
+        },
+        {
+         "name": "C",
+         "orient": "v",
+         "cats": [
+          "R1",
+          "R2",
+          "R3",
+          "R4"
+         ],
+         "values": [
+          7.0,
+          45.0,
+          2.0,
+          72.0
+         ],
+         "bottoms": [
+          244.0,
+          205.0,
+          243.0,
+          179.0
+         ],
+         "colors": [
+          "#2e8b57",
+          "#2e8b57",
+          "#2e8b57",
+          "#2e8b57"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "반응기",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "R1",
+         "R2",
+         "R3",
+         "R4"
+        ],
+        "min": -0.5900000000000001,
+        "max": 3.5900000000000003,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "R1",
+         "R2",
+         "R3",
+         "R4"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "등급 (A/B/C) (count)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         100.0,
+         200.0,
+         300.0,
+         400.0
+        ],
+        "step": 100.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 400.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "-100",
+         "0",
+         "100",
+         "200",
+         "300",
+         "400",
+         "500"
+        ],
+        "rotate": 0.0
+       },
+       "title": ""
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "A",
+       "B",
+       "C"
+      ],
+      "inside": true,
+      "where": "upper right"
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S026_r2/out/t1/bar_등급_A_B_C.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5318751335144043,
+   "check": {
+    "kind_expected": "grouped_bar",
+    "failed": [
+     "kind: drawn ['bar', 'stacked_bar'], want grouped_bar",
+     "values: R1/A: drawn 138.0, want 54.98; R2/A: drawn 79.0, want 31.6; R3/A: drawn 131.0, want 53.469; R4/A: drawn 1.0, want 0.398; R1/B: drawn 106.0, want 42.231",
+     "kind: bars are stacked, want side by side"
+    ],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 3,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 28.021
+  }
+ ]
+}

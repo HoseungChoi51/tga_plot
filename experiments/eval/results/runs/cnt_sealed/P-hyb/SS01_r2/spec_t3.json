@@ -1,0 +1,21 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheets": "주간요약",
+ "chart": "bar",
+ "x": "주차",
+ "y": "총생산량(kg)",
+ "code": "import numpy as np\n# Extract x and y values from the drawn data structure\n# Assuming data['x'] contains the week numbers (categories) and data['y'] contains the production amounts\nweeks = [item['label'] if isinstance(item, dict) else item for item in data['x']]\nvals = [item['value'] if isinstance(item, dict) else item for item in data['y']]\n\n# Convert to numeric arrays for calculation\nweeks_num = np.array([float(w) for w in weeks])\nvals_num = np.array([float(v) for v in vals])\n\nmask1 = weeks_num <= 13\nmask2 = weeks_num >= 14\n\nmean1 = np.mean(vals_num[mask1]) if mask1.any() else 0\nmean2 = np.mean(vals_num[mask2]) if mask2.any() else 0\n\nax.axhline(mean1, color='blue', linestyle='--', linewidth=1.5, label=f'1~13주 평균 ({mean1:.1f})')\nax.axhline(mean2, color='red', linestyle='--', linewidth=1.5, label=f'14~26주 평균 ({mean2:.1f})')\nax.legend(loc='upper right')",
+ "asks": [
+  {
+   "ask": "1~13주 평균 가로선",
+   "how": "code"
+  },
+  {
+   "ask": "14~26주 평균 가로선",
+   "how": "code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-hyb/SS01_r2/out/t3"
+ }
+}

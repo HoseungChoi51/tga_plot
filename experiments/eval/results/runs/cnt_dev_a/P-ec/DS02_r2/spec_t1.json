@@ -1,0 +1,22 @@
+{
+ "file": "data/tga_batches.xlsx",
+ "sheets": "all",
+ "combine": true,
+ "preset": "none",
+ "x": {
+  "col": "B"
+ },
+ "y1": {
+  "col": "C"
+ },
+ "y2": false,
+ "asks": [
+  {
+   "ask": "10개 시트 전부 TG 곡선 (중량 % vs 온도) overlay",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_a/P-ec/DS02_r2/out/t1"
+ }
+}

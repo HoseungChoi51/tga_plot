@@ -1,0 +1,260 @@
+```python
+import pandas as pd
+import numpy as np
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx"
+
+# Read the Raw sheet
+df = pd.read_excel(DATA_FILE, sheet_name="Raw", header=0)
+
+# Extract columns
+temp = df["Temperature (°C)"].values.astype(float)
+weight = df["Weight (%)"].values.astype(float)
+dtg = df["Deriv. Weight (%/°C)"].values.astype(float)
+
+# Find weight at 150 °C for normalization
+idx_150 = np.argmin(np.abs(temp - 150.0))
+w150 = weight[idx_150]
+
+# Normalize weight so that 150 °C corresponds to 100%
+weight_norm = weight / w150 * 100.0
+
+# Residue: weight at nearest point to 800 °C (normalized)
+idx_800 = np.argmin(np.abs(temp - 800.0))
+residue_val = weight_norm[idx_800]
+residue_temp = temp[idx_800]
+residue_weight = weight_norm[idx_800]
+
+# Peak: highest DTG peak above 150 °C (DTG is negative during mass loss, so most negative = highest peak when flipped)
+mask_above_150 = temp > 150.0
+if np.any(mask_above_150):
+    dtg_filtered = dtg.copy()
+    dtg_filtered[~mask_above_150] = 0  # ignore below 150
+    idx_peak = np.argmin(dtg_filtered)  # most negative DTG
+    peak_temp = temp[idx_peak]
+    peak_dtg_val = dtg[idx_peak]
+else:
+    peak_temp = None
+    peak_dtg_val = None
+
+# Prepare data arrays for ECharts
+# Downsample if too many points for performance, but 871 is fine
+x_data = [round(float(t), 2) for t in temp]
+y1_data = [round(float(w), 4) for w in weight_norm]
+y2_data = [round(float(-d), 6) for d in dtg]  # flip sign so peaks point up
+
+# Build series data as pairs [[x, y], ...]
+series_y1 = []
+for i in range(len(x_data)):
+    series_y1.append([x_data[i], y1_data[i]])
+
+series_y2 = []
+for i in range(len(x_data)):
+    series_y2.append([x_data[i], y2_data[i]])
+
+# Determine axis ranges
+x_min = min(x_data)
+x_max = max(x_data)
+y1_min = min(y1_data)
+y1_max = max(y1_data)
+y2_min = min(y2_data)
+y2_max = max(y2_data)
+
+# Add some padding
+def nice_range(vmin, vmax, pad_frac=0.05):
+    span = vmax - vmin
+    if span == 0:
+        return vmin - 1, vmax + 1
+    return vmin - span * pad_frac, vmax + span * pad_frac
+
+y1_lo, y1_hi = nice_range(y1_min, y1_max)
+y2_lo, y2_hi = nice_range(y2_min, y2_max)
+x_lo, x_hi = nice_range(x_min, x_max, 0.03)
+
+# Round axis bounds nicely
+def round_nice(val, step=1):
+    return round(val / step) * step
+
+y1_lo_r = round_nice(y1_lo, 5)
+y1_hi_r = round_nice(y1_hi, 5)
+y2_lo_r = round_nice(y2_lo, 0.1)
+y2_hi_r = round_nice(y2_hi, 0.1)
+x_lo_r = round_nice(x_lo, 50)
+x_hi_r = round_nice(x_hi, 50)
+
+# Ensure residue and peak are within ranges
+if residue_weight < y1_lo_r:
+    y1_lo_r = round_nice(residue_weight, 5)
+if residue_weight > y1_hi_r:
+    y1_hi_r = round_nice(residue_weight, 5)
+
+# Markers for residue and peak
+marker_residue = {"coord": [round(float(residue_temp), 2), round(float(residue_weight), 4)], "symbolSize": 10}
+marker_peak = None
+if peak_temp is not None:
+    marker_peak = {"coord": [round(float(peak_temp), 2), round(float(-peak_dtg_val), 6)]}
+
+# Build markPoint for residue on y1 series
+mark_point_residue = {
+    "data": [
+        {
+            "name": f"Residue {residue_weight:.1f}%",
+            "coord": [round(float(residue_temp), 2), round(float(residue_weight), 4)],
+            "symbolSize": 12,
+            "label": {
+                "show": True,
+                "formatter": f"Residue {residue_weight:.1f}%",
+                "position": "top",
+                "fontSize": 11,
+                "color": "#1f4e9c"
+            }
+        }
+    ]
+}
+
+# Build markPoint for peak on y2 series
+mark_point_peak = {}
+if peak_temp is not None:
+    mark_point_peak = {
+        "data": [
+            {
+                "name": f"{peak_temp:.0f} °C",
+                "coord": [round(float(peak_temp), 2), round(float(-peak_dtg_val), 6)],
+                "symbolSize": 12,
+                "label": {
+                    "show": True,
+                    "formatter": f"{peak_temp:.0f} °C",
+                    "position": "top",
+                    "fontSize": 11,
+                    "color": "#c0392b"
+                }
+            }
+        ]
+    }
+
+option = {
+    "title": {
+        "text": "Raw",
+        "left": "center",
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR",
+            "fontSize": 16
+        }
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {"type": "cross"}
+    },
+    "legend": {
+        "data": ["Weight (%)", "DTG (%/°C)"],
+        "orient": "vertical",
+        "left": "left",
+        "top": "middle",
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR",
+            "fontSize": 12
+        }
+    },
+    "grid": {
+        "left": "12%",
+        "right": "12%",
+        "top": "12%",
+        "bottom": "10%"
+    },
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "min": x_lo_r,
+        "max": x_hi_r,
+        "axisLabel": {
+            "fontFamily": "Noto Sans CJK KR",
+            "fontSize": 11
+        },
+        "nameTextStyle": {
+            "fontFamily": "Noto Sans CJK KR",
+            "fontSize": 12
+        },
+        "splitLine": {"show": False},
+        "axisTick": {"show": True}
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Weight (%)",
+            "nameLocation": "middle",
+            "nameGap": 45,
+            "min": y1_lo_r,
+            "max": y1_hi_r,
+            "axisLabel": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 11
+            },
+            "nameTextStyle": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 12
+            },
+            "splitLine": {"show": True, "lineStyle": {"color": "#eee"}},
+            "axisTick": {"show": True}
+        },
+        {
+            "type": "value",
+            "name": "DTG (%/°C)",
+            "nameLocation": "middle",
+            "nameGap": 45,
+            "min": y2_lo_r,
+            "max": y2_hi_r,
+            "axisLabel": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 11
+            },
+            "nameTextStyle": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 12
+            },
+            "splitLine": {"show": False},
+            "axisTick": {"show": True}
+        }
+    ],
+    "series": [
+        {
+            "name": "Weight (%)",
+            "type": "line",
+            "smooth": False,
+            "symbol": "none",
+            "lineStyle": {"color": "#1f4e9c", "width": 2},
+            "itemStyle": {"color": "#1f4e9c"},
+            "data": series_y1,
+            "markPoint": mark_point_residue
+        },
+        {
+            "name": "DTG (%/°C)",
+            "type": "line",
+            "yAxisIndex": 1,
+            "smooth": False,
+            "symbol": "none",
+            "lineStyle": {"color": "#c0392b", "width": 2},
+            "itemStyle": {"color": "#c0392b"},
+            "data": series_y2,
+            "markPoint": mark_point_peak if mark_point_peak else {}
+        }
+    ]
+}
+
+result = {
+    "figures": [
+        {
+            "name": "plot1",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+    ]
+}
+
+print(json.dumps(result, ensure_ascii=False))
+```

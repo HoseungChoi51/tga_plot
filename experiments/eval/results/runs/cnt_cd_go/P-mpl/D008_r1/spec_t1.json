@@ -1,0 +1,22 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "line",
+ "x": {
+  "col": "일자",
+  "period": "week"
+ },
+ "y": {
+  "col": "CNT수율 (g/g-cat)",
+  "agg": "mean"
+ },
+ "asks": [
+  {
+   "ask": "수율 추이",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl/D008_r1/out/t1"
+ }
+}

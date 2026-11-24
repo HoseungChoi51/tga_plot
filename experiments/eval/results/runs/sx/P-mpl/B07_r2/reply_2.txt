@@ -1,0 +1,3 @@
+```json
+{"file": "polymers.xlsx", "sheets": 2, "annotate": {"residue1": {"type": "value_at_x", "on": "y1", "x": 300, "text": "Weight at 300 °C: {y:.1f}%"}, "residue2": {"type": "value_at_x", "on": "y1", "x": 600, "text": "Weight at 600 °C: {y:.1f}%"}}}
+```

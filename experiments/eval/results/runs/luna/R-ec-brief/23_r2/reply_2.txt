@@ -1,0 +1,205 @@
+```python
+import json
+import re
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/instrument_export.txt"
+
+
+def read_instrument_text(path):
+    """Read tabular instrument export, tolerating metadata and varied delimiters."""
+    text = Path(path).read_text(encoding="utf-8-sig", errors="replace")
+    rows = []
+
+    for line in text.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+
+        # Prefer explicit common delimiters; otherwise extract numeric fields.
+        if "\t" in line:
+            fields = line.split("\t")
+        elif "," in line:
+            fields = next(csv_reader(line))
+        elif ";" in line:
+            fields = line.split(";")
+        else:
+            fields = re.split(r"\s+", line)
+
+        values = []
+        for field in fields:
+            field = field.strip().strip('"').strip("'")
+            field = field.replace(",", ".") if not ("," in line and "." in field) else field
+            try:
+                values.append(float(field))
+            except (TypeError, ValueError):
+                values = []
+                break
+
+        if len(values) >= 4:
+            rows.append(values)
+
+    if not rows:
+        # Fallback for instrument text with mixed metadata/decimal formatting.
+        number_re = re.compile(r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[Ee][-+]?\d+)?")
+        for line in text.splitlines():
+            vals = number_re.findall(line)
+            if len(vals) >= 4:
+                try:
+                    rows.append([float(v) for v in vals])
+                except ValueError:
+                    pass
+
+    if not rows:
+        raise ValueError(f"No numeric data found in {path}")
+
+    width = max(len(row) for row in rows)
+    rows = [row for row in rows if len(row) == width]
+    return pd.DataFrame(rows)
+
+
+def csv_reader(line):
+    import csv
+    return csv.reader([line])
+
+
+def make_option(df, title):
+    # Instrument preview indicates B=temperature, C=weight, D=DTG.
+    if df.shape[1] < 4:
+        raise ValueError("Expected at least four numeric columns (A-D).")
+
+    temperature = pd.to_numeric(df.iloc[:, 1], errors="coerce").to_numpy(dtype=float)
+    weight = pd.to_numeric(df.iloc[:, 2], errors="coerce").to_numpy(dtype=float)
+    dtg = pd.to_numeric(df.iloc[:, 3], errors="coerce").to_numpy(dtype=float)
+
+    valid = np.isfinite(temperature) & np.isfinite(weight) & np.isfinite(dtg)
+    temperature, weight, dtg = temperature[valid], weight[valid], dtg[valid]
+    order = np.argsort(temperature)
+    temperature, weight, dtg = temperature[order], weight[order], dtg[order]
+
+    residue_idx = int(np.argmin(np.abs(temperature - 800)))
+    residue_temp = float(temperature[residue_idx])
+    residue = float(weight[residue_idx])
+
+    peak_candidates = np.flatnonzero(temperature > 150)
+    peak_mark = []
+    if len(peak_candidates):
+        peak_idx = int(peak_candidates[np.argmax(-dtg[peak_candidates])])
+        peak_temp = float(temperature[peak_idx])
+        peak_value = float(-dtg[peak_idx])
+        peak_mark = [{
+            "name": f"{peak_temp:.0f} °C",
+            "coord": [peak_temp, peak_value],
+            "value": f"{peak_temp:.0f} °C",
+            "symbol": "circle",
+            "symbolSize": 8,
+            "itemStyle": {"color": "#c0392b"},
+            "label": {
+                "show": True,
+                "formatter": f"{peak_temp:.0f} °C",
+                "position": "top",
+                "color": "#c0392b",
+                "fontFamily": "Noto Sans CJK KR",
+            },
+        }]
+
+    weight_data = [[float(x), float(y)] for x, y in zip(temperature, weight)]
+    dtg_data = [[float(x), float(-y)] for x, y in zip(temperature, dtg)]
+
+    return {
+        "title": {
+            "text": title,
+            "left": "center",
+            "textStyle": {"fontFamily": "Noto Sans CJK KR"},
+        },
+        "tooltip": {"trigger": "axis"},
+        "legend": {"data": ["Weight", "DTG"], "left": "center", "top": 30},
+        "grid": {"left": 72, "right": 72, "top": 78, "bottom": 62},
+        "xAxis": {
+            "type": "value",
+            "name": "Temperature (°C)",
+            "nameLocation": "middle",
+            "nameGap": 38,
+            "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+            "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+        },
+        "yAxis": [
+            {
+                "type": "value",
+                "name": "Weight (%)",
+                "nameLocation": "middle",
+                "nameGap": 52,
+                "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+                "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+                "splitLine": {"show": True, "lineStyle": {"color": "#dddddd"}},
+            },
+            {
+                "type": "value",
+                "name": "-DTG (%/°C)",
+                "nameLocation": "middle",
+                "nameGap": 52,
+                "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+                "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+                "splitLine": {"show": False},
+            },
+        ],
+        "series": [
+            {
+                "name": "Weight",
+                "type": "line",
+                "showSymbol": False,
+                "data": weight_data,
+                "yAxisIndex": 0,
+                "lineStyle": {"color": "#1f4e9c", "width": 2},
+                "itemStyle": {"color": "#1f4e9c"},
+                "markPoint": {
+                    "data": [{
+                        "name": f"Residue: {residue:.1f}%",
+                        "coord": [residue_temp, residue],
+                        "value": f"Residue: {residue:.1f}%",
+                        "symbol": "circle",
+                        "symbolSize": 8,
+                        "itemStyle": {"color": "#1f4e9c"},
+                        "label": {
+                            "show": True,
+                            "formatter": f"Residue: {residue:.1f}%",
+                            "position": "right",
+                            "color": "#1f4e9c",
+                            "fontFamily": "Noto Sans CJK KR",
+                        },
+                    }]
+                },
+            },
+            {
+                "name": "DTG",
+                "type": "line",
+                "showSymbol": False,
+                "data": dtg_data,
+                "yAxisIndex": 1,
+                "lineStyle": {"color": "#c0392b", "width": 2},
+                "itemStyle": {"color": "#c0392b"},
+                "markPoint": {"data": peak_mark},
+            },
+        ],
+        "textStyle": {"fontFamily": "Noto Sans CJK KR"},
+    }
+
+
+df = read_instrument_text(DATA_FILE)
+option = make_option(df, Path(DATA_FILE).stem)
+
+print(json.dumps({
+    "figures": [{
+        "name": "plot1",
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"],
+    }]
+}, ensure_ascii=False, allow_nan=False))
+```

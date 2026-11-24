@@ -1,0 +1,258 @@
+{
+ "arm": "P-mpl",
+ "item": "S031",
+ "repeat": 1,
+ "split": "sealed",
+ "persona": "신입 연구원",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "안녕하세요, 이번 달에 입사한 신입 연구원입니다. 선배님이 run_log.xlsx 파일을 주시면서 요즘 공정이 어떻게 돌아가는지 감을 잡아 보라고 하셨는데요, 혹시 수율이 기간에 따라 어떻게 변해 왔는지 그래프로 볼 수 있을까요? 어떤 그래프가 좋은지 잘 몰라서 추천해 주시면 감사하겠습니다.",
+   "calls": [
+    {
+     "reply": "안녕하세요, 신입 연구원분을 환영합니다! `run_log.xlsx`의 **'런로그'** 시트를 기반으로 수율 추이를 확인해 보겠습니다.\n\n**추천 그래프:**\n기간에 따른 변화를 보는 것이므로 **선 그래프(Line Chart)**가 가장 적절합니다. 데이터 포인트가 많을 경우 경향이 잘 안 보일 수 있어, 이동 평균(smooth)이나 주 단위 집계(period)를 적용하면 더 깔끔한 추세를 볼 수 있습니다. 아래 스펙에서는 '주차' 컬럼을 x축으로 하여 주별 평균 수율을 선으로 연결하고, 이동 평균(3주)을 추가하여 전반적인 공정 안정성을 파악하기 쉽게 구성했습니다.\n\n```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheets\": \"런로그\",\n  \"chart\": \"line\",\n  \"x\": {\"col\": \"주차\"},\n  \"y\": {\"col\": \"CNT수율 (g/g-cat)\", \"agg\": \"mean\"},\n  \"smooth\": 3,\n  \"title\": \"공정 기간별 CNT 수율 추이\",\n  \"asks\": [\n    {\n      \"ask\": \"수율이 기간에 따라 어떻게 변해 왔는지 그래프로 보기\",\n      \"how\": \"key\"\n    },\n    {\n      \"ask\": \"어떤 그래프가 좋은지 추천\",\n      \"how\": \"key\"\n    }\n  ]\n}\n```",
+     "llm_s": 7.67,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 18292,
+     "output_chars": 681,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheets": "런로그",
+    "chart": "line",
+    "x": {
+     "col": "주차"
+    },
+    "y": {
+     "col": "CNT수율 (g/g-cat)",
+     "agg": "mean"
+    },
+    "smooth": 3,
+    "title": "공정 기간별 CNT 수율 추이",
+    "asks": [
+     {
+      "ask": "수율이 기간에 따라 어떻게 변해 왔는지 그래프로 보기",
+      "how": "key"
+     },
+     {
+      "ask": "어떤 그래프가 좋은지 추천",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": true,
+    "engine": "matplotlib",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S031_r1/out/t1/line_CNT수율_g_g_cat.png"
+    ],
+    "chart": "line",
+    "rows_used": 997,
+    "rows_total": 997,
+    "values": {
+     "series": {
+      "CNT수율 (g/g-cat) (3점 이동평균)": {
+       "n": 26,
+       "min": 22.6916,
+       "max": 27.8908
+      }
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "선 그래프를 저장했습니다: line_CNT수율_g_g_cat.png\n사용한 행: 997 / 997\nCNT수율 (g/g-cat) (3점 이동평균): 26점, 22.69 ~ 27.89"
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": null,
+     "title": "공정 기간별 CNT 수율 추이",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [
+        {
+         "name": "CNT수율 (g/g-cat) (3점 이동평균)",
+         "n": 26,
+         "x": [
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0,
+          7.0,
+          8.0,
+          9.0,
+          10.0,
+          11.0,
+          12.0,
+          13.0,
+          14.0,
+          15.0,
+          16.0,
+          17.0,
+          18.0,
+          19.0,
+          20.0,
+          21.0,
+          22.0,
+          23.0,
+          24.0,
+          25.0,
+          26.0
+         ],
+         "y": [
+          27.334594594594595,
+          27.695758835758838,
+          27.77906444906445,
+          27.84946274209432,
+          27.485576102418207,
+          27.403774300616405,
+          27.313598862019916,
+          27.43085348506401,
+          27.440943575154098,
+          27.63405405405405,
+          27.867865557865557,
+          27.890838530838533,
+          27.66088594667542,
+          26.935346135609294,
+          25.706877667140827,
+          24.339119857983786,
+          23.44219003342238,
+          23.307267253499603,
+          23.419849624060152,
+          23.530814536340852,
+          23.545263157894738,
+          23.831859649122805,
+          23.543714591356437,
+          23.24985494223363,
+          22.691555796934484,
+          22.81138506522717
+         ],
+         "color": "#1f4e9c",
+         "style": "-",
+         "width": 1.8
+        }
+       ],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [],
+       "x": {
+        "label": "주차",
+        "type": "value",
+        "ticks": [
+         5.0,
+         10.0,
+         15.0,
+         20.0,
+         25.0
+        ],
+        "step": 5.0,
+        "categories": null,
+        "min": 1.0,
+        "max": 26.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "5",
+         "10",
+         "15",
+         "20",
+         "25"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "CNT수율 (g/g-cat) (mean)",
+        "type": "value",
+        "ticks": [
+         22.0,
+         23.0,
+         24.0,
+         25.0,
+         26.0,
+         27.0,
+         28.0,
+         29.0
+        ],
+        "step": 1.0,
+        "categories": null,
+        "min": 22.0,
+        "max": 29.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "21",
+         "22",
+         "23",
+         "24",
+         "25",
+         "26",
+         "27",
+         "28",
+         "29",
+         "30"
+        ],
+        "rotate": 0.0
+       },
+       "title": "공정 기간별 CNT 수율 추이"
+      }
+     ],
+     "texts": [],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S031_r1/out/t1/line_CNT수율_g_g_cat.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.41578030586242676,
+   "check": {
+    "kind_expected": "line",
+    "failed": [
+     "series CNT수율: y range 22.69..27.89, want 22.58..28.06",
+     "series CNT수율: 19 of 26 points off"
+    ],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 2,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 8.202
+  }
+ ]
+}

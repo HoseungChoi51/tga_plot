@@ -1,0 +1,165 @@
+import pandas as pd
+import numpy as np
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+
+def make_tga_chart(df, sheet_name, title=None):
+    # Extract columns based on TGA standard structure inferred from preview
+    # Assuming B=Temp, C=Weight, D=DTG
+    temp_col = df.columns[1]
+    weight_col = df.columns[2]
+    dtg_col = df.columns[3]
+    
+    temps = df[temp_col].values
+    weights = df[weight_col].values
+    dtgs = df[dtg_col].values
+    
+    # Prepare data for ECharts: [[x, y], ...]
+    tga_data = []
+    dtg_data = []
+    
+    for t, w, d in zip(temps, weights, dtgs):
+        if not (np.isnan(t) or np.isnan(w)):
+            tga_data.append([float(t), float(w)])
+        if not (np.isnan(t) or np.isnan(d)):
+            # Multiply DTG by -1 so peaks point up
+            dtg_data.append([float(t), float(-d)])
+            
+    # Find Residue at 800°C
+    residue_val = None
+    residue_temp = None
+    if len(temps) > 0:
+        idx_800 = np.argmin(np.abs(temps - 800))
+        residue_val = weights[idx_800]
+        residue_temp = temps[idx_800]
+        
+    # Find Peak above 150°C
+    peak_temp = None
+    peak_val = None
+    if len(dtgs) > 0:
+        mask = temps > 150
+        if np.any(mask):
+            dtg_masked = dtgs[mask]
+            temps_masked = temps[mask]
+            # Highest peak means most negative derivative value
+            min_idx = np.argmin(dtg_masked)
+            peak_temp = temps_masked[min_idx]
+            peak_val = dtg_masked[min_idx]
+            
+    chart_title = title if title else sheet_name
+    
+    option = {
+        "title": {
+            "text": chart_title,
+            "left": "center",
+            "textStyle": {"fontSize": 16}
+        },
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {"type": "cross"}
+        },
+        "legend": {
+            "data": ["Weight (%)", "DTG (%/°C)"],
+            "bottom": 10,
+            "left": "left"
+        },
+        "grid": {
+            "left": "10%",
+            "right": "10%",
+            "top": "15%",
+            "bottom": "15%",
+            "containLabel": True
+        },
+        "xAxis": {
+            "name": "Temperature (°C)",
+            "nameLocation": "middle",
+            "nameGap": 30,
+            "type": "value",
+            "splitLine": {"show": True, "lineStyle": {"color": "#eee"}}
+        },
+        "yAxis": [
+            {
+                "name": "Weight (%)",
+                "type": "value",
+                "position": "left",
+                "splitLine": {"show": True, "lineStyle": {"color": "#eee"}}
+            },
+            {
+                "name": "DTG (%/°C)",
+                "type": "value",
+                "position": "right",
+                "splitLine": {"show": False}
+            }
+        ],
+        "series": [
+            {
+                "name": "Weight (%)",
+                "type": "line",
+                "smooth": True,
+                "symbol": "none",
+                "lineStyle": {"width": 2, "color": "#1f4e9c"},
+                "itemStyle": {"color": "#1f4e9c"},
+                "data": tga_data,
+                "markPoint": {
+                    "data": [],
+                    "label": {"show": True, "formatter": "{b}", "position": "top"}
+                }
+            },
+            {
+                "name": "DTG (%/°C)",
+                "type": "line",
+                "yAxisIndex": 1,
+                "smooth": True,
+                "symbol": "none",
+                "lineStyle": {"width": 2, "color": "#c0392b"},
+                "itemStyle": {"color": "#c0392b"},
+                "data": dtg_data,
+                "markPoint": {
+                    "data": [],
+                    "label": {"show": True, "formatter": "{b}", "position": "top"}
+                }
+            }
+        ]
+    }
+    
+    # Add MarkPoints
+    if residue_val is not None:
+        opt_str = f"{residue_val:.2f}"
+        option["series"][0]["markPoint"]["data"].append({
+            "coord": [float(residue_temp), float(residue_val)],
+            "name": f"Residue {opt_str}%",
+            "symbolSize": 10,
+            "itemStyle": {"color": "#1f4e9c"}
+        })
+        
+    if peak_temp is not None and peak_val is not None:
+        # Note: In series data we multiplied by -1. 
+        # The markpoint coord should match the plotted data.
+        plotted_peak_val = -peak_val
+        option["series"][1]["markPoint"]["data"].append({
+            "coord": [float(peak_temp), float(plotted_peak_val)],
+            "name": f"{int(round(peak_temp))} °C",
+            "symbolSize": 10,
+            "itemStyle": {"color": "#c0392b"}
+        })
+
+    return {
+        "name": "plot_pet",
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"]
+    }
+
+# Load only PET sheet
+df = pd.read_excel(DATA_FILE, sheet_name="PET")
+
+chart = make_tga_chart(df, "PET", title="PET 열분해")
+
+output = {
+    "figures": [chart]
+}
+
+print(json.dumps(output, ensure_ascii=False))

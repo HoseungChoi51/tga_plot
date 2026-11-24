@@ -1,0 +1,26 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheets": "주간요약",
+ "chart": "bar",
+ "x": "주차",
+ "y": {
+  "label": "생산량 (kg)"
+ },
+ "title": {
+  "text": "주간 생산량 추이 (3~8월)"
+ },
+ "code": "bars = ax.patches\nfor i, bar in enumerate(bars):\n    week_num = int(bar.get_x() + bar.get_width()/2)\n    if week_num >= 14:\n        bar.set_facecolor('orange')\n    else:\n        bar.set_facecolor('steelblue')\n\nimport pandas as pd\n# Re-load data to calculate averages precisely based on original sheet values\n# Assuming 'data' variable holds the plotted series or we can reconstruct it. \n# Safer approach using matplotlib and numpy with known x-axis (1-26) and y-values from bars.\ny_vals = [b.get_height() for b in bars]\nx_vals = [int(b.get_x() + b.get_width()/2) for b in bars]\n\nmask_pre = [x < 14 for x in x_vals]\nmask_post = [x >= 14 for x in x_vals]\n\navg_pre = sum(y for x, y in zip(x_vals, y_vals) if x < 14) / len([x for x in x_vals if x < 14])\navg_post = sum(y for x, y in zip(x_vals, y_vals) if x >= 14) / len([x for x in x_vals if x >= 14])\n\nax.axhline(avg_pre, color='gray', linestyle='--', linewidth=1.5, label=f'1~13주 평균 ({avg_pre:.1f})')\nax.axhline(avg_post, color='black', linestyle='-', linewidth=1.5, label=f'14~26주 평균 ({avg_post:.1f})')\nax.legend(loc='upper right')",
+ "asks": [
+  {
+   "ask": "제목 설정",
+   "how": "key"
+  },
+  {
+   "ask": "y축 라벨 설정",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/SS01_r2/out/t4"
+ }
+}

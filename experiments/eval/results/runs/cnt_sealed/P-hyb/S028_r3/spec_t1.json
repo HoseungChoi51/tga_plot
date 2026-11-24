@@ -1,0 +1,33 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "histogram",
+ "x": "산화개시온도 (°C)",
+ "bins": {
+  "width": 5,
+  "min": 535,
+  "max": 610
+ },
+ "by": "반응기",
+ "filter": [
+  "반응기 in [R1, R2, R3, R4]"
+ ],
+ "asks": [
+  {
+   "ask": "산화개시온도 분포 히스토그램",
+   "how": "key"
+  },
+  {
+   "ask": "R4와 나머지(R1-R3) 그룹 분리",
+   "how": "code"
+  },
+  {
+   "ask": "bin 5°C 간격, 535-610°C",
+   "how": "key"
+  }
+ ],
+ "data_code": "df['그룹'] = df['반응기'].apply(lambda x: 'R4' if x == 'R4' else 'R1-R3')",
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-hyb/S028_r3/out/t1"
+ }
+}

@@ -1,0 +1,19 @@
+{
+ "asks": [
+  {
+   "ask": "2존 온도만",
+   "how": "key"
+  }
+ ],
+ "file": "data/r2_zone_temps.csv",
+ "preset": "none",
+ "x": {
+  "col": "A"
+ },
+ "y1": {
+  "col": "C"
+ },
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-ec+cdabc/DS04_r2/out/t1"
+ }
+}

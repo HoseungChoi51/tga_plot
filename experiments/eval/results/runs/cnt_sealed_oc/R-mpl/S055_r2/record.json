@@ -1,0 +1,380 @@
+{
+ "arm": "R-mpl",
+ "item": "S055",
+ "repeat": 2,
+ "split": "sealed",
+ "persona": "데이터 분석가",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "100% stacked bar of 등급 share per 촉매로트 (lots in chronological order).",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams['axes.unicode_minus'] = False\n\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read data\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Define chronological order of catalyst lots based on the lot ID string (FC-YYYYMM)\n# The prefix is 'FC-', followed by year and month. Sorting lexicographically works for this format.\nunique_lots = df['촉매로트'].unique()\nlots_sorted = sorted(unique_lots, key=lambda x: x.split('-')[1]) # Sort by the numeric part FC-XXXXXX\n\n# Create a categorical column to enforce order in groupby/plotting\ndf['촉매로트'] = pd.Categorical(df['촉매로트'], categories=lots_sorted, ordered=True)\n\n# Pivot table to get counts of each grade per catalyst lot\npivot_counts = df.pivot_table(index='촉매로트', columns='등급', values='런ID', aggfunc='count', fill_value=0)\n\n# Reindex columns to ensure consistent color mapping and order (A, B, C)\ngrade_order = ['A', 'B', 'C']\nfor g in grade_order:\n    if g not in pivot_counts.columns:\n        pivot_counts[g] = 0\npivot_counts = pivot_counts[grade_order]\n\n# Convert to percentages for 100% stacked bar\nrow_sums = pivot_counts.sum(axis=1)\n# Avoid division by zero just in case\nrow_sums[row_sums == 0] = 1 \npivot_pct = pivot_counts.div(row_sums, axis=0) * 100\n\n# Plotting\nfig, ax = plt.subplots(figsize=(10, 6))\n\ncolors = ['#2ca02c', '#ff7f0e', '#d62728'] # Green for A, Orange for B, Red for C\nbottom = [0] * len(pivot_pct.index)\n\nfor i, grade in enumerate(grade_order):\n    values = pivot_pct[grade].values\n    ax.bar(pivot_pct.index.astype(str), values, bottom=bottom, label=f'등급 {grade}', color=colors[i], edgecolor='white')\n    bottom += values\n\n# Add percentage text inside bars if segments are large enough\nfor i, grade in enumerate(grade_order):\n    y_positions = pivot_pct[grade].values / 2 + np.array([0]*len(pivot_pct)) # This logic needs correction for stacked centers\n    # Recalculate center positions for text\n    current_bottom = np.zeros(len(pivot_pct))\n    for j in range(i):\n        current_bottom += pivot_pct[grade_order[j]].values\n    \n    centers = current_bottom + pivot_pct[grade].values / 2\n    \n    for k, val in enumerate(pivot_pct[grade].values):\n        if val > 5: # Only show text if segment is > 5%\n            ax.text(k, centers[k], f'{val:.1f}%', ha='center', va='center', color='white', fontsize=9, weight='bold')\n\nax.set_ylabel('비중 (%)')\nax.set_xlabel('촉매 로트')\nax.set_title('촉매 로트별 등급 구성 비율 (100% Stacked Bar)')\nax.legend(title='등급', bbox_to_anchor=(1.05, 1), loc='upper left')\nax.tick_params(axis='x', rotation=45)\n\nplt.tight_layout()\noutput_file = os.path.join(OUT_DIR, \"grade_share_by_catalyst_lot.png\")\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\nplt.close()\n```",
+     "llm_s": 13.921,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 3717,
+     "output_chars": 2850,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams['axes.unicode_minus'] = False\n\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read data\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Define chronological order of catalyst lots based on the lot ID string (FC-YYYYMM)\n# The prefix is 'FC-', followed by year and month. Sorting lexicographically works for this format.\nunique_lots = df['촉매로트'].unique()\nlots_sorted = sorted(unique_lots, key=lambda x: x.split('-')[1]) # Sort by the numeric part FC-XXXXXX\n\n# Create a categorical column to enforce order in groupby/plotting\ndf['촉매로트'] = pd.Categorical(df['촉매로트'], categories=lots_sorted, ordered=True)\n\n# Pivot table to get counts of each grade per catalyst lot\npivot_counts = df.pivot_table(index='촉매로트', columns='등급', values='런ID', aggfunc='count', fill_value=0)\n\n# Reindex columns to ensure consistent color mapping and order (A, B, C)\ngrade_order = ['A', 'B', 'C']\nfor g in grade_order:\n    if g not in pivot_counts.columns:\n        pivot_counts[g] = 0\npivot_counts = pivot_counts[grade_order]\n\n# Convert to percentages for 100% stacked bar\nrow_sums = pivot_counts.sum(axis=1)\n# Avoid division by zero just in case\nrow_sums[row_sums == 0] = 1 \npivot_pct = pivot_counts.div(row_sums, axis=0) * 100\n\n# Plotting\nfig, ax = plt.subplots(figsize=(10, 6))\n\ncolors = ['#2ca02c', '#ff7f0e', '#d62728'] # Green for A, Orange for B, Red for C\nbottom = np.zeros(len(pivot_pct.index))\n\nx_labels = [str(lot) for lot in pivot_pct.index]\n\nfor i, grade in enumerate(grade_order):\n    values = pivot_pct[grade].values\n    ax.bar(x_labels, values, bottom=bottom, label=f'등급 {grade}', color=colors[i], edgecolor='white')\n    \n    # Add percentage text inside bars if segments are large enough\n    centers = bottom + values / 2\n    for k, val in enumerate(values):\n        if val > 5: # Only show text if segment is > 5%\n            ax.text(k, centers[k], f'{val:.1f}%', ha='center', va='center', color='white', fontsize=9, weight='bold')\n            \n    bottom += values\n\nax.set_ylabel('비중 (%)')\nax.set_xlabel('촉매 로트')\nax.set_title('촉매 로트별 등급 구성 비율 (100% Stacked Bar)')\nax.legend(title='등급', bbox_to_anchor=(1.05, 1), loc='upper left')\nax.tick_params(axis='x', rotation=45)\n\nplt.tight_layout()\noutput_file = os.path.join(OUT_DIR, \"grade_share_by_catalyst_lot.png\")\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\nplt.close()\n```",
+     "llm_s": 8.942,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 7685,
+     "output_chars": 2534,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# Set Korean font\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams['axes.unicode_minus'] = False\n\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\n\n# Read data\nfile_path = \"data/run_log.xlsx\"\ndf = pd.read_excel(file_path, sheet_name=\"런로그\")\n\n# Define chronological order of catalyst lots based on the lot ID string (FC-YYYYMM)\n# The prefix is 'FC-', followed by year and month. Sorting lexicographically works for this format.\nunique_lots = df['촉매로트'].unique()\nlots_sorted = sorted(unique_lots, key=lambda x: x.split('-')[1]) # Sort by the numeric part FC-XXXXXX\n\n# Create a categorical column to enforce order in groupby/plotting\ndf['촉매로트'] = pd.Categorical(df['촉매로트'], categories=lots_sorted, ordered=True)\n\n# Pivot table to get counts of each grade per catalyst lot\npivot_counts = df.pivot_table(index='촉매로트', columns='등급', values='런ID', aggfunc='count', fill_value=0)\n\n# Reindex columns to ensure consistent color mapping and order (A, B, C)\ngrade_order = ['A', 'B', 'C']\nfor g in grade_order:\n    if g not in pivot_counts.columns:\n        pivot_counts[g] = 0\npivot_counts = pivot_counts[grade_order]\n\n# Convert to percentages for 100% stacked bar\nrow_sums = pivot_counts.sum(axis=1)\n# Avoid division by zero just in case\nrow_sums[row_sums == 0] = 1 \npivot_pct = pivot_counts.div(row_sums, axis=0) * 100\n\n# Plotting\nfig, ax = plt.subplots(figsize=(10, 6))\n\ncolors = ['#2ca02c', '#ff7f0e', '#d62728'] # Green for A, Orange for B, Red for C\nbottom = np.zeros(len(pivot_pct.index))\n\nx_labels = [str(lot) for lot in pivot_pct.index]\n\nfor i, grade in enumerate(grade_order):\n    values = pivot_pct[grade].values\n    ax.bar(x_labels, values, bottom=bottom, label=f'등급 {grade}', color=colors[i], edgecolor='white')\n    \n    # Add percentage text inside bars if segments are large enough\n    centers = bottom + values / 2\n    for k, val in enumerate(values):\n        if val > 5: # Only show text if segment is > 5%\n            ax.text(k, centers[k], f'{val:.1f}%', ha='center', va='center', color='white', fontsize=9, weight='bold')\n            \n    bottom += values\n\nax.set_ylabel('비중 (%)')\nax.set_xlabel('촉매 로트')\nax.set_title('촉매 로트별 등급 구성 비율 (100% Stacked Bar)')\nax.legend(title='등급', bbox_to_anchor=(1.05, 1), loc='upper left')\nax.tick_params(axis='x', rotation=45)\n\nplt.tight_layout()\noutput_file = os.path.join(OUT_DIR, \"grade_share_by_catalyst_lot.png\")\nplt.savefig(output_file, dpi=300, bbox_inches='tight')\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      10.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "촉매 로트별 등급 구성 비율 (100% Stacked Bar)",
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "등급 A",
+         "orient": "v",
+         "cats": [
+          "-",
+          "FC-2602",
+          "FC-2603",
+          "FC-2604",
+          "FC-2605",
+          "FC-2606",
+          "FC-2607",
+          "FC-2608"
+         ],
+         "values": [
+          0.0,
+          43.91891891891892,
+          44.0,
+          48.67256637168141,
+          44.554455445544555,
+          31.176470588235293,
+          21.875,
+          19.35483870967742
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#2ca02c",
+          "#2ca02c",
+          "#2ca02c",
+          "#2ca02c",
+          "#2ca02c",
+          "#2ca02c",
+          "#2ca02c",
+          "#2ca02c"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0,
+          7.0
+         ]
+        },
+        {
+         "name": "등급 B",
+         "orient": "v",
+         "cats": [
+          "-",
+          "FC-2602",
+          "FC-2603",
+          "FC-2604",
+          "FC-2605",
+          "FC-2606",
+          "FC-2607",
+          "FC-2608"
+         ],
+         "values": [
+          0.0,
+          51.35135135135135,
+          50.0,
+          46.902654867256636,
+          41.584158415841586,
+          49.411764705882355,
+          60.0,
+          61.935483870967744
+         ],
+         "bottoms": [
+          0.0,
+          43.91891891891892,
+          44.0,
+          48.67256637168141,
+          44.554455445544555,
+          31.176470588235293,
+          21.875,
+          19.35483870967742
+         ],
+         "colors": [
+          "#ff7f0e",
+          "#ff7f0e",
+          "#ff7f0e",
+          "#ff7f0e",
+          "#ff7f0e",
+          "#ff7f0e",
+          "#ff7f0e",
+          "#ff7f0e"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0,
+          7.0
+         ]
+        },
+        {
+         "name": "등급 C",
+         "orient": "v",
+         "cats": [
+          "-",
+          "FC-2602",
+          "FC-2603",
+          "FC-2604",
+          "FC-2605",
+          "FC-2606",
+          "FC-2607",
+          "FC-2608"
+         ],
+         "values": [
+          0.0,
+          4.72972972972973,
+          6.0,
+          4.424778761061947,
+          13.861386138613863,
+          19.411764705882355,
+          18.125,
+          18.70967741935484
+         ],
+         "bottoms": [
+          0.0,
+          95.27027027027026,
+          94.0,
+          95.57522123893804,
+          86.13861386138615,
+          80.58823529411765,
+          81.875,
+          81.29032258064517
+         ],
+         "colors": [
+          "#d62728",
+          "#d62728",
+          "#d62728",
+          "#d62728",
+          "#d62728",
+          "#d62728",
+          "#d62728",
+          "#d62728"
+         ],
+         "centers": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0,
+          7.0
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 19,
+       "texts": [
+        "43.9%",
+        "44.0%",
+        "48.7%",
+        "44.6%",
+        "31.2%",
+        "21.9%",
+        "19.4%",
+        "51.4%",
+        "50.0%",
+        "46.9%",
+        "41.6%",
+        "49.4%",
+        "60.0%",
+        "61.9%",
+        "6.0%",
+        "13.9%",
+        "19.4%",
+        "18.1%",
+        "18.7%"
+       ],
+       "x": {
+        "label": "촉매 로트",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0,
+         5.0,
+         6.0,
+         7.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "-",
+         "FC-2602",
+         "FC-2603",
+         "FC-2604",
+         "FC-2605",
+         "FC-2606",
+         "FC-2607",
+         "FC-2608"
+        ],
+        "min": -0.79,
+        "max": 7.789999999999999,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "-",
+         "FC-2602",
+         "FC-2603",
+         "FC-2604",
+         "FC-2605",
+         "FC-2606",
+         "FC-2607",
+         "FC-2608"
+        ],
+        "rotate": 45.0
+       },
+       "y": {
+        "label": "비중 (%)",
+        "type": "value",
+        "ticks": [
+         0.0,
+         20.0,
+         40.0,
+         60.0,
+         80.0,
+         100.0
+        ],
+        "step": 20.0,
+        "categories": null,
+        "min": 0.0,
+        "max": 105.00000000000001,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "0",
+         "20",
+         "40",
+         "60",
+         "80",
+         "100",
+         "120"
+        ],
+        "rotate": 0.0
+       },
+       "title": "촉매 로트별 등급 구성 비율 (100% Stacked Bar)"
+      }
+     ],
+     "texts": [
+      "43.9%",
+      "44.0%",
+      "48.7%",
+      "44.6%",
+      "31.2%",
+      "21.9%",
+      "19.4%",
+      "51.4%",
+      "50.0%",
+      "46.9%",
+      "41.6%",
+      "49.4%",
+      "60.0%",
+      "61.9%",
+      "6.0%",
+      "13.9%",
+      "19.4%",
+      "18.1%",
+      "18.7%"
+     ],
+     "legend": {
+      "shown": true,
+      "entries": [
+       "등급 A",
+       "등급 B",
+       "등급 C"
+      ],
+      "inside": false,
+      "where": "outside"
+     },
+     "files": [
+      {
+       "path": "out/t1/grade_share_by_catalyst_lot.png",
+       "format": "png",
+       "px": [
+        2965,
+        1765
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.5604679584503174,
+   "check": {
+    "kind_expected": "stacked_bar",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 23.782
+  }
+ ]
+}

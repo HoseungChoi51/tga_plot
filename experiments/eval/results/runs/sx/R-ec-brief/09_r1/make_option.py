@@ -1,0 +1,266 @@
+import pandas as pd
+import numpy as np
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+
+def get_korean_font():
+    return "Noto Sans CJK KR"
+
+def process_sheet(df, sheet_name):
+    # Identify columns based on standard TGA structure or guess
+    cols = df.columns.tolist()
+    
+    # Try to find Temperature (x), Weight (y1), DTG (y2)
+    x_col = None
+    y1_col = None
+    y2_col = None
+    
+    for c in cols:
+        cl = str(c).lower()
+        if 'temp' in cl:
+            x_col = c
+        elif 'weight' in cl and '%' in cl:
+            y1_col = c
+        elif 'd.w' in cl or 'dtg' in cl or 'derivative' in cl:
+            y2_col = c
+            
+    # Fallback to indices if names aren't clear, but here names are clear from preview
+    if x_col is None and len(cols) >= 2: x_col = cols[1]
+    if y1_col is None and len(cols) >= 3: y1_col = cols[2]
+    if y2_col is None and len(cols) >= 4: y2_col = cols[3]
+    
+    if not all([x_col, y1_col, y2_col]):
+        return None
+        
+    # Extract data
+    temp = df[x_col].values
+    weight = df[y1_col].values
+    dtg_raw = df[y2_col].values
+    
+    # Invert DTG so peaks point up
+    dtg = -dtg_raw
+    
+    # Find Residue at nearest 800C
+    # If max temp < 800, use last point? The prompt says "nearest 800". 
+    # For the 750C sample, nearest is 750.
+    idx_800 = np.argmin(np.abs(temp - 800))
+    residue_val = weight[idx_800]
+    residue_temp = temp[idx_800]
+    
+    # Find Peak above 150C
+    mask = temp > 150
+    if np.any(mask):
+        dtg_masked = dtg[mask]
+        temp_masked = temp[mask]
+        idx_peak_local = np.argmax(dtg_masked)
+        peak_temp = temp_masked[idx_peak_local]
+        peak_val = dtg_masked[idx_peak_local]
+    else:
+        peak_temp = None
+        peak_val = None
+
+    # Prepare series data
+    # ECharts expects [[x, y], ...]
+    line_weight_data = []
+    line_dtg_data = []
+    
+    for t, w, d in zip(temp, weight, dtg):
+        line_weight_data.append([float(t), float(w)])
+        line_dtg_data.append([float(t), float(d)])
+        
+    # Markers for labels
+    marker_residue = [float(residue_temp), float(residue_val)]
+    marker_peak = []
+    if peak_temp is not None:
+        marker_peak = [float(peak_temp), float(peak_val)]
+        
+    option = {
+        "title": {
+            "text": sheet_name,
+            "left": "center",
+            "top": 10,
+            "textStyle": {
+                "fontFamily": get_korean_font(),
+                "fontSize": 16,
+                "color": "#333"
+            }
+        },
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {"type": "cross"},
+            "formatter": "{a} <br/>{b}: {c}"
+        },
+        "legend": {
+            "data": ["Weight (%)", "-DTG (%/°C)"],
+            "orient": "vertical",
+            "left": "left",
+            "top": "middle",
+            "textStyle": {
+                "fontFamily": get_korean_font(),
+                "fontSize": 12
+            }
+        },
+        "grid": {
+            "left": "10%",
+            "right": "10%",
+            "bottom": "15%",
+            "containLabel": True
+        },
+        "xAxis": {
+            "name": "Temperature (°C)",
+            "nameLocation": "middle",
+            "nameGap": 30,
+            "type": "value",
+            "axisTick": {
+                "show": True,
+                "length": 6,
+                "lineStyle": {"color": "#333"},
+                "inside": False  # Outside ticks
+            },
+            "axisLabel": {
+                "fontSize": 9,
+                "fontFamily": get_korean_font(),
+                "margin": 8
+            },
+            "splitLine": {
+                "show": True,
+                "lineStyle": {"color": "#eee"}
+            }
+        },
+        "yAxis": [
+            {
+                "name": "Weight (%)",
+                "nameLocation": "middle",
+                "nameGap": 40,
+                "type": "value",
+                "position": "left",
+                "axisTick": {
+                    "show": True,
+                    "length": 6,
+                    "lineStyle": {"color": "#333"},
+                    "inside": False  # Outside ticks
+                },
+                "axisLabel": {
+                    "fontSize": 9,
+                    "fontFamily": get_korean_font(),
+                    "margin": 8
+                },
+                "splitLine": {
+                    "show": True,
+                    "lineStyle": {"color": "#eee"}
+                }
+            },
+            {
+                "name": "-DTG (%/°C)",
+                "nameLocation": "middle",
+                "nameGap": 40,
+                "type": "value",
+                "position": "right",
+                "axisTick": {
+                    "show": True,
+                    "length": 6,
+                    "lineStyle": {"color": "#333"},
+                    "inside": False  # Outside ticks
+                },
+                "axisLabel": {
+                    "fontSize": 9,
+                    "fontFamily": get_korean_font(),
+                    "margin": 8
+                },
+                "splitLine": {
+                    "show": False
+                }
+            }
+        ],
+        "series": [
+            {
+                "name": "Weight (%)",
+                "type": "line",
+                "yAxisIndex": 0,
+                "data": line_weight_data,
+                "smooth": False,
+                "symbol": "none",
+                "lineStyle": {
+                    "color": "#1f4e9c",
+                    "width": 2
+                },
+                "markPoint": {
+                    "data": [
+                        {
+                            "coord": marker_residue,
+                            "label": {
+                                "show": True,
+                                "formatter": f"Residue {residue_val:.1f}%",
+                                "position": "top",
+                                "fontSize": 10,
+                                "fontFamily": get_korean_font(),
+                                "color": "#1f4e9c"
+                            },
+                            "itemStyle": {
+                                "color": "#1f4e9c"
+                            },
+                            "symbolSize": 8
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "-DTG (%/°C)",
+                "type": "line",
+                "yAxisIndex": 1,
+                "data": line_dtg_data,
+                "smooth": False,
+                "symbol": "none",
+                "lineStyle": {
+                    "color": "#c0392b",
+                    "width": 2
+                },
+                "markPoint": {}
+            }
+        ]
+    }
+    
+    # Add peak label if exists
+    if peak_temp is not None:
+        option["series"][1]["markPoint"]["data"] = [
+            {
+                "coord": marker_peak,
+                "label": {
+                    "show": True,
+                    "formatter": f"{peak_temp:.0f} °C",
+                    "position": "top",
+                    "fontSize": 10,
+                    "fontFamily": get_korean_font(),
+                    "color": "#c0392b"
+                },
+                "itemStyle": {
+                    "color": "#c0392b"
+                },
+                "symbolSize": 8
+            }
+        ]
+        
+    return option
+
+def main():
+    xls = pd.ExcelFile(DATA_FILE)
+    figures = []
+    
+    for sheet_name in xls.sheet_names:
+        df = pd.read_excel(xls, sheet_name=sheet_name)
+        opt = process_sheet(df, sheet_name)
+        if opt:
+            figures.append({
+                "name": sheet_name.replace(" ", "_").replace("/", "_"),
+                "option": opt,
+                "width": 614,
+                "height": 442,
+                "dpi": 300,
+                "formats": ["png"]
+            })
+            
+    print(json.dumps({"figures": figures}, ensure_ascii=False))
+
+if __name__ == "__main__":
+    main()

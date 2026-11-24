@@ -1,0 +1,28 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "scatter",
+ "x": "체류시간 (s)",
+ "y": "CNT수율 (g/g-cat)",
+ "filter": [
+  "주차 between 14 and 26",
+  "반응기 in [R1, R2]"
+ ],
+ "asks": [
+  {
+   "ask": "Filter to 주차 14–26 and 반응기 ∈ {R1, R2}",
+   "how": "key"
+  },
+  {
+   "ask": "scatter 체류시간 vs CNT수율",
+   "how": "key"
+  },
+  {
+   "ask": "marker size ∝ 가동시간",
+   "how": "unsupported"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S051_r1/out/t1"
+ }
+}

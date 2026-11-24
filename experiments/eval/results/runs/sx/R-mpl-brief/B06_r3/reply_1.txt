@@ -1,0 +1,86 @@
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+
+# 데이터 파일 경로와 출력 디렉토리 설정
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/isothermal.txt"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/B06_r3/out"
+
+# 한글 폰트 설정
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+# 데이터 읽기 (헤더가 1행에 있음)
+df = pd.read_csv(DATA_FILE, sep='\t', header=0)
+
+# 컬럼명 정리 (앞뒤 공백 제거 등)
+df.columns = [c.strip() for c in df.columns]
+
+# 필요한 컬럼 추출
+time_col = 'Time (min)'
+temp_col = 'Temperature (°C)'
+weight_col = 'Weight (%)'
+
+if time_col not in df.columns or temp_col not in df.columns or weight_col not in df.columns:
+    # 혹시 컬럼명이 다를 경우를 대비해 위치 기반 접근도 고려할 수 있으나, 미리보기에 따라 명확함
+    raise ValueError("Required columns not found")
+
+x = df[time_col].values
+y1 = df[weight_col].values   # 왼쪽 축: 무게 (%)
+y2 = df[temp_col].values     # 오른쪽 축: 온도 (°C)
+
+# 그림 생성
+fig, ax1 = plt.subplots(figsize=(8, 5))
+
+# 왼쪽 축: 무게 (%)
+color1 = '#1f4e9c'
+ax1.set_xlabel('시간 (분)', fontsize=12)
+ax1.set_ylabel('무게 (%)', color=color1, fontsize=12)
+line1, = ax1.plot(x, y1, color=color1, label='무게 (%)')
+ax1.tick_params(axis='y', labelcolor=color1)
+
+# 오른쪽 축: 온도 (°C)
+ax2 = ax1.twinx()
+color2 = '#c0392b'
+ax2.set_ylabel('온도 (°C)', color=color2, fontsize=12)
+line2, = ax2.plot(x, y2, color=color2, linestyle='--', label='온도 (°C)')
+ax2.tick_params(axis='y', labelcolor=color2)
+
+# 제목
+ax1.set_title('등온 TGA 분석', fontsize=14)
+
+# 140분일 때의 무게 표시
+# 가장 가까운 시간 인덱스 찾기
+idx_140 = np.argmin(np.abs(x - 140.0))
+time_at_140 = x[idx_140]
+weight_at_140 = y1[idx_140]
+
+# 마커 및 텍스트 추가
+ax1.scatter(time_at_140, weight_at_140, color='black', zorder=5)
+ax1.annotate(f'{weight_at_140:.2f}%', 
+             xy=(time_at_140, weight_at_140), 
+             xytext=(10, 10), 
+             textcoords='offset points',
+             fontsize=10,
+             fontweight='bold',
+             bbox=dict(boxstyle='round,pad=0.3', fc='yellow', alpha=0.7))
+
+# 범례
+lines = [line1, line2]
+labels = [l.get_label() for l in lines]
+ax1.legend(lines, labels, loc='center left')
+
+# 격자
+ax1.grid(True, linestyle=':', alpha=0.6)
+
+# 레이아웃 조정
+plt.tight_layout()
+
+# 저장
+os.makedirs(OUT_DIR, exist_ok=True)
+output_path = os.path.join(OUT_DIR, "isothermal_plot.png")
+plt.savefig(output_path, dpi=300)
+plt.close()
+```

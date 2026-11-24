@@ -1,0 +1,3 @@
+```json
+{"file":"TGA.xlsx","sheets":"1006R1-V normal","title":{"text":"CNT 산화 거동","size":18,"color":"navy"}}
+```

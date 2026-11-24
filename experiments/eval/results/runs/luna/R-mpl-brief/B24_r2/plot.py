@@ -1,0 +1,91 @@
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/B24_r2/out")
+
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+# Read the requested PE sheet; temperature is stored in °C and converted to K.
+df = pd.read_excel(DATA_FILE, sheet_name="PE")
+df.columns = [str(col).strip() for col in df.columns]
+
+def find_column(names, candidates):
+    for col in names:
+        normalized = col.lower().replace(" ", "")
+        if any(candidate in normalized for candidate in candidates):
+            return col
+    raise ValueError(f"Could not find a required column among: {names}")
+
+temperature_col = find_column(df.columns, ["temperature", "온도"])
+weight_col = find_column(df.columns, ["weight", "무게", "중량"])
+dtg_col = find_column(df.columns, ["deriv", "dtg"])
+
+temperature_c = pd.to_numeric(df[temperature_col], errors="coerce")
+weight = pd.to_numeric(df[weight_col], errors="coerce")
+dtg = pd.to_numeric(df[dtg_col], errors="coerce")
+
+valid = temperature_c.notna() & weight.notna() & dtg.notna()
+temperature_k = temperature_c[valid] + 273.15
+weight = weight[valid]
+dtg = dtg[valid]
+
+fig, ax1 = plt.subplots(figsize=(9, 6))
+ax2 = ax1.twinx()
+
+ax1.plot(temperature_k, weight, color="#1f4e9c", linewidth=1.8, label="Weight (%)")
+ax2.plot(temperature_k, -dtg, color="#c0392b", linewidth=1.5, label="−DTG (%/°C)")
+
+# Residue: measured weight nearest 800 °C (1073.15 K).
+residue_target_k = 800 + 273.15
+residue_idx = (temperature_k - residue_target_k).abs().idxmin()
+residue_x = temperature_k.loc[residue_idx]
+residue_y = weight.loc[residue_idx]
+ax1.plot(residue_x, residue_y, marker="o", color="#1f4e9c", markersize=6)
+ax1.annotate(
+    f"Residue {residue_y:.1f}%",
+    xy=(residue_x, residue_y),
+    xytext=(8, 10),
+    textcoords="offset points",
+    color="#1f4e9c",
+    fontsize=9,
+)
+
+# Highest upward-pointing DTG peak above 150 °C (423.15 K).
+peak_candidates = (temperature_k > 150 + 273.15) & (-dtg > 0)
+if peak_candidates.any():
+    peak_idx = (-dtg[peak_candidates]).idxmax()
+    peak_x = temperature_k.loc[peak_idx]
+    peak_y = -dtg.loc[peak_idx]
+    ax2.plot(peak_x, peak_y, marker="o", color="#c0392b", markersize=6)
+    ax2.annotate(
+        f"{peak_x - 273.15:.0f} °C",
+        xy=(peak_x, peak_y),
+        xytext=(8, 10),
+        textcoords="offset points",
+        color="#c0392b",
+        fontsize=9,
+    )
+
+ax1.set_title("PE")
+ax1.set_xlabel("Temperature (K)")
+ax1.set_ylabel("Weight (%)", color="#1f4e9c")
+ax2.set_ylabel("−DTG (%/°C)", color="#c0392b")
+ax1.tick_params(axis="y", labelcolor="#1f4e9c")
+ax2.tick_params(axis="y", labelcolor="#c0392b")
+ax1.grid(True, alpha=0.25)
+
+lines1, labels1 = ax1.get_legend_handles_labels()
+lines2, labels2 = ax2.get_legend_handles_labels()
+ax1.legend(lines1 + lines2, labels1 + labels2, loc="center left")
+
+fig.tight_layout()
+fig.savefig(OUT_DIR / "PE_temperature_K.png", dpi=300, bbox_inches="tight")
+plt.close(fig)

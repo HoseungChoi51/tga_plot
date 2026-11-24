@@ -1,0 +1,1 @@
+[{"check": "series", "cat": "data", "ok": true, "why": "", "spec": {"series": {"axis": "y1", "y_range": [2.9705, 100.0169]}, "cat": "data"}}, {"check": "text_value", "cat": "ask", "ok": true, "why": "", "spec": {"text_value": {"value": 3.0183, "tol": 0.1, "regex": "^Residue: \\d+(\\.\\d+)?\\s?%$"}}}]

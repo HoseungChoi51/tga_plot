@@ -1,0 +1,120 @@
+```python
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.ticker import MultipleLocator
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna_think/R-mpl-brief/02_r1/out")
+SHEET_NAME = "1006R1-V normal"
+
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+# Use a Korean-capable font where available; the selected sheet and axis labels
+# are rendered correctly with the installed Noto Sans CJK KR font.
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+df = pd.read_excel(DATA_FILE, sheet_name=SHEET_NAME)
+df.columns = [str(col).strip() for col in df.columns]
+
+def find_column(names, fallback_index):
+    for col in df.columns:
+        normalized = col.lower().replace(" ", "").replace("_", "")
+        if any(name in normalized for name in names):
+            return col
+    return df.columns[fallback_index]
+
+x_col = find_column(["temperature", "temperatur"], 1)
+weight_col = find_column(["weight"], 2)
+deriv_col = find_column(["d.w", "deriv", "dtg"], 3)
+
+data = df[[x_col, weight_col, deriv_col]].apply(pd.to_numeric, errors="coerce").dropna()
+temperature = data[x_col].to_numpy()
+weight = data[weight_col].to_numpy()
+deriv = data[deriv_col].to_numpy()
+
+# The recorded derivative is negative during mass loss; plot its inverse so
+# mass-loss peaks point upward.
+dtg = -deriv
+
+# Residue: weight at the measured temperature nearest 800 °C.
+residue_idx = int(np.argmin(np.abs(temperature - 800)))
+residue_temp = temperature[residue_idx]
+residue_weight = weight[residue_idx]
+
+# Mark and report the maximum of the plotted Deriv.Weight curve.
+max_idx = int(np.argmax(dtg))
+max_temp = temperature[max_idx]
+max_dtg = dtg[max_idx]
+
+fig, ax1 = plt.subplots(figsize=(10, 6))
+ax2 = ax1.twinx()
+
+line1, = ax1.plot(
+    temperature, weight, color="#1f4e9c", linewidth=1.8, label="Weight"
+)
+line2, = ax2.plot(
+    temperature, dtg, color="#c0392b", linewidth=1.6, label="Deriv.Weight"
+)
+
+ax1.scatter(
+    residue_temp, residue_weight, color="#1f4e9c", edgecolor="white",
+    linewidth=0.8, s=55, zorder=5
+)
+ax1.annotate(
+    f"Residue {residue_weight:.1f}%",
+    xy=(residue_temp, residue_weight),
+    xytext=(8, 12),
+    textcoords="offset points",
+    color="#1f4e9c",
+    fontsize=10,
+    arrowprops=dict(arrowstyle="-", color="#1f4e9c", lw=0.8),
+)
+
+ax2.scatter(
+    max_temp, max_dtg, color="#c0392b", edgecolor="white",
+    linewidth=0.8, s=55, zorder=5
+)
+ax2.annotate(
+    f"Max Deriv.Weight {max_dtg:.3g} at {max_temp:.0f} °C",
+    xy=(max_temp, max_dtg),
+    xytext=(8, -20),
+    textcoords="offset points",
+    color="#c0392b",
+    fontsize=10,
+    arrowprops=dict(arrowstyle="-", color="#c0392b", lw=0.8),
+)
+
+ax1.set_title(SHEET_NAME)
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)", color="#1f4e9c")
+ax2.set_ylabel("Deriv.Weight (%/°C)", color="#c0392b")
+
+# Temperature ticks begin at 0 °C and are spaced by 200 °C.
+ax1.set_xlim(left=0, right=max(1000, int(np.ceil(np.nanmax(temperature) / 200) * 200)))
+ax1.xaxis.set_major_locator(MultipleLocator(200))
+ax1.yaxis.set_major_locator(MultipleLocator(20))
+ax2.yaxis.set_major_locator(MultipleLocator(0.2))
+
+# Keep the full plotted DTG range visible while aligning limits to 0.2 ticks.
+dtg_min, dtg_max = float(np.nanmin(dtg)), float(np.nanmax(dtg))
+lower = np.floor(dtg_min / 0.2) * 0.2
+upper = np.ceil(dtg_max / 0.2) * 0.2
+if lower == upper:
+    upper = lower + 0.2
+ax2.set_ylim(lower, upper)
+
+ax1.tick_params(axis="y", labelcolor="#1f4e9c")
+ax2.tick_params(axis="y", labelcolor="#c0392b")
+ax1.grid(True, which="major", axis="both", color="#d9d9d9", linewidth=0.7, alpha=0.8)
+
+ax1.legend([line1, line2], ["Weight", "Deriv.Weight"], loc="center left")
+fig.tight_layout()
+
+output_file = OUT_DIR / "1006R1-V_normal.png"
+fig.savefig(output_file, dpi=300, format="png", bbox_inches="tight")
+plt.close(fig)
+```

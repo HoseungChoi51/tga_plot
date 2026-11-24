@@ -1,0 +1,23 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "scatter",
+ "x": {
+  "col": "체류시간 (s)",
+  "label": "체류시간 (s)"
+ },
+ "y": {
+  "col": "CNT수율 (g/g-cat)",
+  "label": "CNT수율 (g/g-cat)"
+ },
+ "trend": true,
+ "asks": [
+  {
+   "ask": "체류시간별 CNT수율 관계",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/sessions/E3_G5_P-hyb/out/t1"
+ }
+}

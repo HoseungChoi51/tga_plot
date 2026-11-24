@@ -1,0 +1,10 @@
+```json
+{
+  "file": "polymers.xlsx",
+  "sheets": "PE",
+  "x": {
+    "label": "Temperature (K)"
+  },
+  "code": "ticks = ax1.get_xticks(); ax1.set_xticks(ticks); ax1.set_xticklabels([f'{t + 273.15:g}' for t in ticks])"
+}
+```

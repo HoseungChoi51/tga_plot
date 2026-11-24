@@ -1,0 +1,45 @@
+{
+ "file": [
+  "data/run_log.xlsx",
+  "data/tga_batches.xlsx"
+ ],
+ "chart": "scatter",
+ "x": {
+  "col": "TGA_Fe_wt",
+  "label": "TGA 잔류량 (Fe 환산, wt%)"
+ },
+ "y": {
+  "col": "잔류금속",
+  "label": "런로그 잔류금속 (wt%)"
+ },
+ "ref": [
+  {
+   "type": "line",
+   "slope": 1,
+   "intercept": 0,
+   "text": "y = x"
+  }
+ ],
+ "asks": [
+  {
+   "ask": "TGA 10개 배치 각각 800 °C 잔량을 Fe로 환산(×0.699)",
+   "how": "data_code"
+  },
+  {
+   "ask": "시트 이름(Run ID)과 런로그 매칭하여 비교",
+   "how": "data_code"
+  },
+  {
+   "ask": "산점도",
+   "how": "key"
+  },
+  {
+   "ask": "y = x 기준선",
+   "how": "key"
+  }
+ ],
+ "data_code": "import pandas as pd\nimport numpy as np\n\n# Load TGA data\ntga_path = 'data/tga_batches.xlsx'\ntry:\n    tga_sheets = pd.read_excel(tga_path, sheet_name=None)\nexcept Exception as e:\n    print(f\"Error reading TGA file: {e}\")\n    tga_sheets = {}\n\nrecords = []\nfor sname, sdf in tga_sheets.items():\n    run_id = sname\n    \n    # Identify columns dynamically based on preview info\n    # Preview says: B 온도 (°C), C 중량 (%)\n    temp_col = None\n    weight_col = None\n    \n    for col in sdf.columns:\n        if '온도' in str(col):\n            temp_col = col\n        elif '중량' in str(col) and '미분' not in str(col):\n            weight_col = col\n            \n    if temp_col is None or weight_col is None:\n        continue\n        \n    temps = sdf[temp_col].values\n    weights = sdf[weight_col].values\n    \n    # Check if there are any valid numeric values before proceeding\n    valid_mask = ~np.isnan(temps) & ~np.isnan(weights)\n    if not np.any(valid_mask):\n        continue\n        \n    temps_valid = temps[valid_mask]\n    weights_valid = weights[valid_mask]\n    \n    try:\n        # Ensure arrays are sorted by temperature for interp\n        sort_idx = np.argsort(temps_valid)\n        temps_sorted = temps_valid[sort_idx]\n        weights_sorted = weights_valid[sort_idx]\n        \n        res_800 = float(np.interp(800, temps_sorted, weights_sorted))\n    except Exception as e:\n        print(f\"Interpolation error for {run_id}: {e}\")\n        continue\n        \n    # Convert oxide weight to Fe weight (factor 0.699)\n    fe_wt = res_800 * 0.699\n    \n    records.append({'런ID': run_id, 'TGA_Fe_wt': fe_wt})\n\ntga_df = pd.DataFrame(records)\n\n# Merge with the main run log (df)\nif '런ID' in df.columns and not tga_df.empty:\n    # Ensure types match for merge\n    df['런ID'] = df['런ID'].astype(str).str.strip()\n    tga_df['런ID'] = tga_df['런ID'].astype(str).str.strip()\n    \n    # Perform left join to keep all run log entries, adding TGA data where available\n    df = df.merge(tga_df, on='런ID', how='left')\nelse:\n    df['TGA_Fe_wt'] = np.nan\n",
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S024_r1/out/t1"
+ }
+}

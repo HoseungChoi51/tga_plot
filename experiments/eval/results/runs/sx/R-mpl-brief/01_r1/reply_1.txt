@@ -1,0 +1,153 @@
+```python
+import os
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib
+
+# Configure fonts for Korean support
+matplotlib.rcParams['font.family'] = 'Noto Sans CJK KR'
+matplotlib.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/CNT/Plot/tests/inputs/TGA.xlsx"
+OUT_DIR = "/home/chs/CNT/Plot/eval/results/runs/sx/R-mpl-brief/01_r1/out"
+
+# Ensure output directory exists
+os.makedirs(OUT_DIR, exist_ok=True)
+
+def plot_tga_sheet(df, sheet_name):
+    """
+    Plots a standard TGA graph for a given dataframe and sheet name.
+    Saves the figure to OUT_DIR.
+    """
+    # Identify columns based on the provided preview structure
+    # Assuming: Time(A), Temperature(B), Weight(%)(C), D.W(%/C)(D)
+    # We will try to find them by common names or fallback to indices if needed
+    
+    x_col = None
+    y1_col = None
+    y2_col = None
+    
+    cols = df.columns.tolist()
+    
+    # Heuristic to find columns
+    for c in cols:
+        c_lower = str(c).lower()
+        if 'temp' in c_lower:
+            x_col = c
+        elif 'weight' in c_lower and '%' in c_lower:
+            y1_col = c
+        elif 'd.w' in c_lower or 'dtg' in c_lower or ('derivative' in c_lower and 'weight' in c_lower):
+            y2_col = c
+            
+    # Fallback if heuristic fails (based on preview order: A=Time, B=Temp, C=Weight, D=DW)
+    if x_col is None and len(cols) >= 2:
+        x_col = cols[1]
+    if y1_col is None and len(cols) >= 3:
+        y1_col = cols[2]
+    if y2_col is None and len(cols) >= 4:
+        y2_col = cols[3]
+
+    if x_col is None or y1_col is None or y2_col is None:
+        print(f"Skipping sheet {sheet_name}: Could not identify required columns.")
+        return
+
+    temp = df[x_col].values
+    weight = df[y1_col].values
+    dtg = df[y2_col].values
+    
+    # Filter out NaNs
+    mask = ~(np.isnan(temp) | np.isnan(weight) | np.isnan(dtg))
+    temp = temp[mask]
+    weight = weight[mask]
+    dtg = dtg[mask]
+
+    if len(temp) == 0:
+        print(f"Skipping sheet {sheet_name}: No valid data.")
+        return
+
+    fig, ax1 = plt.subplots(figsize=(8, 6))
+    
+    # Plot Weight (%) on left axis
+    color_y1 = '#1f4e9c'
+    ax1.plot(temp, weight, color=color_y1, label='Weight (%)')
+    ax1.set_xlabel('Temperature (°C)', fontsize=12)
+    ax1.set_ylabel('Weight (%)', color=color_y1, fontsize=12)
+    ax1.tick_params(axis='y', labelcolor=color_y1)
+    ax1.grid(True, linestyle='--', alpha=0.5)
+
+    # Create twin axis for DTG
+    ax2 = ax1.twinx()
+    color_y2 = '#c0392b'
+    # Multiply DTG by -1 so peaks point up
+    dtg_plot = -1 * dtg
+    ax2.plot(temp, dtg_plot, color=color_y2, label='DTG (-%/°C)')
+    ax2.set_ylabel('DTG (-%/°C)', color=color_y2, fontsize=12)
+    ax2.tick_params(axis='y', labelcolor=color_y2)
+
+    # Find Residue at ~800°C
+    # Find index closest to 800
+    idx_800 = np.argmin(np.abs(temp - 800))
+    residue_val = weight[idx_800]
+    residue_temp = temp[idx_800]
+    
+    # Add marker and text for residue
+    ax1.scatter(residue_temp, residue_val, color=color_y1, zorder=5)
+    ax1.annotate(f'Residue {residue_val:.1f}%', 
+                 xy=(residue_temp, residue_val), 
+                 xytext=(residue_temp + 20, residue_val + 5),
+                 arrowprops=dict(facecolor='black', shrink=0.05, width=1, headwidth=5),
+                 fontsize=10, color='black')
+
+    # Find Peak temperature (highest DTG peak above 150°C)
+    # Mask for temp > 150
+    mask_peak = temp > 150
+    if np.any(mask_peak):
+        temp_masked = temp[mask_peak]
+        dtg_masked = dtg[mask_peak]
+        
+        # Find max of negative DTG (which corresponds to min of original DTG since it's negative during loss)
+        # Or simply find the minimum value of the original DTG column in that range
+        idx_min_dtg = np.argmin(dtg_masked)
+        peak_temp = temp_masked[idx_min_dtg]
+        peak_dtg_val = dtg_masked[idx_min_dtg]
+        
+        # Corresponding weight at peak temp
+        peak_weight_val = weight[mask_peak][idx_min_dtg]
+        
+        # Add marker and text for peak
+        # Mark on DTG curve (ax2)
+        ax2.scatter(peak_temp, -peak_dtg_val, color=color_y2, zorder=5)
+        ax2.annotate(f'{peak_temp:.0f} °C', 
+                     xy=(peak_temp, -peak_dtg_val), 
+                     xytext=(peak_temp - 50, -peak_dtg_val + 0.1),
+                     arrowprops=dict(facecolor='black', shrink=0.05, width=1, headwidth=5),
+                     fontsize=10, color='black')
+    else:
+        peak_temp = None
+
+    # Title from sheet name
+    plt.title(sheet_name, fontsize=14, fontweight='bold')
+
+    # Legend
+    lines_1, labels_1 = ax1.get_legend_handles_labels()
+    lines_2, labels_2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='center left')
+
+    # Save
+    safe_filename = "".join([i if i.isalnum() or i in "._- " else "_" for i in sheet_name])
+    out_path = os.path.join(OUT_DIR, f"{safe_filename}.png")
+    plt.tight_layout()
+    plt.savefig(out_path, dpi=300)
+    plt.close(fig)
+    print(f"Saved plot for sheet: {sheet_name}")
+
+# Load Excel file
+try:
+    xl_file = pd.ExcelFile(DATA_FILE)
+    for sheet_name in xl_file.sheet_names:
+        df = pd.read_excel(xl_file, sheet_name=sheet_name)
+        plot_tga_sheet(df, sheet_name)
+except Exception as e:
+    print(f"Error processing file: {e}")
+```

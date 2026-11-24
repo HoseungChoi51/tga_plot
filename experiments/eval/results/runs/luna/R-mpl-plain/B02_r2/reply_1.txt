@@ -1,0 +1,146 @@
+```python
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.signal import find_peaks
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/eval/inputs_b/caox.csv")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/B02_r2/out")
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+# Load the CSV and locate the requested columns by their names.
+df = pd.read_csv(DATA_FILE)
+df.columns = [str(c).strip() for c in df.columns]
+
+def find_column(fragment):
+    matches = [c for c in df.columns if fragment.lower() in c.lower()]
+    if not matches:
+        raise ValueError(f"Could not find a column containing {fragment!r}: {list(df.columns)}")
+    return matches[0]
+
+temperature_col = find_column("Temperature")
+weight_col = find_column("Weight (%)")
+heat_flow_col = find_column("Heat Flow")
+
+temperature = pd.to_numeric(df[temperature_col], errors="coerce").to_numpy()
+weight = pd.to_numeric(df[weight_col], errors="coerce").to_numpy()
+heat_flow = pd.to_numeric(df[heat_flow_col], errors="coerce").to_numpy()
+
+valid = np.isfinite(temperature) & np.isfinite(weight) & np.isfinite(heat_flow)
+temperature, weight, heat_flow = temperature[valid], weight[valid], heat_flow[valid]
+order = np.argsort(temperature)
+temperature, weight, heat_flow = temperature[order], weight[order], heat_flow[order]
+
+# Smooth the heat-flow trace for peak identification while plotting the original data.
+window = min( nine := 9, len(heat_flow) if len(heat_flow) % 2 else len(heat_flow) - 1)
+if window >= 3:
+    smooth_heat = pd.Series(heat_flow).rolling(window=window, center=True, min_periods=1).mean().to_numpy()
+else:
+    smooth_heat = heat_flow.copy()
+
+# Identify the two largest peaks in each direction. For the common convention
+# of endotherms plotted downward, the two downward extrema are endotherms and
+# the upward extremum is the exotherm. If there are not enough downward extrema,
+# use the two strongest extrema of the less-prominent direction.
+prominence = max(float(np.nanptp(smooth_heat)) * 0.025, 1e-8)
+positive_peaks, _ = find_peaks(smooth_heat, prominence=prominence)
+negative_peaks, _ = find_peaks(-smooth_heat, prominence=prominence)
+
+def strongest(indices, values, count):
+    indices = list(indices)
+    return sorted(indices, key=lambda i: abs(values[i] - np.nanmedian(values)), reverse=True)[:count]
+
+# Classify by trace direction relative to the local baseline. Heat-flow sign
+# conventions vary, so choose the direction containing the two strongest
+# excursions as endothermic, and the strongest opposite excursion as exothermic.
+pos = strongest(positive_peaks, smooth_heat, 2)
+neg = strongest(negative_peaks, smooth_heat, 2)
+
+if len(pos) >= 2 and len(neg) >= 1:
+    pos_strength = sum(abs(smooth_heat[i] - np.nanmedian(smooth_heat)) for i in pos[:2])
+    neg_strength = sum(abs(smooth_heat[i] - np.nanmedian(smooth_heat)) for i in neg[:2])
+    if pos_strength >= neg_strength:
+        endo_idx = strongest(positive_peaks, smooth_heat, 2)
+        exo_idx = strongest(negative_peaks, smooth_heat, 1)
+        endo_direction = "up"
+    else:
+        endo_idx = strongest(negative_peaks, smooth_heat, 2)
+        exo_idx = strongest(positive_peaks, smooth_heat, 1)
+        endo_direction = "down"
+elif len(positive_peaks) >= 2:
+    endo_idx = strongest(positive_peaks, smooth_heat, 2)
+    exo_idx = strongest(negative_peaks, smooth_heat, 1)
+    endo_direction = "up"
+else:
+    endo_idx = strongest(negative_peaks, smooth_heat, 2)
+    exo_idx = strongest(positive_peaks, smooth_heat, 1)
+    endo_direction = "down"
+
+# Keep available peaks if the data do not contain two extrema in the selected direction.
+if len(endo_idx) < 2:
+    candidates = [i for i in np.argsort(np.abs(smooth_heat - np.nanmedian(smooth_heat)))[::-1]
+                  if i not in exo_idx]
+    endo_idx = (endo_idx + candidates)[:2]
+if len(exo_idx) < 1:
+    candidates = [i for i in np.argsort(np.abs(smooth_heat - np.nanmedian(smooth_heat)))[::-1]
+                  if i not in endo_idx]
+    exo_idx = candidates[:1]
+
+endo_idx = sorted(endo_idx, key=lambda i: temperature[i])
+exo_idx = exo_idx[:1]
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+fig, ax1 = plt.subplots(figsize=(10, 6))
+ax2 = ax1.twinx()
+
+line1, = ax1.plot(temperature, weight, color="#2468a2", linewidth=1.8, label="Weight")
+line2, = ax2.plot(temperature, heat_flow, color="#c74440", linewidth=1.6, label="Heat Flow")
+
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)", color="#2468a2")
+ax2.set_ylabel("Heat Flow (W/g)", color="#c74440")
+ax1.tick_params(axis="y", labelcolor="#2468a2")
+ax2.tick_params(axis="y", labelcolor="#c74440")
+ax1.grid(True, linestyle="--", alpha=0.35)
+
+# Annotate two endothermic peaks and one exothermic peak.
+for number, idx in enumerate(endo_idx[:2], start=1):
+    label = f"흡열 {number}: {temperature[idx]:.1f} °C"
+    ax2.scatter(temperature[idx], heat_flow[idx], color="#7b2cbf", s=48, zorder=5)
+    ax2.annotate(
+        label,
+        xy=(temperature[idx], heat_flow[idx]),
+        xytext=(10, 16 if number == 1 else -28),
+        textcoords="offset points",
+        fontsize=9,
+        color="#64209a",
+        arrowprops=dict(arrowstyle="->", color="#64209a", lw=0.9),
+        bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="#b99bd4", alpha=0.9),
+    )
+
+for idx in exo_idx:
+    label = f"발열: {temperature[idx]:.1f} °C"
+    ax2.scatter(temperature[idx], heat_flow[idx], color="#e58b18", s=52, zorder=5)
+    ax2.annotate(
+        label,
+        xy=(temperature[idx], heat_flow[idx]),
+        xytext=(10, 18),
+        textcoords="offset points",
+        fontsize=9,
+        color="#a45b00",
+        arrowprops=dict(arrowstyle="->", color="#a45b00", lw=0.9),
+        bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="#e8bd7a", alpha=0.9),
+    )
+
+ax1.set_title("TGA 및 Heat Flow")
+ax1.legend([line1, line2], ["Weight", "Heat Flow"], loc="best", frameon=True)
+fig.tight_layout()
+
+output_path = OUT_DIR / "caox_tga_heat_flow_peaks.png"
+fig.savefig(output_path, dpi=300, bbox_inches="tight")
+plt.close(fig)
+```

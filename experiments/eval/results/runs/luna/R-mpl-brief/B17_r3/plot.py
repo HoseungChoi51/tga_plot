@@ -1,0 +1,52 @@
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import pandas as pd
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/B17_r3/out")
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+# Korean font support
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+sheets = pd.read_excel(DATA_FILE, sheet_name=None)
+
+fig, ax = plt.subplots(figsize=(10, 6))
+colors = ["#1f4e9c", "#c0392b", "#2e8b57"]
+
+for i, (sheet_name, df) in enumerate(sheets.items()):
+    # Use the temperature and weight columns, identified by their headers.
+    temperature_col = next(
+        col for col in df.columns if "temperature" in str(col).lower()
+    )
+    weight_col = next(
+        col for col in df.columns if "weight" in str(col).lower()
+        and "deriv" not in str(col).lower()
+    )
+
+    temperature = pd.to_numeric(df[temperature_col], errors="coerce")
+    weight = pd.to_numeric(df[weight_col], errors="coerce")
+    valid = temperature.notna() & weight.notna()
+
+    # Separate adjacent curves by 20 percentage points, centered around zero.
+    offset = (i - (len(sheets) - 1) / 2) * 20
+    ax.plot(
+        temperature[valid],
+        weight[valid] + offset,
+        color=colors[i % len(colors)],
+        linewidth=1.8,
+        label=f"{sheet_name} (offset {offset:+.0f}%)",
+    )
+
+ax.set_xlabel("Temperature (°C)")
+ax.set_ylabel("Weight (%) + vertical offset")
+ax.set_title("Weight curves with 20% vertical offsets")
+ax.legend(loc="best")
+ax.grid(True, alpha=0.3)
+fig.tight_layout()
+fig.savefig(OUT_DIR / "weight_curves_offset.png", dpi=300, bbox_inches="tight")
+plt.close(fig)

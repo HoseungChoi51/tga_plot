@@ -1,0 +1,83 @@
+```python
+import json
+import os
+
+import pandas as pd
+
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/extra_columns.xlsx"
+
+
+def main():
+    df = pd.read_excel(DATA_FILE, sheet_name="CNT-01")
+    df.columns = [str(c).strip() for c in df.columns]
+
+    x_col = "Temperature (°C)"
+    y_col = "Weight (mg)"
+
+    data = []
+    for x, y in zip(df[x_col], df[y_col]):
+        if pd.notna(x) and pd.notna(y):
+            data.append([float(x), float(y)])
+
+    option = {
+        "animation": False,
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {"type": "cross"},
+        },
+        "grid": {
+            "left": 78,
+            "right": 28,
+            "top": 36,
+            "bottom": 64,
+            "containLabel": True,
+        },
+        "xAxis": {
+            "type": "value",
+            "name": "Temperature (°C)",
+            "nameLocation": "middle",
+            "nameGap": 38,
+            "axisLine": {"show": True},
+            "axisTick": {"show": True},
+            "splitLine": {"show": True, "lineStyle": {"color": "#e5e5e5"}},
+        },
+        "yAxis": {
+            "type": "value",
+            "name": "Weight (mg)",
+            "nameLocation": "middle",
+            "nameGap": 54,
+            "axisLine": {"show": True},
+            "axisTick": {"show": True},
+            "splitLine": {"show": True, "lineStyle": {"color": "#e5e5e5"}},
+        },
+        "series": [
+            {
+                "name": "Weight (mg)",
+                "type": "line",
+                "data": data,
+                "showSymbol": False,
+                "connectNulls": False,
+                "lineStyle": {"width": 2, "color": "#1f77b4"},
+            }
+        ],
+    }
+
+    result = {
+        "figures": [
+            {
+                "name": "weight_mg_vs_temperature",
+                "option": option,
+                "width": 614,
+                "height": 442,
+                "dpi": 300,
+                "formats": ["png"],
+            }
+        ]
+    }
+    print(json.dumps(result, ensure_ascii=False, allow_nan=False))
+
+
+if __name__ == "__main__":
+    main()
+```

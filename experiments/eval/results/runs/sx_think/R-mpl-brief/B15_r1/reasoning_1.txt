@@ -1,0 +1,109 @@
+We need answer user's request in Korean? User asks: "세 시트 겹쳐 그리고 범례는 그래프 바깥 오른쪽에 둬". Need produce complete Python script only in ```python block. Need analyze requirements.
+
+We need generate script that reads DATA_FILE polymers.xlsx, three sheets PE, PVC, PET. Overlap plots (겹쳐 그리기) = several sheets in one plot. Legend outside right. Standard TGA plot: x temp, y1 weight %, y2 DTG * -1 peaks up. Title? If overlapping sheets maybe title? User didn't specify. Could title maybe "TGA" or file? Need reasonable. Since standard: title is sheet name; when overlapping several sheets, maybe no single sheet name. Could set title to file stem or "TGA". Need include residue and peak labels always unless user says otherwise. For overlapping sheets, each sheet has residue at nearest 800°C and peak highest DTG above 150°C. Need markers and labels. Need avoid clutter. Legend outside right. Need distinguish colors? Standard y1 line #1f4e9c and y2 #c0392b for one sheet. For multiple sheets, need colors per sheet. Could assign colors for weight lines and DTG lines maybe same hue but different styles? User says overlap; no colors specified. Need make reasonable: each sheet gets a color, weight solid, DTG dashed maybe with same color? But standard colors? For multiple, use distinct colors for each sheet. Legend outside right should include each sheet's weight and DTG? Maybe legend entries: PE Weight, PE DTG, PVC Weight, PVC DTG, PET Weight, PET DTG. Or group by sheet? Could use legend handles for each curve. Need ensure labels not too cluttered: residue labels near 800°C for each sheet; peak labels near peak temp for each sheet. Could offset text to avoid overlap. Need maybe use annotate. Need handle Korean font.
+
+Need script robust. Read all sheets. Determine columns by names. Use pandas read_excel sheet_name=None. For each sheet, find temp, weight, dtg columns. Could use tga_guess? But script can infer.
+
+Need output file(s) into OUT_DIR. Since overlap one figure. File name? Could use "polymers_overlap.png" or maybe "TGA_overlap.png". Need ensure OUT_DIR exists. dpi 300.
+
+Need no plt.show.
+
+Need details:
+- For each sheet:
+  x = temp, y1 = weight, y2 = -dtg (so peaks up). Filter NaNs.
+  Sort by x maybe.
+  Residue: weight at measured point nearest 800 °C. Use idx = np.argmin(abs(temp-800)). residue = weight[idx]. label f"Residue {residue:.1f}%"? User example "Residue 8.0%". Use one decimal.
+  Marker on curve: at (temp_res, weight_res) on y1.
+  Peak: highest DTG peak above 150°C. Since y2 is -dtg, highest peak = max y2 among temp >150. But if dtg negative, -dtg positive. If all <=0? Need handle. Use mask temp>150 & y2>0 maybe; if none use max y2 overall >150. Peak temp = x at max y2. label f"{peak_temp:.0f} °C". Marker on DTG curve at (peak_temp, y2_peak). But if y2 axis has negative values? We plot -dtg; peaks positive. Need marker y2_peak.
+  Need maybe smooth? Not required. But peak highest can be noisy; standard. Could maybe use scipy? Not necessary.
+
+- Axes: fig, ax1
+[...]
+sets. Good.
+
+Potential issue: If residue label at x=800, ha right offset -10. If text long "Residue 1.0%" width maybe 80 points. At x=800, axes width maybe 680 px, x=800 in data maps to near right but not edge (max 900). 100°C margin ~75 px. Text 80 px might extend left, okay. If data max 800 exactly, x at right edge, ha right offset -10, text inside. Good.
+
+Potential issue: If peak label center at x near right, may extend outside axes but clip_on=False, could overlap legend. But peaks not near 900. okay.
+
+Need maybe if title "TGA (PE, PVC, PET)" and legend outside right. Good.
+
+Could there be a requirement to save figure file(s) into OUT_DIR with PNG at 300 dpi unless user asks. We do.
+
+Need maybe if file format not PNG? no.
+
+Need maybe if no sheet named, every sheet. We do all sheets.
+
+Need maybe if one plot per sheet when no overlap. Not here.
+
+Need maybe if user says "세 시트 겹쳐" maybe wants exactly three sheets in one plot, not all sheets if more. We plot all valid sheets. If file has more than 3, maybe not. But here three. Could restrict to first three? "세 시트" means three sheets. If file has exactly three. If more, maybe user expects all? Not. Could use all valid sheets. Good.
+
+Need maybe if sheet order from Excel. dict preserves order. Good.
+
+Potential issue: pd.read_excel with sheet_name=None may include chartsheets? no.
+
+Need maybe if file has named sheet but no data. skip.
+
+Need maybe if there are NaNs in x/y1/y2, dropna removes rows. Good.
+
+Need maybe if x sorted but y2 derivative corresponding to sorted x; okay.
+
+Potential issue: If temperature has repeated values and sorting changes order of duplicate x, but y2 at duplicate maybe multiple. Not important.
+
+Need maybe if use np.argmin on x-800 where x empty? data not empty.
+
+Potential issue: If x contains inf? dropna not inf. Could use np.isfinite. Maybe add finite filter.
+
+In load:
+sub = sub[np.isfinite(sub["x"]) & np.isfinite(sub["y1"]) & np.isfinite(sub["y2"])]
+But pd.to_numeric errors coerce, dropna. inf remains. Could filter. Add:
+sub = sub.replace([np.inf, -np.inf], np.nan).dropna()
+Good.
+
+Need maybe if y2_plot = -y2, inf? filtered.
+
+Add in load.
+
+Potential issue: If column names are not unique, df[[temp, weight, dtg]] may duplicate? If temp == weight? Not. But if find returns same column? Could happen if only one numeric column. But TGA has three. Could ensure distinct:
+if len({temp, weight, dtg}) < 3: continue.
+Add.
+
+Potential issue: If temp, weight, dtg are same object? no.
+
+Add in load:
+if temp is None or weight is None or dtg is None or len({temp, weight, dtg}) < 3: continue
+
+Potential issue: If column names are numpy types? set okay.
+
+Need maybe if numeric fallback assigns same? set check.
+
+Potential issue: If header has unnamed columns, find maybe. okay.
+
+Let's refine code.
+
+One more thought: The user request is in Korean, but final script no comments? Could include comments? Fine. But final only script. Comments okay. Need no extra text.
+
+Need maybe if using matplotlib.use("Agg") before pyplot. Good.
+
+Potential issue: Korean font with matplotlib may need font cache. If "Noto Sans CJK KR" not found, fallback. Could implement:
+try:
+    fm.findfont("Noto Sans CJK KR", fallback_to_default=False)
+    plt.rcParams["font.family"] = "Noto Sans CJK KR"
+except Exception:
+    plt.rcParams["font.family"] = "sans-serif"
+But if fallback_to_default=False raises. Could use:
+import matplotlib.font_manager as fm
+font_name = "Noto Sans CJK KR"
+if font_name in {f.name for f in fm.fontManager.ttflist}:
+    plt.rcParams["font.family"] = font_name
+else:
+    plt.rcParams["font.family"] = "sans-serif"
+This avoids warnings. But if font installed as OTF? fm.fontManager.ttflist includes? Maybe. Could just set. Simpler.
+
+Need maybe if rcParams font.family list? okay.
+
+Potential issue: If font not found, matplotlib emits warning but still runs. Not a problem. But to be robust, use fm.
+
+Add:
+import matplotlib.font_manager as fm
+font_name = "Noto Sans CJK KR"
+if font_name in {f.name for

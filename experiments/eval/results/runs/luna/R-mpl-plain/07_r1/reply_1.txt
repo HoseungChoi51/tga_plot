@@ -1,0 +1,65 @@
+```python
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import pandas as pd
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/07_r1/out")
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+sheets = pd.read_excel(DATA_FILE, sheet_name=None, engine="openpyxl")
+
+for sheet_name, df in sheets.items():
+    df.columns = [str(col).strip() for col in df.columns]
+    df = df.dropna(how="all")
+
+    required = ["Temperature", "Weight(%)", "D.W(%/C)"]
+    if not all(col in df.columns for col in required):
+        continue
+
+    for col in required:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+    df = df.dropna(subset=required).sort_values("Temperature")
+
+    fig, ax_weight = plt.subplots(figsize=(8, 5))
+    ax_derivative = ax_weight.twinx()
+
+    weight_line, = ax_weight.plot(
+        df["Temperature"], df["Weight(%)"],
+        color="tab:blue", linewidth=1.8, label="Weight(%)"
+    )
+    derivative_line, = ax_derivative.plot(
+        df["Temperature"], df["D.W(%/C)"],
+        color="tab:red", linewidth=1.5, label="D.W(%/C)"
+    )
+
+    ax_weight.set_xlabel("Temperature (°C)")
+    ax_weight.set_ylabel("Weight (%)", color="tab:blue")
+    ax_derivative.set_ylabel("D.W (%/°C)", color="tab:red")
+    ax_weight.tick_params(axis="y", labelcolor="tab:blue")
+    ax_derivative.tick_params(axis="y", labelcolor="tab:red")
+    ax_weight.set_title(sheet_name)
+    ax_weight.grid(True, linestyle="--", alpha=0.35)
+
+    ax_weight.legend(
+        [weight_line, derivative_line],
+        [weight_line.get_label(), derivative_line.get_label()],
+        loc="upper right",
+        fontsize=9,
+        frameon=True,
+    )
+
+    fig.tight_layout()
+    output_name = "".join(
+        "_" if char in '<>:"/\\|?*' else char for char in sheet_name
+    ).strip()
+    fig.savefig(OUT_DIR / f"{output_name}.png", dpi=300, bbox_inches="tight")
+    plt.close(fig)
+```

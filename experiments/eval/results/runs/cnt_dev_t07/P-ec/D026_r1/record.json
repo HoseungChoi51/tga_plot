@@ -1,0 +1,320 @@
+{
+ "arm": "P-ec",
+ "item": "D026",
+ "repeat": 1,
+ "split": "dev",
+ "persona": "라인 작업자",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "설비 정지 언제 많이나는지 요일이랑 시간대로 히트맵 해줘",
+   "calls": [
+    {
+     "reply": "{\n  \"file\": \"data/downtime.xlsx\",\n  \"chart\": \"heatmap\",\n  \"x\": {\n    \"col\": \"시작시각\",\n    \"bins\": {\n      \"width\": 1,\n      \"min\": 0,\n      \"max\": 24\n    }\n  },\n  \"y\": {\n    \"col\": \"일자\"\n  },\n  \"z\": {\n    \"agg\": \"count\"\n  },\n  \"data_code\": \"df['요일'] = df['일자'].dt.dayofweek.map({0:'월',1:'화',2:'수',3:'목',4:'금',5:'토',6:'일'})\\ndf['시간대'] = pd.cut(df['시작시각'].str.split(':').str[0].astype(int), bins=[-1, 2, 5, 8, 11, 14, 17, 20, 23], labels=['00-02', '03-05', '06-08', '09-11', '12-14', '15-17', '18-20', '21-23'])\",\n  \"asks\": [\n    {\"ask\": \"요일별/시간대별 정지 빈도 히트맵\", \"how\": \"data_code\"},\n    {\"ask\": \"요일 순서 (월~일)\", \"how\": \"key\"}\n  ],\n  \"y\": {\n    \"col\": \"요일\",\n    \"order\": [\"월\", \"화\", \"수\", \"목\", \"금\", \"토\", \"일\"]\n  },\n  \"x\": {\n    \"col\": \"시간대\"\n  }\n}",
+     "llm_s": 12.535,
+     "prompt_tokens": 5364,
+     "output_tokens": 398,
+     "cached_tokens": 4699,
+     "prompt_n": 665,
+     "prefill_ms": 953.927193,
+     "decode_ms": 10686.164667,
+     "finish": "stop"
+    }
+   ],
+   "spec": {
+    "file": "data/downtime.xlsx",
+    "chart": "heatmap",
+    "x": {
+     "col": "시간대"
+    },
+    "y": {
+     "col": "요일",
+     "order": [
+      "월",
+      "화",
+      "수",
+      "목",
+      "금",
+      "토",
+      "일"
+     ]
+    },
+    "z": {
+     "agg": "count"
+    },
+    "data_code": "df['요일'] = df['일자'].dt.dayofweek.map({0:'월',1:'화',2:'수',3:'목',4:'금',5:'토',6:'일'})\ndf['시간대'] = pd.cut(df['시작시각'].str.split(':').str[0].astype(int), bins=[-1, 2, 5, 8, 11, 14, 17, 20, 23], labels=['00-02', '03-05', '06-08', '09-11', '12-14', '15-17', '18-20', '21-23'])",
+    "asks": [
+     {
+      "ask": "요일별/시간대별 정지 빈도 히트맵",
+      "how": "data_code"
+     },
+     {
+      "ask": "요일 순서 (월~일)",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": true,
+    "engine": "echarts",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_t07/P-ec/D026_r1/out/t1/heatmap_요일.png"
+    ],
+    "chart": "heatmap",
+    "rows_used": 294,
+    "rows_total": 294,
+    "values": {
+     "rows": [
+      "월",
+      "화",
+      "수",
+      "목",
+      "금",
+      "토",
+      "일"
+     ],
+     "cols": [
+      "00-02",
+      "03-05",
+      "06-08",
+      "09-11",
+      "12-14",
+      "15-17",
+      "18-20",
+      "21-23"
+     ],
+     "max": {
+      "row": "금",
+      "col": "21-23",
+      "value": 13.0
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "히트맵 그래프를 저장했습니다: heatmap_요일.png\n사용한 행: 294 / 294\n가장 큰 값: 금 / 21-23 = 13"
+   },
+   "facts": [
+    {
+     "engine": "echarts",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": 300,
+     "title": null,
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": {
+        "rows": [
+         "월",
+         "화",
+         "수",
+         "목",
+         "금",
+         "토",
+         "일"
+        ],
+        "cols": [
+         "00-02",
+         "03-05",
+         "06-08",
+         "09-11",
+         "12-14",
+         "15-17",
+         "18-20",
+         "21-23"
+        ],
+        "z": [
+         [
+          10.0,
+          3.0,
+          5.0,
+          9.0,
+          6.0,
+          2.0,
+          4.0,
+          7.0
+         ],
+         [
+          3.0,
+          6.0,
+          4.0,
+          4.0,
+          6.0,
+          2.0,
+          6.0,
+          2.0
+         ],
+         [
+          8.0,
+          6.0,
+          6.0,
+          8.0,
+          4.0,
+          7.0,
+          2.0,
+          7.0
+         ],
+         [
+          5.0,
+          4.0,
+          9.0,
+          5.0,
+          3.0,
+          2.0,
+          4.0,
+          4.0
+         ],
+         [
+          5.0,
+          5.0,
+          2.0,
+          3.0,
+          7.0,
+          6.0,
+          9.0,
+          13.0
+         ],
+         [
+          2.0,
+          2.0,
+          9.0,
+          9.0,
+          6.0,
+          5.0,
+          8.0,
+          3.0
+         ],
+         [
+          5.0,
+          7.0,
+          6.0,
+          5.0,
+          3.0,
+          5.0,
+          2.0,
+          4.0
+         ]
+        ],
+        "colorbar": true,
+        "values_shown": false,
+        "cmap": null,
+        "ramp": [
+         "#440154",
+         "#482475",
+         "#414487",
+         "#355f8d",
+         "#2a788e",
+         "#21918c",
+         "#22a884",
+         "#44bf70",
+         "#7ad151",
+         "#bddf26",
+         "#fde725"
+        ],
+        "clim": [
+         2.0,
+         13.0
+        ]
+       },
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 0,
+       "texts": [
+        "5",
+        "10",
+        "count"
+       ],
+       "x": {
+        "label": "시간대",
+        "type": "category",
+        "ticks": [],
+        "step": null,
+        "categories": [
+         "00-02",
+         "03-05",
+         "06-08",
+         "09-11",
+         "12-14",
+         "15-17",
+         "18-20",
+         "21-23"
+        ],
+        "min": 0.0,
+        "max": 7.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "요일",
+        "type": "category",
+        "ticks": [],
+        "step": null,
+        "categories": [
+         "월",
+         "화",
+         "수",
+         "목",
+         "금",
+         "토",
+         "일"
+        ],
+        "min": 0.0,
+        "max": 6.0,
+        "log": false,
+        "inverted": true,
+        "tick_labels": null,
+        "rotate": 0.0
+       }
+      }
+     ],
+     "texts": [
+      "5",
+      "10",
+      "count"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_t07/P-ec/D026_r1/out/t1/heatmap_요일.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.6952371597290039,
+   "check": {
+    "kind_expected": "heatmap",
+    "failed": [
+     "heatmap: rows/columns differ (drawn ['월', '화', '수', '목', '금'] x ['00-02', '03-05', '06-08', '09-11', '12-14'], want ['월', '화', '수', '목', '금'] x ['0', '1', '2', '3', '4'])"
+    ],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 1,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 13.306
+  }
+ ]
+}

@@ -1,0 +1,85 @@
+We need answer user with corrected complete script only inside one python block. Need think in English? User says English? User request Korean but says no python block in reply, reply corrected complete script only inside one python block. Need produce final only python block.
+
+We need generate Python script that reads DATA_FILE TGA.xlsx and prints JSON with figures. User request: 300~450 °C 구간을 연한 회색으로 칠해줘. Need add shaded region 300-450 in plots. Standard TGA plot per sheet. Need include labels residue nearest 800, peak highest DTG above 150. Need likely use ECharts option with markArea for shaded area. Need no JS functions. Need plain JSON. Need Korean font? In ECharts server-side maybe textStyle fontFamily Noto Sans CJK KR. Need output one JSON. Need read Excel sheets. Need handle columns. Need create option per sheet. Need width/height/dpi/formats. Need ensure valid JSON. Need include markArea in series? For background shaded region, can use markArea on series or xAxis? ECharts markArea with xAxis coordinates. Need option: series list with two lines: Weight and DTG. For shaded region, add markArea to one of series with data [[{xAxis:300},{xAxis:450}]], itemStyle color rgba(200,200,200,0.3). Need ensure it appears behind? ECharts markArea by default maybe on series. Could add separate series type line with data empty and markArea? But legend maybe no. Better add markArea to Weight series. Need yAxisIndex? markArea xAxis only spans full y? It uses series yAxis? If markArea on y1 Weight, area between x=300 and 450 across y1 axis maybe clipped to y1 range? It should fill full grid? In ECharts markArea with xAxis values uses series coordinate system, if only xAxis specified, y is full axis? It might use series yAxis range. If y1 and y2 ranges differ, full vertical fill across grid? MarkArea with only xAxis uses axis area? I think if only xAxis, it fills full y range of coordinate system. Good.
+
+Need parse Excel. Use pandas read_excel sheet_name=None. Need identify columns by names. For each sheet, x temperature, y1 weight, y2 dtg. Need convert to numeric, drop NaN. Need maybe sort by temp. Need compute residue: weight at measured point nearest 800 °C. But sheet 750C max 750, nearest 800 is max 750. Should use nearest to 800 among available. Format "Residue 8.0%" one decimal? Example 8.0. Use f"Residue {val:.1f}%". Need marker on curve: markPoint with coord [temp, weight], label? Could use markPoint data coord value. Need peak: highest DTG peak above 150°C. DTG negative while mass lost, multiplied by -1 so peaks point up. For peak temp, use DTG column original negative? Highest peak above 150 means most negative (largest -DTG). Find min(D.W) among x > 150? Or max(-dtg). Use abs? If positive noise? Use min dtg (most negative) for x>=150. If none, maybe max abs. Format "600 °C". Marker on DTG curve? Since plot y2 DTG multiplied by -1, markPoint coord [peak_temp, -dtg_peak]. Need label maybe formatter? ECharts markPoint label can show value? We can s
+[...]
+is fallback. Need ensure dtg_col maybe None but if there are extra numeric columns, picks first extra. Good.
+
+Let's implement fallback better.
+
+Potential issue: if dtg_col found by name but weight_col fallback picks dtg? We exclude dtg. Good.
+
+Potential issue: if temp_col found but weight_col None, fallback picks first numeric not temp/dtg. Good.
+
+Potential issue: if dtg_col found but not numeric? It is.
+
+Potential issue: if selected columns duplicate? use_cols check.
+
+Potential issue: if dtg_col is same as temp/weight after fallback, set None.
+
+Need maybe if no dtg but there is extra numeric, dtg_col might be selected. Good.
+
+Need maybe if time column selected as dtg? If temp and weight chosen, dtg picks first extra, likely DTG. Good.
+
+Need maybe if no weight but dtg? skip.
+
+Need maybe if x axis max ceil max_x/50*50, if max_x 900 -> 900. If max_x 0? ceil 0. If max_x <50 -> 50. Good. If max_x negative? TGA no. If max_x <=1000, ceil negative maybe 0. But x_axis_min maybe dataMin if min_x < -1. Not.
+
+Need maybe if max_x exactly 1000, max 1000. Good.
+
+Need maybe if x_axis_max int but markArea 450. Good.
+
+Potential issue: y2 axis min 0 and max maybe round(max_y2*1.15,6). If max_y2 very small 1e-9, max 0.01. Good.
+
+Potential issue: if max_y2 positive but peak_y maybe 0 due to rounding? no.
+
+Potential issue: if y2_axis_max = 0.01 but y2 data has 0.02? max_y2 would be 0.02. okay.
+
+Potential issue: if y2_axis_min = 0 and y2 data has negative -0.5, clipped. If max_y2 positive. okay.
+
+Potential issue: if y2 data all negative, min dataMin max dataMax, peaks not up? But no loss. okay.
+
+Need maybe if markArea should be on xAxis not series? Could use graphic? But markArea okay.
+
+Potential issue: If markArea on Weight series with yAxisIndex 0 and y1 axis min 0 max 100, it fills y1 range. But if y1 axis max 100, y2 axis max 1.18, both map to same grid. Good.
+
+Potential issue: If markArea z=0, series z=3, markPoint z=5. Good.
+
+Potential issue: If ECharts markArea data with only xAxis but series has yAxisIndex 0, it may not fill full y if y1 axis min/max not covering grid? It uses axis min/max. Good.
+
+Potential issue: If y1_axis_min/max strings dataMin/dataMax, markArea fills data range? If only xAxis, maybe fills full axis range (data range). Good.
+
+Potential issue: if markArea should be behind grid? z=0. Good.
+
+Potential issue: if axis splitLine show true may be above markArea? z maybe splitLine z=0? Could set splitLine show false to avoid. But standard grid? Maybe keep. If markArea z=0 and splitLine default z=0? It might draw over. Not a problem. Could set y1 splitLine show false for cleaner shaded region. But standard TGA plot maybe grid? Not specified. I'd keep y1 splitLine true. If markArea behind splitLine, okay.
+
+Potential issue: if user says 연한 회색, maybe markArea should be light gray without border. Good.
+
+Potential issue: if output JSON too large? 3 sheets * 871 points, okay.
+
+Potential issue: if JSON option contains "tooltip": {"trigger": "axis"} server-side no interaction, okay.
+
+Potential issue: if ECharts 6.1 requires legend data names match series names. Good.
+
+Potential issue: if markPoint label formatter with Unicode degree, okay.
+
+Potential issue: if peak label should be "600 °C" with no space before degree? User example "600 °C" has space. We use f"{round(peak_x):.0f} °C". Good.
+
+Potential issue: if residue label should be "Residue 8.0%". We use. Good.
+
+Potential issue: if residue_y is 29.98 -> 30.0. Good.
+
+Potential issue: if residue_x nearest 800 but if x max 750, residue_x=750, label at 750. Good.
+
+Potential issue: if sheet max 900, nearest 800 maybe exactly 800. Good.
+
+Potential issue: if data has x step 1, nearest. Good.
+
+Potential issue: if x values are not sorted, sort.
+
+Potential issue: if y2 data multiplied by -1 but axis label still DTG. Good.
+
+Potential issue: if user requested only shaded region, maybe they don't want labels? But standard says labels always drawn unless user says otherwise. Good.
+
+Need maybe final

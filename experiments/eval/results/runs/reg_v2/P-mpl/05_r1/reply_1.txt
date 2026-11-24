@@ -1,0 +1,3 @@
+```json
+{"file": "TGA.xlsx", "y1": {"color": "black", "width": 2.5}, "y2": {"linestyle": "dashed"}, "asks": [{"ask": "y1 선 검정, 굵기 2.5", "how": "key"}, {"ask": "y2 점선", "how": "key"}]}
+```

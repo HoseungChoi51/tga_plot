@@ -1,0 +1,86 @@
+```python
+import json
+import re
+import pandas as pd
+import numpy as np
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+
+sheets = ["PE", "PVC", "PET"]
+colors = ["#2563eb", "#dc2626", "#16a34a"]
+series = []
+
+for idx, sheet in enumerate(sheets):
+    df = pd.read_excel(DATA_FILE, sheet_name=sheet)
+    temperature_col = next(c for c in df.columns if "Temperature" in str(c))
+    weight_col = next(c for c in df.columns if "Weight" in str(c) and "Deriv" not in str(c))
+
+    data = []
+    for x, y in zip(df[temperature_col], df[weight_col]):
+        if pd.notna(x) and pd.notna(y):
+            # PET, PVC, PE를 위에서 아래로 각각 20%씩 간격을 두어 표시
+            offset = (len(sheets) - 1 - idx) * 20
+            data.append([float(x), float(y) + offset])
+
+    series.append({
+        "name": sheet,
+        "type": "line",
+        "showSymbol": False,
+        "data": data,
+        "lineStyle": {"width": 2, "color": colors[idx]},
+        "itemStyle": {"color": colors[idx]},
+        "emphasis": {"focus": "series"},
+    })
+
+option = {
+    "animation": False,
+    "title": {
+        "text": "폴리머 TGA 무게 곡선",
+        "left": "center",
+        "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 17},
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {"type": "cross"},
+    },
+    "legend": {
+        "data": sheets,
+        "top": 36,
+        "textStyle": {"fontFamily": "Noto Sans CJK KR"},
+    },
+    "grid": {"left": 75, "right": 35, "top": 90, "bottom": 65},
+    "xAxis": {
+        "type": "value",
+        "name": "온도 (°C)",
+        "nameLocation": "middle",
+        "nameGap": 42,
+        "min": 30,
+        "max": 900,
+        "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+        "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+    },
+    "yAxis": {
+        "type": "value",
+        "name": "무게 (%) — 곡선 간 20% offset",
+        "nameLocation": "middle",
+        "nameGap": 55,
+        "min": 0,
+        "max": 150,
+        "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+        "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+        "splitLine": {"show": True, "lineStyle": {"color": "#e5e7eb"}},
+    },
+    "series": series,
+}
+
+print(json.dumps({
+    "figures": [{
+        "name": "polymer_weight_offset",
+        "option": option,
+        "width": 800,
+        "height": 520,
+        "dpi": 300,
+        "formats": ["png"],
+    }]
+}, ensure_ascii=False, allow_nan=False))
+```

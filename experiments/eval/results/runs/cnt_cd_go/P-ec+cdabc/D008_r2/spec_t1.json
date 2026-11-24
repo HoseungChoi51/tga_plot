@@ -1,0 +1,21 @@
+{
+ "asks": [
+  {
+   "ask": "수율 추이",
+   "how": "key"
+  }
+ ],
+ "chart": "line",
+ "file": "data/run_log.xlsx",
+ "x": {
+  "col": "일자",
+  "period": "week"
+ },
+ "y": {
+  "agg": "mean",
+  "col": "CNT수율 (g/g-cat)"
+ },
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-ec+cdabc/D008_r2/out/t1"
+ }
+}

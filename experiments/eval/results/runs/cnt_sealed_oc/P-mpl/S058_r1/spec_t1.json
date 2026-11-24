@@ -1,0 +1,29 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "heatmap",
+ "x": "반응기",
+ "y": "주차",
+ "z": "count",
+ "filter": [
+  "원인 == 노즐 막힘"
+ ],
+ "data_code": "import pandas as pd\ndf['일자'] = pd.to_datetime(df['일자'])\nstart_date = pd.Timestamp('2026-03-02')\ndf['주차'] = ((df['일자'] - start_date).dt.days // 7) + 1\n# Ensure integer type for clean axis labels\ndf['주차'] = df['주차'].astype(int)",
+ "values": true,
+ "asks": [
+  {
+   "ask": "노즐 막힘 이벤트만 필터링",
+   "how": "key"
+  },
+  {
+   "ask": "생산 주차 계산 (2026-03-02 기준 7일 단위)",
+   "how": "code"
+  },
+  {
+   "ask": "반응기(행) x 주차(열) 히트맵, 빈 값 0 처리 및 카운트 표시",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S058_r1/out/t1"
+ }
+}

@@ -1,0 +1,16 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "scatter",
+ "x": "2존온도 (°C)",
+ "y": "IG/ID",
+ "asks": [
+  {
+   "ask": "IG/ID와 2존온도 관계 산점도",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/sessions/E3_G7_P-hyb/out/t3"
+ }
+}

@@ -1,0 +1,25 @@
+{
+ "asks": [
+  {
+   "ask": "체류시간 vs CNT수율 scatter",
+   "how": "key"
+  },
+  {
+   "ask": "반응기별 색 구분",
+   "how": "key"
+  },
+  {
+   "ask": "26주 전체 런 (필터 없음)",
+   "how": "key"
+  }
+ ],
+ "by": "반응기",
+ "chart": "scatter",
+ "file": "data/run_log.xlsx",
+ "sheets": "런로그",
+ "x": "체류시간 (s)",
+ "y": "CNT수율 (g/g-cat)",
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-ec+cdabc/D009_r2/out/t1"
+ }
+}

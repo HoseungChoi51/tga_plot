@@ -1,0 +1,289 @@
+{
+ "arm": "R-mpl",
+ "item": "S013",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "생산팀장",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "반응기 × 월 합격률(%) 히트맵 하나 만들어 주세요.",
+   "calls": [
+    {
+     "reply": "```python\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport seaborn as sns\nimport os\n\n# 환경 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 경로\ndata_file = \"data/run_log.xlsx\"\nsheet_name = \"런로그\"\n\n# 데이터 읽기\ndf = pd.read_excel(data_file, sheet_name=sheet_name)\n\n# 월 추출 (일자 컬럼: 'B 일자' 또는 한글 헤더명 확인 필요. 미리보기상 'B 일자'이므로 '일자'로 접근하거나 실제 컬럼명 사용)\n# 미리보기에 따르면 컬럼명이 'B 일자'가 아니라 헤더가 '일자'일 가능성이 높으나, 엑셀 읽을 때 첫행이 헤더라면 '일자'가 됨.\n# 만약 'B 일자'처럼 붙어있다면 컬럼명을 정확히 지정해야 함. 보통 pandas는 '일자'를 키로 만듦.\n# 안전한 방법: 컬럼 이름 리스트에서 '일자'를 포함하는 컬럼 찾기 또는 기본 가정.\n# 미리보기 텍스트: \"B 일자 (yyyy-mm-dd)\" -> 실제 엑셀 파일의 헤더 셀 값은 \"일자\" 일것임.\n\nif '일자' in df.columns:\n    date_col = '일자'\nelif 'B 일자' in df.columns: # 혹시 헤더에 문자열 앞에 스페이스나 기타가 붙었을 경우\n    date_col = 'B 일자'\nelse:\n    # 디버깅용: 컬럼 출력 후 가장 유력한 날짜 컬럼 추정\n    print(\"Columns:\", df.columns.tolist())\n    raise ValueError(\"Date column not found\")\n\n# 등급 컬럼 확인\nif '등급' in df.columns:\n    grade_col = '등급'\nelse:\n    # 'V 등급' 등 다른 형식일 수 있음\n    grade_col = [c for c in df.columns if '등급' in str(c)][0]\n\n# 반응기 컬럼 확인\nif '반응기' in df.columns:\n    reactor_col = '반응기'\nelse:\n    reactor_col = [c for c in df.columns if '반응기' in str(c)][0]\n\n# 월 생성\ndf['월'] = pd.to_datetime(df[date_col]).dt.month\n\n# 합격률 계산: 등급 A인 런의 비율 (%)\n# 각 반응기-월 조합에서 총 런 수와 A 등급 런 수를 집계\ngrouped = df.groupby([reactor_col, '월'])['등급'].agg(\n    total='count',\n    pass_count=lambda x: (x == 'A').sum()\n).reset_index()\n\ngrouped['합격률'] = (grouped['pass_count'] / grouped['total']) * 100\n\n# 피벗 테이블 생성 (행: 반응기, 열: 월, 값: 합격률)\npivot_table = grouped.pivot(index=reactor_col, columns='월', values='합격률')\n\n# 히트맵 그리기\nfig, ax = plt.subplots(figsize=(12, 6))\nsns.heatmap(pivot_table, annot=True, fmt=\".1f\", cmap=\"YlGnBu\", linewidths=.5, ax=ax, cbar_kws={'label': '합격률 (%)'})\n\nax.set_title('반응기 × 월별 CNT 생산 합격률 (%)', fontsize=14)\nax.set_xlabel('월', fontsize=12)\nax.set_ylabel('반응기', fontsize=12)\nax.set_xticklabels(ax.get_xticklabels(), rotation=0)\n\nplt.tight_layout()\noutput_path = os.path.join(OUT_DIR, \"reactor_month_passrate_heatmap.png\")\nplt.savefig(output_path, dpi=300)\nplt.close()\n```",
+     "llm_s": 14.086,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 3704,
+     "output_chars": 2162,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# 환경 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 경로\ndata_file = \"data/run_log.xlsx\"\nsheet_name = \"런로그\"\n\n# 데이터 읽기\ndf = pd.read_excel(data_file, sheet_name=sheet_name)\n\n# 컬럼명 확인 및 매핑 (미리보기에 따라 '반응기', '등급', '일자' 사용 가정)\n# 혹시 컬럼명에 빈칸이나 다른 문자가 섞여 있을 수 있어 strip 처리 등 유연하게 접근\ncols = df.columns.tolist()\n\ndef find_col(keyword):\n    for c in cols:\n        if keyword in str(c):\n            return c\n    return None\n\nreactor_col = find_col('반응기')\ngrade_col = find_col('등급')\ndate_col = find_col('일자')\n\nif not all([reactor_col, grade_col, date_col]):\n    raise ValueError(f\"필수 컬럼을 찾을 수 없습니다. 반응기:{reactor_col}, 등급:{grade_col}, 일자:{date_col}\")\n\n# 월 생성\ndf['월'] = pd.to_datetime(df[date_col]).dt.month\n\n# 합격률 계산: 등급 A인 런의 비율 (%)\n# 각 반응기-월 조합에서 총 런 수와 A 등급 런 수를 집계\ngrouped = df.groupby([reactor_col, '월'])[grade_col].agg(\n    total='count',\n    pass_count=lambda x: (x == 'A').sum()\n).reset_index()\n\ngrouped['합격률'] = (grouped['pass_count'] / grouped['total']) * 100\n\n# 피벗 테이블 생성 (행: 반응기, 열: 월, 값: 합격률)\npivot_table = grouped.pivot(index=reactor_col, columns='월', values='합격률')\n\n# 히트맵 그리기 (matplotlib 사용)\nfig, ax = plt.subplots(figsize=(12, 6))\n\n# imshow 대신 pcolor 또는 imshow 사용. seaborn이 없으므로 직접 구현\nim = ax.imshow(pivot_table.values, cmap=\"YlGnBu\", aspect=\"auto\")\n\n# 축 눈금 설정\nax.set_xticks(np.arange(len(pivot_table.columns)))\nax.set_yticks(np.arange(len(pivot_table.index)))\nax.set_xticklabels(pivot_table.columns)\nax.set_yticklabels(pivot_table.index)\n\n# 셀 안에 텍스트 추가\nfor i in range(len(pivot_table.index)):\n    for j in range(len(pivot_table.columns)):\n        val = pivot_table.iloc[i, j]\n        # NaN 처리 (데이터 없는 경우)\n        if not np.isnan(val):\n            text_color = \"white\" if val > 75 else \"black\" # 배경색 대비 고려 (간단히 임계값 지정)\n            ax.text(j, i, f\"{val:.1f}\", ha=\"center\", va=\"center\", color=text_color, fontsize=9)\n\nax.set_title('반응기 × 월별 CNT 생산 합격률 (%)', fontsize=14)\nax.set_xlabel('월', fontsize=12)\nax.set_ylabel('반응기', fontsize=12)\n\n# 색상막 추가\ncbar = fig.colorbar(im, ax=ax)\ncbar.set_label('합격률 (%)')\n\nplt.tight_layout()\noutput_path = os.path.join(OUT_DIR, \"reactor_month_passrate_heatmap.png\")\nplt.savefig(output_path, dpi=300)\nplt.close()\n```",
+     "llm_s": 15.069,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 7521,
+     "output_chars": 2342,
+     "attempts": 1
+    },
+    {
+     "reply": "```python\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# 환경 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 경로\ndata_file = \"data/run_log.xlsx\"\nsheet_name = \"런로그\"\n\n# 데이터 읽기\ndf = pd.read_excel(data_file, sheet_name=sheet_name)\n\n# 컬럼명 확인 및 매핑 (미리보기에 따라 '반응기', '등급', '일자' 사용 가정)\ncols = df.columns.tolist()\n\ndef find_col(keyword):\n    for c in cols:\n        if keyword in str(c):\n            return c\n    return None\n\nreactor_col = find_col('반응기')\ngrade_col = find_col('등급')\ndate_col = find_col('일자')\n\nif not all([reactor_col, grade_col, date_col]):\n    raise ValueError(f\"필수 컬럼을 찾을 수 없습니다. 반응기:{reactor_col}, 등급:{grade_col}, 일자:{date_col}\")\n\n# 월 생성\n# 'yyyy-mm-dd' 형식 오류 해결을 위해 errors='coerce'를 사용하여 파싱 실패 시 NaT로 변환하고 드롭하거나 처리하지 않음.\n# 미리보기상 실제 값은 날짜형이므로 정상이면 잘 될 것이나, 헤더나 설명 텍스트가 섞여 있을 경우 방지.\nparsed_dates = pd.to_datetime(df[date_col], format='mixed', errors='coerce')\ndf['월'] = parsed_dates.dt.month\n\n# 유효한 날짜만 필터링 (NaT 제거)\ndf_valid = df.dropna(subset=['월']).copy()\ndf_valid['월'] = df_valid['월'].astype(int)\n\n# 합격률 계산: 등급 A인 런의 비율 (%)\n# 각 반응기-월 조합에서 총 런 수와 A 등급 런 수를 집계\ngrouped = df_valid.groupby([reactor_col, '월'])[grade_col].agg(\n    total='count',\n    pass_count=lambda x: (x == 'A').sum()\n).reset_index()\n\ngrouped['합격률'] = (grouped['pass_count'] / grouped['total']) * 100\n\n# 피벗 테이블 생성 (행: 반응기, 열: 월, 값: 합격률)\npivot_table = grouped.pivot(index=reactor_col, columns='월', values='합격률')\n\n# 히트맵 그리기 (matplotlib 사용)\nfig, ax = plt.subplots(figsize=(12, 6))\n\n# imshow 대신 pcolor 또는 imshow 사용. seaborn이 없으므로 직접 구현\nim = ax.imshow(pivot_table.values, cmap=\"YlGnBu\", aspect=\"auto\")\n\n# 축 눈금 설정\nax.set_xticks(np.arange(len(pivot_table.columns)))\nax.set_yticks(np.arange(len(pivot_table.index)))\nax.set_xticklabels(pivot_table.columns)\nax.set_yticklabels(pivot_table.index)\n\n# 셀 안에 텍스트 추가\nfor i in range(len(pivot_table.index)):\n    for j in range(len(pivot_table.columns)):\n        val = pivot_table.iloc[i, j]\n        # NaN 처리 (데이터 없는 경우)\n        if not np.isnan(val):\n            text_color = \"white\" if val > 75 else \"black\" # 배경색 대비 고려 (간단히 임계값 지정)\n            ax.text(j, i, f\"{val:.1f}\", ha=\"center\", va=\"center\", color=text_color, fontsize=9)\n\nax.set_title('반응기 × 월별 CNT 생산 합격률 (%)', fontsize=14)\nax.set_xlabel('월', fontsize=12)\nax.set_ylabel('반응기', fontsize=12)\n\n# 색상막 추가\ncbar = fig.colorbar(im, ax=ax)\ncbar.set_label('합격률 (%)')\n\nplt.tight_layout()\noutput_path = os.path.join(OUT_DIR, \"reactor_month_passrate_heatmap.png\")\nplt.savefig(output_path, dpi=300)\nplt.close()\n```",
+     "llm_s": 13.98,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 11679,
+     "output_chars": 2608,
+     "attempts": 1
+    }
+   ],
+   "spec": "import pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\n# 환경 설정\nOUT_DIR = \"out\"\nos.makedirs(OUT_DIR, exist_ok=True)\nplt.rcParams[\"font.family\"] = \"Noto Sans CJK KR\"\nplt.rcParams[\"axes.unicode_minus\"] = False\n\n# 데이터 경로\ndata_file = \"data/run_log.xlsx\"\nsheet_name = \"런로그\"\n\n# 데이터 읽기\ndf = pd.read_excel(data_file, sheet_name=sheet_name)\n\n# 컬럼명 확인 및 매핑 (미리보기에 따라 '반응기', '등급', '일자' 사용 가정)\ncols = df.columns.tolist()\n\ndef find_col(keyword):\n    for c in cols:\n        if keyword in str(c):\n            return c\n    return None\n\nreactor_col = find_col('반응기')\ngrade_col = find_col('등급')\ndate_col = find_col('일자')\n\nif not all([reactor_col, grade_col, date_col]):\n    raise ValueError(f\"필수 컬럼을 찾을 수 없습니다. 반응기:{reactor_col}, 등급:{grade_col}, 일자:{date_col}\")\n\n# 월 생성\n# 'yyyy-mm-dd' 형식 오류 해결을 위해 errors='coerce'를 사용하여 파싱 실패 시 NaT로 변환하고 드롭하거나 처리하지 않음.\n# 미리보기상 실제 값은 날짜형이므로 정상이면 잘 될 것이나, 헤더나 설명 텍스트가 섞여 있을 경우 방지.\nparsed_dates = pd.to_datetime(df[date_col], format='mixed', errors='coerce')\ndf['월'] = parsed_dates.dt.month\n\n# 유효한 날짜만 필터링 (NaT 제거)\ndf_valid = df.dropna(subset=['월']).copy()\ndf_valid['월'] = df_valid['월'].astype(int)\n\n# 합격률 계산: 등급 A인 런의 비율 (%)\n# 각 반응기-월 조합에서 총 런 수와 A 등급 런 수를 집계\ngrouped = df_valid.groupby([reactor_col, '월'])[grade_col].agg(\n    total='count',\n    pass_count=lambda x: (x == 'A').sum()\n).reset_index()\n\ngrouped['합격률'] = (grouped['pass_count'] / grouped['total']) * 100\n\n# 피벗 테이블 생성 (행: 반응기, 열: 월, 값: 합격률)\npivot_table = grouped.pivot(index=reactor_col, columns='월', values='합격률')\n\n# 히트맵 그리기 (matplotlib 사용)\nfig, ax = plt.subplots(figsize=(12, 6))\n\n# imshow 대신 pcolor 또는 imshow 사용. seaborn이 없으므로 직접 구현\nim = ax.imshow(pivot_table.values, cmap=\"YlGnBu\", aspect=\"auto\")\n\n# 축 눈금 설정\nax.set_xticks(np.arange(len(pivot_table.columns)))\nax.set_yticks(np.arange(len(pivot_table.index)))\nax.set_xticklabels(pivot_table.columns)\nax.set_yticklabels(pivot_table.index)\n\n# 셀 안에 텍스트 추가\nfor i in range(len(pivot_table.index)):\n    for j in range(len(pivot_table.columns)):\n        val = pivot_table.iloc[i, j]\n        # NaN 처리 (데이터 없는 경우)\n        if not np.isnan(val):\n            text_color = \"white\" if val > 75 else \"black\" # 배경색 대비 고려 (간단히 임계값 지정)\n            ax.text(j, i, f\"{val:.1f}\", ha=\"center\", va=\"center\", color=text_color, fontsize=9)\n\nax.set_title('반응기 × 월별 CNT 생산 합격률 (%)', fontsize=14)\nax.set_xlabel('월', fontsize=12)\nax.set_ylabel('반응기', fontsize=12)\n\n# 색상막 추가\ncbar = fig.colorbar(im, ax=ax)\ncbar.set_label('합격률 (%)')\n\nplt.tight_layout()\noutput_path = os.path.join(OUT_DIR, \"reactor_month_passrate_heatmap.png\")\nplt.savefig(output_path, dpi=300)\nplt.close()\n",
+   "engine": null,
+   "result": {
+    "ok": true
+   },
+   "facts": [
+    {
+     "engine": "matplotlib",
+     "size_in": [
+      12.0,
+      6.0
+     ],
+     "dpi": null,
+     "title": "반응기 × 월별 CNT 생산 합격률 (%)",
+     "panels": [
+      {
+       "bars": [],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": {
+        "rows": [
+         "R1",
+         "R2",
+         "R3",
+         "R4"
+        ],
+        "cols": [
+         "3",
+         "4",
+         "5",
+         "6",
+         "7",
+         "8"
+        ],
+        "z": [
+         [
+          75.0,
+          65.85365853658537,
+          85.0,
+          45.23809523809524,
+          22.727272727272727,
+          40.909090909090914
+         ],
+         [
+          41.46341463414634,
+          42.5,
+          32.55813953488372,
+          34.146341463414636,
+          25.581395348837212,
+          14.285714285714285
+         ],
+         [
+          73.17073170731707,
+          67.5,
+          75.0,
+          42.5,
+          33.33333333333333,
+          30.952380952380953
+         ],
+         [
+          0.0,
+          0.0,
+          2.3255813953488373,
+          0.0,
+          0.0,
+          0.0
+         ]
+        ],
+        "colorbar": true,
+        "values_shown": true,
+        "cmap": "YlGnBu",
+        "clim": [
+         0.0,
+         85.0
+        ]
+       },
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 24,
+       "texts": [
+        "75.0",
+        "65.9",
+        "85.0",
+        "45.2",
+        "22.7",
+        "40.9",
+        "41.5",
+        "42.5",
+        "32.6",
+        "34.1",
+        "25.6",
+        "14.3",
+        "73.2",
+        "67.5",
+        "75.0",
+        "42.5",
+        "33.3",
+        "31.0",
+        "0.0",
+        "0.0",
+        "2.3",
+        "0.0",
+        "0.0",
+        "0.0"
+       ],
+       "x": {
+        "label": "월",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0,
+         4.0,
+         5.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "3",
+         "4",
+         "5",
+         "6",
+         "7",
+         "8"
+        ],
+        "min": -0.5,
+        "max": 5.5,
+        "log": false,
+        "inverted": false,
+        "tick_labels": [
+         "3",
+         "4",
+         "5",
+         "6",
+         "7",
+         "8"
+        ],
+        "rotate": 0.0
+       },
+       "y": {
+        "label": "반응기",
+        "type": "category",
+        "ticks": [
+         0.0,
+         1.0,
+         2.0,
+         3.0
+        ],
+        "step": 1.0,
+        "categories": [
+         "R1",
+         "R2",
+         "R3",
+         "R4"
+        ],
+        "min": -0.5,
+        "max": 3.5,
+        "log": false,
+        "inverted": true,
+        "tick_labels": [
+         "R1",
+         "R2",
+         "R3",
+         "R4"
+        ],
+        "rotate": 0.0
+       },
+       "title": "반응기 × 월별 CNT 생산 합격률 (%)"
+      }
+     ],
+     "texts": [
+      "75.0",
+      "65.9",
+      "85.0",
+      "45.2",
+      "22.7",
+      "40.9",
+      "41.5",
+      "42.5",
+      "32.6",
+      "34.1",
+      "25.6",
+      "14.3",
+      "73.2",
+      "67.5",
+      "75.0",
+      "42.5",
+      "33.3",
+      "31.0",
+      "0.0",
+      "0.0",
+      "2.3",
+      "0.0",
+      "0.0",
+      "0.0"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "out/t1/reactor_month_passrate_heatmap.png",
+       "format": "png",
+       "px": [
+        3600,
+        1800
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.6958277225494385,
+   "check": {
+    "kind_expected": "heatmap",
+    "failed": [
+     "heatmap: 24 of 24 cells off"
+    ],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 1,
+    "pass": false,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 44.486
+  }
+ ]
+}

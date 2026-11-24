@@ -1,0 +1,34 @@
+{
+ "asks": [
+  {
+   "ask": "R1-260326-1, R1-260716-1 두 시트",
+   "how": "key"
+  },
+  {
+   "ask": "TG 곡선 (중량% vs 온도°C)",
+   "how": "key"
+  },
+  {
+   "ask": "overlay",
+   "how": "key"
+  }
+ ],
+ "combine": true,
+ "file": "data/tga_batches.xlsx",
+ "preset": "none",
+ "sheets": [
+  "R1-260326-1",
+  "R1-260716-1"
+ ],
+ "x": {
+  "col": "B",
+  "label": "Temperature (°C)"
+ },
+ "y1": {
+  "col": "C",
+  "label": "Weight (%)"
+ },
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdabc/D004_r1/out/t1"
+ }
+}

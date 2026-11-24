@@ -1,0 +1,7 @@
+{
+ "text": "2존 PV와 SP를 같은 축에 겹쳐 그리고, 10분(60포인트) 이동평균 선을 추가했습니다.",
+ "type": "spec",
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_sx/P-ec/D002_r2/out/t1"
+ }
+}

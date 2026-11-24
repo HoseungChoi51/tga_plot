@@ -1,0 +1,18 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheets": "런로그",
+ "x": {
+  "col": "E",
+  "label": "반응기"
+ },
+ "y2": {
+  "col": "V",
+  "label": "런 수",
+  "step": 10,
+  "tick_size": 9,
+  "width": 0.65
+ },
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cd/D020_r2/out/t1"
+ }
+}

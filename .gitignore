@@ -3,13 +3,55 @@ __pycache__/
 # plots written next to the data and by the test runners
 *_plots/
 tests/out/
-tests/pi_run/
-tests/eval_results.jsonl
+experiments/tests/pi_run/
+experiments/tests/eval_results.jsonl
 spec.json
 # engine experiment: keep the CSVs and specs, not the images
 node_modules/
-results/out/
-results/reference/
-results/batch_out/
-results/render/
-results/contact_sheet*
+experiments/results/out/
+experiments/results/reference/
+experiments/results/batch_out/
+experiments/results/render/
+experiments/results/contact_sheet*
+# evaluation (experiments/eval/): keep code, data, CSVs and per-run records; images and redrawable output stay local
+experiments/eval/results/runs/**/out/
+experiments/eval/results/runs/**/printed.json
+experiments/eval/results/runs/**/dump.json
+experiments/eval/results/runs/**/facts.json
+experiments/eval/results/runs/**/pi_session.jsonl
+experiments/eval/results/runs/**/draw_t*.json
+experiments/eval/results/runs/**/facts_t*.json
+experiments/eval/results/runs/**/data
+experiments/eval/results/sessions/**/out/
+experiments/eval/results/sessions/**/data
+experiments/eval/results/sessions/**/draw_t*.json
+experiments/eval/results/exports/**/*.png
+experiments/eval/results/tmp*/
+experiments/eval/results/runs/**/*.png
+experiments/eval/results/pi_ws/
+experiments/eval/results/validate/
+experiments/eval/results/parity/
+experiments/eval/results/coverage/
+experiments/eval/results/safety/
+experiments/eval/results/review/
+experiments/eval/results/.mplcache/
+experiments/eval/results/*.bak
+experiments/gallery/out/
+experiments/gallery/pages_*.png
+experiments/gallery/index.html
+experiments/report/index.html
+experiments/report/img/
+experiments/report/luna/
+experiments/report/cnt/
+experiments/eval/results/runs/**/schema.json
+experiments/report/cd/
+experiments/report/final/
+experiments/report/plotkit_report.zip
+experiments/report/plotkit_report.html
+experiments/report/plotkit_report/
+# packaging
+*.egg-info/
+build/
+dist/
+# the plotkit-ts checkout (git worktree add .worktrees/plotkit-ts lib/plotkit-ts)
+.worktrees/

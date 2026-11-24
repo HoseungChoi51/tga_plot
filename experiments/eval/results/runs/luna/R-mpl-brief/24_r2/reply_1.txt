@@ -1,0 +1,105 @@
+We need provide script. Interpret standard weight x temp left, heat flow right, omit peak label, residue remains. Heat flow raw, not invert, though y2 as requested. Plot all sheets. Find columns names robust. Residue nearest 800. Plot title sheet, labels. legend center left. Need script reading Excel/CSV/text generalized though file specified Excel. Include font. output.```python
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import pandas as pd
+
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/tests/inputs/extra_columns.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/24_r2/out")
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+
+def read_sheets(path):
+    suffix = path.suffix.lower()
+    if suffix in {".xlsx", ".xls"}:
+        return pd.read_excel(path, sheet_name=None)
+    if suffix == ".csv":
+        return {"Data": pd.read_csv(path)}
+    if suffix in {".txt", ".tsv"}:
+        return {"Data": pd.read_csv(path, sep=None, engine="python")}
+    raise ValueError(f"지원하지 않는 파일 형식입니다: {suffix}")
+
+
+def find_column(df, candidates):
+    for col in df.columns:
+        name = str(col).strip().lower()
+        if any(candidate in name for candidate in candidates):
+            return col
+    return None
+
+
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+for sheet_name, df in read_sheets(DATA_FILE).items():
+    temperature_col = find_column(df, ["temperature", "temp"])
+    weight_col = find_column(df, ["weight (%)", "weight(%)", "weight percent", "mass (%)"])
+    heat_flow_col = find_column(df, ["heat flow"])
+
+    if temperature_col is None or weight_col is None or heat_flow_col is None:
+        raise ValueError(
+            f"{sheet_name}: Temperature, Weight (%) 또는 Heat Flow 열을 찾을 수 없습니다."
+        )
+
+    data = df[[temperature_col, weight_col, heat_flow_col]].copy()
+    data.columns = ["temperature", "weight", "heat_flow"]
+    for col in data.columns:
+        data[col] = pd.to_numeric(data[col], errors="coerce")
+    data = data.dropna().sort_values("temperature")
+
+    if data.empty:
+        continue
+
+    fig, ax1 = plt.subplots(figsize=(8, 6))
+    ax2 = ax1.twinx()
+
+    weight_line, = ax1.plot(
+        data["temperature"],
+        data["weight"],
+        color="#1f4e9c",
+        linewidth=1.8,
+        label="Weight (%)",
+    )
+    heat_line, = ax2.plot(
+        data["temperature"],
+        data["heat_flow"],
+        color="#c0392b",
+        linewidth=1.8,
+        label="Heat Flow (W/g)",
+    )
+
+    residue_row = data.loc[(data["temperature"] - 800).abs().idxmin()]
+    residue_x = residue_row["temperature"]
+    residue_y = residue_row["weight"]
+    ax1.plot(residue_x, residue_y, marker="o", color="#1f4e9c", markersize=5)
+    ax1.annotate(
+        f"Residue {residue_y:.1f}%",
+        xy=(residue_x, residue_y),
+        xytext=(8, 8),
+        textcoords="offset points",
+        color="#1f4e9c",
+        fontsize=9,
+    )
+
+    ax1.set_title(str(sheet_name))
+    ax1.set_xlabel("Temperature (°C)")
+    ax1.set_ylabel("Weight (%)", color="#1f4e9c")
+    ax2.set_ylabel("Heat flow (W/g)", color="#c0392b")
+    ax1.tick_params(axis="y", labelcolor="#1f4e9c")
+    ax2.tick_params(axis="y", labelcolor="#c0392b")
+    ax1.grid(True, alpha=0.25)
+    ax1.legend(
+        [weight_line, heat_line],
+        ["Weight (%)", "Heat Flow (W/g)"],
+        loc="center left",
+    )
+
+    fig.tight_layout()
+    output_path = OUT_DIR / f"{DATA_FILE.stem}_{sheet_name}.png"
+    fig.savefig(output_path, dpi=300, bbox_inches="tight")
+    plt.close(fig)
+```

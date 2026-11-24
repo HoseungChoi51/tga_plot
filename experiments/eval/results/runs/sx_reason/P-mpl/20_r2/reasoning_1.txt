@@ -1,0 +1,1 @@
+We need answer user's request. Need produce JSON spec only in ```json block. User Korean: "300~450 °C 구간을 연한 회색으로 칠해줘". Need inspect given. Need use file TGA.xlsx. This is extra code example: ax1.axvspan(300, 450, color='gray', alpha=0.15). Need include file only plus code. Since TGA data default preset. Need maybe no other keys. Need ensure JSON valid. Final only code block.

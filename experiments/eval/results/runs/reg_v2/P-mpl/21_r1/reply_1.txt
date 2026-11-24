@@ -1,0 +1,3 @@
+```json
+{"file": "blank_rows_on_top.xlsx", "x": {"col": "C"}, "y1": {"col": "D"}, "y2": {"col": "E"}, "asks": [{"ask": "C행 X축, D행 Y1축, E행 Y2축", "how": "key"}]}
+```

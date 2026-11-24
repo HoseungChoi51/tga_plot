@@ -1,0 +1,88 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+
+# Font setup for Korean text
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/caox.csv"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/B16_r1/out"
+
+# Ensure output directory exists
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# Read data
+df = pd.read_csv(DATA_FILE)
+
+# Identify columns based on the preview info
+col_temp = "Temperature (°C)"
+col_weight = "Weight (%)"
+col_dtg = "Deriv. Weight (%/°C)"
+
+# Extract data
+temp = df[col_temp].values
+weight = df[col_weight].values
+dtg = df[col_dtg].values
+
+# Calculate Residue at 800°C
+idx_800 = np.argmin(np.abs(temp - 800))
+residue_val = weight[idx_800]
+residue_temp = temp[idx_800]
+
+# Calculate Peak temperature of DTG above 150°C
+mask_peak = temp > 150
+if np.any(mask_peak):
+    dtg_masked = dtg[mask_peak]
+    temp_masked = temp[mask_peak]
+    # Find index of minimum DTG (most negative) because peaks point up when multiplied by -1
+    idx_min_dtg = np.argmin(dtg_masked)
+    peak_temp = temp_masked[idx_min_dtg]
+    peak_dtg_val = dtg_masked[idx_min_dtg]
+else:
+    peak_temp = None
+    peak_dtg_val = None
+
+# Create figure with two subplots sharing x-axis
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8), sharex=True, dpi=300)
+
+# Plot Weight (%) on top subplot (ax1)
+ax1.plot(temp, weight, color='#1f4e9c', linewidth=1.5, label='Weight')
+ax1.set_ylabel('Weight (%)', fontsize=12)
+ax1.grid(True, linestyle='--', alpha=0.5)
+
+# Add residue marker and label on ax1
+ax1.scatter(residue_temp, residue_val, color='#1f4e9c', zorder=5)
+ax1.annotate(f'Residue {residue_val:.1f}%', 
+             xy=(residue_temp, residue_val), 
+             xytext=(10, -15), textcoords='offset points',
+             fontsize=10, color='#1f4e9c',
+             arrowprops=dict(arrowstyle='->', color='#1f4e9c'))
+
+# Plot DTG on bottom subplot (ax2)
+# Multiply by -1 so peaks point up
+ax2.plot(temp, -dtg, color='#c0392b', linewidth=1.5, label='DTG')
+ax2.set_ylabel('DTG (-%/°C)', fontsize=12)
+ax2.set_xlabel('Temperature (°C)', fontsize=12)
+ax2.grid(True, linestyle='--', alpha=0.5)
+
+# Add peak marker and label on ax2 if peak exists
+if peak_temp is not None:
+    ax2.scatter(peak_temp, -peak_dtg_val, color='#c0392b', zorder=5)
+    ax2.annotate(f'{peak_temp:.0f} °C', 
+                 xy=(peak_temp, -peak_dtg_val), 
+                 xytext=(10, 10), textcoords='offset points',
+                 fontsize=10, color='#c0392b',
+                 arrowprops=dict(arrowstyle='->', color='#c0392b'))
+
+# Set common x-axis limits
+ax1.set_xlim(min(temp), max(temp))
+
+# Adjust layout to prevent overlap
+plt.tight_layout()
+
+# Save figure
+output_path = os.path.join(OUT_DIR, "caox_tga_split.png")
+plt.savefig(output_path, dpi=300)
+plt.close()

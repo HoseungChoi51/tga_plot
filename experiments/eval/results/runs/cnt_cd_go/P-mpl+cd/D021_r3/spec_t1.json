@@ -1,0 +1,16 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheets": "런로그",
+ "title": "작업자별 평균 CNT수율",
+ "x": {
+  "col": "G"
+ },
+ "y1": {
+  "col": "Q",
+  "label": "평균 CNT수율 (g/g-cat)"
+ },
+ "y2": false,
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cd/D021_r3/out/t1"
+ }
+}

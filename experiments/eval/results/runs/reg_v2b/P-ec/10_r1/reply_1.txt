@@ -1,0 +1,3 @@
+```json
+{"file": "TGA.xlsx", "annotate": {"residue": {"x": 700, "text": "Residue {y:.2f}%"}}, "asks": [{"ask": "잔류량 표시 700 °C", "how": "key"}, {"ask": "소수점 둘째 자리", "how": "key"}]}
+```

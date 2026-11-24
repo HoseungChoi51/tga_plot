@@ -1,0 +1,104 @@
+{
+ "arm": "P-ec",
+ "item": "S009",
+ "repeat": 3,
+ "split": "sealed",
+ "persona": "생산팀장",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "주차별로 런이 몇 번 돌았는지 막대로 보여 주시고, 26주 평균 런 수를 가로선으로 같이 넣어 주세요.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"bar\",\n  \"x\": {\"col\": \"주차\", \"label\": \"주차\"},\n  \"y\": \"count\",\n  \"values\": true,\n  \"ref\": [{\"y\": \"mean\", \"text\": \"26주 평균 런 수\"}],\n  \"asks\": [\n    {\"ask\": \"주차별 런 수 막대\", \"how\": \"key\"},\n    {\"ask\": \"26주 평균 런 수 가로선\", \"how\": \"key\"}\n  ]\n}\n```",
+     "llm_s": 5.115,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 18249,
+     "output_chars": 302,
+     "attempts": 1
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"bar\",\n  \"x\": {\"col\": \"주차\", \"label\": \"주차\"},\n  \"y\": {\"col\": \"런ID\", \"agg\": \"count\"},\n  \"values\": true,\n  \"ref\": [{\"y\": \"mean\", \"text\": \"26주 평균 런 수\"}],\n  \"asks\": [\n    {\"ask\": \"주차별 런 수 막대\", \"how\": \"key\"},\n    {\"ask\": \"26주 평균 런 수 가로선\", \"how\": \"key\"}\n  ]\n}\n```",
+     "llm_s": 4.222,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 18928,
+     "output_chars": 325,
+     "attempts": 1
+    },
+    {
+     "reply": "```json\n{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheet\": \"런로그\",\n  \"chart\": \"bar\",\n  \"x\": {\"col\": \"주차\", \"label\": \"주차\"},\n  \"y\": \"count\",\n  \"values\": true,\n  \"ref\": [{\"y\": \"mean\", \"text\": \"26주 평균 런 수\"}],\n  \"asks\": [\n    {\"ask\": \"주차별 런 수 막대\", \"how\": \"key\"},\n    {\"ask\": \"26주 평균 런 수 가로선\", \"how\": \"key\"}\n  ]\n}\n```",
+     "llm_s": 3.536,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 19520,
+     "output_chars": 302,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheet": "런로그",
+    "chart": "bar",
+    "x": {
+     "col": "주차",
+     "label": "주차"
+    },
+    "y": "count",
+    "values": true,
+    "ref": [
+     {
+      "y": "mean",
+      "text": "26주 평균 런 수"
+     }
+    ],
+    "asks": [
+     {
+      "ask": "주차별 런 수 막대",
+      "how": "key"
+     },
+     {
+      "ask": "26주 평균 런 수 가로선",
+      "how": "key"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": false,
+    "error": "\"mean\" needs a y column",
+    "hint": ""
+   },
+   "facts": [],
+   "draw_s": 0.2973196506500244,
+   "check": {
+    "kind_expected": "bar",
+    "failed": [
+     "run: no plot (\"mean\" needs a y column)"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 14.062
+  }
+ ]
+}

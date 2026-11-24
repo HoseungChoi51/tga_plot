@@ -1,0 +1,28 @@
+{
+ "file": "data/diameters.csv",
+ "chart": "histogram",
+ "x": "직경(nm)",
+ "bins": {
+  "width": 0.5,
+  "min": 4,
+  "max": 28
+ },
+ "code": "import numpy as np; import pandas as pd; df = pd.read_csv('data/diameters.csv'); mean_val = df['직경(nm)'].mean(); median_val = df['직경(nm)'].median(); ax.axvline(mean_val, color='red', linestyle='--', label=f'Mean: {mean_val:.2f} nm'); ax.axvline(median_val, color='blue', linestyle='-.', label=f'Median: {median_val:.2f} nm'); ax.legend()",
+ "asks": [
+  {
+   "ask": "6개 시료 합쳐서 히스토그램",
+   "how": "key"
+  },
+  {
+   "ask": "bin 폭 0.5 nm, 4-28 nm",
+   "how": "key"
+  },
+  {
+   "ask": "평균과 중앙값 세로선",
+   "how": "code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-hyb/S027_r1/out/t1"
+ }
+}

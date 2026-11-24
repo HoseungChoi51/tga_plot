@@ -1,0 +1,25 @@
+{
+ "asks": [
+  {
+   "ask": "노즐 막힘만 필터",
+   "how": "key"
+  },
+  {
+   "ask": "월별 정지 횟수 선그래프",
+   "how": "key"
+  }
+ ],
+ "chart": "line",
+ "file": "data/downtime.xlsx",
+ "filter": [
+  "원인 == 노즐 막힘"
+ ],
+ "x": {
+  "col": "일자",
+  "period": "month"
+ },
+ "y": "count",
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-ec+cdabc/DS03_r1/out/t4"
+ }
+}

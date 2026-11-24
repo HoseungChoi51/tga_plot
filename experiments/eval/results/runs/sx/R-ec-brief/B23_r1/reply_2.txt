@@ -1,0 +1,267 @@
+```python
+import pandas as pd
+import numpy as np
+import json
+
+def get_tga_data(file_path, sheet_name):
+    df = pd.read_excel(file_path, sheet_name=sheet_name)
+    
+    # Identify columns based on standard TGA names or guess from preview
+    cols = df.columns.tolist()
+    
+    x_col = None
+    y1_col = None
+    y2_col = None
+    
+    for c in cols:
+        c_lower = str(c).lower()
+        if 'temperature' in c_lower:
+            x_col = c
+        elif 'weight (%)' in c_lower and 'deriv' not in c_lower:
+            y1_col = c
+        elif 'deriv' in c_lower or 'dtg' in c_lower:
+            y2_col = c
+            
+    if x_col is None or y1_col is None or y2_col is None:
+        return None
+        
+    temp = df[x_col].values
+    weight = df[y1_col].values
+    dtg = df[y2_col].values
+    
+    return temp, weight, dtg
+
+def find_nearest_point(arr, target_val):
+    idx = np.argmin(np.abs(arr - target_val))
+    return arr[idx], idx
+
+def main():
+    file_path = "/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx"
+    
+    sheets_info = [
+        {"name": "Raw", "color": "#000000"},
+        {"name": "Acid-washed", "color": "#007bff"}, 
+        {"name": "Annealed", "color": "#ff0000"}   
+    ]
+    
+    color_map = {
+        "Raw": "#000000",
+        "Acid-washed": "#007bff",
+        "Annealed": "#ff0000"
+    }
+    
+    series_list = []
+    
+    min_temp = float('inf')
+    max_temp = float('-inf')
+    min_weight = float('inf')
+    max_weight = float('-inf')
+    min_dtg = float('inf')
+    max_dtg = float('-inf')
+    
+    for s_info in sheets_info:
+        sheet_name = s_info["name"]
+        try:
+            data = get_tga_data(file_path, sheet_name)
+            if data is None:
+                continue
+                
+            temps, weights, dtgs = data
+            
+            # Filter valid numeric data
+            mask = ~np.isnan(temps) & ~np.isnan(weights) & ~np.isnan(dtgs)
+            temps = temps[mask]
+            weights = weights[mask]
+            dtgs = dtgs[mask]
+            
+            if len(temps) == 0:
+                continue
+                
+            # Update global ranges
+            min_temp = min(min_temp, temps.min())
+            max_temp = max(max_temp, temps.max())
+            min_weight = min(min_weight, weights.min())
+            max_weight = max(max_weight, weights.max())
+            min_dtg = min(min_dtg, dtgs.min())
+            max_dtg = max(max_dtg, dtgs.max())
+            
+            # Prepare Weight Series (y1)
+            w_data = [[float(t), float(w)] for t, w in zip(temps, weights)]
+            series_list.append({
+                "name": f"{sheet_name} Weight",
+                "type": "line",
+                "data": w_data,
+                "yAxisIndex": 0,
+                "showSymbol": False,
+                "lineStyle": {"width": 2, "color": color_map[sheet_name]},
+                "itemStyle": {"color": color_map[sheet_name]}
+            })
+            
+            # Prepare DTG Series (y2) - Negate to make peaks point up
+            neg_dtgs = -dtgs
+            d_data = [[float(t), float(d)] for t, d in zip(temps, neg_dtgs)]
+            series_list.append({
+                "name": f"{sheet_name} DTG",
+                "type": "line",
+                "data": d_data,
+                "yAxisIndex": 1,
+                "showSymbol": False,
+                "lineStyle": {"width": 1.5, "color": color_map[sheet_name], "opacity": 0.6},
+                "itemStyle": {"color": color_map[sheet_name]}
+            })
+            
+            # Calculate Residue at 800C
+            res_temp, res_idx = find_nearest_point(temps, 800.0)
+            res_weight = weights[res_idx]
+            
+            # Calculate Peak Temp (>150C)
+            peak_mask = temps > 150.0
+            peak_temp = None
+            p_dtg_neg = 0.0
+            
+            if np.any(peak_mask):
+                filtered_dtgs = dtgs[peak_mask]
+                filtered_temps = temps[peak_mask]
+                
+                # Find index of minimum original DTG (most negative)
+                min_dtg_idx_local = np.argmin(filtered_dtgs) 
+                peak_temp = filtered_temps[min_dtg_idx_local]
+                
+                # Get corresponding plotted DTG value (-original)
+                _, p_idx_global = find_nearest_point(temps, peak_temp)
+                p_dtg_neg = -dtgs[p_idx_global]
+            
+            # Add Mark Points for this sheet
+            mp_residue = []
+            mp_peak = []
+            
+            # Residue Marker on Weight Series
+            mp_residue.append({
+                "coord": [res_temp, res_weight],
+                "value": f"Residue {res_weight:.1f}%",
+                "symbolSize": 8,
+                "label": {
+                    "show": True,
+                    "position": "top",
+                    "formatter": "{c}",
+                    "fontSize": 10,
+                    "color": color_map[sheet_name]
+                },
+                "itemStyle": {"color": color_map[sheet_name]}
+            })
+            
+            # Peak Marker on DTG Series
+            if peak_temp is not None:
+                mp_peak.append({
+                    "coord": [peak_temp, p_dtg_neg],
+                    "value": f"{peak_temp:.0f} °C",
+                    "symbolSize": 8,
+                    "label": {
+                        "show": True,
+                        "position": "top",
+                        "formatter": "{c}",
+                        "fontSize": 10,
+                        "color": color_map[sheet_name]
+                    },
+                    "itemStyle": {"color": color_map[sheet_name]}
+                })
+            
+            # Attach mark points to the respective series added just now
+            # The last two series are the ones we just added
+            series_list[-2]["markPoint"] = {"data": mp_residue}
+            series_list[-1]["markPoint"] = {"data": mp_peak}
+            
+        except Exception as e:
+            print(f"Error processing sheet {sheet_name}: {e}")
+            continue
+            
+    if not series_list:
+        print(json.dumps({"figures": []}))
+        return
+
+    # Adjust Y-axis ranges with padding
+    pad_w = (max_weight - min_weight) * 0.1
+    pad_d = (max_dtg - min_dtg) * 0.1
+    
+    # For DTG, since we plotted -DTG, the range logic applies to the plotted values.
+    plotted_min_dtg = -max_dtg
+    plotted_max_dtg = -min_dtg
+    
+    option = {
+        "title": {
+            "text": "TGA Comparison: Raw, Acid-washed, Annealed",
+            "left": "center",
+            "textStyle": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 16
+            }
+        },
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {
+                "type": "cross"
+            }
+        },
+        "legend": {
+            "data": [s["name"] for s in series_list],
+            "top": 30,
+            "left": "center",
+            "textStyle": {
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 12
+            }
+        },
+        "grid": {
+            "left": "10%",
+            "right": "10%",
+            "bottom": "10%",
+            "containLabel": True
+        },
+        "xAxis": {
+            "type": "value",
+            "name": "Temperature (°C)",
+            "nameLocation": "middle",
+            "nameGap": 30,
+            "min": round(min_temp / 50) * 50,
+            "max": round(max_temp / 50) * 50 + 50,
+            "axisLine": {"onZero": False},
+            "splitLine": {"show": True, "lineStyle": {"type": "dashed"}}
+        },
+        "yAxis": [
+            {
+                "type": "value",
+                "name": "Weight (%)",
+                "position": "left",
+                "min": round((min_weight - pad_w) / 5) * 5,
+                "max": round((max_weight + pad_w) / 5) * 5,
+                "axisLine": {"show": True, "lineStyle": {"color": "#666"}},
+                "splitLine": {"show": True, "lineStyle": {"type": "dashed"}}
+            },
+            {
+                "type": "value",
+                "name": "DTG (%/°C)",
+                "position": "right",
+                "min": round((plotted_min_dtg - pad_d) / 0.1) * 0.1,
+                "max": round((plotted_max_dtg + pad_d) / 0.1) * 0.1,
+                "axisLine": {"show": True, "lineStyle": {"color": "#666"}},
+                "splitLine": {"show": False}
+            }
+        ],
+        "series": series_list
+    }
+    
+    figure = {
+        "name": "tga_comparison",
+        "option": option,
+        "width": 800,
+        "height": 600,
+        "dpi": 300,
+        "formats": ["png"]
+    }
+    
+    output = {"figures": [figure]}
+    print(json.dumps(output))
+
+if __name__ == "__main__":
+    main()
+```

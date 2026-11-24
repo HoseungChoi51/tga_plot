@@ -1,0 +1,25 @@
+{
+ "asks": [
+  {
+   "ask": "8월분만",
+   "how": "key"
+  },
+  {
+   "ask": "원인별 정지시간 비중 pie",
+   "how": "key"
+  }
+ ],
+ "chart": "pie",
+ "file": "data/downtime.xlsx",
+ "filter": [
+  "일자 between 2026-08-01 and 2026-08-30"
+ ],
+ "x": "원인",
+ "y": {
+  "agg": "sum",
+  "col": "정지시간(분)"
+ },
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdabc/D030_r1/out/t1"
+ }
+}

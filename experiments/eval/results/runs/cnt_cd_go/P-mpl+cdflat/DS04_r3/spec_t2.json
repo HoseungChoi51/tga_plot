@@ -1,0 +1,20 @@
+{
+ "file": "data/r2_zone_temps.csv",
+ "chart": "line",
+ "x": "시각",
+ "y": "2존(°C)",
+ "code": "import matplotlib.dates as mdates\nax.set_xlim(mdates.date2num(np.datetime64('2026-06-17T20:00')), mdates.date2num(np.datetime64('2026-06-17T22:00')))",
+ "asks": [
+  {
+   "ask": "2존만",
+   "how": "key"
+  },
+  {
+   "ask": "저녁 8시부터 10시까지만 확대",
+   "how": "code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdflat/DS04_r3/out/t2"
+ }
+}

@@ -1,0 +1,182 @@
+import json
+import re
+from pathlib import Path
+
+import numpy as np
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/instrument_export.txt"
+
+NUMBER_RE = re.compile(
+    r"(?<![A-Za-z])[-+]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][-+]?\d+)?"
+)
+
+
+def parse_number(token):
+    token = token.replace(",", ".")
+    return float(token)
+
+
+def read_numeric_rows(path):
+    lines = Path(path).read_text(encoding="utf-8-sig", errors="replace").splitlines()
+    candidates = []
+    for line in lines:
+        matches = NUMBER_RE.findall(line)
+        if len(matches) >= 4:
+            try:
+                candidates.append([parse_number(value) for value in matches])
+            except ValueError:
+                candidates.append([])
+
+    # Keep the longest contiguous block of numeric data rows, skipping the
+    # instrument metadata and any numeric footer.
+    blocks = []
+    current = []
+    for row in candidates:
+        if len(row) >= 4:
+            current.append(row[:4])
+        else:
+            if current:
+                blocks.append(current)
+                current = []
+    if current:
+        blocks.append(current)
+
+    if not blocks:
+        raise ValueError(f"No numeric TGA rows found in {path}")
+
+    rows = max(blocks, key=len)
+    data = np.asarray(rows, dtype=float)
+    if data.ndim != 2 or data.shape[1] < 4:
+        raise ValueError(f"Could not identify four numeric TGA columns in {path}")
+    return data[:, :4]
+
+
+data = read_numeric_rows(DATA_FILE)
+temperature = data[:, 1]
+weight = data[:, 2]
+dtg = data[:, 3]
+
+residue_idx = int(np.nanargmin(np.abs(temperature - 800.0)))
+residue_temp = float(temperature[residue_idx])
+residue_weight = float(weight[residue_idx])
+
+peak_candidates = np.flatnonzero((temperature > 150.0) & np.isfinite(dtg))
+peak_idx = None
+if len(peak_candidates):
+    peak_idx = int(peak_candidates[np.nanargmax((-dtg)[peak_candidates])])
+    peak_temp = float(temperature[peak_idx])
+
+option = {
+    "animation": False,
+    "title": {
+        "text": Path(DATA_FILE).stem,
+        "left": "center",
+        "textStyle": {"fontFamily": "Noto Sans CJK KR"},
+    },
+    "tooltip": {"trigger": "axis"},
+    "legend": {"data": ["Weight", "DTG"], "left": "center", "top": 34},
+    "grid": {"left": 75, "right": 75, "top": 85, "bottom": 65},
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 38,
+        "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+        "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Weight (%)",
+            "nameLocation": "middle",
+            "nameGap": 52,
+            "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+            "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+            "splitLine": {"show": True, "lineStyle": {"color": "#dddddd"}},
+        },
+        {
+            "type": "value",
+            "name": "-DTG (%/°C)",
+            "nameLocation": "middle",
+            "nameGap": 52,
+            "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+            "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+            "splitLine": {"show": False},
+        },
+    ],
+    "series": [
+        {
+            "name": "Weight",
+            "type": "line",
+            "showSymbol": False,
+            "yAxisIndex": 0,
+            "data": [[float(x), float(y)] for x, y in zip(temperature, weight)],
+            "lineStyle": {"color": "#1f4e9c", "width": 2},
+            "itemStyle": {"color": "#1f4e9c"},
+            "markPoint": {
+                "symbol": "circle",
+                "symbolSize": 9,
+                "data": [
+                    {
+                        "coord": [residue_temp, residue_weight],
+                        "name": f"Residue: {residue_weight:.1f}%",
+                        "label": {
+                            "show": True,
+                            "formatter": f"Residue: {residue_weight:.1f}%",
+                            "position": "right",
+                            "fontFamily": "Noto Sans CJK KR",
+                        },
+                    }
+                ],
+            },
+        },
+        {
+            "name": "DTG",
+            "type": "line",
+            "showSymbol": False,
+            "yAxisIndex": 1,
+            "data": [[float(x), float(-y)] for x, y in zip(temperature, dtg)],
+            "lineStyle": {"color": "#c0392b", "width": 2},
+            "itemStyle": {"color": "#c0392b"},
+            "markPoint": {
+                "symbol": "circle",
+                "symbolSize": 9,
+                "data": (
+                    [
+                        {
+                            "coord": [peak_temp, float(-dtg[peak_idx])],
+                            "name": f"{peak_temp:.0f} °C",
+                            "label": {
+                                "show": True,
+                                "formatter": f"{peak_temp:.0f} °C",
+                                "position": "top",
+                                "fontFamily": "Noto Sans CJK KR",
+                            },
+                        }
+                    ]
+                    if peak_idx is not None
+                    else []
+                ),
+            },
+        },
+    ],
+}
+
+print(
+    json.dumps(
+        {
+            "figures": [
+                {
+                    "name": Path(DATA_FILE).stem,
+                    "option": option,
+                    "width": 614,
+                    "height": 442,
+                    "dpi": 300,
+                    "formats": ["png"],
+                }
+            ]
+        },
+        ensure_ascii=False,
+        allow_nan=False,
+    )
+)

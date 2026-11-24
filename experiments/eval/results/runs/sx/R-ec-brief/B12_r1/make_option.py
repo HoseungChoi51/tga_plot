@@ -1,0 +1,117 @@
+import pandas as pd
+import numpy as np
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/caox.csv"
+
+df = pd.read_csv(DATA_FILE)
+
+# Extract data
+temp = df['Temperature (°C)'].values
+weight = df['Weight (%)'].values
+
+# Filter for x range 100 to 900
+mask = (temp >= 100) & (temp <= 900)
+x_data = temp[mask]
+y_data = weight[mask]
+
+# Find residue at nearest point to 900°C within the filtered data
+idx_900 = np.argmin(np.abs(x_data - 900))
+residue_temp = x_data[idx_900]
+residue_weight = y_data[idx_900]
+
+# Build series data
+series_data = [[float(t), float(w)] for t, w in zip(x_data, y_data)]
+
+option = {
+    "title": {
+        "text": "caox",
+        "left": "center",
+        "textStyle": {
+            "fontFamily": "Noto Sans CJK KR",
+            "fontSize": 16
+        }
+    },
+    "tooltip": {
+        "trigger": "axis"
+    },
+    "grid": {
+        "left": "10%",
+        "right": "5%",
+        "top": "15%",
+        "bottom": "12%"
+    },
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "min": 100,
+        "max": 900,
+        "axisLabel": {
+            "fontFamily": "Noto Sans CJK KR"
+        },
+        "splitLine": {
+            "show": True,
+            "lineStyle": {"color": "#eee"}
+        }
+    },
+    "yAxis": {
+        "type": "value",
+        "name": "Weight (%)",
+        "nameLocation": "middle",
+        "nameGap": 40,
+        "axisLabel": {
+            "fontFamily": "Noto Sans CJK KR"
+        },
+        "splitLine": {
+            "show": True,
+            "lineStyle": {"color": "#eee"}
+        }
+    },
+    "series": [
+        {
+            "name": "Weight (%)",
+            "type": "line",
+            "data": series_data,
+            "showSymbol": False,
+            "lineStyle": {
+                "color": "#1f4e9c",
+                "width": 2
+            },
+            "markPoint": {
+                "data": [
+                    {
+                        "coord": [float(residue_temp), float(residue_weight)],
+                        "symbolSize": 8,
+                        "itemStyle": {"color": "#1f4e9c"},
+                        "label": {
+                            "show": True,
+                            "formatter": f"Residue {residue_weight:.1f}%",
+                            "position": "top",
+                            "distance": 10,
+                            "fontFamily": "Noto Sans CJK KR",
+                            "fontSize": 12,
+                            "color": "#1f4e9c"
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
+
+output = {
+    "figures": [
+        {
+            "name": "plot1",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+    ]
+}
+
+print(json.dumps(output, ensure_ascii=False))

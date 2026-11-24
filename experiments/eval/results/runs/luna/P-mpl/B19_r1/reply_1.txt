@@ -1,0 +1,3 @@
+```json
+{"file":"polymers.xlsx","sheets":"PVC","annotate":{"note1":{"type":"text","text":"200–400 °C 질량 감소량 계산 및 표시에는 사용자 지정 코드가 필요합니다."}}}
+```

@@ -1,0 +1,63 @@
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import pandas as pd
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/eval/inputs_b/isothermal.txt")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/B06_r2/out")
+
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+# The text file contains a header row followed by tabular data.
+df = pd.read_csv(DATA_FILE, sep=None, engine="python", comment="#")
+df.columns = [str(col).strip() for col in df.columns]
+
+time_col = next(col for col in df.columns if "Time" in col)
+temp_col = next(col for col in df.columns if "Temperature" in col)
+weight_col = next(col for col in df.columns if "Weight" in col)
+
+for col in (time_col, temp_col, weight_col):
+    df[col] = pd.to_numeric(df[col], errors="coerce")
+df = df.dropna(subset=[time_col, temp_col, weight_col]).sort_values(time_col)
+
+fig, ax1 = plt.subplots(figsize=(9, 6))
+ax2 = ax1.twinx()
+
+ax1.plot(df[time_col], df[weight_col], color="#1f4e9c", linewidth=2, label="무게")
+ax2.plot(df[time_col], df[temp_col], color="#c0392b", linewidth=2, label="온도")
+
+ax1.set_xlabel("시간 (분)")
+ax1.set_ylabel("무게 (%)", color="#1f4e9c")
+ax2.set_ylabel("온도 (°C)", color="#c0392b")
+ax1.tick_params(axis="y", labelcolor="#1f4e9c")
+ax2.tick_params(axis="y", labelcolor="#c0392b")
+ax1.grid(True, linestyle="--", alpha=0.35)
+
+# Mark and annotate the measured weight at 140 minutes (nearest available point).
+target_time = 140.0
+row = df.loc[(df[time_col] - target_time).abs().idxmin()]
+measured_time = row[time_col]
+measured_weight = row[weight_col]
+ax1.scatter([measured_time], [measured_weight], color="#1f4e9c", edgecolor="white",
+            linewidth=0.8, s=65, zorder=5)
+ax1.annotate(
+    f"{measured_weight:.2f}%",
+    xy=(measured_time, measured_weight),
+    xytext=(-10, 12),
+    textcoords="offset points",
+    ha="right",
+    color="#1f4e9c",
+    fontsize=10,
+    bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="#1f4e9c", alpha=0.9),
+)
+
+lines = ax1.get_lines() + ax2.get_lines()
+ax1.legend(lines, [line.get_label() for line in lines], loc="best", frameon=True)
+ax1.set_title("isothermal")
+fig.tight_layout()
+fig.savefig(OUT_DIR / "isothermal.png", dpi=300, bbox_inches="tight")
+plt.close(fig)

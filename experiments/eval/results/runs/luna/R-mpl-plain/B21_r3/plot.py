@@ -1,0 +1,31 @@
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/B21_r3/out"
+
+# Korean-capable font; harmless for labels that contain no Korean.
+plt.rcParams["font.family"] = ["Noto Sans CJK KR", "DejaVu Sans"]
+plt.rcParams["axes.unicode_minus"] = False
+
+# Read the Raw worksheet and select temperature and weight columns.
+df = pd.read_excel(DATA_FILE, sheet_name="Raw")
+temperature = pd.to_numeric(df["Temperature (°C)"], errors="coerce")
+weight = pd.to_numeric(df["Weight (%)"], errors="coerce")
+valid = temperature.notna() & weight.notna()
+
+fig, ax = plt.subplots(figsize=(8, 5))
+ax.plot(temperature[valid], weight[valid], color="#1f77b4", linewidth=1.8)
+ax.set_xlabel("Temperature (°C)")
+ax.set_ylabel("Weight (%)")
+ax.set_title("Raw")
+ax.set_xlim(temperature[valid].max(), temperature[valid].min())
+ax.grid(True, linestyle="--", linewidth=0.6, alpha=0.5)
+fig.tight_layout()
+
+out_dir = Path(OUT_DIR)
+out_dir.mkdir(parents=True, exist_ok=True)
+fig.savefig(out_dir / "raw_temperature_reversed.png", dpi=300, bbox_inches="tight")
+plt.close(fig)

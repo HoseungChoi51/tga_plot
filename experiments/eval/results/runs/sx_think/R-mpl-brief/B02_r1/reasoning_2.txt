@@ -1,0 +1,87 @@
+We need answer user's latest: "no ```python block in the Reply with corrected complete script only, inside one ```python block." We need produce final with python block only. Need analyze request.
+
+User original: Korean: "오른쪽 축에 DTG 대신 Heat Flow를 그리고, 흡열 피크 두 개와 발열 피크 하나의 온도를 표시해줘" Means draw Heat Flow instead of DTG on right axis, and mark temperatures of two endothermic peaks and one exothermic peak. Need script reading DATA_FILE, save figure to OUT_DIR. Standard TGA plot: x temp, left weight %, right Heat Flow (instead of DTG). Need identify peaks in Heat Flow. In DSC/TGA heat flow convention? Usually endothermic peaks maybe positive or negative depending instrument. Data Heat Flow (W/g) min -1.374 max 2.307. Need infer peaks: two endothermic, one exothermic. Need mark temperatures. Need robust algorithm.
+
+We need write Python script only. Need use pandas, numpy, scipy, matplotlib. Korean font. No plt.show. Save PNG 300 dpi.
+
+Need decide peak detection. Heat Flow peaks: if endothermic positive? Many DSC: endothermic upward (positive) if heat flow into sample? But TGA/DSC maybe exothermic positive? Need inspect likely data. caox.csv maybe calcium oxalate monohydrate? Decomposition: dehydration ~100-200 endothermic? decomposition of oxalate ~400-500 endothermic? CaCO3 decomposition ~700-800 endothermic? Oxidation? Actually calcium oxalate monohydrate CaC2O4·H2O TGA-DSC: dehydration endothermic ~100-200; decomposition to CaCO3 maybe exothermic? Then CaCO3 decomposition endothermic ~700-800. But user says two endothermic peaks and one exothermic peak. Need mark temps. Could detect peaks and valleys. Need choose sign convention. Heat flow min -1.374, max 2.307. If positive = endothermic? Then two positive peaks and one negative peak (exothermic). If negative = endothermic, then two negative peaks and one positive peak. Need algorithm maybe identify prominent peaks and valleys and label. But user specifically asks temperatures, not necessarily label endothermic/exothermic? "흡열 피크 두 개와 발열 피크 하나의 온도를 표시" Mark temperatures of two endothermic peaks and one exothermic peak. Need perhaps annotate as "Endo 100 °C", "Endo 750 °C", "Exo 400 °C". Need detect robustly.
+
+Need know data shape: 921 rows, temp 30 to 950. Heat flow. Need maybe peaks: positive max 2.307 maybe endothermic? negative min -1.374 maybe exothermic? But only one negative? Could be one exothermic. Need two positive peaks? Could be endothermic. Let's reason calcium oxalate: dehydration endothermic (positive if endo) around 100; decomposition of calcium oxalate to CaCO3? Reaction: CaC2O4 -> CaCO3 + CO. Is it endothermic? Some DSC shows endothermic at ~450? Then CaCO3 -> CaO + CO2 endothermic at ~750. Where exothermic? Maybe oxidation of CO? Or CaC2O4 decomposition exothermic? Actually thermal decomposition of calcium oxalate monohydrate in air: dehydration endothermic; decomposition of anhydrous oxalate to CaCO3 may be endothermic? CaCO3 decomposition endothermic. In air, CO oxidation exother
+[...]
+anmin(y2)` all NaN? handle.
+```
+if np.any(np.isfinite(y2)):
+   y2_min, y2_max = np.nanmin(y2), np.nanmax(y2)
+   y2_pad = max(0.15*(y2_max-y2_min), 0.1)
+   ax2.set_ylim(y2_min - y2_pad, y2_max + y2_pad)
+```
+If positive peaks, top pad enough. If negative labels below, bottom pad. Use 0.25.
+
+Need maybe if y2 range zero, pad 1.
+
+Need maybe if y1 residue label outside? y1 pad 0.05.
+
+Need maybe if x limits include peaks. Good.
+
+Need maybe if legend center left overlaps y2 axis? okay.
+
+Need maybe if `heat_label` includes units, use as y2 label. If heat_col found, label = str(heat_col). If fallback DTG, label = str(heat_col). Good.
+
+Need maybe if column name is 'Heat Flow (W/g)' and y2 label same. Good.
+
+Need maybe if user asked right axis DTG instead Heat Flow; y2 label should be Heat Flow. Good.
+
+Need maybe if title sheet name from CSV file stem. Good.
+
+Potential issue: `find_column` exclude list for weight includes 'heat', 'flow' but weight column 'Weight (%)' okay. If column 'Deriv. Weight' excluded. Good.
+
+Potential issue: If `df.columns` has unnamed columns and first numeric, no temp. Not relevant.
+
+Potential issue: If CSV has header row but pandas reads 'Time (min)' etc. Good.
+
+Potential issue: If `pd.to_numeric` on column with units? It will coerce. Good.
+
+Potential issue: If `find_peaks` on smoothed y with NaNs? We filter finite y. Good.
+
+Potential issue: `detect_peaks` fallback if `find_peaks` empty: selected top by ysm. But if ysm contains NaN? no.
+
+Potential issue: `savgol_filter` with even window after subtract could be 4? We require >=5. If len 4, skip. Good.
+
+Potential issue: `np.lexsort((ysm[idxs], proms))[::-1]` sorts by prom then ysm? lexsort keys last primary? `np.lexsort((ysm, proms))` primary proms, secondary ysm. Good.
+
+Potential issue: If `proms` is empty? handled.
+
+Potential issue: If `distance` > len, find_peaks empty. fallback.
+
+Potential issue: If `min_distance_c / dx` huge, distance huge, fallback top separated by min_distance_c. Good.
+
+Potential issue: If `ensure_candidates` adds points not local peaks but top values. Good.
+
+Potential issue: If `ensure_candidates` uses `x` and `y` arrays sorted, valid mask min_temp. If no valid with min_temp, use all finite. Good.
+
+Potential issue: If `used` set and `any(abs(x[orig]-x[u]) < min_distance_c for u in used)` but used empty. Good.
+
+Potential issue: If `used` contains indices but x maybe not sorted? sorted. Good.
+
+Potential issue: If `ensure_candidates` called with `cands` already length n but some have value wrong sign? It doesn't filter. But base filtered. Good.
+
+Potential issue: If `pos` filtered empty, set pos=pos_all which may have negative values. Orientation may default positive even if no positive. But if no positive and negative has 2, then len(pos) after fallback? We set if not pos: pos=pos_all, so len(pos) may be >0 negative. Orientation logic sees len(pos)>=2 and len(neg)>=1 maybe chooses positive=endothermic incorrectly. Need handle: If filtered pos empty, should not count as positive. Better keep filtered counts separate. Use `pos_filtered = [c for c in pos_all if c['value'] > 0]`, `neg_filtered = [c for c in neg_all if c['value'] < 0]`. Orientation based on filtered counts, but if one filtered empty and other has enough, choose other. If both empty, default. Then for base, use filtered if available else all.
+
+So:
+```
+pos_f = [c for c in pos_all if c['value'] > 0]
+neg_f = [c for c in neg_all if c['value'] < 0]
+if len(pos_f) >= 2 and len(neg_f) >= 1:
+   endo_sign=1; exo_sign=-1
+elif len(neg_f) >= 2 and len(pos_f) >= 1:
+   endo_sign=-1; exo_sign=1
+else:
+   # if one side has at least 2 and other has 0? choose side with more filtered
+   if len(pos_f) >= len(neg_f): endo_sign=1 else -1
+   exo_sign = -1 if endo_sign==1 else 1
+# base:
+endo_base = pos_f if endo_sign==1 else neg_f
+if not endo_base: endo_base = pos_all if endo_sign==1 else neg_all
+exo_base = neg_f if exo_sign==-1 else pos_f
+if not exo_base: exo_base = neg_all if exo_sign==-1 else pos_all
+```

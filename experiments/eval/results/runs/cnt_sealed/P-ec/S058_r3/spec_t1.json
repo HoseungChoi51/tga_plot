@@ -1,0 +1,41 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "heatmap",
+ "filter": [
+  "원인 == 노즐 막힘"
+ ],
+ "x": {
+  "col": "주",
+  "label": "Production Week"
+ },
+ "y": {
+  "col": "반응기",
+  "label": "Reactor"
+ },
+ "z": {
+  "agg": "count"
+ },
+ "values": true,
+ "data_code": "df['주'] = ((pd.to_datetime(df['일자']) - pd.Timestamp('2026-03-02')).dt.days // 7 + 1).astype(int)",
+ "asks": [
+  {
+   "ask": "노즐 막힘 이벤트 수 (pivot)",
+   "how": "key"
+  },
+  {
+   "ask": "행: 반응기, 열: 생산 주차",
+   "how": "key"
+  },
+  {
+   "ask": "주차 계산 및 빈 값 0 처리",
+   "how": "data_code"
+  },
+  {
+   "ask": "히트맵 표시",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed/P-ec/S058_r3/out/t1"
+ }
+}

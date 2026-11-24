@@ -1,0 +1,1 @@
+We need answer user's request. Need produce JSON spec only in json block. User says TGA.xlsx 그래프 그려줘. Need likely default TGA preset. No sheet specified, so all? inspect has sheets. The example says {"file":"TGA.xlsx"}. Need only JSON block. Ensure file exactly TGA.xlsx. No extra keys.

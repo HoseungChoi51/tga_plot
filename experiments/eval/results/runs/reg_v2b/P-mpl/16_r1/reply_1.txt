@@ -1,0 +1,3 @@
+```json
+{"file": "TGA.xlsx", "sheets": "1006R1-V normal", "y2": false, "asks": [{"ask": "1006R1-V normal 시트", "how": "key"}, {"ask": "y2축 없이 무게만", "how": "key"}]}
+```

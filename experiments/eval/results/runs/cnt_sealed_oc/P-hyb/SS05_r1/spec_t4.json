@@ -1,0 +1,43 @@
+{
+ "file": "data/tga_batches.xlsx",
+ "sheets": [
+  "R3-260428-1",
+  "R3-260810-2"
+ ],
+ "combine": true,
+ "y2": {
+  "col": "D",
+  "linestyle": "dotted"
+ },
+ "colors": [
+  "blue",
+  "orange"
+ ],
+ "names": [
+  "R3-260428-1",
+  "R3-260810-2"
+ ],
+ "y1": {
+  "linestyle": "solid"
+ },
+ "x": {
+  "min": 400,
+  "max": 800
+ },
+ "annotate": {
+  "peak": true
+ },
+ "asks": [
+  {
+   "ask": "x축 400–800 °C로 좁히기",
+   "how": "key"
+  },
+  {
+   "ask": "DTG 피크 온도 표시",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/SS05_r1/out/t4"
+ }
+}

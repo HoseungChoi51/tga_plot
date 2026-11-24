@@ -1,0 +1,100 @@
+```python
+import json
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/isothermal.txt"
+
+df = pd.read_csv(DATA_FILE, sep=None, engine="python", comment="#")
+df.columns = [str(c).strip() for c in df.columns]
+
+# Preview indicates three columns: time (min), temperature (°C), and weight (%).
+time_col, temp_col, weight_col = df.columns[:3]
+for col in (time_col, temp_col, weight_col):
+    df[col] = pd.to_numeric(df[col], errors="coerce")
+df = df.dropna(subset=[time_col, temp_col, weight_col])
+
+time = df[time_col].tolist()
+temperature = df[temp_col].tolist()
+weight = df[weight_col].tolist()
+
+at_140 = df.loc[df[time_col].sub(140).abs().idxmin()]
+weight_140 = float(at_140[weight_col])
+time_140 = float(at_140[time_col])
+
+option = {
+    "animation": False,
+    "tooltip": {"trigger": "axis"},
+    "legend": {"data": ["무게", "온도"], "top": 8},
+    "grid": {"left": 72, "right": 76, "top": 52, "bottom": 64},
+    "xAxis": {
+        "type": "value",
+        "name": "시간 (분)",
+        "nameLocation": "middle",
+        "nameGap": 36,
+        "min": 0,
+        "max": 140,
+        "axisLine": {"lineStyle": {"color": "#555"}},
+        "axisLabel": {"color": "#333"},
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "무게 (%)",
+            "position": "left",
+            "axisLine": {"show": True, "lineStyle": {"color": "#2563eb"}},
+            "axisLabel": {"color": "#2563eb"},
+            "splitLine": {"lineStyle": {"color": "#e5e7eb"}},
+        },
+        {
+            "type": "value",
+            "name": "온도 (°C)",
+            "position": "right",
+            "axisLine": {"show": True, "lineStyle": {"color": "#dc2626"}},
+            "axisLabel": {"color": "#dc2626"},
+            "splitLine": {"show": False},
+        },
+    ],
+    "series": [
+        {
+            "name": "무게",
+            "type": "line",
+            "yAxisIndex": 0,
+            "showSymbol": False,
+            "lineStyle": {"width": 2, "color": "#2563eb"},
+            "data": [[x, y] for x, y in zip(time, weight)],
+            "markPoint": {
+                "symbol": "circle",
+                "symbolSize": 10,
+                "itemStyle": {"color": "#f59e0b"},
+                "label": {
+                    "show": True,
+                    "position": "top",
+                    "formatter": f"140분: {weight_140:.2f}%",
+                    "color": "#92400e",
+                    "fontWeight": "bold",
+                },
+                "data": [{"coord": [time_140, weight_140], "value": weight_140}],
+            },
+        },
+        {
+            "name": "온도",
+            "type": "line",
+            "yAxisIndex": 1,
+            "showSymbol": False,
+            "lineStyle": {"width": 2, "color": "#dc2626"},
+            "data": [[x, y] for x, y in zip(time, temperature)],
+        },
+    ],
+}
+
+print(json.dumps({
+    "figures": [{
+        "name": "isothermal_weight_temperature",
+        "option": option,
+        "width": 800,
+        "height": 500,
+        "dpi": 300,
+        "formats": ["png"],
+    }]
+}, ensure_ascii=False))
+```

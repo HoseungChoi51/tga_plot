@@ -1,0 +1,3 @@
+```json
+{"file":"cnt_batches.xlsx","sheets":"Annealed","code":"# Estimate onset from the steepest descending weight segment and its tangent intersection with the pre-drop baseline.\ndy = np.gradient(y1, x)\ni = int(np.nanargmin(dy))\nslope = dy[i]\nintercept = y1[i] - slope * x[i]\nbaseline = float(np.nanmean(y1[max(0, i-30):max(1, i-10)]))\nonset = (baseline - intercept) / slope if slope != 0 else float('nan')\nax1.axvline(onset, color='red', linestyle='--', label=f'Onset {onset:.1f} °C')\nax1.legend()"}
+```

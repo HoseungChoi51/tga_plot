@@ -1,0 +1,13 @@
+time,run,arm,split,item,type,persona,turn,n_turns,repeat,kind,ok_run,pass,n_checks,n_failed,failed,unchecked,model_calls,prompt_tokens,cached_tokens,prefill_ms,output_tokens,decode_ms,llm_s,draw_s,turn_s,route,unsupported,n_asks,error,run_dir
+2026-11-20 15:33:02,oc_smoke,P-ec,dev,D001,single,공정 엔지니어,1,1,1,line,1,1,2,0,,,1,0,0,0,0,0,4.06,0.56,5.525,keys,0,3,,results/runs/cnt_oc_smoke/P-ec/D001_r1
+2026-11-20 15:33:03,oc_smoke,P-mpl,dev,D001,single,공정 엔지니어,1,1,1,line,1,1,2,0,,,1,0,0,0,0,0,4.64,0.37,5.931,keys,0,3,,results/runs/cnt_oc_smoke/P-mpl/D001_r1
+2026-11-20 15:33:12,oc_smoke,P-ec,dev,DS02,session,공정 엔지니어,1,3,1,line,1,1,2,0,,,1,0,0,0,0,0,2.92,0.79,4.713,keys,0,1,,results/runs/cnt_oc_smoke/P-ec/DS02_r1
+2026-11-20 15:33:12,oc_smoke,P-ec,dev,DS02,session,공정 엔지니어,2,3,1,line,1,1,2,0,,,1,0,0,0,0,0,4.15,0.73,4.955,keys,0,1,,results/runs/cnt_oc_smoke/P-ec/DS02_r1
+2026-11-20 15:33:12,oc_smoke,P-ec,dev,DS02,session,공정 엔지니어,3,3,1,line,1,1,5,0,,,1,0,0,0,0,0,4.94,0.74,5.759,keys,0,3,,results/runs/cnt_oc_smoke/P-ec/DS02_r1
+2026-11-20 15:33:19,oc_smoke,P-mpl,dev,DS02,session,공정 엔지니어,1,3,1,line,1,1,2,0,,,1,0,0,0,0,0,2.98,0.6,4.608,keys,0,3,,results/runs/cnt_oc_smoke/P-mpl/DS02_r1
+2026-11-20 15:33:19,oc_smoke,P-mpl,dev,DS02,session,공정 엔지니어,2,3,1,line,1,1,2,0,,,1,0,0,0,0,0,3.0,0.65,3.753,keys,0,1,,results/runs/cnt_oc_smoke/P-mpl/DS02_r1
+2026-11-20 15:33:19,oc_smoke,P-mpl,dev,DS02,session,공정 엔지니어,3,3,1,line,1,1,5,0,,,1,0,0,0,0,0,13.31,0.59,13.98,keys,0,3,,results/runs/cnt_oc_smoke/P-mpl/DS02_r1
+2026-11-20 15:33:28,oc_smoke,R-mpl,dev,DS02,session,공정 엔지니어,1,3,1,line,1,1,2,0,,,1,0,0,0,0,0,10.2,0.81,11.928,script,0,0,,results/runs/cnt_oc_smoke/R-mpl/DS02_r1
+2026-11-20 15:33:28,oc_smoke,R-mpl,dev,DS02,session,공정 엔지니어,2,3,1,line,1,1,2,0,,,1,0,0,0,0,0,7.76,0.64,8.399,script,0,0,,results/runs/cnt_oc_smoke/R-mpl/DS02_r1
+2026-11-20 15:33:28,oc_smoke,R-mpl,dev,DS02,session,공정 엔지니어,3,3,1,line,1,1,5,0,,,1,0,0,0,0,0,10.86,0.63,11.492,script,0,0,,results/runs/cnt_oc_smoke/R-mpl/DS02_r1
+2026-11-20 15:33:55,oc_smoke,R-mpl,dev,D001,single,공정 엔지니어,1,1,1,line,1,1,2,0,,,3,0,0,0,0,0,56.43,0.65,58.747,script,0,0,,results/runs/cnt_oc_smoke/R-mpl/D001_r1

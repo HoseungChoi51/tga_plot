@@ -1,0 +1,17 @@
+```json
+{
+  "file": "isothermal.txt",
+  "preset": "none",
+  "x": {"col": "A", "label": "Time (min)"},
+  "y1": {"col": "C", "label": "Weight (%)"},
+  "y2": {"col": "B", "label": "Temperature (°C)"},
+  "annotate": {
+    "weight_at_140": {
+      "type": "value_at_x",
+      "on": "y1",
+      "x": 140,
+      "text": "Weight {y:.2f}%"
+    }
+  }
+}
+```

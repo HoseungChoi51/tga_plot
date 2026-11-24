@@ -1,0 +1,23 @@
+{
+ "file": "data/doe_temp_h2.csv",
+ "chart": "heatmap",
+ "x": "H2/C2H4비",
+ "y": "2존온도(°C)",
+ "z": {
+  "col": "수율(g/g-cat)",
+  "agg": "mean"
+ },
+ "asks": [
+  {
+   "ask": "DOE heatmap (행: 2존온도, 열: H2/C2H4비)",
+   "how": "key"
+  },
+  {
+   "ask": "값은 수율 평균",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_a/P-ec/D024_r1/out/t1"
+ }
+}

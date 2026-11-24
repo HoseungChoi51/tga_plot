@@ -1,0 +1,3 @@
+```json
+{"file": "cnt_batches.xlsx", "sheets": "Acid-washed", "x": {"minor": true}, "asks": [{"ask": "Acid-washed 시트", "how": "key"}, {"ask": "x축 보조 눈금", "how": "key"}]}
+```

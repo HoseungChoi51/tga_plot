@@ -1,0 +1,32 @@
+{
+ "file": "data/downtime.xlsx",
+ "chart": "pie",
+ "x": "원인",
+ "y": "count",
+ "filter": [
+  "일자 between 2026-06-01 and 2026-08-30"
+ ],
+ "values": "percent",
+ "colors": "mono",
+ "asks": [
+  {
+   "ask": "6월 1일부터 8월 30일까지 설비 정지 건수",
+   "how": "key"
+  },
+  {
+   "ask": "원인별 비율 파이차트",
+   "how": "key"
+  },
+  {
+   "ask": "흑백 (회색 톤)",
+   "how": "key"
+  },
+  {
+   "ask": "퍼센트 표시",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S003_r2/out/t1"
+ }
+}

@@ -1,0 +1,29 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "line",
+ "x": {
+  "col": "일자"
+ },
+ "y": {
+  "col": "잔류금속 (wt%)",
+  "agg": "mean"
+ },
+ "by": "반응기",
+ "asks": [
+  {
+   "ask": "R4 잔류금속 시간 변화",
+   "how": "key"
+  },
+  {
+   "ask": "일자별 추이",
+   "how": "key"
+  },
+  {
+   "ask": "반응기별 선으로 비교",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/sessions/E3_G8_P-hyb/out/t3"
+ }
+}

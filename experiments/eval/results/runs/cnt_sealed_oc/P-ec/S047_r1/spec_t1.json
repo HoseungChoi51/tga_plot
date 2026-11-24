@@ -1,0 +1,35 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheets": "런로그",
+ "chart": "line",
+ "x": {
+  "col": "일자"
+ },
+ "y": {
+  "col": "누적생산량_kg",
+  "agg": "sum"
+ },
+ "by": "반응기",
+ "data_code": "date_col = df.columns[1]\nreactor_col = df.columns[4]\nprod_speed_col = df.columns[17]\nruntime_col = df.columns[15]\ndf['단위생산량'] = df[prod_speed_col] * df[runtime_col] / 1000\ndf = df.sort_values(date_col)\ndf['누적생산량_kg'] = df.groupby(reactor_col)['단위생산량'].cumsum()",
+ "asks": [
+  {
+   "ask": "Cumulative production per reactor over date",
+   "how": "key"
+  },
+  {
+   "ask": "per-run production calculation",
+   "how": "data_code"
+  },
+  {
+   "ask": "One line per reactor",
+   "how": "key"
+  },
+  {
+   "ask": "daily resolution",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-ec/S047_r1/out/t1"
+ }
+}

@@ -1,0 +1,35 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "bar",
+ "x": {
+  "col": "체류시간 (s)",
+  "bins": {
+   "edges": [
+    2.5,
+    3.0,
+    3.5,
+    4.0,
+    4.5,
+    5.0,
+    5.5,
+    6.0,
+    6.5,
+    7.0
+   ]
+  }
+ },
+ "y": {
+  "col": "CNT수율 (g/g-cat)",
+  "agg": "mean"
+ },
+ "values": "n",
+ "asks": [
+  {
+   "ask": "막대 위에 구간별 런 수(n) 표시",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_a/P-mpl/DS01_r1/out/t3"
+ }
+}

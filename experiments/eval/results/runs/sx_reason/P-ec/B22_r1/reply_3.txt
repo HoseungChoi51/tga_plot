@@ -1,0 +1,10 @@
+{
+  "file": "cnt_batches.xlsx",
+  "sheets": "Raw",
+  "y1": {
+    "normalize": {
+      "x": 150,
+      "value": 100
+    }
+  }
+}

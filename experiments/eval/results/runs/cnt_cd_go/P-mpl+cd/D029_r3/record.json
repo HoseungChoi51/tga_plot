@@ -1,0 +1,86 @@
+{
+ "arm": "P-mpl+cd",
+ "item": "D029",
+ "repeat": 3,
+ "split": "dev",
+ "persona": "공정 엔지니어",
+ "type": "single",
+ "cd": "full",
+ "backend": "anthropic",
+ "model": "qwen3.8-flash",
+ "effort": "",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "26주 전체 등급(A/B/C) 비율 pie. 색은 A 초록, B 주황, C 빨강, % 라벨 소수 1자리.",
+   "calls": [
+    {
+     "reply": "{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheets\": \"런로그\",\n  \"title\": \"\",\n  \"x\": \"등급 (A/B/C)\",\n  \"y1\": \"CNT수율 (g/g-cat)\",\n  \"y2\": false\n}",
+     "llm_s": 2.384,
+     "prompt_tokens": 6279,
+     "output_tokens": 64,
+     "cached_tokens": 5297,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": ""
+    },
+    {
+     "reply": "{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheets\": \"런로그\",\n  \"title\": \"\",\n  \"x\": \"V\",\n  \"y1\": \"Q\",\n  \"y2\": false\n}",
+     "llm_s": 3.4,
+     "prompt_tokens": 6467,
+     "output_tokens": 53,
+     "cached_tokens": 5297,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": ""
+    },
+    {
+     "reply": "{\n  \"file\": \"data/run_log.xlsx\",\n  \"sheets\": \"런로그\",\n  \"title\": \"\",\n  \"x\": \"등급\",\n  \"y1\": \"CNT수율\",\n  \"y2\": false\n}",
+     "llm_s": 2.091,
+     "prompt_tokens": 6641,
+     "output_tokens": 55,
+     "cached_tokens": 5297,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": "end_turn",
+     "schema_ok": true,
+     "schema_error": ""
+    }
+   ],
+   "spec": {
+    "file": "data/run_log.xlsx",
+    "sheets": "런로그",
+    "title": "",
+    "x": "등급",
+    "y1": "CNT수율",
+    "y2": false
+   },
+   "engine": "matplotlib",
+   "result": {
+    "ok": false,
+    "error": "run_log.xlsx / \"런로그\" x.col: no column matches \"등급\"",
+    "hint": "use a letter or part of one of these names: C \"-\", H \"°C\", I \"°C\", J \"°C\", K \"sccm\", L \"sccm\", M \"-\", N \"s\", O \"%\", P \"h\", Q \"g/g-cat\", R \"g/h\", S \"wt%\", T \"°C\", U \"-\""
+   },
+   "facts": [],
+   "draw_s": 0.5021882057189941,
+   "check": {
+    "kind_expected": "pie",
+    "failed": [
+     "run: no plot (run_log.xlsx / \"런로그\" x.col: no column matches \"등급\")"
+    ],
+    "unchecked": [],
+    "n_checks": 1,
+    "n_failed": 1,
+    "pass": false
+   },
+   "turn_s": 9.705
+  }
+ ]
+}

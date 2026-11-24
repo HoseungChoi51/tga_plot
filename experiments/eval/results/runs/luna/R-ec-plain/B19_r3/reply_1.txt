@@ -1,0 +1,128 @@
+```python
+import json
+import numpy as np
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+
+df = pd.read_excel(DATA_FILE, sheet_name="PVC")
+df.columns = [str(c).strip() for c in df.columns]
+
+temperature = pd.to_numeric(df["Temperature (°C)"], errors="coerce").to_numpy()
+weight = pd.to_numeric(df["Weight (%)"], errors="coerce").to_numpy()
+
+valid = np.isfinite(temperature) & np.isfinite(weight)
+temperature = temperature[valid]
+weight = weight[valid]
+
+def weight_at(target):
+    order = np.argsort(temperature)
+    return float(np.interp(target, temperature[order], weight[order]))
+
+start_temp, end_temp = 200.0, 400.0
+start_weight = weight_at(start_temp)
+end_weight = weight_at(end_temp)
+mass_loss = start_weight - end_weight
+
+# Keep the plotted data within the requested temperature interval and include
+# interpolated boundary values so the highlighted interval is exact.
+inside = (temperature > start_temp) & (temperature < end_temp)
+plot_t = np.concatenate(([start_temp], temperature[inside], [end_temp]))
+plot_w = np.concatenate(([start_weight], weight[inside], [end_weight]))
+order = np.argsort(plot_t)
+plot_t = plot_t[order]
+plot_w = plot_w[order]
+
+option = {
+    "animation": False,
+    "backgroundColor": "#ffffff",
+    "title": {
+        "text": "PVC 열중량 분석",
+        "subtext": f"200–400 °C 질량 감소량: {mass_loss:.2f}%",
+        "left": "center",
+        "top": 12,
+        "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 20, "fontWeight": "bold", "color": "#263238"},
+        "subtextStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 14, "color": "#455a64"},
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {"type": "cross"},
+        "textStyle": {"fontFamily": "Noto Sans CJK KR"},
+    },
+    "grid": {"left": 76, "right": 32, "top": 100, "bottom": 72},
+    "xAxis": {
+        "type": "value",
+        "name": "온도 (°C)",
+        "nameLocation": "middle",
+        "nameGap": 42,
+        "min": 30,
+        "max": 900,
+        "axisLine": {"lineStyle": {"color": "#607d8b"}},
+        "axisLabel": {"fontFamily": "Noto Sans CJK KR", "color": "#37474f"},
+        "nameTextStyle": {"fontFamily": "Noto Sans CJK KR", "color": "#263238"},
+        "splitLine": {"lineStyle": {"color": "#e8eef1"}},
+    },
+    "yAxis": {
+        "type": "value",
+        "name": "질량 (%)",
+        "nameLocation": "middle",
+        "nameGap": 52,
+        "min": 0,
+        "max": 105,
+        "axisLine": {"lineStyle": {"color": "#607d8b"}},
+        "axisLabel": {"fontFamily": "Noto Sans CJK KR", "color": "#37474f"},
+        "nameTextStyle": {"fontFamily": "Noto Sans CJK KR", "color": "#263238"},
+        "splitLine": {"lineStyle": {"color": "#e8eef1"}},
+    },
+    "series": [
+        {
+            "name": "질량",
+            "type": "line",
+            "showSymbol": False,
+            "smooth": False,
+            "lineStyle": {"width": 2.5, "color": "#1565c0"},
+            "data": [[float(x), float(y)] for x, y in zip(temperature, weight)],
+            "markArea": {
+                "silent": True,
+                "itemStyle": {"color": "rgba(255, 167, 38, 0.18)"},
+                "data": [[{"xAxis": start_temp}, {"xAxis": end_temp}]],
+            },
+            "markPoint": {
+                "symbol": "circle",
+                "symbolSize": 10,
+                "label": {
+                    "show": True,
+                    "fontFamily": "Noto Sans CJK KR",
+                    "fontSize": 12,
+                    "color": "#263238",
+                    "formatter": "질량 감소량: " + f"{mass_loss:.2f}" + "%",
+                    "position": "inside",
+                },
+                "itemStyle": {"color": "#ef6c00"},
+                "data": [{"coord": [300, (start_weight + end_weight) / 2]}],
+            },
+        },
+        {
+            "name": "200–400 °C 구간",
+            "type": "line",
+            "showSymbol": False,
+            "lineStyle": {"width": 4, "color": "#ef6c00"},
+            "data": [[float(x), float(y)] for x, y in zip(plot_t, plot_w)],
+        },
+    ],
+}
+
+result = {
+    "figures": [
+        {
+            "name": "pvc_mass_loss_200_400C",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"],
+        }
+    ]
+}
+print(json.dumps(result, ensure_ascii=False, allow_nan=False))
+```

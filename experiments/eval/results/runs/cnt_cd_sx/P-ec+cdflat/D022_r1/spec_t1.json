@@ -1,0 +1,30 @@
+{
+ "file": "data/diameters.csv",
+ "chart": "histogram",
+ "filter": [
+  "시료 in [TEM-01, TEM-02]"
+ ],
+ "x": "직경(nm)",
+ "bins": {
+  "width": 1,
+  "min": 3,
+  "max": 28
+ },
+ "asks": [
+  {
+   "ask": "TEM-01, TEM-02만 필터",
+   "how": "key"
+  },
+  {
+   "ask": "직경 histogram overlay",
+   "how": "key"
+  },
+  {
+   "ask": "bin 1 nm 간격 3~28 nm",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_sx/P-ec+cdflat/D022_r1/out/t1"
+ }
+}

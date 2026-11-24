@@ -1,0 +1,33 @@
+{
+ "file": "data/tga_batches.xlsx",
+ "sheets": [
+  "R4-260407-1",
+  "R4-260721-1"
+ ],
+ "combine": true,
+ "y2": false,
+ "x": {
+  "col": "B"
+ },
+ "y1": {
+  "col": "D"
+ },
+ "names": [
+  "R4-260407-1",
+  "R4-260721-1"
+ ],
+ "title": "R4 DTG 비교",
+ "asks": [
+  {
+   "ask": "tga r4 두개 시트 선택",
+   "how": "key"
+  },
+  {
+   "ask": "dtg 비교 그래프",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-ec/D005_r3/out/t1"
+ }
+}

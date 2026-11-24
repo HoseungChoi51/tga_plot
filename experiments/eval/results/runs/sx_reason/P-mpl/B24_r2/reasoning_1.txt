@@ -1,0 +1,55 @@
+We need answer user's request in Korean? Test mode: cannot run commands, inspect given. Do step 2 only: reply with JSON spec for user's request, inside one ```json block, and nothing else. Need produce spec. User: "PE 시트를 온도 단위 켈빈(K)으로 바꿔서 그려줘" Means plot PE sheet, change temperature unit to Kelvin. Need infer spec. We have TGA data. Need keep TGA preset? Temperature x is Celsius. They want unit Kelvin. How to convert? plotkit likely can't convert units via key? Need use extra code? We need only JSON spec. Need set sheets PE. Need x label maybe "Temperature (K)"? But data remains Celsius unless code converts x. Could use code to convert x array? Names: fig, ax1, ax2, x, y1, y2, sheet, plt, np. Code runs after drawing and before saving. If we just change label to K but x values still Celsius, wrong. Need convert x axis values to Kelvin? Can code set x data? We have x numpy array of plotted data, but after drawing, line data maybe can update. Need maybe ax1.set_xticks? But x values are Celsius. To convert axis to Kelvin, we can set x tick labels? Better update line data: for line in ax1.get_lines(): line.set_xdata(x + 273.15); if ax2: for line in ax2.get_lines(): line.set_xdata(x + 273.15). Also update x label? Could include x.label: "Temperature (K)"? But if code updates x data, annotations? Residue/peak annotations maybe based on original x? TGA preset annotations may be drawn before code? Code after drawing, so annotation positions maybe Celsius? If convert x data, annotations may be wrong if they are text/points. Could maybe use code to convert x axis using secondary axis? But likely simplest: use code to shift x data and set xlim? Need preserve annotations? If user asks change unit to Kelvin, maybe they expect axis values in K. Could set x label and tick labels manually: convert tick values to K but line data still Celsius? That's deceptive. Maybe plotkit supports x unit? No key. Extra code only. Need produce a spec with code robust enough. Could code replot? "Do not write a new plotting script. If no key covers request, put a few lines of matplotlib in code." So code can update x data.
+
+Need consider TGA preset y2 derivative with respect to Celsius? If x changes to Kelvin, derivative units %/K numerically same as %/°C because scale same, offset doesn't change derivative. So y2 okay. Need maybe x label: "Temperature (K)". Could also x min/max in Kelvin? If set x.min/max? If x data converted in code, maybe axis limits adjust? We can set x.min 303.15 max 1173.15? But if code updates data after drawing, axis limits may already be set? If x.min/max set, initial limits Celsius? Actually if x.min/max in spec likely applied to x axis before drawing? If data is Celsius and we set min 303 max 1173, initial plot would be empty, then code updates data but limits maybe still 303-1173, okay. But if code updates x data to Kelvin, and x limits are Kelvin, good. However if x.min/max applied after code? Unknown. Safer not set x.min/max; let autoscale after cod
+[...]
+duce compact or pretty. Pretty with code string one line. Need ensure no literal newlines inside code string. We'll write one line with \n. In markdown, backslashes visible. Need be careful with `\\d` etc. Let's construct final string manually.
+
+Code string content desired:
+import re
+for a in (ax1, ax2):
+    if a is not None:
+        for line in a.get_lines():
+            line.set_xdata(x + 273.15)
+for t in ax1.texts + (ax2.texts if ax2 is not None else []):
+    p = t.get_position()
+    t.set_position((p[0] + 273.15, p[1]))
+    t.set_text(re.sub(r'(-?\d+(?:\.\d+)?)\s*°C', lambda m: f'{float(m.group(1)) + 273.15:.0f} K', t.get_text()))
+ax1.relim()
+ax1.autoscale_view(scalex=True, scaley=False)
+if ax2 is not None:
+    ax2.relim()
+    ax2.autoscale_view(scalex=True, scaley=False)
+
+JSON encode newlines as \n. Regex: r'(-?\d+(?:\.\d+)?)\s*°C'. In JSON: r'(-?\\d+(?:\\.\\d+)?)\\s*°C'. Need also escape backslash before d? yes.
+
+Full JSON:
+{
+  "file": "polymers.xlsx",
+  "sheets": "PE",
+  "x": {"label": "Temperature (K)"},
+  "code": "import re\nfor a in (ax1, ax2):\n    if a is not None:\n        for line in a.get_lines():\n            line.set_xdata(x + 273.15)\nfor t in ax1.texts + (ax2.texts if ax2 is not None else []):\n    p = t.get_position()\n    t.set_position((p[0] + 273.15, p[1]))\n    t.set_text(re.sub(r'(-?\\d+(?:\\.\\d+)?)\\s*°C', lambda m: f'{float(m.group(1)) + 273.15:.0f} K', t.get_text()))\nax1.relim()\nax1.autoscale_view(scalex=True, scaley=False)\nif ax2 is not None:\n    ax2.relim()\n    ax2.autoscale_view(scalex=True, scaley=False)"
+}
+
+Check JSON validity: The code string contains single quotes, okay. Contains double quotes? no. Contains backslashes: \n and \\d. In final, we need ensure not accidentally markdown escape. We'll put in code block. Good.
+
+But maybe overkill. Could human think code violates "few lines"? It's okay. Could maybe not update annotations text; if plotkit has no annotations? Default has. Good.
+
+Need ensure if ax2 is None, `ax1.texts + (ax2.texts if ax2 is not None else [])` okay. In Python, `ax2.texts` evaluated only if condition true? Conditional expression evaluates only chosen branch, so safe.
+
+Potential issue: `for a in (ax1, ax2): if a is not None: for line in a.get_lines(): line.set_xdata(x + 273.15)` If line is hline with xdata in axes coords, updated. Default no hline. If plotkit adds vertical line for residue? Maybe residue marker is a line with xdata [800,800]? updated. Good. If it adds DTG peak marker line? updated.
+
+Potential issue: If annotation text objects include the y2 axis label? No. If include legend labels? Legend is in legend, not ax.texts. Good.
+
+Potential issue: If text object contains "°C" in something like "Deriv. Weight (%/°C)"? Axis label not in ax.texts. If there is a note with y2 unit, not default. Good.
+
+Potential issue: If annotation text is already K? no.
+
+Need maybe include `annotate: {"residue": true}`? Rule: If user mentions 잔류량 표시 at all include. They didn't. But default residue remains. If code updates position, okay. If no data? PE reaches 900, residue at 800 exists. Good.
+
+Need maybe include `annotate: {"peak": {"text": "{x:.0f} K"}}`? But x Celsius. Code updates text. If code regex converts "450 °C" to "723 K". If default text template is "{x:.0f} °C" yes. If default text maybe "Peak at {x:.0f} °C"? regex handles. If default text maybe "DTG peak: {x:.0f} °C". Good. If default text has no °C but just number? Then no conversion. But guide default peak text: "{x:.0f} °C". Good.
+
+Need maybe if peak count >1? default 1.
+
+Could code update text positions for all text objects including maybe annotation text that is not in data coords but in axes coords? If text is placed with `where` e.g. "upper right" for note, position axes fraction. Default annotations not. If user had note, not. Good.
+
+Alternative: Could simply set `x: {"label": "Temperature (K)"}` and code to relabel ticks, shorter. But final with robust code likely okay. Need ensure answer only JSON. Final.

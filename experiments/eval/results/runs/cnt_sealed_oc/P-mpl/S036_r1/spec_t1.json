@@ -1,0 +1,30 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "scatter",
+ "x": "외기습도 (%)",
+ "y": [
+  {
+   "col": "CNT수율 (g/g-cat)",
+   "label": "CNT수율"
+  },
+  {
+   "col": "IG/ID",
+   "label": "IG/ID"
+  }
+ ],
+ "trend": true,
+ "asks": [
+  {
+   "ask": "습도가 품질에 영향이 있는지 확인",
+   "how": "key"
+  },
+  {
+   "ask": "어떻게 그리면 좋을지 잘 모르겠음 (추천: 습도 vs 수율/IG-ID 산점도 및 추세선)",
+   "how": "code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S036_r1/out/t1"
+ }
+}

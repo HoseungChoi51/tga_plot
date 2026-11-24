@@ -1,0 +1,9 @@
+```json
+{
+  "file": "rheology.csv",
+  "preset": "none",
+  "x": {"col": "A", "log": true},
+  "y1": {"col": "B", "log": true},
+  "y2": {"col": "C", "log": true}
+}
+```

@@ -1,0 +1,1 @@
+We need answer user's request in test mode: "TGA.xlsx 그래프 그려줘". Need produce JSON spec only inside ```json block, nothing else. Need analyze. User asks generic plot TGA.xlsx. According guide default TGA preset. So spec {"file": "TGA.xlsx"}. Need ensure exact file name from inspect: TGA.xlsx. No extra keys. Final only json block.

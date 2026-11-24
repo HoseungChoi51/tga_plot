@@ -1,0 +1,131 @@
+We need answer user's latest: "no ```python block in the reply Reply with the corrected complete script only, inside one ```python block." But earlier system says reply with complete script inside one ```python block, nothing else. User says no ```python block in the reply? Contradiction: "no ```python block in the reply" likely means previous reply lacked python block? Actually they say "no ```python block in the reply
+Reply with the corrected complete script only, inside one ```python block." So final must have one python fenced block. Need produce Python script. Need satisfy TGA plot request: Korean user: "틱 방향 바깥쪽으로, 틱 라벨 크기 9" => tick direction outside, tick label size 9. Need read DATA_FILE /home/chs/Work/tga_plot/tests/inputs/TGA.xlsx. Generate ECharts JSON to stdout. Need one plot per sheet? Standard TGA plot: one plot per sheet; when no sheet named, every sheet. User didn't specify sheet, so every sheet. Need labels residue and peak always unless user says otherwise. Need tick direction outside and tick label size 9. In ECharts axis tick can have axisTick: {show: true, length: maybe, lineStyle}, but direction outside? ECharts axis tick is drawn outward? Actually axisTick length positive? For Cartesian axes, axisTick.length is length of tick, default 5. Direction? There is axisTick.lineStyle, maybe offset? To make ticks outside? In ECharts, axis line and ticks are outside by default? For value axis, axisTick is outside? Maybe if axisLine onZero? We can set axisTick: {show: true, length: 5, lineStyle: {color: '#000'}}. If want outside, for left axis maybe axisTick: {show: true, length: 5, lineStyle...}. There is axisTick.offset? Not direction. Could set axisLine: {show: true, onZero: false}, axisTick: {show: true, length: 6}. Tick label size 9: axisLabel: {fontSize: 9}. Applies to x, y1, y2 because no axis named. Need also maybe axisTick.show true. Need Korean font? ECharts server-side maybe font family? We can set textStyle fontFamily 'Noto Sans CJK KR'. Need output only JSON. Script should read Excel with pandas/openpyxl. Need handle data rows, columns. Need generate option. Need compute residue nearest 800 C, peak highest DTG above 150 C. For sheets with max temp 750, residue nearest 800 is max temp 750? "nearest 800 °C" so yes nearest measured point, likely last 750. Peak above 150: max of -DTG? DTG negative while mass lost; multiply by -1 so peaks up. Highest DTG peak above 150 means max of -D.W among temp >150. Need marker on curve and label. For y2, use -DTG. Need series: Weight line color #1f4e9c yAxisIndex 0; DTG line color #c0392b yAxisIndex 1. Need legend center left. Need title sheet name. Need x/y labels? Standard TGA plot likely x label Temperature, y1 Weight (%), y2 DTG (%/°C). User didn't request labels but standard? Need include axis labels. Need mark residue and peak. Could use markPoint on Weight series for residue, and markPoint on DTG series for peak? Or scatter series? ECharts markPoint can label. Need no JavaScript f
+[...]
+"Noto Sans CJK KR", "fontSize": 10},
+        "title": {
+            "text": str(sheet_name),
+            "left": "center",
+            "top": 10,
+            "textStyle": {"fontSize": 14, "fontFamily": "Noto Sans CJK KR"}
+        },
+        "legend": {
+            "orient": "vertical",
+            "left": 10,
+            "top": "middle",
+            "itemGap": 12,
+            "textStyle": {"fontSize": 10, "fontFamily": "Noto Sans CJK KR"},
+            "data": [weight_name, dtg_name]
+        },
+        "grid": {"left": 70, "right": 70, "top": 70, "bottom": 70, "containLabel": True},
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {"type": "cross"},
+            "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 10}
+        },
+        "xAxis": {
+            **axis_common(),
+            "type": "value",
+            "name": x_name,
+            "nameLocation": "middle",
+            "nameGap": 35,
+            "splitLine": {"show": False}
+        },
+        "yAxis": [
+            {
+                **axis_common(),
+                "type": "value",
+                "position": "left",
+                "name": weight_name,
+                "nameLocation": "middle",
+                "nameGap": 45,
+                "splitLine": {"show": True, "lineStyle": {"color": "#dddddd"}}
+            },
+            {
+                **axis_common(),
+                "type": "value",
+                "position": "right",
+                "name": dtg_name,
+                "nameLocation": "middle",
+                "nameGap": 50,
+                "splitLine": {"show": False}
+            }
+        ],
+        "series": [w_series, d_series]
+    }
+    return {
+        "name": f"plot{figure_index}",
+        "option": option,
+        "width": 614,
+        "height": 442,
+        "dpi": 300,
+        "formats": ["png"]
+    }
+
+def load_file(path):
+    ext = os.path.splitext(path)[1].lower()
+    if ext in (".xlsx", ".xls", ".xlsm"):
+        try:
+            xls = pd.ExcelFile(path, engine="openpyxl")
+        except Exception:
+            xls = pd.ExcelFile(path, engine="xlrd")
+        out = {}
+        for sn in xls.sheet_names:
+            try:
+                df = pd.read_excel(xls, sheet_name=sn, header=0)
+            except Exception:
+                continue
+            df.columns = [str(c).strip() for c in df.columns]
+            out[str(sn)] = df
+        return out
+    elif ext in (".csv", ".txt"):
+        try:
+            df = pd.read_csv(path)
+        except Exception:
+            return {}
+        df.columns = [str(c).strip() for c in df.columns]
+        return {os.path.splitext(os.path.basename(path))[0]: df}
+    else:
+        try:
+            df = pd.read_excel(path)
+            df.columns = [str(c).strip() for c in df.columns]
+            return {os.path.splitext(os.path.basename(path))[0]: df}
+        except Exception:
+            return {}
+
+def main():
+    files = []
+    env_files = os.environ.get("DATA_FILES")
+    if env_files:
+        files = [p.strip() for p in re.split(r"[;,]", env_files) if p.strip()]
+    if not files:
+        env_file = os.environ.get("DATA_FILE")
+        if env_file:
+            files = [env_file]
+    if not files and len(sys.argv) > 1:
+        files = sys.argv[1:]
+    if not files:
+        files = [DEFAULT_FILE]
+
+    figures = []
+    idx = 1
+    for path in files:
+        try:
+            sheets = load_file(path)
+        except Exception:
+            sheets = {}
+        for sheet_name, df in sheets.items():
+            try:
+                fig = make_figure(sheet_name, df, idx)
+                if fig is not None:
+                    figures.append(fig)
+                    idx += 1
+            except Exception:
+                continue
+    print(json.dumps({"figures": figures}, ensure_ascii=False))
+
+if __name__ == "__main__":
+    main()
+
+Need check Python syntax: dict unpacking **axis_common() inside dict literal okay. But axis_common returns dict. Good.
+
+Need check round(float(a), 6) returns float

@@ -1,0 +1,39 @@
+{
+ "asks": [
+  {
+   "ask": "촉매로트별 평균 CNT수율 bar",
+   "how": "key"
+  },
+  {
+   "ask": "로트 순서 유지 (FC-2602→FC-2608)",
+   "how": "key"
+  },
+  {
+   "ask": "막대 위에 값 라벨 소수 1자리",
+   "how": "key"
+  }
+ ],
+ "chart": "bar",
+ "file": "data/run_log.xlsx",
+ "sheets": "런로그",
+ "values": "{:.1f}",
+ "x": {
+  "col": "촉매로트",
+  "order": [
+   "FC-2602",
+   "FC-2603",
+   "FC-2604",
+   "FC-2605",
+   "FC-2606",
+   "FC-2607",
+   "FC-2608"
+  ]
+ },
+ "y": {
+  "agg": "mean",
+  "col": "CNT수율"
+ },
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdabc/D015_r2/out/t1"
+ }
+}

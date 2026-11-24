@@ -1,0 +1,157 @@
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import find_peaks
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-brief/B18_r3/out"
+
+def get_onset_temperature(temp, weight, dtg):
+    """
+    Calculate the onset temperature using the tangent method on the Weight curve.
+    1. Find the peak of DTG (max mass loss rate) which corresponds to steepest slope in Weight.
+    2. Draw a tangent line at this point of maximum slope.
+    3. Extend this tangent back to intersect the initial baseline.
+    4. The intersection x-coordinate is the onset temperature.
+    """
+    # Ensure we are working with arrays
+    temp = np.array(temp)
+    weight = np.array(weight)
+    dtg = np.array(dtg)
+    
+    # Filter for valid data range if necessary, but usually full range is fine
+    
+    # 1. Identify the main decomposition event by finding the most negative DTG value
+    # Mass loss means negative derivative. Steepest descent is min(DTG).
+    idx_peak_dtg = np.argmin(dtg) 
+    t_peak = temp[idx_peak_dtg]
+    
+    # Get local neighborhood to calculate precise tangent slope
+    window = 5
+    i_start = max(0, idx_peak_dtg - window)
+    i_end = min(len(temp), idx_peak_dtg + window + 1)
+    
+    t_local = temp[i_start:i_end]
+    w_local = weight[i_start:i_end]
+    
+    # Fit linear regression to get slope and intercept of the tangent at the peak
+    coeffs = np.polyfit(t_local, w_local, 1)
+    slope = coeffs[0]
+    intercept = coeffs[1]
+    
+    # Baseline: Average weight before significant decomposition starts
+    # Heuristic: Take average of first 10 points or points where weight is close to initial
+    baseline_weight = np.mean(weight[:10]) 
+    
+    # Onset is where tangent intersects baseline
+    # Equation: y = mx + c  => x = (y - c) / m
+    # Here y = baseline_weight, m = slope, c = intercept
+    if abs(slope) > 1e-6:
+        t_onset = (baseline_weight - intercept) / slope
+    else:
+        t_onset = t_peak
+        
+    # Sanity check: onset should be less than peak temperature and within range
+    if t_onset > t_peak or t_onset < temp[0]:
+        # Fallback: simple threshold method (e.g., 1% weight loss from start)
+        diff = baseline_weight - weight
+        indices = np.where(diff >= 1.0)[0]
+        if len(indices) > 0:
+            t_onset = temp[indices[0]]
+        else:
+            t_onset = t_peak
+            
+    return t_onset
+
+# Read only the Annealed sheet
+df = pd.read_excel(DATA_FILE, sheet_name='Annealed')
+
+# Extract columns based on preview
+time_col = df.columns[0] # Time
+temp_col = df.columns[1] # Temperature
+weight_col = df.columns[2] # Weight
+dtg_col = df.columns[3] # Deriv. Weight
+
+t = df[temp_col].values
+w = df[weight_col].values
+dtg = df[dtg_col].values
+
+# Calculate Onset Temperature
+t_onset = get_onset_temperature(t, w, dtg)
+
+# Create Plot
+fig, ax1 = plt.subplots(figsize=(8, 6))
+
+# Plot Weight (%) on left axis
+color_w = '#1f4e9c'
+ax1.plot(t, w, color=color_w, label='Weight (%)', linewidth=2)
+ax1.set_xlabel('Temperature (°C)', fontsize=12)
+ax1.set_ylabel('Weight (%)', color=color_w, fontsize=12)
+ax1.tick_params(axis='y', labelcolor=color_w)
+ax1.set_xlim(min(t), max(t))
+ax1.set_ylim(0, 105)
+
+# Plot DTG on right axis (inverted so peaks point up)
+ax2 = ax1.twinx()
+color_dtg = '#c0392b'
+ax2.plot(t, -dtg, color=color_dtg, label='DTG (-dW/dT)', linewidth=2)
+ax2.set_ylabel('DTG (%/°C)', color=color_dtg, fontsize=12)
+ax2.tick_params(axis='y', labelcolor=color_dtg)
+
+# Title
+ax1.set_title('Annealed', fontsize=14, fontweight='bold')
+
+# Legend
+lines_1, labels_1 = ax1.get_legend_handles_labels()
+lines_2, labels_2 = ax2.get_legend_handles_labels()
+ax1.legend(lines_1 + lines_2, labels_1 + labels_2, loc='center left', bbox_to_anchor=(0.05, 0.5))
+
+# Mark Residue at ~800°C
+idx_residue = np.argmin(np.abs(t - 800))
+residue_val = w[idx_residue]
+residue_temp = t[idx_residue]
+ax1.plot(residue_temp, residue_val, 'o', color=color_w, markersize=8)
+ax1.annotate(f'Residue {residue_val:.1f}%', xy=(residue_temp, residue_val), 
+             xytext=(10, 10), textcoords='offset points',
+             arrowprops=dict(arrowstyle='->', color=color_w),
+             fontsize=10, color=color_w)
+
+# Mark Peak Temperature (highest DTG peak above 150°C)
+mask_peak = t > 150
+if np.any(mask_peak):
+    t_masked = t[mask_peak]
+    dtg_masked = dtg[mask_peak]
+    # Find min DTG (most negative) -> highest peak in inverted plot
+    idx_min_dtg = np.argmin(dtg_masked)
+    t_peak = t_masked[idx_min_dtg]
+    dtg_peak_val = dtg_masked[idx_min_dtg]
+    
+    ax2.plot(t_peak, -dtg_peak_val, 'v', color=color_dtg, markersize=8)
+    ax2.annotate(f'{t_peak:.0f} °C', xy=(t_peak, -dtg_peak_val), 
+                 xytext=(10, 10), textcoords='offset points',
+                 arrowprops=dict(arrowstyle='->', color=color_dtg),
+                 fontsize=10, color=color_dtg)
+
+# Mark Onset Temperature
+# Draw a vertical dashed line at onset
+ax1.axvline(x=t_onset, color='green', linestyle='--', linewidth=1.5)
+# Add annotation for onset
+ax1.text(t_onset, 102, f'Onset: {t_onset:.1f} °C', color='green', fontsize=10, ha='center', va='bottom')
+
+# Grid
+ax1.grid(True, linestyle=':', alpha=0.6)
+
+plt.tight_layout()
+
+# Save
+import os
+os.makedirs(OUT_DIR, exist_ok=True)
+output_path = os.path.join(OUT_DIR, 'Annealed_tga.png')
+plt.savefig(output_path, dpi=300)
+plt.close()
+```

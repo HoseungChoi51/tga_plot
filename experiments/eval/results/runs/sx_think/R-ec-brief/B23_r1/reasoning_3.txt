@@ -1,0 +1,96 @@
+We need answer user with corrected complete script only inside python block. Need think in English? User request English-ish. Need produce final only python block. Need ensure no syntax error. Need analyze requirements.
+
+We need write Python script reading DATA_FILE cnt_batches.xlsx and output JSON one figure overlay three sheets with colors: Raw black, Acid-washed blue, Annealed red. Standard TGA: x temperature, left y weight %, right y DTG multiplied by -1. One plot per sheet normally, but user says 세 시료 겹쳐서 그리고 = overlay three samples. Need include residue and peak labels always unless user says otherwise. Since overlay, likely include residue labels for each sample and peak labels for each sample. Need maybe mark residue at nearest 800C on weight curve, marker. Peak highest DTG peak above 150C, marker. Need no JS functions. ECharts 6 option. Need output JSON only. Need robust.
+
+Need produce complete script. Must avoid syntax error. Need maybe not too long. Need ensure JSON serializable. Need handle Korean font? Not relevant since ECharts server renders? But option no font? Could set fontFamily Noto Sans CJK KR. Need output {"figures": [{"name": "plot1", "option": {...}, "width": 614, "height": 442, "dpi": 300, "formats": ["png"]}]}.
+
+Need read Excel sheets. Use pandas. Need find columns by names. Need compute negative DTG. Need overlay. Need maybe legend center left? Standard says legend at center left. In ECharts legend left: 10 top middle. But with labels may overlap? okay. Need title maybe "TGA" or maybe combined? Since overlay multiple sheets, maybe title "TGA". Could title be "cnt_batches"? Maybe standard plot title is sheet name; for overlay maybe use file name or "TGA". We can set title "TGA". Need axis labels: x Temperature (°C), y1 Weight (%), y2 DTG (%/°C) maybe note -DTG? Since multiplied by -1. Could y2 name "DTG (%/°C)". Need right axis opposite. Need grid enough left for legend and y axis. width 614 height 442. Need maybe reduce label clutter.
+
+Need ensure data arrays [x,y]. For line series with xAxisIndex, yAxisIndex. Need maybe markPoint labels. Need markPoint data names. Could use custom label formatter? ECharts markPoint formatter can be string with {b}. No JS. Need label position maybe top/right. If multiple labels at same residue x=800, labels may overlap. Could stagger? Maybe use label formatter with sample name and value. Need avoid too long. For residue: "Raw Residue 8.0%" etc. For peak: "Raw 600 °C". Could use markPoint symbol circle size 6. label show. Need maybe label distance and position. If all residue at same x but different y, labels above each point. okay.
+
+Need compute residue: weight at measured point nearest 800 C. If no point? use last? But data has 800. Need maybe if x range includes 800. Use np.argmin(abs(x-800)). Need peak: highest DTG peak above 150 C. DTG negative while mass lost, so we multiply by -1; peak is highest positive negDTG among x>150. Need mark coordinate [x, negDTG] on y2. Need if no peak 
+[...]
+ string with newline. good.
+
+Need maybe if `ensure_ascii=False` degree symbol raw. JSON string contains °, valid UTF-8. good.
+
+Need maybe if stdout environment ascii? Python uses utf-8? Usually. To be safe, could use `sys.stdout.write(json.dumps(...).encode('utf-8').decode('utf-8'))`? print handles. If stdout encoding not utf-8, might error. In eval likely utf-8. Could set `sys.stdout.reconfigure(encoding='utf-8')`? Python 3.7+. Could import sys and reconfigure. But if stdout not available? okay. Add:
+import sys
+try: sys.stdout.reconfigure(encoding="utf-8")
+except Exception: pass
+Then print. Good.
+
+Need maybe if `sys` import. okay.
+
+Potential issue: If `option` contains `None`? mark_data empty lists, no None. residue/peak not included if None. Axis ranges not None. good.
+
+Need maybe if `markPoint` label `padding` list of ints. okay.
+
+Need maybe if `borderRadius` int. okay.
+
+Need maybe if `backgroundColor` in markPoint label accepted at label level. yes.
+
+Need maybe if `tooltip` `axisPointer` type cross. okay.
+
+Need maybe if `legend` `top: "middle"` string. ECharts accepts. good.
+
+Need maybe if `title` `left: "center"`. good.
+
+Need maybe if `grid` `containLabel: False`. good.
+
+Need maybe if `xAxis` `nameGap` maybe too large? okay.
+
+Need maybe if `yAxis` `nameGap` 32. okay.
+
+Need maybe if y2 axis name on right rotated? nameLocation middle rotates? In ECharts, y axis nameLocation middle rotates 90 deg by default? Yes. nameGap distance. good.
+
+Need maybe if `series` `z` values. okay.
+
+Need maybe if `lineStyle.type` 'dashed' for DTG. Good.
+
+Need maybe if legend icon for dashed? If same name, first series weight solid, legend icon solid. okay.
+
+Need maybe if user wants Raw black etc, both curves same color. Good.
+
+Potential issue: If two series same name, legend item color may be from first series (weight) color, same. good.
+
+Potential issue: If `legend` data includes names, but if a sample has only weight no dtg, still legend. okay.
+
+Need maybe if `samples` order: Raw, Acid-washed, Annealed. If sheet order different, colors still. Good.
+
+Need maybe if `color_map` lower exact. If sheet name 'Acid washed' with space not match, default maybe blue if idx 1? If order Raw, Acid washed, Annealed, default colors: idx0 black, idx1 blue, idx2 red. Good. If order different, color_map lower maybe not. Could add aliases: 'acid washed', 'acid-washed', 'acidwashed'. But file exact. Could implement normalize: key = str(sheet).lower().replace(' ', '-').replace('_','-'). Then color_map keys. Good. Add:
+def norm_key(s): return str(s).lower().replace(' ', '-').replace('_','-')
+color_map = {'raw':..., 'acid-washed':..., 'annealed':...}
+color = color_map.get(norm_key(sheet), default_colors[idx % len])
+Good.
+
+Need maybe if sheet name 'Acid-washed ' trailing, strip. norm_key strip. good.
+
+Potential issue: If default color for idx if sheet not found but idx maybe 1 for Acid-washed if order. good.
+
+Need maybe if requested colors but sheet order unknown, norm ensures.
+
+Need maybe if more than 3, default. good.
+
+Need maybe if `pd.ExcelFile` context manager not available in old pandas? It is. Could avoid context to be safe:
+xl = pd.ExcelFile(path); sheets = list(xl.sheet_names)
+But file handle remains. okay. Use try.
+
+Need maybe if `pd.ExcelFile` engine auto. okay.
+
+Potential issue: If `DATA_FILE` is not xlsx but csv, pd.ExcelFile fails and sheets Sheet1, load_sheet pd.read_excel fails. Could implement generic read_data. But DATA_FILE xlsx. However robust maybe:
+def read_sheet(path, sheet):
+   try: return pd.read_excel(path, sheet_name=sheet)
+   except: return pd.read_csv(path)
+But if csv, sheet_name irrelevant. Could add. Not necessary but safe.
+
+Could implement:
+def read_dataframe(path, sheet):
+    try:
+        return pd.read_excel(path, sheet_name=sheet)
+    except Exception:
+        try:
+            return pd.read_csv(path)
+        except Exception:
+            return None
+Then load_sheet uses. Good. But if Excel file with multiple sheets and pd.read_excel

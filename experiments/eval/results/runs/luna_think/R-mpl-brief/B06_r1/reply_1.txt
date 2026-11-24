@@ -1,0 +1,64 @@
+```python
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import pandas as pd
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/eval/inputs_b/isothermal.txt")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna_think/R-mpl-brief/B06_r1/out")
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+# Read the text file, allowing common comma-, tab-, or whitespace-separated formats.
+df = pd.read_csv(DATA_FILE, sep=None, engine="python", comment="#")
+if df.shape[1] < 3:
+    df = pd.read_csv(DATA_FILE, sep=r"\s+", engine="python", comment="#")
+
+# The preview identifies columns A, B, C as time, temperature, and weight.
+time = pd.to_numeric(df.iloc[:, 0], errors="coerce")
+temperature = pd.to_numeric(df.iloc[:, 1], errors="coerce")
+weight = pd.to_numeric(df.iloc[:, 2], errors="coerce")
+data = pd.DataFrame({"time": time, "temperature": temperature, "weight": weight}).dropna()
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+fig, ax1 = plt.subplots(figsize=(9, 5.5))
+ax2 = ax1.twinx()
+
+weight_line, = ax1.plot(
+    data["time"], data["weight"], color="#1f4e9c", linewidth=2, label="무게 (%)"
+)
+temperature_line, = ax2.plot(
+    data["time"], data["temperature"], color="#c0392b", linewidth=2, label="온도 (°C)"
+)
+
+# Mark and label the measured weight at the point nearest 140 minutes.
+idx = (data["time"] - 140).abs().idxmin()
+point = data.loc[idx]
+ax1.scatter(point["time"], point["weight"], color="#1f4e9c", edgecolor="white", zorder=5)
+ax1.annotate(
+    f'{point["weight"]:.2f}%',
+    xy=(point["time"], point["weight"]),
+    xytext=(-10, 12),
+    textcoords="offset points",
+    ha="right",
+    color="#1f4e9c",
+    fontsize=10,
+    bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="#1f4e9c", alpha=0.9),
+)
+
+ax1.set_xlabel("시간 (분)")
+ax1.set_ylabel("무게 (%)", color="#1f4e9c")
+ax2.set_ylabel("온도 (°C)", color="#c0392b")
+ax1.tick_params(axis="y", labelcolor="#1f4e9c")
+ax2.tick_params(axis="y", labelcolor="#c0392b")
+ax1.set_xlim(data["time"].min(), data["time"].max())
+ax1.grid(True, alpha=0.25)
+ax1.legend([weight_line, temperature_line], ["무게 (%)", "온도 (°C)"], loc="best")
+fig.tight_layout()
+
+fig.savefig(OUT_DIR / "isothermal_weight_temperature.png", dpi=300, bbox_inches="tight")
+plt.close(fig)
+```

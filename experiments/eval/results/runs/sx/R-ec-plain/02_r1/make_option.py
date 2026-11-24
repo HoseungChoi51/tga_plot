@@ -1,0 +1,204 @@
+import pandas as pd
+import numpy as np
+import json
+
+# Load the specific sheet requested
+file_path = "/home/chs/CNT/Plot/tests/inputs/TGA.xlsx"
+sheet_name = "1006R1-V normal"
+
+try:
+    df = pd.read_excel(file_path, sheet_name=sheet_name)
+except Exception as e:
+    print(json.dumps({"error": f"Failed to read file: {str(e)}"}))
+    exit()
+
+# Identify columns based on preview description
+# B: Temperature (X-axis)
+# C: Weight(%) (Y1-axis)
+# D: D.W(%/C) (Y2-axis - Derivative Weight)
+
+x_col = 'Temperature'
+y1_col = 'Weight(%)'
+y2_col = 'D.W(%/C)'
+
+# Clean data: remove NaN and ensure numeric types
+df[x_col] = pd.to_numeric(df[x_col], errors='coerce')
+df[y1_col] = pd.to_numeric(df[y1_col], errors='coerce')
+df[y2_col] = pd.to_numeric(df[y2_col], errors='coerce')
+df = df.dropna(subset=[x_col, y1_col, y2_col])
+
+if df.empty:
+    print(json.dumps({"figures": []}))
+    exit()
+
+# Prepare data for ECharts
+# ECharts line series expects [[x, y], ...] format for scatter/line with xAxis type 'value'
+data_y1 = [[float(row[x_col]), float(row[y1_col])] for _, row in df.iterrows()]
+data_y2 = [[float(row[x_col]), float(row[y2_col])] for _, row in df.iterrows()]
+
+# Calculate Residue at 800°C
+# Find the row where Temperature is closest to 800
+target_temp = 800.0
+idx_closest = (df[x_col] - target_temp).abs().idxmin()
+residue_weight = float(df.loc[idx_closest, y1_col])
+actual_temp_at_residue = float(df.loc[idx_closest, x_col])
+
+# Calculate Max Deriv.Weight
+max_deriv_weight = float(df[y2_col].max())
+idx_max_deriv = df[y2_col].idxmax()
+temp_at_max_deriv = float(df.loc[idx_max_deriv, x_col])
+
+# Define Axis Ticks
+# Temperature: 0 to max, step 200
+temp_max = float(df[x_col].max())
+# Generate ticks from 0 up to slightly above max, step 200
+ticks_x = list(range(0, int(temp_max) + 200, 200))
+
+# Y1 (Weight): 0 to 100, step 20
+ticks_y1 = list(range(0, 101, 20))
+
+# Y2 (Deriv Weight): Determine range. Min is negative, Max is positive small number.
+# User asked for 0.2 steps.
+deriv_min = float(df[y2_col].min())
+deriv_max = float(df[y2_col].max())
+# Round down min to nearest 0.2, round up max to nearest 0.2
+start_y2 = np.floor(deriv_min / 0.2) * 0.2
+end_y2 = np.ceil(deriv_max / 0.2) * 0.2
+# Ensure we have a reasonable range
+if end_y2 <= start_y2:
+    end_y2 = start_y2 + 0.2
+    
+ticks_y2 = np.arange(start_y2, end_y2 + 0.01, 0.2).tolist()
+# Format floats to avoid precision issues in JSON
+ticks_y2 = [round(float(t), 2) for t in ticks_y2]
+
+# Build ECharts Option
+option = {
+    "backgroundColor": "#fff",
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {"type": "cross"},
+    },
+    "legend": {
+        "data": ["Weight (%)", "Deriv. Weight (%/°C)"],
+        "top": "5%",
+        "textStyle": {"fontFamily": "Noto Sans CJK KR"}
+    },
+    "grid": {
+        "left": "10%",
+        "right": "10%",
+        "bottom": "15%",
+        "containLabel": True
+    },
+    "xAxis": {
+        "name": "Temperature (°C)",
+        "type": "value",
+        "min": 0,
+        "max": temp_max + 50, # Slight padding
+        "interval": 200,
+        "splitLine": {"show": False},
+        "axisLabel": {
+            "formatter": "{value}",
+            "fontFamily": "Noto Sans CJK KR"
+        },
+        "nameTextStyle": {"fontFamily": "Noto Sans CJK KR", "padding": [0, 0, 0, 10]}
+    },
+    "yAxis": [
+        {
+            "name": "Weight (%)",
+            "type": "value",
+            "position": "left",
+            "min": 0,
+            "max": 100,
+            "interval": 20,
+            "axisLabel": {
+                "formatter": "{value} %",
+                "fontFamily": "Noto Sans CJK KR"
+            },
+            "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"}
+        },
+        {
+            "name": "Deriv. Weight (%/°C)",
+            "type": "value",
+            "position": "right",
+            "min": float(start_y2),
+            "max": float(end_y2),
+            "interval": 0.2,
+            "axisLabel": {
+                "formatter": "{value}",
+                "fontFamily": "Noto Sans CJK KR"
+            },
+            "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"}
+        }
+    ],
+    "series": [
+        {
+            "name": "Weight (%)",
+            "type": "line",
+            "yAxisIndex": 0,
+            "data": data_y1,
+            "smooth": True,
+            "symbol": "none",
+            "lineStyle": {"width": 2, "color": "#5470c6"},
+            "markPoint": {
+                "data": [
+                    {
+                        "coord": [actual_temp_at_residue, residue_weight],
+                        "name": "Residue @ 800°C",
+                        "label": {
+                            "show": True,
+                            "formatter": f"Residue: {residue_weight:.2f}%\nTemp: {actual_temp_at_residue:.0f}°C",
+                            "position": "top",
+                            "fontSize": 10,
+                            "fontFamily": "Noto Sans CJK KR",
+                            "backgroundColor": "rgba(255,255,255,0.8)",
+                            "borderColor": "#ccc",
+                            "borderWidth": 1
+                        },
+                        "itemStyle": {"color": "#ee6666"}
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Deriv. Weight (%/°C)",
+            "type": "line",
+            "yAxisIndex": 1,
+            "data": data_y2,
+            "smooth": True,
+            "symbol": "none",
+            "lineStyle": {"width": 2, "color": "#91cc75"},
+            "markPoint": {
+                "data": [
+                    {
+                        "coord": [temp_at_max_deriv, max_deriv_weight],
+                        "name": "Max Deriv. Weight",
+                        "label": {
+                            "show": True,
+                            "formatter": f"Max: {max_deriv_weight:.3f}",
+                            "position": "top",
+                            "fontSize": 10,
+                            "fontFamily": "Noto Sans CJK KR",
+                            "backgroundColor": "rgba(255,255,255,0.8)",
+                            "borderColor": "#ccc",
+                            "borderWidth": 1
+                        },
+                        "itemStyle": {"color": "#fac858"}
+                    }
+                ]
+            }
+        }
+    ]
+}
+
+figure = {
+    "name": "plot1",
+    "option": option,
+    "width": 800,
+    "height": 500,
+    "dpi": 300,
+    "formats": ["png"]
+}
+
+output = {"figures": [figure]}
+print(json.dumps(output, ensure_ascii=False))

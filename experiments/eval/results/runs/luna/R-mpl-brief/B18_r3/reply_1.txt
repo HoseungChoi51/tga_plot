@@ -1,0 +1,131 @@
+```python
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-brief/B18_r3/out")
+SHEET_NAME = "Annealed"
+
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+# Read the named TGA columns from the requested worksheet.
+df = pd.read_excel(DATA_FILE, sheet_name=SHEET_NAME)
+cols = {str(c).strip().lower(): c for c in df.columns}
+
+def find_column(term):
+    matches = [c for key, c in cols.items() if term in key]
+    if not matches:
+        raise ValueError(f"'{term}'에 해당하는 열을 찾을 수 없습니다: {list(df.columns)}")
+    return matches[0]
+
+temperature_col = find_column("temperature")
+weight_col = find_column("weight")
+dtg_col = find_column("deriv")
+
+data = df[[temperature_col, weight_col, dtg_col]].apply(pd.to_numeric, errors="coerce").dropna()
+data = data.sort_values(temperature_col)
+temperature = data[temperature_col].to_numpy(dtype=float)
+weight = data[weight_col].to_numpy(dtype=float)
+dtg = data[dtg_col].to_numpy(dtype=float)
+
+# Estimate onset by the tangent-intersection method:
+# find the strongest mass-loss DTG peak above 150 °C, fit a tangent to the
+# weight curve at that peak, and intersect it with the pre-event baseline.
+valid = temperature > 150
+if not np.any(valid):
+    raise ValueError("150 °C를 넘는 측정 데이터가 없습니다.")
+
+peak_idx = np.flatnonzero(valid)[np.argmin(dtg[valid])]
+peak_temp = temperature[peak_idx]
+
+# Use a local linear fit around the DTG minimum for a robust tangent slope.
+window = max(5, int(round(len(temperature) * 0.02)))
+lo = max(0, peak_idx - window)
+hi = min(len(temperature), peak_idx + window + 1)
+local_t = temperature[lo:hi]
+local_w = weight[lo:hi]
+slope, intercept = np.polyfit(local_t, local_w, 1)
+
+if abs(slope) < 1e-12:
+    raise ValueError("DTG 피크 부근의 기울기가 너무 작아 onset을 계산할 수 없습니다.")
+
+# Baseline is the mean weight in the initial region before the main mass-loss event.
+baseline_end = max(1, int(np.searchsorted(temperature, peak_temp * 0.65)))
+baseline_end = min(baseline_end, peak_idx)
+baseline = float(np.nanmean(weight[:baseline_end])) if baseline_end > 0 else float(weight[0])
+onset_temp = (baseline - intercept) / slope
+
+# Keep the calculated intersection visible even if it falls outside the measured range.
+residue_idx = int(np.argmin(np.abs(temperature - 800)))
+residue_temp = float(temperature[residue_idx])
+residue_weight = float(weight[residue_idx])
+
+fig, ax1 = plt.subplots(figsize=(9, 6))
+ax2 = ax1.twinx()
+
+line1, = ax1.plot(temperature, weight, color="#1f4e9c", lw=2, label="Weight (%)")
+line2, = ax2.plot(temperature, -dtg, color="#c0392b", lw=1.8, label="−DTG (%/°C)")
+
+# Display the extrapolated onset tangent and baseline intersection.
+tangent_x = np.linspace(max(temperature.min(), onset_temp - 40), min(temperature.max(), peak_temp + 30), 150)
+if tangent_x.size < 2:
+    tangent_x = np.linspace(onset_temp - 20, onset_temp + 20, 150)
+ax1.plot(tangent_x, slope * tangent_x + intercept, "--", color="#6c3483", lw=1.5, label="Peak tangent")
+ax1.axhline(baseline, color="#777777", ls=":", lw=1.2, label="Initial baseline")
+ax1.axvline(onset_temp, color="#6c3483", ls="--", lw=1.2)
+ax1.scatter([onset_temp], [baseline], color="#6c3483", edgecolor="white", linewidth=0.8, zorder=5)
+ax1.annotate(
+    f"Onset {onset_temp:.1f} °C",
+    xy=(onset_temp, baseline),
+    xytext=(8, 12),
+    textcoords="offset points",
+    color="#6c3483",
+    fontsize=10,
+    fontweight="bold",
+)
+
+# Standard TGA residue and peak annotations.
+ax1.scatter([residue_temp], [residue_weight], color="#1f4e9c", edgecolor="white", linewidth=0.8, zorder=5)
+ax1.annotate(
+    f"Residue {residue_weight:.1f}%",
+    xy=(residue_temp, residue_weight),
+    xytext=(-8, 10),
+    textcoords="offset points",
+    ha="right",
+    color="#1f4e9c",
+    fontsize=9,
+)
+peak_value = float(-dtg[peak_idx])
+ax2.scatter([peak_temp], [peak_value], color="#c0392b", edgecolor="white", linewidth=0.8, zorder=5)
+ax2.annotate(
+    f"{peak_temp:.0f} °C",
+    xy=(peak_temp, peak_value),
+    xytext=(7, 8),
+    textcoords="offset points",
+    color="#c0392b",
+    fontsize=9,
+)
+
+ax1.set_title(SHEET_NAME)
+ax1.set_xlabel("Temperature (°C)")
+ax1.set_ylabel("Weight (%)", color="#1f4e9c")
+ax2.set_ylabel("−DTG (%/°C)", color="#c0392b")
+ax1.tick_params(axis="y", labelcolor="#1f4e9c")
+ax2.tick_params(axis="y", labelcolor="#c0392b")
+ax1.grid(True, alpha=0.25)
+
+handles = [line1, line2] + ax1.get_lines()[1:]
+labels = [h.get_label() for h in handles]
+ax1.legend(handles, labels, loc="center left", frameon=True, fontsize=9)
+
+fig.tight_layout()
+fig.savefig(OUT_DIR / "Annealed_onset.png", dpi=300, bbox_inches="tight")
+plt.close(fig)
+```

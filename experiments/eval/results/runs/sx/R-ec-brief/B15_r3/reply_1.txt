@@ -1,0 +1,269 @@
+```python
+import pandas as pd
+import numpy as np
+import json
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/polymers.xlsx"
+
+def find_nearest(arr, target):
+    """Find the index of the value in arr closest to target."""
+    return int(np.argmin(np.abs(arr - target)))
+
+def get_tga_data(df):
+    """Extract temperature, weight, and DTG from a TGA dataframe."""
+    # Identify columns based on names
+    temp_col = None
+    weight_col = None
+    dtg_col = None
+    
+    for col in df.columns:
+        c_lower = str(col).lower()
+        if 'temperature' in c_lower or 'temp' in c_lower:
+            temp_col = col
+        elif 'weight' in c_lower and 'deriv' not in c_lower and 'dtg' not in c_lower:
+            weight_col = col
+        elif 'deriv' in c_lower or 'dtg' in c_lower:
+            dtg_col = col
+            
+    if temp_col is None or weight_col is None or dtg_col is None:
+        # Fallback to standard positions if names don't match exactly but structure is known
+        # Assuming B=Temp, C=Weight, D=DTG based on preview
+        temp_col = df.columns[1]
+        weight_col = df.columns[2]
+        dtg_col = df.columns[3]
+
+    temps = df[temp_col].values.astype(float)
+    weights = df[weight_col].values.astype(float)
+    dtgs = df[dtg_col].values.astype(float)
+    
+    return temps, weights, dtgs
+
+def process_sheet(sheet_name, df):
+    temps, weights, dtgs = get_tga_data(df)
+    
+    # Calculate Residue at 800°C
+    idx_800 = find_nearest(temps, 800.0)
+    residue_val = weights[idx_800]
+    residue_temp = temps[idx_800]
+    
+    # Find highest DTG peak above 150°C
+    # DTG is negative during mass loss, so we look for the minimum (most negative)
+    mask_high_temp = temps > 150.0
+    filtered_dtgs = dtgs[mask_high_temp]
+    filtered_temps = temps[mask_high_temp]
+    
+    if len(filtered_dtgs) > 0:
+        min_dtg_idx = np.argmin(filtered_dtgs)
+        peak_temp = filtered_temps[min_dtg_idx]
+        peak_dtg_val = filtered_dtgs[min_dtg_idx]
+    else:
+        peak_temp = None
+        peak_dtg_val = None
+        
+    return {
+        "name": sheet_name,
+        "temps": temps.tolist(),
+        "weights": weights.tolist(),
+        "dtgs": dtgs.tolist(),
+        "residue_temp": float(residue_temp),
+        "residue_weight": float(residue_val),
+        "peak_temp": float(peak_temp) if peak_temp is not None else None,
+        "peak_dtg": float(peak_dtg_val) if peak_dtg_val is not None else None
+    }
+
+# Load Excel file
+xls = pd.ExcelFile(DATA_FILE)
+sheet_names = xls.sheet_names
+
+all_series = []
+markpoints = []
+colors = ['#1f4e9c', '#2ecc71', '#e67e22'] # Distinct colors for lines
+
+for i, sheet_name in enumerate(sheet_names):
+    df = pd.read_excel(xls, sheet_name=sheet_name)
+    data = process_sheet(sheet_name, df)
+    
+    color = colors[i % len(colors)]
+    
+    # Weight Series (y1)
+    all_series.append({
+        "name": f"{data['name']} Weight",
+        "type": "line",
+        "yAxisIndex": 0,
+        "data": [[t, w] for t, w in zip(data['temps'], data['weights'])],
+        "showSymbol": False,
+        "lineStyle": {"color": color, "width": 2},
+        "itemStyle": {"color": color}
+    })
+    
+    # DTG Series (y2) - multiplied by -1 to point up
+    dtg_data_negated = [[t, -d] for t, d in zip(data['temps'], data['dtgs'])]
+    all_series.append({
+        "name": f"{data['name']} DTG",
+        "type": "line",
+        "yAxisIndex": 1,
+        "data": dtg_data_negated,
+        "showSymbol": False,
+        "lineStyle": {"color": color, "width": 1.5, "type": "dashed"},
+        "itemStyle": {"color": color}
+    })
+    
+    # Add MarkPoints for Residue and Peak
+    if data['residue_weight'] is not None:
+        markpoints.append({
+            "coord": [data['residue_temp'], data['residue_weight']],
+            "value": f"Residue {data['residue_weight']:.1f}%",
+            "symbolSize": 8,
+            "label": {
+                "formatter": "{b}",
+                "position": "right",
+                "fontSize": 10,
+                "color": "#333"
+            },
+            "itemStyle": {"color": color}
+        })
+        
+    if data['peak_temp'] is not None:
+        # For the peak label on the DTG curve (which is negated), we need the y-value on the plot
+        # The series data has -dtg. So the y-value in the chart space is -peak_dtg
+        y_val_chart = -data['peak_dtg']
+        markpoints.append({
+            "coord": [data['peak_temp'], y_val_chart],
+            "value": f"{data['peak_temp']:.0f} °C",
+            "symbolSize": 8,
+            "label": {
+                "formatter": "{b}",
+                "position": "top",
+                "fontSize": 10,
+                "color": "#333"
+            },
+            "itemStyle": {"color": color}
+        })
+
+# Attach markpoints to the first weight series just to render them, 
+# or better, create a dummy series or attach to each relevant series.
+# Since ECharts markPoint attaches to a series, and we have multiple series,
+# it's cleaner to attach specific marks to their respective curves.
+# However, mixing coordinates across axes can be tricky. 
+# Let's attach residue to Weight series and Peak to DTG series for that specific polymer.
+
+# Re-build series with embedded markPoints for precision
+final_series = []
+for i, sheet_name in enumerate(sheet_names):
+    df = pd.read_excel(xls, sheet_name=sheet_name)
+    data = process_sheet(sheet_name, df)
+    color = colors[i % len(colors)]
+    
+    # Weight Series
+    w_marks = []
+    if data['residue_weight'] is not None:
+        w_marks.append({
+            "coord": [data['residue_temp'], data['residue_weight']],
+            "value": f"Residue {data['residue_weight']:.1f}%",
+            "symbolSize": 8,
+            "label": {"formatter": "{b}", "position": "right", "fontSize": 9, "color": "#333"},
+            "itemStyle": {"color": color}
+        })
+        
+    final_series.append({
+        "name": f"{data['name']} Weight",
+        "type": "line",
+        "yAxisIndex": 0,
+        "data": [[t, w] for t, w in zip(data['temps'], data['weights'])],
+        "showSymbol": False,
+        "lineStyle": {"color": color, "width": 2},
+        "itemStyle": {"color": color},
+        "markPoint": {"data": w_marks}
+    })
+    
+    # DTG Series
+    d_marks = []
+    if data['peak_temp'] is not None:
+        y_val_chart = -data['peak_dtg']
+        d_marks.append({
+            "coord": [data['peak_temp'], y_val_chart],
+            "value": f"{data['peak_temp']:.0f} °C",
+            "symbolSize": 8,
+            "label": {"formatter": "{b}", "position": "top", "fontSize": 9, "color": "#333"},
+            "itemStyle": {"color": color}
+        })
+        
+    dtg_data_negated = [[t, -d] for t, d in zip(data['temps'], data['dtgs'])]
+    final_series.append({
+        "name": f"{data['name']} DTG",
+        "type": "line",
+        "yAxisIndex": 1,
+        "data": dtg_data_negated,
+        "showSymbol": False,
+        "lineStyle": {"color": color, "width": 1.5, "type": "dashed"},
+        "itemStyle": {"color": color},
+        "markPoint": {"data": d_marks}
+    })
+
+option = {
+    "title": {
+        "text": "TGA Comparison: PE, PVC, PET",
+        "left": "center",
+        "textStyle": {"fontFamily": "Noto Sans CJK KR"}
+    },
+    "tooltip": {
+        "trigger": "axis",
+        "axisPointer": {"type": "cross"}
+    },
+    "legend": {
+        "orient": "vertical",
+        "right": 10,
+        "top": "middle",
+        "data": [s["name"] for s in final_series],
+        "textStyle": {"fontFamily": "Noto Sans CJK KR"}
+    },
+    "grid": {
+        "left": "5%",
+        "right": "20%", # Space for legend outside right
+        "bottom": "10%",
+        "containLabel": True
+    },
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "min": 30,
+        "max": 900,
+        "splitLine": {"show": True, "lineStyle": {"type": "dashed", "color": "#eee"}}
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Weight (%)",
+            "position": "left",
+            "min": 0,
+            "max": 100,
+            "splitLine": {"show": True, "lineStyle": {"type": "dashed", "color": "#eee"}}
+        },
+        {
+            "type": "value",
+            "name": "DTG (%/°C)",
+            "position": "right",
+            "splitLine": {"show": False},
+            "axisLabel": {"formatter": "{value}"}
+        }
+    ],
+    "series": final_series
+}
+
+output = {
+    "figures": [
+        {
+            "name": "plot1",
+            "option": option,
+            "width": 614,
+            "height": 442,
+            "dpi": 300,
+            "formats": ["png"]
+        }
+    ]
+}
+
+print(json.dumps(output))
+```

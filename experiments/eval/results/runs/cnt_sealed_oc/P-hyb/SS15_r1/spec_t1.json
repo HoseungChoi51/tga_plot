@@ -1,0 +1,16 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "histogram",
+ "x": "CNT수율 (g/g-cat)",
+ "bins": 30,
+ "asks": [
+  {
+   "ask": "Histogram of CNT수율, 30 bins",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/SS15_r1/out/t1"
+ }
+}

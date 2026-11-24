@@ -1,0 +1,13 @@
+{
+ "file": "data/doe_temp_h2.csv",
+ "chart": "heatmap",
+ "x": "H2/C2H4비",
+ "y": "2존온도(°C)",
+ "z": {
+  "col": "수율(g/g-cat)",
+  "agg": "mean"
+ },
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_dev_lite/P-mpl/D024_r2/out/t1"
+ }
+}

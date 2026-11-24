@@ -1,0 +1,39 @@
+We need answer user's request with JSON spec only. Need analyze in Korean? User Korean. Need produce spec.
+
+We have inspect: file isothermal.txt, sheet isothermal, columns A Time min, B Temperature C Weight. Request: 시간(분)을 x축으로, 무게는 왼쪽 축, 온도는 오른쪽 축에 그려줘. 140분일 때 무게를 표시해줘.
+
+Need use plotkit spec. Since not TGA? It is isothermal data: x Time, y1 Weight, y2 Temperature. Default TGA preset would x temperature, y1 weight, y2 derivative. Need override? Rules: Keep TGA preset for TGA data. For other data use preset none and give x.col and y1.col. This is not standard TGA? It has time, temperature, weight. User asks x time, y1 weight, y2 temperature. So preset none likely. Need include x col A, y1 col C, y2 col B. Need label? User says 시간(분), 무게, 온도 maybe labels? Could set x.label "시간 (분)", y1.label "무게 (%)", y2.label "온도 (°C)"? The request names parts but not explicitly asks labels? "시간(분)을 x축으로, 무게는 왼쪽 축, 온도는 오른쪽 축에 그려줘." Could include labels? Defaults? For preset none, labels maybe from headers? We can set labels to Korean to satisfy. But rule: leave out every key user did not mention. They mention axis roles and units. If we don't set labels, maybe default from header names? inspect header names English. User likely expects Korean? But request says use part names from guide? For data columns, they specify. We can include labels? Need not overdo. Maybe include x.label "시간 (분)", y1.label "무게 (%)", y2.label "온도 (°C)" because they explicitly mention these names and units. But "leave out every key user did not mention" exception? They mention labels implicitly. Could be safe? Hmm.
+
+Annotation: "140분일 때 무게를 표시해줘" = residue at x=140 on y1? Need annotate.residue with x=140, on y1. Since preset none, does residue default exist? Need include annotate residue. For non-TGA preset none, annotations? Need specify type value_at_x on y1 x 140. Could use "annotate": {"residue": {"on": "y1", "x": 140}}. Maybe text default? Could set text? User says 표시, no format. Default maybe "Residue {y:.1f}%" from TGA? But preset none may have no default residue? Need include full? In examples for TGA residue can change x only because preset has residue. For preset none, maybe need type. The schema likely supports annotate dict with type. For new annotation type value_at_x. Need include type? The guide says annotate is dict of named labels. TGA preset has residue. Add new ones under new names with type. For residue at 140 when preset none, probably need define residue as value_at_x. Could do:
+"annotate": {"residue": {"type": "value_at_x", "on": "y1", "x": 140, "text": "{y:.1f}%"}}
+Maybe "method": "nearest" default. Need ensure allowed. If preset none, no default residue, so define. Could name residue1? But user says 140분일 때 무게 표시. Use residue.
+
+Need output? none. file exactly "isothermal.txt". sheets? one sheet, no need. preset none. x col A, y1 col C, y2 col B.
+
+Need consider y2 Temperature max 400, y1 Weight 75-100. No y2 false. Need include y2 col.
+
+Need JSON only inside ```json block and nothing else.
+
+Potential spec:
+{
+  "file": "isothermal.txt",
+  "preset": "none",
+  "x": {"col": "A", "label": "시간 (분)"},
+  "y1": {"col": "C", "label": "무게 (%)"},
+  "y2": {"col": "B", "label": "온도 (°C)"},
+  "annotate": {
+    "residue": {"type": "value_at_x", "on": "y1", "x": 140, "text": "{y:.1f}%"}
+  }
+}
+
+Should we include method nearest? default. If exact 140 exists max 140, first 0, data_rows 561 maybe step 0.25? 140 likely exists. nearest default.
+
+Need maybe y1 left, y2 right is default when y2 provided. Good.
+
+Need ensure "preset": "none" string. Could omit labels to avoid unmentioned? But if preset none, default labels from header? The header names are English; user asked in Korean. I'd include labels. The guide says part names map to keys; "x축 라벨" etc. But user didn't explicitly say "라벨". However naming the axis quantity often implies label. In examples for other data: "A열 변형률을 x축, B열 응력을 y축, 선 검정" spec includes x.label "Strain (%)", y1.label "Stress (MPa)". So yes include labels based on request. Good.
+
+Need maybe "무게는 왼쪽 축" -> y1. "온도는 오른쪽 축" -> y2. Good.
+
+Could include "y2": {"col": "B", "label": "온도 (°C)"}; if y2 line default color? no.
+
+Need answer only JSON block. Ensure no extra text.

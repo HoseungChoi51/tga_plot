@@ -1,0 +1,8 @@
+```json
+{
+  "file": "polymers.xlsx",
+  "combine": true,
+  "legend": "none",
+  "code": "handles, labels = [], []\nfor a in fig.axes:\n    h, l = a.get_legend_handles_labels()\n    handles.extend(h); labels.extend(l)\nfig.legend(handles, labels, loc='center left', bbox_to_anchor=(1, 0.5))"
+}
+```

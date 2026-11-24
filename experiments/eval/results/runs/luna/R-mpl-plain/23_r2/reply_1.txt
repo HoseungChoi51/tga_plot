@@ -1,0 +1,63 @@
+```python
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/tests/inputs/instrument_export.txt")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/23_r2/out")
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+# The text export has four numeric columns and no header:
+# cycle/time, temperature, mass (%), and derivative.
+data = pd.read_csv(DATA_FILE, sep=r"\s+", header=None, comment="#", engine="python")
+numeric = data.apply(pd.to_numeric, errors="coerce").dropna(how="all")
+numeric = numeric.dropna(axis=1, how="all")
+
+if numeric.shape[1] < 3:
+    # Fall back to delimiter inference for exports separated by commas or tabs.
+    data = pd.read_csv(DATA_FILE, sep=None, header=None, comment="#", engine="python")
+    numeric = data.apply(pd.to_numeric, errors="coerce").dropna(how="all")
+    numeric = numeric.dropna(axis=1, how="all")
+
+if numeric.shape[1] < 3:
+    raise ValueError("온도와 질량 데이터를 포함한 숫자 열을 3개 이상 찾지 못했습니다.")
+
+temperature = numeric.iloc[:, 1].to_numpy(dtype=float)
+mass = numeric.iloc[:, 2].to_numpy(dtype=float)
+valid = np.isfinite(temperature) & np.isfinite(mass)
+temperature, mass = temperature[valid], mass[valid]
+
+if temperature.size == 0:
+    raise ValueError("유효한 온도 및 질량 데이터가 없습니다.")
+
+residue = float(mass[-1])
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+fig, ax = plt.subplots(figsize=(8, 5.5))
+ax.plot(temperature, mass, color="#1f77b4", linewidth=1.8)
+ax.set_xlabel("Temperature (°C)")
+ax.set_ylabel("Mass (%)")
+ax.set_title("Thermogravimetric Analysis")
+ax.grid(True, alpha=0.3)
+
+ax.text(
+    0.97,
+    0.95,
+    f"Residue: {residue:.2f}%",
+    transform=ax.transAxes,
+    ha="right",
+    va="top",
+    fontsize=12,
+    bbox={"boxstyle": "round,pad=0.35", "facecolor": "white", "edgecolor": "0.7", "alpha": 0.9},
+)
+
+fig.tight_layout()
+fig.savefig(OUT_DIR / "tga_plot.png", dpi=300, bbox_inches="tight")
+plt.close(fig)
+```

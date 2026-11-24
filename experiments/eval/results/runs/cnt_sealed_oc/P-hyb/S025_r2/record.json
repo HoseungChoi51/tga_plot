@@ -1,0 +1,259 @@
+{
+ "arm": "P-hyb",
+ "item": "S025",
+ "repeat": 2,
+ "split": "sealed",
+ "persona": "QA 화학자",
+ "type": "single",
+ "turns": [
+  {
+   "turn": 1,
+   "text": "raman 폴더 8개 파일 각각 I_G/I_D를 계산해서 막대그래프로, 높은 순으로 정렬해 주세요. 베이스라인 보정 없이 피크 높이비로요: I_G는 1550–1620 cm⁻¹ 최대값, I_D는 1300–1400 cm⁻¹ 최대값입니다.",
+   "calls": [
+    {
+     "reply": "```json\n{\n  \"file\": \"data/raman/*.csv\",\n  \"chart\": \"bar\",\n  \"x\": \"파일명\",\n  \"y\": {\"col\": \"IG_ID\", \"agg\": \"mean\"},\n  \"sort\": \"desc\",\n  \"values\": \"{:.2f}\",\n  \"data_code\": \"import os\\nimport numpy as np\\n\\nif 'Raman Shift (cm-1)' in df.columns and 'Intensity (a.u.)' in df.columns:\\n    # Determine file name for grouping if not present\\n    if '파일명' not in df.columns:\\n        # Assuming plotkit provides a way to identify source or we group by existing index if single file per run logic applies.\\n        # However, with wildcard *.csv, plotkit usually concatenates. We need to distinguish them.\\n        # Standard trick: Use the sheet name which matches the filename base in the preview.\\n        if 'sheet' in globals():\\n             df['파일명'] = df['sheet'].astype(str).str.replace(r'^\\\\d+-', '', regex=True)\\n        else:\\n             # Fallback if 'sheet' column isn't injected into df directly but available via context or metadata\\n             # In many pandas concat scenarios with read_csv(glob), it's hard to track origin without explicit parsing.\\n             # Let's assume the user wants the ratio per sample/file. \\n             # If the data is long format with a 'sample' or similar column, use that. \\n             # Here, looking at previews, they are separate files. Plotkit likely loads them into one DF.\\n             # Without a specific ID column in the CSVs themselves, we might rely on the order or a generated ID.\\n             # A safer bet for Raman multi-file aggregation where each file is one spectrum:\\n             # Calculate max I_G and I_D per unique identifier.\\n             pass\\n    \\n    # Since standard columns don't have a unique ID for the 8 spectra in a concatenated frame unless added by loader,\\n    # we will attempt to calculate based on grouped logic if 'id' exists, otherwise this simple script assumes \\n    # the user might have meant analyzing ONE file at a time or there is an implicit group.\\n    # Given the prompt \\\"8개 파일 각각\\\", we need a grouping key. \\n    # Often plotkit adds a '_source_file' or similar. Let's try common patterns.\\n    group_col = None\\n    for c in ['_source_file', 'source', 'file', 'sample_id', 'id']:\\n        if c in df.columns:\\n            group_col = c\\n            break\\n            \\n    if group_col is None:\\n        # If no explicit file column, we cannot easily compute per-file ratios in a single chart from a merged DF\\n        # unless we assume the rows are blocked by file. This is risky.\\n        # However, for the purpose of this spec generation, I will assume a 'label' or similar exists or \\n        # the system handles the split. \\n        # Alternative: The request implies comparing samples. Let's assume '파일명' needs to be derived.\\n        # If the previous steps failed to capture source, we can't do it perfectly here.\\n        # But let's look at the filenames: R1-..., R2-... etc. \\n        # I will add a placeholder logic that assumes a 'name' column or uses the index blocks.\\n        # NOTE: Without knowing the exact schema after glob load, I will use 'groupby' on a hypothetical 'sample'.\\n        # If 'sample' doesn't exist, this code will fail gracefully or produce wrong results.\\n        # Best effort: Check if 'sheet' is in df (common in some loaders).\\n        if 'sheet' in df.columns:\\n            group_col = 'sheet'\\n        elif 'File' in df.columns:\\n            group_col = 'File'\\n        else:\\n            # Last resort: Create dummy groups based on row count? No.\\n            # I will define the calculation assuming a group column named 'id' or 'sample' exists in the final DF provided to data_code.\\n            # If not, the user must specify how files are distinguished in the dataframe.\\n            # For now, I'll write the calc for 'sample' column.\\n            group_col = 'sample' if 'sample' in df.columns else 'id' if 'id' in df.columns else None\\n\\n    if group_col:\\n        def calc_ratio(g):\\n            x = g['Raman Shift (cm-1)'].values\\n            y = g['Intensity (a.u.)'].values\\n            mask_g = (x >= 1550) & (x <= 1620)\\n            mask_d = (x >= 1300) & (x <= 1400)\\n            ig = y[mask_g].max() if mask_g.any() else 0\\n            id_val = y[mask_d].max() if mask_d.any() else 0\\n            return ig / id_val if id_val > 0 else 0\\n        \\n        ratios = df.groupby(group_col).apply(calc_ratio).reset_index()\\n        ratios.columns = [group_col, 'IG_ID']\\n        \\n        # Merge back or replace df\\n        df = df.drop_duplicates(subset=[group_col]).merge(ratios, on=group_col, how='left')\\n        df['파일명'] = df[group_col]\\n    else:\\n        # Fallback: Cannot determine per-file ratios without a group key in concatenated data.\\n        # This part of the logic relies on plotkit's behavior for wildcards. \\n        # If plotkit keeps them separate, this block won't run as expected. \\n        # Assuming plotkit merges them, we need that key. \\n        # If no key found, we just set IG_ID to NaN to avoid crash, though result will be empty/wrong.\\n        df['IG_ID'] = np.nan\\n        df['파일명'] = 'Unknown'\\nelse:\\n    df['IG_ID'] = np.nan\\n    df['파일명'] = 'Unknown'\",\n  \"asks\": [\n    {\"ask\": \"8개 파일 각각 I_G/I_D 계산\", \"how\": \"data_code\"},\n    {\"ask\": \"막대그래프로\", \"how\": \"key\"},\n    {\"ask\": \"높은 순으로 정렬\", \"how\": \"key\"},\n    {\"ask\": \"베이스라인 보정 없이 피크 높이비 (I_G: 1550-1620 max, I_D: 1300-1400 max)\", \"how\": \"data_code\"}\n  ]\n}\n```",
+     "llm_s": 27.576,
+     "prompt_tokens": null,
+     "output_tokens": null,
+     "cached_tokens": null,
+     "prompt_n": null,
+     "prefill_ms": null,
+     "decode_ms": null,
+     "finish": null,
+     "prompt_chars": 17787,
+     "output_chars": 5416,
+     "attempts": 1
+    }
+   ],
+   "spec": {
+    "file": "data/raman/*.csv",
+    "chart": "bar",
+    "x": "파일명",
+    "y": {
+     "col": "IG_ID",
+     "agg": "mean"
+    },
+    "sort": "desc",
+    "values": "{:.2f}",
+    "data_code": "import os\nimport numpy as np\n\nif 'Raman Shift (cm-1)' in df.columns and 'Intensity (a.u.)' in df.columns:\n    # Determine file name for grouping if not present\n    if '파일명' not in df.columns:\n        # Assuming plotkit provides a way to identify source or we group by existing index if single file per run logic applies.\n        # However, with wildcard *.csv, plotkit usually concatenates. We need to distinguish them.\n        # Standard trick: Use the sheet name which matches the filename base in the preview.\n        if 'sheet' in globals():\n             df['파일명'] = df['sheet'].astype(str).str.replace(r'^\\d+-', '', regex=True)\n        else:\n             # Fallback if 'sheet' column isn't injected into df directly but available via context or metadata\n             # In many pandas concat scenarios with read_csv(glob), it's hard to track origin without explicit parsing.\n             # Let's assume the user wants the ratio per sample/file. \n             # If the data is long format with a 'sample' or similar column, use that. \n             # Here, looking at previews, they are separate files. Plotkit likely loads them into one DF.\n             # Without a specific ID column in the CSVs themselves, we might rely on the order or a generated ID.\n             # A safer bet for Raman multi-file aggregation where each file is one spectrum:\n             # Calculate max I_G and I_D per unique identifier.\n             pass\n    \n    # Since standard columns don't have a unique ID for the 8 spectra in a concatenated frame unless added by loader,\n    # we will attempt to calculate based on grouped logic if 'id' exists, otherwise this simple script assumes \n    # the user might have meant analyzing ONE file at a time or there is an implicit group.\n    # Given the prompt \"8개 파일 각각\", we need a grouping key. \n    # Often plotkit adds a '_source_file' or similar. Let's try common patterns.\n    group_col = None\n    for c in ['_source_file', 'source', 'file', 'sample_id', 'id']:\n        if c in df.columns:\n            group_col = c\n            break\n            \n    if group_col is None:\n        # If no explicit file column, we cannot easily compute per-file ratios in a single chart from a merged DF\n        # unless we assume the rows are blocked by file. This is risky.\n        # However, for the purpose of this spec generation, I will assume a 'label' or similar exists or \n        # the system handles the split. \n        # Alternative: The request implies comparing samples. Let's assume '파일명' needs to be derived.\n        # If the previous steps failed to capture source, we can't do it perfectly here.\n        # But let's look at the filenames: R1-..., R2-... etc. \n        # I will add a placeholder logic that assumes a 'name' column or uses the index blocks.\n        # NOTE: Without knowing the exact schema after glob load, I will use 'groupby' on a hypothetical 'sample'.\n        # If 'sample' doesn't exist, this code will fail gracefully or produce wrong results.\n        # Best effort: Check if 'sheet' is in df (common in some loaders).\n        if 'sheet' in df.columns:\n            group_col = 'sheet'\n        elif 'File' in df.columns:\n            group_col = 'File'\n        else:\n            # Last resort: Create dummy groups based on row count? No.\n            # I will define the calculation assuming a group column named 'id' or 'sample' exists in the final DF provided to data_code.\n            # If not, the user must specify how files are distinguished in the dataframe.\n            # For now, I'll write the calc for 'sample' column.\n            group_col = 'sample' if 'sample' in df.columns else 'id' if 'id' in df.columns else None\n\n    if group_col:\n        def calc_ratio(g):\n            x = g['Raman Shift (cm-1)'].values\n            y = g['Intensity (a.u.)'].values\n            mask_g = (x >= 1550) & (x <= 1620)\n            mask_d = (x >= 1300) & (x <= 1400)\n            ig = y[mask_g].max() if mask_g.any() else 0\n            id_val = y[mask_d].max() if mask_d.any() else 0\n            return ig / id_val if id_val > 0 else 0\n        \n        ratios = df.groupby(group_col).apply(calc_ratio).reset_index()\n        ratios.columns = [group_col, 'IG_ID']\n        \n        # Merge back or replace df\n        df = df.drop_duplicates(subset=[group_col]).merge(ratios, on=group_col, how='left')\n        df['파일명'] = df[group_col]\n    else:\n        # Fallback: Cannot determine per-file ratios without a group key in concatenated data.\n        # This part of the logic relies on plotkit's behavior for wildcards. \n        # If plotkit keeps them separate, this block won't run as expected. \n        # Assuming plotkit merges them, we need that key. \n        # If no key found, we just set IG_ID to NaN to avoid crash, though result will be empty/wrong.\n        df['IG_ID'] = np.nan\n        df['파일명'] = 'Unknown'\nelse:\n    df['IG_ID'] = np.nan\n    df['파일명'] = 'Unknown'",
+    "asks": [
+     {
+      "ask": "8개 파일 각각 I_G/I_D 계산",
+      "how": "data_code"
+     },
+     {
+      "ask": "막대그래프로",
+      "how": "key"
+     },
+     {
+      "ask": "높은 순으로 정렬",
+      "how": "key"
+     },
+     {
+      "ask": "베이스라인 보정 없이 피크 높이비 (I_G: 1550-1620 max, I_D: 1300-1400 max)",
+      "how": "data_code"
+     }
+    ]
+   },
+   "engine": "echarts",
+   "result": {
+    "ok": true,
+    "engine": "echarts",
+    "saved": [
+     "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S025_r2/out/t1/bar_IG_ID.png"
+    ],
+    "chart": "bar",
+    "rows_used": 8,
+    "rows_total": 8,
+    "values": {
+     "categories": [
+      "R2-260617-1",
+      "R1-260326-1",
+      "R1-260716-1",
+      "R1-260711-1",
+      "R2-260616-1",
+      "R3-260810-2",
+      "R4-260407-1",
+      "R4-260721-1"
+     ],
+     "series": {
+      "IG_ID": [
+       2.3726,
+       2.2392,
+       2.1754,
+       2.1321,
+       2.0822,
+       2.0242,
+       1.9225,
+       1.8228
+      ]
+     }
+    },
+    "warnings": [],
+    "not_done": [],
+    "summary": "막대 그래프를 저장했습니다: bar_IG_ID.png\n사용한 행: 8 / 8\nIG_ID: R2-260617-1 2.37, R1-260326-1 2.24, R1-260716-1 2.18, R1-260711-1 2.13, R2-260616-1 2.08, R3-260810-2 2.02, R4-260407-1 1.92, R4-260721-1 1.82"
+   },
+   "facts": [
+    {
+     "engine": "echarts",
+     "size_in": [
+      6.4,
+      4.6
+     ],
+     "dpi": 300,
+     "title": null,
+     "panels": [
+      {
+       "bars": [
+        {
+         "name": "IG_ID",
+         "orient": "v",
+         "cats": [
+          "R2-260617-1",
+          "R1-260326-1",
+          "R1-260716-1",
+          "R1-260711-1",
+          "R2-260616-1",
+          "R3-260810-2",
+          "R4-260407-1",
+          "R4-260721-1"
+         ],
+         "values": [
+          2.372622388525101,
+          2.239154210718192,
+          2.1754147970364186,
+          2.1321364757934145,
+          2.082213343019736,
+          2.0241622976977434,
+          1.9225493476078956,
+          1.822779357284397
+         ],
+         "bottoms": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+         ],
+         "colors": [
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c",
+          "#1f4e9c"
+         ]
+        }
+       ],
+       "lines": [],
+       "points": [],
+       "hist": [],
+       "heatmap": null,
+       "pie": null,
+       "hlines": [],
+       "vlines": [],
+       "value_labels": 8,
+       "texts": [
+        "2.37",
+        "2.24",
+        "2.18",
+        "2.13",
+        "2.08",
+        "2.02",
+        "1.92",
+        "1.82"
+       ],
+       "x": {
+        "label": "파일명",
+        "type": "category",
+        "ticks": [],
+        "step": null,
+        "categories": [
+         "R2-260617-1",
+         "R1-260326-1",
+         "R1-260716-1",
+         "R1-260711-1",
+         "R2-260616-1",
+         "R3-260810-2",
+         "R4-260407-1",
+         "R4-260721-1"
+        ],
+        "min": 0.0,
+        "max": 7.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 45.0
+       },
+       "y": {
+        "label": "IG_ID",
+        "type": "value",
+        "ticks": [
+         0.0,
+         0.5,
+         1.0,
+         1.5,
+         2.0,
+         2.5,
+         3.0
+        ],
+        "step": 0.5,
+        "categories": null,
+        "min": 0.0,
+        "max": 3.0,
+        "log": false,
+        "inverted": false,
+        "tick_labels": null,
+        "rotate": 0.0
+       }
+      }
+     ],
+     "texts": [
+      "2.37",
+      "2.24",
+      "2.18",
+      "2.13",
+      "2.08",
+      "2.02",
+      "1.92",
+      "1.82"
+     ],
+     "legend": {
+      "shown": false,
+      "entries": [],
+      "inside": null,
+      "where": null
+     },
+     "files": [
+      {
+       "path": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-hyb/S025_r2/out/t1/bar_IG_ID.png",
+       "format": "png",
+       "px": [
+        1920,
+        1380
+       ],
+       "exists": true
+      }
+     ]
+    }
+   ],
+   "draw_s": 0.7377381324768066,
+   "check": {
+    "kind_expected": "bar",
+    "failed": [],
+    "unchecked": [],
+    "n_checks": 2,
+    "n_failed": 0,
+    "pass": true,
+    "notes": [],
+    "figure": 0
+   },
+   "turn_s": 28.398
+  }
+ ]
+}

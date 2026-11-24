@@ -1,0 +1,176 @@
+```python
+import json
+import os
+
+import numpy as np
+import pandas as pd
+
+DATA_FILE = "/home/chs/Work/tga_plot/eval/inputs_b/cnt_batches.xlsx"
+
+sheets = ["Raw", "Acid-washed", "Annealed"]
+colors = {
+    "Raw": "#000000",
+    "Acid-washed": "#0000ff",
+    "Annealed": "#ff0000",
+}
+
+series = []
+residue_points = []
+peak_points = []
+all_x = []
+
+for sheet in sheets:
+    df = pd.read_excel(DATA_FILE, sheet_name=sheet)
+    temperature = pd.to_numeric(df.iloc[:, 1], errors="coerce").to_numpy(dtype=float)
+    weight = pd.to_numeric(df.iloc[:, 2], errors="coerce").to_numpy(dtype=float)
+    dtg = pd.to_numeric(df.iloc[:, 3], errors="coerce").to_numpy(dtype=float)
+
+    valid = np.isfinite(temperature) & np.isfinite(weight) & np.isfinite(dtg)
+    temperature = temperature[valid]
+    weight = weight[valid]
+    dtg = dtg[valid]
+    all_x.extend(temperature.tolist())
+
+    series.extend(
+        [
+            {
+                "name": sheet,
+                "type": "line",
+                "data": [[float(x), float(y)] for x, y in zip(temperature, weight)],
+                "yAxisIndex": 0,
+                "showSymbol": False,
+                "symbol": "none",
+                "lineStyle": {"width": 2, "color": colors[sheet]},
+                "itemStyle": {"color": colors[sheet]},
+            },
+            {
+                "name": f"{sheet} DTG",
+                "type": "line",
+                "data": [[float(x), float(-y)] for x, y in zip(temperature, dtg)],
+                "yAxisIndex": 1,
+                "showSymbol": False,
+                "symbol": "none",
+                "lineStyle": {"width": 1.8, "color": colors[sheet], "type": "dashed"},
+                "itemStyle": {"color": colors[sheet]},
+            },
+        ]
+    )
+
+    residue_index = int(np.nanargmin(np.abs(temperature - 800.0)))
+    residue_points.append(
+        {
+            "name": f"{sheet} residue",
+            "type": "scatter",
+            "data": [[float(temperature[residue_index]), float(weight[residue_index])]],
+            "yAxisIndex": 0,
+            "symbolSize": 9,
+            "itemStyle": {"color": colors[sheet], "borderColor": "#ffffff", "borderWidth": 1},
+            "label": {
+                "show": True,
+                "position": "top",
+                "formatter": f"{sheet} residue {weight[residue_index]:.1f}%",
+                "fontFamily": "Noto Sans CJK KR",
+                "fontSize": 11,
+            },
+            "tooltip": {"show": False},
+            "z": 5,
+        }
+    )
+
+    peak_mask = temperature > 150.0
+    if np.any(peak_mask):
+        peak_indices = np.flatnonzero(peak_mask)
+        peak_index = int(peak_indices[np.argmax(-dtg[peak_mask])])
+        peak_points.append(
+            {
+                "name": f"{sheet} DTG peak",
+                "type": "scatter",
+                "data": [[float(temperature[peak_index]), float(-dtg[peak_index])]],
+                "yAxisIndex": 1,
+                "symbolSize": 9,
+                "itemStyle": {"color": colors[sheet], "borderColor": "#ffffff", "borderWidth": 1},
+                "label": {
+                    "show": True,
+                    "position": "top",
+                    "formatter": f"{sheet} {temperature[peak_index]:.0f} °C",
+                    "fontFamily": "Noto Sans CJK KR",
+                    "fontSize": 11,
+                },
+                "tooltip": {"show": False},
+                "z": 5,
+            }
+        )
+
+series.extend(residue_points)
+series.extend(peak_points)
+
+option = {
+    "animation": False,
+    "title": {
+        "text": "TGA comparison",
+        "left": "center",
+        "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 16},
+    },
+    "tooltip": {"trigger": "axis", "axisPointer": {"type": "cross"}},
+    "legend": {
+        "data": sheets + [f"{name} DTG" for name in sheets],
+        "left": "center",
+        "bottom": 6,
+        "textStyle": {"fontFamily": "Noto Sans CJK KR", "fontSize": 11},
+    },
+    "grid": {"left": 70, "right": 70, "top": 55, "bottom": 75},
+    "xAxis": {
+        "type": "value",
+        "name": "Temperature (°C)",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "min": float(np.nanmin(all_x)),
+        "max": float(np.nanmax(all_x)),
+        "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+        "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+    },
+    "yAxis": [
+        {
+            "type": "value",
+            "name": "Weight (%)",
+            "nameLocation": "middle",
+            "nameGap": 48,
+            "min": 0,
+            "max": 105,
+            "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+            "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+            "splitLine": {"show": True, "lineStyle": {"color": "#dddddd"}},
+        },
+        {
+            "type": "value",
+            "name": "-DTG (%/°C)",
+            "nameLocation": "middle",
+            "nameGap": 48,
+            "inverse": False,
+            "axisLabel": {"fontFamily": "Noto Sans CJK KR"},
+            "nameTextStyle": {"fontFamily": "Noto Sans CJK KR"},
+            "splitLine": {"show": False},
+        },
+    ],
+    "series": series,
+}
+
+print(
+    json.dumps(
+        {
+            "figures": [
+                {
+                    "name": "tga_comparison",
+                    "option": option,
+                    "width": 900,
+                    "height": 600,
+                    "dpi": 300,
+                    "formats": ["png"],
+                }
+            ]
+        },
+        ensure_ascii=False,
+        allow_nan=False,
+    )
+)
+```

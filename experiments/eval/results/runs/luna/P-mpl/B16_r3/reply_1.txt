@@ -1,0 +1,7 @@
+ 
+```json
+{
+  "file": "caox.csv",
+  "code": "ax2.remove(); ax1.set_xlabel('Temperature (°C)'); ax1.set_ylabel('Weight (%)'); ax1.set_xlim(min(x), max(x)); ax1.set_position([0.15, 0.57, 0.75, 0.34]); ax1.set_xticklabels([]); ax3 = fig.add_axes([0.15, 0.15, 0.75, 0.34], sharex=ax1); ax3.plot(x, y2); ax3.set_xlabel('Temperature (°C)'); ax3.set_ylabel('Deriv. Weight (%/°C)')"
+}
+```

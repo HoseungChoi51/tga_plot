@@ -1,0 +1,33 @@
+{
+ "file": "data/raman/*.csv",
+ "combine": true,
+ "preset": "none",
+ "x": {
+  "col": "Raman Shift (cm-1)",
+  "label": "Raman Shift (cm-1)"
+ },
+ "y1": {
+  "col": "Intensity (a.u.)",
+  "label": "Normalized Intensity"
+ },
+ "y2": false,
+ "legend": "outside right",
+ "data_code": "import numpy as np\n# Normalize each spectrum by the max intensity in the G band range (1550-1620 cm-1)\nmask = (x >= 1550) & (x <= 1620)\ng_max = np.max(y1[mask]) if np.any(mask) else 1.0\nif g_max == 0:\n    g_max = 1.0\ny1 = y1 / g_max",
+ "asks": [
+  {
+   "ask": "raman 폴더 스펙트럼 8개 overlay",
+   "how": "key"
+  },
+  {
+   "ask": "G band(1550–1620 cm-1) 최대 intensity로 정규화",
+   "how": "data_code"
+  },
+  {
+   "ask": "범례 plot 바깥 오른쪽",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_sx/P-ec/D006_r3/out/t1"
+ }
+}

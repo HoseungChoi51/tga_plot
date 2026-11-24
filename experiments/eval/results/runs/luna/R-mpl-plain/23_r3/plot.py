@@ -1,0 +1,86 @@
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import pandas as pd
+
+DATA_FILE = Path("/home/chs/Work/tga_plot/tests/inputs/instrument_export.txt")
+OUT_DIR = Path("/home/chs/Work/tga_plot/eval/results/runs/luna/R-mpl-plain/23_r3/out")
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def read_instrument_data(path):
+    # Instrument exports are often UTF-16 (BOM), but may also be UTF-8 or legacy text.
+    content = None
+    for encoding in ("utf-16", "utf-8-sig", "cp1252", "latin1"):
+        try:
+            content = path.read_text(encoding=encoding)
+            break
+        except UnicodeError:
+            continue
+    if content is None:
+        raise UnicodeError(f"Could not decode input file: {path}")
+
+    # Skip any nonnumeric preamble and parse the tabular numeric section.
+    lines = content.splitlines()
+    rows = []
+    for line in lines:
+        fields = line.replace(",", ".").replace("\t", " ").split()
+        if len(fields) < 4:
+            continue
+        try:
+            values = [float(value) for value in fields[:4]]
+        except ValueError:
+            continue
+        rows.append(values)
+
+    if not rows:
+        raise ValueError("No four-column numeric data found in the input file.")
+    return pd.DataFrame(rows)
+
+
+data = read_instrument_data(DATA_FILE)
+time_or_index = data.iloc[:, 0].to_numpy(dtype=float)
+temperature = data.iloc[:, 1].to_numpy(dtype=float)
+mass = data.iloc[:, 2].to_numpy(dtype=float)
+derivative = data.iloc[:, 3].to_numpy(dtype=float)
+
+residue = mass[-1]
+
+plt.rcParams["font.family"] = "Noto Sans CJK KR"
+plt.rcParams["axes.unicode_minus"] = False
+
+fig, ax = plt.subplots(figsize=(9, 6), constrained_layout=True)
+ax.plot(temperature, mass, color="tab:blue", linewidth=2, label="Mass")
+ax.set_xlabel("Temperature (°C)")
+ax.set_ylabel("Mass (%)", color="tab:blue")
+ax.tick_params(axis="y", labelcolor="tab:blue")
+ax.set_ylim(bottom=0)
+ax.grid(True, alpha=0.3)
+
+ax_derivative = ax.twinx()
+ax_derivative.plot(
+    temperature,
+    derivative,
+    color="tab:red",
+    linewidth=1.3,
+    alpha=0.8,
+    label="Derivative",
+)
+ax_derivative.set_ylabel("Derivative", color="tab:red")
+ax_derivative.tick_params(axis="y", labelcolor="tab:red")
+
+ax.text(
+    0.98,
+    0.96,
+    f"Residue: {residue:.2f}%",
+    transform=ax.transAxes,
+    ha="right",
+    va="top",
+    fontsize=12,
+    bbox={"facecolor": "white", "edgecolor": "0.7", "alpha": 0.9},
+)
+
+fig.savefig(OUT_DIR / "tga_plot.png", dpi=300, bbox_inches="tight")
+plt.close(fig)

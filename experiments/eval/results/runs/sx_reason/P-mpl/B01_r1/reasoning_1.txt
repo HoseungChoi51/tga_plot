@@ -1,0 +1,36 @@
+We need answer user's request. Need produce JSON spec only inside ```json block and nothing else. Need analyze in same language as user's request? User Korean. Need think in Korean? Probably yes. Need determine spec.
+
+User request: "질량이 줄어드는 세 구간(120~250, 430~580, 640~830 °C)을 각각 다른 색으로 연하게 칠하고, 구간 위에 H2O, CO, CO2라고 써줘"
+
+We need use plotkit. Data caox.csv. TGA data. Need shade three x ranges with different light colors and put text above intervals: H2O, CO, CO2. No key covers multiple shaded regions with labels? Extra code. Need produce JSON spec with file and code. Need likely keep TGA default preset? It's TGA data, default preset draws TGA. Request only extra code. Need no other keys. Need ensure code uses ax1.axvspan and ax1.text. Need colors different light colors. Could use matplotlib colors with alpha. "연하게" alpha 0.15 or 0.2. "구간 위에" text above intervals. Need decide y positions. Since y1 weight %, y2 derivative. Text above intervals probably at top of plot. Could use ax1.text with transform=ax1.transAxes? But allowed names: fig, ax1, ax2, x, y1, y2, sheet, plt, np. Can use ax1.transAxes. Need put H2O at center of 120-250, CO at 430-580, CO2 at 640-830. "구간 위에" could be above shaded region. In axes coordinates, top near 0.95. But if y1 axis has weight 0-100, top axes coordinate is top of axes. That's above intervals. Use ax1.text(0.25, 0.95, 'H2O', transform=ax1.transAxes, ha='center', va='top', color='...')? Need maybe colors matching shading. Use different colors: lightblue? For shading: color='tab:blue', alpha=0.15; text color maybe same darker? Could use text color black? User says each different color for shading, and write H2O, CO, CO2. Could make text color same as shading but maybe too light. Use color='black'? But "다른 색으로 연하게 칠하고" only shading different colors. Text could be black. But if want labels associated, maybe text same color as shading but readable: use 'tab:blue', 'tab:orange', 'tab:green' for text? However shading alpha light, text solid same color okay. Need code lines separated by semicolon or newline? JSON string can contain newline? Better use semicolon separated. Need ensure code runs after drawing before saving. Use ax1.axvspan(120,250,color='tab:blue',alpha=0.15); ax1.axvspan(430,580,color='tab:orange',alpha=0.15); ax1.axvspan(640,830,color='tab:green',alpha=0.15); ax1.text(185,0.95,'H2O',transform=ax1.transAxes? Wait if using transform=ax1.transAxes, x must be axes fraction, not data coordinate. If want center in data coordinate, use ax1.text(185, ax1.get_ylim()[1]*0.95? But y1 axis weight, top maybe 100. Better use transform=ax1.get_xaxis_transform() (x data, y axes fraction). Allowed? matplotlib API yes. Use ax1.text(185, 0.95, 'H2O', transform=ax1.get_xaxis_transform(), ha='center', va='top'). This puts x at data coordinate, y at 0.95 axes fraction. Need code string: "ax1.axvspan(120, 250, color='tab:blue', alpha=0.15); ax1.axvspan(430, 580, color='tab:orange', alpha=0.15); ax1.axvspan(640, 830, color='tab:green', alpha=0.15); ax1.text(185, 0.95, 'H2O', transform=ax1.get_xaxis_transform(), ha='center', va='top', color='tab:blue'); ax1.text(505, 0.95, 'CO', transform=ax1.get_xaxis_transform(), ha='center', va='top', color='tab:orange'); ax1.text(735, 0.95, 'CO2', transform=ax1.get_xaxis_transform(), ha='center', va='top', color='tab:green')"
+
+Need check if get_xaxis_transform exists in matplotlib axes. Yes. Could use ax1.text(185, ax1.get_ylim()[1], ... va='top') but if y limits changed? default TGA y1 weight maybe 0-100. But if y2? Text on ax1. "구간 위에" above intervals. Top axes coordinate robust. Need maybe use ax1.get_xaxis_transform() is allowed? It's not listed but names include ax1. Fine.
+
+Need consider if multiple sheets? one sheet. No need sheets.
+
+Need maybe file name exactly caox.csv.
+
+Need output only JSON block. No other text.
+
+Potential issue: JSON string with single quotes inside is okay if outer double quotes. Need escape? No. Need ensure valid JSON. Use double quotes around keys and string. Code string contains single quotes, okay.
+
+Need maybe no code line too long? okay.
+
+Need maybe if code uses ax1.get_xaxis_transform() and ax1 is None? TGA preset has ax1 left. okay.
+
+Need maybe use axvspan on ax1 but if y2 exists, shading behind lines? It draws after default lines? Code runs after drawing, so spans drawn on top? In matplotlib, adding axvspan after lines may cover lines if alpha. It's okay. If want behind, zorder=0? Could set zorder=0 to keep lines visible. Add zorder=0. Text zorder maybe 5. Could add. But code simpler. Need if axvspan after lines, with alpha 0.15 won't obscure much. But to be safe: ax1.axvspan(..., zorder=0). Text zorder=5. Need code: ax1.axvspan(120,250,color='tab:blue',alpha=0.15,zorder=0); ...; ax1.text(..., zorder=5). Good.
+
+Need maybe "질량이 줄어드는" might refer weight loss intervals, but no need annotate peaks.
+
+Need maybe if default TGA preset has residue and peak labels. User didn't mention. Keep defaults. Good.
+
+Need maybe "구간 위에 H2O, CO, CO2라고 써줘" could mean above each shaded region in data coordinate just above curve? But top is okay. Could use y1 max? If want above intervals, top of plot. If want above the curve at each interval, could use y values near weight loss? But likely top. Need maybe text at top of axes is conventional.
+
+Need maybe color names Korean? Extra code can use matplotlib colors. okay.
+
+Need final JSON:
+```json
+{"file": "caox.csv", "code": "ax1.axvspan(120, 250, color='tab:blue', alpha=0.15, zorder=0); ax1.axvspan(430, 580, color='tab:orange', alpha=0.15, zorder=0); ax1.axvspan(640, 830, color='tab:green', alpha=0.15, zorder=0); ax1.text(185, 0.95, 'H2O', transform=ax1.get_xaxis_transform(), ha='center', va='top', color='tab:blue', zorder=5); ax1.text(505, 0.95, 'CO', transform=ax1.get_xaxis_transform(), ha='center', va='top', color='tab:orange', zorder=5); ax1.text(735, 0.95, 'CO2', transform=ax1.get_xaxis_transform(), ha='center', va='top', color='tab:green', zorder=5)"}
+```
+
+Need ensure no extra. final only json block.

@@ -1,0 +1,59 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+# Set Korean font
+plt.rcParams['font.family'] = 'Noto Sans CJK KR'
+plt.rcParams['axes.unicode_minus'] = False
+
+DATA_FILE = "/home/chs/Work/tga_plot/tests/inputs/TGA.xlsx"
+OUT_DIR = "/home/chs/Work/tga_plot/eval/results/runs/sx/R-mpl-plain/04_r2/out"
+
+# Ensure output directory exists
+os.makedirs(OUT_DIR, exist_ok=True)
+
+# Read the specific sheet
+sheet_name = "1006R1-V normal"
+df = pd.read_excel(DATA_FILE, sheet_name=sheet_name, header=0)
+
+# Extract data columns based on preview info
+# Columns: Time, Temperature, Weight(%), D.W(%/C)
+x = df['Temperature']
+y_weight = df['Weight(%)']
+y_dtw = df['D.W(%/C)']
+
+# Create figure and axis
+fig, ax1 = plt.subplots(figsize=(10, 6))
+
+# Plot TGA (Weight %) on primary y-axis
+color1 = 'tab:blue'
+ax1.set_xlabel('Temperature (°C)', fontsize=12)
+ax1.set_ylabel('Weight (%)', color=color1, fontsize=12)
+line1, = ax1.plot(x, y_weight, color=color1, label='TGA')
+ax1.tick_params(axis='y', labelcolor=color1)
+
+# Create secondary y-axis for DTG (D.W %/C)
+ax2 = ax1.twinx()
+color2 = 'tab:red'
+ax2.set_ylabel('DTG (%/°C)', color=color2, fontsize=12)
+line2, = ax2.plot(x, y_dtw, color=color2, linestyle='--', label='DTG')
+ax2.tick_params(axis='y', labelcolor=color2)
+
+# Set title with specific requirements
+title_text = 'CNT 산화 거동'
+title_color = 'navy' # 남색
+title_size = 18
+fig.suptitle(title_text, fontsize=title_size, color=title_color, y=0.95)
+
+# Add legend
+lines = [line1, line2]
+labels = [l.get_label() for l in lines]
+ax1.legend(lines, labels, loc='upper right')
+
+# Adjust layout to prevent overlap
+plt.tight_layout(rect=[0, 0, 1, 0.9])
+
+# Save the figure
+output_path = os.path.join(OUT_DIR, "tga_normal_plot.png")
+plt.savefig(output_path, dpi=300, bbox_inches='tight')
+plt.close()

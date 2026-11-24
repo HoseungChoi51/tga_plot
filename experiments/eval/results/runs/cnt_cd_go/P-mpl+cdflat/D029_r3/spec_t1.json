@@ -1,0 +1,33 @@
+{
+ "file": "data/run_log.xlsx",
+ "chart": "pie",
+ "x": "등급_순서",
+ "y": {
+  "agg": "count"
+ },
+ "values": "{:.1f}%",
+ "colors": [
+  "green",
+  "orange",
+  "red"
+ ],
+ "sort": "asc",
+ "data_code": "df['등급_순서'] = df['등급 (A/B/C)'].astype('category').cat.reorder_categories(['A', 'B', 'C'])",
+ "asks": [
+  {
+   "ask": "26주 전체 등급(A/B/C) 비율 pie",
+   "how": "key"
+  },
+  {
+   "ask": "색은 A 초록, B 주황, C 빨강",
+   "how": "key"
+  },
+  {
+   "ask": "% 라벨 소수 1자리",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/CNT/Plot/eval/results/runs/cnt_cd_go/P-mpl+cdflat/D029_r3/out/t1"
+ }
+}

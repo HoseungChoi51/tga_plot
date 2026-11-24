@@ -1,0 +1,38 @@
+```json
+{
+  "file": "polymers.xlsx",
+  "sheets": "PET",
+  "title": {
+    "text": "PET 열분해"
+  },
+  "legend": "lower left",
+  "grid": true,
+  "annotate": {
+    "residue": {
+      "text": "Residue {y:.2f}%"
+    }
+  },
+  "asks": [
+    {
+      "ask": "PET 시트",
+      "how": "key"
+    },
+    {
+      "ask": "제목 'PET 열분해'",
+      "how": "key"
+    },
+    {
+      "ask": "범례 왼쪽 아래",
+      "how": "key"
+    },
+    {
+      "ask": "격자 켜기",
+      "how": "key"
+    },
+    {
+      "ask": "잔류량 소수 둘째 자리",
+      "how": "key"
+    }
+  ]
+}
+```

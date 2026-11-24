@@ -1,0 +1,23 @@
+{
+ "file": "data/run_log.xlsx",
+ "sheet": "런로그",
+ "chart": "scatter",
+ "x": "가동시간 (h)",
+ "y": "IG/ID",
+ "filter": [
+  "반응기 == R2"
+ ],
+ "asks": [
+  {
+   "ask": "R2만 필터링",
+   "how": "key"
+  },
+  {
+   "ask": "가동시간에 따른 IG/ID 산점도",
+   "how": "key"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/sessions/E3_G3_P-hyb/out/t3"
+ }
+}

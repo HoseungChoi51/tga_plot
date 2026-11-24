@@ -1,0 +1,28 @@
+{
+ "file": "data/diameters.csv",
+ "chart": "histogram",
+ "x": "직경(nm)",
+ "bins": {
+  "width": 0.5,
+  "min": 4,
+  "max": 28
+ },
+ "code": "# Calculate mean and median from the raw data passed to plotting via global scope or re-read\n# Since 'df' is not available in code block, we use matplotlib's default behavior or try to access the artist\n# However, the safest way without df is to rely on the fact that plotkit might pass data if structure allows,\n# but here it says 'data = the drawn numbers'. For histogram, this is ambiguous.\n# Let's try to extract data from the current axes' children if possible, or simply calculate from file again?\n# No, cannot read file in code easily.\n# Alternative: The hint says \"Remove 'code' if the keys already do it\". But keys don't draw lines.\n# Let's assume 'data' for histogram contains the counts and edges as a tuple or dict with different keys.\n# Actually, looking at typical plotkit implementations, `data` might just be None or empty for histograms unless specified.\n# A robust fallback for mean/median without raw data access in `code` block is impossible if we can't get the raw array.\n# BUT, the previous error was NameError for df. \n# Let's try using `plt.gca()` and extracting patches? Too complex and inaccurate.\n# Wait, the prompt implies I should fix the spec. If I can't compute exact mean/median in `code` without raw data, \n# maybe I should check if there's a key for reference lines? No, `ref` is for bar/scatter usually.\n# Let's look at `data_code`. It runs BEFORE drawing. Can we store stats there?\n# No, `data_code` modifies the dataframe.\n# Okay, let's try to compute the values in `data_code` and inject them into the title or annotations? No, user wants vertical lines.\n# Let's try to access the raw data via a hack or standard library inside `code`? \n# Actually, often `np` is available. Is the raw data in `fig`? No.\n# Let's assume the standard way: Use `data_code` to add columns? No help.\n# Maybe the `code` block has access to the underlying data used for plotting? \n# In many libraries, `ax.patches` gives bars. We can reconstruct the histogram distribution from the bars themselves!\n# Each patch is a rectangle. Its x position is the bin center (or edge), width is bin width, height is count.\n# We can sum up (height * width) to normalize, then find weighted mean and median of the reconstructed PDF.\n\ncounts = []\nedges = []\nfor p in ax.patches:\n    # Patch geometry: Rectangle(x, y, width, height)\n    x_left = p.get_x()\n    width = p.get_width()\n    height = p.get_height()\n    if width > 0: # Filter out zero-width artifacts if any\n        edges.append((x_left, x_left + width))\n        counts.append(height)\n\nif counts:\n    import numpy as np\n    edges = np.array(edges)\n    counts = np.array(counts)\n    centers = (edges[:, 0] + edges[:, 1]) / 2\n    total_count = np.sum(counts)\n    \n    if total_count > 0:\n        # Weighted Mean\n        approx_mean = np.sum(centers * counts) / total_count\n        \n        # Approximate Median\n        cum_counts = np.cumsum(counts)\n        idx_median = np.searchsorted(cum_counts, total_count / 2)\n        if idx_median < len(centers):\n            approx_median = centers[idx_median]\n        else:\n            approx_median = centers[-1]\n            \n        ax.axvline(approx_mean, color='red', linestyle='--', label=f'Mean: {approx_mean:.2f}')\n        ax.axvline(approx_median, color='blue', linestyle=':', label=f'Median: {approx_median:.2f}')\n        ax.legend()",
+ "asks": [
+  {
+   "ask": "TEM 직경 데이터 히스토그램 (6개 시료 합쳐서)",
+   "how": "key"
+  },
+  {
+   "ask": "bin 폭 0.5 nm, 4–28 nm",
+   "how": "key"
+  },
+  {
+   "ask": "평균과 중앙값 위치에 세로선",
+   "how": "code"
+  }
+ ],
+ "output": {
+  "dir": "/home/chs/Work/tga_plot/eval/results/runs/cnt_sealed_oc/P-mpl/S027_r1/out/t1"
+ }
+}
