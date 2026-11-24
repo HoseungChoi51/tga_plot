@@ -392,7 +392,7 @@ def _fmt_label(fmt, series_name, name, value):
 
 
 def echarts_figure_facts(d):
-    """Facts from one figure of an ECharts dump (echartkit/dump.mjs chartFacts + W/H/size_in/dpi/outputs)."""
+    """Facts from one figure of an ECharts dump (plotkit/js/dump.mjs chartFacts + W/H/size_in/dpi/outputs)."""
     o = d["option"]
     xa = _as_list(o.get("xAxis"))
     ya = _as_list(o.get("yAxis"))
@@ -627,7 +627,7 @@ def plotkit_facts(spec, engine, dump_path):
     root = Path(__file__).resolve().parents[2]          # the library
     if str(root) not in sys.path:
         sys.path.insert(0, str(root))
-    import plotkit
+    from plotkit import core as plotkit
     if engine == "matplotlib":
         install_mpl_hook()
         take_mpl_facts()

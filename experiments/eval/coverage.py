@@ -15,13 +15,13 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent                     # experiments/
-REPO = ROOT.parent                     # the library (plotkit, tests/inputs, prompts, echartkit, .venv)
+REPO = ROOT.parent                     # the library (plotkit/, tests/inputs, .venv)
 sys.path.insert(0, str(REPO))
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(HERE))
 import paths  # noqa: E402
 import facts  # noqa: E402
-import plotkit  # noqa: E402
+from plotkit import core as plotkit  # noqa: E402
 
 T = "tests/inputs/TGA.xlsx"
 EX = "tests/inputs/extra_columns.xlsx"

@@ -5,7 +5,7 @@
     python experiments/eval/pi_runs.py --name luna --pi-model centinels/gpt-6-luna --thinking off
 
 Each session runs in a fresh workspace that holds only what the arm needs (no tests, answers or results):
-  P-mpl / P-ec   plotkit.py, plotkit_echarts.py, echartkit/, guide/, AGENT*.md, the data file(s)
+  P-mpl / P-ec   the plotkit package (plotkit.py runs it), guide/, AGENT*.md, the data file(s)
   R-mpl-brief    the data file(s) only
 Afterwards the saved spec.json (P) or plot.py (R) is drawn again with the facts hook and scored like the batch.
 """
@@ -23,7 +23,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent                     # experiments/
-REPO = ROOT.parent                     # the library (plotkit, tests/inputs, prompts, echartkit, .venv)
+REPO = ROOT.parent                     # the library (plotkit/, tests/inputs, .venv)
 sys.path.insert(0, str(REPO))
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(HERE))
@@ -59,14 +59,14 @@ def build_ws(arm, req, ws):
         (ws / rel).parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(f, ws / rel)
     if arm.startswith("P-"):
-        for f in ("plotkit.py", "plotkit_echarts.py", "AGENT.md", "AGENT_ECHARTS.md"):
-            shutil.copy2((REPO if f.endswith(".py") else ROOT) / f, ws / f)
+        for f in ("AGENT.md", "AGENT_ECHARTS.md"):
+            shutil.copy2(ROOT / f, ws / f)
         (ws / "guide").mkdir()
         shutil.copy2(ROOT / "guide" / "guide_ko.png", ws / "guide" / "guide_ko.png")
-        (ws / "echartkit").mkdir()
-        for f in ("render.mjs", "translate.mjs", "dump.mjs", "package.json"):
-            shutil.copy2(REPO / "echartkit" / f, ws / "echartkit" / f)
-        (ws / "echartkit" / "node_modules").symlink_to(REPO / "echartkit" / "node_modules")
+        # the library is a package now (plotkit/); AGENT.md still says "python plotkit.py ...", so a shim runs it
+        shutil.copytree(REPO / "plotkit", ws / "plotkit", ignore=shutil.ignore_patterns("node_modules", "__pycache__"))
+        (ws / "plotkit" / "js" / "node_modules").symlink_to(REPO / "plotkit" / "js" / "node_modules")
+        (ws / "plotkit.py").write_text("import sys\nfrom plotkit.core import main\nsys.exit(main())\n", encoding="utf-8")
 
 
 def prompt_for(arm):

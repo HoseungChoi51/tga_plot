@@ -1,6 +1,6 @@
 """Run model-written Python on data in a sandbox (bubblewrap: no network, read-only system, private /tmp).
 
-    out = run(code, {"df": df}, ["df"])            # chartkit data_code
+    out = run(code, {"df": df}, ["df"])            # plotkit.charts data_code
     out = run(code, {"x": x, "y1": y1, ...}, ["x", "y1", "y2", "marks"])   # plotkit data_code
 
 The inputs are pickled into a temporary folder, the code runs in a fresh Python with numpy and pandas
@@ -15,7 +15,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-from plotkit import PlotkitError
+from .core import PlotkitError
 
 RUNNER = r'''
 import pickle, sys

@@ -20,13 +20,14 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent                     # experiments/
-REPO = ROOT.parent                     # the library (plotkit, tests/inputs, prompts, echartkit, .venv)
+REPO = ROOT.parent                     # the library (plotkit/, tests/inputs, .venv)
 sys.path.insert(0, str(REPO))
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(HERE))
+import paths  # noqa: E402
 import cd  # noqa: E402
 import facts  # noqa: E402
-import plotkit  # noqa: E402
+from plotkit import core as plotkit  # noqa: E402
 import run_agent  # noqa: E402
 
 ARMS = ("P-mpl", "P-ec", "R-mpl-plain", "R-mpl-brief", "R-ec-plain", "R-ec-brief")
@@ -89,7 +90,8 @@ def system_prompt(arm):
     pdir = os.environ.get("EVAL_PROMPT_DIR")     # layer v2: core.md + hatch_mpl.md / hatch_ec.md; else AGENT.md / AGENT_ECHARTS.md
     if arm in ("P-mpl", "P-ec") and pdir:
         d = Path(pdir)
-        return (d / "core.md").read_text(encoding="utf-8") + (d / ("hatch_mpl.md" if arm == "P-mpl" else "hatch_ec.md")).read_text(encoding="utf-8")
+        return (d / "core.md").read_text(encoding="utf-8") + \
+            paths.hatch(d, "matplotlib" if arm == "P-mpl" else "echarts").read_text(encoding="utf-8")
     if arm == "P-mpl":
         return (ROOT / "AGENT.md").read_text(encoding="utf-8") + run_agent.SPEC_ONLY
     if arm == "P-ec":

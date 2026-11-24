@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parent.parent          # experiments/
 REPO = ROOT.parent                                     # the library
 sys.path.insert(0, str(REPO))
 sys.path.insert(0, str(ROOT / "tests"))
-import plotkit  # noqa: E402
+from plotkit import core as plotkit  # noqa: E402
 import score  # noqa: E402
 
 

@@ -1,4 +1,4 @@
-// Resolved plot (from plotkit_echarts.resolve) -> ECharts option, and the label layout.
+// Resolved plot (from plotkit.echarts.resolve) -> ECharts option, and the label layout.
 // Everything here is app code: the model's "echarts" patch is plain JSON, already checked
 // against an allowlist in Python, and is merged by mergePatch() below.
 

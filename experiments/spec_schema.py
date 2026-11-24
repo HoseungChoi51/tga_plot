@@ -30,7 +30,7 @@ from pathlib import Path
 
 if str(Path(__file__).resolve().parents[1]) not in sys.path:      # the library, when run as a script
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-import plotkit as pk  # noqa: E402
+from plotkit import core as pk  # noqa: E402
 
 KINDS = ("bar", "hbar", "line", "scatter", "histogram", "heatmap", "pie")      # chartkit.KINDS
 AGGS = ("mean", "sum", "count", "median", "min", "max", "std", "first", "last", "nunique")
@@ -88,7 +88,7 @@ def data_info(files, root=None, inspect=False):
                 info = pk.inspect_file(str(p))
                 tabs = [(s["name"], [(c["col"], c["name"]) for c in s.get("columns", [])]) for s in info.get("sheets", [])]
             else:
-                import chartkit
+                from plotkit import charts as chartkit
                 pv = chartkit.preview(str(p))
                 tabs = [(s["sheet"], [(c["col"], c["name"]) for c in s.get("columns", [])]) for s in pv["sheets"]]
             for sheet, cc in tabs:

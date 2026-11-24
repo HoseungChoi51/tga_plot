@@ -19,7 +19,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent                     # experiments/
-REPO = ROOT.parent                     # the library (plotkit, tests/inputs, prompts, echartkit, .venv)
+REPO = ROOT.parent                     # the library (plotkit/, tests/inputs, .venv)
 sys.path.insert(0, str(REPO))
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(HERE))
@@ -101,7 +101,7 @@ def main():
     ap.add_argument("--reasoning-effort", help="reasoning_effort for every call (OpenAI-style models), e.g. none, minimal, low")
     ap.add_argument("--pi-model", help="call the model through the Pi CLI instead, e.g. centinels/gpt-6-luna (Pi holds the key)")
     ap.add_argument("--pi-thinking", default="off", help="Pi thinking level with --pi-model")
-    ap.add_argument("--prompt-dir", help="layer-v2 prompts for the protocol arms, e.g. prompts/v2")
+    ap.add_argument("--prompt-dir", help="layer-v2 prompts for the protocol arms, e.g. plotkit/prompts (the study's prompts/v2)")
     ap.add_argument("--backend", choices=("openai", "anthropic"), default="openai",
                     help="anthropic: the Messages API (ANTHROPIC_API_KEY), e.g. --model claude-haiku-5-5 --effort low")
     ap.add_argument("--cd-param", choices=("response_format", "json_schema"), default="response_format")

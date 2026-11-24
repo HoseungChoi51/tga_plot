@@ -6,10 +6,10 @@
 // changed by at most 3 px. Labels whose anchor leaves the view are not counted.
 import { readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
-const require = createRequire(new URL("../../echartkit/package.json", import.meta.url));
+const require = createRequire(new URL("../../plotkit/js/package.json", import.meta.url));
 const { chromium } = require("playwright-core");
 const echartsJs = readFileSync(require.resolve("echarts/dist/echarts.min.js"), "utf8");
-const rc = readFileSync(new URL("../../echartkit/render_chart.mjs", import.meta.url), "utf8");
+const rc = readFileSync(new URL("../../plotkit/js/render_chart.mjs", import.meta.url), "utf8");
 const reviveJs = rc.slice(rc.indexOf("export function formatPy"), rc.indexOf("async function main")).replace(/export function /g, "function ");
 
 const [casesPath, outPath] = process.argv.slice(2);

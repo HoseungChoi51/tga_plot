@@ -8,7 +8,10 @@ from pathlib import Path
 
 EVAL = Path(__file__).resolve().parent      # experiments/eval
 EXP = EVAL.parent                            # experiments/
-REPO = EXP.parent                            # the library: plotkit, tests/inputs, prompts, echartkit, .venv
+REPO = EXP.parent                            # the library: plotkit/, tests/inputs, .venv
+
+
+MOVED = {"prompts/v2": "plotkit/prompts", "echartkit": "plotkit/js"}     # library folders renamed in the package
 
 
 def datapath(rel):
@@ -16,7 +19,18 @@ def datapath(rel):
     p = Path(rel)
     if p.is_absolute():
         return p
+    for old, new in MOVED.items():
+        if p.as_posix() == old or p.as_posix().startswith(old + "/"):
+            return REPO / new / p.relative_to(old)
     return REPO / p if (REPO / p).exists() and not (EXP / p).exists() else EXP / p
+
+
+def hatch(prompt_dir, engine):
+    """The engine's hatch file in a prompt folder: plotkit/prompts names them hatch_matplotlib.md / hatch_echarts.md,
+    the study's folders (prompts/v2lite) hatch_mpl.md / hatch_ec.md."""
+    d = Path(prompt_dir)
+    long, short_ = ("hatch_matplotlib.md", "hatch_mpl.md") if engine == "matplotlib" else ("hatch_echarts.md", "hatch_ec.md")
+    return d / long if (d / long).exists() else d / short_
 
 
 def short(path):

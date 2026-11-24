@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-// echartkit: draws plotkit's resolved plots with ECharts (server-side SVG, as KetchupE does)
+// plotkit/js: draws plotkit's resolved plots with ECharts (server-side SVG, as KetchupE does)
 // and writes SVG, PNG/JPG/TIF (sharp, as KetchupE's captureChartPng) or PDF (headless
 // Chromium, as KetchupE's printToPDF).
 //
-//   python plotkit.py plot spec.json --engine echarts      (normal use, via plotkit)
-//   node echartkit/render.mjs < resolved.json               (input: {"figures": [...]})
+//   python -m plotkit plot spec.json --engine echarts       (normal use, via plotkit)
+//   node plotkit/js/render.mjs < resolved.json              (input: {"figures": [...]})
 //
 // Prints one line of JSON: {"ok": true, "figures": [{"saved": [...], "warnings": [...]}]}
 // or {"ok": false, "error": "...", "hint": "..."}.
@@ -84,7 +84,7 @@ async function chromium() {
     try { browser = await pw.launch({ headless: true, ...opts }); return browser; } catch (e) { last = e; }
   }
   throw Object.assign(new Error("PDF output needs Chromium, Chrome or Edge, and none could be started: " + String(last?.message ?? last).split("\n")[0]),
-    { hint: "set PLOTKIT_CHROMIUM to the browser's full path, or run: npx --prefix echartkit playwright install chromium" });
+    { hint: "set PLOTKIT_CHROMIUM to the browser's full path, or run: npx --prefix plotkit/js playwright install chromium" });
 }
 
 export async function writeOutputs(fig, svg, W, H) {

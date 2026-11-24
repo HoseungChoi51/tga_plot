@@ -3,7 +3,7 @@
 // tied to the data (markPoint / markLine on its series), so it moves with zoom, pan and resize, plus a tooltip,
 // zoom and a toolbox. The static render places labels in pixels to avoid collisions; a live chart cannot.
 //
-//   node echartkit/live.mjs < resolved.json      (input: {"figures": [...]} from plotkit_echarts.resolve)
+//   node plotkit/js/live.mjs < resolved.json     (input: {"figures": [...]} from plotkit.echarts.resolve)
 // Prints {"ok": true, "options": [...]}.
 import { buildOption, layout } from "./translate.mjs";
 

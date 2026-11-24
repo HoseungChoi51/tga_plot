@@ -35,7 +35,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent          # experiments/
 REPO = ROOT.parent                                     # the library
 sys.path.insert(0, str(REPO))
-import plotkit  # noqa: E402
+from plotkit import core as plotkit  # noqa: E402
 
 EXPECTED = json.loads((ROOT / "tests" / "expected_requests.json").read_text(encoding="utf-8"))
 REFERENCE = json.loads((REPO / "tests" / "reference_specs.json").read_text(encoding="utf-8"))

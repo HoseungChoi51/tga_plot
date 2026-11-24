@@ -1,12 +1,12 @@
 """
-plotkit_echarts.py - the ECharts engine for plotkit.
+plotkit.echarts - the ECharts engine for plotkit's curves.
 
-plotkit.py keeps reading the files, choosing the columns and computing the residue and
+plotkit.core keeps reading the files, choosing the columns and computing the residue and
 peaks. This module turns that into an engine-neutral "resolved plot" (numbers, colours,
 texts and tick positions, nothing matplotlib-specific) and hands it to Node
-(echartkit/render.mjs), which draws it with ECharts and writes SVG, PNG or PDF.
+(plotkit/js/render.mjs), which draws it with ECharts and writes SVG, PNG or PDF.
 
-Use:  PLOTKIT_ENGINE=echarts python plotkit.py plot spec.json     (or --engine echarts)
+Use:  PLOTKIT_ENGINE=echarts python -m plotkit plot spec.json     (or --engine echarts)
       python -c "import plotkit; print(plotkit.plot({...}, engine='echarts'))"
 
 The model never writes code for this engine. Anything no key covers goes in the
@@ -23,11 +23,11 @@ from pathlib import Path
 
 import numpy as np
 
-import plotkit as pk
-from plotkit import PlotkitError
+from . import core as pk
+from .core import PlotkitError
 
 HERE = Path(__file__).parent
-NODE_DIR = HERE / "echartkit"
+NODE_DIR = HERE / "js"
 PT = 96 / 72                 # points -> CSS pixels (the SVG is laid out at 96 px per inch)
 SMALL = 0.833                # matplotlib's "small" font size factor
 PATCH_MAX_BYTES = 4096
@@ -417,12 +417,12 @@ def _node():
         raise PlotkitError("the ECharts engine needs Node.js 20 or newer, and node was not found",
                            "install Node.js, or set PLOTKIT_NODE to node's full path, or use the matplotlib engine")
     if not (NODE_DIR / "node_modules" / "echarts").exists():
-        raise PlotkitError("echartkit is not installed", f"run: npm install --prefix \"{NODE_DIR}\"")
+        raise PlotkitError("the ECharts engine's Node packages are not installed", f"run: npm install --prefix \"{NODE_DIR}\"")
     return exe
 
 
 def render(figures, timeout=180):
-    """Send resolved figures to echartkit/render.mjs. Returns its JSON reply."""
+    """Send resolved figures to plotkit/js/render.mjs. Returns its JSON reply."""
     payload = json.dumps({"figures": figures}, ensure_ascii=False)
     env = dict(os.environ)
     try:
@@ -438,7 +438,7 @@ def render(figures, timeout=180):
     if not reply:
         err = p.stderr.decode("utf-8", "replace").strip().splitlines()
         raise PlotkitError("the ECharts renderer failed: " + (err[-1] if err else f"exit code {p.returncode}"),
-                           "run: npm install --prefix echartkit; for PDF also set PLOTKIT_CHROMIUM or run npx playwright install chromium")
+                           f"run: npm install --prefix \"{NODE_DIR}\"; for PDF also set PLOTKIT_CHROMIUM or run npx playwright install chromium")
     if not reply.get("ok"):
         raise PlotkitError(reply.get("error", "the ECharts renderer failed"), reply.get("hint", ""))
     return reply

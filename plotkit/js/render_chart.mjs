@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-// Renders the ECharts options chartkit.py builds (bar, line, scatter, histogram, heatmap, pie):
+// Renders the ECharts options plotkit/charts.py builds (bar, line, scatter, histogram, heatmap, pie):
 // ECharts SSR SVG, then sharp (PNG/JPG/TIF) or Chromium (PDF) via render.mjs's writeOutputs.
 // JSON cannot carry functions, so chartkit marks them with strings that are turned into functions here:
 //   "__fmt__{:.1f}"      a value formatter in Python's format mini-language (labels, axis ticks)
 //   "__histbar__"        renderItem for a histogram bar: data [x0, x1, count, base]
 //   "__errorbar__"       renderItem for an error bar: data [category index, low, high]
 //
-//   node echartkit/render_chart.mjs < {"out_dir": "...", "figures": [{name, option, width, height, dpi, formats}]}
+//   node plotkit/js/render_chart.mjs < {"out_dir": "...", "figures": [{name, option, width, height, dpi, formats}]}
 // Prints {"ok": true, "saved": [...]} or {"ok": false, "error": "..."}; with PLOTKIT_DUMP_OPTION=<file>
 // also writes what was drawn (dump.mjs) for the figure-facts checker.
 import { writeFileSync } from "node:fs";

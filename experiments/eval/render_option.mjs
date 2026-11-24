@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 // Renders ECharts options written by a model (raw-ECharts arms) the way plotkit's engine does:
-// ECharts SSR SVG, then sharp (PNG/JPG/TIF) or Chromium (PDF) via echartkit/render.mjs's writeOutputs.
+// ECharts SSR SVG, then sharp (PNG/JPG/TIF) or Chromium (PDF) via plotkit/js/render.mjs's writeOutputs.
 //
 //   node eval/render_option.mjs < {"out_dir": "...", "figures": [{name, option, width, height, dpi, formats}]}
 // Prints {"ok": true, "saved": [...]} or {"ok": false, "error": "..."}; with PLOTKIT_DUMP_OPTION=<file>
-// also writes what was drawn (echartkit/dump.mjs) for the figure-facts checker.
+// also writes what was drawn (plotkit/js/dump.mjs) for the figure-facts checker.
 import { writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join } from "node:path";
-import { chartFacts } from "../../echartkit/dump.mjs";
-import { writeOutputs, closeBrowser } from "../../echartkit/render.mjs";
+import { chartFacts } from "../../plotkit/js/dump.mjs";
+import { writeOutputs, closeBrowser } from "../../plotkit/js/render.mjs";
 
-const require = createRequire(new URL("../../echartkit/package.json", import.meta.url));
+const require = createRequire(new URL("../../plotkit/js/package.json", import.meta.url));
 const echarts = require("echarts");
 
 const chunks = [];

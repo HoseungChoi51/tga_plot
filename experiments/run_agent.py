@@ -32,7 +32,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent                 # experiments/
 sys.path.insert(0, str(HERE.parent))                   # the library
 sys.path.insert(0, str(HERE))
-import plotkit  # noqa: E402
+from plotkit import core as plotkit  # noqa: E402
 
 SPEC_ONLY = """
 

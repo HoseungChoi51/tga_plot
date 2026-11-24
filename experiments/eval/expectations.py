@@ -12,10 +12,10 @@ import numpy as np
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent                     # experiments/
-REPO = ROOT.parent                     # the library (plotkit, tests/inputs, prompts, echartkit, .venv)
+REPO = ROOT.parent                     # the library (plotkit/, tests/inputs, .venv)
 sys.path.insert(0, str(REPO))
 sys.path.insert(0, str(ROOT))
-import plotkit  # noqa: E402
+from plotkit import core as plotkit  # noqa: E402
 
 
 @lru_cache(maxsize=None)

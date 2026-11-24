@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """
-chartkit.py - spec-driven charts of table data (bar, line, scatter, histogram, heatmap, pie).
+plotkit.charts - spec-driven charts of table data (bar, line, scatter, histogram, heatmap, pie).
 
-plotkit.py draws instrument curves (TGA and other x-y exports). chartkit draws tables of records,
+plotkit.core draws instrument curves (TGA and other x-y exports). plotkit.charts draws tables of records,
 such as a production run log: it reads the table, filters, groups and aggregates in Python, and
 builds one engine-neutral figure model that matplotlib or ECharts then draws. A spec with a "chart"
 key goes here (plotkit.plot routes it):
 
     {"file": "run_log.xlsx", "chart": "bar", "x": "반응기", "y": {"col": "수율", "agg": "mean"}}
 
-    python chartkit.py preview FILE            columns, types, values (what the model sees)
-    python chartkit.py plot SPEC.json [--engine echarts]
-    python chartkit.py schema
+    python -m plotkit.charts preview FILE      columns, types, values (what the model sees)
+    python -m plotkit.charts plot SPEC.json [--engine echarts]
+    python -m plotkit.charts schema
 
 The model writes only the spec. "data_code" (Python on the DataFrame `df`, run in a sandbox before
 anything is drawn) covers data changes no key covers; "code" (matplotlib, after drawing) and
@@ -30,8 +30,8 @@ from pathlib import Path
 
 import numpy as np
 
-import plotkit as pk
-from plotkit import PlotkitError
+from . import core as pk
+from .core import PlotkitError
 
 HERE = Path(__file__).parent
 
@@ -542,7 +542,7 @@ def apply_filter(df, cond):
 # =================================================================== the data hatch
 def run_data_code(df, code, timeout=60):
     """Run the model's data_code on df in the sandbox (sandbox.py); returns the new df."""
-    import sandbox
+    from . import sandbox
     attrs = dict(df.attrs)
     df.attrs = {}
     try:
@@ -1942,7 +1942,7 @@ def _grid_fit(grid, xa, ya, xcats, ycats, fs, spec):
 def draw_echarts(spec, model, out_paths, dump_path=None):
     opt, (W, H) = echarts_option(spec, model)
     if spec.get("echarts"):
-        from plotkit_echarts import validate_patch
+        from .echarts import validate_patch
         patch = validate_patch(spec["echarts"])
         for k in ("xAxis", "yAxis"):                 # one axis each here; the patch may give a list
             if isinstance(patch.get(k), list):
@@ -1951,11 +1951,11 @@ def draw_echarts(spec, model, out_paths, dump_path=None):
     fig = {"name": Path(out_paths[0]).stem, "option": opt, "width": W, "height": H, "dpi": spec["dpi"], "size_in": spec["size"],
            "formats": [Path(p).suffix.lstrip(".") for p in out_paths]}
     payload = json.dumps({"out_dir": str(Path(out_paths[0]).parent), "figures": [fig]}, ensure_ascii=False)
-    from plotkit_echarts import _node
+    from .echarts import _node
     env = dict(os.environ)
     if dump_path:
         env["PLOTKIT_DUMP_OPTION"] = str(dump_path)
-    p = subprocess.run([_node(), str(HERE / "echartkit" / "render_chart.mjs")], input=payload.encode("utf-8"),
+    p = subprocess.run([_node(), str(HERE / "js" / "render_chart.mjs")], input=payload.encode("utf-8"),
                        capture_output=True, timeout=180, env=env)
     out = p.stdout.decode("utf-8", "replace").strip()
     try:
@@ -1981,12 +1981,12 @@ def _merge(a, b):
 
 def live_options(user_spec):
     """The chart as an ECharts option for a live chart in the browser (tooltip, zoom; labels belong to the data).
-    Number formats are left as "__fmt__..." markers: the page revives them like echartkit/render_chart.mjs."""
+    Number formats are left as "__fmt__..." markers: the page revives them like plotkit/js/render_chart.mjs."""
     spec = normalize(user_spec)
     model = layout(spec, build_model(spec, load_frame(spec)))
     opt, _ = echarts_option(spec, model, live=True)
     if spec.get("echarts"):
-        from plotkit_echarts import validate_patch
+        from .echarts import validate_patch
         patch = validate_patch(spec["echarts"])
         for k in ("xAxis", "yAxis"):
             if isinstance(patch.get(k), list):

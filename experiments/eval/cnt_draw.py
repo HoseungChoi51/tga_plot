@@ -22,12 +22,12 @@ dump = str(Path(out_path).with_suffix(".echarts.json"))
 os.environ["PLOTKIT_DUMP_OPTION"] = dump
 t0 = time.time()
 import chart_facts  # noqa: E402
-import plotkit  # noqa: E402
+from plotkit import core as plotkit  # noqa: E402
 from plotkit import PlotkitError  # noqa: E402
 chart_facts.install_hook()
 try:
     if any(k in spec for k in ("chart", "kind", "chart_type")):
-        import chartkit
+        from plotkit import charts as chartkit
         result = chartkit.plot(spec, engine=engine, dump_path=dump)
     else:
         result = plotkit.plot(spec, engine=engine)

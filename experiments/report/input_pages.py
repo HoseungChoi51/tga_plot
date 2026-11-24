@@ -103,7 +103,7 @@ def show_line(line):
 
 
 def reader_summary(path):
-    import plotkit
+    from plotkit import core as plotkit
     try:
         info = plotkit.inspect_file(str(path))
     except Exception as e:  # noqa: BLE001

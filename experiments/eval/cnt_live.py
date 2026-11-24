@@ -15,9 +15,9 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent.parent))      # the library
 sys.path.insert(0, str(HERE.parent))             # experiments/
 sys.path.insert(0, str(HERE))
-import chartkit  # noqa: E402
-import plotkit  # noqa: E402
-import plotkit_echarts  # noqa: E402
+from plotkit import charts as chartkit  # noqa: E402
+from plotkit import core as plotkit  # noqa: E402
+from plotkit import echarts as plotkit_echarts  # noqa: E402
 from cnt_dev_refs import REFS  # noqa: E402
 
 cases = []

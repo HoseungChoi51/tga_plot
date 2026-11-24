@@ -35,10 +35,11 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent                     # experiments/
-REPO = ROOT.parent                     # the library (plotkit, tests/inputs, prompts, echartkit, .venv)
+REPO = ROOT.parent                     # the library (plotkit/, tests/inputs, .venv)
 sys.path.insert(0, str(REPO))
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(HERE))
+import paths  # noqa: E402
 import cd  # noqa: E402
 
 CNT = HERE / "cnt"
@@ -72,16 +73,16 @@ _lock = threading.Lock()
 
 
 # =================================================================== prompts and previews
-PROMPT_DIR = REPO / "prompts" / "v2"
+PROMPT_DIR = REPO / "plotkit" / "prompts"          # the study's prompts/v2
 
 
 def system_prompt(arm, prompt_dir=None, cd_note=False):
-    d = Path(prompt_dir) if prompt_dir else PROMPT_DIR
+    d = paths.datapath(prompt_dir) if prompt_dir else PROMPT_DIR
     arm, profile = cd.parse_arm(arm)
     if arm.startswith("P-"):
         core = (d / "core.md").read_text(encoding="utf-8")
-        hatch = "hatch_mpl.md" if arm in ("P-mpl", "P-hyb") else "hatch_ec.md"   # P-hyb: ECharts, matplotlib only for "code"
-        return core + (d / hatch).read_text(encoding="utf-8") + cd.prompt_suffix(profile, cd_note)
+        hatch = paths.hatch(d, "matplotlib" if arm in ("P-mpl", "P-hyb") else "echarts")   # P-hyb: ECharts, matplotlib only for "code"
+        return core + hatch.read_text(encoding="utf-8") + cd.prompt_suffix(profile, cd_note)
     return RAW
 
 
@@ -90,7 +91,7 @@ _PREVIEWS = {}
 
 def preview_text(files):
     """The same data preview for every arm: sheets, rows, columns with letter, type and values."""
-    import chartkit
+    from plotkit import charts as chartkit
     parts = []
     for f in files:
         if f in _PREVIEWS:
@@ -368,7 +369,7 @@ def main():
     ap.add_argument("--max-tokens-raw", type=int, default=8000)
     ap.add_argument("--retries", type=int, default=2)
     ap.add_argument("--only", help="comma-separated item ids")
-    ap.add_argument("--prompt-dir", help="a folder with core.md, hatch_mpl.md, hatch_ec.md (default prompts/v2)")
+    ap.add_argument("--prompt-dir", help="a folder with core.md, hatch_mpl.md, hatch_ec.md (default plotkit/prompts, the study's prompts/v2)")
     ap.add_argument("--backend", choices=("openai", "anthropic"), default="openai",
                     help="openai: any OpenAI-compatible server (llama.cpp); anthropic: the Messages API (ANTHROPIC_API_KEY)")
     ap.add_argument("--cd-param", choices=("response_format", "json_schema"), default="response_format",

@@ -32,7 +32,7 @@ _draw_lock = threading.Lock()
 
 
 def draw_inprocess(spec, engine, run_dir, turn):
-    import plotkit
+    from plotkit import core as plotkit
     from plotkit import PlotkitError
     spec = dict(spec)
     out = dict(spec.get("output") or {}) if isinstance(spec.get("output"), dict) else ({"format": spec["output"]} if spec.get("output") else {})
