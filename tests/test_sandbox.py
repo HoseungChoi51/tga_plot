@@ -7,6 +7,7 @@ import pandas as pd
 import pytest
 
 import plotkit
+from conftest import ENGINES
 from plotkit import sandbox
 
 HERE = Path(__file__).resolve().parent
@@ -103,7 +104,7 @@ def test_env_switches(no_bwrap, monkeypatch):
 def test_refused_data_code_reaches_the_model_as_error_and_hint(no_bwrap, tmp_path):
     spec = {"file": LOG, "chart": "bar", "x": "반응기", "y": "수율", "data_code": "df['수율'] = df['수율'] * 100"}
     with pytest.raises(plotkit.PlotkitError) as e:
-        plotkit.plot(spec, engine="matplotlib", out_dir=tmp_path)
+        plotkit.plot(spec, out_dir=tmp_path)
     assert "no data_code" in e.value.hint
 
 
@@ -114,7 +115,7 @@ def test_bubblewrap_has_no_network():
     assert sandbox.run(code, {"net": None}, ["net"])["net"] == ["lo"]
 
 
-@pytest.mark.parametrize("engine", ["matplotlib", "echarts"])
+@pytest.mark.parametrize("engine", ENGINES)
 def test_chart_with_data_code(engine, tmp_path, plain):
     spec = {"file": LOG, "chart": "bar", "x": "반응기", "y": {"col": "수율 %", "agg": "mean"},
             "data_code": "df['수율 %'] = df['수율'] * 10"}

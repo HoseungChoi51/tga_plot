@@ -1,7 +1,7 @@
 # plotkit
 
-A language model writes a small JSON **spec**; plotkit checks it against the user's data and draws it, as live
-ECharts options for a chat app or as PNG/SVG/PDF files. The model never writes plotting code. It fills in the
+A language model writes a small JSON **spec**; plotkit checks it against the user's data and draws it with
+**ECharts**, as live options for a chat app or as PNG/SVG/PDF files. matplotlib is an optional second engine. The model never writes plotting code. It fills in the
 handful of keys the user asked for, and plotkit supplies the rest: house defaults (a TGA preset), a reader for messy
 lab files, and an error with a hint whenever the spec does not fit the data.
 
@@ -20,8 +20,9 @@ The design comes from a study of about 6,800 scored runs: see [docs/EXPERIMENTS.
 ## Install
 
 ```
-pip install -e .                       # Python 3.10+ (tested on 3.13): numpy, pandas, matplotlib, scipy, openpyxl
+pip install -e .                       # Python 3.10+ (tested on 3.13): numpy, pandas, scipy, openpyxl
 pip install -e ".[xls]"                # also old .xls files
+pip install -e ".[matplotlib]"         # optional: the matplotlib engine (not needed for ECharts)
 npm install --prefix plotkit/js        # Node 20+: ECharts (live options, SVG), sharp (PNG/JPG/TIF)
 npx --prefix plotkit/js playwright install chromium     # only for PDF from ECharts
 ```
@@ -67,7 +68,7 @@ types. Both are generated (`python -m plotkit schema --md | --json`) and tested 
 
 | path | what it is |
 |---|---|
-| `plotkit/` | the library: `core.py` (file reader, curves, matplotlib engine), `charts.py` (table charts), `echarts.py` (the ECharts engine for curves, the patch allowlist), `sandbox.py`, `schema.py`, `agent.py` (prompt, messages, reference loop), `api.py`, `__main__.py` (command line, `serve`) |
+| `plotkit/` | the library: `core.py` (file reader, curves, the optional matplotlib engine), `charts.py` (table charts), `echarts.py` (the ECharts engine for curves, the patch allowlist), `colors.py` and `ticks.py` (colours, colormaps and tick choice without matplotlib), `sandbox.py`, `schema.py`, `agent.py` (prompt, messages, reference loop), `api.py`, `__main__.py` (command line, `serve`) |
 | `plotkit/prompts/` | the system prompt: `core.md` + `hatch_echarts.md` or `hatch_matplotlib.md` |
 | `plotkit/js/` | the Node side: `translate.mjs`, `live.mjs`, `render.mjs`, `render_chart.mjs`, `revive.mjs` |
 | `schema/` | the generated spec schema and key reference |

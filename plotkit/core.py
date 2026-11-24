@@ -9,8 +9,8 @@ COMMAND LINE
   3. Plot:                     python -m plotkit plot SPEC.json
                                (or: python -m plotkit plot --json '{"file": "TGA.xlsx"}')
   4. Read the JSON that is printed. If "ok" is false, fix the spec using "hint" and retry.
-  Engines: matplotlib (default) or ECharts:  PLOTKIT_ENGINE=echarts python -m plotkit plot SPEC.json
-                               (or add --engine echarts; ECharts needs Node, see plotkit/js/README.md)
+  Engines: ECharts (default; needs Node, see plotkit/js/README.md) or matplotlib (optional:
+                               pip install "plotkit[matplotlib]"; --engine matplotlib or PLOTKIT_ENGINE=matplotlib)
   Every change the user can ask for is a spec key:
                                python -m plotkit schema     (all keys)
                                python -m plotkit example    (a full example spec)
@@ -24,7 +24,7 @@ blank or metadata rows on top, units rows, extra columns, Korean headers,
 tab/comma/semicolon/space separators and decimal commas.
 
 Python use:  from plotkit import plot, inspect_file;  plot({"file": "TGA.xlsx"})
-Requires:    numpy, pandas, matplotlib, scipy, openpyxl  (+ xlrd for old .xls files)
+Requires:    numpy, pandas, scipy, openpyxl (+ xlrd for old .xls files; + matplotlib for the matplotlib engine)
 """
 import copy
 import difflib
@@ -348,7 +348,7 @@ def _normalize_axis(name, d):
 
 
 def _color(c, where):
-    from matplotlib.colors import is_color_like
+    from .colors import is_color_like
     c2 = KOREAN_COLORS.get(str(c).strip(), str(c).strip())
     if re.fullmatch(r"[0-9a-fA-F]{6}", c2):
         c2 = "#" + c2
@@ -1540,11 +1540,17 @@ def file_stem(name_tpl, spec, first):
 
 
 def engine_name(engine=None):
-    """The drawing engine: the argument, else $PLOTKIT_ENGINE, else matplotlib."""
+    """The drawing engine: the argument, else $PLOTKIT_ENGINE, else echarts. matplotlib is optional
+    (pip install "plotkit[matplotlib]")."""
     import os
-    e = str(engine or os.environ.get("PLOTKIT_ENGINE") or "matplotlib").strip().lower()
+    e = str(engine or os.environ.get("PLOTKIT_ENGINE") or "echarts").strip().lower()
     if e not in ENGINES:
-        raise PlotkitError(f"unknown engine {e!r}", "use matplotlib or echarts")
+        raise PlotkitError(f"unknown engine {e!r}", "use echarts or matplotlib")
+    if e == "matplotlib":
+        import importlib.util
+        if importlib.util.find_spec("matplotlib") is None:
+            raise PlotkitError("the matplotlib engine is not installed",
+                               'use the ECharts engine, or install it: pip install "plotkit[matplotlib]"')
     return e
 
 
@@ -1564,7 +1570,7 @@ def route(user_spec):
 def plot(user_spec, engine=None, *, out_dir=None, formats=None, summary_csv=True):
     """Make the plots. Returns a result dict (also printed as JSON by the CLI).
 
-    engine: "matplotlib" (default) or "echarts"; when None, $PLOTKIT_ENGINE decides.
+    engine: "echarts" (default) or "matplotlib" (optional); when None, $PLOTKIT_ENGINE decides.
     out_dir, formats: the host's folder and file formats; they win over the spec's "output" (default: the spec's,
         else a folder <data file>_plots next to the data, PNG).
     summary_csv: also write summary.csv (the residue and peak values) next to curve plots.

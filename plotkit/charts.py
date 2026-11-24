@@ -1056,12 +1056,12 @@ def _refs(spec, model, df, ycol, axis="y"):
 # =================================================================== layout (shared by both engines)
 def _nice(lo, hi, nbins=6):
     """Axis limits on round tick values, and the tick step."""
-    from matplotlib.ticker import MaxNLocator
+    from .ticks import tick_values
     if not (np.isfinite(lo) and np.isfinite(hi)):
         return 0.0, 1.0, 0.2
     if hi == lo:
         lo, hi = lo - 1, hi + 1
-    t = MaxNLocator(nbins=nbins, steps=[1, 2, 2.5, 5, 10]).tick_values(lo, hi)
+    t = tick_values(lo, hi, nbins)
     step = float(t[1] - t[0])
     return float(t[0]) if t[0] <= lo + 1e-12 else float(t[0] - step), float(t[-1]) if t[-1] >= hi - 1e-12 else float(t[-1] + step), step
 
@@ -1206,19 +1206,18 @@ def layout(spec, model):
                 lims["x_tight"] = [float(np.nanmin(xv)), float(np.nanmax(xv))]
     model["lims"] = lims
     model["ticks"] = {}
-    from matplotlib.ticker import MaxNLocator
+    from .ticks import tick_values
     for k_ in ("v", "x"):
         if k_ in lims:                                    # limits on round values: ticks every step between them
             lo_, hi_, st_ = lims[k_]
             model["ticks"][k_] = [float(round(v, 10)) for v in np.arange(lo_, hi_ + st_ / 2, st_)]
         elif k_ == "x" and "x_tight" in lims and model["x"]["type"] == "value":
             lo_, hi_ = lims["x_tight"]
-            model["ticks"]["x"] = [float(v) for v in MaxNLocator(nbins=6, steps=[1, 2, 2.5, 5, 10]).tick_values(lo_, hi_)
+            model["ticks"]["x"] = [float(v) for v in tick_values(lo_, hi_, 6)
                                    if lo_ - 1e-9 <= v <= hi_ + 1e-9]
     if kind == "histogram":
-        from matplotlib.ticker import MaxNLocator
         e = model["edges"]
-        model["ticks"]["x"] = [float(v) for v in MaxNLocator(nbins=6, steps=[1, 2, 2.5, 5, 10]).tick_values(e[0], e[-1]) if e[0] - 1e-9 <= v <= e[-1] + 1e-9]
+        model["ticks"]["x"] = [float(v) for v in tick_values(e[0], e[-1], 6) if e[0] - 1e-9 <= v <= e[-1] + 1e-9]
     # category labels: rotate when they do not fit side by side
     cats = model["x"].get("categories") or []
     rot = spec["x"].get("rotate")
@@ -1229,16 +1228,17 @@ def layout(spec, model):
         rot = (90 if need_w > 2.2 * room else 45) if need_w > room else 0
     model["rotate_x"] = float(rot or 0)
     if kind == "heatmap":
-        import matplotlib
+        from .colors import colormap, colormap_names
         h = model["heat"]
         z = np.array(h["z"], dtype=float)
         fin = z[np.isfinite(z)]
         vmin = h["vmin"] if h["vmin"] is not None else (float(fin.min()) if fin.size else 0)
         vmax = h["vmax"] if h["vmax"] is not None else (float(fin.max()) if fin.size else 1)
         try:
-            cm = matplotlib.colormaps[h["cmap"]]
+            cm = colormap(h["cmap"])
         except KeyError:
-            raise PlotkitError(f'unknown cmap "{h["cmap"]}"', "use viridis, Blues, Reds, Greens, RdBu_r, coolwarm, gray, magma, YlOrRd")
+            raise PlotkitError(f'unknown cmap "{h["cmap"]}"', "use one of: " + ", ".join(
+                n for n in colormap_names() if not n.endswith("_r")) + ' (add "_r" to reverse)')
         tcol = []
         for row in z:
             out = []
@@ -1246,12 +1246,11 @@ def layout(spec, model):
                 if not np.isfinite(v):
                     out.append(None)
                     continue
-                r, g, b, _ = cm((v - vmin) / ((vmax - vmin) or 1))
-                out.append("#ffffff" if 0.299 * r + 0.587 * g + 0.114 * b < 0.5 else "#000000")
+                out.append("#ffffff" if cm.dark((v - vmin) / ((vmax - vmin) or 1)) else "#000000")
             tcol.append(out)
         h["text_colors"] = tcol
         h["vmin_used"], h["vmax_used"] = vmin, vmax
-        h["fill"] = [[None if c is None else matplotlib.colors.to_hex(cm((v - vmin) / ((vmax - vmin) or 1)))
+        h["fill"] = [[None if c is None else cm.hex((v - vmin) / ((vmax - vmin) or 1))
                       for v, c in zip(zr, cr)] for zr, cr in zip(z, tcol)]
     return model
 
@@ -1670,17 +1669,17 @@ def echarts_option(spec, model, live=False):
         z = np.array(h["z"], dtype=float)
         fin = z[np.isfinite(z)]
         vmin, vmax = h["vmin_used"], h["vmax_used"]
-        import matplotlib
-        mc = matplotlib.colormaps[h["cmap"]]
-        cm = [matplotlib.colors.to_hex(mc(t)) for t in np.linspace(0, 1, 11)]
+        from .colors import colormap
+        mc = colormap(h["cmap"])
+        cm = [mc.hex(t) for t in np.linspace(0, 1, 11)]
         fmt = h["values"] if isinstance(h["values"], str) and "{" in h["values"] else _auto_fmt(fin)
         data = [{"value": [j, i, None if not np.isfinite(z[i, j]) else float(z[i, j])],
                  "label": {"color": h["text_colors"][i][j] or tc,
                            **({"show": True, "formatter": fmt.format(z[i, j])} if h["values"] and np.isfinite(z[i, j]) else {"show": False})}}
                 for i in range(z.shape[0]) for j in range(z.shape[1])]
         opt["visualMap"] = {"show": False, "min": vmin, "max": vmax, "inRange": {"color": cm}}
-        from matplotlib.ticker import MaxNLocator
-        cticks = [float(t) for t in MaxNLocator(nbins=4, steps=[1, 2, 2.5, 5, 10]).tick_values(vmin, vmax) if vmin - 1e-9 <= t <= vmax + 1e-9]
+        from .ticks import tick_values
+        cticks = [float(t) for t in tick_values(vmin, vmax, 4) if vmin - 1e-9 <= t <= vmax + 1e-9]
         cdec = max((len(f"{t:.10g}".split(".")[1]) if "." in f"{t:.10g}" else 0) for t in cticks) if cticks else 0
         ctxt = [f"{t:.{min(cdec, 4)}f}" for t in cticks]
         cw = max([_tw(t, fs * 0.85) for t in ctxt] or [0])

@@ -23,6 +23,7 @@ scores it with tests/score.py:
 import argparse
 import csv
 import json
+import os
 import re
 import sys
 import time
@@ -92,7 +93,7 @@ def summary_ko(res):
 
 def run(base, model, key, file, request, no_think=False, retries=2, verbose=True,
         engine=None, agent_md=None, temperature=0, constrain=False):
-    engine = plotkit.engine_name(engine)
+    engine = plotkit.engine_name(engine or os.environ.get("PLOTKIT_ENGINE") or "matplotlib")   # v1: matplotlib default
     agent_md = agent_md or ("AGENT_ECHARTS.md" if engine == "echarts" else "AGENT.md")
     system = (HERE / agent_md).read_text(encoding="utf-8") + SPEC_ONLY
     t_start = time.time()
@@ -201,7 +202,8 @@ def main():
     ap.add_argument("--request")
     ap.add_argument("--no-think", action="store_true")
     ap.add_argument("--temperature", type=float, default=0.0, help="sampling temperature (default 0)")
-    ap.add_argument("--engine", choices=plotkit.ENGINES, help="default: $PLOTKIT_ENGINE or matplotlib")
+    ap.add_argument("--engine", choices=plotkit.ENGINES, default=os.environ.get("PLOTKIT_ENGINE") or "matplotlib",
+                    help="default: $PLOTKIT_ENGINE or matplotlib")
     ap.add_argument("--agent-md", help="system prompt file (default AGENT.md, or AGENT_ECHARTS.md for echarts)")
     ap.add_argument("--batch", help="run every request in this prompts file, e.g. tests/AGENT_TEST_PROMPTS.md")
     ap.add_argument("--only", help="with --batch: comma-separated request numbers, e.g. 07,20")

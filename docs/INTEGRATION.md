@@ -10,7 +10,7 @@ design. This page is the recommended way to wire it.
 | choice | setting | why (see [EXPERIMENTS.md](EXPERIMENTS.md)) |
 |---|---|---|
 | what the model writes | a JSON spec, never plotting code | 93–94% of keyed asks right at ~50 output tokens; raw code was slower and less reliable |
-| engine | ECharts, live in the renderer; files from the same spec | one engine for the view and the export |
+| engine | ECharts, live in the renderer; files from the same spec; matplotlib not installed | one engine for the view and the export |
 | reasoning | off; a "think harder" toggle turns it on for one request | +13–16 points overall on the spec path, but slower on every request, and a no-key ask can trap it |
 | constrained decoding | none | free decoding plus plotkit's error + hint is already at 95–98% |
 | retries | at most 2, with plotkit's error and hint, hidden from the user | as in every study run |
@@ -18,12 +18,14 @@ design. This page is the recommended way to wire it.
 ## Install
 
 ```
-pip install -e .                       # numpy, pandas, matplotlib, scipy, openpyxl (+ [xls] for .xls files)
+pip install -e .                       # numpy, pandas, scipy, openpyxl (+ [xls] for .xls files)
 npm install --prefix plotkit/js        # echarts (live options, SVG), sharp (PNG/JPG/TIF), playwright-core (PDF)
 npx --prefix plotkit/js playwright install chromium     # only for PDF; or set PLOTKIT_CHROMIUM
 ```
 
-matplotlib is needed even with ECharts (colour parsing, tick choice). Node 20 or newer. With a regular (not
+No matplotlib: ECharts is the engine, and plotkit reads colours and picks ticks itself (the same values matplotlib
+would). The matplotlib engine is optional (`pip install -e ".[matplotlib]"`); don't ship it unless you need it.
+Node 20 or newer. With a regular (not
 editable) install, run `npm install` in the installed package's `js` folder instead: the ECharts engine's error
 names the exact folder (`python -c "import plotkit, pathlib; print(pathlib.Path(plotkit.__file__).parent / 'js')"`).
 `PLOTKIT_NODE` points plotkit at a Node binary that is not on `PATH`.

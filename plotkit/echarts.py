@@ -186,12 +186,12 @@ def validate_patch(patch):
 
 # =================================================================== resolving
 def _hex(c):
-    from matplotlib.colors import to_hex
-    return to_hex(c, keep_alpha=False)
+    from .colors import to_hex
+    return to_hex(c)
 
 
 def _rgba(c, alpha):
-    from matplotlib.colors import to_rgb
+    from .colors import to_rgb
     r, g, b = (round(255 * v) for v in to_rgb(c))
     return f"rgba({r},{g},{b},{alpha:g})"
 
@@ -203,7 +203,7 @@ def _clean(v):
 
 def _ticks(lo, hi, axspec):
     """Tick values inside [lo, hi], the same ones matplotlib would pick."""
-    from matplotlib.ticker import MaxNLocator
+    from .ticks import tick_values
     if axspec.get("log"):
         return None
     step = axspec.get("step")
@@ -212,11 +212,10 @@ def _ticks(lo, hi, axspec):
         k0 = np.ceil((lo - off) / step - 1e-9)
         vals = off + step * np.arange(k0, np.floor((hi - off) / step + 1e-9) + 1)
     else:
-        vals = MaxNLocator(nbins="auto", steps=[1, 2, 2.5, 5, 10]).tick_values(lo, hi)
-        vals = np.asarray(vals)
+        vals = tick_values(lo, hi, "auto")
         vals = vals[(vals >= lo - 1e-9 * abs(hi - lo)) & (vals <= hi + 1e-9 * abs(hi - lo))]
         if len(vals) > 9:              # matplotlib's auto nbins thins for a ~4.5 in plot
-            vals = MaxNLocator(nbins=7, steps=[1, 2, 2.5, 5, 10]).tick_values(lo, hi)
+            vals = tick_values(lo, hi, 7)
             vals = vals[(vals >= lo) & (vals <= hi)]
     return [_clean(v) for v in vals]
 

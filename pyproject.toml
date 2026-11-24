@@ -5,21 +5,21 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "plotkit"
 dynamic = ["version"]
-description = "A language model writes a small JSON spec; plotkit checks it against the data and draws it (ECharts or matplotlib)."
+description = "A language model writes a small JSON spec; plotkit checks it against the data and draws it with ECharts."
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = [
+dependencies = [         # the ECharts engine (Node does the drawing: npm install --prefix plotkit/js)
     "numpy",
     "pandas",
-    "matplotlib",       # also needed with ECharts: colours, tick choice
     "scipy",            # curve peaks
     "openpyxl",
 ]
 
 [project.optional-dependencies]
+matplotlib = ["matplotlib"]         # the optional matplotlib engine (and the "code" hatch)
 xls = ["xlrd"]                      # old .xls files
 schema = ["jsonschema"]             # only for checking specs against schema/ in your own code
-test = ["pytest", "jsonschema"]
+test = ["pytest", "jsonschema", "matplotlib"]
 
 [project.scripts]
 plotkit = "plotkit.__main__:main"
@@ -31,7 +31,7 @@ version = { attr = "plotkit.core.__version__" }
 include = ["plotkit*"]
 
 [tool.setuptools.package-data]
-plotkit = ["prompts/*.md", "js/*.mjs", "js/package.json", "js/package-lock.json", "js/README.md"]
+plotkit = ["prompts/*.md", "data/*.json", "js/*.mjs", "js/package.json", "js/package-lock.json", "js/README.md"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 import plotkit
+from conftest import ENGINES
 from plotkit import __main__ as cli
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -52,7 +53,7 @@ def test_options_refuse_matplotlib_code():
         plotkit.echarts_options({**CURVE, "code": "ax1.set_title('x')"}, INPUTS)
 
 
-@pytest.mark.parametrize("engine", ["echarts", "matplotlib"])
+@pytest.mark.parametrize("engine", ENGINES)
 def test_render(engine, tmp_path):
     r = plotkit.render(CHART, tmp_path, formats=("png", "svg"), engine=engine, base=INPUTS)
     assert r["kind"] == "chart" and r["engine"] == engine

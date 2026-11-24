@@ -1,6 +1,6 @@
 # plotkit/js
 
-The Node side of the ECharts engine (`PLOTKIT_ENGINE=echarts`, or `python -m plotkit plot ... --engine echarts`).
+The Node side of the ECharts engine, plotkit's default (matplotlib is an optional second engine).
 
 - `plotkit/echarts.py` resolves a curve spec into plain numbers, colours, texts and tick
   positions, and checks the `"echarts"` patch against an allowlist.

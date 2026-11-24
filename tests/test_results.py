@@ -4,25 +4,25 @@ from pathlib import Path
 import pytest
 
 import plotkit
+from conftest import ENGINES, needs_mpl
 from plotkit import charts, core
 
 HERE = Path(__file__).resolve().parent
 TGA = str(HERE / "inputs" / "TGA.xlsx")
 LOG = str(HERE / "inputs" / "run_log.csv")
 SHARED = {"ok", "kind", "engine", "saved", "warnings", "not_done", "values"}
-ENGINES = ["matplotlib", "echarts"]
 
 
 @pytest.mark.parametrize("key", sorted(charts.CHART_KEYS))
 def test_every_chart_alias_routes_to_charts(key, tmp_path):
     r = plotkit.plot({"file": LOG, key: "bar", "x": "반응기", "y": {"col": "수율", "agg": "mean"}},
-                     engine="matplotlib", out_dir=tmp_path)
+                     out_dir=tmp_path)
     assert r["ok"] and r["kind"] == "chart" and r["chart"] == "bar"
 
 
 def test_curve_keys_still_go_to_curves(tmp_path):
-    r = plotkit.plot({"file": TGA, "sheets": 1}, engine="matplotlib", out_dir=tmp_path)
-    assert r["kind"] == "curve"
+    r = plotkit.plot({"file": TGA, "sheets": 1}, out_dir=tmp_path)
+    assert r["kind"] == "curve" and r["engine"] == "echarts"          # ECharts is the default engine
 
 
 @pytest.mark.parametrize("engine", ENGINES)
@@ -53,13 +53,13 @@ def test_host_folder_and_formats_win(engine, tmp_path):
 
 
 def test_summary_csv_kept_by_default(tmp_path):
-    plotkit.plot({"file": TGA, "sheets": 1}, engine="matplotlib", out_dir=tmp_path)
+    plotkit.plot({"file": TGA, "sheets": 1}, out_dir=tmp_path)
     assert (tmp_path / "summary.csv").exists()
 
 
 def test_bad_format_from_the_host_is_an_error(tmp_path):
     with pytest.raises(plotkit.PlotkitError):
-        plotkit.plot({"file": TGA, "sheets": 1}, engine="matplotlib", out_dir=tmp_path, formats=["bmp"])
+        plotkit.plot({"file": TGA, "sheets": 1}, out_dir=tmp_path, formats=["bmp"])
 
 
 def test_not_done_is_shared():
