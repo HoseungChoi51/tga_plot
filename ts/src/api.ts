@@ -149,7 +149,8 @@ export async function renderSvg(spec: unknown, files: InputFile[], opts: Options
     if (truthy(s2.code)) throw new PlotkitError(...CHART_CODE);
     const model = charts.layout(s2, charts.buildModel(s2, frame));
     const [, [W, H]] = charts.echartsOption(s2, model, false);
-    const svg = renderChartSvg(s2, model, validatePatch);
+    const svg = renderChartSvg(s2, model, validatePatch,
+      opts.onChart && ((chart, info) => opts.onChart!(chart, { ...info, size_in: s2.size, dpi: s2.dpi, index: 0 })));
     const warnings = [...model.notes] as string[];
     const values = charts.summaryValues(model);
     const notDone = curves.notDone(s2);

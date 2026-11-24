@@ -5,11 +5,13 @@ import { revive } from "./revive.ts";
 import { applyPatch, echartsOption, type ChartModel, type ChartSpec, type EChartsOption, type ValidatePatch } from "./charts.ts";
 
 /** The SVG of an ECharts option on a width x height px canvas (rounded as the Node renderer rounds them). */
-export function renderSvg(option: EChartsOption, width: number, height: number): string {
+export function renderSvg(option: EChartsOption, width: number, height: number,
+  onChart?: (chart: echarts.ECharts, info: { W: number; H: number }) => void): string {
   const W = Math.round(Number(width) || 640), H = Math.round(Number(height) || 460);
   const chart = echarts.init(null, null, { renderer: "svg", ssr: true, width: W, height: H });
   try {
     chart.setOption(revive(structuredClone(option)));
+    onChart?.(chart, { W, H });
     return freshIds(chart.renderToSVGString());
   } finally {
     chart.dispose();
@@ -26,7 +28,8 @@ function freshIds(svg: string): string {
 }
 
 /** A chart's exported SVG (plotkit.charts.draw_echarts): the static option with the spec's "echarts" patch merged. */
-export function renderChartSvg(spec: ChartSpec, model: ChartModel, validatePatch?: ValidatePatch): string {
+export function renderChartSvg(spec: ChartSpec, model: ChartModel, validatePatch?: ValidatePatch,
+  onChart?: (chart: echarts.ECharts, info: { W: number; H: number }) => void): string {
   const [opt, [W, H]] = echartsOption(spec, model);
-  return renderSvg(applyPatch(spec, opt, validatePatch), W, H);
+  return renderSvg(applyPatch(spec, opt, validatePatch), W, H, onChart);
 }

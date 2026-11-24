@@ -3,6 +3,8 @@ on each arm, with the model on a llama.cpp server, checked turn by turn against 
 
   P-mpl / P-ec   prompts/v2 (core + the engine's hatch) -> JSON spec -> plotkit/chartkit (matplotlib / ECharts)
   P-hyb          the matplotlib prompt (the "code" hatch allowed); drawn with ECharts unless the spec uses "code"
+  P-ts           plotkit-ts (ts/): its prompt (data_code in JavaScript) -> JSON spec -> the TypeScript build draws it
+                 with ECharts, data_code in QuickJS (eval/ts_draw.mts; PLOTKIT_TS = the plotkit-ts checkout)
   R-mpl          a short prompt + a data brief -> a Python matplotlib script, run in a sandbox (accuracy ceiling)
   <P arm>+cd     the same, with the reply constrained by a per-request JSON Schema (constrained decoding)
   <P arm>+cdflat the same, constrained to the flat settings-list form (fits the Anthropic API's schema limits)
@@ -46,7 +48,8 @@ import cd  # noqa: E402
 CNT = HERE / "cnt"
 PY = str(REPO / ".venv" / "bin" / "python") if (REPO / ".venv" / "bin" / "python").exists() else sys.executable
 MPLCACHE = HERE / "results" / ".mplcache"
-ARMS = ("P-mpl", "P-ec", "P-hyb", "R-mpl")
+ARMS = ("P-mpl", "P-ec", "P-hyb", "R-mpl", "P-ts")
+TS_PROMPTS = REPO / "ts" / "prompts"
 
 RAW = """You write Python scripts that draw plots with pandas and matplotlib for a CNT production team.
 Users write in Korean (sometimes English). Each turn you get the user's request and a preview of the data files;
@@ -80,6 +83,8 @@ PROMPT_DIR = REPO / "plotkit" / "prompts"          # the study's prompts/v2
 def system_prompt(arm, prompt_dir=None, cd_note=False):
     d = paths.datapath(prompt_dir) if prompt_dir else PROMPT_DIR
     arm, profile = cd.parse_arm(arm)
+    if arm == "P-ts":
+        d = TS_PROMPTS
     if arm.startswith("P-"):
         core = (d / "core.md").read_text(encoding="utf-8")
         hatch = paths.hatch(d, "matplotlib" if arm in ("P-mpl", "P-hyb") else "echarts")   # P-hyb: ECharts, matplotlib only for "code"
@@ -155,6 +160,26 @@ def sandbox(cmd, run_dir, timeout=120):
         return p.returncode, p.stdout, p.stderr
     except subprocess.TimeoutExpired:
         return -9, "", f"timed out after {timeout} s"
+
+
+def draw_spec_ts(spec, run_dir, turn):
+    """Draw a spec with plotkit-ts (Node, no Python); the same result/facts shape as draw_spec."""
+    sp = run_dir / f"spec_t{turn}.json"
+    sp.write_text(json.dumps(spec, ensure_ascii=False, indent=1), encoding="utf-8")
+    res = run_dir / f"draw_t{turn}.json"
+    dump = run_dir / f"draw_t{turn}.echarts.json"
+    for f in (res, dump):
+        f.unlink(missing_ok=True)
+    p = subprocess.run(["node", str(HERE / "ts_draw.mts"), str(sp), str(res), str(dump),
+                        str(run_dir / "out" / f"t{turn}")], cwd=run_dir, capture_output=True, text=True, timeout=300)
+    if not res.exists():
+        return {"ok": False, "error": "draw crashed: " + (p.stderr.strip().splitlines() or ["?"])[-1], "hint": ""}, [], 0.0
+    d = json.loads(res.read_text(encoding="utf-8"))
+    facts = []
+    if d["result"].get("ok") and dump.exists():
+        import chart_facts
+        facts = chart_facts.echarts_dump_chart_facts(str(dump))
+    return d["result"], facts, d["draw_s"]
 
 
 def draw_spec(spec, engine, run_dir, turn):
@@ -257,7 +282,10 @@ def run_item(arm, item, rep, args, key):
                     engine = "matplotlib" if base_arm == "P-mpl" or (base_arm == "P-hyb" and spec.get("code")) else "echarts"
                     if base_arm == "P-hyb" and engine == "matplotlib":
                         spec = {k: v for k, v in spec.items() if k != "echarts"}
-                    result, facts, draw_s = draw_spec(spec, engine, run_dir, ti)
+                    if base_arm == "P-ts":
+                        result, facts, draw_s = draw_spec_ts(spec, run_dir, ti)
+                    else:
+                        result, facts, draw_s = draw_spec(spec, engine, run_dir, ti)
             except (ValueError, json.JSONDecodeError) as e:
                 result = {"ok": False, "error": f"your reply could not be read: {e}", "hint":
                           "reply with one ```json block" if arm.startswith("P-") else "reply with one ```python block"}
