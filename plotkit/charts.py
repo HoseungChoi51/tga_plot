@@ -78,6 +78,14 @@ TOP_ALIASES = {"type": "chart", "kind": "chart", "plot": "chart", "chart_type": 
                "extra_code": "code", "echarts_patch": "echarts", "marker_size": "point_size",
                "opacity": "alpha", "orientation": "orient", "colormap": "cmap", "colorscale": "cmap",
                "x축": "x", "y축": "y", "values_col": "z", "value": "z", "color_scale": "cmap"}
+CHART_KEYS = frozenset({"chart"} | {k for k, v in TOP_ALIASES.items() if v == "chart"})   # type, kind, plot, 그래프 ...
+
+
+def is_chart_spec(user):
+    """True when the spec names a chart under "chart" or any of its aliases (the router sends it here)."""
+    return isinstance(user, dict) and any(k in CHART_KEYS or str(k).lower() in CHART_KEYS for k in user)
+
+
 SCHEMA_DOC = {
     "chart": '"bar" | "hbar" | "line" | "scatter" | "histogram" | "heatmap" | "pie"',
     "file / sheets / read": "as in plotkit; with several sheets or files the rows are stacked and a column "
@@ -238,7 +246,7 @@ def normalize(user):
     fmt = fmt if isinstance(fmt, list) else [fmt]
     fmt = [str(x).lower().lstrip(".").replace("jpeg", "jpg").replace("tiff", "tif") for x in fmt]
     for x in fmt:
-        if x not in ("png", "pdf", "svg", "jpg", "tif"):
+        if x not in pk.FORMATS:
             raise PlotkitError(f'unknown output format "{x}"', "use png, pdf, svg, jpg or tif")
     s["output"] = {"dir": out.get("dir"), "format": fmt, "name": out.get("name")}
     s["asks"] = s.get("asks") or []
@@ -2033,10 +2041,10 @@ def curve_as_chart(user):
 
 
 # =================================================================== entry
-def plot(user_spec, engine=None, dump_path=None):
-    """Draw a chart spec. Returns {"ok", "saved", "summary", "values", "warnings", "asks"}."""
+def plot(user_spec, engine=None, dump_path=None, out_dir=None, formats=None):
+    """Draw a chart spec. Returns the shared result (see plotkit.core.plot) plus chart, rows_used, rows_total, summary."""
     eng = pk.engine_name(engine or user_spec.get("engine"))
-    spec = normalize(user_spec)
+    spec = pk.set_output(normalize(user_spec), out_dir, formats)
     if spec.get("code") and eng == "echarts":
         raise PlotkitError('"code" only works with the matplotlib engine',
                            'use "data_code" for data changes (both engines), or an "echarts" patch for drawing changes')
@@ -2060,10 +2068,9 @@ def plot(user_spec, engine=None, dump_path=None):
         if w:
             warnings.append(w)
     values = summary_values(model)
-    asks = spec["asks"]
-    not_done = [a.get("ask", "") for a in asks if isinstance(a, dict) and str(a.get("how", "")).lower() == "unsupported"]
-    return {"ok": True, "engine": eng, "saved": paths, "chart": model["kind"], "rows_used": model["rows_used"],
-            "rows_total": model["rows_total"], "values": values, "warnings": warnings, "not_done": not_done,
+    not_done = pk.not_done(spec)
+    return {"ok": True, "kind": "chart", "engine": eng, "saved": paths, "warnings": warnings, "not_done": not_done,
+            "values": values, "chart": model["kind"], "rows_used": model["rows_used"], "rows_total": model["rows_total"],
             "summary": korean_summary(model, values, paths, not_done, warnings)}
 
 

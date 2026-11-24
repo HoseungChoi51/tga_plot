@@ -457,8 +457,9 @@ def live_options(user_spec):
     return reply["options"]
 
 
-def plot_echarts(user_spec):
-    spec = pk.normalize_spec(user_spec)
+def plot_echarts(user_spec, out_dir=None, formats=None, summary_csv=True):
+    """Draw a curve spec with ECharts (see plotkit.core.plot)."""
+    spec = pk.set_output(pk.normalize_spec(user_spec), out_dir, formats)
     if spec["code"]:
         raise PlotkitError('"code" (Python) does not work with the ECharts engine',
                            'use a key (e.g. annotate band for shading), or put ECharts settings in "echarts"')
@@ -488,6 +489,6 @@ def plot_echarts(user_spec):
             "column_guess": first["how"] or "as given",
             "annotations": ann,
         })
-    pk._write_summary(outdir, results)
-    return {"ok": True, "engine": "echarts", "output_dir": str(outdir), "plots": results, "warnings": warnings,
-            "not_done": pk.not_done(spec)}
+    if summary_csv:
+        pk._write_summary(outdir, results)
+    return pk.curve_result("echarts", outdir, results, warnings, spec)

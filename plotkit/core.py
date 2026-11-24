@@ -588,13 +588,7 @@ def normalize_spec(user):
     if isinstance(spec["code"], list):
         spec["code"] = "\n".join(spec["code"])
     spec["file"] = expand_files(spec["file"] if isinstance(spec["file"], list) else [spec["file"]])
-    fmts = spec["output"]["format"]
-    fmts = [fmts] if isinstance(fmts, str) else list(fmts)
-    fmts = [f.lower().lstrip(".").replace("jpeg", "jpg").replace("tiff", "tif") for f in fmts]
-    for f in fmts:
-        if f not in ("png", "pdf", "svg", "jpg", "tif"):
-            raise PlotkitError(f"output.format {f!r} not supported", "use png, pdf, svg, jpg or tif")
-    spec["output"]["format"] = fmts
+    spec["output"]["format"] = output_formats(spec["output"]["format"])
     return spec
 
 
@@ -1554,21 +1548,27 @@ def engine_name(engine=None):
     return e
 
 
-def plot(user_spec, engine=None):
+def plot(user_spec, engine=None, *, out_dir=None, formats=None, summary_csv=True):
     """Make the plots. Returns a result dict (also printed as JSON by the CLI).
 
-    engine: "matplotlib" (default) or "echarts"; when None, $PLOTKIT_ENGINE decides."""
-    if isinstance(user_spec, dict) and any(k in user_spec for k in ("chart", "kind", "chart_type")):
-        from . import charts
-        return charts.plot(user_spec, engine=engine)
+    engine: "matplotlib" (default) or "echarts"; when None, $PLOTKIT_ENGINE decides.
+    out_dir, formats: the host's folder and file formats; they win over the spec's "output" (default: the spec's,
+        else a folder <data file>_plots next to the data, PNG).
+    summary_csv: also write summary.csv (the residue and peak values) next to curve plots.
+
+    Every result has ok, kind ("curve" | "chart"), engine, saved (the files written), warnings, not_done (the asks
+    marked unsupported) and values (the numbers drawn or computed). Curves add output_dir and plots (one entry per
+    figure); charts add chart (the chart kind), rows_used, rows_total and summary (Korean)."""
+    from . import charts
+    if charts.is_chart_spec(user_spec):
+        return charts.plot(user_spec, engine=engine, out_dir=out_dir, formats=formats)
     if isinstance(user_spec, dict) and user_spec.get("file"):
-        from . import charts                       # a log with a date/time x is drawn as a chart line
-        alt = charts.curve_as_chart(user_spec)
+        alt = charts.curve_as_chart(user_spec)     # a log with a date/time x is drawn as a chart line
         if alt:
-            return charts.plot(alt, engine=engine)
+            return charts.plot(alt, engine=engine, out_dir=out_dir, formats=formats)
     if engine_name(engine) == "echarts":
         from .echarts import plot_echarts
-        return plot_echarts(user_spec)
+        return plot_echarts(user_spec, out_dir=out_dir, formats=formats, summary_csv=summary_csv)
     import warnings as _w
     import matplotlib
     matplotlib.use("Agg")
@@ -1577,7 +1577,7 @@ def plot(user_spec, engine=None):
     import logging
     logging.getLogger("matplotlib.font_manager").setLevel(logging.ERROR)
 
-    spec = normalize_spec(user_spec)
+    spec = set_output(normalize_spec(user_spec), out_dir, formats)
     if spec["echarts"]:
         raise PlotkitError('"echarts" only works with the ECharts engine',
                            'this run draws with matplotlib: remove "echarts", or use a key or "code"')
@@ -1738,8 +1738,50 @@ def plot(user_spec, engine=None):
             "column_guess": first["how"] or "as given",
             "annotations": ann_results,
         })
-    _write_summary(outdir, results)
-    return {"ok": True, "output_dir": str(outdir), "plots": results, "warnings": warnings, "not_done": not_done(spec)}
+    if summary_csv:
+        _write_summary(outdir, results)
+    return curve_result("matplotlib", outdir, results, warnings, spec)
+
+
+def curve_result(engine, outdir, plots, warnings, spec):
+    """The result of a curve plot, in the shape chart results share (see plot)."""
+    return {"ok": True, "kind": "curve", "engine": engine, "saved": [p for r in plots for p in r["saved"]],
+            "warnings": warnings, "not_done": not_done(spec), "values": curve_values(plots),
+            "output_dir": str(outdir), "plots": plots}
+
+
+def curve_values(plots):
+    """The numbers plotkit computed for the labels, per sheet: {sheet: {name: {"x", "value"} | [peaks]}}."""
+    out = {}
+    for r in plots:
+        for a in r["annotations"]:
+            if "peaks" in a:
+                out.setdefault(a["sheet"], {})[a["name"]] = [dict(p) for p in a["peaks"]]
+            elif "value" in a:
+                out.setdefault(a["sheet"], {})[a["name"]] = {"x": a.get("x_used", a.get("x")), "value": a["value"]}
+    return out
+
+
+FORMATS = ("png", "pdf", "svg", "jpg", "tif")
+
+
+def output_formats(fmts, key="output.format"):
+    """A format or list of formats, checked: ["png", "pdf", ...] (jpeg -> jpg, tiff -> tif)."""
+    fmts = [fmts] if isinstance(fmts, str) else list(fmts)
+    fmts = [str(f).lower().lstrip(".").replace("jpeg", "jpg").replace("tiff", "tif") for f in fmts]
+    for f in fmts:
+        if f not in FORMATS:
+            raise PlotkitError(f"{key} {f!r} not supported", "use png, pdf, svg, jpg or tif")
+    return fmts
+
+
+def set_output(spec, out_dir=None, formats=None):
+    """The host's folder and formats win over the normalized spec's "output" (changed in place and returned)."""
+    if out_dir is not None:
+        spec["output"]["dir"] = str(out_dir)
+    if formats is not None:
+        spec["output"]["format"] = output_formats(formats, "format")
+    return spec
 
 
 def fit_outside_legend(fig, leg, where):
@@ -1763,7 +1805,7 @@ def fit_outside_legend(fig, leg, where):
 
 
 def not_done(spec):
-    """The asks the model marked unsupported, to tell the user."""
+    """The asks the model marked unsupported, to tell the user (curves and charts alike)."""
     return [str(a.get("ask", "")) for a in spec.get("asks") or []
             if isinstance(a, dict) and str(a.get("how", "")).lower() in ("unsupported", "no", "none", "not_done")]
 
