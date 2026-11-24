@@ -52,12 +52,21 @@ AGG_ALIASES = {"평균": "mean", "avg": "mean", "average": "mean", "합": "sum",
                "표준편차": "std", "stdev": "std", "sd": "std", "고유": "nunique", "distinct": "nunique"}
 PERIODS = {"day": "D", "일": "D", "daily": "D", "week": "W-MON", "주": "W-MON", "weekly": "W-MON",
            "month": "MS", "월": "MS", "monthly": "MS", "quarter": "QS", "분기": "QS", "year": "YS", "연": "YS"}
+PERIOD_NAMES = ("day", "week", "month", "quarter", "year")          # the canonical names; the rest of PERIODS are aliases
 PALETTE = pk.COMBINE_COLORS
 GRAYS = ["#222222", "#777777", "#aaaaaa", "#444444", "#cccccc", "#999999", "#555555", "#bbbbbb"]
 HIGHLIGHT_GRAY = "#c8c8c8"
 
 AXIS_KEYS = {"col", "label", "min", "max", "step", "log", "flip", "rotate", "format", "agg", "period",
              "order", "bins", "label_size", "tick_size", "date_format", "_names"}
+# chart axes: plotkit.core.AXIS_ALIASES first, then these (so "reverse" -> "invert" -> "flip")
+AXIS_EXTRA_ALIASES = {**dict.fromkeys(("aggregate", "aggregation", "function", "func", "집계", "stat"), "agg"),
+                      **dict.fromkeys(("group", "freq", "resample", "주기", "단위"), "period"),
+                      **dict.fromkeys(("invert", "reverse", "reversed", "inverse", "뒤집기"), "flip"),
+                      **dict.fromkeys(("bin", "구간"), "bins"),
+                      **dict.fromkeys(("categories", "category_order", "순서"), "order"),
+                      **dict.fromkeys(("tick_format", "number_format", "fmt"), "format"),
+                      **dict.fromkeys(("rotation", "angle", "회전"), "rotate")}
 TOP_KEYS = {"file", "sheets", "read", "chart", "x", "y", "by", "z", "filter", "stack", "sort", "top", "smooth",
             "values", "colors", "highlight", "ref", "trend", "corr", "bins", "density", "error", "percent",
             "title", "legend", "size", "dpi", "font", "font_size", "text_color", "grid", "output", "data_code",
@@ -123,6 +132,10 @@ SCHEMA_DOC = {
     "echarts": "ECharts only: a partial option merged over the drawn chart",
     "asks": 'what the user asked, one entry per ask: [{"ask": "R3만", "how": "key"}, {"ask": "...", "how": '
             '"data_code" | "code" | "echarts" | "unsupported"}]; unsupported asks are reported to the user',
+    "stack": 'bar / hbar / histogram: true stacks the series of "by" instead of setting them side by side',
+    "percent": "accepted but not drawn yet: percent-stacked bars have no key (mark such an ask unsupported)",
+    "engine": '"matplotlib" | "echarts": used only when the host does not choose the engine',
+    "notes": "free text for the model's own notes; not drawn",
 }
 
 
@@ -152,20 +165,7 @@ def _as_axis(v, where):
     d = {}
     for k, val in v.items():
         kk = pk.AXIS_ALIASES.get(k, k)
-        if kk in ("aggregate", "aggregation", "function", "func", "집계", "stat"):
-            kk = "agg"
-        if kk in ("group", "freq", "resample", "주기", "단위"):
-            kk = "period"
-        if kk in ("invert", "reverse", "reversed", "inverse", "뒤집기"):
-            kk = "flip"
-        if kk in ("bin", "구간"):
-            kk = "bins"
-        if kk in ("categories", "category_order", "순서"):
-            kk = "order"
-        if kk in ("tick_format", "number_format", "fmt"):
-            kk = "format"
-        if kk in ("rotation", "angle", "회전"):
-            kk = "rotate"
+        kk = AXIS_EXTRA_ALIASES.get(kk, kk)
         if kk not in AXIS_KEYS:
             raise PlotkitError(f'unknown key "{where}.{k}".{pk._suggest(kk, AXIS_KEYS)}',
                                f"allowed keys for {where}: {', '.join(sorted(AXIS_KEYS))}")

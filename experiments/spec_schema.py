@@ -32,9 +32,8 @@ if str(Path(__file__).resolve().parents[1]) not in sys.path:      # the library,
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from plotkit import core as pk  # noqa: E402
 
-KINDS = ("bar", "hbar", "line", "scatter", "histogram", "heatmap", "pie")      # chartkit.KINDS
-AGGS = ("mean", "sum", "count", "median", "min", "max", "std", "first", "last", "nunique")
-PERIODS = ("day", "week", "month", "quarter", "year")
+from plotkit.charts import AGGS, KINDS  # noqa: E402  (the chart tables, not copies)
+from plotkit.charts import PERIOD_NAMES as PERIODS  # noqa: E402
 HOWS = ("key", "data_code", "code", "echarts", "unsupported")
 LEGEND = tuple(pk.LEGEND_PLACES)
 LINESTYLES = ("solid", "dashed", "dotted", "dashdot")
