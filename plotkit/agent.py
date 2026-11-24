@@ -111,41 +111,20 @@ def retry_message(err):
     return f"plotkit error: {msg}" + (f"\nhint: {hint}" if hint else "") + "\n\n고쳐서 다시 보내 주세요."
 
 
-# Claude models on which thinking cannot be switched off (lowest effort instead), and the one that switches it off with
-# "between_tools" instead of "disabled" (Claude API, 2026-11). Other current models take "disabled" at effort high or below.
-_ALWAYS_THINKS = ("claude-opus-5-5", "claude-fable-", "claude-mythos-")
-_BETWEEN_TOOLS = ("claude-sonnet-5-5",)
-
-
-def request_options(reasoning=False, provider="openai-compatible", model=None):
-    """Extra request-body fields for the recommended configuration: thinking off unless the user asks for it
-    (the app's "think harder" toggle passes reasoning=True). Merge them into your request; the library sends nothing.
-
-    openai-compatible: llama.cpp / vLLM / SGLang chat completions with a Qwen-style chat template
-        (chat_template_kwargs.enable_thinking, which the studies used; "/no_think" in the prompt is ignored).
-    anthropic: the Messages API. How thinking is switched off depends on the model, so pass model; without it the
-        fields work on every current model (adaptive thinking at the lowest effort)."""
-    if provider == "openai-compatible":
-        return {"chat_template_kwargs": {"enable_thinking": bool(reasoning)}}
-    if provider != "anthropic":
-        raise PlotkitError(f"unknown provider {provider!r}", "use openai-compatible or anthropic")
-    if reasoning:
-        return {"thinking": {"type": "adaptive"}, "output_config": {"effort": "high"}}
-    m = str(model or "")
-    if not m or m.startswith(_ALWAYS_THINKS):
-        return {"output_config": {"effort": "low"}}
-    if m.startswith(_BETWEEN_TOOLS):
-        return {"thinking": {"type": "between_tools"}, "output_config": {"effort": "low"}}
-    return {"thinking": {"type": "disabled"}, "output_config": {"effort": "low"}}
+def request_options(reasoning=False):
+    """Extra request-body fields for a locally served model (llama.cpp, vLLM, SGLang; Qwen-style chat templates):
+    thinking off unless the user asks for it (the app's "think harder" toggle passes reasoning=True). Merge them into
+    the request; "/no_think" in the prompt does not switch Qwen's thinking off, this flag does."""
+    return {"chat_template_kwargs": {"enable_thinking": bool(reasoning)}}
 
 
 # =================================================================== the reference loop
 def run(request, files, llm, reasoning=False, history=None, engine="echarts", base=None, retries=RETRIES,
-        provider="openai-compatible", model=None, allow_unsandboxed=None):
+        allow_unsandboxed=None):
     """One user request -> the spec and its live ECharts options (nothing is written to disk).
 
     llm(messages, **options) -> the reply text. messages are chat messages ({"role", "content"}: system, user,
-        assistant); options are request_options(reasoning, provider, model), to merge into your request. Your
+        assistant); options are request_options(reasoning), to merge into your request. Your
         function adds the model name, the endpoint and the rest.
     files: the data files, as the user named them; base: the folder they are in (default: the current one).
     history: the "transcript" of an earlier run() on the same plot; the request is then a follow-up turn.
@@ -155,7 +134,7 @@ def run(request, files, llm, reasoning=False, history=None, engine="echarts", ba
     Returns {"ok", "spec", "options", "warnings", "not_done", "values", "error", "hint", "attempts", "transcript"}.
     The spec is as the model wrote it. When every attempt fails, ok is false and error/hint say why."""
     from . import api
-    opts = request_options(reasoning, provider, model)
+    opts = request_options(reasoning)
     if history:
         messages = list(history) + [{"role": "user", "content": followup_message(request)}]
     else:

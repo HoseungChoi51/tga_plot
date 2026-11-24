@@ -8,7 +8,7 @@ The app-facing API:
     plotkit.first_message(request, files, base) / followup_message(request)
     plotkit.parse_reply(text)                   the spec in the model's reply
     plotkit.retry_message(err)                  the turn that sends an error + hint back
-    plotkit.request_options(reasoning, provider, model)   thinking off by default
+    plotkit.request_options(reasoning)          thinking off by default (local models)
     plotkit.validate(spec, base)                check without drawing
     plotkit.echarts_options(spec, base)         live ECharts options (no files)
     plotkit.render(spec, out_dir, formats)      export files

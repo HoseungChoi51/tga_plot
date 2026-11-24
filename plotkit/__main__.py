@@ -17,7 +17,7 @@ serve reads one request per line, {"id": 1, "method": "options", "params": {"spe
 answers one line, {"id": 1, "ok": true, "result": ...} or {"id": 1, "ok": false, "error": ..., "hint": ...}.
 Methods: prompt {engine}, preview {files, base}, validate {spec, base}, options {spec, base}, render {spec, out_dir,
 formats, engine, base, summary_csv}, schema {}, retry_message {error, hint}, parse_reply {text}, request_options
-{reasoning, provider, model}. allow_unsandboxed in params applies to that request.
+{reasoning}. allow_unsandboxed in params applies to that request.
 """
 import json
 import sys
@@ -72,8 +72,7 @@ METHODS = {
     "schema": lambda p: schema.schema(),
     "retry_message": lambda p: agent.retry_message(p),
     "parse_reply": lambda p: agent.parse_reply(p["text"]),
-    "request_options": lambda p: agent.request_options(p.get("reasoning", False), p.get("provider", "openai-compatible"),
-                                                       p.get("model")),
+    "request_options": lambda p: agent.request_options(p.get("reasoning", False)),
     "first_message": lambda p: agent.first_message(p["request"], p["files"], p.get("base")),
     "followup_message": lambda p: agent.followup_message(p["request"], p.get("last_spec")),
 }

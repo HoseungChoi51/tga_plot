@@ -76,15 +76,10 @@ retries, a short "could not draw it" with `error`.
 
 ### The reasoning toggle
 
-`request_options(reasoning, provider, model)` returns the fields to merge into the request:
-
-| provider | off (default) | on |
-|---|---|---|
-| `openai-compatible` (llama.cpp, vLLM, SGLang; Qwen-style templates) | `chat_template_kwargs.enable_thinking: false` | `true` |
-| `anthropic` (Messages API) | thinking off where the model allows it (`disabled`, or `between_tools` on Claude Sonnet 5.5), effort `low`; Claude Opus 5.5 and Fable cannot switch thinking off, so only effort `low` | adaptive thinking, effort `high` |
-
-Pass `model` for Anthropic; without it the fields are the ones every current model accepts. A `/no_think` text in
-the prompt does not switch Qwen's thinking off; the template flag does.
+`request_options(reasoning)` returns the field to merge into the request to a locally served model (llama.cpp,
+vLLM, SGLang with a Qwen-style chat template): `chat_template_kwargs.enable_thinking`, false by default and true when
+the user turns reasoning on. A `/no_think` text in the prompt does not switch Qwen's thinking off; the template flag
+does.
 
 ### Live view and export
 

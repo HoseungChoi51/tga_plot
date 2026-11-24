@@ -83,15 +83,8 @@ def test_the_follow_up_turn_carries_the_last_spec():
 
 
 def test_request_options():
-    ro = agent.request_options
-    assert ro() == {"chat_template_kwargs": {"enable_thinking": False}}
-    assert ro(True, "anthropic") == {"thinking": {"type": "adaptive"}, "output_config": {"effort": "high"}}
-    assert ro(False, "anthropic", "claude-haiku-5-5")["thinking"] == {"type": "disabled"}
-    assert ro(False, "anthropic", "claude-sonnet-5-5")["thinking"] == {"type": "between_tools"}
-    assert "thinking" not in ro(False, "anthropic", "claude-opus-5-5")         # cannot be switched off: low effort
-    assert ro(False, "anthropic")["output_config"] == {"effort": "low"}
-    with pytest.raises(plotkit.PlotkitError):
-        ro(provider="something else")
+    assert agent.request_options() == {"chat_template_kwargs": {"enable_thinking": False}}
+    assert agent.request_options(True) == {"chat_template_kwargs": {"enable_thinking": True}}
 
 
 def test_parse_reply():

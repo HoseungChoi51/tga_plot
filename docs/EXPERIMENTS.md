@@ -5,6 +5,9 @@ production charts) more reliably and more cheaply by writing a small JSON spec t
 plotting code? About 6,800 scored runs later, on two machines and three model servers, the answer shaped this
 library. The code and the results of those studies are in [`experiments/`](../experiments/README.md).
 
+The library is for **locally served models** (the studies ran Qwen3.8 Flash Next on llama.cpp). GPT-6 Luna and
+Claude Haiku appear in the evidence only as stand-ins for quick tests.
+
 ## The conclusion the library is built on
 
 - **The model writes a spec; plotkit draws it.** Where a key covers the ask, the spec path is reliable and cheap:

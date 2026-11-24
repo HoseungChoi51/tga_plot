@@ -12,8 +12,8 @@
 >   wrote) changed to JSON/`.npy`.
 > - Step 7: the schema is the canonical spec; aliases are annotations (`x-plotkit-aliases`,
 >   `x-plotkit-value-aliases`), and `plotkit.validate()` judges model replies.
-> - Step 8: `request_options(provider="anthropic")` takes the model id: how thinking is switched off differs per
->   Claude model. `revive()` moved to `plotkit/js/revive.mjs` (no imports) so the renderer can import it.
+> - Step 8: `request_options(reasoning)` only sets `chat_template_kwargs.enable_thinking` (the library is for locally
+>   served models). `revive()` moved to `plotkit/js/revive.mjs` (no imports) so the renderer can import it.
 > - Step 10: the fresh venv was Python 3.13 (the offline wheel cache had none for 3.12); it found that bubblewrap
 >   hid a Python installed under `/tmp` (a venv there, or a PyInstaller one-file build), now bound back read-only.
 >
