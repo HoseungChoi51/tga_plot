@@ -1,5 +1,10 @@
 # Integrating plotkit into an app
 
+> **KetchupE, or any app that cannot add a Python runtime: use plotkit-ts** (branch `lib/plotkit-ts`, its
+> `docs/INTEGRATION.md`). It is the default build: TypeScript in the app's own process, the same spec, prompt, errors
+> and ECharts output, `data_code` as JavaScript in the app's QuickJS sandbox. This page is for the Python plotkit
+> (a sidecar), which also has the matplotlib engine.
+
 For the developer of a chat app (KetchupE, Electron) that wants plots from a language model. plotkit is a Python
 library with a small Node part. The app keeps the conversation and calls the model; plotkit writes the prompt, reads
 the data, checks the model's spec and turns it into ECharts options or files. How the front end looks is yours to
@@ -134,10 +139,9 @@ Methods: `prompt`, `preview`, `first_message`, `followup_message`, `parse_reply`
 `request_options`, `validate`, `options`, `render`, `schema`. Requests are answered one at a time, in order; a
 failed request answers `{"id", "ok": false, "error", "hint"}` and the sidecar keeps running.
 
-**Later: TypeScript.** The ECharts side already is JavaScript: `plotkit/js/translate.mjs` (curve figure → option,
-label layout) imports nothing and can run in the renderer. Porting the rest means porting the reader and the
-resolver (`plotkit/core.py`, `plotkit/echarts.py`, `plotkit/charts.py`); the schema below and the reference specs
-in `tests/` are the contract to test a port against.
+**TypeScript: plotkit-ts.** The port is done (branch `lib/plotkit-ts`). It is tested case by case against this
+implementation: `tools/ts_golden.py` records what the Python plotkit does on every test file and on about 4,000
+specs, hand-written and model-written; see the README's "Keeping plotkit-ts in step".
 
 ## The spec schema
 

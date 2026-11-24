@@ -5,14 +5,14 @@
 // The run folder's files (its data/ link) are handed over as {name, bytes}; data_code runs in QuickJS. Writes
 // {"result": plotkit-ts's reply or {"ok": false, "error", "hint"}, "draw_s"} like cnt_draw.py, the figures' SVG to
 // out_dir, and what was drawn (dump.mjs chartFacts per figure) for the figure-facts checker.
-// PLOTKIT_TS: the plotkit-ts checkout (default: ts/ of this repo).
+// PLOTKIT_TS: the plotkit-ts checkout, branch lib/plotkit-ts (default: .worktrees/plotkit-ts of this repo).
 import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { chartFacts } from "../../plotkit/js/dump.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const tsRoot = resolve(process.env.PLOTKIT_TS ?? join(here, "..", "..", "ts"));
+const tsRoot = resolve(process.env.PLOTKIT_TS ?? join(here, "..", "..", ".worktrees", "plotkit-ts"));
 const pk = await import(pathToFileURL(join(tsRoot, "src", "index.ts")).href);
 
 const [specPath, resultPath, dumpPath, outDir] = process.argv.slice(2);

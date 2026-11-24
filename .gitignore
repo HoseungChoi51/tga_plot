@@ -53,3 +53,5 @@ experiments/report/plotkit_report/
 *.egg-info/
 build/
 dist/
+# the plotkit-ts checkout (git worktree add .worktrees/plotkit-ts lib/plotkit-ts)
+.worktrees/

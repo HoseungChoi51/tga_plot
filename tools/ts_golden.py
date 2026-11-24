@@ -1,6 +1,9 @@
-"""Golden outputs from the Python plotkit, for the TypeScript port (ts/) to reproduce. Dev-time only.
+"""Golden outputs from the Python plotkit, for the TypeScript port (plotkit-ts, branch lib/plotkit-ts) to reproduce.
+Dev-time only.
 
-    python tools/ts_golden.py            -> ts/test/golden/*.json.gz
+    python tools/ts_golden.py            -> <plotkit-ts>/test/golden/*.json.gz, and the data to <plotkit-ts>/test/data
+
+<plotkit-ts> is PLOTKIT_TS or .worktrees/plotkit-ts (see tools/ts_checkout.py).
 
 Every case records what the Python implementation produces at each stage, so a TypeScript module can be tested on
 its own: the tables a file reads to, the data preview, the normalized spec (or the error and hint), and for specs
@@ -37,7 +40,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 from plotkit import agent, api, charts, core, echarts  # noqa: E402
 from plotkit.core import PlotkitError  # noqa: E402
 
-OUT = ROOT / "ts" / "test" / "golden"
+OUT = None                         # <plotkit-ts>/test/golden, set by main()
 BASES = {"tests/inputs": ROOT / "tests" / "inputs", "eval/inputs_b": ROOT / "experiments" / "eval" / "inputs_b",
          "eval/cnt": ROOT / "experiments" / "eval" / "cnt", "gallery": ROOT / "experiments" / "gallery"}
 E2E_SAMPLE = 500                   # model-written specs drawn end to end (all reference specs are)
@@ -356,10 +359,15 @@ def basics():
 
 
 def main():
+    global OUT
+    from ts_checkout import sync_data, ts_root
+    ts = ts_root()
+    OUT = ts / "test" / "golden"
     random.seed(7)
     write("basics", basics())
     if "--basics" in sys.argv:
         return
+    sync_data(ts)
     write("reader", reader_cases())
     refs = [x for x in (spec_case(*r) for r in reference_specs()) if x]
     models = [x for x in (spec_case(i, s) for i, s in model_specs()) if x]

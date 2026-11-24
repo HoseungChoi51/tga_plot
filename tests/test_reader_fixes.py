@@ -1,4 +1,4 @@
-"""The reader's error paths and mixed date columns (fixes found by the TypeScript port; ts/test/reader.test.ts checks
+"""The reader's error paths and mixed date columns (fixes found by the TypeScript port; plotkit-ts's test/reader.test.ts checks
 the same cases on plotkit-ts). Offline; files are written to a temporary folder."""
 import datetime as dt
 import math

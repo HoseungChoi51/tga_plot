@@ -1,5 +1,5 @@
 """The chart fixes found by the TypeScript port: no float() crash on spec values, bins 1 / corr 1, aggregates of text,
-bins with min and max, the pie legend, and missing category values. The TS port (ts/test/charts.test.ts) checks the
+bins with min and max, the pie legend, and missing category values. The TS port (plotkit-ts: test/charts.test.ts) checks the
 same cases."""
 import json
 from pathlib import Path

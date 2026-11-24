@@ -17,6 +17,11 @@ grouping, aggregation).
 
 The design comes from a study of about 6,800 scored runs: see [docs/EXPERIMENTS.md](docs/EXPERIMENTS.md).
 
+**For an app, use plotkit-ts** (branch `lib/plotkit-ts`): the default build, TypeScript with no Python. It has the same
+spec, prompt, checks, errors and ECharts output, and `data_code` runs as JavaScript in the app's sandbox. This branch
+is the Python plotkit: the reference the TypeScript build is tested against, the optional matplotlib engine, and the
+studies.
+
 ## Install
 
 ```
@@ -64,6 +69,17 @@ python -m plotkit inspect TGA.xlsx | plot spec.json       # the older command li
 [schema/plotkit.spec.schema.json](schema/plotkit.spec.schema.json) is the same as a JSON Schema for TypeScript
 types. Both are generated (`python -m plotkit schema --md | --json`) and tested against the code.
 
+## Keeping plotkit-ts in step
+
+A change to the checks or the drawing is made here first, then mirrored in plotkit-ts until its tests pass:
+
+```
+git worktree add .worktrees/plotkit-ts lib/plotkit-ts   # once (or set PLOTKIT_TS to a checkout)
+python tools/ts_tables.py      # key tables, prompt, colour data -> plotkit-ts/src
+python tools/ts_golden.py      # what this plotkit does on every test file and spec -> plotkit-ts/test/golden, test/data
+cd .worktrees/plotkit-ts && npm test
+```
+
 ## Layout
 
 | path | what it is |
@@ -74,6 +90,7 @@ types. Both are generated (`python -m plotkit schema --md | --json`) and tested 
 | `schema/` | the generated spec schema and key reference |
 | `docs/` | `INTEGRATION.md` for the app developer, `EXPERIMENTS.md` for the evidence |
 | `tests/` | library tests (`python -m pytest tests`) and the reader's test files; `python tests/run_tests.py` checks the reader |
+| `tools/` | dev tools for plotkit-ts: `ts_tables.py`, `ts_golden.py` (+ `ts_extra.py`, chart cases the studies never reached), `ts_checkout.py` |
 | `experiments/` | the studies behind the design, their harness and results ([experiments/README.md](experiments/README.md)) |
 
 Tests make no network or model calls.

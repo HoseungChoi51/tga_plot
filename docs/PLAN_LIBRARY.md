@@ -1,5 +1,6 @@
 > **Status (2026-11-24, branch `lib/plotkit`): steps 1–10 done; step 11 is the pull request.** This was the approved plan; it is
-> kept for the record. Where the result differs from the plan:
+> kept for the record. Since then, ECharts without Python became the default: the TypeScript port plotkit-ts (branch
+> `lib/plotkit-ts`), tested against this branch. Where the result differs from the plan:
 >
 > - Step 3: `experiments/eval/paths.py` resolves the file names that requests and reference specs carry
 >   (`tests/inputs/...` at the repo root, `eval/...` under `experiments/`), so the study's data keeps its form.

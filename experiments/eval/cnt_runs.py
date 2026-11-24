@@ -3,8 +3,9 @@ on each arm, with the model on a llama.cpp server, checked turn by turn against 
 
   P-mpl / P-ec   prompts/v2 (core + the engine's hatch) -> JSON spec -> plotkit/chartkit (matplotlib / ECharts)
   P-hyb          the matplotlib prompt (the "code" hatch allowed); drawn with ECharts unless the spec uses "code"
-  P-ts           plotkit-ts (ts/): its prompt (data_code in JavaScript) -> JSON spec -> the TypeScript build draws it
-                 with ECharts, data_code in QuickJS (eval/ts_draw.mts; PLOTKIT_TS = the plotkit-ts checkout)
+  P-ts           plotkit-ts (branch lib/plotkit-ts): its prompt (data_code in JavaScript) -> JSON spec -> the TypeScript build draws it
+                 with ECharts, data_code in QuickJS (eval/ts_draw.mts; PLOTKIT_TS = the plotkit-ts checkout,
+                 default .worktrees/plotkit-ts)
   R-mpl          a short prompt + a data brief -> a Python matplotlib script, run in a sandbox (accuracy ceiling)
   <P arm>+cd     the same, with the reply constrained by a per-request JSON Schema (constrained decoding)
   <P arm>+cdflat the same, constrained to the flat settings-list form (fits the Anthropic API's schema limits)
@@ -49,7 +50,8 @@ CNT = HERE / "cnt"
 PY = str(REPO / ".venv" / "bin" / "python") if (REPO / ".venv" / "bin" / "python").exists() else sys.executable
 MPLCACHE = HERE / "results" / ".mplcache"
 ARMS = ("P-mpl", "P-ec", "P-hyb", "R-mpl", "P-ts")
-TS_PROMPTS = REPO / "ts" / "prompts"
+TS_ROOT = Path(os.environ.get("PLOTKIT_TS") or REPO / ".worktrees" / "plotkit-ts").resolve()  # branch lib/plotkit-ts
+TS_PROMPTS = TS_ROOT / "prompts"
 
 RAW = """You write Python scripts that draw plots with pandas and matplotlib for a CNT production team.
 Users write in Korean (sometimes English). Each turn you get the user's request and a preview of the data files;
@@ -171,7 +173,8 @@ def draw_spec_ts(spec, run_dir, turn):
     for f in (res, dump):
         f.unlink(missing_ok=True)
     p = subprocess.run(["node", str(HERE / "ts_draw.mts"), str(sp), str(res), str(dump),
-                        str(run_dir / "out" / f"t{turn}")], cwd=run_dir, capture_output=True, text=True, timeout=300)
+                        str(run_dir / "out" / f"t{turn}")], cwd=run_dir, capture_output=True, text=True, timeout=300,
+                       env={**os.environ, "PLOTKIT_TS": str(TS_ROOT)})
     if not res.exists():
         return {"ok": False, "error": "draw crashed: " + (p.stderr.strip().splitlines() or ["?"])[-1], "hint": ""}, [], 0.0
     d = json.loads(res.read_text(encoding="utf-8"))

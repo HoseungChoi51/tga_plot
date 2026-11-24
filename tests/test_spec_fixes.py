@@ -1,6 +1,6 @@
 """The spec check's fixes: inputs that crashed with a Python exception now give a PlotkitError with a hint, the caller's
-spec is left as it is, and a few chart keys behave as their curve counterparts (the TS port, ts/src/spec.ts and
-chartspec.ts, gives the same results: ts/test/spec.test.ts)."""
+spec is left as it is, and a few chart keys behave as their curve counterparts (the TS port, plotkit-ts's src/spec.ts
+and chartspec.ts, gives the same results: test/spec.test.ts)."""
 import copy
 
 import pytest
